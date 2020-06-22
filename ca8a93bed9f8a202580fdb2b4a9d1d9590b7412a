@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1260e927_4beed014",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-22T20:56:11Z",
+      "side": 1,
+      "message": "This should be functionally equivalent to the previous implementation.\nThe previous version did the exact same work in two separate `else-if` blocks.",
+      "range": {
+        "startLine": 353,
+        "startChar": 14,
+        "endLine": 353,
+        "endChar": 72
+      },
+      "revId": "ca8a93bed9f8a202580fdb2b4a9d1d9590b7412a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
