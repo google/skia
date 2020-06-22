@@ -78,8 +78,6 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
-
-
 DEF_BENCH( return new PathOpsBench("sect", kIntersect_SkPathOp); )
 DEF_BENCH( return new PathOpsBench("join", kUnion_SkPathOp); )
 
@@ -94,5 +92,87 @@ static SkPath makerects() {
     }
     return path;
 }
-
 DEF_BENCH( return new PathOpsSimplifyBench("rects", makerects()); )
+
+#include "include/core/SkPathBuilder.h"
+
+template <typename T> void run_builder(T& b, bool useReserve) {
+    const int N = 100;
+    float x = 0, y = 0;
+    b.moveTo(x, y);
+
+    if (useReserve) {
+        b.incReserve(N * 12);
+    }
+    for (int i = 0; i < N; ++i) {
+        b.lineTo(x, y);
+        b.quadTo(x, y, x, y);
+        b.cubicTo(x, y, x, y, x, y);
+    }
+}
+
+enum class MakeType {
+    kPath,
+    kSnapshot,
+    kDetach,
+};
+
+class PathBuilderBench : public Benchmark {
+    SkString    fName;
+    MakeType    fMakeType;
+    bool        fUseReserve;
+
+public:
+    PathBuilderBench(MakeType mt, bool reserve) : fMakeType(mt), fUseReserve(reserve) {
+        const char* typenames[] = { "path", "snapshot", "detach" };
+
+        fName.printf("makepath_%s_%s", typenames[(int)mt], reserve ? "reserve" : "noreserve");
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    SkPath build() {
+        switch (fMakeType) {
+            case MakeType::kSnapshot:
+            case MakeType::kDetach: {
+                SkPathBuilder b;
+                run_builder(b, fUseReserve);
+                return MakeType::kSnapshot == fMakeType ? b.snapshot() : b.detach();
+            }
+            case MakeType::kPath: {
+                SkPath p;
+                run_builder(p, fUseReserve);
+                return p;
+            }
+        }
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int i = 0; i < loops; i++) {
+            for (int j = 0; j < 100; ++j) {
+                SkPath result = this->build();
+                // force bounds calc as part of the test
+                if (!result.getBounds().isFinite()) {
+                    SkDebugf("should never get here!\n");
+                    return;
+                }
+            }
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new PathBuilderBench(MakeType::kPath, false); )
+DEF_BENCH( return new PathBuilderBench(MakeType::kSnapshot, false); )
+DEF_BENCH( return new PathBuilderBench(MakeType::kDetach, false); )
+DEF_BENCH( return new PathBuilderBench(MakeType::kPath, true); )
+DEF_BENCH( return new PathBuilderBench(MakeType::kSnapshot, true); )
+DEF_BENCH( return new PathBuilderBench(MakeType::kDetach, true); )
