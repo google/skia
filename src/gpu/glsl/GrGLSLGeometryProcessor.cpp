@@ -74,117 +74,247 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
                                                 GrGLSLUniformHandler* uniformHandler,
                                                 const GrShaderVar& localCoordsVar,
                                                 FPCoordTransformHandler* handler) {
-    // We only require localCoordsVar to be valid if there is a coord transform that needs
-    // it. CTs on FPs called with explicit coords do not require a local coord.
-    auto getLocalCoords = [&localCoordsVar,
-                           localCoords = SkString(),
-                           localCoordLength = int()]() mutable {
-        if (localCoords.isEmpty()) {
-            localCoordLength = GrSLTypeVecLength(localCoordsVar.getType());
-            SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
-            SkASSERT(localCoordLength == 2 || localCoordLength == 3);
-            if (localCoordLength == 3) {
-                localCoords = localCoordsVar.getName();
-            } else {
-                localCoords.printf("float3(%s, 1)", localCoordsVar.c_str());
-            }
+    SkASSERT(localCoordsVar.getType() == kFloat2_GrSLType ||
+             localCoordsVar.getType() == kFloat3_GrSLType ||
+             localCoordsVar.getType() == kVoid_GrSLType /* until coord transforms are gone */);
+    // Cached varyings produced by parent FPs. If parent FPs introduce transformations, but all
+    // subsequent children are not transformed, they should share the same varying.
+    std::unordered_map<const GrFragmentProcessor*, GrShaderVar> localCoordsMap;
+
+    GrGLSLVarying baseLocalCoord;
+    auto getBaseLocalCoord = [&baseLocalCoord, &localCoordsVar, vb, varyingHandler]() {
+        SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
+        if (baseLocalCoord.type() == kVoid_GrSLType) {
+            // Initialize to the GP provided coordinate
+            SkString baseLocalCoordName = SkStringPrintf("LocalCoord");
+            baseLocalCoord = GrGLSLVarying(localCoordsVar.getType());
+            varyingHandler->addVarying(baseLocalCoordName.c_str(), &baseLocalCoord);
+            vb->codeAppendf("%s = %s;\n", baseLocalCoord.vsOut(),
+                            localCoordsVar.getName().c_str());
         }
-        return std::make_tuple(localCoords, localCoordLength);
+        return GrShaderVar(SkString(baseLocalCoord.fsIn()), baseLocalCoord.type(),
+                           GrShaderVar::TypeModifier::In);
     };
 
-    GrShaderVar transformVar;
     for (int i = 0; *handler; ++*handler, ++i) {
         auto [coordTransform, fp] = handler->get();
-        // Add uniform for coord transform matrix.
-        SkString matrix;
-        if (!fp.isSampledWithExplicitCoords() || !coordTransform.isNoOp()) {
+
+        // FPs that use the legacy coord transform system will need a uniform registered for them
+        // to hold the coord transform's matrix.
+        GrShaderVar transformVar;
+        // FPs that use local coordinates need a varying to convey the coordinate. This may be the
+        // base GP's local coord if transforms have to be computed in the FS, or it may be a unique
+        // varying that computes the equivalent transformation hierarchy in the VS.
+        GrShaderVar varyingVar;
+
+        // If this is true, the FP's signature takes a float2 local coordinate. Otherwise, it
+        // doesn't use local coordinates, or it can be lifted to a varying and referenced directly.
+        bool localCoordComputedInFS = fp.isSampledWithExplicitCoords();
+        if (!coordTransform.isNoOp()) {
+            // Legacy coord transform that actually is doing something. This matrix is the last
+            // transformation to affect the local coordinate.
             SkString strUniName;
             strUniName.printf("CoordTransformMatrix_%d", i);
-            auto flag = fp.isSampledWithExplicitCoords() ? kFragment_GrShaderFlag
-                                                         : kVertex_GrShaderFlag;
+            auto flag = localCoordComputedInFS ? kFragment_GrShaderFlag
+                                               : kVertex_GrShaderFlag;
             auto& uni = fInstalledTransforms.push_back();
             if (fp.isSampledWithExplicitCoords() && coordTransform.matrix().isScaleTranslate()) {
                 uni.fType = kFloat4_GrSLType;
             } else {
                 uni.fType = kFloat3x3_GrSLType;
             }
-            const char* matrixName;
             uni.fHandle =
-                    uniformHandler->addUniform(&fp, flag, uni.fType, strUniName.c_str(),
-                                               &matrixName);
-            matrix = matrixName;
+                    uniformHandler->addUniform(&fp, flag, uni.fType, strUniName.c_str());
             transformVar = uniformHandler->getUniformVariable(uni.fHandle);
         } else {
-            // Install a coord transform that will be skipped.
+            // Must stay parallel with calls to handler
             fInstalledTransforms.push_back();
-            handler->omitCoordsForCurrCoordTransform();
-            continue;
         }
 
-        GrShaderVar fsVar;
-        // Add varying if required and register varying and matrix uniform.
-        if (!fp.isSampledWithExplicitCoords()) {
-            auto [localCoordsStr, localCoordLength] = getLocalCoords();
-            GrGLSLVarying v(kFloat2_GrSLType);
-            if (coordTransform.matrix().hasPerspective() || localCoordLength == 3) {
-                v = GrGLSLVarying(kFloat3_GrSLType);
-            }
-            SkString strVaryingName;
-            strVaryingName.printf("TransformedCoords_%d", i);
-            varyingHandler->addVarying(strVaryingName.c_str(), &v);
+        // If the FP references local coords, we need to make sure the vertex shader sets up the
+        // right transforms or pass-through variables for the FP to evaluate in the fragment shader
+        if (fp.referencesSampleCoords()) {
+            if (localCoordComputedInFS) {
+                // If the FP local coords are evaluated in the fragment shader, we only need to
+                // produce the original local coordinate to pass into the root; any other situation,
+                // the FP will have a 2nd parameter to its function and the caller sends the coords
+                if (!fp.parent()) {
+                    varyingVar = getBaseLocalCoord();
+                }
+            } else {
+                // The FP's local coordinates are determined by the const/uniform transform
+                // hierarchy from this FP to the root, and can be computed in the vertex shader.
+                // If this hierarchy would be the identity transform, then we should use the
+                // original local coordinate.
+                // NOTE: The actual transform logic is handled in emitTransformCode(), this just
+                // needs to determine if a unique varying should be added for the FP.
+                GrShaderVar transformedLocalCoord;
+                const GrFragmentProcessor* coordOwner = nullptr;
 
-            SkASSERT(fInstalledTransforms.back().fType == kFloat3x3_GrSLType);
-            if (fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-                if (v.type() == kFloat2_GrSLType) {
-                    vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), matrix.c_str(),
-                                    localCoordsStr.c_str());
+                const GrFragmentProcessor* node = &fp;
+                while(node) {
+                    SkASSERT(!node->isSampledWithExplicitCoords() &&
+                             (node->sampleMatrix().isNoOp() ||
+                              node->sampleMatrix().isConstUniform()));
+
+                    if (node->sampleMatrix().isConstUniform()) {
+                        // We can stop once we hit an FP that adds transforms; this FP can reuse
+                        // that FPs varying (possibly vivifying it if this was the first use).
+                        transformedLocalCoord = localCoordsMap[node];
+                        coordOwner = node;
+                        break;
+                    } // else intervening FP is an identity transform so skip past it
+
+                    node = node->parent();
+                }
+
+                // Legacy coord transform workaround (if the transform hierarchy appears identity
+                // but we have GrCoordTransform that does something, we still need to record a
+                // varying for it).
+                if (!coordOwner && !coordTransform.isNoOp()) {
+                    coordOwner = &fp;
+                }
+
+                if (coordOwner) {
+                    // The FP will use coordOwner's varying; add varying if this was the first use
+                    if (transformedLocalCoord.getType() == kVoid_GrSLType) {
+                        GrGLSLVarying v(kFloat2_GrSLType);
+                        if (coordTransform.matrix().hasPerspective() ||
+                            GrSLTypeVecLength(localCoordsVar.getType()) == 3 ||
+                            coordOwner->hasPerspectiveTransform()) {
+                            v = GrGLSLVarying(kFloat3_GrSLType);
+                        }
+                        SkString strVaryingName;
+                        strVaryingName.printf("TransformedCoords_%d", i);
+                        varyingHandler->addVarying(strVaryingName.c_str(), &v);
+
+                        fTransformInfos.push_back({GrShaderVar(v.vsOut(), v.type()),
+                                                   transformVar.getName(),
+                                                   localCoordsVar,
+                                                   coordOwner});
+                        transformedLocalCoord = GrShaderVar(SkString(v.fsIn()), v.type(),
+                                                            GrShaderVar::TypeModifier::In);
+                        if (coordOwner->numCoordTransforms() < 1 ||
+                            coordOwner->coordTransform(0).isNoOp()) {
+                            // As long as a legacy coord transform doesn't get in the way, we can
+                            // reuse this expression for children (see comment in emitTransformCode)
+                            localCoordsMap[coordOwner] = transformedLocalCoord;
+                        }
+                    }
+
+                    varyingVar = transformedLocalCoord;
                 } else {
-                    vb->codeAppendf("%s = %s * %s;", v.vsOut(), matrix.c_str(),
-                                    localCoordsStr.c_str());
+                    // The FP transform hierarchy is the identity, so use the original local coord
+                    varyingVar = getBaseLocalCoord();
                 }
             }
-            fsVar = GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::TypeModifier::In);
-            fTransformInfos.push_back({ v.vsOut(), v.type(), matrix, localCoordsStr, &fp });
         }
-        handler->specifyCoordsForCurrCoordTransform(transformVar, fsVar);
+
+        if (varyingVar.getType() != kVoid_GrSLType || transformVar.getType() != kVoid_GrSLType) {
+            handler->specifyCoordsForCurrCoordTransform(transformVar, varyingVar);
+        } else {
+            handler->omitCoordsForCurrCoordTransform();
+        }
     }
 }
 
 void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                                                 GrGLSLUniformHandler* uniformHandler) {
-    std::unordered_map<const GrFragmentProcessor*, const char*> localCoordsMap;
+    std::unordered_map<const GrFragmentProcessor*, GrShaderVar> localCoordsMap;
     for (const auto& tr : fTransformInfos) {
-        switch (tr.fFP->sampleMatrix().fKind) {
-            case SkSL::SampleMatrix::Kind::kConstantOrUniform: {
-                SkString localCoords;
-                localCoordsMap.insert({ tr.fFP, tr.fName });
-                if (tr.fFP->sampleMatrix().fBase) {
-                    SkASSERT(localCoordsMap[tr.fFP->sampleMatrix().fBase]);
-                    localCoords = SkStringPrintf("float3(%s, 1)",
-                                                 localCoordsMap[tr.fFP->sampleMatrix().fBase]);
+        // If we recorded a transform info, its sample matrix must be const/uniform, or we have a
+        // legacy coord transform that actually does something.
+        SkASSERT(tr.fFP->sampleMatrix().isConstUniform() ||
+                 (tr.fFP->sampleMatrix().isNoOp() && !tr.fMatrix.isEmpty()));
+
+        SkString localCoords;
+        // Build a concatenated matrix expression that we apply to the root local coord.
+        // If we have an expression cached from an early FP in the hierarchy chain, we can stop
+        // there instead of going all the way to the GP.
+        SkString transformExpression;
+        if (!tr.fMatrix.isEmpty()) {
+            // We have both a const/uniform sample matrix and a legacy coord transform
+            transformExpression.printf("%s", tr.fMatrix.c_str());
+        }
+
+        // If the sample matrix is kNone, then the current transform expression of just the
+        // coord transform matrix is sufficient.
+        if (tr.fFP->sampleMatrix().isConstUniform()) {
+            const auto* base = tr.fFP;
+            while(base) {
+                GrShaderVar cachedBaseCoord = localCoordsMap[base];
+                if (cachedBaseCoord.getType() != kVoid_GrSLType) {
+                    // Can stop here, as this varying already holds all transforms from higher FPs
+                    if (cachedBaseCoord.getType() == kFloat3_GrSLType) {
+                        localCoords = cachedBaseCoord.getName();
+                    } else {
+                        localCoords = SkStringPrintf("%s.xy1", cachedBaseCoord.getName().c_str());
+                    }
+                    break;
+                } else if (base->sampleMatrix().isConstUniform()) {
+                    // The FP knows the matrix expression it's sampled with, but its parent defined
+                    // the uniform (when the expression is not a constant).
+                    GrShaderVar uniform = uniformHandler->liftUniformToVertexShader(
+                            *base->parent(), base->sampleMatrix().fExpression);
+
+                    // Accumulate the base matrix expression as a preConcat
+                    SkString matrix;
+                    if (uniform.getType() != kVoid_GrSLType) {
+                        SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
+                        matrix = uniform.getName();
+                    } else {
+                        // No uniform found, so presumably this is a constant
+                        matrix = base->sampleMatrix().fExpression;
+                    }
+
+                    if (!transformExpression.isEmpty()) {
+                        transformExpression.append(" * ");
+                    }
+                    transformExpression.appendf("(%s)", matrix.c_str());
                 } else {
-                    localCoords = tr.fLocalCoords.c_str();
+                    // This intermediate FP is just a pass through and doesn't need to be built
+                    // in to the expression, but must visit its parents in case they add transforms
+                    SkASSERT(base->sampleMatrix().isNoOp());
                 }
-                vb->codeAppend("{\n");
-                if (tr.fFP->sampleMatrix().fOwner) {
-                    uniformHandler->writeUniformMappings(tr.fFP->sampleMatrix().fOwner, vb);
-                }
-                if (tr.fType == kFloat2_GrSLType) {
-                    vb->codeAppendf("%s = (%s * %s * %s).xy", tr.fName,
-                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),
-                                    localCoords.c_str());
-                } else {
-                    SkASSERT(tr.fType == kFloat3_GrSLType);
-                    vb->codeAppendf("%s = %s * %s * %s", tr.fName,
-                                    tr.fFP->sampleMatrix().fExpression.c_str(), tr.fMatrix.c_str(),
-                                    localCoords.c_str());
-                }
-                vb->codeAppend(";\n");
-                vb->codeAppend("}\n");
-                break;
+
+                base = base->parent();
             }
-            default:
-                break;
+        }
+
+        if (localCoords.isEmpty()) {
+            // Must use GP's local coords
+            if (tr.fLocalCoords.getType() == kFloat3_GrSLType) {
+                localCoords = tr.fLocalCoords.getName();
+            } else {
+                localCoords = SkStringPrintf("%s.xy1", tr.fLocalCoords.getName().c_str());
+            }
+        }
+
+        vb->codeAppend("{\n");
+        if (tr.fOutputCoords.getType() == kFloat2_GrSLType) {
+            vb->codeAppendf("%s = ((%s) * %s).xy", tr.fOutputCoords.getName().c_str(),
+                                                   transformExpression.c_str(),
+                                                   localCoords.c_str());
+        } else {
+            SkASSERT(tr.fOutputCoords.getType() == kFloat3_GrSLType);
+            vb->codeAppendf("%s = (%s) * %s", tr.fOutputCoords.getName().c_str(),
+                                              transformExpression.c_str(),
+                                              localCoords.c_str());
+        }
+        vb->codeAppend(";\n");
+        vb->codeAppend("}\n");
+
+        if (tr.fMatrix.isEmpty()) {
+            // Subtle work around: only cache the intermediate varying when there's no extra
+            // coord transform. If the FP uses a coord transform for a legacy effect, but also
+            // delegates to a child FP, we want the coordinates pre-GrCoordTransform to be sent
+            // to the child FP, but have the FP use the post-coordtransform legacy values
+            // (e.g. sampling a texture and relying on the GrCoordTransform for normalization
+            //  and mixing with a child FP that should not be normalized).
+            // FIXME: It's not really possible to apply this logic cleanly when transforms
+            // have been moved to the FS; in practice this doesn't seem to occur in our tests and
+            // the issue will go away once legacy coord transforms only have no-op matrices.
+            localCoordsMap.insert({ tr.fFP, tr.fOutputCoords });
         }
     }
 }

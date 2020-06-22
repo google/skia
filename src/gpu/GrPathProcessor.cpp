@@ -92,8 +92,8 @@ public:
             } else {
                 SkString strVaryingName;
                 strVaryingName.printf("TransformedCoord_%d", i);
-                GrSLType varyingType = coordTransform.matrix().hasPerspective() ? kHalf3_GrSLType
-                                                                                : kHalf2_GrSLType;
+                GrSLType varyingType = coordTransform.matrix().hasPerspective() ? kFloat3_GrSLType
+                                                                                : kFloat2_GrSLType;
                 GrGLSLVarying v(varyingType);
 #ifdef SK_GL
                 GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*)varyingHandler;
@@ -143,9 +143,9 @@ public:
                 SkMatrix m = GetTransformMatrix(transform, pathProc.localMatrix());
                 if (!SkMatrixPriv::CheapEqual(fVaryingTransform[v].fCurrentValue, m)) {
                     fVaryingTransform[v].fCurrentValue = m;
-                    SkASSERT(fVaryingTransform[v].fType == kHalf2_GrSLType ||
-                             fVaryingTransform[v].fType == kHalf3_GrSLType);
-                    int components = fVaryingTransform[v].fType == kHalf2_GrSLType ? 2 : 3;
+                    SkASSERT(fVaryingTransform[v].fType == kFloat2_GrSLType ||
+                             fVaryingTransform[v].fType == kFloat3_GrSLType);
+                    int components = fVaryingTransform[v].fType == kFloat2_GrSLType ? 2 : 3;
                     pd.setPathFragmentInputTransform(fVaryingTransform[v].fHandle, components, m);
                 }
                 ++v;

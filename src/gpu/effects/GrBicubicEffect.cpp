@@ -26,8 +26,6 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
     const GrBicubicEffect& bicubicEffect = args.fFp.cast<GrBicubicEffect>();
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                    bicubicEffect.sampleMatrix());
 
     /*
      * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer
@@ -58,7 +56,7 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
     // The use of "texel" above is somewhat abstract as we're sampling a child processor. It is
     // assumed the child processor represents something akin to a nearest neighbor sampled texture.
     if (bicubicEffect.fDirection == GrBicubicEffect::Direction::kXY) {
-        fragBuilder->codeAppendf("float2 coord = %s - float2(0.5);", coords2D.c_str());
+        fragBuilder->codeAppendf("float2 coord = %s - float2(0.5);", args.fSampleCoord);
         fragBuilder->codeAppend("half2 f = half2(fract(coord));");
         fragBuilder->codeAppend("coord += 0.5 - f;");
         fragBuilder->codeAppend(
@@ -83,7 +81,7 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
                 "half4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
     } else {
         const char* d = bicubicEffect.fDirection == Direction::kX ? "x" : "y";
-        fragBuilder->codeAppendf("float coord = %s.%s - 0.5;", coords2D.c_str(), d);
+        fragBuilder->codeAppendf("float coord = %s.%s - 0.5;", args.fSampleCoord, d);
         fragBuilder->codeAppend("half f = half(fract(coord));");
         fragBuilder->codeAppend("coord += 0.5 - f;");
         fragBuilder->codeAppend("half f2 = f * f;");
@@ -92,9 +90,9 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
         for (int i = 0; i < 4; ++i) {
             SkString coord;
             if (bicubicEffect.fDirection == Direction::kX) {
-                coord.printf("float2(coord + %d, %s.y)", i - 1, coords2D.c_str());
+                coord.printf("float2(coord + %d, %s.y)", i - 1, args.fSampleCoord);
             } else {
-                coord.printf("float2(%s.x, coord + %d)", coords2D.c_str(), i - 1);
+                coord.printf("float2(%s.x, coord + %d)", args.fSampleCoord, i - 1);
             }
             auto childStr = this->invokeChild(0, args, SkSL::String(coord.c_str(), coord.size()));
             fragBuilder->codeAppendf("c[%d] = %s;", i, childStr.c_str());

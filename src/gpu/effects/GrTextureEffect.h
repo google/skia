@@ -90,7 +90,6 @@ private:
     static ShaderMode GetShaderMode(GrSamplerState::WrapMode, GrSamplerState::Filter);
     static bool ShaderModeIsClampToBorder(ShaderMode);
 
-    GrCoordTransform fCoordTransform;
     TextureSampler fSampler;
     float fBorder[4];
     SkRect fSubset;
