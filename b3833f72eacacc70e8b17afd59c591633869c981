@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "db43a7db_a48d6efc",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-22T16:09:24Z",
+      "side": 1,
+      "message": "\u003c\u003c\nI suppose what I\u0027m pointing out is that previous callers mostly knew that they were only shortening the string some (usually small, often zero) amount (and logically already had) so they were effectively just modifying fLength without actually doing anything about the existing allocation.\n\u003e\u003e\nYeah, unless the string was non-unique and then they were nuking the string :) This is not easy to reason about and can change at a distance. Someone far away from your resize call can pass the SkString to a helper function, creating a short-lived duplicate, and now it\u0027s non-unique and that resize() call behaves differently.\n\nI\u0027m OK with an API guarantee of \"resize can safely shrink strings but trashes them when they grow\" but that\u0027s not what we actually have today--we have a close approximation that is fragile  enough that it can be broken by changes many lines away from the resize call.\n\nBased on this conversation, IMO, I think we should have resize() stay as resize(), but we should remove the string trashing aspect of it. Uniqueness is too dangerous. There are two major use cases and I think neither of them will actually be impacted negatively:\n\n- Growing an empty string to a desired size; this will remain safe and fast. Buffer contents don\u0027t matter and no copy occurs.\n\n- Shrinking an existing buffer and preserving contents; this should be safe and fast. No copy occurs unless the string is non-unique. That case is uncommon and callers don\u0027t defend against it; it\u0027s better to handle this correctly than to be a tiny bit faster.\n\nLess common use cases:\n\n- Growing a populated buffer--this is actually pretty rare from what I\u0027ve seen. Let\u0027s preserve the contents to make the API less surprising. If you want to be fast, you can reset() and then resize().\n\nWhat do you think of this approach?",
+      "parentUuid": "5c59eb66_c3afd2fe",
+      "revId": "b3833f72eacacc70e8b17afd59c591633869c981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c48f3a7_9818c99f",
         "filename": "src/ports/SkFontMgr_android_parser.cpp",
         "patchSetId": 4
