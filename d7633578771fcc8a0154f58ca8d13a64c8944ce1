@@ -396,6 +396,24 @@
     },
     {
       "key": {
+        "uuid": "36c4ac73_a8d11aec",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T18:18:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f4bb4e7d_7c03c1dc",
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "433edd9c_9028d935",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
@@ -702,6 +720,30 @@
     },
     {
       "key": {
+        "uuid": "f9b7c98a_118954a9",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T18:18:58Z",
+      "side": 1,
+      "message": "Good point; updated base to start out as tr.fFP and moved the localCoordsMap update to after the loop so that tr.fFP won\u0027t be in it for the first iteration.",
+      "parentUuid": "2572c949_1ad624a3",
+      "range": {
+        "startLine": 256,
+        "startChar": 1,
+        "endLine": 272,
+        "endChar": 0
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6237b9c_d863edac",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 4
@@ -722,6 +764,30 @@
       "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55224a2a_953ff724",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-22T18:18:58Z",
+      "side": 1,
+      "message": "Done (I think an expression like float3x3(1) + float3x3(0.5) would be marked as constant, so () are necessary).",
+      "parentUuid": "f6237b9c_d863edac",
+      "range": {
+        "startLine": 296,
+        "startChar": 51,
+        "endLine": 296,
+        "endChar": 53
+      },
+      "revId": "d7633578771fcc8a0154f58ca8d13a64c8944ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
