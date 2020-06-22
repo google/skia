@@ -10,8 +10,6 @@ enum class Type {
     kRadial, kStrip, kFocal
 };
 
-in half3x3 gradientMatrix;
-
 layout(key) in Type type;
 layout(key) in bool isRadiusIncreasing;
 
@@ -26,10 +24,6 @@ layout(key) in bool isNativelyFocal;
 // focalParams = (1/r1, focalX = r0/(r0-r1)) The correct parameters are calculated once in Make for
 // each FP
 layout(tracked) in uniform half2 focalParams;
-
-@coordTransform {
-    gradientMatrix
-}
 
 void main() {
     // p typed as a float2 is intentional; while a half2 is adequate for most normal cases in the
@@ -125,6 +119,7 @@ void main() {
 //////////////////////////////////////////////////////////////////////////////
 
 @header {
+    #include "src/gpu/effects/GrMatrixEffect.h"
     #include "src/gpu/gradients/GrGradientShader.h"
     #include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 }
@@ -216,9 +211,10 @@ void main() {
         }
 
 
-        return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
-                matrix, grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved,
-                isSwapped, isNativelyFocal, focalParams));
+        return GrMatrixEffect::Make(
+                matrix, std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
+                        grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved,
+                        isSwapped, isNativelyFocal, focalParams)));
     }
 }
 

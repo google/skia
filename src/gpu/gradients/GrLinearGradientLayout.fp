@@ -5,12 +5,6 @@
  * found in the LICENSE file.
  */
 
-in half3x3 gradientMatrix;
-
-@coordTransform {
-    gradientMatrix
-}
-
 void main() {
     // We add a tiny delta to t. When gradient stops are set up so that a hard stop in a vertically
     // or horizontally oriented gradient falls exactly at a column or row of pixel centers we can
@@ -26,6 +20,7 @@ void main() {
 //////////////////////////////////////////////////////////////////////////////
 
 @header {
+    #include "src/gpu/effects/GrMatrixEffect.h"
     #include "src/gpu/gradients/GrGradientShader.h"
     #include "src/shaders/gradients/SkLinearGradient.h"
 }
@@ -48,7 +43,8 @@ void main() {
             return nullptr;
         }
         matrix.postConcat(grad.getGradientMatrix());
-        return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout(matrix));
+        return GrMatrixEffect::Make(
+                matrix, std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout()));
     }
 }
 
