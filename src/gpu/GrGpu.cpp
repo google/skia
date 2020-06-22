@@ -715,6 +715,14 @@ bool GrGpu::submitToGpu(bool syncCpu) {
     return submitted;
 }
 
+bool GrGpu::checkAndResetOOMed() {
+    if (fOOMed) {
+        fOOMed = false;
+        return true;
+    }
+    return false;
+}
+
 void GrGpu::callSubmittedProcs(bool success) {
     for (int i = 0; i < fSubmittedProcs.count(); ++i) {
         fSubmittedProcs[i].fProc(fSubmittedProcs[i].fContext, success);

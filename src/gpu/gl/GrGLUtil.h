@@ -257,8 +257,6 @@ void GrGLCheckErr(const GrGLInterface* gl,
                   const char* location,
                   const char* call);
 
-void GrGLClearErr(const GrGLInterface* gl);
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /**

@@ -50,9 +50,9 @@
             GR_GL_CALL(this->glInterface(), call);            \
             return static_cast<GrGLenum>(GR_GL_NO_ERROR);     \
         } else {                                              \
-            GrGLClearErr(this->glInterface());                \
+            this->clearErrors();                              \
             GR_GL_CALL_NOERRCHECK(this->glInterface(), call); \
-            return GR_GL_GET_ERROR(this->glInterface());      \
+            return this->getError();                          \
         }                                                     \
     }()
 
@@ -333,7 +333,7 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrContext* context)
         , fStencilClearFBOID(0)
         , fFinishCallbacks(this) {
     SkASSERT(fGLContext);
-    GrGLClearErr(this->glInterface());
+    this->clearErrors();
     fCaps = sk_ref_sp(fGLContext->caps());
 
     fHWTextureUnitBindings.reset(this->numTextureUnits());
@@ -3957,6 +3957,25 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
 
 void GrGLGpu::checkFinishProcs() {
     fFinishCallbacks.check();
+}
+
+void GrGLGpu::clearErrors() {
+    do {
+        GrGLenum error = this->fGLContext->glInterface()->fFunctions.fGetError();
+        if (error == GR_GL_OUT_OF_MEMORY) {
+            this->setOOMed();
+        } else if (error == GR_GL_NO_ERROR) {
+            break;
+        }
+    } while (true);
+}
+
+GrGLenum GrGLGpu::getError() {
+    GrGLenum error = GR_GL_GET_ERROR(this->glInterface());
+    if (error == GR_GL_OUT_OF_MEMORY) {
+        this->setOOMed();
+    }
+    return error;
 }
 
 void GrGLGpu::deleteSync(GrGLsync sync) const {

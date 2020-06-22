@@ -375,7 +375,7 @@ void EGLGLTestContext::destroyEGLImage(GrEGLImage image) const {
 
 GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
 #ifdef SK_GL
-    GrGLClearErr(this->gl());
+    while (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {}
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
     }

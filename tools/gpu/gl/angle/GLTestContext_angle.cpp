@@ -375,7 +375,7 @@ GrEGLImage ANGLEGLContext::texture2DToEGLImage(GrGLuint texID) const {
 void ANGLEGLContext::destroyEGLImage(GrEGLImage image) const { fDestroyImage(fDisplay, image); }
 
 GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
-    GrGLClearErr(this->gl());
+    while (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {}
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
     }

@@ -12,10 +12,6 @@
 #include "src/gpu/gl/GrGLUtil.h"
 #include <stdio.h>
 
-void GrGLClearErr(const GrGLInterface* gl) {
-    while (GR_GL_NO_ERROR != gl->fFunctions.fGetError()) {}
-}
-
 namespace {
 const char *get_error_string(uint32_t err) {
     switch (err) {

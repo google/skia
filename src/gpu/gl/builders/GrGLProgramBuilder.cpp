@@ -275,7 +275,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 if (!reader.isValid()) {
                     break;
                 }
-                GrGLClearErr(this->gpu()->glInterface());
+                this->gpu()->clearErrors();
                 GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
                                       ProgramBinary(programID, binaryFormat,
                                                     const_cast<void*>(binary), length));

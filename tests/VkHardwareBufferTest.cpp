@@ -217,7 +217,7 @@ bool EGLTestHelper::init(skiatest::Reporter* reporter) {
 }
 
 bool EGLTestHelper::importHardwareBuffer(skiatest::Reporter* reporter, AHardwareBuffer* buffer) {
-    GrGLClearErr(fGLCtx->gl());
+    while (GR_GL_GET_ERROR(fGLCtx->gl()) != GR_GL_NO_ERROR) {}
 
     EGLClientBuffer eglClientBuffer = fEGLGetNativeClientBufferANDROID(buffer);
     EGLint eglAttribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
