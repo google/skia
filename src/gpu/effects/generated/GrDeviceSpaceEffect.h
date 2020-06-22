@@ -19,19 +19,17 @@
 
 class GrDeviceSpaceEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
-                                                     const SkMatrix& matrix = SkMatrix::I()) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp), matrix));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp)));
     }
     GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DeviceSpaceEffect"; }
     int fp_index = -1;
-    SkMatrix matrix;
 
 private:
-    GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp, SkMatrix matrix)
-            : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags), matrix(matrix) {
+    GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp)
+            : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags) {
         SkASSERT(fp);
         fp_index = this->registerExplicitlySampledChild(std::move(fp));
     }
