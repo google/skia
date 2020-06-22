@@ -62,13 +62,6 @@ public:
     virtual size_t getSize() const = 0;
 
     /**
-     *  Ensures that a special image is backed by a texture (when GrRecordingContext is non-null).
-     *  If no transformation is required, the returned image may be the same as this special image.
-     *  If this special image is from a different GrRecordingContext, this will fail.
-     */
-    sk_sp<SkSpecialImage> makeTextureImage(GrRecordingContext*) const;
-
-    /**
      *  Draw this SpecialImage into the canvas, automatically taking into account the image's subset
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
