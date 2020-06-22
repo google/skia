@@ -42,6 +42,23 @@ class SkWBuffer;
 
 class SK_API SkPathRef final : public SkNVRefCnt<SkPathRef> {
 public:
+    SkPathRef(SkTDArray<SkPoint> points, SkTDArray<uint8_t> verbs, SkTDArray<SkScalar> conicWeights)
+        : fPoints(std::move(points))
+        , fVerbs(std::move(verbs))
+        , fConicWeights(std::move(conicWeights))
+    {
+        fBoundsIsDirty = true;    // this also invalidates fIsFinite
+        fGenerationID = kEmptyGenID;
+        fSegmentMask = 0;
+        fIsOval = false;
+        fIsRRect = false;
+        // The next two values don't matter unless fIsOval or fIsRRect are true.
+        fRRectOrOvalIsCCW = false;
+        fRRectOrOvalStartIdx = 0xAC;
+        SkDEBUGCODE(fEditorsAttached.store(0);)
+        SkDEBUGCODE(this->validate();)
+    }
+
     class Editor {
     public:
         Editor(sk_sp<SkPathRef>* pathRef,
@@ -488,6 +505,19 @@ private:
     friend class ForceIsRRect_Private; // unit test isRRect
     friend class SkPath;
     friend class SkPathPriv;
+    friend class SkPathBuilder;
+
+    enum IsAType {
+        kUnknown_IsA,
+        kOval_IsA,
+        kRRect_IsA,
+    };
+    SkPathRef(const SkRect& bounds,
+              const SkPoint* pts, int ptCount,
+              const uint8_t* verbs, int verbCount,
+              const SkScalar* conicWeights, int conicCount,
+              IsAType, int isaStartIndex, unsigned segmentMask);
+
 };
 
 #endif

@@ -78,8 +78,6 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
-
-
 DEF_BENCH( return new PathOpsBench("sect", kIntersect_SkPathOp); )
 DEF_BENCH( return new PathOpsBench("join", kUnion_SkPathOp); )
 
@@ -94,5 +92,78 @@ static SkPath makerects() {
     }
     return path;
 }
-
 DEF_BENCH( return new PathOpsSimplifyBench("rects", makerects()); )
+
+#include "include/core/SkPathBuilder.h"
+
+template <typename T> void run_builder(T& b, bool useReserve) {
+    const int N = 100;
+    float x = 0, y = 0;
+    b.moveTo(x, y);
+
+    if (useReserve) {
+        b.incReserve(N * 12);
+    }
+    for (int i = 0; i < N; ++i) {
+        b.lineTo(x, y);
+        b.quadTo(x, y, x, y);
+        b.cubicTo(x, y, x, y, x, y);
+    }
+}
+
+enum Flags {
+    kUseBuilder = 1 << 0,
+    kUseReserve = 1 << 1,
+};
+
+class PathBuilderBench : public Benchmark {
+    SkString    fName;
+    unsigned    fFlags;
+
+public:
+    PathBuilderBench(unsigned flags) : fFlags(flags) {
+        fName.printf("makepath_%s_%s",
+                     (fFlags & kUseBuilder) ? "builder" : "path",
+                     (fFlags & kUseReserve) ? "reserve" : "noreserve");
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    SkPath build() {
+        if (fFlags & kUseBuilder) {
+            SkPathBuilder b;
+            run_builder(b, SkToBool(fFlags & kUseReserve));
+            return b.detach();
+        } else {
+            SkPath p;
+            run_builder(p, SkToBool(fFlags & kUseReserve));
+            return p;
+        }
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int i = 0; i < loops; i++) {
+            for (int j = 0; j < 100; ++j) {
+                SkPath result = this->build();
+                if (!result.getBounds().isFinite()) {
+                    SkDebugf("should never get here!\n");
+                    return;
+                }
+            }
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new PathBuilderBench(0); )
+DEF_BENCH( return new PathBuilderBench(1); )
+DEF_BENCH( return new PathBuilderBench(2); )
+DEF_BENCH( return new PathBuilderBench(3); )
