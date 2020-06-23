@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "053b11c8_3d4a24de",
+        "filename": "infra/bots/assets/android_ndk_windows/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-06-23T19:21:09Z",
+      "side": 0,
+      "message": "Alternatively, should we check to see whether this directory exists?",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 74
+      },
+      "revId": "3b6b7478421b4819e0f5ea08c44d90818b2cd739",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
