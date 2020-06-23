@@ -123,6 +123,47 @@ sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) c
                                    this->alphaType(), std::move(newCS));
 }
 
+void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                              const SkIRect& srcRect,
+                                              RescaleGamma rescaleGamma,
+                                              SkFilterQuality rescaleQuality,
+                                              ReadPixelsCallback callback,
+                                              ReadPixelsContext context) {
+    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
+    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
+                                      this->refColorSpace());
+    if (!ctx) {
+        callback(context, nullptr);
+        return;
+    }
+    ctx->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+}
+
+void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                    sk_sp<SkColorSpace> dstColorSpace,
+                                                    const SkIRect& srcRect,
+                                                    const SkISize& dstSize,
+                                                    RescaleGamma rescaleGamma,
+                                                    SkFilterQuality rescaleQuality,
+                                                    ReadPixelsCallback callback,
+                                                    ReadPixelsContext context) {
+    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
+    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
+                                      this->refColorSpace());
+    if (!ctx) {
+        callback(context, nullptr);
+        return;
+    }
+    ctx->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+                                         std::move(dstColorSpace),
+                                         srcRect,
+                                         dstSize,
+                                         rescaleGamma,
+                                         rescaleQuality,
+                                         callback,
+                                         context);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
@@ -155,6 +196,12 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
                                                   sk_sp<SkColorSpace> cs,
                                                   TextureReleaseProc releaseP,
                                                   ReleaseContext releaseC) {
+    SkScopeExit callProc([&] {
+        if (releaseP) {
+            releaseP(releaseC);
+        }
+    });
+
     if (!ctx) {
         return nullptr;
     }
@@ -171,6 +218,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
     if (!proxy) {
         return nullptr;
     }
+    callProc.clear();
 
     CompressionType type = GrBackendFormatToCompressionType(tex.getBackendFormat());
     SkColorType ct = GrCompressionTypeToSkColorType(type);
@@ -184,6 +232,12 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    SkScopeExit callProc([&] {
+        if (releaseP) {
+            releaseP(releaseC);
+        }
+    });
+
     if (!ctx) {
         return nullptr;
     }
@@ -203,6 +257,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     if (releaseP) {
         releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
     }
+    callProc.clear();
 
     return new_wrapped_texture_common(ctx, tex, grColorType, origin, at, std::move(cs),
                                       kBorrow_GrWrapOwnership, std::move(releaseHelper));
@@ -324,6 +379,11 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         sk_sp<SkColorSpace> imageColorSpace,
         TextureReleaseProc textureReleaseProc,
         ReleaseContext releaseContext) {
+    SkScopeExit callProc([&] {
+        if (textureReleaseProc) {
+            textureReleaseProc(releaseContext);
+        }
+    });
     const GrCaps* caps = ctx->priv().caps();
 
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, kRGBA_8888_SkColorType,
@@ -346,6 +406,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
     if (!renderTargetContext) {
         return nullptr;
     }
+    callProc.clear();
 
     return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
                                                  imageSize, imageOrigin, renderTargetContext.get());
