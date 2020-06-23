@@ -96,6 +96,9 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
 
+    // This assumes that all the contexts are essentially abandoned at the same time. It's not the
+    // case that one recording context is abandoned, while another keeps functioning while sharing
+    // the cache.
     fTextBlobCache->freeAll();
 }
 
