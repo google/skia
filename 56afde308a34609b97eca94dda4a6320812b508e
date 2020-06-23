@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb17e141_5dc20744",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-23T21:10:23Z",
+      "side": 1,
+      "message": "It looks like \u0027lookingForHit\u0027 is always the same as the return value (since the idea is that when false the outer loop should also terminate). This should probably be made more clear instead of less (like moving \u0027lookingForHit\u0027 below). Since the result of assignment is a reference to the lhs, something like\n\n    return lookingForHit \u003d false;\n\nor\n\n    return lookingForHit \u003d true;\n\nat each return would make it super obvious that \u0027lookingForHit\u0027 is always the same as the return value. I suppose we still need to start off with lookingForHit\u0027 set to true outside, since it needs to be true for empty.",
+      "revId": "56afde308a34609b97eca94dda4a6320812b508e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3810a39f_5bb5aae0",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-23T21:10:23Z",
+      "side": 1,
+      "message": "This is quite difficult to reason about. It says that if the first nearest thing to the given location is a set of zero width glyphs, associate it with the position in the utf16 logically right after it (what of surrogate pairs? why adding one here instead of going to the index of the next code point at least? why not utf16End? is it just flutter?) (and this will also stop looking, even though it may be followed by more zero width glyphs which are also at that location).\n\nSo before this change these nearly zero width glyphemes may or may not have been part of a larger grapheme which may or may not have had more width. If it did have more width then this grapheme awkwardly is quite very much not the average width. If it didn\u0027t then since the glyph found was the closest left of (less than) the point dx, \"dx \u003c center\" was always false so this doesn\u0027t change the behavior of rtl but does change the behavior of ltr?\n\nShould at least should have a comment in the commit message about the previous behavior and the expected new behavior.",
+      "revId": "56afde308a34609b97eca94dda4a6320812b508e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
