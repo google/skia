@@ -105,9 +105,47 @@ YUVABackendReleaseContext::YUVABackendReleaseContext(GrContext* context) : fCont
 YUVABackendReleaseContext::~YUVABackendReleaseContext() {
     for (int i = 0; i < 4; ++i) {
         if (fBETextures[i].isValid()) {
+            SkASSERT(fCreationComplete[i]);
             fContext->deleteBackendTexture(fBETextures[i]);
         }
     }
+}
+
+static void CreationComplete0(void* releaseContext) {
+    auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+
+    beContext->setCreationComplete(0);
+}
+
+static void CreationComplete1(void* releaseContext) {
+    auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+
+    beContext->setCreationComplete(1);
+}
+
+static void CreationComplete2(void* releaseContext) {
+    auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+
+    beContext->setCreationComplete(2);
+}
+
+static void CreationComplete3(void* releaseContext) {
+    auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+
+    beContext->setCreationComplete(3);
+}
+
+GrGpuFinishedProc YUVABackendReleaseContext::CreationCompleteProc(int index) {
+    SkASSERT(index >= 0 && index < 4);
+
+    switch (index) {
+        case 0: return CreationComplete0;
+        case 1: return CreationComplete1;
+        case 2: return CreationComplete2;
+        case 3: return CreationComplete3;
+    }
+
+    return nullptr;
 }
 
 } // namespace sk_gpu_test
