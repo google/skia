@@ -863,8 +863,10 @@ SKOTTIE_SHAPER_SRCS = [
 ## skottie_tool
 ################################################################################
 
-SKOTTIE_TOOL_SRCS = [
+SKOTTIE_TOOL_SRCS = [ 
     "modules/skottie/src/SkottieTool.cpp",
+    "modules/skottie/utils/SkottieUtils.cpp",
+    "modules/skottie/utils/SkottieUtils.h",
     "modules/skresources/src/SkResources.cpp",
     "modules/skresources/include/SkResources.h",
     # TODO(benjaminwagner): Add "flags" target.
