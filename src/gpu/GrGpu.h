@@ -389,6 +389,12 @@ public:
     virtual void checkFinishProcs() = 0;
 
     /**
+     * Checks if we detected an OOM from the underlying 3D API and if so returns true and resets
+     * the internal OOM state to false. Otherwise, returns false.
+     */
+    bool checkAndResetOOMed();
+
+    /**
      *  Put this texture in a safe and known state for use across multiple GrContexts. Depending on
      *  the backend, this may return a GrSemaphore. If so, other contexts should wait on that
      *  semaphore before using this texture.
@@ -721,6 +727,8 @@ protected:
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
                            uint32_t mipLevels = 1) const;
 
+    void setOOMed() { fOOMed = true; }
+
     typedef SkTInternalLList<GrStagingBuffer> StagingBufferList;
     const StagingBufferList& availableStagingBuffers() { return fAvailableStagingBuffers; }
     const StagingBufferList& activeStagingBuffers() { return fActiveStagingBuffers; }
@@ -883,6 +891,8 @@ private:
         GrGpuSubmittedContext fContext;
     };
     SkSTArray<4, SubmittedProc> fSubmittedProcs;
+
+    bool fOOMed = false;
 
     friend class GrPathRendering;
     typedef SkRefCnt INHERITED;
