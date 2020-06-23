@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3939165b_84a2c285",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-23T19:50:05Z",
+      "side": 1,
+      "message": "I think we\u0027ll keep both around for now, since either option could be more convenient for potential users.",
+      "parentUuid": "a9f109d3_5a720301",
+      "range": {
+        "startLine": 38,
+        "startChar": 70,
+        "endLine": 38,
+        "endChar": 82
+      },
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b611593_5aaca128",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "69128b7e_9a7acbc8",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-23T19:50:05Z",
+      "side": 1,
+      "message": "I\u0027m fine changing it later.",
+      "parentUuid": "9b611593_5aaca128",
+      "range": {
+        "startLine": 512,
+        "startChar": 4,
+        "endLine": 512,
+        "endChar": 40
+      },
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "988deda4_8bf72612",
         "filename": "modules/canvaskit/helper.js",
         "patchSetId": 7
@@ -62,6 +110,24 @@
       "revId": "749f77940b876b0a05627e120f3c991304480b7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3a3f0c4_227cc3f8",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-23T19:50:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "988deda4_8bf72612",
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "2063e4c1_6ebbdce6",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-23T19:50:05Z",
+      "side": 1,
+      "message": "Done, moved null check to freeArraysThatAreNotMallocedByUsers. Of note, if verbs or points is null, I consider that an invalid call and it will (correctly) crash trying to get \"length\" of them.",
+      "parentUuid": "819183e6_d9f5f98b",
+      "range": {
+        "startLine": 545,
+        "startChar": 5,
+        "endLine": 545,
+        "endChar": 15
+      },
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a4b631a_8d8a0883",
         "filename": "modules/canvaskit/tests/path.spec.js",
         "patchSetId": 7
@@ -102,6 +192,24 @@
       "revId": "749f77940b876b0a05627e120f3c991304480b7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a09b729a_4695fba5",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-23T19:50:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a4b631a_8d8a0883",
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
