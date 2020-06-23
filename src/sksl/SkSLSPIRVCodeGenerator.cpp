@@ -1854,7 +1854,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                         Variable::kGlobal_Storage)));
                 InterfaceBlock intf(-1, intfVar, name, String(""),
                                     std::vector<std::unique_ptr<Expression>>(), st);
-                fRTHeightStructId = this->writeInterfaceBlock(intf);
+
+                fRTHeightStructId = this->writeInterfaceBlock(intf, false);
                 fRTHeightFieldIndex = 0;
             }
             SkASSERT(fRTHeightFieldIndex != (SpvId)-1);
@@ -2677,7 +2678,7 @@ static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
     }
 }
 
-SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
+SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight) {
     bool isBuffer = (0 != (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag));
     bool pushConstant = (0 != (intf.fVariable.fModifiers.fLayout.fFlags &
                                Layout::kPushConstant_Flag));
@@ -2686,7 +2687,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
                                 fDefaultLayout;
     SpvId result = this->nextId();
     const Type* type = &intf.fVariable.fType;
-    if (fProgram.fInputs.fRTHeight) {
+    if (fProgram.fInputs.fRTHeight && appendRTHeight) {
         SkASSERT(fRTHeightStructId == (SpvId) -1);
         SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
         std::vector<Type::Field> fields = type->fields();
@@ -2723,7 +2724,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     this->writeLayout(layout, result);
     fVariableMap[&intf.fVariable] = result;
-    if (fProgram.fInputs.fRTHeight) {
+    if (fProgram.fInputs.fRTHeight && appendRTHeight) {
         delete type;
     }
     return result;
