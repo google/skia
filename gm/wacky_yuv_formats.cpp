@@ -44,8 +44,8 @@
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkYUVMath.h"
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrGpu.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
 
@@ -1599,7 +1599,7 @@ protected:
         return DrawResult::kOk;
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
         int x = kPad;

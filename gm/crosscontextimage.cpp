@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright 2017 Google Inc.
  *
@@ -17,6 +18,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/GrRecordingContext.h"
 #include "tools/Resources.h"
 
 class GrContext;
@@ -61,3 +63,4 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
     }
     return skiagm::DrawResult::kOk;
 }
+#endif
