@@ -124,9 +124,10 @@ protected:
                                          SkYUVAIndex indices[4],
                                          YUVABackendReleaseContext* beContext) {
         for (int i = 0; i < 4; ++i) {
-            GrBackendTexture tmp = context->createBackendTexture(bmps[i].pixmap(),
-                                                                    GrRenderable::kNo,
-                                                                    GrProtected::kNo);
+            GrBackendTexture tmp = context->createBackendTexture(
+                                        bmps[i].pixmap(), GrRenderable::kNo, GrProtected::kNo,
+                                        YUVABackendReleaseContext::CreationCompleteProc(i),
+                                        beContext);
             if (!tmp.isValid()) {
                 return false;
             }
@@ -154,7 +155,7 @@ protected:
         SkYUVAIndex indices[4];
 
         if (!CreateYUVBackendTextures(context, fYUVABmps, indices, releaseContext)) {
-            YUVABackendReleaseContext::Unwind(context, releaseContext);
+            YUVABackendReleaseContext::Unwind(context, releaseContext, false);
             return nullptr;
         }
 
@@ -174,20 +175,24 @@ protected:
         SkYUVAIndex indices[4];
 
         if (!CreateYUVBackendTextures(context, fYUVABmps, indices, planeReleaseContext)) {
-            YUVABackendReleaseContext::Unwind(context, planeReleaseContext);
-            return nullptr;
-        }
-
-        GrBackendTexture resultTexture = context->createBackendTexture(
-                fRGBABmp.dimensions().width(), fRGBABmp.dimensions().height(),
-                kRGBA_8888_SkColorType, SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
-        if (!resultTexture.isValid()) {
-            YUVABackendReleaseContext::Unwind(context, planeReleaseContext);
+            YUVABackendReleaseContext::Unwind(context, planeReleaseContext, false);
             return nullptr;
         }
 
         auto rgbaReleaseContext = new YUVABackendReleaseContext(context);
+
+        GrBackendTexture resultTexture = context->createBackendTexture(
+                fRGBABmp.dimensions().width(), fRGBABmp.dimensions().height(),
+                kRGBA_8888_SkColorType, SkColors::kTransparent,
+                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo,
+                YUVABackendReleaseContext::CreationCompleteProc(0),
+                rgbaReleaseContext);
+        if (!resultTexture.isValid()) {
+            YUVABackendReleaseContext::Unwind(context, planeReleaseContext, false);
+            YUVABackendReleaseContext::Unwind(context, rgbaReleaseContext, false);
+            return nullptr;
+        }
+
         rgbaReleaseContext->set(0, resultTexture);
 
         auto tmp = SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
@@ -201,7 +206,7 @@ protected:
                 nullptr,
                 YUVABackendReleaseContext::Release,
                 rgbaReleaseContext);
-         YUVABackendReleaseContext::Unwind(context, planeReleaseContext);
+         YUVABackendReleaseContext::Unwind(context, planeReleaseContext, true);
          return tmp;
     }
 
