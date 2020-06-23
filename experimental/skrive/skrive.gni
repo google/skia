@@ -11,9 +11,11 @@ skia_skrive_public = [ "$_include/SkRive.h" ]
 
 skia_skrive_sources = [
   "$_src/Artboard.cpp",
+  "$_src/Color.cpp",
   "$_src/Component.cpp",
   "$_src/Drawable.cpp",
   "$_src/Node.cpp",
+  "$_src/Paint.cpp",
   "$_src/Shape.cpp",
   "$_src/SkRive.cpp",
   "$_src/reader/BinaryReader.cpp",
