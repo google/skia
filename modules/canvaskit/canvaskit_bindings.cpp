@@ -1564,14 +1564,20 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("makeSurface", optional_override([](SkSurface& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
             return self.makeSurface(toSkImageInfo(sii));
         }), allow_raw_pointers())
-        .function("width", &SkSurface::width)
+#ifdef SK_GL
+        .function("reportBackendType", optional_override([](SkSurface& self)->std::string {
+            return self.getCanvas()->getGrContext() == nullptr ? "CPU" : "GPU";
+        }))
         .function("sampleCnt", optional_override([](SkSurface& self)->int {
             auto backendRT = self.getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
             return (backendRT.isValid()) ? backendRT.sampleCnt() : 0;
         }))
+#else
         .function("reportBackendType", optional_override([](SkSurface& self)->std::string {
-            return self.getCanvas()->getGrContext() == nullptr ? "CPU" : "GPU";
-        }));
+            return "CPU";
+        }))
+#endif
+        .function("width", &SkSurface::width);
 
 #ifndef SK_NO_FONTS
     class_<SkTextBlob>("SkTextBlob")
