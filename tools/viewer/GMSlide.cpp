@@ -21,11 +21,15 @@ GMSlide::GMSlide(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
 GMSlide::~GMSlide() = default;
 
 void GMSlide::draw(SkCanvas* canvas) {
+    SkString msg;
+
     fGM->setMode(skiagm::GM::kSample_Mode);
+
+    fGM->gpuSetup(canvas->getGrContext(), &msg);
     // Do we care about timing the draw of the background (once)?
     // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);
-    fGM->drawContent(canvas);
+    fGM->drawContent(canvas, &msg);
 }
 
 bool GMSlide::animate(double nanos) { return fGM->animate(nanos); }
