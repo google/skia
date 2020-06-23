@@ -56,6 +56,7 @@ public:
     enum class ContextOverrides {
         kNone                          = 0x0,
         kAvoidStencilBuffers           = 0x1,
+        kRandomGLOOM                   = 0x2
     };
 
     static bool IsRenderingContext(ContextType type) {
