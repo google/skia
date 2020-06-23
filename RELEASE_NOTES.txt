@@ -7,7 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 85
 ------------
 
-  * <insert new release notes here>
+  * Added GrContext::oomed() which reports whether Skia has seen a GL_OUT_OF_MEMORY
+    error from Open GL [ES] or VK_ERROR_OUT_OF_*_MEMORY from Vulkan.
+    https://review.skia.org/298216
 
   * Add option on SkSurface::flush to pass in a GrBackendSurfaceMutableState which
     we will set the gpu backend surface to be at the end of the flush.
