@@ -105,7 +105,7 @@ public:
 
     void submit(GrOpsRenderPass* renderPass) override;
 
-    void checkFinishProcs() override {}
+    void checkFinishProcs() override { this->checkForFinishedCommandLists(); }
 
     SkSL::Compiler* shaderCompiler() const {
         return fCompiler.get();
@@ -188,6 +188,7 @@ private:
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;
+    void addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback);
 
     void prepareSurfacesForBackendAccessAndStateUpdates(
             GrSurfaceProxy* proxies[],
