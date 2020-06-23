@@ -13,8 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    SkImages when loading and decoding images. In the future, codesize of CanvasKit may be able to be
    reduced by removing image codecs in wasm, if browser APIs for decoding images are used along with
    `CanvasKit.MakeImageFromCanvasImageSource` instead of `CanvasKit.MakeImageFromEncoded`.
--  Three usage examples of `CanvasKit.MakeImageFromCanvasImageSource` in core.spec.ts.
--  Added support for asynchronous callbacks in perfs and tests.
+ - Three usage examples of `CanvasKit.MakeImageFromCanvasImageSource` in core.spec.ts.
+ - Added support for asynchronous callbacks in perfs and tests.
+ - `CanvasKit.SkPath.MakeFromVerbsPointsWeights` and `CanvasKit.SkPath.addVerbsPointsWeights` for
+  supplying many path operations (e.g. moveTo, cubicTo) at once.
+ - The object returned by `CanvasKit.malloc` now has a `subarray` method which works exactly like
+  the normal TypedArray version. The TypedArray which it returns is also backed by WASM memory
+  and when passed into CanvasKit will be used w/o copying the data (just like
+  `Malloc.toTypedArray`).
 
 ### Changed
  - In all places where color arrays are accepted (gradient makers, drawAtlas, and MakeSkVertices),
@@ -27,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - `TextStyle.color` can correctly be a Malloc'd Float32Array.
+ 
+### Deprecated
+ - `CanvasKit.MakePathFromCmds` has been renamed to `CanvasKit.SkPath.MakeFromCmds`. The alias
+   will be removed in an upcoming release.
 
 ## [0.16.2] - 2020-06-05
 
