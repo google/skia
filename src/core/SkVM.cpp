@@ -38,8 +38,13 @@
 bool gSkVMJITViaDylib{false};
 
 #if defined(SKVM_JIT)
-    #include <dlfcn.h>      // dlopen, dlsym
-    #include <sys/mman.h>   // mmap, mprotect
+    #if defined(SK_BUILD_FOR_WIN)
+        #include "SkLeanWindows.h"
+        #include <memoryapi.h>
+    #else
+        #include <dlfcn.h>      // dlopen, dlsym
+        #include <sys/mman.h>   // mmap, mprotect
+    #endif
 #endif
 
 namespace skvm {
@@ -2589,6 +2594,22 @@ namespace skvm {
         return fImpl->jit_entry.load() != nullptr;
     }
 
+    static void close_dylib(void* dylib) {
+    #if defined(SK_BUILD_FOR_WIN)
+        SkASSERT(false);  // TODO?
+    #else
+        dlcose(dylib);
+    #endif
+    }
+
+    static void unmap(void* ptr, size_t len) {
+    #if defined(SK_BUILD_FOR_WIN)
+        VirtualFree(ptr, 0, MEM_RELEASE);
+    #else
+        munmap(ptr, len);
+    #endif
+    }
+
     void Program::dropJIT() {
     #if defined(SKVM_LLVM)
         this->waitForLLVM();
@@ -2596,9 +2617,9 @@ namespace skvm {
         fImpl->llvm_ctx.reset(nullptr);
     #elif defined(SKVM_JIT)
         if (fImpl->dylib) {
-            dlclose(fImpl->dylib);
+            close_dylib(fImpl->dylib);
         } else if (auto jit_entry = fImpl->jit_entry.load()) {
-            munmap(jit_entry, fImpl->jit_size);
+            unmap(jit_entry, fImpl->jit_size);
         }
     #else
         SkASSERT(!this->hasJIT());
@@ -3499,6 +3520,30 @@ namespace skvm {
         return true;
     }
 
+    static void* alloc_jit_buffer(size_t* len) {
+    #if defined(SK_BUILD_FOR_WIN)
+        return VirtualAlloc(NULL, *len, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+    #else
+        // While mprotect and VirtualAlloc both work at page granularity,
+        // mprotect doesn't round up for you, and instead requires *len is at page granularity.
+        const size_t page = sysconf(_SC_PAGESIZE);
+        *len = ((*len + page - 1) / page) * page;
+        return mmap(nullptr,*len, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+    #endif
+    }
+
+    static void remap_as_executable(void* ptr, size_t len) {
+    #if defined(SK_BUILD_FOR_WIN)
+        DWORD old;
+        VirtualProtect(ptr, len, PAGE_EXECUTE_READ, &old);
+        SkASSERT(old == PAGE_READWRITE);
+    #else
+        mprotect(ptr, len, PROT_READ|PROT_EXEC);
+        __builtin___clear_cache((char*)ptr,
+                                (char*)ptr + fImpl->len);
+    #endif
+    }
+
     void Program::setupJIT(const std::vector<OptimizedInstruction>& instructions,
                            const char* debug_name) {
         // Assemble with no buffer to determine a.size(), the number of bytes we'll assemble.
@@ -3508,14 +3553,7 @@ namespace skvm {
             return;
         }
 
-        // Allocate space that we can remap as executable.
-        const size_t page = sysconf(_SC_PAGESIZE);
-
-        // mprotect works at page granularity.
-        fImpl->jit_size = ((a.size() + page - 1) / page) * page;
-
-        void* jit_entry
-             = mmap(nullptr,fImpl->jit_size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        void* jit_entry = alloc_jit_buffer(&fImpl->jit_size);
         fImpl->jit_entry.store(jit_entry);
 
         // Assemble the program for real.
@@ -3524,10 +3562,9 @@ namespace skvm {
         SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.
-        mprotect(jit_entry, fImpl->jit_size, PROT_READ|PROT_EXEC);
-        __builtin___clear_cache((char*)jit_entry,
-                                (char*)jit_entry + fImpl->jit_size);
+        remap_as_executable(jit_entry, fImpl->jit_size);
 
+    #if !defined(SK_BUILD_FOR_WIN)
         // For profiling and debugging, it's helpful to have this code loaded
         // dynamically rather than just jumping info fImpl->jit_entry.
         if (gSkVMJITViaDylib) {
@@ -3554,6 +3591,7 @@ namespace skvm {
             }
             fImpl->jit_entry.store(sym);
         }
+    #endif
     }
 #endif
 
