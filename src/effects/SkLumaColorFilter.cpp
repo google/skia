@@ -51,7 +51,8 @@ void SkLumaColorFilter::flatten(SkWriteBuffer&) const {}
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorInfo&) const {
-    return GrLumaColorFilterEffect::Make(/*inputFP=*/nullptr);
+        std::unique_ptr<GrFragmentProcessor> inputFP, GrRecordingContext*,
+        const GrColorInfo&) const {
+    return GrLumaColorFilterEffect::Make(std::move(inputFP));
 }
 #endif
