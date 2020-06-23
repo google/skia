@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca73c107_bcce6f99",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T20:39:35Z",
+      "side": 1,
+      "message": "For reference: https://skia-review.googlesource.com/c/skia/+/292263",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
