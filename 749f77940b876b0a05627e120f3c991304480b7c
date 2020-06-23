@@ -2,6 +2,92 @@
   "comments": [
     {
       "key": {
+        "uuid": "a9f109d3_5a720301",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:45:25Z",
+      "side": 1,
+      "message": "Should we name it to Legacy_MakeFromCmds, or something to that effect?",
+      "range": {
+        "startLine": 38,
+        "startChar": 70,
+        "endLine": 38,
+        "endChar": 82
+      },
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b611593_5aaca128",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:45:25Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/skia/+/209403 Adds a better way for us to do this, and it looks like it might be landing soon. Might be worth it to wait?",
+      "range": {
+        "startLine": 512,
+        "startChar": 4,
+        "endLine": 512,
+        "endChar": 40
+      },
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "988deda4_8bf72612",
+        "filename": "modules/canvaskit/helper.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:45:25Z",
+      "side": 1,
+      "message": "Empty line?",
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "819183e6_d9f5f98b",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:45:25Z",
+      "side": 1,
+      "message": "This seems a little unbalanced with copy1dArray. Should we update \"freeArraysThatAreNotMallocedByUsers\" to also check for null?\n\nI think i\u0027d prefer we either check \u0027weights\u0027 for both the copy and free, or not check it for either.",
+      "range": {
+        "startLine": 545,
+        "startChar": 5,
+        "endLine": 545,
+        "endChar": 15
+      },
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8a4b631a_8d8a0883",
         "filename": "modules/canvaskit/tests/path.spec.js",
         "patchSetId": 7
