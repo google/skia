@@ -166,7 +166,7 @@ public:
     }
 
     // Create a DDL whose characterization captures the current settings
-    std::unique_ptr<SkDeferredDisplayList> createDDL(GrContext* context) const {
+    SkDDLPointer createDDL(GrContext* context) const {
         SkSurfaceCharacterization c = this->createCharacterization(context);
         SkAssertResult(c.isValid());
 
@@ -322,7 +322,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
     SkBitmap bitmap;
     bitmap.allocPixels(imageInfo);
 
-    std::unique_ptr<SkDeferredDisplayList> ddl;
+    SkDDLPointer ddl;
 
     // First, create a DDL using the stock SkSurface parameters
     {
@@ -338,7 +338,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
             return;
         }
 
-        REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        REPORTER_ASSERT(reporter, s->draw(ddl));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
         context->flushAndSubmit();
         gpu->testingOnly_flushGpuAndSync();
@@ -399,7 +399,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
             continue;
         }
 
-        REPORTER_ASSERT(reporter, !s->draw(ddl.get()),
+        REPORTER_ASSERT(reporter, !s->draw(ddl),
                         "DDLSurfaceCharacterizationTest failed on parameter: %d\n", i);
 
         context->flushAndSubmit();
@@ -418,22 +418,22 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
         size_t maxResourceBytes = context->getResourceCacheLimit();
 
         context->setResourceCacheLimit(maxResourceBytes/2);
-        REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
+        REPORTER_ASSERT(reporter, !s->draw(ddl));
 
         // DDL TODO: once proxies/ops can be de-instantiated we can re-enable these tests.
         // For now, DDLs are drawn once.
 #if 0
         // resource limits >= those at characterization time are accepted
         context->setResourceCacheLimits(2*maxResourceCount, maxResourceBytes);
-        REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        REPORTER_ASSERT(reporter, s->draw(ddl));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 
         context->setResourceCacheLimits(maxResourceCount, 2*maxResourceBytes);
-        REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        REPORTER_ASSERT(reporter, s->draw(ddl));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 
         context->setResourceCacheLimits(maxResourceCount, maxResourceBytes);
-        REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        REPORTER_ASSERT(reporter, s->draw(ddl));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 #endif
 
@@ -452,7 +452,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
 
         sk_sp<SkSurface> s = params.make(context, &backend);
         if (s) {
-            REPORTER_ASSERT(reporter, !s->draw(ddl.get())); // bc the DDL was made w/ textureability
+            REPORTER_ASSERT(reporter, !s->draw(ddl)); // bc the DDL was made w/ textureability
 
             context->flushAndSubmit();
             gpu->testingOnly_flushGpuAndSync();
@@ -713,7 +713,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
     bitmap.allocPixels(imageInfo);
 
     for (bool textureability : { true, false }) {
-        std::unique_ptr<SkDeferredDisplayList> ddl;
+        SkDDLPointer ddl;
 
         // First, create a DDL w/o textureability (and thus no mipmaps). TODO: once we have
         // reusable DDLs, move this outside of the loop.
@@ -737,7 +737,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
             continue;
         }
 
-        REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        REPORTER_ASSERT(reporter, s->draw(ddl));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
         context->flushAndSubmit();
         gpu->testingOnly_flushGpuAndSync();
@@ -1034,7 +1034,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
     FulfillInfo fulfillInfo;
     fulfillInfo.fTex = SkPromiseImageTexture::Make(backendTexture);
 
-    std::unique_ptr<SkDeferredDisplayList> ddl;
+    SkDDLPointer ddl;
 
     {
         SkDeferredDisplayListRecorder recorder(characterization);
@@ -1063,7 +1063,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
 
     context->flushAndSubmit();
 
-    s->draw(ddl.get());
+    s->draw(ddl);
 
     GrFlushInfo flushInfo;
     s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfo);
@@ -1113,7 +1113,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
     canvas1->save();
     canvas1->clipRect(SkRect::MakeXYWH(8, 8, 16, 16));
 
-    std::unique_ptr<SkDeferredDisplayList> ddl1 = recorder.detach();
+    SkDDLPointer ddl1 = recorder.detach();
 
     SkCanvas* canvas2 = recorder.getCanvas();
 
@@ -1121,7 +1121,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
     p.setColor(SK_ColorGREEN);
     canvas2->drawRect(SkRect::MakeWH(32, 32), p);
 
-    std::unique_ptr<SkDeferredDisplayList> ddl2 = recorder.detach();
+    SkDDLPointer ddl2 = recorder.detach();
 
     REPORTER_ASSERT(reporter, ddl1->priv().lazyProxyData());
     REPORTER_ASSERT(reporter, ddl2->priv().lazyProxyData());
@@ -1130,8 +1130,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
     // lazy proxy are all different between the two DDLs
     REPORTER_ASSERT(reporter, ddl1->priv().lazyProxyData() != ddl2->priv().lazyProxyData());
 
-    s->draw(ddl1.get());
-    s->draw(ddl2.get());
+    s->draw(ddl1);
+    s->draw(ddl2);
 
     // Make sure the clipRect from DDL1 didn't percolate into DDL2
     s->readPixels(ii, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);

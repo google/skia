@@ -121,7 +121,11 @@ public:
     }
 
     void moveRenderTasksToDDL(SkDeferredDisplayList*);
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+    void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
+#else
     void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
+#endif
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&);
 

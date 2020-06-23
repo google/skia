@@ -25,11 +25,26 @@ struct GrCCPerOpsTaskPaths;
 using GrRenderTargetProxy = SkRefCnt;
 #endif
 
+class SkDeferredDisplayList;
+
+// We are in the process of migrating DDL from unique_ptr to sk_sp. This macro can be defined
+// by the user to keep the old API until they've migrated. It will be removed soon.
+// This typedef is here temporarily and should not be used by the public.
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+typedef sk_sp<SkDeferredDisplayList> SkDDLPointer;
+#else
+typedef std::unique_ptr<SkDeferredDisplayList> SkDDLPointer;
+#endif
+
 /*
  * This class contains pre-processed gpu operations that can be replayed into
  * an SkSurface via SkSurface::draw(SkDeferredDisplayList*).
  */
-class SkDeferredDisplayList {
+class SkDeferredDisplayList
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+                            :  public SkNVRefCnt<SkDeferredDisplayList>
+#endif
+{
 public:
     SK_API ~SkDeferredDisplayList();
 
