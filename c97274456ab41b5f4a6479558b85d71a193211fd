@@ -119,6 +119,24 @@
     },
     {
       "key": {
+        "uuid": "0dd7a115_220a2f17",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-23T21:28:44Z",
+      "side": 1,
+      "message": "I think it\u0027ll work as long as the users all see the full definitions?  Happy to follow up on this.",
+      "parentUuid": "aeb63682_5acfcc8c",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca73c107_bcce6f99",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 2
@@ -207,6 +225,30 @@
       "side": 1,
       "message": "Maybe. All but one call site are using independently computed X and Y, so it doesn\u0027t buy much on readability, AFAICT.",
       "parentUuid": "7c3d1b10_30f72e3b",
+      "range": {
+        "startLine": 792,
+        "startChar": 12,
+        "endLine": 792,
+        "endChar": 18
+      },
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8f5bf34_7169fafd",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-23T21:28:44Z",
+      "side": 1,
+      "message": "Yeah, on second thought, I\u0027m with you.  It\u0027s not like this function has a huge number of args...",
+      "parentUuid": "7cd5fbc9_dd8adb73",
       "range": {
         "startLine": 792,
         "startChar": 12,
