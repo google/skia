@@ -38,9 +38,49 @@
 bool gSkVMJITViaDylib{false};
 
 #if defined(SKVM_JIT)
-    #include <dlfcn.h>      // dlopen, dlsym
-    #include <sys/mman.h>   // mmap, mprotect
+    #if defined(SK_BUILD_FOR_WIN)
+        #include "src/core/SkLeanWindows.h"
+        #include <memoryapi.h>
+
+        static void* alloc_jit_buffer(size_t* len) {
+            return VirtualAlloc(NULL, *len, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+        }
+        static void unmap_jit_buffer(void* ptr, size_t len) {
+            VirtualFree(ptr, 0, MEM_RELEASE);
+        }
+        static void remap_as_executable(void* ptr, size_t len) {
+            DWORD old;
+            VirtualProtect(ptr, len, PAGE_EXECUTE_READ, &old);
+            SkASSERT(old == PAGE_READWRITE);
+        }
+        static void close_dylib(void* dylib) {
+            SkASSERT(false);  // TODO?  For now just assert we never make one.
+        }
+    #else
+        #include <dlfcn.h>
+        #include <sys/mman.h>
+
+        static void* alloc_jit_buffer(size_t* len) {
+            // While mprotect and VirtualAlloc both work at page granularity,
+            // mprotect doesn't round up for you, and instead requires *len is at page granularity.
+            const size_t page = sysconf(_SC_PAGESIZE);
+            *len = ((*len + page - 1) / page) * page;
+            return mmap(nullptr,*len, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        }
+        static void unmap_jit_buffer(void* ptr, size_t len) {
+            munmap(ptr, len);
+        }
+        static void remap_as_executable(void* ptr, size_t len) {
+            mprotect(ptr, len, PROT_READ|PROT_EXEC);
+            __builtin___clear_cache((char*)ptr,
+                                    (char*)ptr + len);
+        }
+        static void close_dylib(void* dylib) {
+            dlclose(dylib);
+        }
+    #endif
 #endif
+
 
 namespace skvm {
 
@@ -2596,9 +2636,9 @@ namespace skvm {
         fImpl->llvm_ctx.reset(nullptr);
     #elif defined(SKVM_JIT)
         if (fImpl->dylib) {
-            dlclose(fImpl->dylib);
+            close_dylib(fImpl->dylib);
         } else if (auto jit_entry = fImpl->jit_entry.load()) {
-            munmap(jit_entry, fImpl->jit_size);
+            unmap_jit_buffer(jit_entry, fImpl->jit_size);
         }
     #else
         SkASSERT(!this->hasJIT());
@@ -2767,15 +2807,67 @@ namespace skvm {
                                                   : stack_slot.size();
 
 
-    #if defined(__x86_64__)
+    #if defined(__x86_64__) || defined(_M_X64)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
         const int K = 8;
-        const A::GP64 N   = A::rdi,
-                      GP0 = A::rax,
-                      GP1 = A::r11,
-                      arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+        #if defined(_M_X64)  // Important to check this first; clang-cl defines both.
+            const A::GP64 N = A::rcx,
+                        GP0 = A::rax,
+                        GP1 = A::r11,
+                        arg[]    = { A::rdx, A::r8, A::r9, A::r10, A::rdi };
+            auto enter = [&]{
+                // Fun extra setup to work within the MS ABI:
+                // 0) rcx,rdx,r8,r9 are all already holding their correct values,
+                //    and rax,r10,r11 can be used freely.
+                // 1) Load r10 from rsp+40 if there's a fourth arg.
+                if (fImpl->strides.size() >= 4) {
+                    a->mov(A::r10, A::Mem{A::rsp, 40});
+                }
+                // 2) Load rdi from rsp+48 if there's a fifth arg,
+                //    first preserving its original callee-saved value at rsp+8,
+                //    which is an ABI reserved shadow area usually for spilling rcx.
+                if (fImpl->strides.size() >= 5) {
+                    a->mov(A::Mem{A::rsp, 8}, A::rdi);
+                    a->mov(A::rdi, A::Mem{A::rsp, 48});
+                }
+                // 3) Save ymm6-ymm15 (really just need to save xmm6-xmm15, but this works).
+                a->sub(A::rsp, 10*K*4);
+                for (int i = 0; i < 10; i++) {
+                    a->vmovups(A::Mem{A::rsp, i*K*4}, (A::Ymm)(i+6));
+                }
+
+                // Now our normal "make space for values".
+                if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); }
+            };
+            auto exit  = [&]{
+                if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
+                // Undo MS ABI setup in reverse.
+                // 3) restore ymm6-ymm15
+                for (int i = 0; i < 10; i++) {
+                    a->vmovups((A::Ymm)(i+6), A::Mem{A::rsp, i*K*4});
+                }
+                a->add(A::rsp, 10*K*4);
+                // 2) restore rdi if we used it
+                if (fImpl->strides.size() >= 5) {
+                    a->mov(A::rdi, A::Mem{A::rsp, 8});
+                }
+                // 1) no need to restore caller-saved r10
+                a->vzeroupper();
+                a->ret();
+            };
+        #elif defined(__x86_64__)
+            const A::GP64 N = A::rdi,
+                        GP0 = A::rax,
+                        GP1 = A::r11,
+                        arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+
+            auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
+            auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
+                              a->vzeroupper();
+                              a->ret(); };
+        #endif
 
         // All 16 ymm registers are available to use.
         using Reg = A::Ymm;
@@ -2807,7 +2899,11 @@ namespace skvm {
                    GP0   = A::x8,
                    arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
 
-        // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15.
+        auto enter = [&]{ if (nstack_slots) { a->sub(A::sp, A::sp, nstack_slots*K*4); } };
+        auto exit  = [&]{ if (nstack_slots) { a->add(A::sp, A::sp, nstack_slots*K*4); }
+                          a->ret(A::x30); };
+
+        // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15 in enter/exit.
         using Reg = A::V;
         std::array<Val,32> regs = {
              NA, NA, NA, NA,  NA, NA, NA, NA,
@@ -2888,7 +2984,7 @@ namespace skvm {
                 return r;
             };
 
-        #if defined(__x86_64__)  // Nothing special... just happens to not be used on ARM right now.
+        #if defined(__x86_64__) || defined(_M_X64)  // Nothing special... just unused on ARM.
             auto free_tmp = [&](Reg r) {
                 SkASSERT(regs[r] == TMP);
                 regs[r] = NA;
@@ -2972,7 +3068,7 @@ namespace skvm {
                 return r(id);
             };
 
-        #if defined(__x86_64__)
+        #if defined(__x86_64__) || defined(_M_X64)
             // On x86 we can work with many values directly from the stack or program constant pool.
             auto any = [&](Val v) -> A::Operand {
                 SkASSERT(v >= 0);
@@ -3000,7 +3096,7 @@ namespace skvm {
                     (void)constants[immy];
                     break;
 
-            #if defined(__x86_64__)
+            #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
                     a->vptest (r(x), &constants[0xffffffff]);
                     A::Label all_true;
@@ -3382,27 +3478,18 @@ namespace skvm {
             return true;
         };
 
-        #if defined(__x86_64__)
+        #if defined(__x86_64__) || defined(_M_X64)
             auto jump_if_less = [&](A::Label* l) { a->jl (l); };
             auto jump         = [&](A::Label* l) { a->jmp(l); };
 
             auto add = [&](A::GP64 gp, int imm) { a->add(gp, imm); };
             auto sub = [&](A::GP64 gp, int imm) { a->sub(gp, imm); };
-
-            auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
-            auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
-                              a->vzeroupper();
-                              a->ret(); };
         #elif defined(__aarch64__)
             auto jump_if_less = [&](A::Label* l) { a->blt(l); };
             auto jump         = [&](A::Label* l) { a->b  (l); };
 
             auto add = [&](A::X gp, int imm) { a->add(gp, gp, imm); };
             auto sub = [&](A::X gp, int imm) { a->sub(gp, gp, imm); };
-
-            auto enter = [&]{ if (nstack_slots) { a->sub(A::sp, A::sp, nstack_slots*K*4); } };
-            auto exit  = [&]{ if (nstack_slots) { a->add(A::sp, A::sp, nstack_slots*K*4); }
-                              a->ret(A::x30); };
         #endif
 
         A::Label body,
@@ -3510,14 +3597,8 @@ namespace skvm {
             return;
         }
 
-        // Allocate space that we can remap as executable.
-        const size_t page = sysconf(_SC_PAGESIZE);
-
-        // mprotect works at page granularity.
-        fImpl->jit_size = ((a.size() + page - 1) / page) * page;
-
-        void* jit_entry
-             = mmap(nullptr,fImpl->jit_size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        fImpl->jit_size = a.size();
+        void* jit_entry = alloc_jit_buffer(&fImpl->jit_size);
         fImpl->jit_entry.store(jit_entry);
 
         // Assemble the program for real.
@@ -3526,10 +3607,9 @@ namespace skvm {
         SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.
-        mprotect(jit_entry, fImpl->jit_size, PROT_READ|PROT_EXEC);
-        __builtin___clear_cache((char*)jit_entry,
-                                (char*)jit_entry + fImpl->jit_size);
+        remap_as_executable(jit_entry, fImpl->jit_size);
 
+    #if !defined(SK_BUILD_FOR_WIN)
         // For profiling and debugging, it's helpful to have this code loaded
         // dynamically rather than just jumping info fImpl->jit_entry.
         if (gSkVMJITViaDylib) {
@@ -3556,6 +3636,7 @@ namespace skvm {
             }
             fImpl->jit_entry.store(sym);
         }
+    #endif
     }
 #endif
 
