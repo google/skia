@@ -12,7 +12,6 @@
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
 #include "modules/skottie/include/Skottie.h"
-#include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
@@ -45,8 +44,6 @@ static DEFINE_int(height, 600, "Render height.");
 static DEFINE_int(threads,  0, "Number of worker threads (0 -> cores count).");
 
 namespace {
-
-static constexpr SkColor kClearColor = SK_ColorWHITE;
 
 std::unique_ptr<SkFILEWStream> MakeFrameStream(size_t idx, const char* ext) {
     const auto frame_file = SkStringPrintf("0%06zu.%s", idx, ext);
@@ -90,7 +87,7 @@ private:
 
     SkCanvas* beginFrame(size_t) override {
         auto* canvas = fSurface->getCanvas();
-        canvas->clear(kClearColor);
+        canvas->clear(SK_ColorTRANSPARENT);
         return canvas;
     }
 
@@ -164,7 +161,7 @@ private:
 
     SkCanvas* beginFrame(size_t) override {
         auto* canvas = fSurface->getCanvas();
-        canvas->clear(kClearColor);
+        canvas->clear(SK_ColorTRANSPARENT);
         return canvas;
     }
 
@@ -185,7 +182,7 @@ struct MP4Sink final : public Sink {
 
     SkCanvas* beginFrame(size_t) override {
         SkCanvas* canvas = fSurface->getCanvas();
-        canvas->clear(kClearColor);
+        canvas->clear(SK_ColorTRANSPARENT);
         return canvas;
     }
 
@@ -268,8 +265,6 @@ int main(int argc, char** argv) {
                                                                 /*predecode=*/true),
                       /*predecode=*/true));
     auto data   = SkData::MakeFromFileName(FLAGS_input[0]);
-    auto precomp_interceptor =
-            sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(rp, "__");
 
     if (!data) {
         SkDebugf("Could not load %s.\n", FLAGS_input[0]);
@@ -339,14 +334,12 @@ int main(int argc, char** argv) {
         // iOS doesn't support thread_local on versions less than 9.0.
         auto anim = skottie::Animation::Builder()
                             .setResourceProvider(rp)
-                            .setPrecompInterceptor(precomp_interceptor)
                             .make(static_cast<const char*>(data->data()), data->size());
         auto sink = MakeSink(FLAGS_format[0], scale_matrix);
 #else
         thread_local static auto* anim =
                 skottie::Animation::Builder()
                     .setResourceProvider(rp)
-                    .setPrecompInterceptor(precomp_interceptor)
                     .make(static_cast<const char*>(data->data()), data->size())
                     .release();
         thread_local static auto* sink = MakeSink(FLAGS_format[0], scale_matrix).release();
