@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c55c0974_1633af9b",
+        "filename": "src/core/SkPathBuilder.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T23:41:37Z",
+      "side": 1,
+      "message": "Won\u0027t this new implementation cause a copy now when detach() is called?",
+      "revId": "adff9281002b055d1b4a816cac5a20a455f0a520",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
