@@ -168,7 +168,7 @@ function assureIntColors(arr) {
   } else if (arr instanceof Array && arr[0] instanceof Float32Array) {
     return arr.map(toUint32Color);
   }
-  
+
 }
 function uIntColorToCanvasKitColor(c) {
     return CanvasKit.Color(
@@ -756,6 +756,11 @@ CanvasKit.Malloc = function(typedArray, len) {
     'length': len,
     'byteOffset': ptr,
     typedArray: null,
+    'subarray': function(start, end) {
+      var sa = this['toTypedArray']().subarray(start, end);
+      sa['_ck'] = true;
+      return sa;
+    },
     'toTypedArray': function() {
       // Check if the previously allocated array is still usable.
       // If it's falsey, then we haven't created an array yet.
