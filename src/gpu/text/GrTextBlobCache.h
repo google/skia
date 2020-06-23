@@ -9,6 +9,7 @@
 #define GrTextBlobCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkMutex.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkMessageBus.h"
@@ -23,22 +24,21 @@ public:
     using PurgeMore = std::function<void()>;
 
     GrTextBlobCache(PurgeMore purgeMore, uint32_t messageBusID);
-    ~GrTextBlobCache();
 
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
                                      const GrTextBlob::Key& key,
                                      const SkMaskFilterBase::BlurRec& blurRec,
-                                     const SkMatrix& viewMatrix);
+                                     const SkMatrix& viewMatrix) SK_EXCLUDES(fMutex);
 
-    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) const;
+    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) const SK_EXCLUDES(fMutex);
 
-    void remove(GrTextBlob* blob);
+    void remove(GrTextBlob* blob) SK_EXCLUDES(fMutex);
 
-    void makeMRU(GrTextBlob* blob);
+    void makeMRU(GrTextBlob* blob) SK_EXCLUDES(fMutex);
 
-    void freeAll();
+    void freeAll() SK_EXCLUDES(fMutex);
 
-    void setBudget(size_t budget);
+    void setBudget(size_t budget) SK_EXCLUDES(fMutex);
 
     struct PurgeBlobMessage {
         PurgeBlobMessage(uint32_t blobID, uint32_t contextUniqueID)
@@ -50,9 +50,9 @@ public:
 
     static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);
 
-    void purgeStaleBlobs();
+    void purgeStaleBlobs() SK_EXCLUDES(fMutex);
 
-    size_t usedBytes() const;
+    size_t usedBytes() const SK_EXCLUDES(fMutex);
 
 private:
     using TextBlobList = SkTInternalLList<GrTextBlob>;
@@ -77,24 +77,25 @@ private:
         SkSTArray<1, sk_sp<GrTextBlob>> fBlobs;
     };
 
-    void internalPurgeStaleBlobs();
+    void internalPurgeStaleBlobs() SK_REQUIRES(fMutex);
 
-    void internalAdd(sk_sp<GrTextBlob> blob);
-    void internalRemove(GrTextBlob* blob);
+    void internalAdd(sk_sp<GrTextBlob> blob) SK_REQUIRES(fMutex);
+    void internalRemove(GrTextBlob* blob) SK_REQUIRES(fMutex);
 
-    void internalCheckPurge(GrTextBlob* blob = nullptr);
+    void internalCheckPurge(GrTextBlob* blob = nullptr) SK_REQUIRES(fMutex);
 
     static const int kDefaultBudget = 1 << 22;
 
-    TextBlobList fBlobList;
-    SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache;
-    PurgeMore fPurgeMore;
-    size_t fSizeBudget;
-    size_t fCurrentSize{0};
+    mutable SkMutex fMutex;
+    TextBlobList fBlobList SK_GUARDED_BY(fMutex);
+    SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fMutex);
+    PurgeMore fPurgeMore SK_GUARDED_BY(fMutex);
+    size_t fSizeBudget SK_GUARDED_BY(fMutex);
+    size_t fCurrentSize SK_GUARDED_BY(fMutex) {0};
 
     // In practice 'messageBusID' is always the unique ID of the owning GrContext
-    uint32_t fMessageBusID;
-    SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox;
+    const uint32_t fMessageBusID;
+    SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox SK_GUARDED_BY(fMutex);
 };
 
 #endif

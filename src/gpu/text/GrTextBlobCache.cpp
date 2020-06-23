@@ -21,27 +21,26 @@ GrTextBlobCache::GrTextBlobCache(PurgeMore purgeMore, uint32_t messageBusID)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
-GrTextBlobCache::~GrTextBlobCache() {
-    this->freeAll();
-}
-
 sk_sp<GrTextBlob>
 GrTextBlobCache::makeCachedBlob(const SkGlyphRunList& glyphRunList, const GrTextBlob::Key& key,
                                 const SkMaskFilterBase::BlurRec& blurRec,
                                 const SkMatrix& viewMatrix) {
     sk_sp<GrTextBlob> cacheBlob(GrTextBlob::Make(glyphRunList, viewMatrix));
     cacheBlob->setupKey(key, blurRec, glyphRunList.paint());
+    SkAutoMutexExclusive lock{fMutex};
     this->internalAdd(cacheBlob);
     glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);
     return cacheBlob;
 }
 
 sk_sp<GrTextBlob> GrTextBlobCache::find(const GrTextBlob::Key& key) const {
+    SkAutoMutexExclusive lock{fMutex};
     const auto* idEntry = fBlobIDCache.find(key.fUniqueID);
     return idEntry ? idEntry->find(key) : nullptr;
 }
 
 void GrTextBlobCache::remove(GrTextBlob* blob) {
+    SkAutoMutexExclusive lock{fMutex};
     this->internalRemove(blob);
 }
 
@@ -59,6 +58,7 @@ void GrTextBlobCache::internalRemove(GrTextBlob* blob) {
 }
 
 void GrTextBlobCache::makeMRU(GrTextBlob* blob) {
+    SkAutoMutexExclusive lock{fMutex};
     if (fBlobList.head() == blob) {
         return;
     }
@@ -68,21 +68,14 @@ void GrTextBlobCache::makeMRU(GrTextBlob* blob) {
 }
 
 void GrTextBlobCache::freeAll() {
-    fBlobIDCache.foreach([this](uint32_t, BlobIDCacheEntry* entry) {
-        for (const auto& blob : entry->fBlobs) {
-            fBlobList.remove(blob.get());
-        }
-    });
-
+    SkAutoMutexExclusive lock{fMutex};
     fBlobIDCache.reset();
-
+    fBlobList.reset();
     fCurrentSize = 0;
-
-    // There should be no allocations in the memory pool at this point
-    SkASSERT(fBlobList.isEmpty());
 }
 
 void GrTextBlobCache::setBudget(size_t budget) {
+    SkAutoMutexExclusive lock{fMutex};
     fSizeBudget = budget;
     this->internalCheckPurge();
 }
@@ -93,6 +86,7 @@ void GrTextBlobCache::PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
 }
 
 void GrTextBlobCache::purgeStaleBlobs() {
+    SkAutoMutexExclusive lock{fMutex};
     this->internalPurgeStaleBlobs();
 }
 
@@ -119,6 +113,7 @@ void GrTextBlobCache::internalPurgeStaleBlobs() {
 }
 
 size_t GrTextBlobCache::usedBytes() const {
+    SkAutoMutexExclusive lock{fMutex};
     return fCurrentSize;
 }
 
