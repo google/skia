@@ -103,10 +103,6 @@
     "functions": [
       "PatchParameteri",
     ],
-    // FIXME: Make this method non-optional once Chrome starts adding it to the interface.
-    "optional": [
-      "PatchParameteri",
-    ]
   },
 
   {
