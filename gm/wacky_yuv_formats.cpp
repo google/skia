@@ -1010,8 +1010,11 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     canvas->drawString(rowLabel, 0, y, font, paint);
 }
 
-static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& bm) {
-    return context->createBackendTexture(&bm.pixmap(), 1, GrRenderable::kNo, GrProtected::kNo);
+static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& bm, int index,
+                                            YUVABackendReleaseContext* releaseContext) {
+    return context->createBackendTexture(bm.pixmap(), GrRenderable::kNo, GrProtected::kNo,
+                                         YUVABackendReleaseContext::CreationCompleteProc(index),
+                                         releaseContext);
 }
 
 static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
@@ -1198,6 +1201,8 @@ protected:
             }
 
             releaseContext->set(i, tmp);
+            // uninitialized beTextures don't have any pending work
+            releaseContext->setCreationComplete(i);
 
             sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(context, tmp,
                                                                    kTopLeft_GrSurfaceOrigin, 0,
@@ -1258,7 +1263,8 @@ protected:
                         auto releaseContext = new YUVABackendReleaseContext(context);
 
                         for (int i = 0; i < numTextures; ++i) {
-                            GrBackendTexture tmp = create_yuva_texture(context, resultBMs[i]);
+                            GrBackendTexture tmp = create_yuva_texture(context, resultBMs[i], i,
+                                                                       releaseContext);
                             if (!tmp.isValid()) {
                                 YUVABackendReleaseContext::Unwind(context, releaseContext);
                                 return false;
@@ -1530,7 +1536,8 @@ protected:
             auto srgbReleaseContext = new YUVABackendReleaseContext(context);
 
             for (int i = 0; i < numPlanes; ++i) {
-                GrBackendTexture tmp = create_yuva_texture(context, resultBMs[i]);
+                GrBackendTexture tmp = create_yuva_texture(context, resultBMs[i], i,
+                                                           releaseContext);
                 if (!tmp.isValid()) {
                     YUVABackendReleaseContext::Unwind(context, releaseContext);
                     YUVABackendReleaseContext::Unwind(context, srgbReleaseContext);
@@ -1539,7 +1546,7 @@ protected:
 
                 releaseContext->set(i, tmp);
 
-                tmp = create_yuva_texture(context, resultBMs[i]);
+                tmp = create_yuva_texture(context, resultBMs[i], i, srgbReleaseContext);
                 if (!tmp.isValid()) {
                     YUVABackendReleaseContext::Unwind(context, releaseContext);
                     YUVABackendReleaseContext::Unwind(context, srgbReleaseContext);
