@@ -87,12 +87,128 @@ describe('Path Behavior', () => {
                    [CanvasKit.LINE_VERB, 5, 295],
                    [CanvasKit.LINE_VERB, 205, 5],
                    [CanvasKit.CLOSE_VERB]];
-        const path = CanvasKit.MakePathFromCmds(cmds);
+        const path = CanvasKit.SkPath.MakeFromCmds(cmds);
 
         const svgStr = path.toSVGString();
         // We output it in terse form, which is different than Wikipedia's version
         expect(svgStr).toEqual('M205 5L795 5L595 295L5 295L205 5Z');
         path.delete();
+    });
+
+    it('can create a path with malloced verbs, points, weights', () => {
+        const mVerbs = CanvasKit.Malloc(Uint8Array, 6);
+        const mPoints = CanvasKit.Malloc(Float32Array, 18);
+        const mWeights = CanvasKit.Malloc(Float32Array, 1);
+        mVerbs.toTypedArray().set([CanvasKit.MOVE_VERB, CanvasKit.LINE_VERB,
+            CanvasKit.QUAD_VERB, CanvasKit.CONIC_VERB, CanvasKit.CUBIC_VERB, CanvasKit.CLOSE_VERB
+        ]);
+
+        mPoints.toTypedArray().set([
+          1,2, // moveTo
+          3,4, // lineTo
+          5,6,7,8, // quadTo
+          9,10,11,12, // conicTo
+          13,14,15,16,17,18, // cubicTo
+        ]);
+
+        mWeights.toTypedArray().set([117]);
+
+        let path = CanvasKit.SkPath.MakeFromVerbsPointsWeights(mVerbs, mPoints, mWeights);
+
+        let cmds = path.toCmds();
+        expect(cmds).toEqual([
+            [CanvasKit.MOVE_VERB, 1, 2],
+            [CanvasKit.LINE_VERB, 3, 4],
+            [CanvasKit.QUAD_VERB, 5, 6, 7, 8],
+            [CanvasKit.CONIC_VERB, 9, 10, 11, 12, 117],
+            [CanvasKit.CUBIC_VERB, 13, 14, 15, 16, 17, 18],
+            [CanvasKit.CLOSE_VERB],
+        ]);
+        path.delete();
+
+        // If given insufficient points, it stops early (but doesn't read out of bounds).
+        path = CanvasKit.SkPath.MakeFromVerbsPointsWeights(mVerbs, mPoints.subarray(0, 10), mWeights);
+
+        cmds = path.toCmds();
+        expect(cmds).toEqual([
+            [CanvasKit.MOVE_VERB, 1, 2],
+            [CanvasKit.LINE_VERB, 3, 4],
+            [CanvasKit.QUAD_VERB, 5, 6, 7, 8],
+        ]);
+        path.delete();
+        CanvasKit.Free(mVerbs);
+        CanvasKit.Free(mPoints);
+        CanvasKit.Free(mWeights);
+    });
+
+    it('can create and update a path with verbs and points (no weights)', () => {
+        const path = CanvasKit.SkPath.MakeFromVerbsPointsWeights(
+          [CanvasKit.MOVE_VERB, CanvasKit.LINE_VERB],
+          [1,2, 3,4]);
+        let cmds = path.toCmds();
+        expect(cmds).toEqual([
+            [CanvasKit.MOVE_VERB, 1, 2],
+            [CanvasKit.LINE_VERB, 3, 4]
+        ]);
+
+        path.addVerbsPointsWeights(
+          [CanvasKit.QUAD_VERB, CanvasKit.CLOSE_VERB],
+          [5,6,7,8],
+        );
+
+        cmds = path.toCmds();
+        expect(cmds).toEqual([
+            [CanvasKit.MOVE_VERB, 1, 2],
+            [CanvasKit.LINE_VERB, 3, 4],
+            [CanvasKit.QUAD_VERB, 5, 6, 7, 8],
+            [CanvasKit.CLOSE_VERB]
+        ]);
+        path.delete();
+    });
+
+
+    it('can add points to a path in bulk', () => {
+        const mVerbs = CanvasKit.Malloc(Uint8Array, 6);
+        const mPoints = CanvasKit.Malloc(Float32Array, 18);
+        const mWeights = CanvasKit.Malloc(Float32Array, 1);
+        mVerbs.toTypedArray().set([CanvasKit.MOVE_VERB, CanvasKit.LINE_VERB,
+            CanvasKit.QUAD_VERB, CanvasKit.CONIC_VERB, CanvasKit.CUBIC_VERB, CanvasKit.CLOSE_VERB
+        ]);
+
+        mPoints.toTypedArray().set([
+            1,2, // moveTo
+            3,4, // lineTo
+            5,6,7,8, // quadTo
+            9,10,11,12, // conicTo
+            13,14,15,16,17,18, // cubicTo
+        ]);
+
+        mWeights.toTypedArray().set([117]);
+
+        const path = new CanvasKit.SkPath();
+        path.lineTo(77, 88);
+        path.addVerbsPointsWeights(mVerbs, mPoints, mWeights);
+
+        let cmds = path.toCmds();
+        expect(cmds).toEqual([
+            [CanvasKit.MOVE_VERB, 0, 0],
+            [CanvasKit.LINE_VERB, 77, 88],
+            [CanvasKit.MOVE_VERB, 1, 2],
+            [CanvasKit.LINE_VERB, 3, 4],
+            [CanvasKit.QUAD_VERB, 5, 6, 7, 8],
+            [CanvasKit.CONIC_VERB, 9, 10, 11, 12, 117],
+            [CanvasKit.CUBIC_VERB, 13, 14, 15, 16, 17, 18],
+            [CanvasKit.CLOSE_VERB],
+        ]);
+
+        path.rewind();
+        cmds = path.toCmds();
+        expect(cmds).toEqual([]);
+
+        path.delete();
+        CanvasKit.Free(mVerbs);
+        CanvasKit.Free(mPoints);
+        CanvasKit.Free(mWeights);
     });
 
     gm('offset_path', (canvas) => {

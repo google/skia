@@ -488,6 +488,76 @@ SkPathOrNull MakePathFromCmds(uintptr_t /* float* */ cptr, int numCmds) {
     return emscripten::val(path);
 }
 
+void PathAddVerbsPointsWeights(SkPath& path, uintptr_t /* uint8_t* */ verbsPtr, int numVerbs,
+                                             uintptr_t /* float* */ ptsPtr, int numPts,
+                                             uintptr_t /* float* */ wtsPtr, int numWts) {
+    const uint8_t* verbs = reinterpret_cast<const uint8_t*>(verbsPtr);
+    const float* pts = reinterpret_cast<const float*>(ptsPtr);
+    const float* weights = reinterpret_cast<const float*>(wtsPtr);
+
+    #define CHECK_NUM_POINTS(n) \
+        if ((ptIdx + n) > numPts) { \
+            SkDebugf("Not enough points to match the verbs. Saw %d points\n", numPts); \
+            return; \
+        }
+    #define CHECK_NUM_WEIGHTS(n) \
+        if ((wtIdx + n) > numWts) { \
+            SkDebugf("Not enough weights to match the verbs. Saw %d weights\n", numWts); \
+            return; \
+        }
+
+    path.incReserve(numPts);
+    int ptIdx = 0;
+    int wtIdx = 0;
+    for (int v = 0; v < numVerbs; ++v) {
+         switch (verbs[v]) {
+              case MOVE:
+                  CHECK_NUM_POINTS(2);
+                  path.moveTo(pts[ptIdx], pts[ptIdx+1]);
+                  ptIdx += 2;
+                  break;
+              case LINE:
+                  CHECK_NUM_POINTS(2);
+                  path.lineTo(pts[ptIdx], pts[ptIdx+1]);
+                  ptIdx += 2;
+                  break;
+              case QUAD:
+                  CHECK_NUM_POINTS(4);
+                  path.quadTo(pts[ptIdx], pts[ptIdx+1], pts[ptIdx+2], pts[ptIdx+3]);
+                  ptIdx += 4;
+                  break;
+              case CONIC:
+                  CHECK_NUM_POINTS(4);
+                  CHECK_NUM_WEIGHTS(1);
+                  path.conicTo(pts[ptIdx], pts[ptIdx+1], pts[ptIdx+2], pts[ptIdx+3],
+                               weights[wtIdx]);
+                  ptIdx += 4;
+                  wtIdx++;
+                  break;
+              case CUBIC:
+                  CHECK_NUM_POINTS(6);
+                  path.cubicTo(pts[ptIdx  ], pts[ptIdx+1],
+                               pts[ptIdx+2], pts[ptIdx+3],
+                               pts[ptIdx+4], pts[ptIdx+5]);
+                  ptIdx += 6;
+                  break;
+              case CLOSE:
+                  path.close();
+                  break;
+        }
+    }
+    #undef CHECK_NUM_POINTS
+    #undef CHECK_NUM_WEIGHTS
+}
+
+SkPath MakePathFromVerbsPointsWeights(uintptr_t /* uint8_t* */ verbsPtr, int numVerbs,
+                                      uintptr_t ptsPtr, int numPts,
+                                      uintptr_t wtsPtr, int numWts) {
+    SkPath path;
+    PathAddVerbsPointsWeights(path, verbsPtr, numVerbs, ptsPtr, numPts, wtsPtr, numWts);
+    return path;
+}
+
 //========================================================================================
 // Path Effects
 //========================================================================================
@@ -759,7 +829,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // Adds a little helper because emscripten doesn't expose default params.
         return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
     }), allow_raw_pointers());
-    function("_MakePathFromCmds", &MakePathFromCmds);
 #ifdef SK_INCLUDE_PATHOPS
     function("MakePathFromOp", &MakePathFromOp);
 #endif
@@ -1383,6 +1452,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkPath>("SkPath")
         .constructor<>()
         .constructor<const SkPath&>()
+        .class_function("_MakeFromCmds", &MakePathFromCmds)
+        .class_function("_MakeFromVerbsPointsWeights", &MakePathFromVerbsPointsWeights)
         .function("_addArc", &ApplyAddArc)
         // interface.js has 3 overloads of addPath
         .function("_addOval", &ApplyAddOval)
@@ -1398,6 +1469,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_addRect", &ApplyAddRect)
         // interface.js has 4 overloads of addRoundRect
         .function("_addRoundRect", &ApplyAddRoundRect)
+        .function("_addVerbsPointsWeights", &PathAddVerbsPointsWeights)
         .function("_arcTo", &ApplyArcTo)
         .function("_arcTo", &ApplyArcToAngle)
         .function("_arcTo", &ApplyArcToArcSize)

@@ -963,4 +963,27 @@ describe('Core canvas behavior', () => {
         });
     }); // end describe('DOMMatrix support')
 
+    it('can call subarray on a Malloced object', () => {
+        const mThings = CanvasKit.Malloc(Float32Array, 6);
+        mThings.toTypedArray().set([4, 5, 6, 7, 8, 9]);
+        expectTypedArraysToEqual(Float32Array.of(4, 5, 6, 7, 8, 9), mThings.toTypedArray());
+        expectTypedArraysToEqual(Float32Array.of(4, 5, 6, 7, 8, 9), mThings.subarray(0));
+        expectTypedArraysToEqual(Float32Array.of(7, 8, 9), mThings.subarray(3));
+        expectTypedArraysToEqual(Float32Array.of(7), mThings.subarray(3, 4));
+        expectTypedArraysToEqual(Float32Array.of(7, 8), mThings.subarray(3, 5));
+
+        // mutations on the subarray affect the entire array (because they are backed by the
+        // same memory)
+        mThings.subarray(3)[0] = 100.5;
+        expectTypedArraysToEqual(Float32Array.of(4, 5, 6, 100.5, 8, 9), mThings.toTypedArray());
+        CanvasKit.Free(mThings);
+    });
+
+    function expectTypedArraysToEqual(expected, actual) {
+        expect(expected.constructor.name).toEqual(actual.constructor.name);
+        expect(expected.length).toEqual(actual.length);
+        for (let i = 0; i < expected.length; i++) {
+            expect(expected[i]).toBeCloseTo(actual[i], 5, `element ${i}`);
+        }
+    }
 });

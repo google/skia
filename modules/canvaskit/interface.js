@@ -520,7 +520,31 @@ CanvasKit.onRuntimeInitialized = function() {
     }
 
     return m;
-  }
+  };
+
+  CanvasKit.SkPath.MakeFromCmds = function(cmds) {
+    var ptrLen = loadCmdsTypedArray(cmds);
+    var path = CanvasKit.SkPath._MakeFromCmds(ptrLen[0], ptrLen[1]);
+    CanvasKit._free(ptrLen[0]);
+    return path;
+  };
+
+  // Deprecated
+  CanvasKit.MakePathFromCmds = CanvasKit.SkPath.MakeFromCmds;
+
+  // The weights array is optional (only used for conics).
+  CanvasKit.SkPath.MakeFromVerbsPointsWeights = function(verbs, pts, weights) {
+    var verbsPtr = copy1dArray(verbs, "HEAPU8");
+    var pointsPtr = copy1dArray(pts, "HEAPF32");
+    var weightsPtr = copy1dArray(weights, "HEAPF32");
+    var numWeights = (weights && weights.length) || 0;
+    var path = CanvasKit.SkPath._MakeFromVerbsPointsWeights(
+        verbsPtr, verbs.length, pointsPtr, pts.length, weightsPtr, numWeights);
+    freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+    freeArraysThatAreNotMallocedByUsers(pointsPtr, pts);
+    freeArraysThatAreNotMallocedByUsers(weightsPtr, weights);
+    return path;
+  };
 
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
     // see arc() for the HTMLCanvas version
@@ -652,6 +676,19 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     freeArraysThatAreNotMallocedByUsers(rptr, radii);
     return this;
+  };
+
+  // The weights array is optional (only used for conics).
+  CanvasKit.SkPath.prototype.addVerbsPointsWeights = function(verbs, points, weights) {
+    var verbsPtr = copy1dArray(verbs, "HEAPU8");
+    var pointsPtr = copy1dArray(points, "HEAPF32");
+    var weightsPtr = copy1dArray(weights, "HEAPF32");
+    var numWeights = (weights && weights.length) || 0;
+    this._addVerbsPointsWeights(verbsPtr, verbs.length, pointsPtr, points.length,
+                                weightsPtr, numWeights);
+    freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+    freeArraysThatAreNotMallocedByUsers(pointsPtr, points);
+    freeArraysThatAreNotMallocedByUsers(weightsPtr, weights);
   };
 
   CanvasKit.SkPath.prototype.arc = function(x, y, radius, startAngle, endAngle, ccw) {
@@ -1288,12 +1325,12 @@ CanvasKit.computeTonalColors = function(tonalColors) {
     var result =  {
       'ambient': copyColorFromWasm(cPtrAmbi),
       'spot': copyColorFromWasm(cPtrSpot),
-    }
+    };
     // If the user passed us malloced colors in here, we don't want to clean them up.
     freeArraysThatAreNotMallocedByUsers(cPtrAmbi, tonalColors['ambient']);
     freeArraysThatAreNotMallocedByUsers(cPtrSpot, tonalColors['spot']);
     return result;
-}
+};
 
 CanvasKit.LTRBRect = function(l, t, r, b) {
   return {
@@ -1302,7 +1339,7 @@ CanvasKit.LTRBRect = function(l, t, r, b) {
     fRight: r,
     fBottom: b,
   };
-}
+};
 
 CanvasKit.XYWHRect = function(x, y, w, h) {
   return {
@@ -1311,7 +1348,7 @@ CanvasKit.XYWHRect = function(x, y, w, h) {
     fRight: x+w,
     fBottom: y+h,
   };
-}
+};
 
 // RRectXY returns an RRect with the given rect and a radiusX and radiusY for
 // all 4 corners.
@@ -1327,14 +1364,7 @@ CanvasKit.RRectXY = function(rect, rx, ry) {
     rx4: rx,
     ry4: ry,
   };
-}
-
-CanvasKit.MakePathFromCmds = function(cmds) {
-  var ptrLen = loadCmdsTypedArray(cmds);
-  var path = CanvasKit._MakePathFromCmds(ptrLen[0], ptrLen[1]);
-  CanvasKit._free(ptrLen[0]);
-  return path;
-}
+};
 
 // data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
 CanvasKit.MakeAnimatedImageFromEncoded = function(data) {
@@ -1454,7 +1484,6 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
     copy1dArray(indices, "HEAPU16", builder.indices());
   }
 
-  var idxCount = (indices && indices.length) || 0;
   // Create the vertices, which owns the memory that the builder had allocated.
   return builder.detach();
 };

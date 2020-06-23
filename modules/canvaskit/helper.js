@@ -168,8 +168,8 @@ function assureIntColors(arr) {
   } else if (arr instanceof Array && arr[0] instanceof Float32Array) {
     return arr.map(toUint32Color);
   }
-  
 }
+
 function uIntColorToCanvasKitColor(c) {
     return CanvasKit.Color(
      (c >> 16) & 0xFF,
@@ -481,6 +481,7 @@ var Float32ArrayCache = {};
 //   [CanvasKit.LINE_VERB, 30, 40],
 //   [CanvasKit.QUAD_VERB, 20, 50, 45, 60],
 // ];
+// TODO(kjlubick) remove this and Float32ArrayCache (superceded by Malloc).
 function loadCmdsTypedArray(arr) {
   var len = 0;
   for (var r = 0; r < arr.length; r++) {
@@ -756,6 +757,11 @@ CanvasKit.Malloc = function(typedArray, len) {
     'length': len,
     'byteOffset': ptr,
     typedArray: null,
+    'subarray': function(start, end) {
+      var sa = this['toTypedArray']().subarray(start, end);
+      sa['_ck'] = true;
+      return sa;
+    },
     'toTypedArray': function() {
       // Check if the previously allocated array is still usable.
       // If it's falsey, then we haven't created an array yet.
@@ -786,7 +792,7 @@ CanvasKit.Free = function(mallocObj) {
 // This helper will free the given pointer unless the provided array is one
 // that was returned by CanvasKit.Malloc.
 function freeArraysThatAreNotMallocedByUsers(ptr, arr) {
-  if (!arr['_ck']) {
+  if (arr && !arr['_ck']) {
     CanvasKit._free(ptr);
   }
 }
