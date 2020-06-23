@@ -11,6 +11,8 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 
@@ -19,6 +21,7 @@
 #include <vector>
 
 class SkCanvas;
+class SkPaint;
 class SkStreamAsset;
 
 namespace skrive {
@@ -71,6 +74,7 @@ protected:
     enum class Type : uint32_t {
         kNode,
         kShape,
+        kColorPaint,
     };
 
     explicit Component(Type t) : fType(t) {}
@@ -141,10 +145,54 @@ private:
     using INHERITED = Drawable;
 };
 
+class Paint : public Component {
+public:
+    ACTOR_ATTR(Opacity    , float         , 1                         )
+    ACTOR_ATTR(FillRule   , SkPathFillType, SkPathFillType::kWinding  )
+    ACTOR_ATTR(StrokeWidth, float         , 1                         )
+    ACTOR_ATTR(StrokeCap  , SkPaint::Cap  , SkPaint::Cap::kButt_Cap   )
+    ACTOR_ATTR(StrokeJoin , SkPaint::Join , SkPaint::Join::kMiter_Join)
+
+    enum class StrokeTrim : uint8_t { kOff, kSequential, kSynced };
+    ACTOR_ATTR(StrokeTrim      , StrokeTrim, StrokeTrim::kOff)
+    ACTOR_ATTR(StrokeTrimStart , float     , 0)
+    ACTOR_ATTR(StrokeTrimEnd   , float     , 0)
+    ACTOR_ATTR(StrokeTrimOffset, float     , 0)
+
+    void apply(SkPaint*) const;
+
+    SkPaint::Style style() const { return fStyle; }
+
+protected:
+    Paint(Type t, SkPaint::Style style) : INHERITED(t), fStyle(style) {}
+
+    virtual void onApply(SkPaint*) const = 0;
+
+private:
+    const SkPaint::Style fStyle;
+
+    using INHERITED = Component;
+};
+
+class ColorPaint final : public Paint {
+public:
+    explicit ColorPaint(SkPaint::Style style) : INHERITED(Type::kColorPaint, style) {}
+
+    ACTOR_ATTR(Color, SkColor4f, SkColors::kBlack)
+
+private:
+    void onRevalidate() override;
+
+    void onApply(SkPaint*) const override;
+
+    using INHERITED = Paint;
+};
+
 template <typename T>
 constexpr bool Component::is_base_of(Type t) {
-    if (t == Type::kNode ) return std::is_base_of<T, Node >::value;
-    if (t == Type::kShape) return std::is_base_of<T, Shape>::value;
+    if (t == Type::kNode      ) return std::is_base_of<T, Node      >::value;
+    if (t == Type::kShape     ) return std::is_base_of<T, Shape     >::value;
+    if (t == Type::kColorPaint) return std::is_base_of<T, ColorPaint>::value;
 
     return false;
 }

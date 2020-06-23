@@ -20,9 +20,10 @@ namespace internal {
 template <typename T>
 size_t parse_node(StreamReader*, T*);
 
-template <typename T>
-std::tuple<sk_sp<Node>, size_t> make_from_stream(StreamReader* sr) {
-    auto node = sk_make_sp<T>();
+template <typename T, typename... Args>
+std::tuple<sk_sp<Component>, size_t> make_from_stream(StreamReader* sr, Args&&... args) {
+    auto node = sk_make_sp<T>(std::forward<Args>(args)...);
+
     const auto parent_index = parse_node<T>(sr, node.get());
 
     return std::make_tuple(std::move(node), parent_index);
@@ -31,10 +32,16 @@ std::tuple<sk_sp<Node>, size_t> make_from_stream(StreamReader* sr) {
 std::tuple<sk_sp<Component>, size_t> parse_component(StreamReader* sr) {
     StreamReader::AutoBlock block(sr);
     switch (block.type()) {
-    case StreamReader::BlockType::kActorNode : return make_from_stream<Node >(sr);
-    case StreamReader::BlockType::kActorShape: return make_from_stream<Shape>(sr);
-    default:
-        break;
+        case StreamReader::BlockType::kActorNode:
+            return make_from_stream<Node >(sr);
+        case StreamReader::BlockType::kActorShape:
+            return make_from_stream<Shape>(sr);
+        case StreamReader::BlockType::kColorFill:
+            return make_from_stream<ColorPaint>(sr, SkPaint::kFill_Style);
+        case StreamReader::BlockType::kColorStroke:
+            return make_from_stream<ColorPaint>(sr, SkPaint::kStroke_Style);
+        default:
+            break;
     }
 
     SkDebugf("!! unsupported node type: %d\n", block.type());
