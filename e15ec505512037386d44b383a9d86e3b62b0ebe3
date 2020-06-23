@@ -16,6 +16,24 @@
       "revId": "e15ec505512037386d44b383a9d86e3b62b0ebe3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "035c45c7_56831ab5",
+        "filename": "src/effects/imagefilters/SkImageSource.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T15:27:41Z",
+      "side": 1,
+      "message": "So the other approaches don\u0027t work well here (calling makeTextureImage(...) here, or in SkSpecialImage::MakeFromImage), because we only have a recording context, and makeTextureImage needs a \"real\" GrContext. So this may be the simplest solution?",
+      "parentUuid": "a74bedcc_5497b02a",
+      "revId": "e15ec505512037386d44b383a9d86e3b62b0ebe3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
