@@ -51,7 +51,7 @@ public:
 
     void purgeStaleBlobs();
 
-    size_t usedBytes() const { return fCurrentSize; }
+    size_t usedBytes() const;
 
 private:
     using TextBlobList = SkTInternalLList<GrTextBlob>;
@@ -76,9 +76,12 @@ private:
         SkSTArray<1, sk_sp<GrTextBlob>> fBlobs;
     };
 
-    void add(sk_sp<GrTextBlob> blob);
+    void internalPurgeStaleBlobs();
 
-    void checkPurge(GrTextBlob* blob = nullptr);
+    void internalAdd(sk_sp<GrTextBlob> blob);
+    void internalRemove(GrTextBlob* blob);
+
+    void internalCheckPurge(GrTextBlob* blob = nullptr);
 
     static const int kDefaultBudget = 1 << 22;
 
