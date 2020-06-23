@@ -16,12 +16,14 @@ void GrD3DTextureResource::setResourceState(const GrD3DGpu* gpu,
         return;
     }
 
-    D3D12_RESOURCE_TRANSITION_BARRIER barrier;
-    barrier.pResource = this->d3dResource();
-    barrier.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-    barrier.StateBefore = currentResourceState;
-    barrier.StateAfter = newResourceState;
-    gpu->addResourceBarriers(this->resource(), 1, &barrier);
+    SkAutoTMalloc<D3D12_RESOURCE_TRANSITION_BARRIER> barriers(fInfo.fLevelCount);
+    for (uint32_t mipLevel = 0; mipLevel < fInfo.fLevelCount; ++mipLevel) {
+        barriers[mipLevel].pResource = this->d3dResource();
+        barriers[mipLevel].Subresource = mipLevel;
+        barriers[mipLevel].StateBefore = currentResourceState;
+        barriers[mipLevel].StateAfter = newResourceState;
+    }
+    gpu->addResourceBarriers(this->resource(), fInfo.fLevelCount, barriers.get());
 
     this->updateResourceState(newResourceState);
 }

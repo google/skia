@@ -11,7 +11,6 @@
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
-#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
@@ -196,11 +195,6 @@ void GrD3DGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
     SkASSERT(finishedProc);
     sk_sp<GrRefCntedCallback> finishedCallback(
             new GrRefCntedCallback(finishedProc, finishedContext));
-    this->addFinishedCallback(std::move(finishedCallback));
-}
-
-void GrD3DGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
-    SkASSERT(finishedCallback);
     // Besides the current command list, we also add the finishedCallback to the newest outstanding
     // command list. Our contract for calling the proc is that all previous submitted command lists
     // have finished when we call it. However, if our current command list has no work when it is
@@ -910,157 +904,10 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
 }
 
-bool copy_src_data(GrD3DGpu* gpu, char* mapPtr, DXGI_FORMAT dxgiFormat,
-                   D3D12_PLACED_SUBRESOURCE_FOOTPRINT* placedFootprints,
-                   const SkPixmap srcData[], int numMipLevels) {
-    SkASSERT(srcData && numMipLevels);
-    SkASSERT(!GrDxgiFormatIsCompressed(dxgiFormat));
-    SkASSERT(mapPtr);
-
-    size_t bytesPerPixel = gpu->d3dCaps().bytesPerPixel(dxgiFormat);
-
-    for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
-        const size_t trimRowBytes = srcData[currentMipLevel].width() * bytesPerPixel;
-
-        // copy data into the buffer, skipping any trailing bytes
-        char* dst = mapPtr + placedFootprints[currentMipLevel].Offset;
-        SkRectMemcpy(dst, placedFootprints[currentMipLevel].Footprint.RowPitch,
-                     srcData[currentMipLevel].addr(), srcData[currentMipLevel].rowBytes(),
-                     trimRowBytes, srcData[currentMipLevel].height());
-    }
-
-    return true;
-}
-
-// Used to "clear" a backend texture to a constant color by transferring.
-static GrColorType dxgi_format_to_backend_tex_clear_colortype(DXGI_FORMAT format) {
-    switch (format) {
-        case DXGI_FORMAT_A8_UNORM:            return GrColorType::kAlpha_8;
-        case DXGI_FORMAT_R8_UNORM:            return GrColorType::kR_8;
-
-        case DXGI_FORMAT_B5G6R5_UNORM:        return GrColorType::kBGR_565;
-        case DXGI_FORMAT_B4G4R4A4_UNORM:      return GrColorType::kABGR_4444;
-        case DXGI_FORMAT_R8G8B8A8_UNORM:      return GrColorType::kRGBA_8888;
-        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB: return GrColorType::kRGBA_8888_SRGB;
-
-        case DXGI_FORMAT_R8G8_UNORM:          return GrColorType::kRG_88;
-        case DXGI_FORMAT_B8G8R8A8_UNORM:      return GrColorType::kBGRA_8888;
-        case DXGI_FORMAT_R10G10B10A2_UNORM:   return GrColorType::kRGBA_1010102;
-        case DXGI_FORMAT_R16_FLOAT:           return GrColorType::kR_F16;
-        case DXGI_FORMAT_R16G16B16A16_FLOAT:  return GrColorType::kRGBA_F16;
-        case DXGI_FORMAT_R16_UNORM:           return GrColorType::kR_16;
-        case DXGI_FORMAT_R16G16_UNORM:        return GrColorType::kRG_1616;
-        case DXGI_FORMAT_R16G16B16A16_UNORM:  return GrColorType::kRGBA_16161616;
-        case DXGI_FORMAT_R16G16_FLOAT:        return GrColorType::kRG_F16;
-        default:                              return GrColorType::kUnknown;
-    }
-
-    SkUNREACHABLE;
-}
-
-
-bool copy_color_data(char* mapPtr, DXGI_FORMAT dxgiFormat, SkISize dimensions,
-                     D3D12_PLACED_SUBRESOURCE_FOOTPRINT* placedFootprints, SkColor4f color) {
-    auto colorType = dxgi_format_to_backend_tex_clear_colortype(dxgiFormat);
-    if (colorType == GrColorType::kUnknown) {
-        return false;
-    }
-    GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, dimensions);
-    if (!GrClearImage(ii, mapPtr, placedFootprints[0].Footprint.RowPitch, color)) {
-        return false;
-    }
-
-    return true;
-}
-
 bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                       sk_sp<GrRefCntedCallback> finishedCallback,
                                       const BackendTextureData* data) {
-    GrD3DTextureResourceInfo info;
-    SkAssertResult(backendTexture.getD3DTextureResourceInfo(&info));
-
-    sk_sp<GrD3DResourceState> state = backendTexture.getGrD3DResourceState();
-    SkASSERT(state);
-    sk_sp<GrD3DTexture> texture =
-            GrD3DTexture::MakeWrappedTexture(this, backendTexture.dimensions(),
-                                             GrWrapCacheable::kNo,
-                                             kRW_GrIOType, info, std::move(state));
-    if (!texture) {
-        return false;
-    }
-
-    GrD3DDirectCommandList* cmdList = this->currentCommandList();
-    if (!cmdList) {
-        return false;
-    }
-
-    texture->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
-
-    ID3D12Resource* d3dResource = texture->d3dResource();
-    SkASSERT(d3dResource);
-    D3D12_RESOURCE_DESC desc = d3dResource->GetDesc();
-    unsigned int mipLevelCount = 1;
-    if (backendTexture.fMipMapped == GrMipMapped::kYes) {
-        mipLevelCount = SkMipMap::ComputeLevelCount(backendTexture.dimensions().width(),
-                                                    backendTexture.dimensions().height()) + 1;
-    }
-    SkASSERT(mipLevelCount == info.fLevelCount);
-    SkAutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
-    UINT64 combinedBufferSize;
-    fDevice->GetCopyableFootprints(&desc, 0, mipLevelCount, 0, placedFootprints.get(),
-                                   nullptr, nullptr, &combinedBufferSize);
-    SkASSERT(combinedBufferSize);
-    if (data->type() == BackendTextureData::Type::kColor &&
-        !GrDxgiFormatIsCompressed(info.fFormat) && mipLevelCount > 1) {
-        // For a single uncompressed color, we reuse the same top-level buffer area for all levels.
-        combinedBufferSize =
-                placedFootprints[0].Footprint.RowPitch * placedFootprints[0].Footprint.Height;
-        for (unsigned int i = 1; i < mipLevelCount; ++i) {
-            placedFootprints[i].Offset = 0;
-            placedFootprints[i].Footprint.RowPitch = placedFootprints[0].Footprint.RowPitch;
-        }
-    }
-
-    // TODO: do this until we have slices of buttery buffers
-    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(combinedBufferSize,
-                                                           GrGpuBufferType::kXferCpuToGpu,
-                                                           kDynamic_GrAccessPattern);
-    if (!transferBuffer) {
-        return false;
-    }
-    char* bufferData = (char*)transferBuffer->map();
-    SkASSERT(bufferData);
-
-    bool result;
-    if (data->type() == BackendTextureData::Type::kPixmaps) {
-        result = copy_src_data(this, bufferData, info.fFormat, placedFootprints.get(),
-                               data->pixmaps(), info.fLevelCount);
-    } else if (data->type() == BackendTextureData::Type::kCompressed) {
-        memcpy(bufferData, data->compressedData(), data->compressedSize());
-        result = true;
-    } else {
-        SkASSERT(data->type() == BackendTextureData::Type::kColor);
-        SkImage::CompressionType compression =
-                GrBackendFormatToCompressionType(backendTexture.getBackendFormat());
-        if (SkImage::CompressionType::kNone == compression) {
-            result = copy_color_data(bufferData, info.fFormat, backendTexture.dimensions(),
-                                     placedFootprints, data->color());
-        } else {
-            GrFillInCompressedData(compression, backendTexture.dimensions(),
-                                   backendTexture.fMipMapped, bufferData, data->color());
-            result = true;
-        }
-    }
-    transferBuffer->unmap();
-
-    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(transferBuffer.get());
-    cmdList->copyBufferToTexture(d3dBuffer, texture.get(), mipLevelCount, placedFootprints.get(),
-                                 0, 0);
-
-    if (finishedCallback) {
-        this->addFinishedCallback(std::move(finishedCallback));
-    }
-
+    // TODO: handle finishedCallback and data upload
     return true;
 }
 
