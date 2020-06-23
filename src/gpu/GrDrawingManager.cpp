@@ -669,8 +669,13 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     SkDEBUGCODE(this->validate());
 }
 
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
+                                              GrRenderTargetProxy* newDest) {
+#else
 void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
                                               GrRenderTargetProxy* newDest) {
+#endif
     SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {
@@ -705,6 +710,8 @@ void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
     }
 
     fDAG.add(ddl->fRenderTasks);
+
+    // TODO: After migrating fully to sk_sp, ref it here and add a task to unref it after flush.
 
     SkDEBUGCODE(this->validate());
 }

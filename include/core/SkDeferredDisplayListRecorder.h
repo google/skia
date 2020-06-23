@@ -50,7 +50,7 @@ public:
     // Note: ownership of the SkCanvas is not transferred via this call.
     SkCanvas* getCanvas();
 
-    std::unique_ptr<SkDeferredDisplayList> detach();
+    SkDDLPointer detach();
 
     using PromiseImageTextureContext = void*;
     using PromiseImageTextureFulfillProc =
