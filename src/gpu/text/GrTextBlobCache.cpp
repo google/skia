@@ -21,10 +21,6 @@ GrTextBlobCache::GrTextBlobCache(PurgeMore purgeMore, uint32_t messageBusID)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
-GrTextBlobCache::~GrTextBlobCache() {
-    this->freeAll();
-}
-
 sk_sp<GrTextBlob>
 GrTextBlobCache::makeCachedBlob(const SkGlyphRunList& glyphRunList, const GrTextBlob::Key& key,
                                 const SkMaskFilterBase::BlurRec& blurRec,
@@ -68,18 +64,9 @@ void GrTextBlobCache::makeMRU(GrTextBlob* blob) {
 }
 
 void GrTextBlobCache::freeAll() {
-    fBlobIDCache.foreach([this](uint32_t, BlobIDCacheEntry* entry) {
-        for (const auto& blob : entry->fBlobs) {
-            fBlobList.remove(blob.get());
-        }
-    });
-
     fBlobIDCache.reset();
-
+    fBlobList.reset();
     fCurrentSize = 0;
-
-    // There should be no allocations in the memory pool at this point
-    SkASSERT(fBlobList.isEmpty());
 }
 
 void GrTextBlobCache::setBudget(size_t budget) {
