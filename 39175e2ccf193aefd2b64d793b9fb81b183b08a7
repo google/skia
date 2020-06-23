@@ -93,6 +93,30 @@
       "revId": "39175e2ccf193aefd2b64d793b9fb81b183b08a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5af419b1_9186a486",
+        "filename": "include/gpu/vk/GrVkMemoryAllocator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-23T14:55:50Z",
+      "side": 1,
+      "message": "Good catch, updated the calls which can return a result. I was just going by our return values here and should have looked at the actual calls to see what can be updated.",
+      "parentUuid": "b7719e65_37ee481d",
+      "range": {
+        "startLine": 97,
+        "startChar": 18,
+        "endLine": 97,
+        "endChar": 27
+      },
+      "revId": "39175e2ccf193aefd2b64d793b9fb81b183b08a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
