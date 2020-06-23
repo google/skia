@@ -22,6 +22,30 @@
       "revId": "b5e8b357e74d7133bef77cba4cbfa7658c744465",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb02704b_a3fd1899",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-23T15:29:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1956c4ec_3d669b1f",
+      "range": {
+        "startLine": 317,
+        "startChar": 50,
+        "endLine": 317,
+        "endChar": 68
+      },
+      "revId": "b5e8b357e74d7133bef77cba4cbfa7658c744465",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
