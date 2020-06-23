@@ -22,6 +22,30 @@
       "revId": "39175e2ccf193aefd2b64d793b9fb81b183b08a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce2727e7_178d2d7d",
+        "filename": "include/gpu/vk/GrVkMemoryAllocator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-23T13:11:32Z",
+      "side": 1,
+      "message": "And this will all be gone soon anyway, right?",
+      "parentUuid": "a8fb045a_4099b953",
+      "range": {
+        "startLine": 63,
+        "startChar": 11,
+        "endLine": 63,
+        "endChar": 42
+      },
+      "revId": "39175e2ccf193aefd2b64d793b9fb81b183b08a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
