@@ -302,6 +302,9 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     if (ContextOverrides::kAvoidStencilBuffers & overrides) {
         grOptions.fAvoidStencilBuffers = true;
     }
+    if (ContextOverrides::kRandomGLOOM & overrides) {
+        grOptions.fRandomGLOOM = true;
+    }
     sk_sp<GrContext> grCtx;
     {
         auto restore = testCtx->makeCurrentAndAutoRestore();
