@@ -156,6 +156,7 @@ void IRGenerator::start(const Program::Settings* settings,
     fSkPerVertex = nullptr;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
+    fInlineVarCounter = 0;
     if (inherited) {
         for (const auto& e : *inherited) {
             if (e->fKind == ProgramElement::kInterfaceBlock_Kind) {
@@ -2184,7 +2185,8 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     Variable* resultVar;
     if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
         std::unique_ptr<String> name(new String());
-        name->appendf("inlineResult%d", offset);
+        int varIndex = fInlineVarCounter++;
+        name->appendf("inlineResult%d", varIndex);
         String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
         resultVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
                                                      new Variable(-1, Modifiers(), namePtr->c_str(),
@@ -2203,9 +2205,10 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     }
     std::map<const Variable*, const Variable*> varMap;
     // create variables to hold the arguments and assign the arguments to them
+    int argIndex = fInlineVarCounter++;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         std::unique_ptr<String> argName(new String());
-        argName->appendf("inlineArg%d_%d", offset, i);
+        argName->appendf("inlineArg%d_%d", argIndex, i);
         String* argNamePtr = (String*) fSymbolTable->takeOwnership(std::move(argName));
         Variable* argVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
                                                       new Variable(-1, Modifiers(),
