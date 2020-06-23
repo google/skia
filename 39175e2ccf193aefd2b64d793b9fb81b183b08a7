@@ -46,6 +46,30 @@
       "revId": "39175e2ccf193aefd2b64d793b9fb81b183b08a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f30de01e_6762eb4f",
+        "filename": "include/gpu/vk/GrVkMemoryAllocator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-23T13:12:10Z",
+      "side": 1,
+      "message": "yup",
+      "parentUuid": "ce2727e7_178d2d7d",
+      "range": {
+        "startLine": 63,
+        "startChar": 11,
+        "endLine": 63,
+        "endChar": 42
+      },
+      "revId": "39175e2ccf193aefd2b64d793b9fb81b183b08a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
