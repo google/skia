@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a4b631a_8d8a0883",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-23T15:27:15Z",
+      "side": 1,
+      "message": "Also test calling it with no weights",
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
