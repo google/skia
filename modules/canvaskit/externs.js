@@ -453,12 +453,14 @@ var CanvasKit = {
     toSVGString: function() {},
 
     // private API
+    _MakeFromVerbsPointsWeights: function() {},
     _addArc: function() {},
     _addOval: function() {},
     _addPath: function() {},
     _addRect: function() {},
     _addPoly: function() {},
     _addRoundRect: function() {},
+    _addVerbsPointsWeights: function() {},
     _arc: function() {},
     _arcTo: function() {},
     _close: function() {},
@@ -870,6 +872,7 @@ CanvasKit.SkPath.prototype.addPath = function() {};
 CanvasKit.SkPath.prototype.addPoly = function() {};
 CanvasKit.SkPath.prototype.addRect = function() {};
 CanvasKit.SkPath.prototype.addRoundRect = function() {};
+CanvasKit.SkPath.prototype.addVerbsPointsWeights = function() {};
 CanvasKit.SkPath.prototype.arc = function() {};
 CanvasKit.SkPath.prototype.arcTo = function() {};
 CanvasKit.SkPath.prototype.close = function() {};

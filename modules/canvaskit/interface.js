@@ -520,7 +520,21 @@ CanvasKit.onRuntimeInitialized = function() {
     }
 
     return m;
-  }
+  };
+
+  // The weights array is optional (only used for conics).
+  CanvasKit.SkPath.MakeFromVerbsPointsWeights = function(verbs, pts, weights) {
+    var verbsPtr = copy1dArray(verbs, "HEAPU8");
+    var pointsPtr = copy1dArray(pts, "HEAPF32");
+    var weightsPtr = copy1dArray(weights, "HEAPF32");
+    var numWeights = (weights && weights.length) || 0;
+    var path = CanvasKit.SkPath._MakeFromVerbsPointsWeights(
+        verbsPtr, verbs.length, pointsPtr, pts.length, weightsPtr, numWeights);
+    freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+    freeArraysThatAreNotMallocedByUsers(pointsPtr, pts);
+    weights && freeArraysThatAreNotMallocedByUsers(weightsPtr, weights);
+    return path;
+  };
 
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
     // see arc() for the HTMLCanvas version
@@ -652,6 +666,19 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     freeArraysThatAreNotMallocedByUsers(rptr, radii);
     return this;
+  };
+
+  // The weights array is optional (only used for conics).
+  CanvasKit.SkPath.prototype.addVerbsPointsWeights = function(verbs, points, weights) {
+    var verbsPtr = copy1dArray(verbs, "HEAPU8");
+    var pointsPtr = copy1dArray(points, "HEAPF32");
+    var weightsPtr = copy1dArray(weights, "HEAPF32");
+    var numWeights = (weights && weights.length) || 0;
+    this._addVerbsPointsWeights(verbsPtr, verbs.length, pointsPtr, points.length,
+                                weightsPtr, numWeights);
+    freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+    freeArraysThatAreNotMallocedByUsers(pointsPtr, points);
+    weights && freeArraysThatAreNotMallocedByUsers(weightsPtr, weights);
   };
 
   CanvasKit.SkPath.prototype.arc = function(x, y, radius, startAngle, endAngle, ccw) {
