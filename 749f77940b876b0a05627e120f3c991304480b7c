@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "4b60fece_331bbc24",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T20:35:56Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "3939165b_84a2c285",
+      "range": {
+        "startLine": 38,
+        "startChar": 70,
+        "endLine": 38,
+        "endChar": 82
+      },
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b611593_5aaca128",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 7
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "I\u0027m fine changing it later.",
       "parentUuid": "9b611593_5aaca128",
+      "range": {
+        "startLine": 512,
+        "startChar": 4,
+        "endLine": 512,
+        "endChar": 40
+      },
+      "revId": "749f77940b876b0a05627e120f3c991304480b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b143e953_14350a79",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T20:35:56Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "69128b7e_9a7acbc8",
       "range": {
         "startLine": 512,
         "startChar": 4,
