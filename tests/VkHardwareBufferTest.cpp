@@ -217,7 +217,7 @@ bool EGLTestHelper::init(skiatest::Reporter* reporter) {
 }
 
 bool EGLTestHelper::importHardwareBuffer(skiatest::Reporter* reporter, AHardwareBuffer* buffer) {
-    GrGLClearErr(fGLCtx->gl());
+    while (fGLCtx->gl()->fFunctions.fGetError() != GR_GL_NO_ERROR) {}
 
     EGLClientBuffer eglClientBuffer = fEGLGetNativeClientBufferANDROID(buffer);
     EGLint eglAttribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
@@ -237,15 +237,14 @@ bool EGLTestHelper::importHardwareBuffer(skiatest::Reporter* reporter, AHardware
         return false;
     }
     GR_GL_CALL_NOERRCHECK(fGLCtx->gl(), BindTexture(GR_GL_TEXTURE_2D, fTexID));
-    if (GR_GL_GET_ERROR(fGLCtx->gl()) != GR_GL_NO_ERROR) {
+    if (fGLCtx->gl()->fFunctions.fGetError() != GR_GL_NO_ERROR) {
         ERRORF(reporter, "Failed to bind GL Texture");
         return false;
     }
 
     fEGLImageTargetTexture2DOES(GL_TEXTURE_2D, fImage);
-    GLenum status = GL_NO_ERROR;
-    if ((status = glGetError()) != GL_NO_ERROR) {
-        ERRORF(reporter, "EGLImageTargetTexture2DOES failed (%#x)", (int) status);
+    if (GrGLenum error = fGLCtx->gl()->fFunctions.fGetError(); error != GR_GL_NO_ERROR) {
+        ERRORF(reporter, "EGLImageTargetTexture2DOES failed (%#x)", (int) error);
         return false;
     }
 
