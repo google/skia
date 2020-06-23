@@ -20,8 +20,10 @@ public:
     uint32_t getFlags() const override;
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override;
+    bool colorFilterAcceptsInputFP() const override { return true; }
+    GrFragmentProcessor::MakeResult asFragmentProcessor(
+            std::unique_ptr<GrFragmentProcessor> inputFP, GrRecordingContext*,
+            const GrColorInfo&) const override;
 #endif
 
     static void RegisterFlattenables();
