@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "43569c86_1c39505d",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-23T21:05:42Z",
+      "side": 1,
+      "message": "Looks like this function actually only needs device?",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4c22c711_6becfee5",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 2
