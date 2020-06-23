@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9629b47_d4febdfe",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-23T22:51:49Z",
+      "side": 1,
+      "message": "This is a new change; old code would always crop, but if we\u0027re only doing it conservatively for numerical reasons (and not trying to become a fullscreen clear, etc.), there\u0027s no point doing it when the geometry is already reasonable.",
+      "range": {
+        "startLine": 711,
+        "startChar": 8,
+        "endLine": 711,
+        "endChar": 92
+      },
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b601569_b5fcbec4",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-23T22:51:49Z",
+      "side": 1,
+      "message": "None of this logic changed; I just simplified the if conditions to use the simpleColor local. I don\u0027t know why the gerrit diff is so bad.",
+      "range": {
+        "startLine": 748,
+        "startChar": 3,
+        "endLine": 748,
+        "endChar": 33
+      },
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9512123b_f2330cc9",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-23T22:51:49Z",
+      "side": 1,
+      "message": "Now on all platforms, we\u0027ll convert a clipRRect()+drawRRect() of the same geometry into a single draw, assuming the aa state is the same.",
+      "range": {
+        "startLine": 1150,
+        "startChar": 8,
+        "endLine": 1150,
+        "endChar": 76
+      },
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69035838_f72de24a",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2324,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-23T22:51:49Z",
+      "side": 1,
+      "message": "Since this isn\u0027t used in attemptQuadOptimization anymore, I just moved it closer to the remaining call sites.",
+      "range": {
+        "startLine": 2324,
+        "startChar": 15,
+        "endLine": 2324,
+        "endChar": 30
+      },
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
