@@ -1125,10 +1125,10 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
     this->iterateThroughVisualRuns(true,
         [this, dx, &result]
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
-            bool lookingForHit = true;
+            bool keepLooking = true;
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
             run, runOffsetInLine, textRange, StyleType::kNone,
-            [this, dx, &result, &lookingForHit]
+            [this, dx, &result, &keepLooking]
             (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
 
                 auto offsetX = this->offset().fX;
@@ -1136,15 +1136,14 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     // All the other runs are placed right of this one
                     auto utf16Index = fMaster->getUTF16Index(context.run->globalClusterIndex(context.pos));
                     result = { SkToS32(utf16Index), kDownstream };
-                    lookingForHit = false;
-                    return false;
+                    return keepLooking = false;
                 }
 
                 if (dx >= context.clip.fRight + offsetX) {
                     // We have to keep looking ; just in case keep the last one as the closest
                     auto utf16Index = fMaster->getUTF16Index(context.run->globalClusterIndex(context.pos + context.size));
                     result = { SkToS32(utf16Index), kUpstream };
-                    return true;
+                    return keepLooking = true;
                 }
 
                 // So we found the run that contains our coordinates
@@ -1163,38 +1162,46 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 auto glyphemeStart = context.run->positionX(found) + context.fTextShift + offsetX;
                 auto glyphemeWidth = context.run->positionX(found + 1) - context.run->positionX(found);
 
-                // Find the grapheme range that contains the point
                 auto clusterIndex8 = context.run->globalClusterIndex(found);
                 auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
+
+                if (SkScalarNearlyZero(glyphemeWidth)) {
+                    // "Empty" glyph; return the end of the cluster as an index
+                    auto utf16End = fMaster->getUTF16Index(clusterEnd8);
+                    result = { SkToS32(utf16End), kUpstream };
+                    return keepLooking = false;
+                }
+
+                // Find the grapheme range that contains the point
                 auto graphemeStart = fMaster->findGraphemeStart(clusterIndex8);
-                auto graphemeWidth =
-                    fMaster->findGraphemeStart(clusterEnd8) - graphemeStart;
+                auto graphemeWidth = fMaster->findGraphemeStart(clusterEnd8) - graphemeStart;
                 auto utf16Index = fMaster->getUTF16Index(clusterIndex8);
 
                 // We only need to inspect one glyph (maybe not even the entire glyph)
-                SkScalar center;
+                SkScalar glyphCenter;
                 bool insideGlyph = false;
                 if (graphemeWidth > 1) {
+                    // Take the proportional position of glyph in the grapheme
                     auto averageGlyphWidth = glyphemeWidth / graphemeWidth;
                     auto delta = dx - glyphemeStart;
                     auto insideIndex = SkScalarFloorToInt(delta / averageGlyphWidth);
                     insideGlyph = delta > averageGlyphWidth;
-                    center = glyphemeStart + averageGlyphWidth * insideIndex + averageGlyphWidth / 2;
+                    glyphCenter = glyphemeStart + averageGlyphWidth * insideIndex + averageGlyphWidth / 2;
                     utf16Index += insideIndex;
                 } else {
-                    center = glyphemeStart + glyphemeWidth / 2;
+                    // Take the center position of the glyph
+                    glyphCenter = glyphemeStart + glyphemeWidth / 2;
                 }
-                if ((dx < center) == context.run->leftToRight() || insideGlyph) {
+                if ((dx < glyphCenter) == context.run->leftToRight() || insideGlyph) {
                     result = { SkToS32(utf16Index), kDownstream };
                 } else {
                     result = { SkToS32(utf16Index + 1), kUpstream };
                 }
-                // No need to continue
-                lookingForHit = false;
-                return false;
 
+                return keepLooking = false;
             });
-          return lookingForHit;
+
+          return keepLooking;
         }
     );
     return result;
