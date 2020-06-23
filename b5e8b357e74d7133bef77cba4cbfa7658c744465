@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1956c4ec_3d669b1f",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T15:25:33Z",
+      "side": 1,
+      "message": "This line looks strange at first, because it looks like we\u0027re passing paintFP as input to a const-color processor that\u0027s going to ignore it. Except we know that paintFP is actually nullptr here. Might be clearer to just leave this as nullptr?",
+      "range": {
+        "startLine": 317,
+        "startChar": 50,
+        "endLine": 317,
+        "endChar": 68
+      },
+      "revId": "b5e8b357e74d7133bef77cba4cbfa7658c744465",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
