@@ -124,7 +124,7 @@ private:
 
     std::vector<String> fFormatArgs;
     // true if the sksl referenced sk_TransformedCoords[0]
-    bool fAccessLocalCoordsDirectly = false;
+    bool fAccessSampleCoordsDirectly = false;
 
     // if true, we are writing a C++ expression instead of a GLSL expression
     bool fCPPMode = false;

@@ -787,7 +787,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                       "%s\n", describe_fp(*fp).c_str());
             REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors(),
                                       "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords(),
+            REPORTER_ASSERT(reporter, fp->sampleCoordsDependOnLocalCoords() ==
+                                      clone->sampleCoordsDependOnLocalCoords(),
+                                      "%s\n", describe_fp(*fp).c_str());
+            REPORTER_ASSERT(reporter, fp->referencesSampleCoords() ==
+                                      clone->referencesSampleCoords(),
                                       "%s\n", describe_fp(*fp).c_str());
             // Draw with original and read back the results.
             render_fp(context, rtc.get(), std::move(fp), inputTexture, kPremul_SkAlphaType,
