@@ -49,7 +49,7 @@ SK_C_API bool gr_glinterface_has_extension(const gr_glinterface_t* glInterface, 
 
 // GrVkExtensions
 
-SK_C_API gr_vk_extensions_t* gr_vk_extensions_new();
+SK_C_API gr_vk_extensions_t* gr_vk_extensions_new(void);
 SK_C_API void gr_vk_extensions_delete(gr_vk_extensions_t* extensions);
 SK_C_API void gr_vk_extensions_init(gr_vk_extensions_t* extensions, gr_vk_get_proc getProc, void* userData, vk_instance_t* instance, vk_physical_device_t* physDev, uint32_t instanceExtensionCount, const char** instanceExtensions, uint32_t deviceExtensionCount, const char** deviceExtensions);
 SK_C_API bool gr_vk_extensions_has_extension(gr_vk_extensions_t* extensions, const char* ext, uint32_t minVersion);

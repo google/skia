@@ -126,7 +126,7 @@ bool gr_glinterface_has_extension(const gr_glinterface_t* glInterface, const cha
 
 // GrVkExtensions
 
-gr_vk_extensions_t* gr_vk_extensions_new() {
+gr_vk_extensions_t* gr_vk_extensions_new(void) {
     return SK_ONLY_VULKAN(ToGrVkExtensions(new GrVkExtensions()), nullptr);
 }
 
