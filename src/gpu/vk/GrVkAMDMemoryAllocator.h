@@ -39,23 +39,22 @@ public:
 
     ~GrVkAMDMemoryAllocator() override;
 
-    bool allocateMemoryForImage(VkImage image, AllocationPropertyFlags flags,
-                                GrVkBackendMemory*) override;
+    VkResult allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
+                                 GrVkBackendMemory*) override;
 
-    bool allocateMemoryForBuffer(VkBuffer buffer, BufferUsage usage,
-                                 AllocationPropertyFlags flags, GrVkBackendMemory*) override;
+    VkResult allocateBufferMemory(VkBuffer buffer, BufferUsage usage,
+                                  AllocationPropertyFlags flags, GrVkBackendMemory*) override;
 
     void freeMemory(const GrVkBackendMemory&) override;
 
     void getAllocInfo(const GrVkBackendMemory&, GrVkAlloc*) const override;
 
-    void* mapMemory(const GrVkBackendMemory&) override;
+    VkResult mapMemory(const GrVkBackendMemory&, void** data) override;
     void unmapMemory(const GrVkBackendMemory&) override;
 
-    void flushMappedMemory(const GrVkBackendMemory&, VkDeviceSize offset,
-                           VkDeviceSize size) override;
-    void invalidateMappedMemory(const GrVkBackendMemory&, VkDeviceSize offset,
-                                VkDeviceSize size) override;
+    VkResult flushMemory(const GrVkBackendMemory&, VkDeviceSize offset, VkDeviceSize size) override;
+    VkResult invalidateMemory(const GrVkBackendMemory&, VkDeviceSize offset,
+                              VkDeviceSize size) override;
 
     uint64_t totalUsedMemory() const override;
     uint64_t totalAllocatedMemory() const override;
