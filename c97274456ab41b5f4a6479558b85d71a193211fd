@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "60ae8f9c_f56c470c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T21:20:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43569c86_1c39505d",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c22c711_6becfee5",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "28f586ef_61f8e3e7",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T21:20:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4c22c711_6becfee5",
+      "range": {
+        "startLine": 486,
+        "startChar": 64,
+        "endLine": 486,
+        "endChar": 77
+      },
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "513ce34c_685027a0",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 2
@@ -53,6 +95,24 @@
       "writtenOn": "2020-06-23T21:00:10Z",
       "side": 1,
       "message": "wanna make this return a skvm::Coord now?  local \u003d ApplyMatrix(...)?",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aeb63682_5acfcc8c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T21:20:56Z",
+      "side": 1,
+      "message": "That would be nice. I just went to look, and it\u0027s declared in SkShaderBase, where we\u0027re only including SkVM_fwd.h. Might have to move it somewhere else to avoid pulling in more headers?",
+      "parentUuid": "513ce34c_685027a0",
       "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -94,6 +154,24 @@
     },
     {
       "key": {
+        "uuid": "26b51976_0211fac5",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T21:20:56Z",
+      "side": 1,
+      "message": "Ah, good point. Yeah, will do. Although in that case, I can just switch this to use device coords here. I was only holding off on that in case it caused layout test changes, etc...",
+      "parentUuid": "b06e60ed_956373d9",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c3d1b10_30f72e3b",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 2
@@ -105,6 +183,30 @@
       "writtenOn": "2020-06-23T21:00:10Z",
       "side": 1,
       "message": "maybe another to take skvm::Coord?",
+      "range": {
+        "startLine": 792,
+        "startChar": 12,
+        "endLine": 792,
+        "endChar": 18
+      },
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cd5fbc9_dd8adb73",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T21:20:56Z",
+      "side": 1,
+      "message": "Maybe. All but one call site are using independently computed X and Y, so it doesn\u0027t buy much on readability, AFAICT.",
+      "parentUuid": "7c3d1b10_30f72e3b",
       "range": {
         "startLine": 792,
         "startChar": 12,
@@ -137,6 +239,30 @@
       "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb3058c3_89b8498c",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T21:20:56Z",
+      "side": 1,
+      "message": "Yup. There may still be some follow-up to make norm() take a coord as well. I cheated in the two point conical.",
+      "parentUuid": "46489c04_ac4f169b",
+      "range": {
+        "startLine": 438,
+        "startChar": 24,
+        "endLine": 438,
+        "endChar": 34
+      },
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
