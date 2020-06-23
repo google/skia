@@ -105,6 +105,7 @@ YUVABackendReleaseContext::YUVABackendReleaseContext(GrContext* context) : fCont
 YUVABackendReleaseContext::~YUVABackendReleaseContext() {
     for (int i = 0; i < 4; ++i) {
         if (fBETextures[i].isValid()) {
+            SkASSERT(fCreationComplete[i]);
             fContext->deleteBackendTexture(fBETextures[i]);
         }
     }

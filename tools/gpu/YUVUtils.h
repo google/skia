@@ -53,6 +53,47 @@ private:
 // A helper for managing the lifetime of backend textures for YUVA images.
 class YUVABackendReleaseContext {
 public:
+    static void CreationComplete0(void* releaseContext) {
+        auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+        SkASSERT(beContext->fBETextures[0].isValid());
+
+        beContext->fCreationComplete[0] = true;
+    }
+
+    static void CreationComplete1(void* releaseContext) {
+        auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+        SkASSERT(beContext->fBETextures[1].isValid());
+
+        beContext->fCreationComplete[1] = true;
+    }
+
+    static void CreationComplete2(void* releaseContext) {
+        auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+        SkASSERT(beContext->fBETextures[2].isValid());
+
+        beContext->fCreationComplete[2] = true;
+    }
+
+    static void CreationComplete3(void* releaseContext) {
+        auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+        SkASSERT(beContext->fBETextures[3].isValid());
+
+        beContext->fCreationComplete[3] = true;
+    }
+
+    static GrGpuFinishedProc CreationCompleteProc(int index) {
+        SkASSERT(index >= 0 && index < 4);
+
+        switch (index) {
+            case 0: return CreationComplete0;
+            case 1: return CreationComplete1;
+            case 2: return CreationComplete2;
+            case 3: return CreationComplete3;
+        }
+
+        return nullptr;
+    }
+
     // A stock 'TextureReleaseProc' to use with this class
     static void Release(void* releaseContext) {
         auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
@@ -75,6 +116,13 @@ public:
         fBETextures[index] = beTex;
     }
 
+    void setCreationComplete(int index) {
+        SkASSERT(index >= 0 && index < 4);
+        SkASSERT(fBETextures[index].isValid());
+
+        fCreationComplete[index] = true;
+    }
+
     const GrBackendTexture* beTextures() const { return fBETextures; }
 
     const GrBackendTexture& beTexture(int index) {
@@ -86,6 +134,7 @@ public:
 private:
     GrContext*       fContext;
     GrBackendTexture fBETextures[4];
+    bool             fCreationComplete[4] = { false };
 };
 
 
