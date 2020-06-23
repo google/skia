@@ -1174,7 +1174,10 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 // We only need to inspect one glyph (maybe not even the entire glyph)
                 SkScalar center;
                 bool insideGlyph = false;
-                if (graphemeWidth > 1) {
+                bool emptyGlyph = false;
+                if (SkScalarNearlyZero(glyphemeWidth)) {
+                    emptyGlyph = true;
+                } else if (graphemeWidth > 1) {
                     auto averageGlyphWidth = glyphemeWidth / graphemeWidth;
                     auto delta = dx - glyphemeStart;
                     auto insideIndex = SkScalarFloorToInt(delta / averageGlyphWidth);
@@ -1184,7 +1187,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 } else {
                     center = glyphemeStart + glyphemeWidth / 2;
                 }
-                if ((dx < center) == context.run->leftToRight() || insideGlyph) {
+                if ((!emptyGlyph && (dx < center) == context.run->leftToRight()) || insideGlyph) {
                     result = { SkToS32(utf16Index), kDownstream };
                 } else {
                     result = { SkToS32(utf16Index + 1), kUpstream };
