@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "4c22c711_6becfee5",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-23T21:00:10Z",
+      "side": 1,
+      "message": "This feels good.",
+      "range": {
+        "startLine": 486,
+        "startChar": 64,
+        "endLine": 486,
+        "endChar": 77
+      },
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "513ce34c_685027a0",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-23T21:00:10Z",
+      "side": 1,
+      "message": "wanna make this return a skvm::Coord now?  local \u003d ApplyMatrix(...)?",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca73c107_bcce6f99",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 2
@@ -13,6 +53,70 @@
       "writtenOn": "2020-06-23T20:39:35Z",
       "side": 1,
       "message": "For reference: https://skia-review.googlesource.com/c/skia/+/292263",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b06e60ed_956373d9",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-23T21:00:10Z",
+      "side": 1,
+      "message": "Pretty sure local \u003d\u003d device here is guaranteed, right?  We only construct DitherShader here in this file, as the outermost shader.  It\u0027s the first one to get called in the program/onProgram() chain.\n\nI think we can SkASSERT(local.x.id \u003d\u003d device.x.id), etc.",
+      "parentUuid": "ca73c107_bcce6f99",
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c3d1b10_30f72e3b",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-23T21:00:10Z",
+      "side": 1,
+      "message": "maybe another to take skvm::Coord?",
+      "range": {
+        "startLine": 792,
+        "startChar": 12,
+        "endLine": 792,
+        "endChar": 18
+      },
+      "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46489c04_ac4f169b",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-23T21:00:10Z",
+      "side": 1,
+      "message": "good candidate to take skvm::Coord?",
+      "range": {
+        "startLine": 438,
+        "startChar": 24,
+        "endLine": 438,
+        "endChar": 34
+      },
       "revId": "c97274456ab41b5f4a6479558b85d71a193211fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
