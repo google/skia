@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "198856bb_1ec6022f",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T23:53:33Z",
+      "side": 1,
+      "message": "Was this a bug before?",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 32
+      },
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a9629b47_d4febdfe",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 3
@@ -13,6 +36,30 @@
       "writtenOn": "2020-06-23T22:51:49Z",
       "side": 1,
       "message": "This is a new change; old code would always crop, but if we\u0027re only doing it conservatively for numerical reasons (and not trying to become a fullscreen clear, etc.), there\u0027s no point doing it when the geometry is already reasonable.",
+      "range": {
+        "startLine": 711,
+        "startChar": 8,
+        "endLine": 711,
+        "endChar": 92
+      },
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffd4ef89_5b938c76",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T23:53:33Z",
+      "side": 1,
+      "message": "I like it!",
+      "parentUuid": "a9629b47_d4febdfe",
       "range": {
         "startLine": 711,
         "startChar": 8,
@@ -91,6 +138,23 @@
       "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5309c57_bea33d37",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T23:53:33Z",
+      "side": 1,
+      "message": "Is this indented further on purpose?",
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
