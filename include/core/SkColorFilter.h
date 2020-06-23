@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
+#include "src/gpu/GrFragmentProcessor.h"
 
 class GrColorInfo;
 class GrFragmentProcessor;
