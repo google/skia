@@ -34,6 +34,24 @@
       "revId": "e15ec505512037386d44b383a9d86e3b62b0ebe3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ab016e1_09c7e3ef",
+        "filename": "src/effects/imagefilters/SkImageSource.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-23T15:53:02Z",
+      "side": 1,
+      "message": "Shoot, I would have definitely voted for having SkSpecialImage::MakeFromImage always return a texture-backed special image if a context was provided. \n\nI\u0027m okay with this simple fix for now; maybe it will be unnecessary as I start updating the filtering system.\n\nI would add a comment along the lines of \"If we have a context and aren\u0027t texture backed, we skip this and draw using the slow path below to ensure our output image is texture backed\"",
+      "parentUuid": "035c45c7_56831ab5",
+      "revId": "e15ec505512037386d44b383a9d86e3b62b0ebe3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
