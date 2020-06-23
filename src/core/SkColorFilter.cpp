@@ -34,16 +34,49 @@ bool SkColorFilter::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
-#if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrRecordingContext*,
-                                                                        const GrColorInfo&) const {
-    return nullptr;
-}
-#endif
-
 bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     return this->onAppendStages(rec, shaderIsOpaque);
 }
+
+#if SK_SUPPORT_GPU
+std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
+        GrRecordingContext* context, const GrColorInfo& dstColorInfo) const {
+    // TEMPORARY: Convert every asFragmentProcessor to support inputFP.
+    // TODO(skbug.com/10217): remove this method.
+    if (!this->colorFilterAcceptsInputFP()) {
+        // This color filter doesn't implement `asFragmentProcessor` at all.
+        return nullptr;
+    }
+
+    // This color filter has been updated to use the non-deprecated form; redirect there.
+    auto [success, fp] = this->asFragmentProcessor(/*inputFP=*/nullptr, context, dstColorInfo);
+    return success ? std::move(fp) : nullptr;
+}
+
+GrFragmentProcessor::MakeResult SkColorFilter::asFragmentProcessor(
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        GrRecordingContext* context, const GrColorInfo& dstColorInfo) const {
+    // A subclass that indicates `colorFilterAcceptsInputFP` should have overridden this method.
+    SkASSERT(!this->colorFilterAcceptsInputFP());
+
+    // This color filter doesn't support taking an inputFP yet. Call the deprecated version instead.
+    std::unique_ptr<GrFragmentProcessor> fallback = this->asFragmentProcessor(context,
+                                                                              dstColorInfo);
+
+    if (fallback == nullptr) {
+        // Actually, never mind. This color filter doesn't support `asFragmentProcessor` at all.
+        return GrFragmentProcessor::MakeFailure(std::move(inputFP));
+    }
+
+    // Use RunInSeries as a crutch to make this color filter work with an input FP.
+    std::unique_ptr<GrFragmentProcessor> series[2] = {
+        std::move(inputFP),
+        std::move(fallback),
+    };
+    return GrFragmentProcessor::MakeSuccess(
+               GrFragmentProcessor::RunInSeries(series, SK_ARRAY_COUNT(series)));
+}
+#endif
 
 skvm::Color SkColorFilter::program(skvm::Builder* p, skvm::Color c,
                                    SkColorSpace* dstCS,
