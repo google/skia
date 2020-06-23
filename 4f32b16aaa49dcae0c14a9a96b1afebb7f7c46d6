@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "273ebecb_21674899",
+        "filename": "demos.skia.org/Makefile",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-06-23T16:07:17Z",
+      "side": 1,
+      "message": "demoserver would work fine with this, but to build it\u0027s index it uses Readdirnames(). I think we should isolate the demos directory to be exclusively demos, and no additional files (which are a slippery slope to additional directories!)\n\nI recommend having\ndemos.skia.org/Makefile,\ndemos.skia.org/demos/hellow_world/index.html\n\nThen we can point the public demoserver at skia/demos.skia.org/demos and have it be clean if we add other meta-files in the future.",
+      "revId": "4f32b16aaa49dcae0c14a9a96b1afebb7f7c46d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
