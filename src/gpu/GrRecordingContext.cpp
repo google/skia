@@ -106,6 +106,10 @@ GrDrawingManager* GrRecordingContext::drawingManager() {
     return fDrawingManager.get();
 }
 
+void GrRecordingContext::destroyDrawingManager() {
+    fDrawingManager.reset();
+}
+
 GrRecordingContext::Arenas::Arenas(GrOpMemoryPool* opMemoryPool, SkArenaAlloc* recordTimeAllocator)
         : fOpMemoryPool(opMemoryPool)
         , fRecordTimeAllocator(recordTimeAllocator) {

@@ -219,6 +219,8 @@ private:
     // (http://skbug.com/9406). To accomplish this, we make and reuse one single resolve task for
     // each render task, then add it as a dependency during makeClosed().
     GrTextureResolveRenderTask* fTextureResolveTask = nullptr;
+
+    SkDEBUGCODE(GrDrawingManager *fDrawingMgr = nullptr;)
 };
 
 #endif
