@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a74bedcc_5497b02a",
+        "filename": "src/effects/imagefilters/SkImageSource.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-23T14:47:45Z",
+      "side": 1,
+      "message": "The other option here is if fImage isn\u0027t texture backed, and we have a context, to do:\n\nSkSpecialImage::MakeFromImage(..., fImage-\u003emakeTextureImage(ctx.getContext()))\n\nThis implementation was less code (but maybe less efficient?). Any preference?\n\nOr perhaps it\u0027s best to go all the way and change SkSpecialImage::MakeFromImage so that if a context is passed in, *it* always returns a texture-backed special image.",
+      "revId": "e15ec505512037386d44b383a9d86e3b62b0ebe3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
