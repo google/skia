@@ -66,6 +66,40 @@ static const char* tag_name_from_type(SkPDF::DocumentStructureType type) {
     SK_ABORT("bad tag");
 }
 
+struct SkPDFTagNode {
+    // Structure element nodes need a unique alphanumeric ID,
+    // and we need to be able to output them sorted in lexicographic
+    // order. This helper function takes one of our node IDs and
+    // builds an ID string that zero-pads the digits so that lexicographic
+    // order matches numeric order.
+    static SkString nodeIdToString(int nodeId) {
+        SkString idString;
+        idString.printf("node%08d", nodeId);
+        return idString;
+    }
+
+    SkPDFTagNode* fChildren = nullptr;
+    size_t fChildCount = 0;
+    struct MarkedContentInfo {
+        unsigned fPageIndex;
+        int fMarkId;
+    };
+    SkTArray<MarkedContentInfo> fMarkedContent;
+    int fNodeId;
+    SkPDF::DocumentStructureType fType;
+    SkString fTypeString;
+    SkString fAlt;
+    SkString fLang;
+    SkPDFIndirectReference fRef;
+    enum State {
+        kUnknown,
+        kYes,
+        kNo,
+    } fCanDiscard = kUnknown;
+    std::unique_ptr<SkPDFArray> fAttributes;
+    std::vector<SkPDFIndirectReference> fAnnotations;
+};
+
 SkPDF::AttributeList::AttributeList() = default;
 
 SkPDF::AttributeList::~AttributeList() = default;
@@ -124,71 +158,40 @@ void SkPDF::AttributeList::appendFloatArray(
     fAttrs->appendObject(std::move(attrDict));
 }
 
-void SkPDF::AttributeList::appendNameArray(
-        const char* owner,
-        const char* name,
-        const std::vector<SkString>& value) {
-    if (!fAttrs)
-        fAttrs = SkPDFMakeArray();
-    std::unique_ptr<SkPDFDict> attrDict = SkPDFMakeDict();
-    attrDict->insertName("O", owner);
-    std::unique_ptr<SkPDFArray> pdfArray = SkPDFMakeArray();
-    for (SkString element : value) {
-        pdfArray->appendName(element);
-    }
-    attrDict->insertObject(name, std::move(pdfArray));
-    fAttrs->appendObject(std::move(attrDict));
-}
-
+// Deprecated.
 void SkPDF::AttributeList::appendStringArray(
-        const char* owner,
-        const char* name,
-        const std::vector<SkString>& value) {
+         const char* owner,
+         const char* name,
+         const std::vector<SkString>& values) {
     if (!fAttrs)
         fAttrs = SkPDFMakeArray();
     std::unique_ptr<SkPDFDict> attrDict = SkPDFMakeDict();
     attrDict->insertName("O", owner);
     std::unique_ptr<SkPDFArray> pdfArray = SkPDFMakeArray();
-    for (SkString element : value) {
+    for (SkString element : values) {
         pdfArray->appendString(element);
     }
     attrDict->insertObject(name, std::move(pdfArray));
     fAttrs->appendObject(std::move(attrDict));
 }
 
-struct SkPDFTagNode {
-    // Structure element nodes need a unique alphanumeric ID,
-    // and we need to be able to output them sorted in lexicographic
-    // order. This helper function takes one of our node IDs and
-    // builds an ID string that zero-pads the digits so that lexicographic
-    // order matches numeric order.
-    static SkString nodeIdToString(int nodeId) {
-        SkString idString;
-        idString.printf("node%08d", nodeId);
-        return idString;
-    }
 
-    SkPDFTagNode* fChildren = nullptr;
-    size_t fChildCount = 0;
-    struct MarkedContentInfo {
-        unsigned fPageIndex;
-        int fMarkId;
-    };
-    SkTArray<MarkedContentInfo> fMarkedContent;
-    int fNodeId;
-    SkPDF::DocumentStructureType fType;
-    SkString fTypeString;
-    SkString fAlt;
-    SkString fLang;
-    SkPDFIndirectReference fRef;
-    enum State {
-        kUnknown,
-        kYes,
-        kNo,
-    } fCanDiscard = kUnknown;
-    std::unique_ptr<SkPDFArray> fAttributes;
-    std::vector<SkPDFIndirectReference> fAnnotations;
-};
+void SkPDF::AttributeList::appendNodeIdArray(
+        const char* owner,
+        const char* name,
+        const std::vector<int>& nodeIds) {
+    if (!fAttrs)
+        fAttrs = SkPDFMakeArray();
+    std::unique_ptr<SkPDFDict> attrDict = SkPDFMakeDict();
+    attrDict->insertName("O", owner);
+    std::unique_ptr<SkPDFArray> pdfArray = SkPDFMakeArray();
+    for (int nodeId : nodeIds) {
+        SkString idString = SkPDFTagNode::nodeIdToString(nodeId);
+        pdfArray->appendString(idString);
+    }
+    attrDict->insertObject(name, std::move(pdfArray));
+    fAttrs->appendObject(std::move(attrDict));
+}
 
 SkPDFTagTree::SkPDFTagTree() : fArena(4 * sizeof(SkPDFTagNode)) {}
 
