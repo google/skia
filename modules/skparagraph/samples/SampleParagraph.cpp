@@ -2898,6 +2898,41 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView46 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph46"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        const std::u16string text = u"f\u00E2\u0081\u00A0o\u00E2\u0081\u00A0o\u00E2\u0081\u00A0";
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(7);
+        paragraph_style.setEllipsis(u"\u2026");
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("RobotoMono")});
+        text_style.setFontSize(36);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+
+        paragraph->getGlyphPositionAtCoordinate(0.0f, 0);
+        paragraph->getGlyphPositionAtCoordinate(36.0f, 0);
+
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2944,3 +2979,4 @@ DEF_SAMPLE(return new ParagraphView42();)
 DEF_SAMPLE(return new ParagraphView43();)
 DEF_SAMPLE(return new ParagraphView44();)
 DEF_SAMPLE(return new ParagraphView45();)
+DEF_SAMPLE(return new ParagraphView46();)

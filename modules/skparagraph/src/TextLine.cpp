@@ -1147,6 +1147,9 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     return true;
                 }
 
+                // No need to continue
+                lookingForHit = false;
+
                 // So we found the run that contains our coordinates
                 // Find the glyph position in the run that is the closest left of our point
                 // TODO: binary search
@@ -1171,6 +1174,12 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     fMaster->findGraphemeStart(clusterEnd8) - graphemeStart;
                 auto utf16Index = fMaster->getUTF16Index(clusterIndex8);
 
+                if (SkScalarNearlyZero(glyphemeWidth)) {
+                    // "Empty" glyph
+                    result = { SkToS32(utf16Index + 1), kUpstream };
+                    return false;
+                }
+
                 // We only need to inspect one glyph (maybe not even the entire glyph)
                 SkScalar center;
                 bool insideGlyph = false;
@@ -1189,8 +1198,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 } else {
                     result = { SkToS32(utf16Index + 1), kUpstream };
                 }
-                // No need to continue
-                lookingForHit = false;
+
                 return false;
 
             });
