@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6f43b16_c27c32c3",
+        "filename": "include/core/SkPathBuilder.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:32:37Z",
+      "side": 1,
+      "message": "Maybe: \"int extraVerbCount \u003d extraPtCount\"?",
+      "range": {
+        "startLine": 62,
+        "startChar": 56,
+        "endLine": 62,
+        "endChar": 61
+      },
+      "revId": "6d8aebb694b7d00805e750c2f35ca99618f294c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec72b776_8e8e7f93",
+        "filename": "include/core/SkPathBuilder.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:32:37Z",
+      "side": 1,
+      "message": "Any reason not to just use default values in the above Make instead of two overloads?",
+      "range": {
+        "startLine": 68,
+        "startChar": 27,
+        "endLine": 72,
+        "endChar": 5
+      },
+      "revId": "6d8aebb694b7d00805e750c2f35ca99618f294c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2f24507_894f6f44",
+        "filename": "src/core/SkPathBuilder.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:32:37Z",
+      "side": 1,
+      "message": "This might not be necessary if we make the default value be: \"int extraVerbCount \u003d extraPtCount\"",
+      "range": {
+        "startLine": 37,
+        "startChar": 18,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "6d8aebb694b7d00805e750c2f35ca99618f294c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3d4fcba_62b1531b",
+        "filename": "src/core/SkPathBuilder.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:32:37Z",
+      "side": 1,
+      "message": "Just out of curiosity, why does this need to be -1?",
+      "range": {
+        "startLine": 120,
+        "startChar": 4,
+        "endLine": 120,
+        "endChar": 28
+      },
+      "revId": "6d8aebb694b7d00805e750c2f35ca99618f294c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9278a83_111af8a5",
+        "filename": "src/core/SkPathBuilder.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:32:37Z",
+      "side": 1,
+      "message": "Are these still waiting to be implemented?",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 243,
+        "endChar": 0
+      },
+      "revId": "6d8aebb694b7d00805e750c2f35ca99618f294c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35e0bcf5_7b357e4c",
+        "filename": "src/core/SkPathBuilder.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-23T16:32:37Z",
+      "side": 1,
+      "message": "Should we SkDEBUGFAIL here?",
+      "revId": "6d8aebb694b7d00805e750c2f35ca99618f294c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
