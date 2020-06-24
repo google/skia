@@ -176,6 +176,11 @@ public:
      */
     static sk_sp<SkTypeface> MakeDeserialize(SkStream*);
 
+    // The mapping from glyph to Unicode; array indices are glyph ids.
+    // For each glyph, give the default Unicode value, if it exists.
+    // dstArray is non-null, and points to an array of size this->countGlyphs().
+    virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const = 0;
+
     /**
      *  Given an array of UTF32 character codes, return their corresponding glyph IDs.
      *
@@ -371,11 +376,6 @@ protected:
     // destination array is non-null, and points to an array of size this->countGlyphs().
     // Backends that do not suport type1 fonts should not override.
     virtual void getPostScriptGlyphNames(SkString*) const = 0;
-
-    // The mapping from glyph to Unicode; array indices are glyph ids.
-    // For each glyph, give the default Unicode value, if it exists.
-    // dstArray is non-null, and points to an array of size this->countGlyphs().
-    virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const = 0;
 
     virtual std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.

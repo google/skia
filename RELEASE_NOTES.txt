@@ -9,6 +9,9 @@ Milestone 85
 
   * <insert new release notes here>
 
+  * SkTypeface::getGlyphToUnicodeMap() is exposed as public to allow clients to
+    enumerate the Unicode codepoints with glyphs in an SkTypeface.
+
   * Add option on SkSurface::flush to pass in a GrBackendSurfaceMutableState which
     we will set the gpu backend surface to be at the end of the flush.
     https://review.skia.org/295567
