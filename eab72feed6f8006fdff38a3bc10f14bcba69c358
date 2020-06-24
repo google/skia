@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adf5fca2_cb89d86a",
+        "filename": "gm/bitmaptiled.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-24T18:04:10Z",
+      "side": 1,
+      "message": "Although we have a GrContext, it could be a GrDDLContext :(",
+      "range": {
+        "startLine": 32,
+        "startChar": 28,
+        "endLine": 32,
+        "endChar": 35
+      },
+      "revId": "eab72feed6f8006fdff38a3bc10f14bcba69c358",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
