@@ -35,6 +35,10 @@ int SkAndroidFrameworkUtils::SaveBehind(SkCanvas* canvas, const SkRect* subset) 
     return canvas->only_axis_aligned_saveBehind(subset);
 }
 
+void SkAndroidFrameworkUtils::ReplaceClip(SkCanvas* canvas, const SkIRect& rect) {
+    canvas->androidFramework_replaceClip(rect);
+}
+
 SkCanvas* SkAndroidFrameworkUtils::getBaseWrappedCanvas(SkCanvas* canvas) {
     auto pfc = canvas->internal_private_asPaintFilterCanvas();
     auto result = canvas;
@@ -45,4 +49,3 @@ SkCanvas* SkAndroidFrameworkUtils::getBaseWrappedCanvas(SkCanvas* canvas) {
     return result;
 }
 #endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
-
