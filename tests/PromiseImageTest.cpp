@@ -143,8 +143,8 @@ static void check_all_flushed_but_not_synced(skiatest::Reporter* reporter,
                                              GrBackendApi api,
                                              int expectedFulfillCnt = 1) {
     DoneBalanceExpectation doneBalanceExpectation = DoneBalanceExpectation::kBalanced;
-    // On Vulkan Done isn't guaranteed to be called until a sync has occurred.
-    if (api == GrBackendApi::kVulkan) {
+    // On Vulkan and D3D Done isn't guaranteed to be called until a sync has occurred.
+    if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDirect3D) {
         doneBalanceExpectation = expectedFulfillCnt == 1
                                          ? DoneBalanceExpectation::kBalancedOrOffByOne
                                          : DoneBalanceExpectation::kUnknown;
