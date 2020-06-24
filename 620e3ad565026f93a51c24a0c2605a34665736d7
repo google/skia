@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e57e644a_c8a48bd2",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T12:48:41Z",
+      "side": 1,
+      "message": "Not really; before we\u0027d just end up adding the rt bounds as scissor, which would then be a no-op when updating the GrScissorState. This is mostly to distinguish between kUnclipped and kClipped, where we don\u0027t want to consider the rt edge as \"kClipped\"",
+      "parentUuid": "198856bb_1ec6022f",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 32
+      },
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9629b47_d4febdfe",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 3
@@ -155,6 +179,24 @@
       "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "560a2051_c509d12d",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T12:48:41Z",
+      "side": 1,
+      "message": "Nope, Effect used to be named something longer and I missed fixing this alignment. I had previously called the enum ClipEffect, but I thought GrClip::ClipEffect was a bit redundant.",
+      "parentUuid": "c5309c57_bea33d37",
+      "revId": "620e3ad565026f93a51c24a0c2605a34665736d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
