@@ -76,7 +76,9 @@ GrGLSLPrimitiveProcessor* GrStencilPathShader::createGLSLInstance(const GrShader
     return new Impl;
 }
 
-SkString GrTessellateCubicShader::getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+SkString GrTessellateCubicShader::getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                                           const char* versionAndExtensionDecls,
+                                                           const GrGLSLUniformHandler&,
                                                            const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(kWangsFormulaCubicFn);
@@ -116,8 +118,9 @@ SkString GrTessellateCubicShader::getTessControlShaderGLSL(const char* versionAn
     return code;
 }
 
-SkString GrTessellateCubicShader::getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
-                                                              const GrShaderCaps&) const {
+SkString GrTessellateCubicShader::getTessEvaluationShaderGLSL(
+        const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
+        const GrGLSLUniformHandler&, const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(kEvalCubicFn);
     code.append(R"(
@@ -148,7 +151,9 @@ SkString GrTessellateCubicShader::getTessEvaluationShaderGLSL(const char* versio
     return code;
 }
 
-SkString GrTessellateWedgeShader::getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+SkString GrTessellateWedgeShader::getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                                           const char* versionAndExtensionDecls,
+                                                           const GrGLSLUniformHandler&,
                                                            const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(kWangsFormulaCubicFn);
@@ -184,8 +189,9 @@ SkString GrTessellateWedgeShader::getTessControlShaderGLSL(const char* versionAn
     return code;
 }
 
-SkString GrTessellateWedgeShader::getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
-                                                              const GrShaderCaps&) const {
+SkString GrTessellateWedgeShader::getTessEvaluationShaderGLSL(
+        const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
+        const GrGLSLUniformHandler&, const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(kEvalCubicFn);
     code.append(R"(
@@ -231,21 +237,21 @@ sk_sp<const GrGpuBuffer> GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
 
     // One explicit triangle at index 0, and one middle-out cubic with kMaxResolveLevel line
     // segments beginning at index 3.
-    constexpr static int indexCount = 3 + NumVerticesAtResolveLevel(kMaxResolveLevel);
+    constexpr static int kIndexCount = 3 + NumVerticesAtResolveLevel(kMaxResolveLevel);
     auto buffer = resourceProvider->createBuffer(
-            indexCount * sizeof(uint16_t), GrGpuBufferType::kIndex, kStatic_GrAccessPattern);
+            kIndexCount * sizeof(uint16_t), GrGpuBufferType::kIndex, kStatic_GrAccessPattern);
     if (!buffer) {
         return nullptr;
     }
 
     // We shouldn't bin and/or cache static buffers.
-    SkASSERT(buffer->size() == indexCount * sizeof(uint16_t));
+    SkASSERT(buffer->size() == kIndexCount * sizeof(uint16_t));
     SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
     auto indexData = static_cast<uint16_t*>(buffer->map());
     SkAutoTMalloc<uint16_t> stagingBuffer;
     if (!indexData) {
         SkASSERT(!buffer->isMapped());
-        indexData = stagingBuffer.reset(indexCount);
+        indexData = stagingBuffer.reset(kIndexCount);
     }
 
     // Indices 0,1,2 contain special values that emit points P0, P1, and P2 respectively. (When the
@@ -268,12 +274,12 @@ sk_sp<const GrGpuBuffer> GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
             indexData[i++] = (T += advance);
         } while (T != (1 << kMaxResolveLevel));
     }
-    SkASSERT(i == indexCount);
+    SkASSERT(i == kIndexCount);
 
     if (buffer->isMapped()) {
         buffer->unmap();
     } else {
-        buffer->updateData(stagingBuffer, indexCount * sizeof(uint16_t));
+        buffer->updateData(stagingBuffer, kIndexCount * sizeof(uint16_t));
     }
     buffer->resourcePriv().setUniqueKey(gMiddleOutIndexBufferKey);
     return std::move(buffer);
