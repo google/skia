@@ -16,6 +16,24 @@
       "revId": "adff9281002b055d1b4a816cac5a20a455f0a520",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44e409c0_8e387f6c",
+        "filename": "src/core/SkPathBuilder.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-24T01:04:16Z",
+      "side": 1,
+      "message": "Doh!\n\nIn my fervor to \"share code\", I removed the cool optimization! Good catch.",
+      "parentUuid": "c55c0974_1633af9b",
+      "revId": "adff9281002b055d1b4a816cac5a20a455f0a520",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
