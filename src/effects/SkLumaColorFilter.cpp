@@ -8,6 +8,7 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkLumaColorFilter.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkVM.h"
@@ -19,39 +20,50 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 
-bool SkLumaColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
-    rec.fPipeline->append(SkRasterPipeline::bt709_luminance_or_luma_to_alpha);
-    rec.fPipeline->append(SkRasterPipeline::clamp_0);
-    rec.fPipeline->append(SkRasterPipeline::clamp_1);
-    return true;
-}
+class SkLumaColorFilterImpl : public SkColorFilterBase {
+public:
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                             const GrColorInfo&) const override {
+        return GrLumaColorFilterEffect::Make(/*inputFP=*/nullptr);
+    }
+#endif
 
-skvm::Color SkLumaColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
-                                         SkColorSpace* dstCS,
-                                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    return {
-        p->splat(0.0f),
-        p->splat(0.0f),
-        p->splat(0.0f),
-        clamp01(c.r * 0.2126f + c.g * 0.7152f + c.b * 0.0722f),
-    };
-}
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&) {
+        return SkLumaColorFilter::Make();
+    }
+
+protected:
+    void flatten(SkWriteBuffer&) const override {}
+
+private:
+    Factory getFactory() const override { return CreateProc; }
+    const char* getTypeName() const override { return "SkLumaColorFilter"; }
+
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+        rec.fPipeline->append(SkRasterPipeline::bt709_luminance_or_luma_to_alpha);
+        rec.fPipeline->append(SkRasterPipeline::clamp_0);
+        rec.fPipeline->append(SkRasterPipeline::clamp_1);
+        return true;
+    }
+
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace*, skvm::Uniforms*,
+                          SkArenaAlloc*) const override {
+        return {
+            p->splat(0.0f),
+            p->splat(0.0f),
+            p->splat(0.0f),
+            clamp01(c.r * 0.2126f + c.g * 0.7152f + c.b * 0.0722f),
+        };
+    }
+
+    typedef SkColorFilterBase INHERITED;
+};
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
-    return sk_sp<SkColorFilter>(new SkLumaColorFilter);
+    return sk_sp<SkColorFilter>(new SkLumaColorFilterImpl);
 }
 
-SkLumaColorFilter::SkLumaColorFilter() : INHERITED() {}
-
-sk_sp<SkFlattenable> SkLumaColorFilter::CreateProc(SkReadBuffer&) {
-    return Make();
+void SkLumaColorFilter::RegisterFlattenable() {
+    SkFlattenable::Register("SkLumaColorFilter", SkLumaColorFilterImpl::CreateProc);
 }
-
-void SkLumaColorFilter::flatten(SkWriteBuffer&) const {}
-
-#if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorInfo&) const {
-    return GrLumaColorFilterEffect::Make(/*inputFP=*/nullptr);
-}
-#endif
