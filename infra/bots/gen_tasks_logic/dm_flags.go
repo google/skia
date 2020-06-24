@@ -358,11 +358,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			blacklist("_", "gm", "_", "savelayer_clipmask")
 		}
 
-		// skbug.com/9123
-		if b.extraConfig("CommandBuffer") && b.gpu("IntelIris5100") {
-			blacklist("_", "test", "_", "AsyncReadPixels")
-		}
-
 		// skbug.com/9043 - these devices render this test incorrectly
 		// when opList splitting reduction is enabled
 		if b.gpu() && b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X", "RadeonHD7770")) {
@@ -941,7 +936,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
         if b.extraConfig("Direct3D") && b.gpu("RadeonHD7770") && b.matchOs("Win") {
 		// skia:9935
-		match = append(match, "~^AsyncReadPixels$")
+		match = append(match, "~^SurfaceAsyncReadPixels$")
+               match = append(match, "~^ImageAsyncReadPixels$")
 		match = append(match, "~^MorphologyFilterRadiusWithMirrorCTM_Gpu$")
 		match = append(match, "~^ReadPixels_Gpu$")
 		match = append(match, "~^ReadPixels_Texture$")
