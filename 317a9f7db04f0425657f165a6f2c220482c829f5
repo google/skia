@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdec552d_94673110",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T20:43:47Z",
+      "side": 1,
+      "message": "can we comment on what this value is. I assume it is the value we want to consider the fence as \"done\" at?",
+      "range": {
+        "startLine": 208,
+        "startChar": 23,
+        "endLine": 208,
+        "endChar": 29
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0987f42_c6fdf2c8",
+        "filename": "include/private/GrD3DTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T20:43:47Z",
+      "side": 1,
+      "message": "First not for fLayout, but is the valid thing still needed here since we don\u0027t have ref counted object?",
+      "range": {
+        "startLine": 56,
+        "startChar": 69,
+        "endLine": 57,
+        "endChar": 55
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51bfd638_c02463f5",
+        "filename": "src/gpu/GrBackendSemaphore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T20:43:47Z",
+      "side": 1,
+      "message": "What if instead of needing the whole snapFenceInfo this function just returned a \"const GrD3DFenceInfo*\". The caller can just if it null or not to replace the bool and they can decide if they want to make a copy of it if they need to store it.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 73
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "218968bb_b2789455",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T20:43:47Z",
+      "side": 1,
+      "message": "The way we make semaphores this is going to finish immediately cause we make the fence at the value we wait for here.",
+      "range": {
+        "startLine": 1240,
+        "startChar": 4,
+        "endLine": 1240,
+        "endChar": 51
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d434b62e_d57bcb58",
+        "filename": "src/gpu/d3d/GrD3DSemaphore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T20:43:47Z",
+      "side": 1,
+      "message": "should this be the initial value or something incremented?",
+      "range": {
+        "startLine": 16,
+        "startChar": 23,
+        "endLine": 16,
+        "endChar": 24
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da97ebfc_8aa2b607",
+        "filename": "src/gpu/d3d/GrD3DTypesPriv.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T20:43:47Z",
+      "side": 1,
+      "message": "I feel like we could just do if (!oldInfo) here. No need for the isThisValid",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 21
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
