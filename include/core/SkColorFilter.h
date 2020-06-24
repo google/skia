@@ -21,6 +21,7 @@ class SkBitmap;
 class SkColorMatrix;
 class SkColorSpace;
 struct SkStageRec;
+using GrFPResult = std::tuple<bool, std::unique_ptr<GrFragmentProcessor>>;
 
 namespace skvm {
     class Builder;
