@@ -185,6 +185,74 @@ DEF_TEST(SpecialImage_Image_Legacy, reporter) {
     test_specialimage_image(reporter);
 }
 
+static void test_texture_backed(skiatest::Reporter* reporter,
+                                const sk_sp<SkSpecialImage>& orig,
+                                const sk_sp<SkSpecialImage>& gpuBacked) {
+    REPORTER_ASSERT(reporter, gpuBacked);
+    REPORTER_ASSERT(reporter, gpuBacked->isTextureBacked());
+    REPORTER_ASSERT(reporter, gpuBacked->uniqueID() == orig->uniqueID());
+    REPORTER_ASSERT(reporter, gpuBacked->subset().width() == orig->subset().width() &&
+                              gpuBacked->subset().height() == orig->subset().height());
+    REPORTER_ASSERT(reporter, gpuBacked->getColorSpace() == orig->getColorSpace());
+}
+
+// Test out the SkSpecialImage::makeTextureImage entry point
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    SkBitmap bm = create_bm();
+
+    const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
+
+    {
+        // raster
+        sk_sp<SkSpecialImage> rasterImage(SkSpecialImage::MakeFromRaster(
+                                                                        SkIRect::MakeWH(kFullSize,
+                                                                                        kFullSize),
+                                                                        bm));
+
+        {
+            sk_sp<SkSpecialImage> fromRaster(rasterImage->makeTextureImage(context));
+            test_texture_backed(reporter, rasterImage, fromRaster);
+        }
+
+        {
+            sk_sp<SkSpecialImage> subRasterImage(rasterImage->makeSubset(subset));
+
+            sk_sp<SkSpecialImage> fromSubRaster(subRasterImage->makeTextureImage(context));
+            test_texture_backed(reporter, subRasterImage, fromSubRaster);
+        }
+    }
+
+    {
+        // gpu
+        GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+        auto view = maker.view(GrMipMapped::kNo);
+        if (!view) {
+            return;
+        }
+
+        sk_sp<SkSpecialImage> gpuImage(
+                SkSpecialImage::MakeDeferredFromGpu(context,
+                                                    SkIRect::MakeWH(kFullSize, kFullSize),
+                                                    kNeedNewImageUniqueID_SpecialImage,
+                                                    std::move(view),
+                                                    maker.colorType(),
+                                                    nullptr));
+
+        {
+            sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
+            test_texture_backed(reporter, gpuImage, fromGPU);
+        }
+
+        {
+            sk_sp<SkSpecialImage> subGPUImage(gpuImage->makeSubset(subset));
+
+            sk_sp<SkSpecialImage> fromSubGPU(subGPUImage->makeTextureImage(context));
+            test_texture_backed(reporter, subGPUImage, fromSubGPU);
+        }
+    }
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     SkBitmap bm = create_bm();
