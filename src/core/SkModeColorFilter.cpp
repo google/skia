@@ -38,7 +38,7 @@ bool SkModeColorFilter::onAsAColorMode(SkColor* color, SkBlendMode* mode) const 
     return true;
 }
 
-uint32_t SkModeColorFilter::getFlags() const {
+uint32_t SkModeColorFilter::onGetFlags() const {
     uint32_t flags = 0;
     switch (fMode) {
         case SkBlendMode::kDst:      //!< [Da, Dc]

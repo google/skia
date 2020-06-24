@@ -8,7 +8,7 @@
 #ifndef SkColorFilterShader_DEFINED
 #define SkColorFilterShader_DEFINED
 
-#include "include/core/SkColorFilter.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkArenaAlloc;
@@ -33,9 +33,9 @@ private:
 
     SK_FLATTENABLE_HOOKS(SkColorFilterShader)
 
-    sk_sp<SkShader>      fShader;
-    sk_sp<SkColorFilter> fFilter;
-    float                fAlpha;
+    sk_sp<SkShader>          fShader;
+    sk_sp<SkColorFilterBase> fFilter;
+    float                    fAlpha;
 
     typedef SkShaderBase INHERITED;
 };
