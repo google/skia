@@ -23,6 +23,7 @@ public:
     using PurgeMore = std::function<void()>;
 
     GrTextBlobCache(PurgeMore purgeMore, uint32_t messageBusID);
+    ~GrTextBlobCache();
 
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
                                      const GrTextBlob::Key& key,
