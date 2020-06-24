@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46f438f6_272b8715",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T14:02:24Z",
+      "side": 1,
+      "message": "kNoDraw feels like different nomenclature than the others. WDYT of kClippedOut or kFullyClipped? (I\u0027m tempted to suggest kClipped-\u003ekPartiallyClipped but not sure the extra verbiage is pulling enough weight to justify itself).",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 15
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de124ad9_a25b32ca",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T14:02:24Z",
+      "side": 1,
+      "message": "I\u0027m assuming the new stack will already know this, right?",
+      "range": {
+        "startLine": 39,
+        "startChar": 36,
+        "endLine": 39,
+        "endChar": 79
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb1f529a_e45a6fec",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T14:02:24Z",
+      "side": 1,
+      "message": "Should we fold bounds into GrAppliedClip (not necessarily for this CL)?",
+      "range": {
+        "startLine": 192,
+        "startChar": 42,
+        "endLine": 192,
+        "endChar": 76
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ea3c624_773cb3ef",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T14:02:24Z",
+      "side": 1,
+      "message": "I\u0027d be tempted to make the constructor implicit. Or return this like\n  return {Effect::kNoDraw};\n\nPersonally, when I read this code I\u0027m much more interested in parsing the logic (e.g. \"the draw is outside the scissor so we can skip it\") and not the construction of a struct here which just adds more clutter to peer through to get to the logic IMHO.",
+      "range": {
+        "startLine": 19,
+        "startChar": 15,
+        "endLine": 19,
+        "endChar": 46
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bb32af2_39fdf94d",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T14:02:24Z",
+      "side": 1,
+      "message": "don\u0027t really need this else",
+      "range": {
+        "startLine": 29,
+        "startChar": 6,
+        "endLine": 29,
+        "endChar": 12
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "818c5427_b775e797",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T14:02:24Z",
+      "side": 1,
+      "message": "Constructor for PreClipResult that takes a rect? (weak suggestion)",
+      "range": {
+        "startLine": 31,
+        "startChar": 29,
+        "endLine": 31,
+        "endChar": 82
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0680c8f5_554ab9c3",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T14:02:24Z",
+      "side": 1,
+      "message": "Personal style opinion, feel free to ignore. I like it when a run cases have short enough code to fit inline with the case so that it reads like a tidy table:\n\n case kFoo:    return x;\n case kBar:    return y;\n case kBlarg:  return z;\n\nor\n\n case kFoo:    ++x;     break;\n case kBar:    y *\u003d z;  break;\n case kBlarg:  z +\u003d 2;  break;\n\nBut otherwise I\u0027d wrap the return when the other cases are more complex.",
+      "range": {
+        "startLine": 1152,
+        "startChar": 0,
+        "endLine": 1152,
+        "endChar": 49
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c316b85_aab5b1ed",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T14:02:24Z",
+      "side": 1,
+      "message": "Another weak suggestion that maybe PreClipResult could have a helper like:\n\n bool isRect(SkRect* rect) const",
+      "range": {
+        "startLine": 456,
+        "startChar": 25,
+        "endLine": 456,
+        "endChar": 66
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
