@@ -11,9 +11,8 @@
 #include "src/gpu/effects/generated/GrCircleEffect.h"
 #include "src/gpu/effects/generated/GrEllipseEffect.h"
 
-GrFragmentProcessor::MakeResult GrOvalEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                   GrClipEdgeType edgeType, const SkRect& oval,
-                                                   const GrShaderCaps& caps) {
+GrFPResult GrOvalEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP, GrClipEdgeType edgeType,
+                              const SkRect& oval, const GrShaderCaps& caps) {
     SkScalar w = oval.width();
     SkScalar h = oval.height();
     if (SkScalarNearlyEqual(w, h)) {

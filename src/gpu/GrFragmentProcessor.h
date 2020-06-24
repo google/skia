@@ -202,20 +202,6 @@ public:
 
     void visitProxies(const GrOp::VisitProxyFunc& func);
 
-    /**
-     * Some fragment processors' Make() methods have preconditions that might not be satisfied by
-     * the calling code. Those FPs can return a `MakeResult` from their Make() methods. If creation
-     * succeeds, the new fragment processor is created and `success` is true. If a precondition is
-     * not met, `success` is set to false and the input FP is returned unchanged.
-     */
-    using MakeResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProcessor>>;
-    static MakeResult MakeFailure(std::unique_ptr<GrFragmentProcessor> fp) {
-        return {false, std::move(fp)};
-    }
-    static MakeResult MakeSuccess(std::unique_ptr<GrFragmentProcessor> fp) {
-        return {true, std::move(fp)};
-    }
-
     // A pre-order traversal iterator over a hierarchy of FPs. It can also iterate over all the FP
     // hierarchies rooted in a GrPaint, GrProcessorSet, or GrPipeline. For these collections it
     // iterates the tree rooted at each color FP and then each coverage FP.
@@ -704,5 +690,19 @@ public:
 private:
     Src& fSrc;
 };
+
+/**
+ * Some fragment-processor creation methods have preconditions that might not be satisfied by the
+ * calling code. Those methods can return a `GrFPResult` from their factory methods. If creation
+ * succeeds, the new fragment processor is created and `success` is true. If a precondition is not
+ * met, `success` is set to false and the input FP is returned unchanged.
+ */
+using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProcessor>>;
+static inline GrFPResult GrFPFailure(std::unique_ptr<GrFragmentProcessor> fp) {
+    return {false, std::move(fp)};
+}
+static inline GrFPResult GrFPSuccess(std::unique_ptr<GrFragmentProcessor> fp) {
+    return {true, std::move(fp)};
+}
 
 #endif

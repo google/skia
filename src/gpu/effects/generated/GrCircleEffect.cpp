@@ -48,12 +48,12 @@ half d;
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar));
-        SkString _input2566(args.fInputColor);
-        SkString _sample2566;
+        SkString _input2509(args.fInputColor);
+        SkString _sample2509;
         if (_outer.inputFP_index >= 0) {
-            _sample2566 = this->invokeChild(_outer.inputFP_index, _input2566.c_str(), args);
+            _sample2509 = this->invokeChild(_outer.inputFP_index, _input2509.c_str(), args);
         } else {
-            _sample2566.swap(_input2566);
+            _sample2509.swap(_input2509);
         }
         fragBuilder->codeAppendf(
                 R"SkSL(
@@ -64,7 +64,7 @@ half4 inputColor = %s;
     %s = d > 0.5 ? inputColor : half4(0.0);
 }
 )SkSL",
-                _sample2566.c_str(), (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor,
+                _sample2509.c_str(), (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor,
                 args.fOutputColor);
     }
 
