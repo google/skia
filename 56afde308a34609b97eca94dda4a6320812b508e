@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "eb016a75_77e89ecf",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-24T14:39:52Z",
+      "side": 1,
+      "message": "Done. We do start with it set to true but outside of the iterator.",
+      "parentUuid": "cb17e141_5dc20744",
+      "revId": "56afde308a34609b97eca94dda4a6320812b508e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3810a39f_5bb5aae0",
         "filename": "modules/skparagraph/src/TextLine.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "56afde308a34609b97eca94dda4a6320812b508e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62e833ab_cde1febf",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-24T14:39:52Z",
+      "side": 1,
+      "message": "Well the precious behavior crashes miserably (dividing by 0). I never expected glyph width \u003d\u003d 0. The rest of the logic carefully trying to copy Flutter logic. They have lots of tests with almost full code coverage.",
+      "parentUuid": "3810a39f_5bb5aae0",
+      "revId": "56afde308a34609b97eca94dda4a6320812b508e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
