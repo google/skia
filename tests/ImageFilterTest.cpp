@@ -513,12 +513,9 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter, GrContext* co
     sk_sp<SkImageFilter> positiveFilter(SkImageFilters::Blur(kBlurSigma, kBlurSigma, nullptr));
     sk_sp<SkImageFilter> negativeFilter(SkImageFilters::Blur(-kBlurSigma, kBlurSigma, nullptr));
 
-    SkBitmap gradient = make_gradient_circle(kWidth, kHeight);
-    sk_sp<SkSpecialImage> imgSrc(SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(kWidth, kHeight),
-                                                                gradient));
-    if (context) {
-        imgSrc = imgSrc->makeTextureImage(context);
-    }
+    sk_sp<SkImage> gradient = SkImage::MakeFromBitmap(make_gradient_circle(kWidth, kHeight));
+    sk_sp<SkSpecialImage> imgSrc(
+            SkSpecialImage::MakeFromImage(context, SkIRect::MakeWH(kWidth, kHeight), gradient));
 
     SkIPoint offset;
     SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,
@@ -603,12 +600,9 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
     paint.setColor(SK_ColorWHITE);
     canvas.drawRect(SkRect::MakeXYWH(kWidth / 4, kHeight / 4, kWidth / 2, kHeight / 2),
                     paint);
-
-    sk_sp<SkSpecialImage> imgSrc(SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(kWidth, kHeight),
-                                                                bitmap));
-    if (context) {
-        imgSrc = imgSrc->makeTextureImage(context);
-    }
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
+    sk_sp<SkSpecialImage> imgSrc(
+            SkSpecialImage::MakeFromImage(context, SkIRect::MakeWH(kWidth, kHeight), image));
 
     SkIPoint offset;
     SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,
