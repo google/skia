@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "393062c3_3db5bc38",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2696,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T14:28:11Z",
+      "side": 1,
+      "message": "Why does this use no modifiers specifically fRTHeightOffset but the field early does? At first I was thinking we could just not add the RTHeight field up at 1832 and just always let this handle it, but then I realized they\u0027re not actually setting the same values. Is one of these a bug?",
+      "range": {
+        "startLine": 2696,
+        "startChar": 28,
+        "endLine": 2696,
+        "endChar": 39
+      },
+      "revId": "1c2796d7b3fd383df5804ab6a96f6dda0c720935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
