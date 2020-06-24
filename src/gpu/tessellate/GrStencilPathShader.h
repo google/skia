@@ -52,9 +52,13 @@ public:
     const char* name() const override { return "tessellate_GrTessellateCubicShader"; }
 
 private:
-    SkString getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                      const char* versionAndExtensionDecls,
+                                      const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                         const char* versionAndExtensionDecls,
+                                         const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 };
 
@@ -71,9 +75,13 @@ public:
     const char* name() const override { return "tessellate_GrTessellateWedgeShader"; }
 
 private:
-    SkString getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                      const char* versionAndExtensionDecls,
+                                      const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                         const char* versionAndExtensionDecls,
+                                         const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 };
 

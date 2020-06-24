@@ -36,6 +36,7 @@ class GrCoordTransform;
  */
 
 class GrGLSLPrimitiveProcessor;
+class GrGLSLUniformHandler;
 
 /**
  * GrPrimitiveProcessor defines an interface which all subclasses must implement.  All
@@ -215,11 +216,15 @@ public:
 
     // We use these methods as a temporary back door to inject OpenGL tessellation code. Once
     // tessellation is supported by SkSL we can remove these.
-    virtual SkString getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+    virtual SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                              const char* versionAndExtensionDecls,
+                                              const GrGLSLUniformHandler&,
                                               const GrShaderCaps&) const {
         SK_ABORT("Not implemented.");
     }
-    virtual SkString getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
+    virtual SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+                                                 const char* versionAndExtensionDecls,
+                                                 const GrGLSLUniformHandler&,
                                                  const GrShaderCaps&) const {
         SK_ABORT("Not implemented.");
     }
