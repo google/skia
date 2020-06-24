@@ -126,9 +126,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, invalidTexture));
 
     wrappedImage.reset();
-    GrFlushInfo flushInfo;
-    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-    context->flush(flushInfo);
+    context->flush();
     context->submit(true);
     context->deleteBackendTexture(backendTex);
 }

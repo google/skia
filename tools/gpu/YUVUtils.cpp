@@ -89,9 +89,7 @@ bool LazyYUVImage::ensureYUVImage(GrContext* context) {
 void YUVABackendReleaseContext::Unwind(GrContext* context, YUVABackendReleaseContext* beContext) {
     // Some backends (e.g., Vulkan) require that all work associated w/ texture
     // creation be completed before deleting the textures.
-    GrFlushInfo flushInfoSyncCpu;
-    flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-    context->flush(flushInfoSyncCpu);
+    context->flush();
     context->submit(true);
 
     delete beContext;

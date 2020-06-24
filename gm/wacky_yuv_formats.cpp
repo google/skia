@@ -1357,9 +1357,7 @@ protected:
             // Some backends (e.g., Vulkan) require all work be completed for backend textures
             // before they are deleted. Since we don't know when we'll next have access to a
             // direct context, flush all the work now.
-            GrFlushInfo flushInfoSyncCpu;
-            flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-            context->flush(flushInfoSyncCpu);
+            context->flush();
             context->submit(true);
         }
 
@@ -1575,9 +1573,7 @@ protected:
         // Some backends (e.g., Vulkan) require all work be completed for backend textures before
         // they are deleted. Since we don't know when we'll next have access to a direct context,
         // flush all the work now.
-        GrFlushInfo flushInfoSyncCpu;
-        flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-        context->flush(flushInfoSyncCpu);
+        context->flush();
         context->submit(true);
 
         return true;

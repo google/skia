@@ -6,6 +6,12 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 85
 ------------
+  * Remove obsolete GrFlushFlags. Also adds default flush() calls to SkSurface,
+    SkImage, and GrContext. These calls do a basic flush without a submit. If you
+    haven't updated Skia in a couple release and still have flush() calls in your
+    code that you expect to do a flush and submit, you should update all those to
+    the previously added flushAndSubmit() calls instead.
+    https://review.skia.org/298818
 
   * Added GrContext::oomed() which reports whether Skia has seen a GL_OUT_OF_MEMORY
     error from Open GL [ES] or VK_ERROR_OUT_OF_*_MEMORY from Vulkan.

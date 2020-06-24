@@ -1393,15 +1393,13 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, numSubmits() == 3);
 
     // Syncing forces the flush to happen even if the images aren't used.
-    GrFlushInfo syncInfo;
-    syncInfo.fFlags = kSyncCpu_GrFlushFlag;
-    i0->flush(c, syncInfo);
+    i0->flush(c);
     c->submit(true);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
-    i1->flush(c, syncInfo);
+    i1->flush(c);
     c->submit(true);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
-    i2->flush(c, syncInfo);
+    i2->flush(c);
     c->submit(true);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 
