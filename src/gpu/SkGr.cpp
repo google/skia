@@ -382,9 +382,6 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             auto ditherFP = GrSkSLFP::Make(context, effect, "Dither",
                                            SkData::MakeWithCopy(&ditherRange, sizeof(ditherRange)));
             if (ditherFP) {
-                // The dither shader doesn't actually use input coordinates, but if we don't set
-                // this flag, the generated shader includes an extra local coord varying.
-                ditherFP->temporary_SetExplicitlySampled();
                 grPaint->addColorFragmentProcessor(std::move(ditherFP));
             }
         }

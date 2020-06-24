@@ -183,14 +183,14 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
         if (!fps[i]->compatibleWithCoverageAsAlpha()) {
             analysis.fCompatibleWithCoverageAsAlpha = false;
         }
-        coverageUsesLocalCoords |= fps[i]->usesLocalCoords();
+        coverageUsesLocalCoords |= fps[i]->sampleCoordsDependOnLocalCoords();
     }
     if (clip) {
         hasCoverageFP = hasCoverageFP || clip->numClipCoverageFragmentProcessors();
         for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
             const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
             analysis.fCompatibleWithCoverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
-            coverageUsesLocalCoords |= clipFP->usesLocalCoords();
+            coverageUsesLocalCoords |= clipFP->sampleCoordsDependOnLocalCoords();
         }
     }
     int colorFPsToEliminate = colorAnalysis.initialProcessorsToEliminate(overrideInputColor);

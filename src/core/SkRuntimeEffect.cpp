@@ -87,6 +87,22 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
+    // FIXME can the SkSL::Program just provide this for us?
+    bool mainHasSampleCoords = false;
+    for (const auto& e : *program) {
+        if (e.fKind == SkSL::ProgramElement::kFunction_Kind) {
+            const SkSL::FunctionDefinition& func = (const SkSL::FunctionDefinition&) e;
+            if (func.fDeclaration.fName == "main") {
+                SkASSERT(func.fDeclaration.fParameters.size() <= 2);
+                if (!func.fDeclaration.fParameters.empty() &&
+                    func.fDeclaration.fParameters.front()->fType.fName == "float2") {
+                    mainHasSampleCoords = true;
+                    break;
+                }
+            }
+        }
+    }
+
     size_t offset = 0, uniformSize = 0;
     std::vector<Variable> inAndUniformVars;
     std::vector<SkString> children;
@@ -259,7 +275,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(inAndUniformVars),
                                                       std::move(children),
                                                       std::move(varyings),
-                                                      uniformSize));
+                                                      uniformSize,
+                                                      mainHasSampleCoords));
     return std::make_pair(std::move(effect), SkString());
 }
 
@@ -287,14 +304,16 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::vector<Variable>&& inAndUniformVars,
                                  std::vector<SkString>&& children,
                                  std::vector<Varying>&& varyings,
-                                 size_t uniformSize)
+                                 size_t uniformSize,
+                                 bool mainHasSampleCoords)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fBaseProgram(std::move(baseProgram))
         , fInAndUniformVars(std::move(inAndUniformVars))
         , fChildren(std::move(children))
         , fVaryings(std::move(varyings))
-        , fUniformSize(uniformSize) {
+        , fUniformSize(uniformSize)
+        , fMainFunctionHasSampleCoords(mainHasSampleCoords) {
     SkASSERT(fBaseProgram);
     SkASSERT(SkIsAlign4(fUniformSize));
     SkASSERT(fUniformSize <= this->inputSize());

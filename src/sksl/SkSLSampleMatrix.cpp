@@ -32,7 +32,7 @@ namespace SkSL {
 
 SampleMatrix SampleMatrix::merge(const SampleMatrix& other) {
     if (fKind == Kind::kVariable || other.fKind == Kind::kVariable) {
-        *this = SampleMatrix::MakeVariable();
+        *this = SampleMatrix::MakeVariable(this->fHasPerspective || other.fHasPerspective);
         return *this;
     }
     if (other.fKind == Kind::kConstantOrUniform) {
@@ -40,7 +40,7 @@ SampleMatrix SampleMatrix::merge(const SampleMatrix& other) {
             if (fExpression == other.fExpression) {
                 return *this;
             }
-            *this = SampleMatrix::MakeVariable();
+            *this = SampleMatrix::MakeVariable(this->fHasPerspective || other.fHasPerspective);
             return *this;
         }
         SkASSERT(fKind == Kind::kNone);
@@ -94,7 +94,19 @@ SampleMatrix SampleMatrixExtractor::getMatrix(const Expression& e) const {
                 fc.fArguments[0]->fKind == Expression::kVariableReference_Kind &&
                 &((VariableReference&) *fc.fArguments[0]).fVariable == &fFP) {
                 if (fc.fArguments.back()->isConstantOrUniform()) {
-                    return SampleMatrix::MakeConstUniform(fc.fArguments.back()->description());
+                    if (fc.fArguments.back()->fKind == Expression::Kind::kVariableReference_Kind ||
+                        fc.fArguments.back()->fKind == Expression::Kind::kConstructor_Kind) {
+                        // FIXME if this is a constant, we should parse the float3x3 constructor and
+                        // determine if the resulting matrix introduces perspective.
+                        return SampleMatrix::MakeConstUniform(fc.fArguments.back()->description());
+                    } else {
+                        // FIXME this is really to workaround a restriction of the downstream code
+                        // that relies on the SampleMatrix's fExpression to identify uniform names.
+                        // Once they are tracked separately, any constant/uniform expression can
+                        // work, but right now this avoids issues from '0.5 * matrix' that is both
+                        // a constant AND a uniform.
+                        return SampleMatrix::MakeVariable();
+                    }
                 } else {
                     return SampleMatrix::MakeVariable();
                 }

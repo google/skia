@@ -47,8 +47,6 @@ public:
                                                         kFloat_GrSLType, "yInvInset");
         offsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                      kHalf2_GrSLType, "offset");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
                 R"SkSL(float2 coord = %s;
 float2 zoom_coord = float2(%s) + coord * float2(%s, %s);
@@ -65,15 +63,15 @@ if (delta.x < 2.0 && delta.y < 2.0) {
     float2 delta_squared = delta * delta;
     weight = min(min(delta_squared.x, delta_squared.y), 1.0);
 })SkSL",
-                sk_TransformedCoords2D_0.c_str(), args.fUniformHandler->getUniformCStr(offsetVar),
+                args.fSampleCoord, args.fUniformHandler->getUniformCStr(offsetVar),
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
                 args.fUniformHandler->getUniformCStr(yInvZoomVar),
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
-        SkString _sample1112;
         SkString _coords1112("mix(coord, zoom_coord, weight)");
+        SkString _sample1112;
         _sample1112 = this->invokeChild(_outer.src_index, args, _coords1112.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
@@ -147,6 +145,7 @@ GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         , yInvInset(src.yInvInset) {
     { src_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.src_index)); }
     this->addCoordTransform(&fCoordTransform0);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrMagnifierEffect(*this));

@@ -36,6 +36,7 @@ private:
                         (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag)
             , fCoordTransform0(gradientMatrix)
             , gradientMatrix(gradientMatrix) {
+        this->setUsesSampleCoordsDirectly();
         this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

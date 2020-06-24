@@ -57,12 +57,10 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
                                                  "Kernel", arrayCount, &kernel);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    auto coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                ce.sampleMatrix());
 
     fragBuilder->codeAppendf("%s = half4(0, 0, 0, 0);", args.fOutputColor);
 
-    fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.fRadius, inc);
+    fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", args.fSampleCoord, ce.fRadius, inc);
     fragBuilder->codeAppend("float2 coordSampled = half2(0, 0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.

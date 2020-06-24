@@ -846,8 +846,6 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                   pne.sampleMatrix());
 
     fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                    "baseFrequency");
@@ -960,7 +958,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
 
     // There are rounding errors if the floor operation is not performed here
     fragBuilder->codeAppendf("half2 noiseVec = half2(floor(%s.xy) * %s);",
-                             vCoords.c_str(), baseFrequencyUni);
+                             args.fSampleCoord, baseFrequencyUni);
 
     // Clear the color accumulator
     fragBuilder->codeAppendf("%s = half4(0.0);", args.fOutputColor);
@@ -1206,8 +1204,6 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     const GrImprovedPerlinNoiseEffect& pne = args.fFp.cast<GrImprovedPerlinNoiseEffect>();
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                   pne.sampleMatrix());
 
     fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                    "baseFrequency");
@@ -1312,7 +1308,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     fragBuilder->emitFunction(kHalf_GrSLType, "noiseOctaves", SK_ARRAY_COUNT(noiseOctavesArgs),
                               noiseOctavesArgs, noiseOctavesCode.c_str(), &noiseOctavesFuncName);
 
-    fragBuilder->codeAppendf("half2 coords = half2(%s * %s);", vCoords.c_str(), baseFrequencyUni);
+    fragBuilder->codeAppendf("half2 coords = half2(%s * %s);", args.fSampleCoord, baseFrequencyUni);
     fragBuilder->codeAppendf("half r = %s(half3(coords, %s));", noiseOctavesFuncName.c_str(),
                              zUni);
     fragBuilder->codeAppendf("half g = %s(half3(coords, %s + 0000.0));",

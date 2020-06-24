@@ -38,7 +38,9 @@ private:
             : INHERITED(kGrMatrixEffect_ClassID, kNone_OptimizationFlags)
             , fMatrix(matrix) {
         SkASSERT(child);
-        this->registerChild(std::move(child), SkSL::SampleMatrix::MakeConstUniform("matrix"));
+        this->registerChild(std::move(child),
+                            SkSL::SampleMatrix::MakeConstUniform(
+                                    "matrix", matrix.hasPerspective()));
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

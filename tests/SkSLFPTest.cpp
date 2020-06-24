@@ -507,15 +507,14 @@ DEF_TEST(SkSLFPTransformedCoords, r) {
                  sk_OutColor = half4(sk_TransformedCoords2D[0], sk_TransformedCoords2D[0]);
              }
          )__SkSL__",
-         /*expectedH=*/{},
+         /*expectedH=*/{
+             "this->setUsesSampleCoordsDirectly();"
+         },
          /*expectedCPP=*/{
-            "SkString sk_TransformedCoords2D_0 = "
-                           "fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint, "
-                                                       "_outer.sampleMatrix());",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(%s = half4(%s, %s);\n"
             ")SkSL\"\n"
-            ", args.fOutputColor, sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str());"
+            ", args.fOutputColor, args.fSampleCoord, args.fSampleCoord);"
          });
 }
 
@@ -815,17 +814,14 @@ DEF_TEST(SkSLFPSampleCoords, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-             "child_index = this->registerExplicitlySampledChild(std::move(child));"
+             "child_index = this->registerExplicitlySampledChild(std::move(child));",
+             "this->setUsesSampleCoordsDirectly();"
          },
          /*expectedCPP=*/{
             "SkString _sample150;\n",
             "_sample150 = this->invokeChild(_outer.child_index, args);\n",
             "SkString _sample166;\n",
-            "SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D("
-                                                     "args.fTransformedCoords[0].fVaryingPoint, "
-                                                     "_outer.sampleMatrix());\n",
-            "SkString _coords166 = SkStringPrintf(\"%s / 2.0\", "
-                "sk_TransformedCoords2D_0.c_str());\n",
+            "SkString _coords166 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);\n",
             "_sample166 = this->invokeChild(_outer.child_index, args, _coords166.c_str());\n",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(%s = %s + %s;\n"
@@ -864,7 +860,7 @@ DEF_TEST(SkSLFPFunction, r) {
          });
 }
 
-DEF_TEST(SkSLFPMatrixSample, r) {
+DEF_TEST(SkSLFPMatrixSampleConstant, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -873,6 +869,145 @@ DEF_TEST(SkSLFPMatrixSample, r) {
                  sk_OutColor = sample(child, float3x3(2));
              }
          )__SkSL__",
-         /*expectedH=*/{},
-         /*expectedCPP=*/{});
+         /*expectedH=*/{
+             "this->registerChild(std::move(child), "
+                    "SkSL::SampleMatrix::MakeConstUniform(\"float3x3(2.0)\", true));"
+         },
+         /*expectedCPP=*/{
+             "this->invokeChildWithMatrix(_outer.child_index, args)"
+         });
+}
+
+DEF_TEST(SkSLFPMatrixSampleUniform, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             in fragmentProcessor? child;
+             uniform float3x3 matrix;
+             void main() {
+                 sk_OutColor = sample(child, matrix);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             // Since 'matrix' is just a uniform, the generated code can't determine perspective.
+             "this->registerChild(std::move(child), "
+                    "SkSL::SampleMatrix::MakeConstUniform(\"matrix\", true));"
+         },
+         /*expectedCPP=*/{
+             "this->invokeChildWithMatrix(_outer.child_index, args)"
+         });
+}
+
+DEF_TEST(SkSLFPMatrixSampleInUniform, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             in fragmentProcessor? child;
+             in uniform float3x3 matrix;
+             void main() {
+                 sk_OutColor = sample(child, matrix);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             // Since 'matrix' is marked 'in', we can detect perspective at runtime
+             "this->registerChild(std::move(child), "
+                    "SkSL::SampleMatrix::MakeConstUniform(\"matrix\", matrix.hasPerspective()));"
+         },
+         /*expectedCPP=*/{
+             "this->invokeChildWithMatrix(_outer.child_index, args)"
+         });
+}
+
+DEF_TEST(SkSLFPMatrixSampleMultipleInUniforms, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             in fragmentProcessor? child;
+             in uniform float3x3 matrixA;
+             in uniform float3x3 matrixB;
+             void main() {
+                 sk_OutColor = sample(child, matrixA);
+                 sk_OutColor += sample(child, matrixB);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             // FIXME it would be nice if codegen can produce
+             // (matrixA.hasPerspective() || matrixB.hasPerspective()) even though it's variable.
+             "this->registerChild(std::move(child), "
+                    "SkSL::SampleMatrix::MakeVariable(true));"
+         },
+         /*expectedCPP=*/{
+             "SkString _matrix191(args.fUniformHandler->getUniformCStr(matrixAVar));",
+             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix191.c_str());",
+             "SkString _matrix247(args.fUniformHandler->getUniformCStr(matrixBVar));",
+             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix247.c_str());"
+         });
+}
+
+DEF_TEST(SkSLFPMatrixSampleConstUniformExpression, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             in fragmentProcessor? child;
+             uniform float3x3 matrix;
+             void main() {
+                 sk_OutColor = sample(child, 0.5 * matrix);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             // FIXME: "0.5 * matrix" is a constant/uniform expression and could be lifted to
+             // the vertex shader, once downstream code is able to properly map 'matrix' within the
+             // expression.
+             "this->registerChild(std::move(child), "
+                    "SkSL::SampleMatrix::MakeVariable(true));"
+         },
+         /*expectedCPP=*/{
+            "SkString _matrix145 = SkStringPrintf(\"0.5 * %s\", "
+                    "args.fUniformHandler->getUniformCStr(matrixVar));",
+             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix145.c_str());"
+         });
+}
+
+DEF_TEST(SkSLFPMatrixSampleConstantAndExplicitly, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             in fragmentProcessor? child;
+             void main() {
+                 sk_OutColor = sample(child, float3x3(0.5));
+                 sk_OutColor = sample(child, sk_TransformedCoords2D[0].xy / 2);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             "this->registerChild(std::move(child), "
+                    "SkSL::SampleMatrix::MakeConstUniform(\"float3x3(0.5)\", true), true);"
+         },
+         /*expectedCPP=*/{
+             "this->invokeChildWithMatrix(_outer.child_index, args)",
+             "SkString _coords168 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
+             "this->invokeChild(_outer.child_index, args, _coords168.c_str())",
+         });
+}
+
+DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             in fragmentProcessor? child;
+             void main() {
+                 float3x3 matrix = float3x3(sk_InColor.a);
+                 sk_OutColor = sample(child, matrix);
+                 sk_OutColor = sample(child, sk_TransformedCoords2D[0].xy / 2);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             "this->registerChild(std::move(child), "
+                    "SkSL::SampleMatrix::MakeVariable(true), true);"
+         },
+         /*expectedCPP=*/{
+             "SkString _matrix166(\"matrix\");",
+             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix166.c_str())",
+             "SkString _coords220 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
+             "this->invokeChild(_outer.child_index, args, _coords220.c_str()",
+         });
 }

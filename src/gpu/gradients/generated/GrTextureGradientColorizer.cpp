@@ -25,8 +25,8 @@ public:
         (void)_outer;
         fragBuilder->codeAppendf(
                 R"SkSL(half2 coord = half2(%s.x, 0.5);)SkSL", args.fInputColor);
-        SkString _sample327;
         SkString _coords327("float2(coord)");
+        SkString _sample327;
         _sample327 = this->invokeChild(_outer.textureFP_index, args, _coords327.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(

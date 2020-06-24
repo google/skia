@@ -195,8 +195,33 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            fp,
                                            output.c_str(),
                                            input.c_str(),
+                                           "_coords",
                                            coords,
                                            textureSamplers);
+
+    if (fp.referencesSampleCoords()) {
+        // The fp's generated code expects a _coords variable, but we're a the root so _coords
+        // is just the local coordinates produced by the primitive processor.
+        SkASSERT(coords.count() > 0);
+
+        const GrShaderVar& varying = coordVars[0].fVaryingPoint;
+        switch(varying.getType()) {
+            case kFloat2_GrSLType:
+                fFS.codeAppendf("float2 %s = %s.xy;\n",
+                                args.fSampleCoord, varying.getName().c_str());
+                break;
+            case kFloat3_GrSLType:
+                fFS.codeAppendf("float2 %s = %s.xy / %s.z;\n",
+                                args.fSampleCoord,
+                                varying.getName().c_str(),
+                                varying.getName().c_str());
+                break;
+            default:
+                SkDEBUGFAILF("Unexpected type for varying: %d named %s\n",
+                             (int) varying.getType(), varying.getName().c_str());
+                break;
+        }
+    }
 
     fragProc->emitCode(args);
 

@@ -40,6 +40,7 @@ private:
             , gradientMatrix(gradientMatrix)
             , bias(bias)
             , scale(scale) {
+        this->setUsesSampleCoordsDirectly();
         this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

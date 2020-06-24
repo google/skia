@@ -25,13 +25,11 @@ public:
         (void)_outer;
         auto gradientMatrix = _outer.gradientMatrix;
         (void)gradientMatrix;
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x) + 9.9999997473787516e-06;
 %s = half4(t, 1.0, 0.0, 0.0);
 )SkSL",
-                sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
+                args.fSampleCoord, args.fOutputColor);
     }
 
 private:
@@ -54,6 +52,7 @@ GrLinearGradientLayout::GrLinearGradientLayout(const GrLinearGradientLayout& src
         , fCoordTransform0(src.fCoordTransform0)
         , gradientMatrix(src.gradientMatrix) {
     this->addCoordTransform(&fCoordTransform0);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout(*this));
