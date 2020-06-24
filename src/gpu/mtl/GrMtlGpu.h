@@ -68,6 +68,10 @@ public:
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     void testingOnly_flushGpuAndSync() override;
+
+    void resetShaderCacheForTesting() const override {
+        fResourceProvider.resetShaderCacheForTesting();
+    }
 #endif
 
     void copySurfaceAsResolve(GrSurface* dst, GrSurface* src);
