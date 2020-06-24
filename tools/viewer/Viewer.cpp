@@ -2297,7 +2297,8 @@ void Viewer::drawImGui() {
 
                     SkSL::String highlight;
                     if (!sksl) {
-                        highlight = shaderCaps->versionDeclString();
+                        const char* versionDecl = shaderCaps->versionDeclString();
+                        highlight = versionDecl ? versionDecl : "";
                         if (shaderCaps->usesPrecisionModifiers()) {
                             highlight.append("precision mediump float;\n");
                         }
