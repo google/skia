@@ -61,13 +61,14 @@ VerifierResult GMVerifier::verify(const SkBitmap& actual) {
 
 SkBitmap GMVerifier::RenderGoldBmp(skiagm::GM* gm, const SkColorInfo& colorInfo) {
     SkASSERT(gm);
+    SkString errorMsg;
 
     // Call into the GM instance to get the initial image.
     const SkISize size = gm->getISize();
     SkBitmap goldBmp;
     goldBmp.allocPixels(SkImageInfo::Make(size, colorInfo));
     SkCanvas canvas(goldBmp);
-    gm->draw(&canvas);
+    gm->draw(&canvas, &errorMsg);
 
     // Convert into common verifier colorspace.
     SkBitmap goldVerifierBmp;
