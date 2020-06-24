@@ -87,8 +87,8 @@ struct GrContextOptions;
 namespace skiagm {
 
     enum class DrawResult {
-        kOk,  // Test drew successfully.
-        kFail,  // Test failed to draw.
+        kOk,   // Test drew successfully.
+        kFail, // Test failed to draw.
         kSkip  // Test is not applicable in this context and should be skipped.
     };
 
@@ -110,20 +110,12 @@ namespace skiagm {
 
         static constexpr char kErrorMsg_DrawSkippedGpuOnly[] = "This test is for GPU configs only.";
 
-        DrawResult gpuSetup(GrContext*, SkString* errorMsg);
+        DrawResult gpuSetup(GrContext*, SkCanvas*, SkString* errorMsg);
 
-        DrawResult draw(SkCanvas* canvas) {
-            SkString errorMsg;
-            return this->draw(canvas, &errorMsg);
-        }
-        DrawResult draw(SkCanvas*, SkString* errorMsg);
+        DrawResult draw2(SkCanvas*, SkString* errorMsg);
 
         void drawBackground(SkCanvas*);
-        DrawResult drawContent(SkCanvas* canvas) {
-            SkString errorMsg;
-            return this->drawContent(canvas, &errorMsg);
-        }
-        DrawResult drawContent(SkCanvas*, SkString* errorMsg);
+        DrawResult drawContent72(SkCanvas*, SkString* errorMsg);
 
         SkISize getISize() { return this->onISize(); }
         const char* getName();
@@ -168,10 +160,12 @@ namespace skiagm {
         virtual void onSetControls(const SkMetaData&);
 
     private:
-        Mode     fMode;
-        SkString fShortName;
-        SkColor  fBGColor;
-        bool     fHaveCalledOnceBeforeDraw;
+        Mode       fMode;
+        SkString   fShortName;
+        SkColor    fBGColor;
+        bool       fHaveCalledOnceBeforeDraw;
+        bool       fGpuSetupCalled;
+        DrawResult fGpuSetupResult;
     };
 
     using GMFactory = std::unique_ptr<skiagm::GM> (*)();
