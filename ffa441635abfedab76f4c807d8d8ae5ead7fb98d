@@ -45,6 +45,30 @@
       "revId": "ffa441635abfedab76f4c807d8d8ae5ead7fb98d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bddb0e1_19525dbc",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-24T19:43:37Z",
+      "side": 1,
+      "message": "I think it makes sense to keep verbs, pts, and weights together. What if we do:\n\n(fillType, verbs, pts, weights, volatile)",
+      "parentUuid": "45df9f36_fd337182",
+      "range": {
+        "startLine": 536,
+        "startChar": 78,
+        "endLine": 536,
+        "endChar": 86
+      },
+      "revId": "ffa441635abfedab76f4c807d8d8ae5ead7fb98d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
