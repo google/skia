@@ -24,6 +24,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPicture.h"
@@ -551,11 +552,14 @@ void PathAddVerbsPointsWeights(SkPath& path, uintptr_t /* uint8_t* */ verbsPtr, 
 }
 
 SkPath MakePathFromVerbsPointsWeights(uintptr_t /* uint8_t* */ verbsPtr, int numVerbs,
-                                      uintptr_t ptsPtr, int numPts,
-                                      uintptr_t wtsPtr, int numWts) {
-    SkPath path;
-    PathAddVerbsPointsWeights(path, verbsPtr, numVerbs, ptsPtr, numPts, wtsPtr, numWts);
-    return path;
+                                      uintptr_t /* float* */ ptsPtr, int numPts,
+                                      uintptr_t /* float* */ wtsPtr, int numWts,
+                                      SkPathFillType fillType) {
+    const uint8_t* verbs = reinterpret_cast<const uint8_t*>(verbsPtr);
+    const SkPoint* pts = reinterpret_cast<const SkPoint*>(ptsPtr);
+    static_assert(sizeof(SkPoint) == sizeof(float) * 2);
+    const float* weights = reinterpret_cast<const float*>(wtsPtr);
+    return SkPathBuilder::Make(pts, numPts, verbs, numVerbs, weights, numWts, fillType);
 }
 
 //========================================================================================

@@ -533,13 +533,13 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.MakePathFromCmds = CanvasKit.SkPath.MakeFromCmds;
 
   // The weights array is optional (only used for conics).
-  CanvasKit.SkPath.MakeFromVerbsPointsWeights = function(verbs, pts, weights) {
+  CanvasKit.SkPath.MakeFromVerbsPointsWeights = function(verbs, pts, weights, fillType) {
     var verbsPtr = copy1dArray(verbs, "HEAPU8");
     var pointsPtr = copy1dArray(pts, "HEAPF32");
     var weightsPtr = copy1dArray(weights, "HEAPF32");
     var numWeights = (weights && weights.length) || 0;
     var path = CanvasKit.SkPath._MakeFromVerbsPointsWeights(
-        verbsPtr, verbs.length, pointsPtr, pts.length, weightsPtr, numWeights);
+        verbsPtr, verbs.length, pointsPtr, pts.length, weightsPtr, numWeights, fillType);
     freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
     freeArraysThatAreNotMallocedByUsers(pointsPtr, pts);
     freeArraysThatAreNotMallocedByUsers(weightsPtr, weights);
