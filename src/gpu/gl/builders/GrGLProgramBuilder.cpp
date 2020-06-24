@@ -391,7 +391,8 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
             }
 
             SkString tessControlShader = primProc.getTessControlShaderGLSL(
-                    versionAndExtensionDecls.c_str(), *this->shaderCaps());
+                    fGeometryProcessor.get(), versionAndExtensionDecls.c_str(), fUniformHandler,
+                    *this->shaderCaps());
             if (!this->compileAndAttachShaders(tessControlShader.c_str(), programID,
                                                GR_GL_TESS_CONTROL_SHADER, &shadersToDelete,
                                                errorHandler)) {
@@ -400,7 +401,8 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
             }
 
             SkString tessEvaluationShader = primProc.getTessEvaluationShaderGLSL(
-                    versionAndExtensionDecls.c_str(), *this->shaderCaps());
+                    fGeometryProcessor.get(), versionAndExtensionDecls.c_str(), fUniformHandler,
+                    *this->shaderCaps());
             if (!this->compileAndAttachShaders(tessEvaluationShader.c_str(), programID,
                                                GR_GL_TESS_EVALUATION_SHADER, &shadersToDelete,
                                                errorHandler)) {
