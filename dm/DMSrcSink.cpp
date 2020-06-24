@@ -1651,14 +1651,14 @@ Result GPUOOPRSink::ooprDraw(const Src& src,
         return result;
     }
 
-    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+    auto ddl = recorder.detach();
 
     SkDeferredDisplayList::ProgramIterator iter(context, ddl.get());
     for (; !iter.done(); iter.next()) {
         iter.compile();
     }
 
-    SkAssertResult(dstSurface->draw(ddl.get()));
+    SkAssertResult(dstSurface->draw(ddl));
 
     // TODO: remove this flush once DDLs are reffed by the drawing manager
     context->flushAndSubmit();

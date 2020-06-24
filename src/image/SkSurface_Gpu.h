@@ -57,7 +57,11 @@ public:
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool onIsCompatible(const SkSurfaceCharacterization&) const override;
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+    bool onDraw(sk_sp<const SkDeferredDisplayList>) override;
+#else
     bool onDraw(const SkDeferredDisplayList*) override;
+#endif
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 

@@ -1051,7 +1051,12 @@ public:
 
         example: https://fiddle.skia.org/c/@Surface_draw_2
     */
-    bool draw(SkDeferredDisplayList* deferredDisplayList);
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+    bool draw(sk_sp<const SkDeferredDisplayList> deferredDisplayList);
+#else
+    bool draw(const SkDeferredDisplayList* deferredDisplayList);
+    bool draw(const std::unique_ptr<const SkDeferredDisplayList>& deferredDisplayList);
+#endif
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps* surfaceProps);
