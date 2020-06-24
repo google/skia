@@ -932,6 +932,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~^GrMeshTest$")
 		match = append(match, "~^GrSurfaceRenderability$")
 		match = append(match, "~^GrTextureMipMapInvalidationTest$")
+		match = append(match, "~^PremulAlphaRoundTrip_Gpu$")
 		match = append(match, "~^ReplaceSurfaceBackendTexture$")
 		match = append(match, "~^SkImage_makeTextureImage$")
 		match = append(match, "~^TextureIdleStateTest$")
