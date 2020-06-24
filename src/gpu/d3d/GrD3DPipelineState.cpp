@@ -108,6 +108,7 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProc
         shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
         samplers[currTextureBinding] =
                 gpu->resourceProvider().findOrCreateCompatibleSampler(sampler.samplerState());
+        gpu->currentCommandList()->addSampledTextureRef(texture);
         rangeSizes[currTextureBinding++] = 1;
     }
 
@@ -120,6 +121,7 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProc
             shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
             samplers[currTextureBinding] =
                     gpu->resourceProvider().findOrCreateCompatibleSampler(sampler.samplerState());
+            gpu->currentCommandList()->addSampledTextureRef(texture);
             rangeSizes[currTextureBinding++] = 1;
         }
     }
@@ -130,6 +132,7 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProc
         shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
         samplers[currTextureBinding] = gpu->resourceProvider().findOrCreateCompatibleSampler(
                                                GrSamplerState::Filter::kNearest);
+        gpu->currentCommandList()->addSampledTextureRef(texture);
         rangeSizes[currTextureBinding++] = 1;
     }
 
