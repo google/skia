@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36948e45_2383267a",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1233,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-24T18:56:20Z",
+      "side": 1,
+      "message": "Practically I suspect we don\u0027t need to track lifetime.",
+      "range": {
+        "startLine": 1233,
+        "startChar": 7,
+        "endLine": 1233,
+        "endChar": 80
+      },
+      "revId": "68290e2c79fa1a5a343574066acc3cab4c7cfb53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
