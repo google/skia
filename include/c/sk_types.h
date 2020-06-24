@@ -60,6 +60,15 @@
     #define VKAPI_PTR
 #endif
 
+#if !defined(SK_TO_STRING)
+    #define SK_TO_STRING(X) SK_TO_STRING_IMPL(X)
+    #define SK_TO_STRING_IMPL(X) #X
+#endif
+
+#ifndef SK_C_INCREMENT
+#define SK_C_INCREMENT 0
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 SK_C_PLUS_PLUS_BEGIN_GUARD

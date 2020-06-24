@@ -54,3 +54,18 @@ void sk_nvrefcnt_safe_unref(sk_nvrefcnt_t* refcnt) {
 sk_colortype_t sk_colortype_get_default_8888(void) {
     return (sk_colortype_t)SkColorType::kN32_SkColorType;
 }
+
+// library information
+
+int sk_version_get_milestone(void) {
+    return SK_MILESTONE;
+}
+
+int sk_version_get_increment(void) {
+    return SK_C_INCREMENT;
+}
+
+const char* sk_version_get_string(void) {
+    const char* str = SK_TO_STRING(SK_MILESTONE) "." SK_TO_STRING(SK_C_INCREMENT);
+    return str;
+}
