@@ -13,6 +13,7 @@
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/GrD3DTypesPriv.h"
 
 /**
  * Wrapper class for passing into and receiving data from Ganesh about a backend semaphore object.
@@ -22,6 +23,8 @@ public:
     // For convenience we just set the backend here to OpenGL. The GrBackendSemaphore cannot be used
     // until either initGL or initVulkan are called which will set the appropriate GrBackend.
     GrBackendSemaphore() : fBackend(GrBackendApi::kOpenGL), fGLSync(0), fIsInitialized(false) {}
+
+    GrBackendSemaphore& operator=(const GrBackendSemaphore&);
 
     void initGL(GrGLsync sync) {
         fBackend = GrBackendApi::kOpenGL;
@@ -51,6 +54,8 @@ public:
         fIsInitialized = false;
 #endif
     }
+
+    void initDirect3D(const GrD3DFenceInfo& info);
 
     bool isInitialized() const { return fIsInitialized; }
 
@@ -82,12 +87,15 @@ public:
         return fMtlValue;
     }
 
+    bool getD3DFenceInfo(GrD3DFenceInfo* outInfo) const;
+
 private:
     GrBackendApi fBackend;
     union {
         GrGLsync    fGLSync;
         VkSemaphore fVkSemaphore;
         GrMTLHandle fMtlEvent;    // Expected to be an id<MTLEvent>
+        GrD3DBackendSemaphoreInfo fD3DFenceInfo;
     };
     uint64_t fMtlValue;
     bool fIsInitialized;

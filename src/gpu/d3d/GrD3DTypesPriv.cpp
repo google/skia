@@ -63,3 +63,24 @@ bool GrD3DBackendSurfaceInfo::operator==(const GrD3DBackendSurfaceInfo& that) co
     return cpyInfoThis == cpyInfoThat && fResourceState == that.fResourceState;
 }
 #endif
+
+GrD3DBackendSemaphoreInfo::GrD3DBackendSemaphoreInfo(const GrD3DFenceInfo& info)
+    : fFenceInfo(new GrD3DFenceInfo(info)) {
+}
+
+void GrD3DBackendSemaphoreInfo::cleanup() {
+    delete fFenceInfo;
+    fFenceInfo = nullptr;
+};
+
+void GrD3DBackendSemaphoreInfo::assign(const GrD3DBackendSemaphoreInfo& that, bool isThisValid) {
+    GrD3DFenceInfo* oldInfo = fFenceInfo;
+    fFenceInfo = new GrD3DFenceInfo(*that.fFenceInfo);
+    if (isThisValid) {
+        delete oldInfo;
+    }
+}
+
+GrD3DFenceInfo GrD3DBackendSemaphoreInfo::snapFenceInfo() const {
+    return GrD3DFenceInfo(*fFenceInfo);
+}

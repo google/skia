@@ -46,4 +46,21 @@ private:
     GrD3DResourceState* fResourceState;
 };
 
+struct GrD3DBackendSemaphoreInfo {
+    GrD3DBackendSemaphoreInfo(const GrD3DFenceInfo& info);
+
+    void cleanup();
+
+    GrD3DBackendSemaphoreInfo& operator=(const GrD3DBackendSemaphoreInfo&) = delete;
+
+    // Assigns the passed in GrD3DBackendSurfaceInfo to this object. if isValid is true we will also
+    // attempt to unref the old fLayout on this object.
+    void assign(const GrD3DBackendSemaphoreInfo&, bool isValid);
+
+    GrD3DFenceInfo snapFenceInfo() const;
+
+private:
+    GrD3DFenceInfo* fFenceInfo;
+};
+
 #endif
