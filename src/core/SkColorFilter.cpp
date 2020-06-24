@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorFilter.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMatrixProvider.h"
@@ -26,28 +26,28 @@
 #include "src/gpu/effects/generated/GrMixerEffect.h"
 #endif
 
-bool SkColorFilter::onAsAColorMode(SkColor*, SkBlendMode*) const {
+bool SkColorFilterBase::onAsAColorMode(SkColor*, SkBlendMode*) const {
     return false;
 }
 
-bool SkColorFilter::onAsAColorMatrix(float matrix[20]) const {
+bool SkColorFilterBase::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrRecordingContext*,
+std::unique_ptr<GrFragmentProcessor> SkColorFilterBase::asFragmentProcessor(GrRecordingContext*,
                                                                         const GrColorInfo&) const {
     return nullptr;
 }
 #endif
 
-bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkColorFilterBase::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     return this->onAppendStages(rec, shaderIsOpaque);
 }
 
-skvm::Color SkColorFilter::program(skvm::Builder* p, skvm::Color c,
-                                   SkColorSpace* dstCS,
-                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
+                                       SkColorSpace* dstCS,
+                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::F32 original = c.a;
     if ((c = this->onProgram(p,c, dstCS, uniforms,alloc))) {
         if (this->getFlags() & kAlphaUnchanged_Flag) {
@@ -80,7 +80,7 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
     SkStageRec rec = {
         &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, dummyPaint, nullptr, matrixProvider
     };
-    this->onAppendStages(rec, color.fA == 1);
+    as_CFB(this)->onAppendStages(rec, color.fA == 1);
 
     SkPMColor4f dst;
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
@@ -91,20 +91,20 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkComposeColorFilter : public SkColorFilter {
+class SkComposeColorFilter : public SkColorFilterBase {
 public:
     uint32_t getFlags() const override {
         // Can only claim alphaunchanged support if both our proxys do.
-        return fOuter->getFlags() & fInner->getFlags();
+        return as_CFB(fOuter)->getFlags() & as_CFB(fInner)->getFlags();
     }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         bool innerIsOpaque = shaderIsOpaque;
-        if (!(fInner->getFlags() & kAlphaUnchanged_Flag)) {
+        if (!as_CFB(fInner)->isAlphaUnchanged()) {
             innerIsOpaque = false;
         }
-        return fInner->appendStages(rec, shaderIsOpaque) &&
-               fOuter->appendStages(rec, innerIsOpaque);
+        return as_CFB(fInner)->appendStages(rec, shaderIsOpaque) &&
+               as_CFB(fOuter)->appendStages(rec, innerIsOpaque);
     }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
