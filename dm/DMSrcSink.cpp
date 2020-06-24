@@ -102,7 +102,7 @@ Result GMSrc::draw(GrContext* context, SkCanvas* canvas) const {
         default: SK_ABORT("");
     }
 
-    skiagm::DrawResult drawResult = gm->draw(canvas, &msg);
+    skiagm::DrawResult drawResult = gm->draw2(canvas, &msg);
     switch (drawResult) {
         case skiagm::DrawResult::kOk  : return Result(Result::Status::Ok,    msg);
         case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);

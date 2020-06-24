@@ -87,8 +87,8 @@ struct GrContextOptions;
 namespace skiagm {
 
     enum class DrawResult {
-        kOk,  // Test drew successfully.
-        kFail,  // Test failed to draw.
+        kOk,   // Test drew successfully.
+        kFail, // Test failed to draw.
         kSkip  // Test is not applicable in this context and should be skipped.
     };
 
@@ -112,18 +112,18 @@ namespace skiagm {
 
         DrawResult gpuSetup(GrContext*, SkString* errorMsg);
 
-        DrawResult draw(SkCanvas* canvas) {
+        DrawResult draw1(SkCanvas* canvas) {
             SkString errorMsg;
-            return this->draw(canvas, &errorMsg);
+            return this->draw2(canvas, &errorMsg);
         }
-        DrawResult draw(SkCanvas*, SkString* errorMsg);
+        DrawResult draw2(SkCanvas*, SkString* errorMsg);
 
         void drawBackground(SkCanvas*);
-        DrawResult drawContent(SkCanvas* canvas) {
+        DrawResult drawContent7(SkCanvas* canvas) {
             SkString errorMsg;
-            return this->drawContent(canvas, &errorMsg);
+            return this->drawContent72(canvas, &errorMsg);
         }
-        DrawResult drawContent(SkCanvas*, SkString* errorMsg);
+        DrawResult drawContent72(SkCanvas*, SkString* errorMsg);
 
         SkISize getISize() { return this->onISize(); }
         const char* getName();

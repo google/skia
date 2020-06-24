@@ -67,7 +67,7 @@ SkBitmap GMVerifier::RenderGoldBmp(skiagm::GM* gm, const SkColorInfo& colorInfo)
     SkBitmap goldBmp;
     goldBmp.allocPixels(SkImageInfo::Make(size, colorInfo));
     SkCanvas canvas(goldBmp);
-    gm->draw(&canvas);
+    gm->draw1(&canvas);
 
     // Convert into common verifier colorspace.
     SkBitmap goldVerifierBmp;

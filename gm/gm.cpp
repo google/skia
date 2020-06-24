@@ -77,13 +77,13 @@ DrawResult GM::gpuSetup(GrContext* context, SkString* errorMsg) {
     return this->onGpuSetup(context, errorMsg);
 }
 
-DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
+DrawResult GM::draw2(SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
     this->drawBackground(canvas);
-    return this->drawContent(canvas, errorMsg);
+    return this->drawContent72(canvas, errorMsg);
 }
 
-DrawResult GM::drawContent(SkCanvas* canvas, SkString* errorMsg) {
+DrawResult GM::drawContent72(SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT0("GM", TRACE_FUNC);
     if (!fHaveCalledOnceBeforeDraw) {
         fHaveCalledOnceBeforeDraw = true;
