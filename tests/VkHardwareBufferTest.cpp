@@ -357,9 +357,7 @@ bool EGLTestHelper::importAndWaitOnSemaphore(skiatest::Reporter* reporter, int f
 }
 
 void EGLTestHelper::doClientSync() {
-    GrFlushInfo flushInfo;
-    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-    this->grContext()->flush(flushInfo);
+    this->grContext()->flush();
     this->grContext()->submit(true);
 }
 #endif  // SK_GL

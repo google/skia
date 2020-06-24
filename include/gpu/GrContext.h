@@ -364,6 +364,8 @@ public:
      */
     GrSemaphoresSubmitted flush(const GrFlushInfo& info);
 
+    void flush() { this->flush({}); }
+
     /**
      * Submit outstanding work to the gpu from all previously un-submitted flushes. The return
      * value of the submit will indicate whether or not the submission to the GPU was successful.
