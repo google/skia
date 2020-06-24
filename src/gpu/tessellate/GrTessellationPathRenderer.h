@@ -19,6 +19,7 @@
 // target that supports either MSAA or mixed samples if AA is desired.
 class GrTessellationPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
+    static void Toggle();
     // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
     constexpr static float kLinearizationIntolerance = 4;
 

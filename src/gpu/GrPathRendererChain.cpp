@@ -31,13 +31,13 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
+    // if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
         if (caps.drawInstancedSupport()) {
             auto tess = sk_make_sp<GrTessellationPathRenderer>(caps);
             context->priv().addOnFlushCallbackObject(tess.get());
             fChain.push_back(std::move(tess));
         }
-    }
+    // }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }

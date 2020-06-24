@@ -24,6 +24,9 @@
 constexpr static SkISize kAtlasInitialSize{512, 512};
 constexpr static int kMaxAtlasSize = 2048;
 
+static bool enableTessellation = true;
+void GrTessellationPathRenderer::Toggle() { enableTessellation = !enableTessellation; }
+
 // The atlas is only used for small-area paths, which means at least one dimension of every path is
 // guaranteed to be quite small. So if we transpose tall paths, then every path will have a small
 // height, which lends very well to efficient pow2 atlas packing.
@@ -100,6 +103,9 @@ void GrTessellationPathRenderer::initAtlasFlags(const GrShaderCaps& shaderCaps) 
 
 GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
+    if (!enableTessellation) {
+        return CanDrawPath::kNo;
+    }
     if (!args.fShape->style().isSimpleFill() || args.fShape->inverseFilled() ||
         args.fViewMatrix->hasPerspective()) {
         return CanDrawPath::kNo;

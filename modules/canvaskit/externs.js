@@ -53,6 +53,7 @@ var CanvasKit = {
   MakePathFromOp: function() {},
   MakePathFromSVGString: function() {},
   MakeRenderTarget: function() {},
+  ToggleTess: function() {},
   MakeSkPicture: function() {},
   MakeSWCanvasSurface: function() {},
   MakeManagedAnimation: function() {},

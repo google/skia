@@ -67,6 +67,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 #include <GLES3/gl3.h>
 #include <emscripten/html5.h>
@@ -198,6 +199,7 @@ sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, SimpleImageInfo si
                              nullptr, true));
     return surface;
 }
+
 #endif
 
 
@@ -788,6 +790,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
     function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrContext>, int, int)>(&MakeRenderTarget));
     function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrContext>, SimpleImageInfo)>(&MakeRenderTarget));
+    function("ToggleTess", &GrTessellationPathRenderer::Toggle);
 
     constant("gpu", true);
 #endif
