@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "5d115469_e9ba82e8",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2690,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T14:32:09Z",
+      "side": 1,
+      "message": "Is it possible that we we don\u0027t have this input, but still trigger the need for RT height from need for sk_fragcoord and a y-flip above? Thus the need to set the field in the earlier function? But somehow RuntimeEffect is now giving us the need for sk_fragcoord and this input which is why we now see the duplicate?",
+      "range": {
+        "startLine": 2690,
+        "startChar": 8,
+        "endLine": 2690,
+        "endChar": 34
+      },
+      "revId": "1c2796d7b3fd383df5804ab6a96f6dda0c720935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "393062c3_3db5bc38",
         "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
         "patchSetId": 1
