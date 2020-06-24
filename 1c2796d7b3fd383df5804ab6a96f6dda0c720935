@@ -117,6 +117,30 @@
       "revId": "1c2796d7b3fd383df5804ab6a96f6dda0c720935",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "406fba02_27051c13",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2696,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-24T15:32:55Z",
+      "side": 1,
+      "message": "Currently, if you do get two blocks (both sksl_synthetic_uniforms and the normal one), both of them get (set\u003d0, binding\u003d0) and that causes SPIR-V validation to fail on both the Vulkan and Dawn backends. And I don\u0027t think the code is set up to upload the RTHeight uniform in a separate UBO on any backend anyway. So really this should only happen if there are no other uniforms.",
+      "parentUuid": "628b530e_65299c3f",
+      "range": {
+        "startLine": 2696,
+        "startChar": 28,
+        "endLine": 2696,
+        "endChar": 39
+      },
+      "revId": "1c2796d7b3fd383df5804ab6a96f6dda0c720935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
