@@ -171,6 +171,8 @@ public:
                          const SkIRect& bounds, bool forSecondaryCB);
     void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin, const SkIRect& bounds);
 
+    using GrGpu::setOOMed;
+
 private:
     enum SyncQueue {
         kForce_SyncQueue,

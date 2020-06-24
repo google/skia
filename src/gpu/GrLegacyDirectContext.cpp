@@ -31,6 +31,13 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 #endif
 
+#if GR_TEST_UTILS
+#   include "include/utils/SkRandom.h"
+#   if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+#       include <sanitizer/lsan_interface.h>
+#   endif
+#endif
+
 #ifdef SK_DISABLE_REDUCE_OPLIST_SPLITTING
 static const bool kDefaultReduceOpsTaskSplitting = false;
 #else
@@ -135,10 +142,50 @@ sk_sp<GrContext> GrContext::MakeGL() {
     return MakeGL(nullptr, defaultOptions);
 }
 
+#if GR_TEST_UTILS
+GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGetErrorFn> original) {
+    // A SkRandom and a GrGLFunction<GrGLGetErrorFn> are too big to be captured by a
+    // GrGLFunction<GrGLGetError> (surprise, surprise). So we make a context object and
+    // capture that by pointer. However, GrGLFunction doesn't support calling a destructor
+    // on the thing it captures. So we leak the context.
+    struct GetErrorContext {
+        SkRandom fRandom;
+        GrGLFunction<GrGLGetErrorFn> fGetError;
+    };
+
+    auto errorContext = new GetErrorContext;
+
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+    __lsan_ignore_object(errorContext);
+#endif
+
+    errorContext->fGetError = original;
+
+    return GrGLFunction<GrGLGetErrorFn>([errorContext]() {
+        GrGLenum error = errorContext->fGetError();
+        if (error == GR_GL_NO_ERROR && (errorContext->fRandom.nextU() % 300) == 0) {
+            error = GR_GL_OUT_OF_MEMORY;
+        }
+        return error;
+    });
+}
+#endif
+
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
                                    const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kOpenGL, options));
-
+#if GR_TEST_UTILS
+    if (options.fRandomGLOOM) {
+        auto copy = sk_make_sp<GrGLInterface>(*glInterface);
+        copy->fFunctions.fGetError =
+                make_get_error_with_random_oom(glInterface->fFunctions.fGetError);
+#if GR_GL_CHECK_ERROR
+        // Suppress logging GL errors since we'll be synthetically generating them.
+        copy->suppressErrorLogging();
+#endif
+        glInterface = std::move(copy);
+    }
+#endif
     context->fGpu = GrGLGpu::Make(std::move(glInterface), options, context.get());
     if (!context->init()) {
         return nullptr;
