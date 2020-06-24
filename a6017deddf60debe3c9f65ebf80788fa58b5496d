@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "171ce7be_11a751e9",
+        "filename": "bin/try.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-24T17:39:22Z",
+      "side": 1,
+      "message": "To be fair, the Change-Id approach should work even when not on a branch.  Maybe swap around and check for Change-Id, then gerritissue?",
+      "revId": "a6017deddf60debe3c9f65ebf80788fa58b5496d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "746538b7_5d779420",
+        "filename": "bin/try.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-24T17:39:22Z",
+      "side": 1,
+      "message": "Let\u0027s from future import print and stay 2.7 compatible?  We devs are stuck on Python 2.7 until ICU updates their scripts.",
+      "revId": "a6017deddf60debe3c9f65ebf80788fa58b5496d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
