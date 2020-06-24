@@ -6,13 +6,13 @@
  */
 
 #include "include/core/SkColor.h"
-#include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlitter.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMatrixProvider.h"
@@ -184,8 +184,9 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         SkStageRec rec = {
             colorPipeline, alloc, dst.colorType(), dst.colorSpace(), paint, nullptr, matrixProvider
         };
-        colorFilter->appendStages(rec, is_opaque);
-        is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+        as_CFB(colorFilter)->appendStages(rec, is_opaque);
+        is_opaque = is_opaque
+                 && (as_CFB(colorFilter)->getFlags() & SkColorFilterBase::kAlphaUnchanged_Flag);
     }
 
 #if defined(SK_LATE_DITHER)

@@ -73,8 +73,8 @@
 
         // Color filters.
         SkColorFilter_Matrix::RegisterFlattenables();
-        SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
-        SkColorFilter::RegisterFlattenables();
+        SkLumaColorFilter::RegisterFlattenable();
+        SkColorFilterBase::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();
         SkTableColorFilter::RegisterFlattenables();
 

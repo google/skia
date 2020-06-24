@@ -113,7 +113,7 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
     if (!this->isColorFilterNode(filterPtr)) {
         return false;
     }
-    if (nullptr != this->getInput(0) || (*filterPtr)->affectsTransparentBlack()) {
+    if (nullptr != this->getInput(0) || as_CFB(*filterPtr)->affectsTransparentBlack()) {
         (*filterPtr)->unref();
         return false;
     }

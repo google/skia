@@ -13,6 +13,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
@@ -54,7 +55,7 @@ static const uint8_t gIdentityTable[] = {
     0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
 
-class SkTable_ColorFilter : public SkColorFilter {
+class SkTable_ColorFilter : public SkColorFilterBase {
 public:
     SkTable_ColorFilter(const uint8_t tableA[], const uint8_t tableR[],
                         const uint8_t tableG[], const uint8_t tableB[]) {
@@ -377,7 +378,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
         (flags & (1 << 3)) ? luts[3] : nullptr
     ));
     sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
-    auto fp = filter->asFragmentProcessor(
+    auto fp = as_CFB(filter)->asFragmentProcessor(
             d->context(),
             GrColorInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType, std::move(colorSpace)));
     SkASSERT(fp);

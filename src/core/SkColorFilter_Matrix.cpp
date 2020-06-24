@@ -26,7 +26,7 @@ static uint16_t ComputeFlags(const float matrix[20]) {
         && SkScalarNearlyZero (srcA[2])
         && SkScalarNearlyEqual(srcA[3], 1)
         && SkScalarNearlyZero (srcA[4])
-            ? SkColorFilter::kAlphaUnchanged_Flag : 0;
+            ? SkColorFilterBase::kAlphaUnchanged_Flag : 0;
 }
 
 SkColorFilter_Matrix::SkColorFilter_Matrix(const float array[20], Domain domain)
@@ -35,8 +35,8 @@ SkColorFilter_Matrix::SkColorFilter_Matrix(const float array[20], Domain domain)
     memcpy(fMatrix, array, 20 * sizeof(float));
 }
 
-uint32_t SkColorFilter_Matrix::getFlags() const {
-    return this->INHERITED::getFlags() | fFlags;
+uint32_t SkColorFilter_Matrix::onGetFlags() const {
+    return this->INHERITED::onGetFlags() | fFlags;
 }
 
 void SkColorFilter_Matrix::flatten(SkWriteBuffer& buffer) const {

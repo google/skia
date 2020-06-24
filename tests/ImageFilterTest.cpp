@@ -18,6 +18,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkTableColorFilter.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -715,7 +716,7 @@ static void test_fail_affects_transparent_black(skiatest::Reporter* reporter, Gr
     SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(0, 0, 1, 1), nullptr,
                                     kN32_SkColorType, nullptr, source.get());
     sk_sp<SkColorFilter> green(SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kSrc));
-    SkASSERT(green->affectsTransparentBlack());
+    SkASSERT(as_CFB(green)->affectsTransparentBlack());
     sk_sp<SkImageFilter> greenFilter(SkImageFilters::ColorFilter(std::move(green),
                                                                  std::move(failFilter)));
     SkIPoint offset;
@@ -1526,7 +1527,7 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
         {
             SkColorFilter* grayCF;
             REPORTER_ASSERT(reporter, gray->asAColorFilter(&grayCF));
-            REPORTER_ASSERT(reporter, !grayCF->affectsTransparentBlack());
+            REPORTER_ASSERT(reporter, !as_CFB(grayCF)->affectsTransparentBlack());
             grayCF->unref();
         }
         REPORTER_ASSERT(reporter, gray->canComputeFastBounds());
@@ -1545,7 +1546,7 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
         sk_sp<SkColorFilter> greenCF(SkColorFilters::Matrix(greenMatrix));
         sk_sp<SkImageFilter> green(SkImageFilters::ColorFilter(greenCF, nullptr));
 
-        REPORTER_ASSERT(reporter, greenCF->affectsTransparentBlack());
+        REPORTER_ASSERT(reporter,as_CFB( greenCF)->affectsTransparentBlack());
         REPORTER_ASSERT(reporter, !green->canComputeFastBounds());
 
         sk_sp<SkImageFilter> greenBlur(SkImageFilters::Blur(SK_Scalar1, SK_Scalar1,
@@ -1562,13 +1563,13 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
     sk_sp<SkColorFilter> identityCF(SkTableColorFilter::MakeARGB(identity, identity,
                                                                  identity, allOne));
     sk_sp<SkImageFilter> identityFilter(SkImageFilters::ColorFilter(identityCF, nullptr));
-    REPORTER_ASSERT(reporter, !identityCF->affectsTransparentBlack());
+    REPORTER_ASSERT(reporter, !as_CFB(identityCF)->affectsTransparentBlack());
     REPORTER_ASSERT(reporter, identityFilter->canComputeFastBounds());
 
     sk_sp<SkColorFilter> forceOpaqueCF(SkTableColorFilter::MakeARGB(allOne, identity,
                                                                     identity, identity));
     sk_sp<SkImageFilter> forceOpaque(SkImageFilters::ColorFilter(forceOpaqueCF, nullptr));
-    REPORTER_ASSERT(reporter, forceOpaqueCF->affectsTransparentBlack());
+    REPORTER_ASSERT(reporter, as_CFB(forceOpaqueCF)->affectsTransparentBlack());
     REPORTER_ASSERT(reporter, !forceOpaque->canComputeFastBounds());
 }
 

@@ -11,6 +11,7 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMatrixProvider.h"
@@ -770,7 +771,7 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
 }
 
 
-class SkRuntimeColorFilter : public SkColorFilter {
+class SkRuntimeColorFilter : public SkColorFilterBase {
 public:
     SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs)
             : fEffect(std::move(effect))

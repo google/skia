@@ -17,6 +17,7 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlurMask.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
@@ -40,7 +41,7 @@
 *                           Final result is black with alpha of Gaussian(B)*G.
 *                           The assumption is that the original color's alpha is 1.
 */
-class SkGaussianColorFilter : public SkColorFilter {
+class SkGaussianColorFilter : public SkColorFilterBase {
 public:
     SkGaussianColorFilter() : INHERITED() {}
 
@@ -73,7 +74,7 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
 
-    typedef SkColorFilter INHERITED;
+    typedef SkColorFilterBase INHERITED;
 };
 
 sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {

@@ -8,6 +8,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
@@ -22,7 +23,7 @@ SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader,
                                          float alpha,
                                          sk_sp<SkColorFilter> filter)
     : fShader(std::move(shader))
-    , fFilter(std::move(filter))
+    , fFilter(as_CFB_sp(std::move(filter)))
     , fAlpha (alpha)
 {
     SkASSERT(fShader);
@@ -39,9 +40,7 @@ sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
 }
 
 bool SkColorFilterShader::isOpaque() const {
-    return fShader->isOpaque()
-        && fAlpha == 1.0f
-        && (fFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag) != 0;
+    return fShader->isOpaque() && fAlpha == 1.0f && as_CFB(fFilter)->isAlphaUnchanged();
 }
 
 void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {

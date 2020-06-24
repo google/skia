@@ -9,6 +9,7 @@
 #include "include/private/SkMacros.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
@@ -406,7 +407,7 @@ namespace {
     }
 
 
-    struct NoopColorFilter : public SkColorFilter {
+    struct NoopColorFilter : public SkColorFilterBase {
         skvm::Color onProgram(skvm::Builder*, skvm::Color c,
                               SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const override {
             return c;

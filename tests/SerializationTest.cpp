@@ -304,7 +304,8 @@ static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
     }
     auto colorFilter(SkTableColorFilter::Make(table));
     sk_sp<SkColorFilter> copy(
-        TestFlattenableSerialization<SkColorFilter>(colorFilter.get(), true, reporter));
+        TestFlattenableSerialization<SkColorFilterBase>((SkColorFilterBase*)colorFilter.get(),
+                                                        true, reporter));
 }
 
 static SkBitmap draw_picture(SkPicture& picture) {

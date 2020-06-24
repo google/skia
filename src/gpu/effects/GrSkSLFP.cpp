@@ -258,6 +258,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 #include "include/effects/SkArithmeticImageFilter.h"
 #include "include/effects/SkOverdrawColorFilter.h"
 #include "include/gpu/GrContext.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 extern const char* SKSL_ARITHMETIC_SRC;
@@ -291,8 +292,8 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
             for (SkColor& c : colors) {
                 c = d->fRandom->nextU();
             }
-            return SkOverdrawColorFilter::MakeWithSkColors(colors)
-                ->asFragmentProcessor(d->context(), GrColorInfo{});
+            auto filter = SkOverdrawColorFilter::MakeWithSkColors(colors);
+            return as_CFB(filter)->asFragmentProcessor(d->context(), GrColorInfo{});
         }
     }
     SK_ABORT("unreachable");
