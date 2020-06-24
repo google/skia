@@ -8,10 +8,9 @@
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED
 
-#include "include/core/SkColorFilter.h"
-#include "include/core/SkFlattenable.h"
+#include "src/core/SkColorFilterBase.h"
 
-class SkModeColorFilter : public SkColorFilter {
+class SkModeColorFilter : public SkColorFilterBase {
 public:
     static sk_sp<SkColorFilter> Make(SkColor color, SkBlendMode mode) {
         return sk_sp<SkColorFilter>(new SkModeColorFilter(color, mode));
@@ -24,6 +23,8 @@ public:
                                                              const GrColorInfo&) const override;
 #endif
 
+    SK_FLATTENABLE_HOOKS(SkModeColorFilter)
+
 protected:
     SkModeColorFilter(SkColor color, SkBlendMode mode);
 
@@ -35,14 +36,12 @@ protected:
                           SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const override;
 
 private:
-    SK_FLATTENABLE_HOOKS(SkModeColorFilter)
-
     SkColor     fColor;
     SkBlendMode fMode;
 
     friend class SkColorFilter;
 
-    typedef SkColorFilter INHERITED;
+    typedef SkColorFilterBase INHERITED;
 };
 
 #endif

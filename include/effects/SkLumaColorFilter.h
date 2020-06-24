@@ -30,30 +30,14 @@ class SkRasterPipeline;
  *  not luminance, a dot-product of linear color channels.  So at least
  *  SkLumaColorFilter and feColorMatrix+luminanceToAlpha agree there.)
  */
-
- #include "include/core/SkFlattenable.h"
-
-class SK_API SkLumaColorFilter : public SkColorFilter {
+class SK_API SkLumaColorFilter {
 public:
     static sk_sp<SkColorFilter> Make();
 
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override;
-#endif
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-
 private:
-    SK_FLATTENABLE_HOOKS(SkLumaColorFilter)
+    friend class SkFlattenable;
 
-    SkLumaColorFilter();
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
-    skvm::Color onProgram(skvm::Builder*, skvm::Color,
-                          SkColorSpace* dstCS, skvm::Uniforms*, SkArenaAlloc*) const override;
-
-    typedef SkColorFilter INHERITED;
+    static void RegisterFlattenable();
 };
 
 #endif
