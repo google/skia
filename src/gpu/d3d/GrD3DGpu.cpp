@@ -17,6 +17,7 @@
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
+#include "src/gpu/d3d/GrD3DSemaphore.h"
 #include "src/gpu/d3d/GrD3DStencilAttachment.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
@@ -1210,4 +1211,31 @@ bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
     } else {
         return this->submitDirectCommandList(SyncQueue::kSkip);
     }
+}
+
+std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrD3DGpu::makeSemaphore(bool) {
+    return GrD3DSemaphore::Make(this);
+}
+std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(
+        const GrBackendSemaphore& semaphore,
+        GrResourceProvider::SemaphoreWrapType,
+        GrWrapOwnership) {
+    SkASSERT(this->caps()->semaphoreSupport());
+    GrD3DFenceInfo fenceInfo;
+    if (!semaphore.getD3DFenceInfo(&fenceInfo)) {
+        return nullptr;
+    }
+    return GrD3DSemaphore::MakeWrapped(fenceInfo);
+}
+
+void GrD3DGpu::insertSemaphore(GrSemaphore* semaphore) {
+    GrD3DSemaphore* d3dSem = static_cast<GrD3DSemaphore*>(semaphore);
+    // TODO: Do we need to track the lifetime of this? How do we know it's done?
+    fQueue->Signal(d3dSem->fence(), d3dSem->value());
+}
+
+void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
+    GrD3DSemaphore* d3dSem = static_cast<GrD3DSemaphore*>(semaphore);
+    // TODO: Do we need to track the lifetime of this?
+    fQueue->Wait(d3dSem->fence(), d3dSem->value());
 }
