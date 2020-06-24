@@ -8,6 +8,7 @@
 #include <atomic>
 #include <cmath>
 #include "include/core/SkCanvas.h"
+#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkFontLCDConfig.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -465,9 +466,18 @@ bool SkSurface::isCompatible(const SkSurfaceCharacterization& characterization) 
     return asConstSB(this)->onIsCompatible(characterization);
 }
 
-bool SkSurface::draw(SkDeferredDisplayList* ddl) {
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl) {
     return asSB(this)->onDraw(ddl);
 }
+#else
+bool SkSurface::draw(const SkDeferredDisplayList* ddl) {
+    return asSB(this)->onDraw(ddl);
+}
+bool SkSurface::draw(const std::unique_ptr<const SkDeferredDisplayList>& ddl) {
+    return asSB(this)->onDraw(ddl.get());
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////
 #include "include/utils/SkNoDrawCanvas.h"
