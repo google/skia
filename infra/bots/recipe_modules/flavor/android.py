@@ -350,7 +350,7 @@ if actual_freq != str(freq):
   def _asan_setup_path(self):
     return self.m.vars.slave_dir.join(
         'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt', 'linux-x86_64',
-        'lib64', 'clang', '8.0.7', 'bin', 'asan_device_setup')
+        'lib64', 'clang', '9.0.8', 'bin', 'asan_device_setup')
 
 
   def install(self):
