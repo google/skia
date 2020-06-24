@@ -63,6 +63,9 @@ public:
     UniformInfo& uniform(int idx) override {
         return fUniforms.item(idx);
     }
+    const UniformInfo& uniform(int idx) const override {
+        return fUniforms.item(idx);
+    }
 
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)

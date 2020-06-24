@@ -105,8 +105,8 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
                 _sample9604.c_str());
-        SkString _sample9664;
         SkString _coords9664("float2(texCoord)");
+        SkString _sample9664;
         _sample9664 = this->invokeChild(_outer.ninePatchFP_index, args, _coords9664.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(

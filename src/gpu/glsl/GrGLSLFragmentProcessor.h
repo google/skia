@@ -93,6 +93,7 @@ public:
                                  (e.g. input color is solid white, trans black, known to be opaque,
                                  etc.) that allows the processor to communicate back similar known
                                  info about its output.
+        @param localCoord        The name of a local coord reference to a float2 variable.
         @param transformedCoords Fragment shader variables containing the coords computed using
                                  each of the GrFragmentProcessor's GrCoordTransforms.
         @param texSamplers       Contains one entry for each TextureSampler  of the GrProcessor.
@@ -106,6 +107,7 @@ public:
                  const GrFragmentProcessor& fp,
                  const char* outputColor,
                  const char* inputColor,
+                 const char* sampleCoord,
                  const TransformedCoordVars& transformedCoordVars,
                  const TextureSamplers& textureSamplers)
                 : fFragBuilder(fragBuilder)
@@ -114,6 +116,7 @@ public:
                 , fFp(fp)
                 , fOutputColor(outputColor)
                 , fInputColor(inputColor ? inputColor : "half4(1.0)")
+                , fSampleCoord(sampleCoord)
                 , fTransformedCoords(transformedCoordVars)
                 , fTexSamplers(textureSamplers) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
@@ -122,6 +125,7 @@ public:
         const GrFragmentProcessor& fFp;
         const char* fOutputColor;
         const char* fInputColor;
+        const char* fSampleCoord;
         const TransformedCoordVars& fTransformedCoords;
         const TextureSamplers& fTexSamplers;
     };
@@ -143,7 +147,7 @@ public:
     }
 
     inline SkString invokeChildWithMatrix(int childIndex, EmitArgs& parentArgs,
-                                          SkSL::String skslMatrix) {
+                                          SkSL::String skslMatrix = "") {
         return this->invokeChildWithMatrix(childIndex, nullptr, parentArgs, skslMatrix);
     }
 
@@ -153,16 +157,28 @@ public:
      *  mangled to prevent redefinitions. The returned string contains the output color (as a call
      *  to the child's helper function). It is legal to pass nullptr as inputColor, since all
      *  fragment processors are required to work without an input color.
+     *
+     *  When skslCoords is empty, invokeChild corresponds to a call to "sample(child, color)"
+     *  in SkSL. When skslCoords is not empty, invokeChild corresponds to a call to
+     *  "sample(child, color, float2)", where skslCoords is an SkSL expression that evaluates to a
+     *  float2 and is passed in as the 3rd argument.
      */
     SkString invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs,
                          SkSL::String skslCoords = "");
 
     /**
-     * As invokeChild, but transforms the coordinates according to the provided matrix. The matrix
-     * must be a snippet of SkSL code which evaluates to a float3x3.
+     * As invokeChild, but transforms the coordinates according to the provided matrix. This variant
+     * corresponds to a call of "sample(child, color, matrix)" in SkSL, where skslMatrix is an SkSL
+     * expression that evaluates to a float3x3 and is passed in as the 3rd argument.
+     *
+     * If skslMatrix is the empty string, then it is automatically replaced with the expression
+     * attached to the child's SampleMatrix object. This is only valid if the child is sampled with
+     * a const-uniform matrix. If the sample matrix is const-or-uniform, the expression will be
+     * automatically resolved to the mangled uniform name.
      */
     SkString invokeChildWithMatrix(int childIndex, const char* inputColor, EmitArgs& parentArgs,
-                                   SkSL::String skslMatrix);
+                                   SkSL::String skslMatrix = "");
+
     /**
      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of
      * GLSLFPS. If initialized with an array color followed by coverage processors installed in a

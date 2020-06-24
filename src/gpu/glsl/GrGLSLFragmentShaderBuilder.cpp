@@ -71,39 +71,6 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     fSubstageIndices.push_back(0);
 }
 
-SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords,
-                                                     const SkSL::SampleMatrix& matrix) {
-    SkString result;
-    if (!coords.getName().size()) {
-        result = "_coords";
-    } else if (kFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
-        SkASSERT(kFloat2_GrSLType == coords.getType() || kHalf2_GrSLType == coords.getType());
-        result = coords.getName();
-    } else {
-        SkString coords2D;
-        coords2D.printf("%s_ensure2D", coords.c_str());
-        this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
-                          coords.c_str());
-        result = coords2D;
-    }
-    switch (matrix.fKind) {
-        case SkSL::SampleMatrix::Kind::kMixed:
-        case SkSL::SampleMatrix::Kind::kVariable: {
-            SkString sampleCoords2D;
-            sampleCoords2D.printf("%s_sample", coords.c_str());
-            this->codeAppendf("\tfloat3 %s_3d = _matrix * %s.xy1;\n",
-                              sampleCoords2D.c_str(), result.c_str());
-            this->codeAppendf("\tfloat2 %s = %s_3d.xy / %s_3d.z;\n",
-                              sampleCoords2D.c_str(), sampleCoords2D.c_str(),
-                              sampleCoords2D.c_str());
-            result = sampleCoords2D;
-            break; }
-        default:
-            break;
-    }
-    return result;
-}
-
 const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
     SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->processorFeatures());
     SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
@@ -180,56 +147,86 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                                                          GrGLSLFragmentProcessor::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
-    bool hasVariableMatrix = args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable ||
-                             args.fFp.sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kMixed;
-    if (args.fFp.isSampledWithExplicitCoords() && args.fTransformedCoords.count() > 0) {
-        // we currently only support overriding a single coordinate pair
-        SkASSERT(args.fTransformedCoords.count() == 1);
-        const GrShaderVar& transform = args.fTransformedCoords[0].fTransform;
-        switch (transform.getType()) {
-            case kFloat4_GrSLType:
-                // This is a scale+translate, so there's no perspective division needed
-                this->codeAppendf("_coords = _coords * %s.xz + %s.yw;\n", transform.c_str(),
-                                  transform.c_str());
-                break;
-            case kFloat3x3_GrSLType:
-                this->codeAppend("{\n");
-                this->codeAppendf("float3 _coords3 = (%s * _coords.xy1);\n", transform.c_str());
-                this->codeAppend("_coords = _coords3.xy / _coords3.z;\n");
-                this->codeAppend("}\n");
-                break;
-            default:
-                SkASSERT(transform.getType() == kVoid_GrSLType);
-                break;
+
+    // An FP's function signature is theoretically always main(half4 color, float2 _coords).
+    // However, if it is only sampled by a chain of const/uniform matrices (or legacy coord
+    // transforms), the value that would have been passed to _coords is lifted to the vertex shader
+    // and stored in a unique varying. In that case it uses that variable and does not have a
+    // second actual argument for _coords.
+    // FIXME: Once GrCoordTransforms are gone, and we can more easily associated this varying with
+    // the sample call site, then invokeChild() can pass the varying in, instead of requiring this
+    // dynamic signature.
+    int paramCount;
+    GrShaderVar params[] = { GrShaderVar(args.fInputColor, kHalf4_GrSLType),
+                             GrShaderVar(args.fSampleCoord, kFloat2_GrSLType) };
+
+    if (args.fFp.isSampledWithExplicitCoords()) {
+        // All invokeChild() that point to 'fp' will evaluate these expressions and pass the float2
+        // in, so we need the 2nd argument.
+        paramCount = 2;
+
+        // FIXME: This is only needed for the short term until FPs no longer put transformation
+        // data in a GrCoordTransform (and we can then mark the parameter as read-only)
+        if (args.fTransformedCoords.count() > 0) {
+            SkASSERT(args.fTransformedCoords.count() == 1);
+
+            const GrShaderVar& transform = args.fTransformedCoords[0].fTransform;
+            switch (transform.getType()) {
+                case kFloat4_GrSLType:
+                    // This is a scale+translate, so there's no perspective division needed
+                    this->codeAppendf("%s = %s * %s.xz + %s.yw;\n", args.fSampleCoord,
+                                                                    args.fSampleCoord,
+                                                                    transform.c_str(),
+                                                                    transform.c_str());
+                    break;
+                case kFloat3x3_GrSLType:
+                    this->codeAppend("{\n");
+                    this->codeAppendf("float3 _coords3 = (%s * %s.xy1);\n",
+                                      transform.c_str(), args.fSampleCoord);
+                    this->codeAppendf("%s = _coords3.xy / _coords3.z;\n", args.fSampleCoord);
+                    this->codeAppend("}\n");
+                    break;
+                default:
+                    SkASSERT(transform.getType() == kVoid_GrSLType);
+                    break;
+            }
         }
-        if (args.fFp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
-            SkASSERT(!hasVariableMatrix);
-            this->codeAppend("{\n");
-            args.fUniformHandler->writeUniformMappings(args.fFp.sampleMatrix().fOwner, this);
-            // FIXME This is not a variable matrix, we could key on the matrix type and skip
-            // perspective division; it may also be worth detecting if it was scale+translate and
-            // evaluating this similarly to the kFloat4 explicit coord case.
-            this->codeAppendf("float3 _coords3 = (%s * _coords.xy1);\n",
-                              args.fFp.sampleMatrix().fExpression.c_str());
-            this->codeAppend("_coords = _coords3.xy / _coords3.z;\n");
-            this->codeAppend("}\n");
+    } else {
+        // Sampled with a const/uniform matrix and/or a legacy coord transform. The actual
+        // transformation code is emitted in the vertex shader, so this only has to access it.
+        // Add a float2 _coords variable that maps to the associated varying and replaces the
+        // absent 2nd argument to the fp's function.
+        paramCount = 1;
+
+        if (args.fFp.referencesSampleCoords()) {
+            const GrShaderVar& varying = args.fTransformedCoords[0].fVaryingPoint;
+            switch(varying.getType()) {
+                case kFloat2_GrSLType:
+                    // Just point the local coords to the varying
+                    args.fSampleCoord = varying.getName().c_str();
+                    break;
+                case kFloat3_GrSLType:
+                    // Must perform the perspective divide in the frag shader based on the varying,
+                    // and since we won't actually have a function parameter for local coords, add
+                    // it as a local variable.
+                    this->codeAppendf("float2 %s = %s.xy / %s.z;\n", args.fSampleCoord,
+                                    varying.getName().c_str(), varying.getName().c_str());
+                    break;
+                default:
+                    SkDEBUGFAILF("Unexpected varying type for coord: %s %d\n",
+                                 varying.getName().c_str(), (int) varying.getType());
+                    break;
+            }
         }
     }
 
     this->codeAppendf("half4 %s;\n", args.fOutputColor);
     fp->emitCode(args);
     this->codeAppendf("return %s;\n", args.fOutputColor);
-    GrShaderVar params[] = { GrShaderVar(args.fInputColor, kHalf4_GrSLType),
-                             hasVariableMatrix ? GrShaderVar("_matrix", kFloat3x3_GrSLType)
-                                               : GrShaderVar("_coords", kFloat2_GrSLType) };
+
     SkString result;
-    this->emitFunction(kHalf4_GrSLType,
-                       args.fFp.name(),
-                       args.fFp.isSampledWithExplicitCoords() || hasVariableMatrix ? 2
-                                                                                   : 1,
-                       params,
-                       this->code().c_str(),
-                       &result);
+    this->emitFunction(kHalf4_GrSLType, args.fFp.name(), paramCount, params,
+                       this->code().c_str(), &result);
     this->deleteStage();
     this->onAfterChildProcEmitCode();
     return result;

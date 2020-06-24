@@ -270,8 +270,6 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
             const char* range = uniformHandler->getUniformCStr(fRangeUni);
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            SkString coords2D = fragBuilder->ensureCoords2D(
-                    args.fTransformedCoords[0].fVaryingPoint, args.fFp.sampleMatrix());
 
             const char* func = me.fType == MorphType::kErode ? "min" : "max";
 
@@ -283,7 +281,7 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
             int width = 2 * me.fRadius + 1;
 
             // float2 coord = coord2D;
-            fragBuilder->codeAppendf("float2 coord = %s;", coords2D.c_str());
+            fragBuilder->codeAppendf("float2 coord = %s;", args.fSampleCoord);
             // coord.x -= radius;
             fragBuilder->codeAppendf("coord.%c -= %d;", dir, me.fRadius);
             if (me.fUseRange) {
