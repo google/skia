@@ -290,7 +290,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                 sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
                         backendTex, supportedNumSamples, kBorrow_GrWrapOwnership,
-                        GrWrapCacheable::kNo, nullptr, nullptr);
+                        GrWrapCacheable::kNo, nullptr);
                 if (!sProxy) {
                     context->deleteBackendTexture(backendTex);
                     continue;  // This can fail on Mesa
