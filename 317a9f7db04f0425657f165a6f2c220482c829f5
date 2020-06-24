@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "7bb5cff6_b4e94fbd",
+        "filename": "include/gpu/GrBackendSemaphore.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T20:46:40Z",
+      "side": 1,
+      "message": "Is it possible for this to just be a GrD3DFenceInfo* here? We\u0027ll need logic in the init call to do the new and copying. And the dtor will need to handle the delete, but I think that should all be fine with the window\u0027s headers right?",
+      "range": {
+        "startLine": 105,
+        "startChar": 8,
+        "endLine": 105,
+        "endChar": 48
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bdec552d_94673110",
         "filename": "include/gpu/d3d/GrD3DTypes.h",
         "patchSetId": 2
