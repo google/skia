@@ -62,6 +62,23 @@
       "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe44bfab_cc3419d3",
+        "filename": "bin/try.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-24T18:41:20Z",
+      "side": 1,
+      "message": "This line might be redundant with what git cl issue itself prints?",
+      "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
