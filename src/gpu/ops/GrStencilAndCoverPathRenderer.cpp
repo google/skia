@@ -125,9 +125,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
         // fake inverse with a stencil and cover
         GrAppliedClip appliedClip(args.fRenderTargetContext->dimensions());
-        if (args.fClip && args.fClip->apply(
+        if (args.fClip && !args.fClip->apply(
                 args.fContext, args.fRenderTargetContext, doStencilMSAA, true, &appliedClip,
-                &devBounds) == GrClip::Effect::kClippedOut) {
+                &devBounds)) {
             return true;
         }
         GrStencilClip stencilClip(args.fRenderTargetContext->dimensions(),
