@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c36f4e41_3f394677",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1134,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-24T18:28:28Z",
+      "side": 1,
+      "message": "Do you have something against auto? I can switch, too, just give me a reason.",
+      "range": {
+        "startLine": 1134,
+        "startChar": 16,
+        "endLine": 1134,
+        "endChar": 24
+      },
+      "revId": "e0a9f2c5ba81fa98bb3acf3a887c0f414e34ace2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
