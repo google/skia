@@ -96,7 +96,12 @@ public:
 
     // TODO: Fill out these calls to support DDL
     bool characterize(SkSurfaceCharacterization* characterization) const;
-    bool draw(SkDeferredDisplayList* deferredDisplayList);
+
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+    bool draw(sk_sp<const SkDeferredDisplayList> deferredDisplayList);
+#else
+    bool draw(const SkDeferredDisplayList* deferredDisplayList);
+#endif
 
 private:
     explicit GrVkSecondaryCBDrawContext(sk_sp<SkGpuDevice>, const SkSurfaceProps*);

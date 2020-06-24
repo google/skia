@@ -48,7 +48,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 
     fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 
-    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+    auto ddl = recorder.detach();
     if (ddl->priv().numRenderTasks()) {
         // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
         // reinflation of the SKPs contains opsTasks that means some image subset operation
@@ -167,7 +167,7 @@ void DDLTileHelper::TileData::draw(GrContext* context) {
     // (maybe in GrDrawingManager::addDDLTarget).
     fTileSurface = this->makeWrappedTileDest(context);
     if (fTileSurface) {
-        fTileSurface->draw(fDisplayList.get());
+        fTileSurface->draw(fDisplayList);
 
         // We can't snap an image here bc, since we're using wrapped backend textures for the
         // surfaces, that would incur a copy.

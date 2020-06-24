@@ -329,6 +329,19 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl) {
+    if (!ddl || !this->isCompatible(ddl->characterization())) {
+        return false;
+    }
+
+    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrContext* ctx = fDevice->context();
+
+    ctx->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
+    return true;
+}
+#else
 bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
     if (!ddl || !this->isCompatible(ddl->characterization())) {
         return false;
@@ -340,7 +353,7 @@ bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
     ctx->priv().copyRenderTasksFromDDL(ddl, rtc->asRenderTargetProxy());
     return true;
 }
-
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
