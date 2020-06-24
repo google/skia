@@ -1693,6 +1693,35 @@ static bool ImGui_DragQuad(SkPoint* pts) {
     return dc.fDragging;
 }
 
+static SkSL::String build_sksl_highlight_shader() {
+    return SkSL::String("out half4 sk_FragColor;\n"
+                        "void main() { sk_FragColor = half4(1, 0, 1, 0.5); }");
+}
+
+static SkSL::String build_metal_highlight_shader(const SkSL::String& inShader) {
+    // Metal fragment shaders need a lot of non-trivial boilerplate that we don't want to recompute
+    // here. So keep all shader code, but right before `return *_out;`, swap out the sk_FragColor.
+    size_t pos = inShader.rfind("return *_out;\n");
+    if (pos == std::string::npos) {
+        return inShader;
+    }
+
+    SkSL::String replacementShader = inShader;
+    replacementShader.insert(pos, "_out->sk_FragColor = float4(1.0, 0.0, 1.0, 0.5); ");
+    return replacementShader;
+}
+
+static SkSL::String build_glsl_highlight_shader(const GrShaderCaps& shaderCaps) {
+    const char* versionDecl = shaderCaps.versionDeclString();
+    SkSL::String highlight = versionDecl ? versionDecl : "";
+    if (shaderCaps.usesPrecisionModifiers()) {
+        highlight.append("precision mediump float;\n");
+    }
+    highlight.appendf("out vec4 sk_FragColor;\n"
+                      "void main() { sk_FragColor = vec4(1, 0, 1, 0.5); }");
+    return highlight;
+}
+
 void Viewer::drawImGui() {
     // Support drawing the ImGui demo window. Superfluous, but gives a good idea of what's possible
     if (fShowImGuiTestWindow) {
@@ -2292,29 +2321,29 @@ void Viewer::drawImGui() {
                     doSave = false;
                 }
                 if (doSave) {
-                    // The hovered item (if any) gets a special shader to make it identifiable
-                    auto shaderCaps = ctx->priv().caps()->shaderCaps();
-
-                    SkSL::String highlight;
-                    if (!sksl) {
-                        highlight = shaderCaps->versionDeclString();
-                        if (shaderCaps->usesPrecisionModifiers()) {
-                            highlight.append("precision mediump float;\n");
-                        }
-                    }
-                    const char* f4Type = sksl ? "half4" : "vec4";
-                    highlight.appendf("out %s sk_FragColor;\n"
-                                      "void main() { sk_FragColor = %s(1, 0, 1, 0.5); }",
-                                      f4Type, f4Type);
-
                     fPersistentCache.reset();
                     fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
                     for (auto& entry : fCachedShaders) {
                         SkSL::String backup = entry.fShader[kFragment_GrShaderType];
-                        if (entry.fHovered &&
-                            (entry.fShaderType == SkSetFourByteTag('S', 'K', 'S', 'L') ||
-                             entry.fShaderType == SkSetFourByteTag('G', 'L', 'S', 'L'))) {
-                            entry.fShader[kFragment_GrShaderType] = highlight;
+                        if (entry.fHovered) {
+                            // The hovered item (if any) gets a special shader to make it
+                            // identifiable.
+                            SkSL::String& fragShader = entry.fShader[kFragment_GrShaderType];
+                            switch (entry.fShaderType) {
+                                case SkSetFourByteTag('S', 'K', 'S', 'L'): {
+                                    fragShader = build_sksl_highlight_shader();
+                                    break;
+                                }
+                                case SkSetFourByteTag('G', 'L', 'S', 'L'): {
+                                    fragShader = build_glsl_highlight_shader(
+                                        *ctx->priv().caps()->shaderCaps());
+                                    break;
+                                }
+                                case SkSetFourByteTag('M', 'S', 'L', ' '): {
+                                    fragShader = build_metal_highlight_shader(fragShader);
+                                    break;
+                                }
+                            }
                         }
 
                         auto data = GrPersistentCacheUtils::PackCachedShaders(entry.fShaderType,
