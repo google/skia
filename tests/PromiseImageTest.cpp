@@ -256,7 +256,8 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
         // and http://skbug.com/8275
         // Also problematic on Dawn; see http://skbug.com/10326
         GrBackendApi api = sk_gpu_test::GrContextFactory::ContextTypeBackend(contextType);
-        if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDawn) {
+        if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDawn ||
+            api == GrBackendApi::kDirect3D) {
             continue;
         }
         DeathFn contextKillers[] = {destroy, abandon, releaseResourcesAndAbandon};
