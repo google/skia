@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorFilter.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMatrixProvider.h"
@@ -26,28 +26,48 @@
 #include "src/gpu/effects/generated/GrMixerEffect.h"
 #endif
 
-bool SkColorFilter::onAsAColorMode(SkColor*, SkBlendMode*) const {
+bool SkColorFilter::asColorMode(SkColor* color, SkBlendMode* mode) const {
+    return as_CFB(this)->onAsAColorMode(color, mode);
+}
+
+bool SkColorFilter::asAColorMode(SkColor* color, SkBlendMode* mode) const {
+    return as_CFB(this)->onAsAColorMode(color, mode);
+}
+
+bool SkColorFilter::asAColorMatrix(float matrix[20]) const {
+    return as_CFB(this)->onAsAColorMatrix(matrix);
+}
+
+uint32_t SkColorFilter::getFlags() const { return as_CFB(this)->onGetFlags(); }
+
+bool SkColorFilter::isAlphaUnchanged() const {
+    return SkToBool(this->getFlags() & kAlphaUnchanged_Flag);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkColorFilterBase::onAsAColorMode(SkColor*, SkBlendMode*) const {
     return false;
 }
 
-bool SkColorFilter::onAsAColorMatrix(float matrix[20]) const {
+bool SkColorFilterBase::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrRecordingContext*,
+std::unique_ptr<GrFragmentProcessor> SkColorFilterBase::asFragmentProcessor(GrRecordingContext*,
                                                                         const GrColorInfo&) const {
     return nullptr;
 }
 #endif
 
-bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkColorFilterBase::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     return this->onAppendStages(rec, shaderIsOpaque);
 }
 
-skvm::Color SkColorFilter::program(skvm::Builder* p, skvm::Color c,
-                                   SkColorSpace* dstCS,
-                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
+                                       SkColorSpace* dstCS,
+                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::F32 original = c.a;
     if ((c = this->onProgram(p,c, dstCS, uniforms,alloc))) {
         if (this->getFlags() & kAlphaUnchanged_Flag) {
@@ -80,7 +100,7 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
     SkStageRec rec = {
         &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, dummyPaint, nullptr, matrixProvider
     };
-    this->onAppendStages(rec, color.fA == 1);
+    as_CFB(this)->onAppendStages(rec, color.fA == 1);
 
     SkPMColor4f dst;
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
@@ -91,16 +111,16 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkComposeColorFilter : public SkColorFilter {
+class SkComposeColorFilter : public SkColorFilterBase {
 public:
-    uint32_t getFlags() const override {
+    uint32_t onGetFlags() const override {
         // Can only claim alphaunchanged support if both our proxys do.
-        return fOuter->getFlags() & fInner->getFlags();
+        return fOuter->onGetFlags() & fInner->onGetFlags();
     }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         bool innerIsOpaque = shaderIsOpaque;
-        if (!(fInner->getFlags() & kAlphaUnchanged_Flag)) {
+        if (!fInner->isAlphaUnchanged()) {
             innerIsOpaque = false;
         }
         return fInner->appendStages(rec, shaderIsOpaque) &&
@@ -127,6 +147,8 @@ public:
     }
 #endif
 
+    SK_FLATTENABLE_HOOKS(SkComposeColorFilter)
+
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fOuter.get());
@@ -134,14 +156,13 @@ protected:
     }
 
 private:
-    SK_FLATTENABLE_HOOKS(SkComposeColorFilter)
-
     SkComposeColorFilter(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner)
-        : fOuter(std::move(outer))
-        , fInner(std::move(inner)) {}
+        : fOuter(as_CFB_sp(std::move(outer)))
+        , fInner(as_CFB_sp(std::move(inner)))
+    {}
 
-    sk_sp<SkColorFilter> fOuter;
-    sk_sp<SkColorFilter> fInner;
+    sk_sp<SkColorFilterBase> fOuter;
+    sk_sp<SkColorFilterBase> fInner;
 
     friend class SkColorFilter;
 
@@ -164,7 +185,7 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkSRGBGammaColorFilter : public SkColorFilter {
+class SkSRGBGammaColorFilter : public SkColorFilterBase {
 public:
     enum class Direction {
         kLinearToSRGB,
@@ -216,19 +237,19 @@ public:
         return premul(fSteps.program(p, uniforms, unpremul(c)));
     }
 
+    SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
+
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.write32(static_cast<uint32_t>(fDir));
     }
 
 private:
-    SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
-
     const Direction fDir;
     SkColorSpaceXformSteps fSteps;
 
     friend class SkColorFilter;
-    typedef SkColorFilter INHERITED;
+    typedef SkColorFilterBase INHERITED;
 };
 
 sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -255,18 +276,20 @@ sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkMixerColorFilter : public SkColorFilter {
+class SkMixerColorFilter : public SkColorFilterBase {
 public:
     SkMixerColorFilter(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float weight)
-        : fCF0(std::move(cf0)), fCF1(std::move(cf1)), fWeight(weight)
+        : fCF0(as_CFB_sp(std::move(cf0)))
+        , fCF1(as_CFB_sp(std::move(cf1)))
+        , fWeight(weight)
     {
         SkASSERT(fCF0);
         SkASSERT(fWeight >= 0 && fWeight <= 1);
     }
 
-    uint32_t getFlags() const override {
-        uint32_t f0 = fCF0->getFlags();
-        uint32_t f1 = fCF1 ? fCF1->getFlags() : ~0U;
+    uint32_t onGetFlags() const override {
+        uint32_t f0 = fCF0->onGetFlags();
+        uint32_t f1 = fCF1 ? fCF1->onGetFlags() : ~0U;
         return f0 & f1;
     }
 
@@ -319,6 +342,8 @@ public:
     }
 #endif
 
+    SK_FLATTENABLE_HOOKS(SkMixerColorFilter)
+
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fCF0.get());
@@ -327,15 +352,13 @@ protected:
     }
 
 private:
-    SK_FLATTENABLE_HOOKS(SkMixerColorFilter)
-
-    sk_sp<SkColorFilter> fCF0;
-    sk_sp<SkColorFilter> fCF1;
-    const float          fWeight;
+    sk_sp<SkColorFilterBase> fCF0;
+    sk_sp<SkColorFilterBase> fCF1;
+    const float             fWeight;
 
     friend class SkColorFilter;
 
-    typedef SkColorFilter INHERITED;
+    typedef SkColorFilterBase INHERITED;
 };
 
 sk_sp<SkFlattenable> SkMixerColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -374,7 +397,7 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 
 #include "src/core/SkModeColorFilter.h"
 
-void SkColorFilter::RegisterFlattenables() {
+void SkColorFilterBase::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkComposeColorFilter);
     SK_REGISTER_FLATTENABLE(SkModeColorFilter);
     SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
