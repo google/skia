@@ -153,7 +153,11 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
-bool GrVkSecondaryCBDrawContext::draw(SkDeferredDisplayList* ddl) {
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+bool GrVkSecondaryCBDrawContext::draw(sk_sp<const SkDeferredDisplayList> ddl) {
+#else
+bool GrVkSecondaryCBDrawContext::draw(const SkDeferredDisplayList* ddl) {
+#endif
     if (!ddl || !this->isCompatible(ddl->characterization())) {
         return false;
     }
@@ -161,7 +165,7 @@ bool GrVkSecondaryCBDrawContext::draw(SkDeferredDisplayList* ddl) {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
-    ctx->priv().copyRenderTasksFromDDL(ddl, rtc->asRenderTargetProxy());
+    ctx->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
     return true;
 }
 

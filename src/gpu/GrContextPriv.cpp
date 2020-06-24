@@ -63,10 +63,17 @@ void GrContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     fContext->drawingManager()->moveRenderTasksToDDL(ddl);
 }
 
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+void GrContextPriv::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
+                                           GrRenderTargetProxy* newDest) {
+    fContext->drawingManager()->copyRenderTasksFromDDL(std::move(ddl), newDest);
+}
+#else
 void GrContextPriv::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
                                            GrRenderTargetProxy* newDest) {
     fContext->drawingManager()->copyRenderTasksFromDDL(ddl, newDest);
 }
+#endif
 
 bool GrContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
     GrGpu* gpu = this->getGpu();
