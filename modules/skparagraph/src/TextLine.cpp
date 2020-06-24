@@ -1125,26 +1125,25 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
     this->iterateThroughVisualRuns(true,
         [this, dx, &result]
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
-            bool lookingForHit = true;
+            bool keepLooking = true;
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
             run, runOffsetInLine, textRange, StyleType::kNone,
-            [this, dx, &result, &lookingForHit]
+            [this, dx, &result, &keepLooking]
             (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
 
-                auto offsetX = this->offset().fX;
+                SkScalar offsetX = this->offset().fX;
                 if (dx < context.clip.fLeft + offsetX) {
                     // All the other runs are placed right of this one
                     auto utf16Index = fMaster->getUTF16Index(context.run->globalClusterIndex(context.pos));
                     result = { SkToS32(utf16Index), kDownstream };
-                    lookingForHit = false;
-                    return false;
+                    return keepLooking = false;
                 }
 
                 if (dx >= context.clip.fRight + offsetX) {
                     // We have to keep looking ; just in case keep the last one as the closest
                     auto utf16Index = fMaster->getUTF16Index(context.run->globalClusterIndex(context.pos + context.size));
                     result = { SkToS32(utf16Index), kUpstream };
-                    return true;
+                    return keepLooking = true;
                 }
 
                 // So we found the run that contains our coordinates
@@ -1160,41 +1159,40 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     found = index;
                 }
 
-                auto glyphemeStart = context.run->positionX(found) + context.fTextShift + offsetX;
-                auto glyphemeWidth = context.run->positionX(found + 1) - context.run->positionX(found);
+                SkScalar glyphemePosLeft = context.run->positionX(found) + context.fTextShift + offsetX;
+                SkScalar glyphemePosWidth = context.run->positionX(found + 1) - context.run->positionX(found);
 
                 // Find the grapheme range that contains the point
                 auto clusterIndex8 = context.run->globalClusterIndex(found);
                 auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
-                auto graphemeStart = fMaster->findGraphemeStart(clusterIndex8);
-                auto graphemeWidth =
-                    fMaster->findGraphemeStart(clusterEnd8) - graphemeStart;
-                auto utf16Index = fMaster->getUTF16Index(clusterIndex8);
+                TextIndex graphemeUtf8Start = fMaster->findGraphemeStart(clusterIndex8);
+                TextIndex graphemeUtf8Width = fMaster->findGraphemeStart(clusterEnd8) - graphemeUtf8Start;
+                size_t utf16Index = fMaster->getUTF16Index(clusterIndex8);
 
-                // We only need to inspect one glyph (maybe not even the entire glyph)
-                SkScalar center;
-                bool insideGlyph = false;
-                if (graphemeWidth > 1) {
-                    auto averageGlyphWidth = glyphemeWidth / graphemeWidth;
-                    auto delta = dx - glyphemeStart;
-                    auto insideIndex = SkScalarFloorToInt(delta / averageGlyphWidth);
-                    insideGlyph = delta > averageGlyphWidth;
-                    center = glyphemeStart + averageGlyphWidth * insideIndex + averageGlyphWidth / 2;
-                    utf16Index += insideIndex;
-                } else {
-                    center = glyphemeStart + glyphemeWidth / 2;
+                SkScalar center = glyphemePosLeft + glyphemePosWidth / 2;
+                bool insideGlypheme = false;
+                if (graphemeUtf8Width > 1) {
+                    // TODO: the average width of a code unit (especially UTF-8) is meaningless.
+                    // Probably want the average width of a grapheme or codepoint?
+                    SkScalar averageUtf8Width = glyphemePosWidth / graphemeUtf8Width;
+                    SkScalar delta = dx - glyphemePosLeft;
+                    int insideUtf8Offset = SkScalarNearlyZero(averageUtf8Width)
+                                         ? 0
+                                         : SkScalarFloorToInt(delta / averageUtf8Width);
+                    insideGlypheme = averageUtf8Width < delta && delta < glyphemePosWidth - averageUtf8Width;
+                    center = glyphemePosLeft + averageUtf8Width * insideUtf8Offset + averageUtf8Width / 2;
+                    utf16Index += insideUtf8Offset; // TODO: adding a utf8 offset to a utf16 index
                 }
-                if ((dx < center) == context.run->leftToRight() || insideGlyph) {
+                if ((dx < center) == context.run->leftToRight() || insideGlypheme) {
                     result = { SkToS32(utf16Index), kDownstream };
                 } else {
                     result = { SkToS32(utf16Index + 1), kUpstream };
                 }
-                // No need to continue
-                lookingForHit = false;
-                return false;
+
+                return keepLooking = false;
 
             });
-          return lookingForHit;
+          return keepLooking;
         }
     );
     return result;
