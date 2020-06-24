@@ -15,7 +15,7 @@
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/image/SkImage_Base.h"
 
-static GrSurfaceProxyView blur(GrContext* ctx,
+static GrSurfaceProxyView blur(GrRecordingContext* ctx,
                                GrSurfaceProxyView src,
                                SkIRect dstB,
                                SkIRect srcB,
@@ -31,7 +31,7 @@ static GrSurfaceProxyView blur(GrContext* ctx,
     return resultRTC->readSurfaceView();
 };
 
-static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool ref) {
+static void run(GrRecordingContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool ref) {
     auto srcII = SkImageInfo::Make(60, 60, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     auto surf = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, srcII);
     GrSurfaceProxyView src;

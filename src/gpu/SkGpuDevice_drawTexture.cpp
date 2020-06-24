@@ -661,7 +661,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Pinned texture proxies can be rendered directly as textures, or with relatively simple
     // adjustments applied to the image content (scaling, mipmaps, color space, etc.)
     uint32_t pinnedUniqueID;
-    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->context(), &pinnedUniqueID)) {
+    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->context1(), &pinnedUniqueID)) {
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
@@ -815,9 +815,9 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
             uint32_t uniqueID;
-            view = image->refPinnedView(this->context(), &uniqueID);
+            view = image->refPinnedView(this->context1(), &uniqueID);
             if (!view) {
-                view = image->refView(this->context(), GrMipMapped::kNo);
+                view = image->refView(this->context1(), GrMipMapped::kNo);
             }
         }
 
