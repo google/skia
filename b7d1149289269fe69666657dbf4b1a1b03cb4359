@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4967d83a_42164834",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-24T16:52:38Z",
+      "side": 1,
+      "message": "-ed",
+      "range": {
+        "startLine": 99,
+        "startChar": 64,
+        "endLine": 99,
+        "endChar": 65
+      },
+      "revId": "b7d1149289269fe69666657dbf4b1a1b03cb4359",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "941cb184_8555b102",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-24T16:52:38Z",
+      "side": 1,
+      "message": "-ed",
+      "range": {
+        "startLine": 100,
+        "startChar": 48,
+        "endLine": 100,
+        "endChar": 49
+      },
+      "revId": "b7d1149289269fe69666657dbf4b1a1b03cb4359",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53d1a060_b354a0d6",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-24T16:52:38Z",
+      "side": 1,
+      "message": "That is a safe assumption. It should happen atomically in the direct context but the recording threads make take a while to notice.",
+      "revId": "b7d1149289269fe69666657dbf4b1a1b03cb4359",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
