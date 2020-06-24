@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c913c0ca_00a9d7de",
+        "filename": "bin/try.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-24T18:38:08Z",
+      "side": 1,
+      "message": "Out of curosity, how would `% branch` differ from `branch.decode()`?  I\u0027ve never called decode() on the result of subprocess.check_output before.",
+      "range": {
+        "startLine": 85,
+        "startChar": 50,
+        "endLine": 85,
+        "endChar": 65
+      },
+      "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ec45de0_1d5577f8",
+        "filename": "bin/try.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-24T18:38:08Z",
+      "side": 1,
+      "message": "?  These cross lines?",
+      "range": {
+        "startLine": 93,
+        "startChar": 51,
+        "endLine": 93,
+        "endChar": 69
+      },
+      "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "086ee4ed_3f48fba5",
+        "filename": "bin/try.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-24T18:38:08Z",
+      "side": 1,
+      "message": "Nah, until we can wean off git cl try, this is always the right thing to do.",
+      "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
