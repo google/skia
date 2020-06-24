@@ -273,6 +273,10 @@ SkString::SkString(SkString&& src) : fRec(std::move(src.validate().fRec)) {
     src.fRec.reset(const_cast<Rec*>(&gEmptyRec));
 }
 
+SkString::SkString(const std::string& src) {
+    fRec = Rec::Make(src.c_str(), src.size());
+}
+
 SkString::~SkString() {
     this->validate();
 }

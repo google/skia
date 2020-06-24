@@ -8,14 +8,10 @@
 #ifndef SkSLSampleMatrix_DEFINED
 #define SkSLSampleMatrix_DEFINED
 
-#include "src/sksl/SkSLDefines.h"
-#include "src/sksl/SkSLString.h"
-
-class GrFragmentProcessor;
+#include <string>
 
 namespace SkSL {
 
-struct Expression;
 struct Program;
 struct Variable;
 
@@ -43,8 +39,8 @@ struct SampleMatrix {
 
     // This corresponds to sample(child, color, matrix) calls where every call site in the FP has
     // the same constant or uniform.
-    static SampleMatrix MakeConstUniform(String expression, bool hasPerspective=true) {
-        return SampleMatrix(Kind::kConstantOrUniform, expression, hasPerspective);
+    static SampleMatrix MakeConstUniform(std::string expression, bool hasPerspective=true) {
+        return SampleMatrix(Kind::kConstantOrUniform, std::move(expression), hasPerspective);
     }
 
     // This corresponds to sample(child, color, matrix) where the 3rd argument is an expression,
@@ -66,30 +62,17 @@ struct SampleMatrix {
     bool isConstUniform() const { return fKind == Kind::kConstantOrUniform; }
     bool isVariable() const { return fKind == Kind::kVariable; }
 
-#ifdef SK_DEBUG
-    String description() {
-        switch (fKind) {
-            case Kind::kNone:
-                return "SampleMatrix<None>";
-            case Kind::kConstantOrUniform:
-                return "SampleMatrix<ConstantOrUniform(" + fExpression + ")>";
-            case Kind::kVariable:
-                return "SampleMatrix<Variable>";
-        }
-    }
-#endif
-
     Kind fKind;
     // The constant or uniform expression representing the matrix (will be the empty string when
     // kind == kNone or kVariable)
-    String fExpression;
+    std::string fExpression;
 
     // FIXME: We can expand this to track a more general matrix type to allow for optimizations on
     // identity or scale+translate matrices too.
     bool fHasPerspective;
 
 private:
-    SampleMatrix(Kind kind, String expression, bool hasPerspective)
+    SampleMatrix(Kind kind, std::string expression, bool hasPerspective)
             : fKind(kind)
             , fExpression(expression)
             , fHasPerspective(hasPerspective) {}

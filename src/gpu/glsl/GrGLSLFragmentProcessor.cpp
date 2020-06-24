@@ -100,7 +100,7 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
         // Empty matrix expression replaces with the sampleMatrix expression stored on the FP, but
         // that is only valid for const/uniform sampled FPs
         SkASSERT(childProc.sampleMatrix().isConstUniform());
-        skslMatrix = childProc.sampleMatrix().fExpression;
+        skslMatrix.assign(childProc.sampleMatrix().fExpression);
     }
 
     if (childProc.sampleMatrix().isConstUniform()) {
@@ -109,7 +109,7 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
         // to the FP.
         SkASSERT(childProc.sampleMatrix().fExpression == skslMatrix);
         GrShaderVar uniform = args.fUniformHandler->getUniformMapping(
-                args.fFp, childProc.sampleMatrix().fExpression);
+                args.fFp, SkString(childProc.sampleMatrix().fExpression));
         if (uniform.getType() != kVoid_GrSLType) {
             // Found the uniform, so replace the expression with the actual uniform name
             SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
