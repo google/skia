@@ -230,9 +230,14 @@ skif::FilterResult<For::kOutput> SkImageFilter_Base::filterImage(const skif::Con
 
     result = this->onFilterImage(context);
 
-    if (context.gpuBacked()) {
-        SkASSERT(!result.image() || result.image()->isTextureBacked());
+#if SK_SUPPORT_GPU
+    if (context.gpuBacked() && result.image() && !result.image()->isTextureBacked()) {
+        // Keep the result on the GPU - this is still required for some
+        // image filters that don't support GPU in all cases
+        auto asTexture = result.image()->makeTextureImage(context.getContext());
+        result = skif::FilterResult<For::kOutput>(std::move(asTexture), result.layerOrigin());
     }
+#endif
 
     if (context.cache()) {
         context.cache()->set(key, this, result);

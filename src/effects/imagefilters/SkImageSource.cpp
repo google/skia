@@ -103,10 +103,8 @@ sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(const Context& ctx,
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
 
-    // If we have a context and aren't texture backed, we skip the fast path and draw using the
-    // slow path below to ensure our output image is texture backed.
     SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
-    if (fSrcRect == bounds && (!ctx.getContext() || fImage->isTextureBacked())) {
+    if (fSrcRect == bounds) {
         int iLeft = dstRect.fLeft;
         int iTop = dstRect.fTop;
         // TODO: this seems to be a very noise-prone way to determine this (esp. the floating-point

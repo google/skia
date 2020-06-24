@@ -85,6 +85,48 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID() : uniqueID) {
 }
 
+sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* context) const {
+#if SK_SUPPORT_GPU
+    if (!context) {
+        return nullptr;
+    }
+    if (GrRecordingContext* curContext = as_SIB(this)->onGetContext()) {
+        return curContext->priv().matches(context) ? sk_ref_sp(this) : nullptr;
+    }
+
+    SkBitmap bmp;
+    if (!this->getROPixels(&bmp)) {
+        return nullptr;
+    }
+
+    if (bmp.empty()) {
+        return SkSpecialImage::MakeFromRaster(SkIRect::MakeEmpty(), bmp, &this->props());
+    }
+
+    // TODO: this is a tight copy of 'bmp' but it doesn't have to be (given SkSpecialImage's
+    // semantics). Since this is cached though we would have to bake the fit into the cache key.
+    auto view = GrMakeCachedBitmapProxyView(context, bmp);
+    if (!view.proxy()) {
+        return nullptr;
+    }
+
+    const SkIRect rect = SkIRect::MakeSize(view.proxy()->dimensions());
+
+    // GrMakeCachedBitmapProxyView has uploaded only the specified subset of 'bmp' so we need not
+    // bother with SkBitmap::getSubset
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               rect,
+                                               this->uniqueID(),
+                                               std::move(view),
+                                               SkColorTypeToGrColorType(bmp.colorType()),
+                                               sk_ref_sp(this->getColorSpace()),
+                                               &this->props(),
+                                               this->alphaType());
+#else
+    return nullptr;
+#endif
+}
+
 void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
     return as_SIB(this)->onDraw(canvas, x, y, paint);
 }
