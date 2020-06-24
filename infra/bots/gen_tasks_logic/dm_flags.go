@@ -358,11 +358,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			blacklist("_", "gm", "_", "savelayer_clipmask")
 		}
 
-		// skbug.com/9123
-		if b.extraConfig("CommandBuffer") && b.gpu("IntelIris5100") {
-			blacklist("_", "test", "_", "AsyncReadPixels")
-		}
-
 		// skbug.com/9043 - these devices render this test incorrectly
 		// when opList splitting reduction is enabled
 		if b.gpu() && b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X", "RadeonHD7770")) {
