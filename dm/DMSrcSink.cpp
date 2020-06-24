@@ -94,7 +94,7 @@ Result GMSrc::draw(GrContext* context, SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     SkString msg;
 
-    skiagm::DrawResult gpuSetupResult = gm->gpuSetup(context, &msg);
+    skiagm::DrawResult gpuSetupResult = gm->gpuSetup(context, canvas, &msg);
     switch (gpuSetupResult) {
         case skiagm::DrawResult::kOk  : break;
         case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);
@@ -102,7 +102,7 @@ Result GMSrc::draw(GrContext* context, SkCanvas* canvas) const {
         default: SK_ABORT("");
     }
 
-    skiagm::DrawResult drawResult = gm->draw(canvas, &msg);
+    skiagm::DrawResult drawResult = gm->draw2(canvas, &msg);
     switch (drawResult) {
         case skiagm::DrawResult::kOk  : return Result(Result::Status::Ok,    msg);
         case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);
