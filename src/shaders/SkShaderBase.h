@@ -241,7 +241,7 @@ protected:
     virtual SkStageUpdater* onAppendUpdatableStages(const SkStageRec&) const { return nullptr; }
 
 protected:
-    static void ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord*, skvm::Uniforms*);
+    static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.

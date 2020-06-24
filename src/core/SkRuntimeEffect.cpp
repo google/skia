@@ -1056,7 +1056,7 @@ public:
         if (!this->computeTotalInverse(matrices.localToDevice(), localM, &inv)) {
             return {};
         }
-        SkShaderBase::ApplyMatrix(p,inv, &local,uniforms);
+        local = SkShaderBase::ApplyMatrix(p,inv,local,uniforms);
 
         std::vector<skvm::F32> stack =
             program_fn(p, *fn, uniform, matrices,

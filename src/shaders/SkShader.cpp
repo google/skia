@@ -237,31 +237,32 @@ sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {
 }
 
 
-void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
-                               skvm::Coord* coord, skvm::Uniforms* uniforms) {
-    skvm::F32 *x = &coord->x,
-              *y = &coord->y;
+skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
+                                      skvm::Coord coord, skvm::Uniforms* uniforms) {
+    skvm::F32 x = coord.x,
+              y = coord.y;
     if (m.isIdentity()) {
         // That was easy.
     } else if (m.isTranslate()) {
-        *x = p->add(*x, p->uniformF(uniforms->pushF(m[2])));
-        *y = p->add(*y, p->uniformF(uniforms->pushF(m[5])));
+        x = p->add(x, p->uniformF(uniforms->pushF(m[2])));
+        y = p->add(y, p->uniformF(uniforms->pushF(m[5])));
     } else if (m.isScaleTranslate()) {
-        *x = p->mad(*x, p->uniformF(uniforms->pushF(m[0])), p->uniformF(uniforms->pushF(m[2])));
-        *y = p->mad(*y, p->uniformF(uniforms->pushF(m[4])), p->uniformF(uniforms->pushF(m[5])));
+        x = p->mad(x, p->uniformF(uniforms->pushF(m[0])), p->uniformF(uniforms->pushF(m[2])));
+        y = p->mad(y, p->uniformF(uniforms->pushF(m[4])), p->uniformF(uniforms->pushF(m[5])));
     } else {  // Affine or perspective.
-        auto dot = [&,X=*x,Y=*y](int row) {
-            return p->mad(X, p->uniformF(uniforms->pushF(m[3*row+0])),
-                   p->mad(Y, p->uniformF(uniforms->pushF(m[3*row+1])),
+        auto dot = [&,x,y](int row) {
+            return p->mad(x, p->uniformF(uniforms->pushF(m[3*row+0])),
+                   p->mad(y, p->uniformF(uniforms->pushF(m[3*row+1])),
                              p->uniformF(uniforms->pushF(m[3*row+2]))));
         };
-        *x = dot(0);
-        *y = dot(1);
+        x = dot(0);
+        y = dot(1);
         if (m.hasPerspective()) {
-            *x = p->div(*x, dot(2));
-            *y = p->div(*y, dot(2));
+            x = p->div(x, dot(2));
+            y = p->div(y, dot(2));
         }
     }
+    return {x,y};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
