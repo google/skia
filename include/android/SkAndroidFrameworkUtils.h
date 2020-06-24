@@ -41,6 +41,8 @@ public:
 
     static int SaveBehind(SkCanvas* canvas, const SkRect* subset);
 
+    static void ReplaceClip(SkCanvas* canvas, const SkIRect& rect);
+
     /**
      * Unrolls a chain of nested SkPaintFilterCanvas to return the base wrapped canvas.
      *

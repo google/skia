@@ -128,6 +128,10 @@ public:
         this->validate();
     }
 
+    void replaceClip(const SkIRect& rect) {
+        this->writable_rc().setRect(rect);
+    }
+
     void setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
         this->writable_rc().setDeviceClipRestriction(mutableClipRestriction);
     }
