@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "960fee9b_af97d964",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-24T16:27:23Z",
+      "side": 1,
+      "message": "One of the super confusing things about this is that glyphemeStart and glyphemeWidth are in units of horizontal line space, but graphemeStart and graphemeWidth are in units of UTF-8? Should probably drop the \u0027auto\u0027 here to make it clear that these are TextIndex and not GraphemeIndex.",
+      "revId": "cbddf8e79d8c4ae634cd87ec74dcf6436c276b72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28aed0ca_4cbee50f",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1185,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-24T16:27:23Z",
+      "side": 1,
+      "message": "Which means averageGlyphWidth is actually averageUTF8CodeUnitWidth? It seems you probably actually want to know how many graphemes are between fMaster-\u003efindGraphemeStart(clusterIndex8) and fMaster-\u003efindGraphemeStart(clusterEnd8)? In flutter the UTF-8 part wouldn\u0027t make sense, maybe they always used the number of UTF-16 between (or didn\u0027t do this at all)?",
+      "revId": "cbddf8e79d8c4ae634cd87ec74dcf6436c276b72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -69,6 +69,24 @@
       "revId": "56afde308a34609b97eca94dda4a6320812b508e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44038175_184b26ef",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-24T16:27:23Z",
+      "side": 1,
+      "message": "I\u0027m still not sure we need or want this special case which doesn\u0027t make much sense given that it doesn\u0027t agree with what ltr would do otherwise. Does Flutter really have such a specific special case?\n\nThe real reason for the divide by zero is either glyphemeWidth being small or graphemeWidth being large (it couldn\u0027t be small, since that\u0027s already overly special cased), producing zero averageGlyphWidth.",
+      "parentUuid": "62e833ab_cde1febf",
+      "revId": "56afde308a34609b97eca94dda4a6320812b508e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
