@@ -75,6 +75,7 @@ protected:
         kNode,
         kShape,
         kColorPaint,
+        kEllipse,
     };
 
     explicit Component(Type t) : fType(t) {}
@@ -97,14 +98,25 @@ private:
     bool  fDirty  = true;
 };
 
-class Node : public Component {
+class TransformableComponent : public Component {
 public:
-    Node() : INHERITED(Type::kNode) {}
-
     ACTOR_ATTR(Translation        , SkV2 , SkV2({0, 0}))
     ACTOR_ATTR(Scale              , SkV2 , SkV2({1, 1}))
     ACTOR_ATTR(Rotation           , float, 0           )
     ACTOR_ATTR(Opacity            , float, 1           )
+
+protected:
+    explicit TransformableComponent(Type t) : INHERITED(t) {}
+
+private:
+
+    using INHERITED = Component;
+};
+
+class Node : public TransformableComponent {
+public:
+    Node() : INHERITED(Type::kNode) {}
+
     ACTOR_ATTR(CollapsedVisibility, bool , false       )
 
     void addChild(sk_sp<Component>);
@@ -117,7 +129,7 @@ private:
 
     std::vector<sk_sp<Component>> fChildren;
 
-    using INHERITED = Component;
+    using INHERITED = TransformableComponent;
 };
 
 class Drawable : public Node {
@@ -188,23 +200,46 @@ private:
     using INHERITED = Paint;
 };
 
+class Geometry : public TransformableComponent {
+protected:
+    explicit Geometry(Type t) : INHERITED(t) {}
+
+private:
+    using INHERITED = TransformableComponent;
+};
+
+class Ellipse final : public Geometry {
+public:
+    Ellipse() : INHERITED(Type::kEllipse) {}
+
+    ACTOR_ATTR(Width , float, 0)
+    ACTOR_ATTR(Height, float, 0)
+
+private:
+    void onRevalidate() override;
+
+    using INHERITED = Geometry;
+};
+
 template <typename T>
 constexpr bool Component::is_base_of(Type t) {
     if (t == Type::kNode      ) return std::is_base_of<T, Node      >::value;
     if (t == Type::kShape     ) return std::is_base_of<T, Shape     >::value;
     if (t == Type::kColorPaint) return std::is_base_of<T, ColorPaint>::value;
+    if (t == Type::kEllipse   ) return std::is_base_of<T, Ellipse   >::value;
 
     return false;
 }
 
 class Artboard final : public SkRefCnt {
 public:
-    ACTOR_ATTR(Name        , SkString , SkString()      )
-    ACTOR_ATTR(Color       , SkColor4f, SkColors::kBlack)
-    ACTOR_ATTR(Size        , SkV2     , SkV2({0,0})     )
-    ACTOR_ATTR(Origin      , SkV2     , SkV2({0,0})     )
-    ACTOR_ATTR(Translation , SkV2     , SkV2({0,0})     )
-    ACTOR_ATTR(ClipContents, bool     , false           )
+    ACTOR_ATTR(Root        , sk_sp<Node>, nullptr         )
+    ACTOR_ATTR(Name        , SkString   , SkString()      )
+    ACTOR_ATTR(Color       , SkColor4f  , SkColors::kBlack)
+    ACTOR_ATTR(Size        , SkV2       , SkV2({0,0})     )
+    ACTOR_ATTR(Origin      , SkV2       , SkV2({0,0})     )
+    ACTOR_ATTR(Translation , SkV2       , SkV2({0,0})     )
+    ACTOR_ATTR(ClipContents, bool       , false           )
 
     void render(SkCanvas*) const;
 
