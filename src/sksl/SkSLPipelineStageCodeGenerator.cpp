@@ -248,7 +248,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
             this->writeLine();
         }
         fOut = oldOut;
-        result.fBody = buffer.str();
+        result.fBody = SkString(buffer.str());
         result.fFormatArgs = std::move(fArgs->fFormatArgs);
         fArgs->fFunctions.push_back(result);
     }
