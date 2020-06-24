@@ -98,8 +98,6 @@ private:
     const char*            fName;
     sk_sp<SkData>          fInputs;
 
-    GrCoordTransform fCoordTransform;
-
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;

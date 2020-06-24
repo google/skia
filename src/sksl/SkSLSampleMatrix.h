@@ -32,24 +32,25 @@ struct SampleMatrix {
         kConstantOrUniform,
         // The FP is sampled with a non-constant/uniform value, or sampled multiple times, and
         // thus the transform cannot be hoisted to the vertex shader.
-        kVariable,
-        // The FP is sampled with a constant or uniform value, *and* also inherits a variable
-        // transform from an ancestor. The transform cannot be hoisted to the vertex shader, and
-        // both matrices need to be applied.
-        kMixed,
+        kVariable
     };
 
     // Make a SampleMatrix with kNone for its kind. Will not have an expression or have perspective.
+    // Represents sample(child, color) and sample(child, color, float2) calls.
     SampleMatrix()
-            : fOwner(nullptr)
-            , fKind(Kind::kNone) {}
+            : fKind(Kind::kNone)
+            , fHasPerspective(false) {}
 
-    static SampleMatrix MakeConstUniform(String expression) {
-        return SampleMatrix(Kind::kConstantOrUniform, expression);
+    // This corresponds to sample(child, color, matrix) calls where every call site in the FP has
+    // the same constant or uniform.
+    static SampleMatrix MakeConstUniform(String expression, bool hasPerspective=true) {
+        return SampleMatrix(Kind::kConstantOrUniform, expression, hasPerspective);
     }
 
-    static SampleMatrix MakeVariable() {
-        return SampleMatrix(Kind::kVariable, "");
+    // This corresponds to sample(child, color, matrix) where the 3rd argument is an expression,
+    // or where the constants/uniforms are not the same at all call sites in the FP.
+    static SampleMatrix MakeVariable(bool hasPerspective=true) {
+        return SampleMatrix(Kind::kVariable, "", hasPerspective);
     }
 
     static SampleMatrix Make(const Program& program, const Variable& fp);
@@ -57,8 +58,13 @@ struct SampleMatrix {
     SampleMatrix merge(const SampleMatrix& other);
 
     bool operator==(const SampleMatrix& other) const {
-        return fKind == other.fKind && fExpression == other.fExpression && fOwner == other.fOwner;
+        return fKind == other.fKind && fExpression == other.fExpression &&
+               fHasPerspective == other.fHasPerspective;
     }
+
+    bool isNoOp() const { return fKind == Kind::kNone; }
+    bool isConstUniform() const { return fKind == Kind::kConstantOrUniform; }
+    bool isVariable() const { return fKind == Kind::kVariable; }
 
 #ifdef SK_DEBUG
     String description() {
@@ -69,26 +75,24 @@ struct SampleMatrix {
                 return "SampleMatrix<ConstantOrUniform(" + fExpression + ")>";
             case Kind::kVariable:
                 return "SampleMatrix<Variable>";
-            case Kind::kMixed:
-                return "SampleMatrix<Mixed(" + fExpression + ")>";
         }
     }
 #endif
 
-    // TODO(michaelludwig): fOwner and fBase are going away; owner is filled in automatically when
-    // a matrix-sampled FP is registered as a child.
-    GrFragmentProcessor* fOwner;
     Kind fKind;
     // The constant or uniform expression representing the matrix (will be the empty string when
     // kind == kNone or kVariable)
     String fExpression;
-    const GrFragmentProcessor* fBase = nullptr;
+
+    // FIXME: We can expand this to track a more general matrix type to allow for optimizations on
+    // identity or scale+translate matrices too.
+    bool fHasPerspective;
 
 private:
-    SampleMatrix(Kind kind, String expression)
-            : fOwner(nullptr)
-            , fKind(kind)
-            , fExpression(expression) {}
+    SampleMatrix(Kind kind, String expression, bool hasPerspective)
+            : fKind(kind)
+            , fExpression(expression)
+            , fHasPerspective(hasPerspective) {}
 };
 
 } // namespace

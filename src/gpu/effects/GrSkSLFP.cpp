@@ -52,6 +52,7 @@ public:
                                                                        fUniformHandles[arg.fIndex]);
                                 break;
                             case SkSL::Compiler::FormatArg::Kind::kChildProcessor: {
+                                // FIXME - Must use invokeChildWithMatrix depending on arg type.
                                 SkSL::String coords = this->expandFormatArgs(arg.fCoords, args,
                                                                              fmtArg, coordsName);
                                 result += this->invokeChild(arg.fIndex, args, coords).c_str();
@@ -88,14 +89,13 @@ public:
             }
         }
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        SkASSERT(args.fTransformedCoords.count() == 1);
-        SkString coords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                      fp.sampleMatrix());
+        SkString coords(args.fSampleCoord);
         std::vector<SkString> childNames;
         // We need to ensure that we call invokeChild on each child FP at least once.
         // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
         for (int i = 0; i < this->numChildProcessors(); ++i) {
-            (void)this->invokeChild(i, args, SkSL::String("_coords"));
+            // FIXME this could have side effects; need a better way to register child functions
+            (void)this->invokeChild(i, args);
         }
         for (const auto& f : fArgs.fFunctions) {
             fFunctionNames.emplace_back();
@@ -180,7 +180,9 @@ GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* sha
         , fEffect(std::move(effect))
         , fName(name)
         , fInputs(std::move(inputs)) {
-    this->addCoordTransform(&fCoordTransform);
+    if (fEffect->usesSampleCoords()) {
+        this->setUsesSampleCoordsDirectly();
+    }
 }
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
@@ -190,7 +192,9 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fEffect(other.fEffect)
         , fName(other.fName)
         , fInputs(other.fInputs) {
-    this->addCoordTransform(&fCoordTransform);
+    if (fEffect->usesSampleCoords()) {
+        this->setUsesSampleCoordsDirectly();
+    }
 }
 
 const char* GrSkSLFP::name() const {

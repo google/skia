@@ -272,6 +272,12 @@ void HCodeGenerator::writeConstructor() {
     }
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
+
+    int usesSampleCoordsDirectly = fProgram.fSource->find("sk_TransformedCoords", 0);
+    if (usesSampleCoordsDirectly >= 0) {
+        this->writef("        this->setUsesSampleCoordsDirectly();\n");
+    }
+
     int samplerCount = 0;
     for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
         if (param->fType.kind() == Type::kSampler_Kind) {
@@ -299,16 +305,26 @@ void HCodeGenerator::writeConstructor() {
                 }
                 switch(matrix.fKind) {
                     case SampleMatrix::Kind::kVariable:
-                        matrixArg.appendf(", SkSL::SampleMatrix::MakeVariable()");
+                        // FIXME As it stands, matrix.fHasPerspective will always be true. Ideally
+                        // we could build an expression from all const/uniform sample matrices used
+                        // in the sksl, e.g. m1.hasPerspective() || m2.hasPerspective(), where each
+                        // term was the type expression for the original const/uniform sample
+                        // matrices before they were merged during sksl analysis.
+                        matrixArg.appendf(", SkSL::SampleMatrix::MakeVariable(%s)",
+                                          matrix.fHasPerspective ? "true" : "false");
                         break;
-                    case SampleMatrix::Kind::kConstantOrUniform:
-                        matrixArg.appendf(", SkSL::SampleMatrix::MakeConstUniform(\"%s\")",
-                                          matrix.fExpression.c_str());
-                        break;
-                    case SampleMatrix::Kind::kMixed:
-                        // Mixed is only produced when combining FPs, not from analysis of sksl
-                        SkASSERT(false);
-                        break;
+                    case SampleMatrix::Kind::kConstantOrUniform: {
+                        String perspExpression = matrix.fHasPerspective ? "true" : "false";
+                        for (const Variable* p : fSectionAndParameterHelper.getParameters()) {
+                            if ((p->fModifiers.fFlags & Modifiers::kIn_Flag) &&
+                                matrix.fExpression == String(p->fName)) {
+                                perspExpression = matrix.fExpression + ".hasPerspective()";
+                                break;
+                            }
+                        }
+                        matrixArg.appendf(", SkSL::SampleMatrix::MakeConstUniform(\"%s\", %s)",
+                                          matrix.fExpression.c_str(), perspExpression.c_str());
+                        break; }
                     case SampleMatrix::Kind::kNone:
                         break;
                 }

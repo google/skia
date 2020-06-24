@@ -315,8 +315,8 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
                 _sample13945.c_str());
-        SkString _sample14005;
         SkString _coords14005("float2(half2(dist, 0.5))");
+        SkString _sample14005;
         _sample14005 = this->invokeChild(_outer.blurProfile_index, args, _coords14005.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(

@@ -68,53 +68,67 @@ const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::textureSampler(i
     return this->onTextureSampler(i);
 }
 
+int GrFragmentProcessor::numCoordTransforms() const {
+    if (SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) && fCoordTransforms.empty() &&
+        !this->isSampledWithExplicitCoords()) {
+        // coordTransform(0) will return an implicitly defined coord transform so that varyings are
+        // added for this FP in order to support const/uniform sample matrix lifting.
+        return 1;
+    } else {
+        return fCoordTransforms.count();
+    }
+}
+
+const GrCoordTransform& GrFragmentProcessor::coordTransform(int i) const {
+    SkASSERT(i >= 0 && i < this->numCoordTransforms());
+    if (SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) && fCoordTransforms.empty() &&
+        !this->isSampledWithExplicitCoords()) {
+        SkASSERT(i == 0);
+
+        // as things stand, matrices only work when there's a coord transform, so we need to add
+        // an identity transform to keep the downstream code happy
+        static const GrCoordTransform kImplicitIdentity;
+        return kImplicitIdentity;
+    } else {
+        return *fCoordTransforms[i];
+    }
+}
+
 void GrFragmentProcessor::addCoordTransform(GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
     fFlags |= kHasCoordTransforms_Flag;
 }
 
 void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
-    if (newMatrix == fMatrix) {
-        return;
+    SkASSERT(!newMatrix.isNoOp());
+    SkASSERT(fMatrix.isNoOp());
+
+    fMatrix = newMatrix;
+    // When an FP is sampled using variable matrix expressions, it is effectively being sampled
+    // explicitly, except that the call site will automatically evaluate the matrix expression to
+    // produce the float2 passed into this FP.
+    if (fMatrix.isVariable()) {
+        this->addAndPushFlagToChildren(kSampledWithExplicitCoords_Flag);
     }
-    SkASSERT(newMatrix.fKind != SkSL::SampleMatrix::Kind::kNone);
-    SkASSERT(fMatrix.fKind != SkSL::SampleMatrix::Kind::kVariable);
-    if (this->numCoordTransforms() == 0 &&
-        (newMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform ||
-         newMatrix.fKind == SkSL::SampleMatrix::Kind::kMixed)) {
-        // as things stand, matrices only work when there's a coord transform, so we need to add
-        // an identity transform to keep the downstream code happy
-        static GrCoordTransform identity;
-        this->addCoordTransform(&identity);
-    }
-    if (fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-        if (newMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform) {
-            // need to base this transform on the one that happened in our parent
-            // If we're already based on something, then we have to assume that parent is now
-            // based on yet another transform, so don't update our base pointer (or we'll skip
-            // the intermediate transform).
-            if (!fMatrix.fBase) {
-                fMatrix.fBase = newMatrix.fOwner;
-            }
-        } else {
-            SkASSERT(newMatrix.fKind == SkSL::SampleMatrix::Kind::kVariable);
-            fMatrix.fKind = SkSL::SampleMatrix::Kind::kMixed;
-            fMatrix.fBase = nullptr;
-        }
-    } else {
-        SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone);
-        fMatrix = newMatrix;
-    }
-    for (auto& child : fChildProcessors) {
-        child->setSampleMatrix(newMatrix);
+    // Push perspective matrix type to children
+    if (fMatrix.fHasPerspective) {
+        this->addAndPushFlagToChildren(kNetTransformHasPerspective_Flag);
     }
 }
 
-void GrFragmentProcessor::setSampledWithExplicitCoords() {
-    fFlags |= kSampledWithExplicitCoords;
-    for (auto& child : fChildProcessors) {
-        child->setSampledWithExplicitCoords();
+void GrFragmentProcessor::addAndPushFlagToChildren(PrivateFlags flag) {
+    // This propagates down, so if we've already marked it, all our children should have it too
+    if (!(fFlags & flag)) {
+        fFlags |= flag;
+        for (auto& child : fChildProcessors) {
+            child->addAndPushFlagToChildren(flag);
+        }
     }
+#ifdef SK_DEBUG
+    for (auto& child : fChildProcessors) {
+        SkASSERT(child->fFlags & flag);
+    }
+#endif
 }
 
 #ifdef SK_DEBUG
@@ -138,32 +152,52 @@ bool GrFragmentProcessor::isInstantiated() const {
 int GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> child,
                                        SkSL::SampleMatrix sampleMatrix,
                                        bool explicitlySampled) {
+    // The child should not have been attached to another FP already and not had any sampling
+    // strategy set on it.
+    SkASSERT(child && !child->fParent && child->sampleMatrix().isNoOp() &&
+             !child->isSampledWithExplicitCoords() && !child->hasPerspectiveTransform());
+
     // Configure child's sampling state first
     if (explicitlySampled) {
-        child->setSampledWithExplicitCoords();
+        child->addAndPushFlagToChildren(kSampledWithExplicitCoords_Flag);
     }
     if (sampleMatrix.fKind != SkSL::SampleMatrix::Kind::kNone) {
-        // FIXME(michaelludwig) - Temporary hack. Owner tracking will be moved off of SampleMatrix
-        // and into FP. Currently, coord transform compilation fails on sample_matrix GMs if the
-        // child isn't the owner. But the matrix effect (and expected behavior) require the owner
-        // to be 'this' FP.
-        if (this->classID() == kGrMatrixEffect_ClassID) {
-            sampleMatrix.fOwner = this;
-        } else {
-            sampleMatrix.fOwner = child.get();
-        }
         child->setSampleMatrix(sampleMatrix);
     }
 
     if (child->fFlags & kHasCoordTransforms_Flag) {
         fFlags |= kHasCoordTransforms_Flag;
     }
+
+    if (child->sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable) {
+        // Since the child is sampled with a variable matrix expression, auto-generated code in
+        // invokeChildWithMatrix() for this FP will refer to the local coordinates.
+        this->setUsesSampleCoordsDirectly();
+    }
+
+    // If the child is not sampled explicitly and not already accessing sample coords directly
+    // (through reference or variable matrix expansion), then mark that this FP tree relies on
+    // coordinates at a lower level. If the child is sampled with explicit coordinates and
+    // there isn't any other direct reference to the sample coords, we halt the upwards propagation
+    // because it means this FP is determining coordinates on its own.
+    if (!child->isSampledWithExplicitCoords()) {
+        if ((child->fFlags & kUsesSampleCoordsDirectly_Flag ||
+             child->fFlags & kUsesSampleCoordsIndirectly_Flag)) {
+            fFlags |= kUsesSampleCoordsIndirectly_Flag;
+        }
+    }
+
     fRequestedFeatures |= child->fRequestedFeatures;
 
     int index = fChildProcessors.count();
+    // Record that the child is attached to us; this FP is the source of any uniform data needed
+    // to evaluate the child sample matrix.
+    child->fParent = this;
     fChildProcessors.push_back(std::move(child));
-    SkASSERT(fMatrix.fKind == SkSL::SampleMatrix::Kind::kNone ||
-             fMatrix.fKind == SkSL::SampleMatrix::Kind::kConstantOrUniform);
+
+    // Sanity check: our sample strategy comes from a parent we shouldn't have yet.
+    SkASSERT(!this->isSampledWithExplicitCoords() && !this->hasPerspectiveTransform() &&
+             fMatrix.isNoOp() && !fParent);
     return index;
 }
 

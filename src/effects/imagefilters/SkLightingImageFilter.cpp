@@ -1767,8 +1767,6 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
         GrShaderVar("scale", kHalf_GrSLType),
     };
     SkString sobelFuncName;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                    args.fFp.sampleMatrix());
 
     fragBuilder->emitFunction(kHalf_GrSLType,
                               "sobel",
@@ -1804,7 +1802,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                               normalBody.c_str(),
                               &normalName);
 
-    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
+    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", args.fSampleCoord);
     fragBuilder->codeAppend("\t\thalf m[9];\n");
 
     const char* surfScale = uniformHandler->getUniformCStr(fSurfaceScaleUni);
