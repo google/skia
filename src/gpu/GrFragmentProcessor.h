@@ -10,10 +10,10 @@
 
 #include <tuple>
 
+#include "include/private/SkSLSampleMatrix.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/ops/GrOp.h"
-#include "src/sksl/SkSLSampleMatrix.h"
 
 class GrGLSLFragmentProcessor;
 class GrPaint;

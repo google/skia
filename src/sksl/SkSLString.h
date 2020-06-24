@@ -103,10 +103,6 @@ public:
     friend bool operator==(const char* s1, const String& s2);
     friend bool operator!=(const char* s1, const String& s2);
 
-#ifndef SKSL_STANDALONE
-    operator SkString() const { return SkString(c_str()); }
-#endif
-
 private:
     typedef std::string INHERITED;
 };

@@ -5,8 +5,10 @@
 
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
+_include = get_path_info("../include", "abspath")
 
 skia_sksl_sources = [
+  "$_include/private/SkSLSampleMatrix.h",
   "$_src/sksl/SkSLASTFile.h",
   "$_src/sksl/SkSLASTNode.cpp",
   "$_src/sksl/SkSLASTNode.h",
@@ -33,7 +35,6 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLParser.h",
   "$_src/sksl/SkSLPosition.h",
   "$_src/sksl/SkSLSampleMatrix.cpp",
-  "$_src/sksl/SkSLSampleMatrix.h",
   "$_src/sksl/SkSLSectionAndParameterHelper.cpp",
   "$_src/sksl/SkSLSectionAndParameterHelper.h",
   "$_src/sksl/SkSLString.cpp",

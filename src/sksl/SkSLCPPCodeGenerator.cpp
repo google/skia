@@ -7,10 +7,10 @@
 
 #include "src/sksl/SkSLCPPCodeGenerator.h"
 
+#include "include/private/SkSLSampleMatrix.h"
 #include "src/sksl/SkSLCPPUniformCTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLHCodeGenerator.h"
-#include "src/sksl/SkSLSampleMatrix.h"
 
 #include <algorithm>
 
