@@ -9,6 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -89,7 +90,7 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilterImpl::onFilterImage(const Context&
     sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
 
     SkIRect inputBounds;
-    if (fColorFilter->affectsTransparentBlack()) {
+    if (as_CFB(fColorFilter)->affectsTransparentBlack()) {
         // If the color filter affects transparent black, the bounds are the entire clip.
         inputBounds = ctx.clipBounds();
     } else if (!input) {
@@ -119,7 +120,7 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilterImpl::onFilterImage(const Context&
 
     // TODO: it may not be necessary to clear or drawPaint inside the input bounds
     // (see skbug.com/5075)
-    if (fColorFilter->affectsTransparentBlack()) {
+    if (as_CFB(fColorFilter)->affectsTransparentBlack()) {
         // The subsequent input->draw() call may not fill the entire canvas. For filters which
         // affect transparent black, ensure that the filter is applied everywhere.
         paint.setColor(SK_ColorTRANSPARENT);
@@ -153,5 +154,5 @@ bool SkColorFilterImageFilterImpl::onIsColorFilterNode(SkColorFilter** filter) c
 }
 
 bool SkColorFilterImageFilterImpl::affectsTransparentBlack() const {
-    return fColorFilter->affectsTransparentBlack();
+    return as_CFB(fColorFilter)->affectsTransparentBlack();
 }
