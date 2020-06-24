@@ -8,10 +8,9 @@
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED
 
-#include "include/core/SkColorFilter.h"
-#include "include/core/SkFlattenable.h"
+#include "src/core/SkColorFilterBase.h"
 
-class SkModeColorFilter : public SkColorFilter {
+class SkModeColorFilter : public SkColorFilterBase {
 public:
     static sk_sp<SkColorFilter> Make(SkColor color, SkBlendMode mode) {
         return sk_sp<SkColorFilter>(new SkModeColorFilter(color, mode));
@@ -42,7 +41,7 @@ private:
 
     friend class SkColorFilter;
 
-    typedef SkColorFilter INHERITED;
+    typedef SkColorFilterBase INHERITED;
 };
 
 #endif
