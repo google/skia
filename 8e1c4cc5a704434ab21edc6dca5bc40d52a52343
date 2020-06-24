@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bbc4db0f_374f271c",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T14:34:09Z",
+      "side": 1,
+      "message": "I went with kClippedOut, but left kClipped as-is since I agree that the extra verbiage is maybe not worth it.",
+      "parentUuid": "46f438f6_272b8715",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 15
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de124ad9_a25b32ca",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "eb591606_f91c1c50",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T14:34:09Z",
+      "side": 1,
+      "message": "Yep",
+      "parentUuid": "de124ad9_a25b32ca",
+      "range": {
+        "startLine": 39,
+        "startChar": 36,
+        "endLine": 39,
+        "endChar": 79
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb1f529a_e45a6fec",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2020-06-24T14:02:24Z",
       "side": 1,
       "message": "Should we fold bounds into GrAppliedClip (not necessarily for this CL)?",
+      "range": {
+        "startLine": 192,
+        "startChar": 42,
+        "endLine": 192,
+        "endChar": 76
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42a94907_4766f082",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T14:34:09Z",
+      "side": 1,
+      "message": "That is an interesting thought. It could almost always just be the scissor bounds of the applied clip except for the unclipped case. I will think on it.",
+      "parentUuid": "fb1f529a_e45a6fec",
       "range": {
         "startLine": 192,
         "startChar": 42,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "10e5f889_d1f479c4",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T14:34:09Z",
+      "side": 1,
+      "message": "Done, I made it implicit.",
+      "parentUuid": "5ea3c624_773cb3ef",
+      "range": {
+        "startLine": 19,
+        "startChar": 15,
+        "endLine": 19,
+        "endChar": 46
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3bb32af2_39fdf94d",
         "filename": "src/gpu/GrFixedClip.cpp",
         "patchSetId": 4
@@ -114,6 +210,30 @@
       "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4062dc4f_61c98319",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T14:34:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3bb32af2_39fdf94d",
+      "range": {
+        "startLine": 29,
+        "startChar": 6,
+        "endLine": 29,
+        "endChar": 12
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "5995c139_2abc2327",
+        "filename": "src/gpu/GrFixedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T14:34:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "818c5427_b775e797",
+      "range": {
+        "startLine": 31,
+        "startChar": 29,
+        "endLine": 31,
+        "endChar": 82
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0680c8f5_554ab9c3",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 4
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "c4a810f9_226a7922",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T14:34:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0680c8f5_554ab9c3",
+      "range": {
+        "startLine": 1152,
+        "startChar": 0,
+        "endLine": 1152,
+        "endChar": 49
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c316b85_aab5b1ed",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 4
@@ -183,6 +351,30 @@
       "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec1c7dcf_7896ef14",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-24T14:34:09Z",
+      "side": 1,
+      "message": "I\u0027ll leave this for later if we have more places that end up using this pattern; as-is, it felt a little awkward since you have to declare a local SkRect first.",
+      "parentUuid": "9c316b85_aab5b1ed",
+      "range": {
+        "startLine": 456,
+        "startChar": 25,
+        "endLine": 456,
+        "endChar": 66
+      },
+      "revId": "8e1c4cc5a704434ab21edc6dca5bc40d52a52343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
