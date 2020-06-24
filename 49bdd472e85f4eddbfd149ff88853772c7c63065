@@ -22,6 +22,30 @@
       "revId": "49bdd472e85f4eddbfd149ff88853772c7c63065",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5216a8d_cc6de987",
+        "filename": "src/gpu/vk/GrVkUtil.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-24T16:03:47Z",
+      "side": 1,
+      "message": "I don\u0027t know either. Leaving it for now. Perhaps we should just log in a debug build rather than assert.",
+      "parentUuid": "af545173_4b5595de",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 73
+      },
+      "revId": "49bdd472e85f4eddbfd149ff88853772c7c63065",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
