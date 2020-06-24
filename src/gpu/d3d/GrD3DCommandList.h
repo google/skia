@@ -23,6 +23,7 @@ class GrD3DPipelineState;
 class GrD3DRenderTarget;
 class GrD3DRootSignature;
 class GrD3DStencilAttachment;
+class GrD3DTexture;
 class GrD3DTextureResource;
 
 class GrScissorState;
@@ -163,6 +164,8 @@ public:
                             ID3D12DescriptorHeap* srvDescriptorHeap,
                             sk_sp<GrRecycledResource> samplerHeapResource,
                             ID3D12DescriptorHeap* samplerDescriptorHeap);
+
+    void addSampledTextureRef(GrD3DTexture*);
 
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,

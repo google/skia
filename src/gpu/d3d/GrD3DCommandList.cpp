@@ -13,6 +13,7 @@
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DStencilAttachment.h"
+#include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
@@ -409,6 +410,10 @@ void GrD3DDirectCommandList::setDescriptorHeaps(sk_sp<GrRecycledResource> srvCrv
         fCurrentSRVCRVDescriptorHeap = srvCrvDescriptorHeap;
         fCurrentSamplerDescriptorHeap = samplerDescriptorHeap;
     }
+}
+
+void GrD3DDirectCommandList::addSampledTextureRef(GrD3DTexture* texture) {
+    this->addResource(texture->resource());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
