@@ -71,8 +71,8 @@ public:
         this->incReserve(extraPtCount, extraPtCount);
     }
 
-    static SkPath Make(const SkPoint[],  int pointCount,
-                       const uint8_t[],  int verbCount,
+    static SkPath Make(const uint8_t[],  int verbCount,
+                       const SkPoint[],  int pointCount,
                        const SkScalar[], int conicWeightCount,
                        SkPathFillType, bool isVolatile = false);
 

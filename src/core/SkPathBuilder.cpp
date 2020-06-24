@@ -335,8 +335,8 @@ static PathInfo validate_verbs(const uint8_t vbs[], int verbCount) {
     return info;
 }
 
-SkPath SkPathBuilder::Make(const SkPoint pts[], int pointCount,
-                           const uint8_t vbs[], int verbCount,
+SkPath SkPathBuilder::Make(const uint8_t vbs[], int verbCount,
+                           const SkPoint pts[], int pointCount,
                            const SkScalar ws[], int wCount,
                            SkPathFillType ft, bool isVolatile) {
     if (verbCount <= 0) {
