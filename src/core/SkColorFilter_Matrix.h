@@ -8,10 +8,9 @@
 #ifndef SkColorFilter_Matrix_DEFINED
 #define SkColorFilter_Matrix_DEFINED
 
-#include "include/core/SkColorFilter.h"
-#include "include/core/SkFlattenable.h"
+#include "src/core/SkColorFilterBase.h"
 
-class SkColorFilter_Matrix : public SkColorFilter {
+class SkColorFilter_Matrix : public SkColorFilterBase {
 public:
     enum class Domain : uint8_t { kRGBA, kHSLA };
 
@@ -41,7 +40,7 @@ private:
     uint16_t    fFlags;
     Domain      fDomain;
 
-    typedef SkColorFilter INHERITED;
+    typedef SkColorFilterBase INHERITED;
 };
 
 #endif

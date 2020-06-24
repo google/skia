@@ -39,9 +39,7 @@ sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
 }
 
 bool SkColorFilterShader::isOpaque() const {
-    return fShader->isOpaque()
-        && fAlpha == 1.0f
-        && (fFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag) != 0;
+    return fShader->isOpaque() && fAlpha == 1.0f && fFilter->isAlphaUnchanged();
 }
 
 void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {
