@@ -121,6 +121,11 @@ public:
             int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*, ReleaseProc releaseProc,
             ReleaseContext releaseCtx);
 
+    static std::unique_ptr<GrRenderTargetContext> MakeFromBackendTexture(
+            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
+            int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*,
+            sk_sp<GrRefCntedCallback> releaseHelper);
+
     static std::unique_ptr<GrRenderTargetContext> MakeFromBackendTextureAsRenderTarget(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
             int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*);

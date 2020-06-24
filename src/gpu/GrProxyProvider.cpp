@@ -526,8 +526,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBackendTexture& beTex,
                                                                     GrWrapOwnership ownership,
                                                                     GrWrapCacheable cacheable,
-                                                                    ReleaseProc releaseProc,
-                                                                    ReleaseContext releaseCtx) {
+                                                                    sk_sp<GrRefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -546,8 +545,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
         return nullptr;
     }
 
-    if (releaseProc) {
-        tex->setRelease(releaseProc, releaseCtx);
+    if (releaseHelper) {
+        tex->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(!tex->asRenderTarget());  // Strictly a GrTexture
@@ -563,8 +562,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         int sampleCnt,
         GrWrapOwnership ownership,
         GrWrapCacheable cacheable,
-        ReleaseProc releaseProc,
-        ReleaseContext releaseCtx) {
+        sk_sp<GrRefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -588,8 +586,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         return nullptr;
     }
 
-    if (releaseProc) {
-        tex->setRelease(releaseProc, releaseCtx);
+    if (releaseHelper) {
+        tex->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(tex->asRenderTarget());  // A GrTextureRenderTarget
@@ -602,8 +600,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         const GrBackendRenderTarget& backendRT,
-        ReleaseProc releaseProc,
-        ReleaseContext releaseCtx) {
+        sk_sp<GrRefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -621,8 +618,8 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         return nullptr;
     }
 
-    if (releaseProc) {
-        rt->setRelease(releaseProc, releaseCtx);
+    if (releaseHelper) {
+        rt->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(!rt->asTexture());  // A GrRenderTarget that's not textureable
