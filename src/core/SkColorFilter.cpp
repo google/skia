@@ -26,28 +26,28 @@
 #include "src/gpu/effects/generated/GrMixerEffect.h"
 #endif
 
-bool SkColorFilter::onAsAColorMode(SkColor*, SkBlendMode*) const {
+bool SkColorFilterBse::onAsAColorMode(SkColor*, SkBlendMode*) const {
     return false;
 }
 
-bool SkColorFilter::onAsAColorMatrix(float matrix[20]) const {
+bool SkColorFilterBse::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrRecordingContext*,
+std::unique_ptr<GrFragmentProcessor> SkColorFilterBse::asFragmentProcessor(GrRecordingContext*,
                                                                         const GrColorInfo&) const {
     return nullptr;
 }
 #endif
 
-bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkColorFilterBse::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     return this->onAppendStages(rec, shaderIsOpaque);
 }
 
-skvm::Color SkColorFilter::program(skvm::Builder* p, skvm::Color c,
-                                   SkColorSpace* dstCS,
-                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+skvm::Color SkColorFilterBse::program(skvm::Builder* p, skvm::Color c,
+                                      SkColorSpace* dstCS,
+                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::F32 original = c.a;
     if ((c = this->onProgram(p,c, dstCS, uniforms,alloc))) {
         if (this->getFlags() & kAlphaUnchanged_Flag) {
