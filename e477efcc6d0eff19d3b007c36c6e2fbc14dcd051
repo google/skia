@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75c591c9_bfd4426d",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-24T20:35:00Z",
+      "side": 1,
+      "message": "nit: this-\u003eisAlphaUnchanged()",
+      "range": {
+        "startLine": 73,
+        "startChar": 12,
+        "endLine": 73,
+        "endChar": 51
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e55994a9_e8388022",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-24T20:35:00Z",
+      "side": 1,
+      "message": "preexisting nit, not asking for any change in this CL:\n\nShould we document in SkColorFilter.h that new flags (if any) need to make sense if they are bit-anded together? We also a follow similar pattern for the optimization-flags in GrFragmentProcessors, and it works well there, but I can imagine someone adding a new flag to SkColorFilter in a future CL without realizing that the same pattern applies here.",
+      "range": {
+        "startLine": 117,
+        "startChar": 1,
+        "endLine": 118,
+        "endChar": 59
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10ccc649_eed1e133",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-24T20:35:00Z",
+      "side": 1,
+      "message": "nit, maybe OK: Sometimes the flattenable-hooks moved out of the private section in this CL, and other times they stayed private. I\u0027m not sure which is to be preferred, or whether it makes a difference.",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 46
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa823897_0c4cfdc4",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-24T20:35:00Z",
+      "side": 1,
+      "message": "nit: It looks like this enum ended up staying in SkColorFilter; no change needed.",
+      "range": {
+        "startLine": 29,
+        "startChar": 14,
+        "endLine": 29,
+        "endChar": 31
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96bdab08_aa5d880e",
+        "filename": "src/core/SkPaintPriv.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-24T20:35:00Z",
+      "side": 1,
+      "message": "nit: !as_CFB(cf)-\u003eisAlphaUnchanged();",
+      "range": {
+        "startLine": 18,
+        "startChar": 17,
+        "endLine": 18,
+        "endChar": 85
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b06680a_ef2daf9d",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-24T20:35:00Z",
+      "side": 1,
+      "message": "nit: as_CFB(colorFilter)-\u003eisAlphaUnchanged();",
+      "range": {
+        "startLine": 189,
+        "startChar": 20,
+        "endLine": 189,
+        "endChar": 95
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4d83a96_20be5fc1",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1549,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-24T20:35:00Z",
+      "side": 1,
+      "message": "nit: spacing",
+      "range": {
+        "startLine": 1549,
+        "startChar": 33,
+        "endLine": 1549,
+        "endChar": 41
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be2f4ada_5047deca",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-24T20:35:00Z",
+      "side": 1,
+      "message": "Why not as_CFB?",
+      "range": {
+        "startLine": 307,
+        "startChar": 56,
+        "endLine": 307,
+        "endChar": 76
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
