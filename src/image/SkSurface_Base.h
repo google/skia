@@ -9,6 +9,7 @@
 #define SkSurface_Base_DEFINED
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSurfacePriv.h"
@@ -123,7 +124,11 @@ public:
 
     virtual bool onCharacterize(SkSurfaceCharacterization*) const { return false; }
     virtual bool onIsCompatible(const SkSurfaceCharacterization&) const { return false; }
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+    virtual bool onDraw(sk_sp<const SkDeferredDisplayList>) { return false; }
+#else
     virtual bool onDraw(const SkDeferredDisplayList*) { return false; }
+#endif
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
