@@ -93,6 +93,30 @@
       "revId": "1c2796d7b3fd383df5804ab6a96f6dda0c720935",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "628b530e_65299c3f",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2696,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T15:01:04Z",
+      "side": 1,
+      "message": "Yeah I agree with all your reasoning here. In practice it looks like we would always put in the uniform block before requesting the sk_fragcoord variable. But maybe this is suppose to work if you do things in either order. In the case where we try to add sksl_synthentic_uniforms first we\u0027d add separate uniform blocks for the RTHeight and the normal uniforms. In that case we\u0027d need to make sure the offset was right on the RTHeight. Also even if uniforms went first, if it is possible to have sk_fragcoord but not fProgram.fInputs.fRTHeight, then again we\u0027d end up with two blocks and the offset would be required for RTHeight.",
+      "parentUuid": "cfa5bff3_287f8f91",
+      "range": {
+        "startLine": 2696,
+        "startChar": 28,
+        "endLine": 2696,
+        "endChar": 39
+      },
+      "revId": "1c2796d7b3fd383df5804ab6a96f6dda0c720935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
