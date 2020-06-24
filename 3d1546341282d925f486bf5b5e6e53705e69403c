@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57e45508_9f305ec2",
+        "filename": "modules/skparagraph/src/ParagraphUtil.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-24T21:10:22Z",
+      "side": 1,
+      "message": "is this \"cheating\" since you\u0027re not going through ICUInterface?",
+      "range": {
+        "startLine": 41,
+        "startChar": 11,
+        "endLine": 41,
+        "endChar": 20
+      },
+      "revId": "3d1546341282d925f486bf5b5e6e53705e69403c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
