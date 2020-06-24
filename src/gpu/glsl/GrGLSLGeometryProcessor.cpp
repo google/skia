@@ -255,7 +255,7 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                     // The FP knows the matrix expression it's sampled with, but its parent defined
                     // the uniform (when the expression is not a constant).
                     GrShaderVar uniform = uniformHandler->liftUniformToVertexShader(
-                            *base->parent(), base->sampleMatrix().fExpression);
+                            *base->parent(), SkString(base->sampleMatrix().fExpression));
 
                     // Accumulate the base matrix expression as a preConcat
                     SkString matrix;
@@ -264,7 +264,7 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                         matrix = uniform.getName();
                     } else {
                         // No uniform found, so presumably this is a constant
-                        matrix = base->sampleMatrix().fExpression;
+                        matrix = SkString(base->sampleMatrix().fExpression);
                     }
 
                     if (!transformExpression.isEmpty()) {

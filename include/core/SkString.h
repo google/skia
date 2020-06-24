@@ -18,6 +18,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <atomic>
+#include <string>
 
 /*  Some helper functions for C strings */
 static inline bool SkStrStartsWith(const char string[], const char prefixStr[]) {
@@ -128,6 +129,7 @@ public:
                 SkString(const char text[], size_t len);
                 SkString(const SkString&);
                 SkString(SkString&&);
+    explicit    SkString(const std::string&);
                 ~SkString();
 
     bool        isEmpty() const { return 0 == fRec->fLength; }

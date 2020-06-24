@@ -7,8 +7,8 @@
 
 #include "src/sksl/SkSLHCodeGenerator.h"
 
+#include "include/private/SkSLSampleMatrix.h"
 #include "src/sksl/SkSLParser.h"
-#include "src/sksl/SkSLSampleMatrix.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -314,7 +314,7 @@ void HCodeGenerator::writeConstructor() {
                                           matrix.fHasPerspective ? "true" : "false");
                         break;
                     case SampleMatrix::Kind::kConstantOrUniform: {
-                        String perspExpression = matrix.fHasPerspective ? "true" : "false";
+                        std::string perspExpression = matrix.fHasPerspective ? "true" : "false";
                         for (const Variable* p : fSectionAndParameterHelper.getParameters()) {
                             if ((p->fModifiers.fFlags & Modifiers::kIn_Flag) &&
                                 matrix.fExpression == String(p->fName)) {
