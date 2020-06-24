@@ -19,16 +19,16 @@
 
 class GrCircleEffect : public GrFragmentProcessor {
 public:
-    static MakeResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+    static GrFPResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                            GrClipEdgeType edgeType,
                            SkPoint center,
                            float radius) {
         // A radius below half causes the implicit insetting done by this processor to become
         // inverted. We could handle this case by making the processor code more complicated.
         if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
-            return MakeFailure(std::move(inputFP));
+            return GrFPFailure(std::move(inputFP));
         }
-        return MakeSuccess(std::unique_ptr<GrFragmentProcessor>(
+        return GrFPSuccess(std::unique_ptr<GrFragmentProcessor>(
                 new GrCircleEffect(std::move(inputFP), edgeType, center, radius)));
     }
     GrCircleEffect(const GrCircleEffect& src);
