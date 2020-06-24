@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da7a9bcc_8b981102",
+        "filename": "bin/try.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-24T18:31:29Z",
+      "side": 1,
+      "message": "That was intentional; I wanted to avoid being detached on something that had already landed and then accidentally triggering try jobs for it.",
+      "parentUuid": "171ce7be_11a751e9",
+      "revId": "a6017deddf60debe3c9f65ebf80788fa58b5496d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "746538b7_5d779420",
         "filename": "bin/try.py",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-24T17:39:22Z",
       "side": 1,
       "message": "Let\u0027s from future import print and stay 2.7 compatible?  We devs are stuck on Python 2.7 until ICU updates their scripts.",
+      "revId": "a6017deddf60debe3c9f65ebf80788fa58b5496d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7185b4ff_0401a2c5",
+        "filename": "bin/try.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-24T18:31:29Z",
+      "side": 1,
+      "message": "Yeah... I was going to update for python 3, but spent way too long trying to maintain compatibility with python 2 and ended up just backpedaling completely.",
+      "parentUuid": "746538b7_5d779420",
       "revId": "a6017deddf60debe3c9f65ebf80788fa58b5496d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
