@@ -19,12 +19,8 @@ size_t parse_node(StreamReader*, T*);
 
 template <>
 size_t parse_node<Node>(StreamReader* sr, Node* node) {
-    const auto parent_index = parse_node<Component>(sr, node);
+    const auto parent_index = parse_node<TransformableComponent>(sr, node);
 
-    node->setTranslation(sr->readV2("translation"));
-    node->setRotation(sr->readFloat("rotation"));
-    node->setScale(sr->readV2("scale"));
-    node->setOpacity(sr->readFloat("opacity"));
     node->setCollapsedVisibility(sr->readBool("isCollapsed"));
 
     if (sr->openArray("clips")) {

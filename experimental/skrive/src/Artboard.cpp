@@ -40,6 +40,8 @@ std::tuple<sk_sp<Component>, size_t> parse_component(StreamReader* sr) {
             return make_from_stream<ColorPaint>(sr, SkPaint::kFill_Style);
         case StreamReader::BlockType::kColorStroke:
             return make_from_stream<ColorPaint>(sr, SkPaint::kStroke_Style);
+        case StreamReader::BlockType::kActorEllipse:
+            return make_from_stream<Ellipse>(sr);
         default:
             break;
     }
@@ -97,7 +99,7 @@ sk_sp<Artboard> parse_artboard(StreamReader* sr) {
 
         switch (block.type()) {
         case StreamReader::BlockType::kComponents:
-            parse_components(sr);
+            ab->setRoot(parse_components(sr));
             break;
         default:
             SkDebugf("!! Unsupported block type: %d\n", block.type());
@@ -114,11 +116,18 @@ sk_sp<Artboard> parse_artboard(StreamReader* sr) {
 } // namespace internal
 
 void Artboard::render(SkCanvas* canvas) const {
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->translate(fTranslation.x, fTranslation.y);
+
     SkPaint paint;
     paint.setColor4f(fColor);
 
-    const auto rect = SkRect::MakeXYWH(fTranslation.x, fTranslation.y, fSize.x, fSize.y);
-    canvas->drawRect(rect, paint);
+    canvas->drawRect(SkRect::MakeWH(fSize.x, fSize.y), paint);
+
+    if (fRoot) {
+        fRoot->revalidate();
+
+    }
 }
 
 } // namespace skrive

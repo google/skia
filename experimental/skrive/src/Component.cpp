@@ -26,6 +26,18 @@ size_t parse_node<Component>(StreamReader* sr, Component* node) {
     return parent_index;
 }
 
+template <>
+size_t parse_node<TransformableComponent>(StreamReader* sr, TransformableComponent* node) {
+    const auto parent_index = parse_node<Component>(sr, node);
+
+    node->setTranslation(sr->readV2("translation"));
+    node->setRotation(sr->readFloat("rotation"));
+    node->setScale(sr->readV2("scale"));
+    node->setOpacity(sr->readFloat("opacity"));
+
+    return parent_index;
+}
+
 } // namespace internal
 
 void Component::invalidate() {

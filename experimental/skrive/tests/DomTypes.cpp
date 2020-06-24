@@ -18,29 +18,46 @@ DEF_TEST(SkRive_DomTypes, reporter) {
     {
         auto node = sk_make_sp<skrive::Node>();
 
-        check_type<skrive::Component>(reporter, node, true);
-        check_type<skrive::Node     >(reporter, node, true);
-        check_type<skrive::Drawable >(reporter, node, false);
-        check_type<skrive::Shape    >(reporter, node, false);
+        check_type<skrive::Component             >(reporter, node, true);
+        check_type<skrive::TransformableComponent>(reporter, node, true);
+        check_type<skrive::Node                  >(reporter, node, true);
+        check_type<skrive::Drawable              >(reporter, node, false);
+        check_type<skrive::Shape                 >(reporter, node, false);
     }
 
     {
         auto node = sk_make_sp<skrive::Shape>();
 
-        check_type<skrive::Component>(reporter, node, true);
-        check_type<skrive::Node     >(reporter, node, true);
-        check_type<skrive::Drawable >(reporter, node, true);
-        check_type<skrive::Shape    >(reporter, node, true);
+        check_type<skrive::Component             >(reporter, node, true);
+        check_type<skrive::TransformableComponent>(reporter, node, true);
+        check_type<skrive::Node                  >(reporter, node, true);
+        check_type<skrive::Drawable              >(reporter, node, true);
+        check_type<skrive::Shape                 >(reporter, node, true);
     }
 
     {
         auto node = sk_make_sp<skrive::ColorPaint>(SkPaint::Style::kFill_Style);
 
-        check_type<skrive::Component >(reporter, node, true);
-        check_type<skrive::Node      >(reporter, node, false);
-        check_type<skrive::Drawable  >(reporter, node, false);
-        check_type<skrive::Shape     >(reporter, node, false);
-        check_type<skrive::Paint     >(reporter, node, true );
-        check_type<skrive::ColorPaint>(reporter, node, true );
+        check_type<skrive::Component             >(reporter, node, true);
+        check_type<skrive::TransformableComponent>(reporter, node, false);
+        check_type<skrive::Node                  >(reporter, node, false);
+        check_type<skrive::Drawable              >(reporter, node, false);
+        check_type<skrive::Shape                 >(reporter, node, false);
+        check_type<skrive::Paint                 >(reporter, node, true );
+        check_type<skrive::ColorPaint            >(reporter, node, true );
+    }
+
+    {
+        auto node = sk_make_sp<skrive::Ellipse>();
+
+        check_type<skrive::Component             >(reporter, node, true);
+        check_type<skrive::TransformableComponent>(reporter, node, true);
+        check_type<skrive::Node                  >(reporter, node, false);
+        check_type<skrive::Drawable              >(reporter, node, false);
+        check_type<skrive::Shape                 >(reporter, node, false);
+        check_type<skrive::Paint                 >(reporter, node, false );
+        check_type<skrive::ColorPaint            >(reporter, node, false );
+        check_type<skrive::Geometry              >(reporter, node, true);
+        check_type<skrive::Ellipse               >(reporter, node, true);
     }
 }
