@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b6aa0906_d578ecff",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2690,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-24T14:50:19Z",
+      "side": 1,
+      "message": "If fRTHeight were unset here, we wouldn\u0027t see the bug. In fact, I tried an earlier fix of clearing fRTHeight before the call to writeInterfaceBlock() in writeVariableReference(), but that felt a bit hacky.",
+      "parentUuid": "5d115469_e9ba82e8",
+      "range": {
+        "startLine": 2690,
+        "startChar": 8,
+        "endLine": 2690,
+        "endChar": 34
+      },
+      "revId": "1c2796d7b3fd383df5804ab6a96f6dda0c720935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "393062c3_3db5bc38",
         "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-06-24T14:28:11Z",
       "side": 1,
       "message": "Why does this use no modifiers specifically fRTHeightOffset but the field early does? At first I was thinking we could just not add the RTHeight field up at 1832 and just always let this handle it, but then I realized they\u0027re not actually setting the same values. Is one of these a bug?",
+      "range": {
+        "startLine": 2696,
+        "startChar": 28,
+        "endLine": 2696,
+        "endChar": 39
+      },
+      "revId": "1c2796d7b3fd383df5804ab6a96f6dda0c720935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfa5bff3_287f8f91",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2696,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-06-24T14:50:19Z",
+      "side": 1,
+      "message": "I wondered about that too. Is it possible that the default (-1) means assign the offset \nautomatically, based on the last uniform\u0027s offset?\n\nIn the sksl_synthentic_uniforms case, that computation doesn\u0027t happen so we would end up \nwith -1 in the SPIRV and would assert. Mostly speculation, though.\n\n(Note also that, since we have no other uniforms, I suspect that RTHeightOffset \nis always zero in the sksl_synthetic_uniforms case.)",
+      "parentUuid": "393062c3_3db5bc38",
       "range": {
         "startLine": 2696,
         "startChar": 28,
