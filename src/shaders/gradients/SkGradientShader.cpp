@@ -432,7 +432,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
     inv.postConcat(fPtsToUnit);
     inv.normalizePerspective();
 
-    SkShaderBase::ApplyMatrix(p, inv, &local, uniforms);
+    local = SkShaderBase::ApplyMatrix(p, inv, local, uniforms);
 
     skvm::I32 mask = p->splat(~0);
     skvm::F32 t = this->transformT(p,uniforms, local, &mask);

@@ -664,7 +664,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     inv.normalizePerspective();
 
     // Apply matrix to convert dst coords to sample center coords.
-    SkShaderBase::ApplyMatrix(p, inv, &local, uniforms);
+    local = SkShaderBase::ApplyMatrix(p, inv, local, uniforms);
 
     // Bail out if sample() can't yet handle our image's color type.
     switch (pm.colorType()) {
