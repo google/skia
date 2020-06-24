@@ -42,7 +42,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
     GrBackendRenderTarget backendRT(kWidth, kHeight, 1, fbInfo);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    sk_sp<GrSurfaceProxy> srcProxy = proxyProvider->wrapBackendRenderTarget(backendRT);
+    sk_sp<GrSurfaceProxy> srcProxy = proxyProvider->wrapBackendRenderTarget(backendRT, nullptr);
 
     auto dstProxy = GrSurfaceProxy::Copy(context,
                                          srcProxy.get(),
