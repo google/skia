@@ -178,13 +178,15 @@ public:
         SkIRect getConservativeBounds() const final {
             return SkIRect::MakeSize(fAtlas->dimensions());
         }
-        Effect apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
-                         bool hasUserStencilSettings, GrAppliedClip* out,
-                         SkRect* bounds) const override {
+
+        bool apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
+                   bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
             out->addCoverageFP(std::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
-            return Effect::kClipped;
+            return true;
         }
+        bool quickContains(const SkRect&) const final { return false; }
+        bool isRRect(SkRRect* rr, GrAA*) const final { return false; }
 
         LazyProxyTest* const fTest;
         GrTextureProxy* fAtlas;

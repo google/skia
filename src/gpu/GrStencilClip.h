@@ -32,29 +32,23 @@ public:
     bool hasStencilClip() const { return SK_InvalidGenID != fStencilStackID; }
     void setStencilClip(uint32_t stencilStackID) { fStencilStackID = stencilStackID; }
 
-    SkIRect getConservativeBounds() const final {
+    bool quickContains(const SkRect& rect) const override {
+        return !this->hasStencilClip() && fFixedClip.quickContains(rect);
+    }
+    SkIRect getConservativeBounds() const override {
         return fFixedClip.getConservativeBounds();
     }
-
-    Effect apply(GrAppliedHardClip* out, SkRect* bounds) const final {
-        Effect effect = fFixedClip.apply(out, bounds);
-        if (effect == Effect::kClippedOut) {
-            // Stencil won't bring back coverage
-            return Effect::kClippedOut;
+    bool isRRect(SkRRect* rr, GrAA* aa) const override {
+        return !this->hasStencilClip() && fFixedClip.isRRect(rr, aa);
+    }
+    bool apply(GrAppliedHardClip* out, SkRect* bounds) const override {
+        if (!fFixedClip.apply(out, bounds)) {
+            return false;
         }
         if (this->hasStencilClip()) {
             out->addStencilClip(fStencilStackID);
-            effect = Effect::kClipped;
         }
-        return effect;
-    }
-
-    PreClipResult preApply(const SkRect& drawBounds) const final {
-        if (this->hasStencilClip()) {
-            return this->INHERITED::preApply(drawBounds);
-        } else {
-            return fFixedClip.preApply(drawBounds);
-        }
+        return true;
     }
 
 private:

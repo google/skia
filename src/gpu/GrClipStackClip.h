@@ -27,10 +27,13 @@ public:
             , fStack(stack)
             , fMatrixProvider(matrixProvider) {}
 
+    bool quickContains(const SkRect&) const final;
+    bool quickContains(const SkRRect&) const final;
     SkIRect getConservativeBounds() const final;
-    Effect apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
-                     bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final;
-    PreClipResult preApply(const SkRect& drawBounds) const final;
+    bool apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
+               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final;
+
+    bool isRRect(SkRRect* rr, GrAA* aa) const override;
 
     sk_sp<GrTextureProxy> testingOnly_createClipMask(GrContext*) const;
     static const char kMaskTestTag[];
