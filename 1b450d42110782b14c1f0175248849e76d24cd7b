@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f90e65cd_b201055f",
+        "filename": "gm/gm.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T17:50:45Z",
+      "side": 1,
+      "message": "does this reset itself between contexts so any need images are made with the right context?",
+      "range": {
+        "startLine": 87,
+        "startChar": 9,
+        "endLine": 87,
+        "endChar": 24
+      },
+      "revId": "1b450d42110782b14c1f0175248849e76d24cd7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

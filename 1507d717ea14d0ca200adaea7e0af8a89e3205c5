@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdb38c4d_8f8fde6a",
+        "filename": "tools/viewer/GMSlide.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-24T17:50:45Z",
+      "side": 0,
+      "message": "what happened to drawBackground?",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 32
+      },
+      "revId": "1507d717ea14d0ca200adaea7e0af8a89e3205c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
