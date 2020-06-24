@@ -169,6 +169,11 @@ public:
 
     void checkFinishProcs() override;
 
+    // Calls glGetError() until no errors are reported. Also looks for OOMs.
+    void clearErrorsAndCheckForOOM();
+    // Calls glGetError() once and returns the result. Also looks for an OOM.
+    GrGLenum getErrorAndCheckForOOM();
+
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     void deleteSync(GrGLsync) const;

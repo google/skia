@@ -317,3 +317,11 @@
    fun:_Z12GrClearImageRK11GrImageInfoPvm8SkRGBA4fIL11SkAlphaType3EE
    ...
 }
+{
+   make_get_error_with_random_oom
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:_Z30make_get_error_with_random_oom12GrGLFunctionIFjvEE
+   ...
+}

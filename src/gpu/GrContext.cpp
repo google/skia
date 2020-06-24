@@ -167,6 +167,8 @@ bool GrContext::abandoned() {
     return false;
 }
 
+bool GrContext::oomed() { return fGpu ? fGpu->checkAndResetOOMed() : false; }
+
 void GrContext::resetGLTextureBindings() {
     if (this->abandoned() || this->backend() != GrBackendApi::kOpenGL) {
         return;

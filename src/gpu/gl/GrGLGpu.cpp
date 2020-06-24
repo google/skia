@@ -50,9 +50,9 @@
             GR_GL_CALL(this->glInterface(), call);            \
             return static_cast<GrGLenum>(GR_GL_NO_ERROR);     \
         } else {                                              \
-            GrGLClearErr(this->glInterface());                \
+            this->clearErrorsAndCheckForOOM();                \
             GR_GL_CALL_NOERRCHECK(this->glInterface(), call); \
-            return GR_GL_GET_ERROR(this->glInterface());      \
+            return this->getErrorAndCheckForOOM();            \
         }                                                     \
     }()
 
@@ -333,7 +333,11 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrContext* context)
         , fStencilClearFBOID(0)
         , fFinishCallbacks(this) {
     SkASSERT(fGLContext);
-    GrGLClearErr(this->glInterface());
+    // Clear errors so we don't get confused whether we caused an error.
+    this->clearErrorsAndCheckForOOM();
+    // Toss out any pre-existing OOM that was hanging around before we got started.
+    this->checkAndResetOOMed();
+
     fCaps = sk_ref_sp(fGLContext->caps());
 
     fHWTextureUnitBindings.reset(this->numTextureUnits());
@@ -3862,6 +3866,9 @@ bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
         // See if any previously inserted finish procs are good to go.
         fFinishCallbacks.check();
     }
+    if (!this->glCaps().skipErrorChecks()) {
+        this->clearErrorsAndCheckForOOM();
+    }
     return true;
 }
 
@@ -3957,6 +3964,23 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
 
 void GrGLGpu::checkFinishProcs() {
     fFinishCallbacks.check();
+}
+
+void GrGLGpu::clearErrorsAndCheckForOOM() {
+    while (this->getErrorAndCheckForOOM() != GR_GL_NO_ERROR) {}
+}
+
+GrGLenum GrGLGpu::getErrorAndCheckForOOM() {
+#if GR_GL_CHECK_ERROR
+    if (this->glInterface()->checkAndResetOOMed()) {
+        this->setOOMed();
+    }
+#endif
+    GrGLenum error = this->fGLContext->glInterface()->fFunctions.fGetError();
+    if (error == GR_GL_OUT_OF_MEMORY) {
+        this->setOOMed();
+    }
+    return error;
 }
 
 void GrGLGpu::deleteSync(GrGLsync sync) const {
