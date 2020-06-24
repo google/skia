@@ -292,12 +292,11 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendTex
         int sampleCnt,
         GrSurfaceOrigin origin,
         const SkSurfaceProps* surfaceProps,
-        ReleaseProc releaseProc,
-        ReleaseContext releaseCtx) {
+        sk_sp<GrRefCntedCallback> releaseHelper) {
     SkASSERT(sampleCnt > 0);
     sk_sp<GrTextureProxy> proxy(context->priv().proxyProvider()->wrapRenderableBackendTexture(
-            tex, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, releaseProc,
-            releaseCtx));
+            tex, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+            std::move(releaseHelper)));
     if (!proxy) {
         return nullptr;
     }
@@ -334,8 +333,13 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendRen
         const SkSurfaceProps* surfaceProps,
         ReleaseProc releaseProc,
         ReleaseContext releaseCtx) {
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (releaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(releaseProc, releaseCtx));
+    }
+
     sk_sp<GrSurfaceProxy> proxy(
-            context->priv().proxyProvider()->wrapBackendRenderTarget(rt, releaseProc, releaseCtx));
+            context->priv().proxyProvider()->wrapBackendRenderTarget(rt, std::move(releaseHelper)));
     if (!proxy) {
         return nullptr;
     }
