@@ -9,8 +9,6 @@ apply plugin: 'com.android.application'
 dependencies {
     implementation project("skottielib")
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.airbnb.android:lottie:3.4.1'
 }
 
 android {
