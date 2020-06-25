@@ -168,15 +168,28 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorInfo& dstColorInfo) const override {
-        auto innerFP = fInner->asFragmentProcessor(context, dstColorInfo);
-        auto outerFP = fOuter->asFragmentProcessor(context, dstColorInfo);
-        if (!innerFP || !outerFP) {
-            return nullptr;
+    bool colorFilterAcceptsInputFP() const override { return true; }
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext* context,
+                                   const GrColorInfo& dstColorInfo) const override {
+        GrFragmentProcessor* originalInputFP = inputFP.get();
+
+        auto [innerSuccess, innerFP] =
+                fInner->asFragmentProcessor(std::move(inputFP), context, dstColorInfo);
+        if (!innerSuccess) {
+            return GrFPFailure(std::move(innerFP));
         }
-        std::unique_ptr<GrFragmentProcessor> series[] = { std::move(innerFP), std::move(outerFP) };
-        return GrFragmentProcessor::RunInSeries(series, 2);
+
+        auto [outerSuccess, outerFP] =
+                fOuter->asFragmentProcessor(std::move(innerFP), context, dstColorInfo);
+        if (!outerSuccess) {
+            // In the rare event that the outer FP cannot be built, we have no good way of
+            // separating the inputFP from the innerFP, so we need to return a cloned inputFP.
+            // This could hypothetically be expensive, but failure here should be extremely rare.
+            return GrFPFailure(originalInputFP->clone());
+        }
+
+        return GrFPSuccess(std::move(outerFP));
     }
 #endif
 
