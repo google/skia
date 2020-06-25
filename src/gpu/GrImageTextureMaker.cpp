@@ -97,7 +97,10 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVAIndices, fImage->fYUVColorSpace,
                                      filter, caps, m, domain);
     if (!filterOrNullForBicubic) {
-        fp = GrBicubicEffect::Make(std::move(fp), fImage->alphaType(), textureMatrix,
+        fp = GrBicubicEffect::Make(std::move(fp),
+                                   fImage->alphaType(),
+                                   textureMatrix,
+                                   GrBicubicEffect::Kernel::kMitchell,
                                    GrBicubicEffect::Direction::kXY);
     }
     if (fImage->fFromColorSpace) {
