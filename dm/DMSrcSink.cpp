@@ -94,7 +94,7 @@ Result GMSrc::draw(GrContext* context, SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     SkString msg;
 
-    skiagm::DrawResult gpuSetupResult = gm->gpuSetup(context, &msg);
+    skiagm::DrawResult gpuSetupResult = gm->gpuSetup(context, canvas, &msg);
     switch (gpuSetupResult) {
         case skiagm::DrawResult::kOk  : break;
         case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);
@@ -109,6 +109,9 @@ Result GMSrc::draw(GrContext* context, SkCanvas* canvas) const {
         case skiagm::DrawResult::kSkip: return Result(Result::Status::Skip,  msg);
         default: SK_ABORT("");
     }
+
+    // Note: we don't call "gpuTeardown" here because, when testing DDL recording, we want
+    // the gpu-backed images to live past the lifetime of the GM.
 }
 
 SkISize GMSrc::size() const {

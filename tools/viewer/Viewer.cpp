@@ -848,6 +848,10 @@ void Viewer::initSlides() {
 
 
 Viewer::~Viewer() {
+    for(auto& slide : fSlides) {
+        slide->gpuTeardown();
+    }
+
     fWindow->detach();
     delete fWindow;
 }
@@ -1181,6 +1185,11 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     fPersistentCache.reset();
     fCachedShaders.reset();
     fBackendType = backendType;
+
+    // The active context is going away in 'detach'
+    for(auto& slide : fSlides) {
+        slide->gpuTeardown();
+    }
 
     fWindow->detach();
 
@@ -2585,6 +2594,9 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
             if (stateValue.equals(kBackendTypeStrings[i])) {
                 if (fBackendType != i) {
                     fBackendType = (sk_app::Window::BackendType)i;
+                    for(auto& slide : fSlides) {
+                        slide->gpuTeardown();
+                    }
                     fWindow->detach();
                     fWindow->attach(backend_type_for_window(fBackendType));
                 }
