@@ -76,6 +76,10 @@ DrawResult GM::gpuSetup(GrContext* context, SkString* errorMsg) {
     return this->onGpuSetup(context, errorMsg);
 }
 
+void GM::gpuTeardown() {
+    this->onGpuTeardown();
+}
+
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
     this->drawBackground(canvas);

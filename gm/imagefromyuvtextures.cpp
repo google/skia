@@ -241,6 +241,13 @@ protected:
         return DrawResult::kOk;
     }
 
+    void onGpuTeardown() override {
+        for (sk_sp<SkImage>& image : fYUVAImages) {
+            image.reset();
+        }
+        fReferenceImage.reset();
+    }
+
     SkImage* getYUVAImage(int index) {
         SkASSERT(index >= 0 && index < kNumImages);
         return fYUVAImages[index].get();
