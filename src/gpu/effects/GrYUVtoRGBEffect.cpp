@@ -9,6 +9,7 @@
 
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -42,11 +43,6 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
     const SkISize yDimensions =
             views[yuvaIndices[SkYUVAIndex::kY_Index].fIndex].proxy()->dimensions();
 
-    // This promotion of nearest to bilinear for UV planes exists to mimic libjpeg[-turbo]'s
-    // do_fancy_upsampling option. However, skbug.com/9693.
-    GrSamplerState::Filter subsampledPlaneFilterMode =
-            std::max(samplerState.filter(), GrSamplerState::Filter::kBilerp);
-
     bool usesBorder = samplerState.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
                       samplerState.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder;
     float planeBorders[4][4] = {};
@@ -54,19 +50,22 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
         border_colors(yuvColorSpace, yuvaIndices, planeBorders);
     }
 
+    bool snap[2] = {false, false};
     std::unique_ptr<GrFragmentProcessor> planeFPs[4];
     for (int i = 0; i < numPlanes; ++i) {
         SkISize dimensions = views[i].proxy()->dimensions();
-        SkTCopyOnFirstWrite<SkMatrix> planeMatrix(&localMatrix);
-        GrSamplerState::Filter planeFilter = samplerState.filter();
-        SkRect planeDomain;
+        SkTCopyOnFirstWrite<SkMatrix> planeMatrix(&SkMatrix::I());
+        SkRect planeSubset;
+        bool makeBilerpWithSnap = false;
+        float sx = 1.f,
+              sy = 1.f;
         if (dimensions != yDimensions) {
             // JPEG chroma subsampling of odd dimensions produces U and V planes with the ceiling of
             // the image size divided by the subsampling factor (2). Our API for creating YUVA
             // doesn't capture the intended subsampling (and we should fix that). This fixes up 2x
             // subsampling for images with odd widths/heights (e.g. JPEG 420 or 422).
-            float sx = (float)dimensions.width()  / yDimensions.width();
-            float sy = (float)dimensions.height() / yDimensions.height();
+            sx = (float)dimensions.width()  / yDimensions.width();
+            sy = (float)dimensions.height() / yDimensions.height();
             if ((yDimensions.width() & 0b1) && dimensions.width() == yDimensions.width() / 2 + 1) {
                 sx = 0.5f;
             }
@@ -74,47 +73,87 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
                 dimensions.height() == yDimensions.height() / 2 + 1) {
                 sy = 0.5f;
             }
+            // This promotion of nearest to bilinear for UV planes exists to mimic libjpeg[-turbo]'s
+            // do_fancy_upsampling option. We will filter the subsampled plane, however we want to
+            // filter at a fixed point for each logical image pixel to simulate nearest neighbor.
+            if (samplerState.filter() == GrSamplerState::Filter::kNearest) {
+                bool snapX = (sx != 1.f),
+                     snapY = (sy != 1.f);
+                makeBilerpWithSnap = snapX || snapY;
+                snap[0] |= snapX;
+                snap[1] |= snapY;
+            }
             *planeMatrix.writable() = SkMatrix::Scale(sx, sy);
-            planeMatrix.writable()->preConcat(localMatrix);
-            planeFilter = subsampledPlaneFilterMode;
             if (subset) {
-                planeDomain = {subset->fLeft   * sx,
+                planeSubset = {subset->fLeft   * sx,
                                subset->fTop    * sy,
                                subset->fRight  * sx,
                                subset->fBottom * sy};
             }
         } else if (subset) {
-            planeDomain = *subset;
+            planeSubset = *subset;
         }
-        samplerState.setFilterMode(planeFilter);
         if (subset) {
-            SkASSERT(planeFilter != GrSamplerState::Filter::kMipMap);
-            planeFPs[i] =
-                    GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType, *planeMatrix,
-                                                samplerState, planeDomain, caps, planeBorders[i]);
+            if (makeBilerpWithSnap) {
+                // The plane is subsampled and we have an overall subset on the image. We're
+                // emulating do_fancy_upsampling using bilerp but snapping look ups to the y-plane
+                // pixel centers. Consider a logical image pixel at the edge of the subset. When
+                // computing the logical pixel color value we should use a 50/50 blend of two values
+                // from the subsampled plane. Depending on where the subset edge falls in actual
+                // subsampled plane, one of those values may come from outside the subset. Hence,
+                // we use this custom inset factory which applies the wrap mode to planeSubset but
+                // allows the bilerp sampling to read pixels from the plane that are just outside
+                // planeSubset.
+                planeFPs[i] = GrTextureEffect::MakeBilerpWithInset(
+                        views[i], kUnknown_SkAlphaType, *planeMatrix, samplerState.wrapModeX(),
+                        samplerState.wrapModeY(), planeSubset, {sx/2.f, sy/2.f}, caps,
+                        planeBorders[i]);
+            } else {
+                SkASSERT(samplerState.filter() != GrSamplerState::Filter::kMipMap);
+                planeFPs[i] = GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType,
+                                                          *planeMatrix, samplerState, planeSubset,
+                                                          caps, planeBorders[i]);
+            }
         } else {
+            GrSamplerState planeSampler = samplerState;
+            if (makeBilerpWithSnap) {
+                planeSampler.setFilterMode(GrSamplerState::Filter::kBilerp);
+            }
             planeFPs[i] = GrTextureEffect::Make(views[i], kUnknown_SkAlphaType, *planeMatrix,
-                                                samplerState, caps, planeBorders[i]);
+                                                planeSampler, caps, planeBorders[i]);
         }
     }
-
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrYUVtoRGBEffect(planeFPs, numPlanes, yuvaIndices, yuvColorSpace));
+    auto fp = std::unique_ptr<GrFragmentProcessor>(
+            new GrYUVtoRGBEffect(planeFPs, numPlanes, yuvaIndices, snap, yuvColorSpace));
+    return GrMatrixEffect::Make(localMatrix, std::move(fp));
 }
 
 static SkAlphaType alpha_type(const SkYUVAIndex yuvaIndices[4]) {
     return yuvaIndices[3].fIndex >= 0 ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
 }
 
-GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4], int numPlanes,
-                                   const SkYUVAIndex yuvaIndices[4], SkYUVColorSpace yuvColorSpace)
+GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4],
+                                   int numPlanes,
+                                   const SkYUVAIndex yuvaIndices[4],
+                                   const bool snap[2],
+                                   SkYUVColorSpace yuvColorSpace)
         : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID,
                               ModulateForClampedSamplerOptFlags(alpha_type(yuvaIndices)))
         , fYUVColorSpace(yuvColorSpace) {
-    for (int i = 0; i < numPlanes; ++i) {
-        this->registerChild(std::move(planeFPs[i]));
-    }
     std::copy_n(yuvaIndices, 4, fYUVAIndices);
+    std::copy_n(snap, 2, fSnap);
+
+    if (fSnap[0] || fSnap[1]) {
+        // Need this so that we can access coords in SKSL to perform snapping.
+        this->addCoordTransform(&fTransform);
+        for (int i = 0; i < numPlanes; ++i) {
+            this->registerExplicitlySampledChild(std::move(planeFPs[i]));
+        }
+    } else {
+        for (int i = 0; i < numPlanes; ++i) {
+            this->registerChild(std::move(planeFPs[i]));
+        }
+    }
 }
 
 #ifdef SK_DEBUG
@@ -142,10 +181,21 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
 
             int numPlanes = yuvEffect.numChildProcessors();
 
-            SkString coords[4];
+            const char* sampleCoords = "";
+            if (yuvEffect.fSnap[0] || yuvEffect.fSnap[1]) {
+                fragBuilder->codeAppendf("float2 snappedCoords = %s;", args.fSampleCoord);
+                if (yuvEffect.fSnap[0]) {
+                    fragBuilder->codeAppend("snappedCoords.x = floor(snappedCoords.x) + 0.5;");
+                }
+                if (yuvEffect.fSnap[1]) {
+                    fragBuilder->codeAppend("snappedCoords.y = floor(snappedCoords.y) + 0.5;");
+                }
+                sampleCoords = "snappedCoords";
+            }
+
             fragBuilder->codeAppendf("half4 planes[%d];", numPlanes);
             for (int i = 0; i < numPlanes; ++i) {
-                SkString tempVar = this->invokeChild(i, args);
+                SkString tempVar = this->invokeChild(i, args, sampleCoords);
                 fragBuilder->codeAppendf("planes[%d] = %s;", i, tempVar.c_str());
             }
 
@@ -227,7 +277,13 @@ void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
         packed |= (index | (chann << 2)) << (i * 4);
     }
     if (fYUVColorSpace == kIdentity_SkYUVColorSpace) {
-        packed |= 0x1 << 16;
+        packed |= 1 << 16;
+    }
+    if (fSnap[0]) {
+        packed |= 1 << 17;
+    }
+    if (fSnap[1]) {
+        packed |= 1 << 18;
     }
     b->add32(packed);
 }
@@ -235,17 +291,9 @@ void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrYUVtoRGBEffect& that = other.cast<GrYUVtoRGBEffect>();
 
-    for (int i = 0; i < 4; ++i) {
-        if (fYUVAIndices[i] != that.fYUVAIndices[i]) {
-            return false;
-        }
-    }
-
-    if (fYUVColorSpace != that.fYUVColorSpace) {
-        return false;
-    }
-
-    return true;
+    return std::equal(fYUVAIndices, fYUVAIndices + 4, that.fYUVAIndices) &&
+           std::equal(fSnap, fSnap + 2, that.fSnap) &&
+           fYUVColorSpace == that.fYUVColorSpace;
 }
 
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
@@ -253,6 +301,7 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         , fYUVColorSpace(src.fYUVColorSpace) {
     this->cloneAndRegisterAllChildProcessors(src);
     std::copy_n(src.fYUVAIndices, this->numChildProcessors(), fYUVAIndices);
+    std::copy_n(src.fSnap, 2, fSnap);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::clone() const {
