@@ -16,6 +16,24 @@
       "revId": "4a057f25d8a939af185f6ec7167c976c89d21b9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c6e3be7_f463ee48",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1268,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-25T21:43:07Z",
+      "side": 1,
+      "message": "TBH I don\u0027t recall why we added that for Skottie.  Is kNull interesting to veto at all?",
+      "parentUuid": "8bd8e144_84ae5c04",
+      "revId": "4a057f25d8a939af185f6ec7167c976c89d21b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
