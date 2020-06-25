@@ -608,9 +608,10 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             } else if (nextDims.height() == srcRect.height()) {
                 dir = GrBicubicEffect::Direction::kX;
             }
-            static constexpr GrSamplerState::WrapMode kWM = GrSamplerState::WrapMode::kClamp;
+            static constexpr auto kWM     = GrSamplerState::WrapMode::kClamp;
+            static constexpr auto kKernel = GrBicubicEffect::Kernel::kCatmullRom;
             fp = GrBicubicEffect::MakeSubset(std::move(texView), prevAlphaType, matrix, kWM, kWM,
-                                             SkRect::Make(srcRect), dir, *this->caps());
+                                             SkRect::Make(srcRect), kKernel, dir, *this->caps());
             if (xform) {
                 fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
             }

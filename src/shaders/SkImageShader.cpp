@@ -237,9 +237,10 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
     std::unique_ptr<GrFragmentProcessor> inner;
     if (doBicubic) {
-        static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        inner = GrBicubicEffect::Make(std::move(view), srcAlphaType, lmInverse, wmX, wmY, kDir,
-                                      caps);
+        static constexpr auto kDir    = GrBicubicEffect::Direction::kXY;
+        static constexpr auto kKernel = GrBicubicEffect::Kernel::kMitchell;
+        inner = GrBicubicEffect::Make(std::move(view), srcAlphaType, lmInverse, wmX, wmY, kKernel,
+                                      kDir, caps);
     } else {
         GrSamplerState samplerState(wmX, wmY, textureFilterMode);
         inner = GrTextureEffect::Make(std::move(view), srcAlphaType, lmInverse, samplerState, caps);
