@@ -172,6 +172,8 @@ public:
     }
 
 private:
+    bool runAsBench() const override { return true; }
+
     SkString onShortName() override {
         return SkString("flippity");
     }
@@ -266,6 +268,11 @@ private:
         }
 
         return DrawResult::kOk;
+    }
+
+    void onGpuTeardown() override {
+        fLabels.reset();
+        fReferenceImages[0] = fReferenceImages[1] = nullptr;
     }
 
     void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas) override {

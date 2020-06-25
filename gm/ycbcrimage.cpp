@@ -90,6 +90,10 @@ protected:
         return DrawResult::kOk;
     }
 
+    void onGpuTeardown() override {
+        fYCbCrImage = nullptr;
+    }
+
     DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas,  SkString*) override {
         SkASSERT(fYCbCrImage);
 
