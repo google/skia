@@ -1546,7 +1546,7 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
         sk_sp<SkColorFilter> greenCF(SkColorFilters::Matrix(greenMatrix));
         sk_sp<SkImageFilter> green(SkImageFilters::ColorFilter(greenCF, nullptr));
 
-        REPORTER_ASSERT(reporter, as_CFB(greenCF)->affectsTransparentBlack());
+        REPORTER_ASSERT(reporter,as_CFB( greenCF)->affectsTransparentBlack());
         REPORTER_ASSERT(reporter, !green->canComputeFastBounds());
 
         sk_sp<SkImageFilter> greenBlur(SkImageFilters::Blur(SK_Scalar1, SK_Scalar1,

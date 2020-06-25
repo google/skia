@@ -302,7 +302,10 @@ static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
     for (int i = 0; i < 256; ++i) {
         table[i] = (i * 41) % 256;
     }
-    TestFlattenableSerialization(as_CFB(SkTableColorFilter::Make(table).get()), true, reporter);
+    auto colorFilter(SkTableColorFilter::Make(table));
+    sk_sp<SkColorFilter> copy(
+        TestFlattenableSerialization<SkColorFilterBase>((SkColorFilterBase*)colorFilter.get(),
+                                                        true, reporter));
 }
 
 static SkBitmap draw_picture(SkPicture& picture) {
