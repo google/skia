@@ -14,6 +14,16 @@ void main() {
     sk_OutColor = sample(fp, sk_InColor, p.xy / p.z);
 }
 
+@optimizationFlags {
+    ProcessorOptimizationFlags(fp.get())
+}
+
+@class {
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
+        return ConstantOutputForConstantInput(this->childProcessor(0), inColor);
+    }
+}
+
 @make{
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                      const SkMatrix& matrix = SkMatrix::I()) {

@@ -19,6 +19,10 @@
 
 class GrDeviceSpaceEffect : public GrFragmentProcessor {
 public:
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
+        return ConstantOutputForConstantInput(this->childProcessor(0), inColor);
+    }
+
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                      const SkMatrix& matrix = SkMatrix::I()) {
         return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp), matrix));
@@ -31,7 +35,9 @@ public:
 
 private:
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp, SkMatrix matrix)
-            : INHERITED(kGrDeviceSpaceEffect_ClassID, kNone_OptimizationFlags), matrix(matrix) {
+            : INHERITED(kGrDeviceSpaceEffect_ClassID,
+                        (OptimizationFlags)ProcessorOptimizationFlags(fp.get()))
+            , matrix(matrix) {
         SkASSERT(fp);
         fp_index = this->registerExplicitlySampledChild(std::move(fp));
     }

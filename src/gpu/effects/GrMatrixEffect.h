@@ -35,7 +35,7 @@ private:
     GrMatrixEffect(const GrMatrixEffect& src);
 
     GrMatrixEffect(SkMatrix matrix, std::unique_ptr<GrFragmentProcessor> child)
-            : INHERITED(kGrMatrixEffect_ClassID, kNone_OptimizationFlags)
+            : INHERITED(kGrMatrixEffect_ClassID, ProcessorOptimizationFlags(child.get()))
             , fMatrix(matrix) {
         SkASSERT(child);
         this->registerChild(std::move(child),
@@ -46,6 +46,9 @@ private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inputColor) const override {
+        return ConstantOutputForConstantInput(this->childProcessor(0), inputColor);
+    }
 
     SkMatrix fMatrix;
 
