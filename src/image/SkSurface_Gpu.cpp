@@ -419,10 +419,11 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
                                                    const GrBackendTexture& backendTexture,
                                                    TextureReleaseProc textureReleaseProc,
                                                    ReleaseContext releaseContext) {
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (textureReleaseProc) {
-        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
-    }
+    SkScopeExit callProc([&] {
+        if (textureReleaseProc) {
+            textureReleaseProc(releaseContext);
+        }
+    });
 
     if (!context || !c.isValid()) {
         return nullptr;
@@ -450,10 +451,11 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
 
     auto rtc = GrRenderTargetContext::MakeFromBackendTexture(
             context, grCT, c.refColorSpace(), backendTexture, c.sampleCount(), c.origin(),
-            &c.surfaceProps(), std::move(releaseHelper));
+            &c.surfaceProps(), textureReleaseProc, releaseContext);
     if (!rtc) {
         return nullptr;
     }
+    callProc.clear();
 
     auto device = SkGpuDevice::Make(context, std::move(rtc), SkGpuDevice::kUninit_InitContents);
     if (!device) {
@@ -514,10 +516,11 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
                                                    const SkSurfaceProps* props,
                                                    SkSurface::TextureReleaseProc textureReleaseProc,
                                                    SkSurface::ReleaseContext releaseContext) {
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (textureReleaseProc) {
-        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
-    }
+    SkScopeExit callProc([&] {
+        if (textureReleaseProc) {
+            textureReleaseProc(releaseContext);
+        }
+    });
 
     if (!context) {
         return nullptr;
@@ -536,10 +539,11 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
 
     auto rtc = GrRenderTargetContext::MakeFromBackendTexture(
             context, grColorType, std::move(colorSpace), tex, sampleCnt, origin, props,
-            std::move(releaseHelper));
+            textureReleaseProc, releaseContext);
     if (!rtc) {
         return nullptr;
     }
+    callProc.clear();
 
     auto device = SkGpuDevice::Make(context, std::move(rtc), SkGpuDevice::kUninit_InitContents);
     if (!device) {
@@ -553,10 +557,11 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
                                             ContentChangeMode mode,
                                             TextureReleaseProc releaseProc,
                                             ReleaseContext releaseContext) {
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (releaseProc) {
-        releaseHelper.reset(new GrRefCntedCallback(releaseProc, releaseContext));
-    }
+    SkScopeExit callProc([&] {
+        if (releaseProc) {
+            releaseProc(releaseContext);
+        }
+    });
 
     auto context = this->fDevice->context();
     if (context->abandoned()) {
@@ -596,10 +601,11 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     }
     auto rtc = GrRenderTargetContext::MakeFromBackendTexture(
             context, oldRTC->colorInfo().colorType(), std::move(colorSpace), backendTexture,
-            sampleCnt, origin, &this->props(), std::move(releaseHelper));
+            sampleCnt, origin, &this->props(), releaseProc, releaseContext);
     if (!rtc) {
         return false;
     }
+    callProc.clear();
     fDevice->replaceRenderTargetContext(std::move(rtc), mode);
     return true;
 }
