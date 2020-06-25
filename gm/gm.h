@@ -110,7 +110,12 @@ namespace skiagm {
 
         static constexpr char kErrorMsg_DrawSkippedGpuOnly[] = "This test is for GPU configs only.";
 
-        DrawResult gpuSetup(GrContext*, SkString* errorMsg);
+
+        DrawResult gpuSetup(GrContext* context, SkCanvas* canvas) {
+            SkString errorMsg;
+            return this->gpuSetup(context, canvas, &errorMsg);
+        }
+        DrawResult gpuSetup(GrContext*, SkCanvas*, SkString* errorMsg);
 
         DrawResult draw(SkCanvas* canvas) {
             SkString errorMsg;
