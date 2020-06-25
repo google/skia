@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/shaders/SkImageShader.h"
+
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -15,10 +17,12 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
+#include "src/gpu/GrImageTextureMaker.h"
+#include "src/gpu/GrTextureAdjuster.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkEmptyShader.h"
-#include "src/shaders/SkImageShader.h"
 
 /**
  *  We are faster in clamp, so always use that tiling when we can.
@@ -210,50 +214,60 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
+    GrTextureProducer* producer;
+    SkTLazy<GrYUVAImageTextureMaker> yuvaImageMaker;
+    SkTLazy<GrTextureAdjuster> adjuster;
+    SkTLazy<GrImageTextureMaker> imageMaker;
+    SkTLazy<GrBitmapTextureMaker> bitmapMaker;
+    uint32_t pinnedUniqueID;
+    SkBitmap bm;
+    if (as_IB(fImage)->isYUVA()) {
+        producer = yuvaImageMaker.init(args.fContext, fImage.get());
+    } else if (GrSurfaceProxyView view =
+                       as_IB(fImage)->refPinnedView(args.fContext, &pinnedUniqueID)) {
+        GrColorInfo colorInfo;
+        if (args.fContext->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
+            SkASSERT(fImage->colorType() == kRGBA_8888_SkColorType);
+            colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, fImage->alphaType(),
+                                    fImage->refColorSpace());
+        } else {
+            colorInfo = fImage->imageInfo().colorInfo();
+        }
+        producer = adjuster.init(args.fContext, std::move(view), colorInfo, pinnedUniqueID);
+    } else if (fImage->isLazyGenerated()) {
+        producer = imageMaker.init(args.fContext, fImage.get(), GrImageTexGenPolicy::kDraw);
+    } else if (as_IB(fImage)->getROPixels(&bm)) {
+        producer = bitmapMaker.init(args.fContext, bm, GrImageTexGenPolicy::kDraw);
+    } else {
+        return nullptr;
+    }
     GrSamplerState::WrapMode wmX = SkTileModeToWrapMode(fTileModeX),
                              wmY = SkTileModeToWrapMode(fTileModeY);
-
-    // Must set wrap and filter on the sampler before requesting a texture. In two places below
-    // we check the matrix scale factors to determine how to interpret the filter quality setting.
-    // This completely ignores the complexity of the drawVertices case where explicit local coords
-    // are provided by the caller.
+    // Must set wrap and filter on the sampler before requesting a texture. In two places
+    // below we check the matrix scale factors to determine how to interpret the filter
+    // quality setting. This completely ignores the complexity of the drawVertices case
+    // where explicit local coords are provided by the caller.
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
             fImage->width(), fImage->height(), this->resolveFiltering(args.fFilterQuality),
             args.fMatrixProvider.localToDevice(), *lm,
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
-    GrMipMapped mipMapped = GrMipMapped::kNo;
-    if (textureFilterMode == GrSamplerState::Filter::kMipMap) {
-        mipMapped = GrMipMapped::kYes;
-    }
-    GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, mipMapped);
-    if (!view) {
+    const GrSamplerState::Filter* filterOrNull = doBicubic ? nullptr : &textureFilterMode;
+    auto fp = producer->createFragmentProcessor(lmInverse, SkRect::Make(fImage->dimensions()),
+                                                GrTextureProducer::kNo_FilterConstraint, false, wmX,
+                                                wmY, filterOrNull);
+
+    if (!fp) {
         return nullptr;
     }
 
-    SkAlphaType srcAlphaType = fImage->alphaType();
-
-    const auto& caps = *args.fContext->priv().caps();
-
-    std::unique_ptr<GrFragmentProcessor> inner;
-    if (doBicubic) {
-        static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        inner = GrBicubicEffect::Make(std::move(view), srcAlphaType, lmInverse, wmX, wmY, kDir,
-                                      caps);
-    } else {
-        GrSamplerState samplerState(wmX, wmY, textureFilterMode);
-        inner = GrTextureEffect::Make(std::move(view), srcAlphaType, lmInverse, samplerState, caps);
-    }
-    inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(), srcAlphaType,
-                                          args.fDstColorInfo->colorSpace());
-
     bool isAlphaOnly = SkColorTypeIsAlphaOnly(fImage->colorType());
     if (isAlphaOnly) {
-        return inner;
+        return fp;
     } else if (args.fInputColorIsOpaque) {
-        return GrFragmentProcessor::OverrideInput(std::move(inner), SK_PMColor4fWHITE, false);
+        return GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
     }
-    return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
+    return GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
 }
 
 #endif
