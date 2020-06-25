@@ -1862,6 +1862,7 @@ if (skia_enable_tools) {
         ":tests",
         ":tool_utils",
         ":trace",
+        "experimental/skrive",
         "modules/skottie",
         "modules/skottie:utils",
       ]
