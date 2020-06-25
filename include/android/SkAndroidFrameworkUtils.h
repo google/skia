@@ -14,6 +14,7 @@
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 class SkCanvas;
+struct SkIRect;
 struct SkRect;
 class SkSurface;
 
@@ -40,6 +41,8 @@ public:
     static sk_sp<SkSurface> getSurfaceFromCanvas(SkCanvas* canvas);
 
     static int SaveBehind(SkCanvas* canvas, const SkRect* subset);
+
+    static void ReplaceClip(SkCanvas* canvas, const SkIRect& rect);
 
     /**
      * Unrolls a chain of nested SkPaintFilterCanvas to return the base wrapped canvas.

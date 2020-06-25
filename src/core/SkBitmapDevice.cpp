@@ -693,6 +693,12 @@ void SkBitmapDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     fRCStack.clipRegion(*ptr, op);
 }
 
+void SkBitmapDevice::onReplaceClip(const SkIRect& rect) {
+    // Transform from "global/canvas" coordinates to relative to this device
+    SkIRect deviceRect = this->globalToDevice().mapRect(SkRect::Make(rect)).round();
+    fRCStack.replaceClip(deviceRect);
+}
+
 void SkBitmapDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
     fRCStack.setDeviceClipRestriction(mutableClipRestriction);
     if (!mutableClipRestriction->isEmpty()) {
