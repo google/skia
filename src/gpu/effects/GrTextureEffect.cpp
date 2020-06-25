@@ -31,7 +31,8 @@ struct GrTextureEffect::Sampling {
              const SkRect&,
              const SkRect*,
              const float border[4],
-             const GrCaps&);
+             const GrCaps&,
+             SkVector bilerpInset = {0.5f, 0.5f});
     inline bool hasBorderAlpha() const;
 };
 
@@ -40,7 +41,8 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     const SkRect& subset,
                                     const SkRect* domain,
                                     const float border[4],
-                                    const GrCaps& caps) {
+                                    const GrCaps& caps,
+                                    SkVector bilerpInset) {
     struct Span {
         float fA = 0.f, fB = 0.f;
 
@@ -64,7 +66,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
     auto type = proxy.asTextureProxy()->textureType();
     auto filter = sampler.filter();
 
-    auto resolve = [type, &caps, filter, &border](int size, Mode mode, Span subset, Span domain) {
+    auto resolve = [&](int size, Mode mode, Span subset, Span domain, float bilerpInset) {
         Result1D r;
         bool canDoModeInHW = true;
         // TODO: Use HW border color when available.
@@ -96,7 +98,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
             // and GPU-specific snapping at the boundary).
             r.fShaderClamp = isubset.makeInset(0.5f);
         } else {
-            r.fShaderClamp = subset.makeInset(0.5f);
+            r.fShaderClamp = subset.makeInset(bilerpInset);
             if (r.fShaderClamp.contains(domain)) {
                 domainIsSafe = true;
             }
@@ -120,12 +122,12 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
     Span subsetX{subset.fLeft, subset.fRight};
     auto domainX = domain ? Span{domain->fLeft, domain->fRight}
                           : Span{SK_FloatNegativeInfinity, SK_FloatInfinity};
-    auto x = resolve(dim.width(), sampler.wrapModeX(), subsetX, domainX);
+    auto x = resolve(dim.width(), sampler.wrapModeX(), subsetX, domainX, bilerpInset.fX);
 
     Span subsetY{subset.fTop, subset.fBottom};
     auto domainY = domain ? Span{domain->fTop, domain->fBottom}
                           : Span{SK_FloatNegativeInfinity, SK_FloatInfinity};
-    auto y = resolve(dim.height(), sampler.wrapModeY(), subsetY, domainY);
+    auto y = resolve(dim.height(), sampler.wrapModeY(), subsetY, domainY, bilerpInset.fY);
 
     fHWSampler = {x.fHWMode, y.fHWMode, filter};
     fShaderModes[0] = x.fShaderMode;
@@ -255,6 +257,26 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                           alphaType,
                                                                           sampling,
                                                                           lazyProxyNormalization)));
+}
+
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeBilerpWithInset(
+        GrSurfaceProxyView view,
+        SkAlphaType alphaType,
+        const SkMatrix& matrix,
+        GrSamplerState::WrapMode wx,
+        GrSamplerState::WrapMode wy,
+        const SkRect& subset,
+        SkVector inset,
+        const GrCaps& caps,
+        const float border[4]) {
+    GrSamplerState sampler(wx, wy, GrSamplerState::Filter::kBilerp);
+    Sampling sampling(*view.proxy(), sampler, subset, nullptr, border, caps, inset);
+    SkMatrix final;
+    bool lazyProxyNormalization;
+    get_matrix(matrix, view, &final, &lazyProxyNormalization);
+    return GrMatrixEffect::Make(
+            final, std::unique_ptr<GrFragmentProcessor>(new GrTextureEffect(
+                           std::move(view), alphaType, sampling, lazyProxyNormalization)));
 }
 
 GrTextureEffect::ShaderMode GrTextureEffect::GetShaderMode(GrSamplerState::WrapMode mode,

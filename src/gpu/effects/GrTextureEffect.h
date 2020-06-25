@@ -66,6 +66,26 @@ public:
                                                            const GrCaps& caps,
                                                            const float border[4] = kDefaultBorder);
 
+    /**
+     * Like MakeSubset() but always uses kBilerp filtering. MakeSubset() uses the subset rect
+     * dimensions to determine the period of the wrap mode (for repeat and mirror). Once it computes
+     * the wrapped texture coordinate inside subset rect it further clamps it to a 0.5 inset rect of
+     * subset. When subset is an integer rectangle this clamping avoids the hw bilerp filtering from
+     * reading texels just outside the subset rect. This factory allows a custom inset clamping
+     * distance rather than 0.5, allowing those neighboring texels to influence the bilerped sample
+     * result.
+     */
+    static std::unique_ptr<GrFragmentProcessor> MakeBilerpWithInset(
+            GrSurfaceProxyView,
+            SkAlphaType,
+            const SkMatrix&,
+            GrSamplerState::WrapMode wx,
+            GrSamplerState::WrapMode wy,
+            const SkRect& subset,
+            SkVector inset,
+            const GrCaps& caps,
+            const float border[4] = kDefaultBorder);
+
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     const char* name() const override { return "TextureEffect"; }
