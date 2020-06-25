@@ -33,6 +33,8 @@ protected:
 private:
     std::unique_ptr<skiagm::GM> fGM;
     SkString                    fName;
+    bool                        fGpuSetupFailed = false;
+
     typedef Benchmark INHERITED;
 };
 
