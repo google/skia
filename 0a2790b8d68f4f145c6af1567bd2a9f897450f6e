@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8573029f_63873c73",
+        "filename": "bin/try.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-25T12:24:35Z",
+      "side": 1,
+      "message": "This was left over from my attempt to be compatible with Python 3; subprocess.check_output returns raw data that needs to be decoded (UTF-8 is the default) in order to be used as a string.  Removed.",
+      "parentUuid": "c913c0ca_00a9d7de",
+      "range": {
+        "startLine": 85,
+        "startChar": 50,
+        "endLine": 85,
+        "endChar": 65
+      },
+      "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ec45de0_1d5577f8",
         "filename": "bin/try.py",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3a5d19b3_fdd68b3c",
+        "filename": "bin/try.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-25T12:24:35Z",
+      "side": 1,
+      "message": "err, nope.",
+      "parentUuid": "7ec45de0_1d5577f8",
+      "range": {
+        "startLine": 93,
+        "startChar": 51,
+        "endLine": 93,
+        "endChar": 69
+      },
+      "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "086ee4ed_3f48fba5",
         "filename": "bin/try.py",
         "patchSetId": 4
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "c574d8dd_5740be63",
+        "filename": "bin/try.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-25T12:24:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "086ee4ed_3f48fba5",
+      "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe44bfab_cc3419d3",
         "filename": "bin/try.py",
         "patchSetId": 4
@@ -76,6 +142,24 @@
       "writtenOn": "2020-06-24T18:41:20Z",
       "side": 1,
       "message": "This line might be redundant with what git cl issue itself prints?",
+      "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "713a4ea1_14fefcf7",
+        "filename": "bin/try.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-06-25T12:24:35Z",
+      "side": 1,
+      "message": "If felt weird to do this without informing the user, since it wasn\u0027t explicitly requested.  The output of is the same whether you set the issue number (\"git cl issue 1234\") or just asked for the current value (\"git cl issue\"), so it doesn\u0027t really indicate that an action was performed.  I added more logging to be super clear, but if you think it\u0027s unnecessary I\u0027ll remove it:\n\n$ try Infra\n\"git cl issue\" not set; searching for Change-Id footer.\nSetting \"git cl issue 298748\"\nIssue number: 298748 (https://skia-review.googlesource.com/298748)\nFound 2 jobs:\n  skia/skia.primary:\n    Housekeeper-PerCommit-InfraTests_Linux\n    Housekeeper-PerCommit-InfraTests_Win\n\nDo you want to trigger these jobs? (y/n or i for interactive): n",
+      "parentUuid": "fe44bfab_cc3419d3",
       "revId": "0a2790b8d68f4f145c6af1567bd2a9f897450f6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
