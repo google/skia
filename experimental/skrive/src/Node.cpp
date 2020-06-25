@@ -62,4 +62,16 @@ void Node::onRevalidate() {
     }
 }
 
+void Node::onRender(SkCanvas* canvas) const {
+    SkASSERT(!this->hasInval());
+
+    TransformableComponent::ScopedTransformContext stc(this, canvas);
+
+    // TODO: draw order?
+    for (const auto& child : this->children()) {
+        child->render(canvas);
+    }
+}
+
+
 } // namespace internal
