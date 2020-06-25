@@ -918,6 +918,8 @@ public:
         Pass an empty rect to disable maximum clip.
         This private API is for use by Android framework only.
 
+        DEPRECATED: Replace usage with SkAndroidFrameworkUtils::replaceClip()
+
         @param rect  maximum allowed clip in device coordinates
     */
     void androidFramework_setDeviceClipRestriction(const SkIRect& rect);
@@ -2746,6 +2748,13 @@ private:
      *  If the clip is empty, this will return false.
      */
     bool androidFramework_isClipAA() const;
+
+    /**
+     * Reset the clip to be just the intersection with the global-space 'rect'. This operates within
+     * the save/restore stack of the canvas, so restore() will bring back any saved clip. However,
+     * since 'rect' is already in global space, it is not modified by the canvas matrix.
+     */
+    void androidFramework_replaceClip(const SkIRect& rect);
 
     virtual SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const { return nullptr; }
 
