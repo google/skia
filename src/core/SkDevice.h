@@ -171,6 +171,9 @@ public:
     void clipRegion(const SkRegion& region, SkClipOp op) {
         this->onClipRegion(region, op);
     }
+    void replaceClip(const SkIRect& rect) {
+        this->onReplaceClip(rect);
+    }
     void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
         this->onSetDeviceClipRestriction(mutableClipRestriction);
     }
@@ -204,6 +207,7 @@ protected:
     virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
     virtual void onClipShader(sk_sp<SkShader>) {}
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
+    virtual void onReplaceClip(const SkIRect& rect) {}
     virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
     virtual bool onClipIsAA() const = 0;
     virtual bool onClipIsWideOpen() const = 0;
