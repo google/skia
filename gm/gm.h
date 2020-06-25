@@ -87,8 +87,8 @@ struct GrContextOptions;
 namespace skiagm {
 
     enum class DrawResult {
-        kOk,  // Test drew successfully.
-        kFail,  // Test failed to draw.
+        kOk,   // Test drew successfully.
+        kFail, // Test failed to draw.
         kSkip  // Test is not applicable in this context and should be skipped.
     };
 
@@ -111,6 +111,13 @@ namespace skiagm {
         static constexpr char kErrorMsg_DrawSkippedGpuOnly[] = "This test is for GPU configs only.";
 
         DrawResult gpuSetup(GrContext*, SkString* errorMsg);
+
+        void onceBeforeDraw() {
+            if (!fHaveCalledOnceBeforeDraw) {
+                fHaveCalledOnceBeforeDraw = true;
+                this->onOnceBeforeDraw();
+            }
+        }
 
         DrawResult draw(SkCanvas* canvas) {
             SkString errorMsg;
@@ -171,7 +178,7 @@ namespace skiagm {
         Mode     fMode;
         SkString fShortName;
         SkColor  fBGColor;
-        bool     fHaveCalledOnceBeforeDraw;
+        bool     fHaveCalledOnceBeforeDraw = false;
     };
 
     using GMFactory = std::unique_ptr<skiagm::GM> (*)();
