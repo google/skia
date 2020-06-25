@@ -225,7 +225,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             GrBackendRenderTarget backendRT = gpu->createTestingOnlyBackendRenderTarget(
                     kWidthHeight, kWidthHeight, grColorType);
             sk_sp<GrSurfaceProxy> sProxy(
-                    proxyProvider->wrapBackendRenderTarget(backendRT, nullptr));
+                    proxyProvider->wrapBackendRenderTarget(backendRT, nullptr, nullptr));
             check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
             static constexpr int kExpectedNumSamples = 1;
             check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
@@ -253,7 +253,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples,
                                                 kStencilBits, fboInfo);
                 sk_sp<GrSurfaceProxy> sProxy(
-                        proxyProvider->wrapBackendRenderTarget(backendRT, nullptr));
+                        proxyProvider->wrapBackendRenderTarget(backendRT, nullptr, nullptr));
                 check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
                 check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
                                    supportedNumSamples, SkBackingFit::kExact, 0);
@@ -290,7 +290,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                 sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
                         backendTex, supportedNumSamples, kBorrow_GrWrapOwnership,
-                        GrWrapCacheable::kNo, nullptr);
+                        GrWrapCacheable::kNo, nullptr, nullptr);
                 if (!sProxy) {
                     context->deleteBackendTexture(backendTex);
                     continue;  // This can fail on Mesa

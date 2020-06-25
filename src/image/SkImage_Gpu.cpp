@@ -155,11 +155,6 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
                                                   sk_sp<SkColorSpace> cs,
                                                   TextureReleaseProc releaseP,
                                                   ReleaseContext releaseC) {
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (releaseP) {
-        releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
-    }
-
     if (!ctx) {
         return nullptr;
     }
@@ -172,7 +167,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
 
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->wrapCompressedBackendTexture(
-            tex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, std::move(releaseHelper));
+            tex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, releaseP, releaseC);
     if (!proxy) {
         return nullptr;
     }
@@ -189,11 +184,6 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (releaseP) {
-        releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
-    }
-
     if (!ctx) {
         return nullptr;
     }
@@ -207,6 +197,11 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
 
     if (!SkImage_GpuBase::ValidateBackendTexture(caps, tex, grColorType, ct, at, cs)) {
         return nullptr;
+    }
+
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (releaseP) {
+        releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
     }
 
     return new_wrapped_texture_common(ctx, tex, grColorType, origin, at, std::move(cs),
@@ -331,11 +326,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         ReleaseContext releaseContext) {
     const GrCaps* caps = ctx->priv().caps();
 
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (textureReleaseProc) {
-        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
-    }
-
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, kRGBA_8888_SkColorType,
                                                                 backendTexture.getBackendFormat());
     if (GrColorType::kUnknown == grColorType) {
@@ -352,7 +342,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
     // in order to draw to it for the yuv->rgb conversion.
     auto renderTargetContext = GrRenderTargetContext::MakeFromBackendTexture(
             ctx, grColorType, std::move(imageColorSpace), backendTexture, 1, imageOrigin,
-            nullptr, std::move(releaseHelper));
+            nullptr, textureReleaseProc, releaseContext);
     if (!renderTargetContext) {
         return nullptr;
     }
