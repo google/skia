@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6eb6e187_89f0eed6",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-25T22:36:17Z",
+      "side": 1,
+      "message": "extra space",
+      "range": {
+        "startLine": 849,
+        "startChar": 69,
+        "endLine": 849,
+        "endChar": 71
+      },
+      "revId": "c6ffe0c4ff2cf8bd52ad9e8847e491b5250e59a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
