@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef7f83d0_14f013c8",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-25T22:19:49Z",
+      "side": 1,
+      "message": "Is getting the opMemoryPool the only thing the rtc is going to be used for here? If so, why not just keep passing it in?",
+      "revId": "5cd2b92fd3c65983bdedddb133a7897d6410bb21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
