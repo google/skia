@@ -35,8 +35,10 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
-void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
+void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
+                                    GrTextBlobCache::PurgeMore purgeMore) {
     fCaps = std::move(caps);
+    fTextBlobCache.reset(new GrTextBlobCache(purgeMore, fContextID));
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
