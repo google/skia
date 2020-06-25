@@ -22,6 +22,30 @@
       "revId": "1507d717ea14d0ca200adaea7e0af8a89e3205c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7fe4391_fa66c55f",
+        "filename": "tools/viewer/GMSlide.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-25T12:53:46Z",
+      "side": 0,
+      "message": "GM::draw already contains a call to it. It actually looks like this code was originally copied from GMBench.cpp - which does need the drawBackground and drawContent calls to be separate.",
+      "parentUuid": "bdb38c4d_8f8fde6a",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 32
+      },
+      "revId": "1507d717ea14d0ca200adaea7e0af8a89e3205c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

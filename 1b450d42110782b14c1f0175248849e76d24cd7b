@@ -22,6 +22,30 @@
       "revId": "1b450d42110782b14c1f0175248849e76d24cd7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca784516_2ad85219",
+        "filename": "gm/gm.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-25T12:53:46Z",
+      "side": 1,
+      "message": "Updated. AFAICT dm \u0026 fm were fine the old way but nanobench and viewer need the new code.",
+      "parentUuid": "f90e65cd_b201055f",
+      "range": {
+        "startLine": 87,
+        "startChar": 9,
+        "endLine": 87,
+        "endChar": 24
+      },
+      "revId": "1b450d42110782b14c1f0175248849e76d24cd7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
