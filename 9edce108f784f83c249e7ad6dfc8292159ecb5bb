@@ -93,6 +93,30 @@
       "revId": "9edce108f784f83c249e7ad6dfc8292159ecb5bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f982d3b6_f9b18922",
+        "filename": "src/gpu/GrBackendSemaphore.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-25T15:39:54Z",
+      "side": 1,
+      "message": "Right but we only all assignD3DFenceInfo if that.fBackend is kDirect3D. If we are in the case where this-\u003efBacked is kDirect3D but that.fBackend is say kGL then we\u0027d still need to delete the fD3DFenceInfo from this.",
+      "parentUuid": "3c9fa8fa_b587b1ad",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 5
+      },
+      "revId": "9edce108f784f83c249e7ad6dfc8292159ecb5bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
