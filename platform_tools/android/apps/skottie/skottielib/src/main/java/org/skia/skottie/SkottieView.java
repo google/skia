@@ -8,9 +8,11 @@
 package org.skia.skottie;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.TextureView;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class SkottieView extends TextureView {
@@ -42,6 +44,16 @@ public class SkottieView extends TextureView {
     }
 
     public void setSource(InputStream inputStream) {
+        mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
+    }
+
+    public void setSkottieResource(int resId) {
+        InputStream inputStream = getResources().openRawResource(resId);
+        mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
+    }
+
+    public void setSkottieURI(Context context, Uri uri) throws FileNotFoundException {
+        InputStream inputStream = context.getContentResolver().openInputStream(uri);
         mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
     }
 
