@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69f63ed3_4e5bf234",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-25T17:52:21Z",
+      "side": 1,
+      "message": "This was a bug, but don\u0027t worry too much about it. This entire file is going to be redone once we get tessellation landed and have testing established.",
+      "range": {
+        "startLine": 291,
+        "startChar": 21,
+        "endLine": 291,
+        "endChar": 45
+      },
+      "revId": "672cdf7245da3be5a1f5c448982fba1021b647e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75cdcc75_f32d2352",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-25T17:52:21Z",
+      "side": 1,
+      "message": "This entire method is just scaffolding. Don\u0027t worry about it. It\u0027s going to be rewritten completely once GrStrokeGeometry is overhauled.",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 281,
+        "endChar": 0
+      },
+      "revId": "672cdf7245da3be5a1f5c448982fba1021b647e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
