@@ -285,8 +285,6 @@ bool GrDrawingManager::flush(
     GrOpFlushState flushState(gpu, resourceProvider, &fTokenTracker, fCpuBufferCache);
 
     GrOnFlushResourceProvider onFlushProvider(this);
-    // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
-    // stack here is to preserve the flush tokens.
 
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
