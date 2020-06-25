@@ -22,6 +22,30 @@
       "revId": "e0a9f2c5ba81fa98bb3acf3a887c0f414e34ace2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08d1d73b_ef9582b5",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1134,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-06-25T14:51:20Z",
+      "side": 1,
+      "message": "I like auto when doing template stuff, and I like it when I only had to name something because I need an intermediate sub result (like I didn\u0027t really even want to give the intermediate a name at all, but do to expression complexity or other reasons had to split things up).\n\nHere in particular I was trying to make it obvious what was an x coordinate (SkScalar), what was a UTF-8 offset (TextIndex), and what is some other kind of offset (int/size_t). I would love a language that made it easier to make opaque numeric types with the right operators based on category. Basically, a unit system to prevent adding unlike things (like utf16 and utf8 offsets or even trying to add a vertical offset to a horizontal offset without first coercing them to vectors). If we had things set up with strong opaque types that enforced units, the strong type system could prevent us from mixing things up. In that case I\u0027d be fine with auto. However, in this case we don\u0027t really have a strong type system, we\u0027re just doing math on a bunch if floats and ints without much regard to the units (and no enforcement from the type system).\n\nIndeed, here I\u0027m more changing the names to show the actual types (apps hungarian) so that it\u0027s easier to see where things are going strange. All the \u0027Pos\u0027 and \u0027Utf8Index\u0027 and the like would be much better off in a numeric type that enforced the units.",
+      "parentUuid": "c36f4e41_3f394677",
+      "range": {
+        "startLine": 1134,
+        "startChar": 16,
+        "endLine": 1134,
+        "endChar": 24
+      },
+      "revId": "e0a9f2c5ba81fa98bb3acf3a887c0f414e34ace2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
