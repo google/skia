@@ -188,9 +188,9 @@ class TeenyStrokesGM : public skiagm::GM {
         p.setStyle(SkPaint::kStroke_Style);
         p.setColor(color);
         canvas->translate(50, 0);
-	    canvas->save();
+        canvas->save();
         p.setStrokeWidth(scale * 5);
-	    canvas->scale(1 / scale, 1 / scale);
+        canvas->scale(1 / scale, 1 / scale);
         canvas->drawLine(20 * scale, 20 * scale, 20 * scale, 100 * scale, p);
         canvas->drawLine(20 * scale, 20 * scale, 100 * scale, 100 * scale, p);
         canvas->restore();
@@ -212,7 +212,7 @@ DEF_SIMPLE_GM(CubicStroke, canvas, 384, 384) {
     p.setAntiAlias(true);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(1.0720f);
-	SkPath path;
+    SkPath path;
     path.moveTo(-6000,-6000);
     path.cubicTo(-3500,5500,-500,5500,2500,-6500);
     canvas->drawPath(path, p);

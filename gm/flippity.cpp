@@ -172,6 +172,8 @@ public:
     }
 
 private:
+    bool runAsBench() const override { return true; }
+
     SkString onShortName() override {
         return SkString("flippity");
     }
