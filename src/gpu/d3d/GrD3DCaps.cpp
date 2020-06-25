@@ -34,8 +34,8 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     fOversizedStencilSupport = false; //TODO: figure this out
     fDrawInstancedSupport = true;
 
+    fSemaphoreSupport = true;
     // TODO: implement these
-    fSemaphoreSupport = false;
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = false;
