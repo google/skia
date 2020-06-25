@@ -16,6 +16,13 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/GrRRectEffect.h"
+#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/GrFillRRectOp.h"
+#include "src/gpu/ops/GrOvalOpFactory.h"
 #include "tools/ToolUtils.h"
 
 typedef void (*InsetProc)(const SkRRect&, SkScalar dx, SkScalar dy, SkRRect*);
@@ -176,3 +183,74 @@ private:
 };
 
 DEF_GM( return new RRectGM; )
+
+
+DEF_SIMPLE_GM(giant_rrect_clip_fill, canvas, 400, 400) {
+    SkRRect giant = SkRRect::MakeOval(SkRect::MakeIWH(1500, 1500));
+    canvas->clipRRect(giant, true);
+    canvas->clear(SK_ColorBLACK);
+}
+
+DEF_SIMPLE_GM(giant_rrect_clip_draw, canvas, 400, 400) {
+    SkRRect giant = SkRRect::MakeOval(SkRect::MakeIWH(1500, 1500));
+    canvas->clipRRect(giant, true);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    paint.setAntiAlias(true);
+    canvas->drawRRect(giant, paint);
+}
+
+DEF_SIMPLE_GM(giant_rrect_draw, canvas, 400, 400) {
+    SkRRect giant = SkRRect::MakeOval(SkRect::MakeIWH(1500, 1500));
+
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    paint.setAntiAlias(true);
+    canvas->drawRRect(giant, paint);
+}
+
+DEF_SIMPLE_GM(giant_rrect_scale_clip_fill, canvas, 400, 400) {
+    SkRRect notGiant = SkRRect::MakeOval(SkRect::MakeIWH(300, 300));
+    canvas->scale(5.0f, 5.0f);
+    canvas->clipRRect(notGiant, true);
+    canvas->clear(SK_ColorBLACK);
+}
+
+DEF_SIMPLE_GPU_GM_BG(
+        giant_rrect_gpu, context, rtc, canvas, 400, 400, SK_ColorBLACK) {
+    // 3 ways to draw a giant rrect, draw additively in R, G, B so should appear as a white rrect
+    // and any deviation in AA in the corners shows up as coloration.
+
+    SkRRect giant = SkRRect::MakeOval(SkRect::MakeIWH(1500, 1500));
+
+    // 1. GrOvalOpFactory
+    GrPaint p1;
+    p1.setColor4f({1.f, 0.f, 0.f, 0.5f});
+    p1.setPorterDuffXPFactory(SkBlendMode::kPlus);
+    std::unique_ptr<GrDrawOp> op1 = GrOvalOpFactory::MakeRRectOp(context, std::move(p1), SkMatrix::I(), giant, SkStrokeRec(SkStrokeRec::kFill_InitStyle), context->priv().caps()->shaderCaps());
+    if (op1) {
+        rtc->priv().testingOnly_addDrawOp(std::move(op1));
+    }
+
+    // 2. GrFillRRectOp
+    GrPaint p2;
+    p2.setColor4f({0.f, 1.f, 0.f, 0.5f});
+    p2.setPorterDuffXPFactory(SkBlendMode::kPlus);
+    std::unique_ptr<GrDrawOp> op2 = GrFillRRectOp::Make(context, std::move(p2), SkMatrix::I(), giant, GrAAType::kCoverage);
+    if (op2) {
+        rtc->priv().testingOnly_addDrawOp(std::move(op2));
+    }
+    // 3. GrRRectEffect
+    GrPaint p3;
+    p3.setColor4f({0.f, 0.f, 1.f, 0.5f});
+    p3.setPorterDuffXPFactory(SkBlendMode::kPlus);
+    auto [success, fp] = GrRRectEffect::Make(nullptr, GrClipEdgeType::kFillAA, giant, *context->priv().caps()->shaderCaps());
+    if (success) {
+        p3.addCoverageFragmentProcessor(std::move(fp));
+        std::unique_ptr<GrDrawOp> op3 = GrFillRectOp::MakeNonAARect(context, std::move(p3), SkMatrix::I(), giant.getBounds());
+        if (op3) {
+            rtc->priv().testingOnly_addDrawOp(std::move(op3));
+        }
+    }
+}

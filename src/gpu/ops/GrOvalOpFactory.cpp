@@ -28,6 +28,7 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 #include <utility>
+#include <iostream>
 
 namespace {
 
@@ -3251,6 +3252,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrRecordingContext* conte
         return nullptr;
     }
 
+    std::cout << "Using GrOvalOpFactory::MakeRRectOp to draw rrect in " << rrect.rect().width() << " x " << rrect.rect().height() << std::endl;
     return make_rrect_op(context, std::move(paint), viewMatrix, rrect, stroke);
 }
 
@@ -3295,6 +3297,9 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeCircleOp(GrRecordingContext* cont
                                            style.strokeRec().getWidth(), kStartAngle,
                                            angularOnInterval, angularOffInterval, phaseAngle);
     }
+
+    std::cout << "Using CircleOp to draw rrect in "  <<  oval.width() << " x " << oval.height() << std::endl;
+
     return CircleOp::Make(context, std::move(paint), viewMatrix, center, r, style);
 }
 
@@ -3308,6 +3313,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* contex
     SkScalar width = oval.width();
     if (width > SK_ScalarNearlyZero && SkScalarNearlyEqual(width, oval.height()) &&
         circle_stays_circle(viewMatrix)) {
+        std::cout << "Using GrOvalOpFactory::MakeCircle to draw rrect in " <<  oval.width() << " x " << oval.height() << std::endl;
         return MakeCircleOp(context, std::move(paint), viewMatrix, oval, style, shaderCaps);
     }
 
@@ -3315,8 +3321,10 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* contex
         return nullptr;
     }
 
+
     // prefer the device space ellipse op for batchability
     if (viewMatrix.rectStaysRect()) {
+        std::cout << "Using EllipseOp to draw rrect in " <<  oval.width() << " x " << oval.height() << std::endl;
         return EllipseOp::Make(context, std::move(paint), viewMatrix, oval, style.strokeRec());
     }
 
@@ -3328,6 +3336,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* contex
         SkScalar d = viewMatrix[SkMatrix::kMScaleY];
         // Check for near-degenerate matrix
         if (a*a + c*c > SK_ScalarNearlyZero && b*b + d*d > SK_ScalarNearlyZero) {
+            SkDebugf("Using DIEllipseOp to draw rrect in %.2f x %.2f\n", oval.width(), oval.height());
             return DIEllipseOp::Make(context, std::move(paint), viewMatrix, oval,
                                      style.strokeRec());
         }

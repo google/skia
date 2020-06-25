@@ -22,6 +22,8 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
+#include <iostream>
+
 namespace {
 
 class FillRRectOp : public GrMeshDrawOp {
@@ -176,6 +178,8 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
             flags |= ProcessorFlags::kUseHWDerivatives | ProcessorFlags::kHasPerspective;
         }
     }
+
+    std::cout << "Using GrFillRRectOp to draw rrect in " << rrect.rect().width() << " x " << rrect.rect().height() << std::endl;
 
     // Produce a matrix that draws the round rect from normalized [-1, -1, +1, +1] space.
     float l = rrect.rect().left(), r = rrect.rect().right(),

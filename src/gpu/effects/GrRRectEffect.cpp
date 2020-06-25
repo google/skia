@@ -18,6 +18,8 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
+#include <iostream>
+
 // The effects defined here only handle rrect radii >= kRadiusMin.
 static const SkScalar kRadiusMin = SK_ScalarHalf;
 
@@ -726,6 +728,8 @@ GrGLSLFragmentProcessor* EllipticalRRectEffect::onCreateGLSLInstance() const  {
 GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                GrClipEdgeType edgeType, const SkRRect& rrect,
                                const GrShaderCaps& caps) {
+    std::cout << "Using GrRRectEffect to clip rrect in " << rrect.rect().width() << " x " << rrect.rect().height() << std::endl;
+
     if (rrect.isRect()) {
         return GrConvexPolyEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
     }
