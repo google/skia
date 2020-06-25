@@ -69,4 +69,10 @@ void parse_fill_stroke(StreamReader* sr, Paint* node) {
 }
 
 } // namespace internal
+
+void Paint::onApply(SkPaint* paint) const {
+    paint->setAntiAlias(true);
+    paint->setStyle(this->style());
+}
+
 } // namespace skrive

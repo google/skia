@@ -126,7 +126,7 @@ void Artboard::render(SkCanvas* canvas) const {
 
     if (fRoot) {
         fRoot->revalidate();
-
+        fRoot->render(canvas);
     }
 }
 

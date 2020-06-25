@@ -70,6 +70,11 @@ public:
 
     void revalidate();
 
+    // probably not the right place
+    void render(SkCanvas* canvas) const {
+        this->onRender(canvas);
+    }
+
 protected:
     enum class Type : uint32_t {
         kNode,
@@ -85,6 +90,7 @@ protected:
     bool hasInval() const { return fDirty; }
 
     virtual void onRevalidate() = 0;
+    virtual void onRender(SkCanvas*) const;
 
 private:
     friend class Node; // parent access
@@ -108,8 +114,17 @@ public:
 protected:
     explicit TransformableComponent(Type t) : INHERITED(t) {}
 
-private:
+    class ScopedTransformContext final {
+    public:
+        ScopedTransformContext(const TransformableComponent*, SkCanvas*);
+        ~ScopedTransformContext();
 
+    private:
+        SkCanvas* fCanvas;
+        const int fRestoreCount;
+    };
+
+private:
     using INHERITED = Component;
 };
 
@@ -121,15 +136,93 @@ public:
 
     void addChild(sk_sp<Component>);
 
+    const std::vector<sk_sp<Component>>& children() const { return fChildren; }
+
 protected:
     explicit Node(Type t) : INHERITED(t) {}
+
+    void onRevalidate() override;
+
+    void onRender(SkCanvas*) const override;
+
+private:
+    std::vector<sk_sp<Component>> fChildren;
+
+    using INHERITED = TransformableComponent;
+};
+
+class Paint : public Component {
+public:
+    ACTOR_ATTR(Opacity    , float         , 1                         )
+    ACTOR_ATTR(FillRule   , SkPathFillType, SkPathFillType::kWinding  )
+    ACTOR_ATTR(StrokeWidth, float         , 1                         )
+    ACTOR_ATTR(StrokeCap  , SkPaint::Cap  , SkPaint::Cap::kButt_Cap   )
+    ACTOR_ATTR(StrokeJoin , SkPaint::Join , SkPaint::Join::kMiter_Join)
+
+    enum class StrokeTrim : uint8_t { kOff, kSequential, kSynced };
+    ACTOR_ATTR(StrokeTrim      , StrokeTrim, StrokeTrim::kOff)
+    ACTOR_ATTR(StrokeTrimStart , float     , 0)
+    ACTOR_ATTR(StrokeTrimEnd   , float     , 0)
+    ACTOR_ATTR(StrokeTrimOffset, float     , 0)
+
+    void apply(SkPaint* paint) const {
+        this->onApply(paint);
+    }
+
+    SkPaint::Style style() const { return fStyle; }
+
+protected:
+    Paint(Type t, SkPaint::Style style) : INHERITED(t), fStyle(style) {}
+
+    virtual void onApply(SkPaint*) const;
+
+private:
+    const SkPaint::Style fStyle;
+
+    using INHERITED = Component;
+};
+
+class ColorPaint final : public Paint {
+public:
+    explicit ColorPaint(SkPaint::Style style) : INHERITED(Type::kColorPaint, style) {}
+
+    ACTOR_ATTR(Color, SkColor4f, SkColors::kBlack)
 
 private:
     void onRevalidate() override;
 
-    std::vector<sk_sp<Component>> fChildren;
+    void onApply(SkPaint*) const override;
 
+    using INHERITED = Paint;
+};
+
+class Geometry : public TransformableComponent {
+public:
+    void draw(SkCanvas* canvas, const SkPaint& paint, SkPathFillType ftype) const {
+        return this->onDraw(canvas, paint, ftype);
+    }
+
+protected:
+    explicit Geometry(Type t) : INHERITED(t) {}
+
+    virtual void onDraw(SkCanvas*, const SkPaint&, SkPathFillType) const = 0;
+
+private:
     using INHERITED = TransformableComponent;
+};
+
+class Ellipse final : public Geometry {
+public:
+    Ellipse() : INHERITED(Type::kEllipse) {}
+
+    ACTOR_ATTR(Width , float, 0)
+    ACTOR_ATTR(Height, float, 0)
+
+private:
+    void onRevalidate() override;
+    void onDraw(SkCanvas*, const SkPaint&, SkPathFillType) const override;
+
+    using INHERITED = Geometry;
 };
 
 class Drawable : public Node {
@@ -153,72 +246,16 @@ public:
 
 private:
     void onRevalidate() override;
+    void onRender(SkCanvas*) const override;
+
+    // cached on revalidation
+    // tracked separately due to paint order (all fills before strokes)
+    std::vector<const Paint*>    fFills,
+                                 fStrokes;
+
+    std::vector<const Geometry*> fGeometries;
 
     using INHERITED = Drawable;
-};
-
-class Paint : public Component {
-public:
-    ACTOR_ATTR(Opacity    , float         , 1                         )
-    ACTOR_ATTR(FillRule   , SkPathFillType, SkPathFillType::kWinding  )
-    ACTOR_ATTR(StrokeWidth, float         , 1                         )
-    ACTOR_ATTR(StrokeCap  , SkPaint::Cap  , SkPaint::Cap::kButt_Cap   )
-    ACTOR_ATTR(StrokeJoin , SkPaint::Join , SkPaint::Join::kMiter_Join)
-
-    enum class StrokeTrim : uint8_t { kOff, kSequential, kSynced };
-    ACTOR_ATTR(StrokeTrim      , StrokeTrim, StrokeTrim::kOff)
-    ACTOR_ATTR(StrokeTrimStart , float     , 0)
-    ACTOR_ATTR(StrokeTrimEnd   , float     , 0)
-    ACTOR_ATTR(StrokeTrimOffset, float     , 0)
-
-    void apply(SkPaint*) const;
-
-    SkPaint::Style style() const { return fStyle; }
-
-protected:
-    Paint(Type t, SkPaint::Style style) : INHERITED(t), fStyle(style) {}
-
-    virtual void onApply(SkPaint*) const = 0;
-
-private:
-    const SkPaint::Style fStyle;
-
-    using INHERITED = Component;
-};
-
-class ColorPaint final : public Paint {
-public:
-    explicit ColorPaint(SkPaint::Style style) : INHERITED(Type::kColorPaint, style) {}
-
-    ACTOR_ATTR(Color, SkColor4f, SkColors::kBlack)
-
-private:
-    void onRevalidate() override;
-
-    void onApply(SkPaint*) const override;
-
-    using INHERITED = Paint;
-};
-
-class Geometry : public TransformableComponent {
-protected:
-    explicit Geometry(Type t) : INHERITED(t) {}
-
-private:
-    using INHERITED = TransformableComponent;
-};
-
-class Ellipse final : public Geometry {
-public:
-    Ellipse() : INHERITED(Type::kEllipse) {}
-
-    ACTOR_ATTR(Width , float, 0)
-    ACTOR_ATTR(Height, float, 0)
-
-private:
-    void onRevalidate() override;
-
-    using INHERITED = Geometry;
 };
 
 template <typename T>

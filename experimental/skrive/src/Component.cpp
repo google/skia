@@ -8,6 +8,7 @@
 #include "experimental/skrive/include/SkRive.h"
 
 #include "experimental/skrive/src/reader/StreamReader.h"
+#include "include/core/SkCanvas.h"
 
 namespace skrive {
 namespace internal {
@@ -54,6 +55,30 @@ void Component::revalidate() {
         this->onRevalidate();
         fDirty = false;
     }
+}
+
+void Component::onRender(SkCanvas*) const {}
+
+TransformableComponent::ScopedTransformContext::
+ScopedTransformContext(const TransformableComponent* node, SkCanvas* canvas)
+    : fCanvas(canvas)
+    , fRestoreCount(canvas->getSaveCount()) {
+    const auto lm = SkMatrix::Translate(node->getTranslation().x, node->getTranslation().y) *
+                    SkMatrix::RotateDeg(node->getRotation()                               ) *
+                    SkMatrix::Scale    (node->getScale().x      , node->getScale().y      );
+
+    if (node->getOpacity() < 1) {
+        SkPaint layer_paint;
+        layer_paint.setAlphaf(node->getOpacity());
+        canvas->saveLayer(nullptr, &layer_paint);
+    } else if (!lm.isIdentity()) {
+        canvas->save();
+    }
+    canvas->concat(lm);
+}
+
+TransformableComponent::ScopedTransformContext::~ScopedTransformContext() {
+    fCanvas->restoreToCount(this->fRestoreCount);
 }
 
 } // namespace skrive
