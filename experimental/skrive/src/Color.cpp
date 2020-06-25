@@ -33,6 +33,9 @@ size_t parse_node<ColorPaint>(StreamReader* sr, ColorPaint* node) {
 
 void ColorPaint::onRevalidate() {}
 
-void ColorPaint::onApply(SkPaint* paint) const {}
+void ColorPaint::onApply(SkPaint* paint) const {
+    this->INHERITED::onApply(paint);
+    paint->setColor4f(fColor);
+}
 
 } // namespace skrive
