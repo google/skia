@@ -185,8 +185,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             colorPipeline, alloc, dst.colorType(), dst.colorSpace(), paint, nullptr, matrixProvider
         };
         as_CFB(colorFilter)->appendStages(rec, is_opaque);
-        is_opaque = is_opaque
-                 && (as_CFB(colorFilter)->getFlags() & SkColorFilterBase::kAlphaUnchanged_Flag);
+        is_opaque = is_opaque && as_CFB(colorFilter)->isAlphaUnchanged();
     }
 
 #if defined(SK_LATE_DITHER)

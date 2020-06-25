@@ -15,7 +15,7 @@
 
 static bool changes_alpha(const SkPaint& paint) {
     SkColorFilter* cf = paint.getColorFilter();
-    return cf && !(as_CFB(cf)->getFlags() & SkColorFilterBase::kAlphaUnchanged_Flag);
+    return cf && !as_CFB(cf)->isAlphaUnchanged();
 }
 
 bool SkPaintPriv::Overwrites(const SkPaint* paint, ShaderOverrideOpacity overrideOpacity) {
