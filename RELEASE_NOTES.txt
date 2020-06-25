@@ -6,6 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 86
 ------------
+  * Remove obsolete GrFlushFlags.
+    https://review.skia.org/298818
+
 
   * Adds default flush() calls to SkSurface, SkImage, and GrContext. These calls do
     a basic flush without a submit. If you haven't updated Skia in a couple release
