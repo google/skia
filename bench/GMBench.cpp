@@ -8,6 +8,8 @@
 #include "bench/GMBench.h"
 
 GMBench::GMBench(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
+    fGM->setMode(skiagm::GM::kBench_Mode);
+
     fName.printf("GM_%s", fGM->getName());
 }
 
@@ -19,13 +21,15 @@ bool GMBench::isSuitableFor(Backend backend) {
     return kNonRendering_Backend != backend;
 }
 
+void GMBench::onPerCanvasPreDraw(SkCanvas* canvas) {
+    fGM->onceBeforeDraw();
+}
+
+void GMBench::onPerCanvasPostDraw(SkCanvas*) {}
+
 void GMBench::onDraw(int loops, SkCanvas* canvas) {
-    fGM->setMode(skiagm::GM::kBench_Mode);
-    // Do we care about timing the draw of the background (once)?
-    // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);
     for (int i = 0; i < loops; ++i) {
-        SkAutoCanvasRestore acr(canvas, true);
         fGM->drawContent(canvas);
     }
 }
