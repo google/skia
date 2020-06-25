@@ -110,7 +110,11 @@ namespace skiagm {
 
         static constexpr char kErrorMsg_DrawSkippedGpuOnly[] = "This test is for GPU configs only.";
 
-        DrawResult gpuSetup(GrContext*, SkString* errorMsg);
+        DrawResult gpuSetup(GrContext* context, SkCanvas* canvas) {
+            SkString errorMsg;
+            return this->gpuSetup(context, canvas, &errorMsg);
+        }
+        DrawResult gpuSetup(GrContext*, SkCanvas*, SkString* errorMsg);
         void gpuTeardown();
 
         void onceBeforeDraw() {
@@ -177,10 +181,12 @@ namespace skiagm {
         virtual void onSetControls(const SkMetaData&);
 
     private:
-        Mode     fMode;
-        SkString fShortName;
-        SkColor  fBGColor;
-        bool     fHaveCalledOnceBeforeDraw = false;
+        Mode       fMode;
+        SkString   fShortName;
+        SkColor    fBGColor;
+        bool       fHaveCalledOnceBeforeDraw = false;
+        bool       fGpuSetup = false;
+        DrawResult fGpuSetupResult = DrawResult::kOk;
     };
 
     using GMFactory = std::unique_ptr<skiagm::GM> (*)();
