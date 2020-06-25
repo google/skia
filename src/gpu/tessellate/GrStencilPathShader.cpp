@@ -14,7 +14,7 @@
 // Wang's formula for cubics (1985) gives us the number of evenly spaced (in the
 // parametric sense) line segments that are guaranteed to be within a distance of
 // "MAX_LINEARIZATION_ERROR" from the actual curve.
-constexpr char kWangsFormulaCubicFn[] = R"(
+constexpr static char kWangsFormulaCubicFn[] = R"(
         #define MAX_LINEARIZATION_ERROR 0.25  // 1/4 pixel
         float wangs_formula_cubic(vec2 p0, vec2 p1, vec2 p2, vec2 p3) {
             float k = (3.0 * 2.0) / (8.0 * MAX_LINEARIZATION_ERROR);
@@ -24,7 +24,7 @@ constexpr char kWangsFormulaCubicFn[] = R"(
         })";
 
 // Evaluate our point of interest using numerically stable mix() operations.
-constexpr char kEvalCubicFn[] = R"(
+constexpr static char kEvalCubicFn[] = R"(
         vec2 eval_cubic(mat4x2 P, float T) {
             vec2 ab = mix(P[0], P[1], T);
             vec2 bc = mix(P[1], P[2], T);
@@ -225,6 +225,8 @@ SkString GrTessellateWedgeShader::getTessEvaluationShaderGLSL(
 
     return code;
 }
+
+constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMiddleOutIndexBufferKey);
 
