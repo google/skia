@@ -23,6 +23,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkTo.h"
+#include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkNullCanvas.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPicturePriv.h"
@@ -1016,7 +1017,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
         SkPaint paint;
         SkFont font;
         unsigned drawCommand;
-        fuzz->nextRange(&drawCommand, 0, 53);
+        fuzz->nextRange(&drawCommand, 0, 58);
         switch (drawCommand) {
             case 0:
                 canvas->flush();
@@ -1488,6 +1489,37 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                                      blendMode, paint);
                 break;
             }
+            case 54: {
+                SkColor color;
+                fuzz->next(&color);
+                canvas->drawColor(color);
+                break;
+            }
+            case 55: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkPoint p0, p1;
+                fuzz->next(&p0, &p1);
+                canvas->drawLine(p0, p1, paint);
+            }
+            case 56: {
+                // check if case 25 need to be deleted canvas->drawRect()
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkIRect r;
+                fuzz->next(&r);
+                canvas->drawIRect(r, paint);
+                break;
+            }
+            case 57: {
+                fuzz_paint(fuzz, &paint, depth - 1);
+                SkScalar radius;
+                SkPoint center;
+                fuzz->next(&radius, &center);
+                canvas->drawCircle(center, radius, paint);
+                break;
+            }
+            case 58: {
+                break;
+            }
             default:
                 SkASSERT(false);
                 break;
@@ -1672,4 +1704,13 @@ DEF_FUZZ(_DumpCanvas, fuzz) {
     writer.flush();
     sk_sp<SkData> json = stream.detachAsData();
     fwrite(json->data(), json->size(), 1, stdout);
+}
+
+DEF_FUZZ(SVGCanvas, fuzz) {
+
+    SkNullWStream stream;
+    SkRect bounds = SkRect::MakeIWH(150, 150);
+    std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, &stream);
+
+    fuzz_canvas(fuzz, canvas.get());
 }
