@@ -17,19 +17,11 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
     this->onSetData(pdman, processor);
 }
 
-SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
-                                              EmitArgs& args, SkSL::String skslCoords) {
+void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     while (childIndex >= (int) fFunctionNames.size()) {
         fFunctionNames.emplace_back();
     }
-
-    if (skslCoords.empty()) {
-        // Empty coords means passing through the coords of the parent
-        skslCoords = args.fSampleCoord;
-    }
-
-    const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
 
     // Emit the child's helper function if this is the first time we've seen a call
     if (fFunctionNames[childIndex].size() == 0) {
@@ -39,7 +31,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
         EmitArgs childArgs(fragBuilder,
                            args.fUniformHandler,
                            args.fShaderCaps,
-                           childProc,
+                           args.fFp.childProcessor(childIndex),
                            "_output",
                            "_input",
                            "_coords",
@@ -48,6 +40,18 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
         fFunctionNames[childIndex] =
                 fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
     }
+}
+
+SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
+                                              EmitArgs& args, SkSL::String skslCoords) {
+    this->emitChildFunction(childIndex, args);
+
+    if (skslCoords.empty()) {
+        // Empty coords means passing through the coords of the parent
+        skslCoords = args.fSampleCoord;
+    }
+
+    const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
 
     if (childProc.isSampledWithExplicitCoords()) {
         // The child's function takes a half4 color and a float2 coordinate
@@ -69,30 +73,9 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
 SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const char* inputColor,
                                                         EmitArgs& args,
                                                         SkSL::String skslMatrix) {
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    while (childIndex >= (int) fFunctionNames.size()) {
-        fFunctionNames.emplace_back();
-    }
+    this->emitChildFunction(childIndex, args);
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
-
-    // Emit the child's helper function if this is the first time we've seen a call
-    if (fFunctionNames[childIndex].size() == 0) {
-        TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
-        TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
-
-        EmitArgs childArgs(fragBuilder,
-                           args.fUniformHandler,
-                           args.fShaderCaps,
-                           childProc,
-                           "_output",
-                           "_input",
-                           "_coords",
-                           coordVars,
-                           textureSamplers);
-        fFunctionNames[childIndex] =
-                fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
-    }
 
     // Since this is const/uniform, the provided sksl expression should exactly match the
     // expression stored on the FP, or it should match the mangled uniform name.
@@ -131,13 +114,12 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
         // Only check perspective for this specific matrix transform, not the aggregate FP property.
         // Any parent perspective will have already been applied when evaluated in the FS.
         if (childProc.sampleMatrix().fHasPerspective) {
-            SkString coords3 = fragBuilder->newTmpVarName("coords3");
-            fragBuilder->codeAppendf("float3 %s = (%s) * %s.xy1;\n",
-                                     coords3.c_str(), skslMatrix.c_str(), args.fSampleCoord);
-            return SkStringPrintf("%s(%s, %s.xy / %s.z)",
-                                  fFunctionNames[childIndex].c_str(),
-                                  inputColor ? inputColor : "half4(1)",
-                                  coords3.c_str(), coords3.c_str());
+            SkString coords3 = args.fFragBuilder->newTmpVarName("coords3");
+            args.fFragBuilder->codeAppendf("float3 %s = (%s) * %s.xy1;\n",
+                                           coords3.c_str(), skslMatrix.c_str(), args.fSampleCoord);
+            return SkStringPrintf("%s(%s, %s.xy / %s.z)", fFunctionNames[childIndex].c_str(),
+                                  inputColor ? inputColor : "half4(1)", coords3.c_str(),
+                                  coords3.c_str());
         } else {
             return SkStringPrintf("%s(%s, ((%s) * %s.xy1).xy)",
                                   fFunctionNames[childIndex].c_str(),

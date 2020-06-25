@@ -140,6 +140,8 @@ public:
 
     GrGLSLFragmentProcessor* childProcessor(int index) const { return fChildProcessors[index]; }
 
+    void emitChildFunction(int childIndex, EmitArgs& parentArgs);
+
     // Invoke the child with the default input color (solid white)
     inline SkString invokeChild(int childIndex, EmitArgs& parentArgs,
                                 SkSL::String skslCoords = "") {
