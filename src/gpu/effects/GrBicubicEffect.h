@@ -19,6 +19,11 @@ public:
                              // surrounding texels are needed by the kernel in x and y.
     };
 
+    enum class Kernel {
+        kMitchell,
+        kCatmullRom,
+    };
+
     enum class Direction {
         /** Apply bicubic kernel in local coord x, nearest neighbor in y. */
         kX,
@@ -35,26 +40,28 @@ public:
     }
 
     /**
-     * Create a Mitchell filter effect with specified texture matrix with clamp wrap mode.
+     * Create a bicubic filter effect with specified texture matrix with clamp wrap mode.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      SkAlphaType,
                                                      const SkMatrix&,
-                                                     Direction direction);
+                                                     Kernel,
+                                                     Direction);
 
     /**
-     * Create a Mitchell filter effect for a texture with arbitrary wrap modes.
+     * Create a bicubic filter effect for a texture with arbitrary wrap modes.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      SkAlphaType,
                                                      const SkMatrix&,
                                                      const GrSamplerState::WrapMode wrapX,
                                                      const GrSamplerState::WrapMode wrapY,
+                                                     Kernel,
                                                      Direction,
                                                      const GrCaps&);
 
     /**
-     * Create a Mitchell filter effect for a subset of a texture, specified by a texture coordinate
+     * Create a bicubic filter effect for a subset of a texture, specified by a texture coordinate
      * rectangle subset. The WrapModes apply to the subset.
      */
     static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView view,
@@ -63,16 +70,18 @@ public:
                                                            const GrSamplerState::WrapMode wrapX,
                                                            const GrSamplerState::WrapMode wrapY,
                                                            const SkRect& subset,
+                                                           Kernel,
                                                            Direction,
                                                            const GrCaps&);
 
     /**
-     * Make a Mitchell filter of a another fragment processor. The bicubic filter assumes that the
+     * Make a bicubic filter of a another fragment processor. The bicubic filter assumes that the
      * discrete samples of the provided processor are at half-integer coords.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>,
                                                      SkAlphaType,
                                                      const SkMatrix&,
+                                                     Kernel,
                                                      Direction);
 
     /**
@@ -93,7 +102,11 @@ private:
         kPremul,    // clamps a to 0..1 and rgb to 0..a
     };
 
-    GrBicubicEffect(std::unique_ptr<GrFragmentProcessor>, const SkMatrix&, Direction, Clamp);
+    GrBicubicEffect(std::unique_ptr<GrFragmentProcessor>,
+                    const SkMatrix&,
+                    Kernel,
+                    Direction,
+                    Clamp);
 
     explicit GrBicubicEffect(const GrBicubicEffect&);
 
@@ -106,6 +119,7 @@ private:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
     GrCoordTransform fCoordTransform;
+    Kernel fKernel;
     Direction fDirection;
     Clamp fClamp;
 

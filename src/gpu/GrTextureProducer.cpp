@@ -153,15 +153,15 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
         return GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, textureMatrix,
                                            samplerState, domain, caps);
     } else {
-
-        static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
+        static constexpr auto kDir    = GrBicubicEffect::Direction::kXY;
+        static constexpr auto kKernel = GrBicubicEffect::Kernel::kMitchell;
         const auto& caps = *fContext->priv().caps();
         if (kDomain_DomainMode == domainMode) {
             return GrBicubicEffect::MakeSubset(std::move(view), srcAlphaType, textureMatrix, wrapX,
-                                               wrapY, domain, kDir, caps);
+                                               wrapY, domain, kKernel, kDir, caps);
         } else {
             return GrBicubicEffect::Make(std::move(view), srcAlphaType, textureMatrix, wrapX, wrapY,
-                                         kDir, caps);
+                                         kKernel, kDir, caps);
         }
     }
 }
