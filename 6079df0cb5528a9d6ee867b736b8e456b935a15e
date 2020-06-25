@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54c53f67_adfd4b47",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-25T22:52:24Z",
+      "side": 1,
+      "message": "Had this been a bug before? and we just never passed a non-clamp wrap mode through this YUVAImageTextureMaker",
+      "range": {
+        "startLine": 97,
+        "startChar": 27,
+        "endLine": 97,
+        "endChar": 47
+      },
+      "revId": "6079df0cb5528a9d6ee867b736b8e456b935a15e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30145902_68a65159",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-25T22:52:24Z",
+      "side": 1,
+      "message": "what about using placement new into a stack allocated byte array that\u0027s large enough to hold these 4 types? Since we only ever need the one instance.",
+      "range": {
+        "startLine": 218,
+        "startChar": 4,
+        "endLine": 221,
+        "endChar": 46
+      },
+      "revId": "6079df0cb5528a9d6ee867b736b8e456b935a15e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
