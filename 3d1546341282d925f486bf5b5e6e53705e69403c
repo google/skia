@@ -46,6 +46,30 @@
       "revId": "3d1546341282d925f486bf5b5e6e53705e69403c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad619e4d_a6b02f59",
+        "filename": "modules/skparagraph/src/ParagraphUtil.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T13:40:14Z",
+      "side": 1,
+      "message": "Thanks. Not asking for a change per-se, just curious.",
+      "parentUuid": "bc572241_d3fe5c0f",
+      "range": {
+        "startLine": 41,
+        "startChar": 11,
+        "endLine": 41,
+        "endChar": 20
+      },
+      "revId": "3d1546341282d925f486bf5b5e6e53705e69403c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
