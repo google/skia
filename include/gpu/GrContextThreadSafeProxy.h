@@ -18,6 +18,7 @@
 class GrBackendFormat;
 class GrCaps;
 class GrContextThreadSafeProxyPriv;
+class GrTextBlobCache;
 class SkSurfaceCharacterization;
 class SkSurfaceProps;
 
@@ -106,13 +107,14 @@ private:
     // TODO: This should be part of the constructor but right now we have a chicken-and-egg problem
     // with GrContext where we get the caps by creating a GPU which requires a context (see the
     // `init` method on GrContext_Base).
-    void init(sk_sp<const GrCaps>);
+    void init(sk_sp<const GrCaps>, std::function<void()>);
 
-    const GrBackendApi          fBackend;
-    const GrContextOptions      fOptions;
-    const uint32_t              fContextID;
-    sk_sp<const GrCaps>         fCaps;
-    std::atomic<bool>           fAbandoned{false};
+    const GrBackendApi               fBackend;
+    const GrContextOptions           fOptions;
+    const uint32_t                   fContextID;
+    sk_sp<const GrCaps>              fCaps;
+    std::unique_ptr<GrTextBlobCache> fTextBlobCache;
+    std::atomic<bool>                fAbandoned{false};
 };
 
 #endif
