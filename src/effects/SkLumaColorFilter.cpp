@@ -23,9 +23,10 @@
 class SkLumaColorFilterImpl : public SkColorFilterBase {
 public:
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override {
-        return GrLumaColorFilterEffect::Make(/*inputFP=*/nullptr);
+    bool colorFilterAcceptsInputFP() const override { return true; }
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext*, const GrColorInfo&) const override {
+        return GrFPSuccess(GrLumaColorFilterEffect::Make(std::move(inputFP)));
     }
 #endif
 
