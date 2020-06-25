@@ -132,7 +132,7 @@ static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
     source->tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); };
     source->draw  = [gm](SkCanvas* canvas) {
         SkString err;
-        switch (gm->gpuSetup(canvas->getGrContext(), &err)) {
+        switch (gm->gpuSetup(canvas->getGrContext(), canvas, &err)) {
             case skiagm::DrawResult::kOk  : break;
             case skiagm::DrawResult::kSkip: return skip;
             case skiagm::DrawResult::kFail: return fail(err.c_str());
