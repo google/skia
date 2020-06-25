@@ -37,9 +37,9 @@ public:
 float prevRadius = %f;
 half d;
 @if (%d == 2 || %d == 3) {
-    d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);
+    d = half((length(%s.xy * %s.w - sk_FragCoord.xy * %s.w) - 1.0) * %s.z);
 } else {
-    d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);
+    d = half((1.0 - length(%s.xy * %s.w - sk_FragCoord.xy * %s.w)) * %s.z);
 })SkSL",
                 prevRadius, (int)_outer.edgeType, (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(circleVar),
@@ -47,13 +47,15 @@ half d;
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
+                args.fUniformHandler->getUniformCStr(circleVar),
+                args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar));
-        SkString _input2509(args.fInputColor);
-        SkString _sample2509;
+        SkString _input2526(args.fInputColor);
+        SkString _sample2526;
         if (_outer.inputFP_index >= 0) {
-            _sample2509 = this->invokeChild(_outer.inputFP_index, _input2509.c_str(), args);
+            _sample2526 = this->invokeChild(_outer.inputFP_index, _input2526.c_str(), args);
         } else {
-            _sample2509.swap(_input2509);
+            _sample2526.swap(_input2526);
         }
         fragBuilder->codeAppendf(
                 R"SkSL(
@@ -64,7 +66,7 @@ half4 inputColor = %s;
     %s = d > 0.5 ? inputColor : half4(0.0);
 }
 )SkSL",
-                _sample2509.c_str(), (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor,
+                _sample2526.c_str(), (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor,
                 args.fOutputColor);
     }
 

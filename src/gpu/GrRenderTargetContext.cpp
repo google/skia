@@ -680,25 +680,6 @@ enum class GrRenderTargetContext::QuadOptimization {
     kCropped
 };
 
-static bool make_vertex_finite(float* value) {
-    if (SkScalarIsNaN(*value)) {
-        return false;
-    }
-
-    if (!SkScalarIsFinite(*value)) {
-        // +/- infinity at this point. Don't use exactly SK_ScalarMax so that we have some precision
-        // left when calculating crops.
-        static constexpr float kNearInfinity = SK_ScalarMax / 4.f;
-        *value = *value < 0.f ? -kNearInfinity : kNearInfinity;
-    }
-
-    return true;
-}
-
-static SkIRect get_clip_bounds(const GrRenderTargetContext* rtc, const GrClip* clip) {
-    return clip ? clip->getConservativeBounds() : SkIRect::MakeWH(rtc->width(), rtc->height());
-}
-
 GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimization(
         const GrClip* clip, const SkPMColor4f* constColor,
         const GrUserStencilSettings* stencilSettings, GrAA* aa, DrawQuad* quad) {
@@ -719,132 +700,108 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     SkRect rtRect = this->asSurfaceProxy()->getBoundsRect();
 
     SkRect drawBounds = quad->fDevice.bounds();
-    if (constColor) {
-        // If the device quad is not finite, coerce into a finite quad. This is acceptable since it
-        // will be cropped to the finite 'clip' or render target and there is no local space mapping
-        if (!quad->fDevice.isFinite()) {
-            for (int i = 0; i < 4; ++i) {
-                if (!make_vertex_finite(quad->fDevice.xs() + i) ||
-                    !make_vertex_finite(quad->fDevice.ys() + i) ||
-                    !make_vertex_finite(quad->fDevice.ws() + i)) {
-                    // Discard if we see a nan
-                    return QuadOptimization::kDiscarded;
-                }
-            }
-            SkASSERT(quad->fDevice.isFinite());
-        }
-    } else {
-        // CropToRect requires the quads to be finite. If they are not finite and we have local
-        // coordinates, the mapping from local space to device space is poorly defined so drop it
-        if (!quad->fDevice.isFinite()) {
-            return QuadOptimization::kDiscarded;
-        }
-    }
-
-    // If the quad is entirely off screen, it doesn't matter what the clip does
-    if (!rtRect.intersects(drawBounds)) {
+    if (!quad->fDevice.isFinite() || drawBounds.isEmpty() ||
+        GrClip::IsOutsideClip(rtRect, drawBounds)) {
         return QuadOptimization::kDiscarded;
     }
-
-    // Check if clip can be represented as a rounded rect (initialize as if clip fully contained
-    // the render target).
-    SkRRect clipRRect = SkRRect::MakeRect(rtRect);
-    // We initialize clipAA to *aa when there are stencil settings so that we don't artificially
-    // encounter mixed-aa edges (not allowed for stencil), but we want to start as non-AA for
-    // regular draws so that if we fully cover the render target, that can stop being anti-aliased.
-    GrAA clipAA = stencilSettings ? *aa : GrAA::kNo;
-    bool axisAlignedClip = true;
-    if (clip && !clip->quickContains(rtRect)) {
-        if (!clip->isRRect(&clipRRect, &clipAA)) {
-            axisAlignedClip = false;
+    auto conservativeCrop = [&]() {
+        static constexpr int kLargeDrawLimit = 15000;
+        // Crop the quad to the render target. This doesn't change the visual results of drawing but
+        // is meant to help numerical stability for excessively large draws.
+        if (drawBounds.width() > kLargeDrawLimit || drawBounds.height() > kLargeDrawLimit) {
+            GrQuadUtils::CropToRect(rtRect, *aa, quad, /* compute local */ !constColor);
+            SkASSERT(quad->fEdgeFlags == oldFlags);
         }
-    }
+    };
 
-    // If the clip rrect is valid (i.e. axis-aligned), we can potentially combine it with the
-    // draw geometry so that no clip is needed when drawing.
-    if (axisAlignedClip && (!stencilSettings || clipAA == *aa)) {
-        // Tighten clip bounds (if clipRRect.isRect() is true, clipBounds now holds the intersection
-        // of the render target and the clip rect)
-        SkRect clipBounds = rtRect;
-        if (!clipBounds.intersect(clipRRect.rect()) || !clipBounds.intersects(drawBounds)) {
+    bool simpleColor = !stencilSettings && constColor;
+    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds)
+                                        : GrClip::PreClipResult(GrClip::Effect::kUnclipped);
+    switch(result.fEffect) {
+        case GrClip::Effect::kClippedOut:
             return QuadOptimization::kDiscarded;
-        }
-
-        if (clipRRect.isRect()) {
-            // No rounded corners, so the kClear and kExplicitClip optimizations are possible
-            if (GrQuadUtils::CropToRect(clipBounds, clipAA, quad, /*compute local*/ !constColor)) {
-                if (!stencilSettings && constColor &&
-                    quad->fDevice.quadType() == GrQuad::Type::kAxisAligned) {
-                    // Clear optimization is possible
-                    drawBounds = quad->fDevice.bounds();
-                    if (drawBounds.contains(rtRect)) {
-                        // Fullscreen clear
-                        this->clear(*constColor);
-                        return QuadOptimization::kSubmitted;
-                    } else if (GrClip::IsPixelAligned(drawBounds) &&
-                               drawBounds.width() > 256 && drawBounds.height() > 256) {
-                        // Scissor + clear (round shouldn't do anything since we are pixel aligned)
-                        SkIRect scissorRect;
-                        drawBounds.round(&scissorRect);
-                        this->clear(scissorRect, *constColor);
-                        return QuadOptimization::kSubmitted;
-                    }
-                }
-
-                // Update overall AA setting.
-                if (*aa == GrAA::kNo && clipAA == GrAA::kYes &&
-                    quad->fEdgeFlags != GrQuadAAFlags::kNone) {
-                    // The clip was anti-aliased and now the draw needs to be upgraded to AA to
-                    // properly reflect the smooth edge of the clip.
-                    *aa = GrAA::kYes;
-                }
-                // We intentionally do not downgrade AA here because we don't know if we need to
-                // preserve MSAA (see GrQuadAAFlags docs). But later in the pipeline, the ops can
-                // use GrResolveAATypeForQuad() to turn off coverage AA when all flags are off.
-
-                // deviceQuad is exactly the intersection of original quad and clip, so it can be
-                // drawn with no clip (submitted by caller)
+        case GrClip::Effect::kUnclipped:
+            if (!simpleColor) {
+                conservativeCrop();
                 return QuadOptimization::kClipApplied;
             } else {
-                // The quads have been updated to better fit the clip bounds, but can't get rid of
-                // the clip entirely
-                quad->fEdgeFlags = oldFlags;
-                return QuadOptimization::kCropped;
+                // Update result to store the render target bounds in order and then fall
+                // through to attempt the draw->native clear optimization
+                result = GrClip::PreClipResult(SkRRect::MakeRect(rtRect), *aa);
             }
-        } else if (!stencilSettings && constColor) {
-            // Rounded corners and constant filled color (limit ourselves to solid colors because
-            // there is no way to use custom local coordinates with drawRRect).
-            if (GrQuadUtils::CropToRect(clipBounds, clipAA, quad, /* compute local */ false) &&
-                quad->fDevice.quadType() == GrQuad::Type::kAxisAligned &&
-                quad->fDevice.bounds().contains(clipBounds)) {
-                // Since the cropped quad became a rectangle which covered the bounds of the rrect,
-                // we can draw the rrect directly and ignore the edge flags
-                GrPaint paint;
-                clear_to_grpaint(*constColor, &paint);
-                this->drawRRect(nullptr, std::move(paint), clipAA, SkMatrix::I(),
-                                clipRRect, GrStyle::SimpleFill());
-                return QuadOptimization::kSubmitted;
-            } else {
-                // The quad has been updated to better fit clip bounds, but can't remove the clip
-                quad->fEdgeFlags = oldFlags;
+            break;
+        case GrClip::Effect::kClipped:
+            if (!result.fIsRRect || (stencilSettings && result.fAA != *aa) ||
+                (!result.fRRect.isRect() && !simpleColor)) {
+                // The clip and draw state are too complicated to try and reduce
+                conservativeCrop();
                 return QuadOptimization::kCropped;
+            } // Else fall through to attempt to combine the draw and clip geometry together
+            break;
+        default:
+            SkUNREACHABLE;
+    }
+
+    // If we reached here, we know we're an axis-aligned clip that is either a rect or a round rect,
+    // so we can potentially combine it with the draw geometry so that no clipping is needed.
+    SkASSERT(result.fEffect == GrClip::Effect::kClipped && result.fIsRRect);
+    if (result.fRRect.isRect()) {
+        // No rounded corners, so we might be able to become a native clear or we might be able to
+        // modify geometry and edge flags to represent intersected shape of clip and draw.
+        if (GrQuadUtils::CropToRect(result.fRRect.rect(), result.fAA, quad,
+                                    /*compute local*/ !constColor)) {
+            if (simpleColor && quad->fDevice.quadType() == GrQuad::Type::kAxisAligned) {
+                // Clear optimization is possible
+                drawBounds = quad->fDevice.bounds();
+                if (drawBounds.contains(rtRect)) {
+                    // Fullscreen clear
+                    this->clear(*constColor);
+                    return QuadOptimization::kSubmitted;
+                } else if (GrClip::IsPixelAligned(drawBounds) &&
+                           drawBounds.width() > 256 && drawBounds.height() > 256) {
+                    // Scissor + clear (round shouldn't do anything since we are pixel aligned)
+                    SkIRect scissorRect;
+                    drawBounds.round(&scissorRect);
+                    this->clear(scissorRect, *constColor);
+                    return QuadOptimization::kSubmitted;
+                }
             }
+
+            // else the draw and clip were combined so just update the AA to reflect combination
+            if (*aa == GrAA::kNo && result.fAA == GrAA::kYes &&
+                quad->fEdgeFlags != GrQuadAAFlags::kNone) {
+                // The clip was anti-aliased and now the draw needs to be upgraded to AA to
+                // properly reflect the smooth edge of the clip.
+                *aa = GrAA::kYes;
+            }
+            // We intentionally do not downgrade AA here because we don't know if we need to
+            // preserve MSAA (see GrQuadAAFlags docs). But later in the pipeline, the ops can
+            // use GrResolveAATypeForQuad() to turn off coverage AA when all flags are off.
+            // deviceQuad is exactly the intersection of original quad and clip, so it can be
+            // drawn with no clip (submitted by caller)
+            return QuadOptimization::kClipApplied;
+        }
+    } else {
+        // Rounded corners and constant filled color (limit ourselves to solid colors because
+        // there is no way to use custom local coordinates with drawRRect).
+        SkASSERT(simpleColor);
+        if (GrQuadUtils::CropToRect(result.fRRect.getBounds(), result.fAA, quad,
+                                    /* compute local */ false) &&
+            quad->fDevice.quadType() == GrQuad::Type::kAxisAligned &&
+            quad->fDevice.bounds().contains(result.fRRect.getBounds())) {
+            // Since the cropped quad became a rectangle which covered the bounds of the rrect,
+            // we can draw the rrect directly and ignore the edge flags
+            GrPaint paint;
+            clear_to_grpaint(*constColor, &paint);
+            this->drawRRect(nullptr, std::move(paint), result.fAA, SkMatrix::I(), result.fRRect,
+                            GrStyle::SimpleFill());
+            return QuadOptimization::kSubmitted;
         }
     }
 
-    // Crop the quad to the conservative bounds of the clip.
-    SkRect clipBounds = SkRect::Make(get_clip_bounds(this, clip));
-
-    // One final check for discarding, since we may have gone here directly due to a complex clip
-    if (!clipBounds.intersects(drawBounds)) {
-        return QuadOptimization::kDiscarded;
-    }
-
-    // Even if this were to return true, the crop rect does not exactly match the clip, so can not
-    // report explicit-clip. Since these edges aren't visible, don't update the final edge flags.
-    GrQuadUtils::CropToRect(clipBounds, clipAA, quad, /* compute local */ !constColor);
+    // The quads have been updated to better fit the clip bounds, but can't get rid of
+    // the clip entirely
     quad->fEdgeFlags = oldFlags;
-
     return QuadOptimization::kCropped;
 }
 
@@ -1073,7 +1030,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     GrAppliedHardClip appliedClip(fRenderTargetContext->dimensions(),
                                   fRenderTargetContext->asSurfaceProxy()->backingStoreDimensions());
 
-    if (clip && !clip->apply(&appliedClip, &bounds)) {
+    if (clip && GrClip::Effect::kClippedOut == clip->apply(&appliedClip, &bounds)) {
         return;
     }
     // else see FIXME above; we'd normally want to check path bounds with render target bounds,
@@ -1174,26 +1131,49 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawRRect", fContext);
 
+    SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
+
     const SkStrokeRec& stroke = style.strokeRec();
     if (stroke.getStyle() == SkStrokeRec::kFill_Style && rrect.isEmpty()) {
        return;
     }
 
     const GrClip* clip = origClip;
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    // The Android framework frequently clips rrects to themselves where the clip is non-aa and the
-    // draw is aa. Since our lower level clip code works from op bounds, which are SkRects, it
-    // doesn't detect that the clip can be ignored (modulo antialiasing). The following test
-    // attempts to mitigate the stencil clip cost but will only help when the entire clip stack
-    // can be ignored. We'd prefer to fix this in the framework by removing the clips calls. This
-    // only works for filled rrects since the stroke width outsets beyond the rrect itself.
+    // It is not uncommon to clip to a round rect and then draw that same round rect. Since our
+    // lower level clip code works from op bounds, which are SkRects, it doesn't detect that the
+    // clip can be ignored. The following test attempts to mitigate the stencil clip cost but only
+    // works for axis-aligned round rects. This also only works for filled rrects since the stroke
+    // width outsets beyond the rrect itself.
     SkRRect devRRect;
     if (clip && stroke.getStyle() == SkStrokeRec::kFill_Style &&
-        rrect.transform(viewMatrix, &devRRect) && clip->quickContains(devRRect)) {
-        clip = nullptr;
-    }
+        rrect.transform(viewMatrix, &devRRect)) {
+        GrClip::PreClipResult result = clip->preApply(devRRect.getBounds());
+        switch(result.fEffect) {
+            case GrClip::Effect::kClippedOut:
+                return;
+            case GrClip::Effect::kUnclipped:
+                clip = nullptr;
+                break;
+            case GrClip::Effect::kClipped:
+                // Currently there's no general-purpose rrect-to-rrect contains function, and if we
+                // got here, we know the devRRect's bounds aren't fully contained by the clip.
+                // Testing for equality between the two is a reasonable stop-gap for now.
+                if (result.fIsRRect && result.fRRect == devRRect) {
+                    // NOTE: On the android framework, we allow this optimization even when the clip
+                    // is non-AA and the draw is AA.
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+                    if (result.fAA == aa || (result.fAA == GrAA::kNo && aa == GrAA::kYes)) {
+#else
+                    if (result.fAA == aa) {
 #endif
-    SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
+                        clip = nullptr;
+                    }
+                }
+                break;
+            default:
+                SkUNREACHABLE;
+        }
+    }
 
     AutoCheckFlush acf(this->drawingManager());
 
@@ -2342,6 +2322,10 @@ void GrRenderTargetContext::drawShape(const GrClip* clip,
                                      /* attempt fallback */ false);
 }
 
+static SkIRect get_clip_bounds(const GrRenderTargetContext* rtc, const GrClip* clip) {
+    return clip ? clip->getConservativeBounds() : SkIRect::MakeWH(rtc->width(), rtc->height());
+}
+
 bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip* clip,
                                                    const GrUserStencilSettings* ss,
                                                    SkRegion::Op op,
@@ -2578,14 +2562,11 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     bool skipDraw = false;
     if (clip) {
         // Have a complex clip, so defer to its early clip culling
-        if (!clip->apply(fContext, this, usesHWAA, usesUserStencilBits, &appliedClip, &bounds)) {
-            skipDraw = true;
-        }
+        skipDraw = clip->apply(fContext, this, usesHWAA, usesUserStencilBits,
+                               &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
     } else {
         // No clipping, so just clip the bounds against the logical render target dimensions
-        if (!bounds.intersect(this->asSurfaceProxy()->getBoundsRect())) {
-            skipDraw = true;
-        }
+        skipDraw = !bounds.intersect(this->asSurfaceProxy()->getBoundsRect());
     }
 
     if (skipDraw) {
