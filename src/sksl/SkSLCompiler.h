@@ -72,6 +72,10 @@ public:
         kPermitInvalidStaticTests_Flag = 1,
     };
 
+    // An invalid (otherwise unused) character to mark where FormatArgs are inserted
+    static constexpr       char  kFormatArgPlaceholder    = '\001';
+    static constexpr const char* kFormatArgPlaceholderStr = "\001";
+
     struct FormatArg {
         enum class Kind {
             kInput,
@@ -102,7 +106,7 @@ public:
         GrSLType fReturnType;
         SkString fName;
         std::vector<GrShaderVar> fParameters;
-        SkString fBody;
+        String fBody;
         std::vector<Compiler::FormatArg> fFormatArgs;
     };
 #endif
