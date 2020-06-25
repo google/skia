@@ -127,27 +127,28 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrHSLToRGBFilterEffect.h"
 #include "src/gpu/effects/generated/GrRGBToHSLFilterEffect.h"
-std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
-        GrRecordingContext*, const GrColorInfo&) const {
+GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp,
+                                                     GrRecordingContext*,
+                                                     const GrColorInfo&) const {
     switch (fDomain) {
         case Domain::kRGBA:
-            return GrColorMatrixFragmentProcessor::Make(/* inputFP = */        nullptr,
-                                                        fMatrix,
-                                                        /* premulInput = */    true,
-                                                        /* clampRGBOutput = */ true,
-                                                        /* premulOutput = */   true);
-        case Domain::kHSLA: {
-            auto fp = GrRGBToHSLFilterEffect::Make(/* inputFP = */ nullptr);
+            fp = GrColorMatrixFragmentProcessor::Make(std::move(fp), fMatrix,
+                                                      /* premulInput = */    true,
+                                                      /* clampRGBOutput = */ true,
+                                                      /* premulOutput = */   true);
+            break;
+
+        case Domain::kHSLA:
+            fp = GrRGBToHSLFilterEffect::Make(std::move(fp));
             fp = GrColorMatrixFragmentProcessor::Make(std::move(fp), fMatrix,
                                                       /* premulInput = */    false,
                                                       /* clampRGBOutput = */ false,
                                                       /* premulOutput = */   false);
             fp = GrHSLToRGBFilterEffect::Make(std::move(fp));
-            return fp;
-        }
+            break;
     }
 
-    SkUNREACHABLE;
+    return GrFPSuccess(std::move(fp));
 }
 
 #endif
