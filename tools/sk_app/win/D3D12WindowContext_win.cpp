@@ -48,7 +48,7 @@ public:
     void resize(int width, int height) override;
     void setDisplayParams(const DisplayParams& params) override;
 private:
-    static constexpr int kNumFrames = 2;
+    static constexpr int kNumFrames = 3;
 
     HWND fWindow;
     gr_cp<ID3D12Device> fDevice;
@@ -191,7 +191,8 @@ void D3D12WindowContext::swapBuffers() {
     surface->flush(SkSurface::BackendSurfaceAccess::kPresent, info);
     fContext->submit();
 
-    GR_D3D_CALL_ERRCHECK(fSwapChain->Present(1, 0));
+    DXGI_PRESENT_PARAMETERS presentParams = {};
+    GR_D3D_CALL_ERRCHECK(fSwapChain->Present1(1, 0, &presentParams));
 
     // Schedule a Signal command in the queue.
     GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), fFenceValues[fBufferIndex]));

@@ -13,6 +13,9 @@
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#ifdef SK_DIRECT3D
+#include "include/gpu/d3d/GrD3DTypesMinimal.h"
+#endif
 
 /**
  * Wrapper class for passing into and receiving data from Ganesh about a backend semaphore object.
@@ -22,6 +25,14 @@ public:
     // For convenience we just set the backend here to OpenGL. The GrBackendSemaphore cannot be used
     // until either initGL or initVulkan are called which will set the appropriate GrBackend.
     GrBackendSemaphore() : fBackend(GrBackendApi::kOpenGL), fGLSync(0), fIsInitialized(false) {}
+
+#ifdef SK_DIRECT3D
+    // We only need to specify these if Direct3D is enabled, because it requires special copy
+    // characteristics.
+    ~GrBackendSemaphore();
+    GrBackendSemaphore(const GrBackendSemaphore&);
+    GrBackendSemaphore& operator=(const GrBackendSemaphore&);
+#endif
 
     void initGL(GrGLsync sync) {
         fBackend = GrBackendApi::kOpenGL;
@@ -51,6 +62,14 @@ public:
         fIsInitialized = false;
 #endif
     }
+
+#ifdef SK_DIRECT3D
+    void initDirect3D(const GrD3DFenceInfo& info) {
+        fBackend = GrBackendApi::kDirect3D;
+        this->assignD3DFenceInfo(info);
+        fIsInitialized = true;
+    }
+#endif
 
     bool isInitialized() const { return fIsInitialized; }
 
@@ -82,12 +101,23 @@ public:
         return fMtlValue;
     }
 
+#ifdef SK_DIRECT3D
+    bool getD3DFenceInfo(GrD3DFenceInfo* outInfo) const;
+#endif
+
 private:
+#ifdef SK_DIRECT3D
+    void assignD3DFenceInfo(const GrD3DFenceInfo& info);
+#endif
+
     GrBackendApi fBackend;
     union {
         GrGLsync    fGLSync;
         VkSemaphore fVkSemaphore;
         GrMTLHandle fMtlEvent;    // Expected to be an id<MTLEvent>
+#ifdef SK_DIRECT3D
+        GrD3DFenceInfo* fD3DFenceInfo;
+#endif
     };
     uint64_t fMtlValue;
     bool fIsInitialized;

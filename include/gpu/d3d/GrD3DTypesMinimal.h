@@ -19,5 +19,6 @@
 struct ID3D12Resource;
 typedef int GrD3DResourceStateEnum;
 struct GrD3DTextureResourceInfo;
+struct GrD3DFenceInfo;
 
 #endif
