@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "383e4acc_c79f0756",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-25T12:36:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bdec552d_94673110",
+      "range": {
+        "startLine": 208,
+        "startChar": 23,
+        "endLine": 208,
+        "endChar": 29
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0987f42_c6fdf2c8",
         "filename": "include/private/GrD3DTypesPriv.h",
         "patchSetId": 2
@@ -92,6 +116,30 @@
       "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "506da505_da388175",
+        "filename": "include/private/GrD3DTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-25T12:36:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0987f42_c6fdf2c8",
+      "range": {
+        "startLine": 56,
+        "startChar": 69,
+        "endLine": 57,
+        "endChar": 55
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -118,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "426c29e1_5ba8363a",
+        "filename": "src/gpu/GrBackendSemaphore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-25T12:36:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51bfd638_c02463f5",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 73
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "218968bb_b2789455",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 2
@@ -138,6 +210,30 @@
       "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bdd19b6_468b6066",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-25T12:36:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "218968bb_b2789455",
+      "range": {
+        "startLine": 1240,
+        "startChar": 4,
+        "endLine": 1240,
+        "endChar": 51
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -164,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "d14eaf42_d18ae691",
+        "filename": "src/gpu/d3d/GrD3DSemaphore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-25T12:36:54Z",
+      "side": 1,
+      "message": "Whoops, done",
+      "parentUuid": "d434b62e_d57bcb58",
+      "range": {
+        "startLine": 16,
+        "startChar": 23,
+        "endLine": 16,
+        "endChar": 24
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da97ebfc_8aa2b607",
         "filename": "src/gpu/d3d/GrD3DTypesPriv.cpp",
         "patchSetId": 2
@@ -184,6 +304,30 @@
       "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc8cee48_d66878bc",
+        "filename": "src/gpu/d3d/GrD3DTypesPriv.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-25T12:36:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da97ebfc_8aa2b607",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 21
+      },
+      "revId": "317a9f7db04f0425657f165a6f2c220482c829f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
