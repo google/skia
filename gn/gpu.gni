@@ -255,6 +255,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrTriangulator.h",
   "$_src/gpu/GrUniformDataManager.cpp",
   "$_src/gpu/GrUniformDataManager.h",
+  "$_src/gpu/GrUnrefDDLTask.h",
   "$_src/gpu/GrUserStencilSettings.h",
   "$_src/gpu/GrWaitRenderTask.cpp",
   "$_src/gpu/GrWaitRenderTask.h",

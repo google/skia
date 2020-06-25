@@ -35,6 +35,7 @@
 #include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/GrTransferFromRenderTask.h"
+#include "src/gpu/GrUnrefDDLTask.h"
 #include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrSDFTOptions.h"
@@ -711,7 +712,11 @@ void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
 
     fDAG.add(ddl->fRenderTasks);
 
-    // TODO: After migrating fully to sk_sp, ref it here and add a task to unref it after flush.
+#ifndef SK_DDL_IS_UNIQUE_POINTER
+    // Add a task to unref the DDL after flush.
+    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(std::move(ddl)));
+    unrefTask->makeClosed(*fContext->priv().caps());
+#endif
 
     SkDEBUGCODE(this->validate());
 }
