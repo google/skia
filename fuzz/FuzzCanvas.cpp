@@ -23,6 +23,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkTo.h"
+#include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkNullCanvas.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPicturePriv.h"
@@ -1672,4 +1673,26 @@ DEF_FUZZ(_DumpCanvas, fuzz) {
     writer.flush();
     sk_sp<SkData> json = stream.detachAsData();
     fwrite(json->data(), json->size(), 1, stdout);
+}
+
+DEF_FUZZ(SVGCanvas, fuzz) {
+
+    SkFILEWStream stream("./foo.svg");
+    SkRect bounds = SkRect::MakeIWH(400, 400);
+    std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, &stream);
+
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    SkPath path;
+    path.addCircle(100, 100, 30);
+    canvas->drawPath(path, p);
+    canvas->flush();
+
+    stream.fsync();
+
+    // SkNullWStream stream;
+    // auto doc = SkPDF::MakeDocument(&stream);
+    // fuzz_canvas(fuzz, doc->beginPage(SkIntToScalar(kCanvasSize.width()),
+    //                                  SkIntToScalar(kCanvasSize.height())));
 }
