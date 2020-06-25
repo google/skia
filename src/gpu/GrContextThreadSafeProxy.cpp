@@ -35,8 +35,10 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
-void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
+void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
+                                    GrTextBlobCache::PurgeMore purgeMore) {
     fCaps = std::move(caps);
+    fTextBlobCache.reset(new GrTextBlobCache(purgeMore, fContextID));
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
@@ -127,11 +129,13 @@ GrBackendFormat GrContextThreadSafeProxy::defaultBackendFormat(SkColorType skCol
 }
 
 void GrContextThreadSafeProxy::abandonContext() {
-    fAbandoned.store(true, std::memory_order_relaxed);
+    if (!fAbandoned.exchange(true)) {
+        fTextBlobCache->freeAll();
+    }
 }
 
 bool GrContextThreadSafeProxy::abandoned() const {
-    return fAbandoned.load(std::memory_order_relaxed);
+    return fAbandoned;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

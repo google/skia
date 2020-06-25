@@ -85,7 +85,19 @@ protected:
             return false;
         }
 
-        fThreadSafeProxy->priv().init(gpu->refCaps());
+        auto overBudget = [this]() {
+            if (GrContext* direct = this->priv().asDirectContext(); direct != nullptr) {
+                // TODO: does the comment below still make sense?
+                // TODO: move text blob draw calls below context
+                // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on
+                // GrRenderTargetContext to perform a necessary flush. The solution is to move drawText
+                // calls to below the GrContext level, but this is not trivial because they call
+                // drawPath on SkGpuDevice.
+                this->flushAndSubmit();
+            }
+        };
+
+        fThreadSafeProxy->priv().init(gpu->refCaps(), overBudget);
         if (!INHERITED::init()) {
             return false;
         }
