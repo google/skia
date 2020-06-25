@@ -88,17 +88,13 @@ public:
     bool waitFence(GrFence) override { return true; }
     void deleteFence(GrFence) const override {}
 
-    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
-        return nullptr;
-    }
+    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(
             const GrBackendSemaphore& semaphore,
             GrResourceProvider::SemaphoreWrapType wrapType,
-            GrWrapOwnership ownership) override {
-        return nullptr;
-    }
-    void insertSemaphore(GrSemaphore* semaphore) override {}
-    void waitSemaphore(GrSemaphore* semaphore) override {}
+            GrWrapOwnership ownership) override;
+    void insertSemaphore(GrSemaphore* semaphore) override;
+    void waitSemaphore(GrSemaphore* semaphore) override;
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override {
         return nullptr;
     }
