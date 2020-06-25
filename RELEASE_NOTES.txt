@@ -4,6 +4,13 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 86
+------------
+  * Enable BackendSemaphores for the Direct3D backend.
+    https://review.skia.org/298752
+
+* * *
+
 Milestone 85
 ------------
 

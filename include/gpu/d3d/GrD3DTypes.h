@@ -198,4 +198,14 @@ struct GrD3DTextureResourceInfo {
 #endif
 };
 
+struct GrD3DFenceInfo {
+    GrD3DFenceInfo()
+        : fFence(nullptr)
+        , fValue(0) {
+    }
+
+    gr_cp<ID3D12Fence> fFence;
+    uint64_t           fValue;  // signal value for the fence
+};
+
 #endif
