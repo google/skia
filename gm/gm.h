@@ -87,8 +87,8 @@ struct GrContextOptions;
 namespace skiagm {
 
     enum class DrawResult {
-        kOk,  // Test drew successfully.
-        kFail,  // Test failed to draw.
+        kOk,   // Test drew successfully.
+        kFail, // Test failed to draw.
         kSkip  // Test is not applicable in this context and should be skipped.
     };
 
@@ -110,7 +110,19 @@ namespace skiagm {
 
         static constexpr char kErrorMsg_DrawSkippedGpuOnly[] = "This test is for GPU configs only.";
 
-        DrawResult gpuSetup(GrContext*, SkString* errorMsg);
+        DrawResult gpuSetup(GrContext* context, SkCanvas* canvas) {
+            SkString errorMsg;
+            return this->gpuSetup(context, canvas, &errorMsg);
+        }
+        DrawResult gpuSetup(GrContext*, SkCanvas*, SkString* errorMsg);
+        void gpuTeardown();
+
+        void onceBeforeDraw() {
+            if (!fHaveCalledOnceBeforeDraw1) {
+                fHaveCalledOnceBeforeDraw1 = true;
+                this->onOnceBeforeDraw();
+            }
+        }
 
         DrawResult draw(SkCanvas* canvas) {
             SkString errorMsg;
@@ -156,6 +168,7 @@ namespace skiagm {
     protected:
         // onGpuSetup is called once before any other processing with a direct context.
         virtual DrawResult onGpuSetup(GrContext*, SkString*) { return DrawResult::kOk; }
+        virtual void onGpuTeardown() {}
         virtual void onOnceBeforeDraw();
         virtual DrawResult onDraw(SkCanvas*, SkString* errorMsg);
         virtual void onDraw(SkCanvas*);
@@ -168,10 +181,12 @@ namespace skiagm {
         virtual void onSetControls(const SkMetaData&);
 
     private:
-        Mode     fMode;
-        SkString fShortName;
-        SkColor  fBGColor;
-        bool     fHaveCalledOnceBeforeDraw;
+        Mode       fMode;
+        SkString   fShortName;
+        SkColor    fBGColor;
+        bool       fHaveCalledOnceBeforeDraw1 = false;
+        GrContext* fInitializingContext = nullptr;
+        DrawResult fGpuSetupResult = DrawResult::kOk;
     };
 
     using GMFactory = std::unique_ptr<skiagm::GM> (*)();

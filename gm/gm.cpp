@@ -64,17 +64,39 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     canvas->drawPaint(paint);
 }
 
+static void handle_gm_failure(SkCanvas* canvas, DrawResult result, const SkString& errorMsg) {
+    if (DrawResult::kFail == result) {
+        draw_failure_message(canvas, "DRAW FAILED: %s", errorMsg.c_str());
+    } else if (SkString(GM::kErrorMsg_DrawSkippedGpuOnly) == errorMsg) {
+        draw_gpu_only_message(canvas);
+    } else {
+        draw_failure_message(canvas, "DRAW SKIPPED: %s", errorMsg.c_str());
+    }
+}
+
 GM::GM(SkColor bgColor) {
     fMode = kGM_Mode;
     fBGColor = bgColor;
-    fHaveCalledOnceBeforeDraw = false;
 }
 
 GM::~GM() {}
 
-DrawResult GM::gpuSetup(GrContext* context, SkString* errorMsg) {
+DrawResult GM::gpuSetup(GrContext* context, SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
-    return this->onGpuSetup(context, errorMsg);
+    if (fInitializingContext != context) {
+        fInitializingContext = context;
+        fGpuSetupResult = this->onGpuSetup(context, errorMsg);
+    }
+    if (DrawResult::kOk != fGpuSetupResult) {
+        handle_gm_failure(canvas, fGpuSetupResult, *errorMsg);
+    }
+
+    return fGpuSetupResult;
+}
+
+void GM::gpuTeardown() {
+    this->onGpuTeardown();
+    fInitializingContext = nullptr;
 }
 
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
@@ -85,30 +107,18 @@ DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
 
 DrawResult GM::drawContent(SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT0("GM", TRACE_FUNC);
-    if (!fHaveCalledOnceBeforeDraw) {
-        fHaveCalledOnceBeforeDraw = true;
-        this->onOnceBeforeDraw();
-    }
+    this->onceBeforeDraw();
     SkAutoCanvasRestore acr(canvas, true);
     DrawResult drawResult = this->onDraw(canvas, errorMsg);
     if (DrawResult::kOk != drawResult) {
-        if (DrawResult::kFail == drawResult) {
-            draw_failure_message(canvas, "DRAW FAILED: %s", errorMsg->c_str());
-        } else if (SkString(kErrorMsg_DrawSkippedGpuOnly) == *errorMsg) {
-            draw_gpu_only_message(canvas);
-        } else {
-            draw_failure_message(canvas, "DRAW SKIPPED: %s", errorMsg->c_str());
-        }
+        handle_gm_failure(canvas, drawResult, *errorMsg);
     }
     return drawResult;
 }
 
 void GM::drawBackground(SkCanvas* canvas) {
     TRACE_EVENT0("GM", TRACE_FUNC);
-    if (!fHaveCalledOnceBeforeDraw) {
-        fHaveCalledOnceBeforeDraw = true;
-        this->onOnceBeforeDraw();
-    }
+    this->onceBeforeDraw();
     SkAutoCanvasRestore acr(canvas, true);
     canvas->drawColor(fBGColor, SkBlendMode::kSrc);
 }

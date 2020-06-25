@@ -1383,6 +1383,16 @@ protected:
         return DrawResult::kOk;
     }
 
+    void onGpuTeardown() override {
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j <= kLastEnum_SkYUVColorSpace; ++j) {
+                for (int k = 0; k <= kLast_YUVFormat; ++k) {
+                    fImages[i][j][k] = nullptr;
+                }
+            }
+        }
+    }
+
     void onDraw(SkCanvas* canvas) override {
         float cellWidth = kTileWidthHeight, cellHeight = kTileWidthHeight;
         if (fUseDomain) {
@@ -1597,6 +1607,10 @@ protected:
         }
 
         return DrawResult::kOk;
+    }
+
+    void onGpuTeardown() override {
+        fImages[0][0] = fImages[0][1] = fImages[1][0] = fImages[1][1] = nullptr;
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {

@@ -15,21 +15,26 @@
 #include "tools/viewer/GMSlide.h"
 
 GMSlide::GMSlide(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
+    fGM->setMode(skiagm::GM::kSample_Mode);
+
     fName.printf("GM_%s", fGM->getName());
 }
 
 GMSlide::~GMSlide() = default;
 
+void GMSlide::gpuTeardown() {
+    fGM->gpuTeardown();
+}
+
 void GMSlide::draw(SkCanvas* canvas) {
     SkString msg;
 
-    fGM->setMode(skiagm::GM::kSample_Mode);
+    skiagm::GM::DrawResult result = fGM->gpuSetup(canvas->getGrContext(), canvas, &msg);
+    if (result != skiagm::GM::DrawResult::kOk) {
+        return;
+    }
 
-    fGM->gpuSetup(canvas->getGrContext(), &msg);
-    // Do we care about timing the draw of the background (once)?
-    // Does the GM ever rely on drawBackground to lazily compute something?
-    fGM->drawBackground(canvas);
-    fGM->drawContent(canvas, &msg);
+    fGM->draw(canvas, &msg);
 }
 
 bool GMSlide::animate(double nanos) { return fGM->animate(nanos); }
