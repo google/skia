@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f353af70_115de5bc",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T14:56:57Z",
+      "side": 1,
+      "message": "done (in future cl)",
+      "parentUuid": "75c591c9_bfd4426d",
+      "range": {
+        "startLine": 73,
+        "startChar": 12,
+        "endLine": 73,
+        "endChar": 51
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e55994a9_e8388022",
         "filename": "src/core/SkColorFilter.cpp",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2020-06-24T20:35:00Z",
       "side": 1,
       "message": "preexisting nit, not asking for any change in this CL:\n\nShould we document in SkColorFilter.h that new flags (if any) need to make sense if they are bit-anded together? We also a follow similar pattern for the optimization-flags in GrFragmentProcessors, and it works well there, but I can imagine someone adding a new flag to SkColorFilter in a future CL without realizing that the same pattern applies here.",
+      "range": {
+        "startLine": 117,
+        "startChar": 1,
+        "endLine": 118,
+        "endChar": 59
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "879f98ea_9dde236f",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T14:56:57Z",
+      "side": 1,
+      "message": "Good thought. I think we should now remove \"flags\" and just have the one signal (unchanged alpha) as the virtual. That would make it read a little easier, and remove this landmine.",
+      "parentUuid": "e55994a9_e8388022",
       "range": {
         "startLine": 117,
         "startChar": 1,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "3f31d968_7ff865f3",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T14:56:57Z",
+      "side": 1,
+      "message": "I ended up moving the ones that were need for registration purposes. I actually think it doesn\u0027t matter at all (i.e. all *could* be public).",
+      "parentUuid": "10ccc649_eed1e133",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 46
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aa823897_0c4cfdc4",
         "filename": "src/core/SkColorFilter_Matrix.cpp",
         "patchSetId": 12
@@ -82,6 +154,30 @@
       "writtenOn": "2020-06-24T20:35:00Z",
       "side": 1,
       "message": "nit: It looks like this enum ended up staying in SkColorFilter; no change needed.",
+      "range": {
+        "startLine": 29,
+        "startChar": 14,
+        "endLine": 29,
+        "endChar": 31
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31ed5191_f1930df1",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T14:56:57Z",
+      "side": 1,
+      "message": "done (in future cl)",
+      "parentUuid": "aa823897_0c4cfdc4",
       "range": {
         "startLine": 29,
         "startChar": 14,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "0f596c1e_2c1414f0",
+        "filename": "src/core/SkPaintPriv.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T14:56:57Z",
+      "side": 1,
+      "message": "done (in future cl)",
+      "parentUuid": "96bdab08_aa5d880e",
+      "range": {
+        "startLine": 18,
+        "startChar": 17,
+        "endLine": 18,
+        "endChar": 85
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b06680a_ef2daf9d",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 12
@@ -128,6 +248,30 @@
       "writtenOn": "2020-06-24T20:35:00Z",
       "side": 1,
       "message": "nit: as_CFB(colorFilter)-\u003eisAlphaUnchanged();",
+      "range": {
+        "startLine": 189,
+        "startChar": 20,
+        "endLine": 189,
+        "endChar": 95
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "084adf28_ccb7aabe",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T14:56:57Z",
+      "side": 1,
+      "message": "done (in future cl)",
+      "parentUuid": "3b06680a_ef2daf9d",
       "range": {
         "startLine": 189,
         "startChar": 20,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "eebc0591_32c7678f",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1549,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T14:56:57Z",
+      "side": 1,
+      "message": "done (in future cl)",
+      "parentUuid": "c4d83a96_20be5fc1",
+      "range": {
+        "startLine": 1549,
+        "startChar": 33,
+        "endLine": 1549,
+        "endChar": 41
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "be2f4ada_5047deca",
         "filename": "tests/SerializationTest.cpp",
         "patchSetId": 12
@@ -174,6 +342,30 @@
       "writtenOn": "2020-06-24T20:35:00Z",
       "side": 1,
       "message": "Why not as_CFB?",
+      "range": {
+        "startLine": 307,
+        "startChar": 56,
+        "endLine": 307,
+        "endChar": 76
+      },
+      "revId": "e477efcc6d0eff19d3b007c36c6e2fbc14dcd051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea171cc3_081cc251",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-06-25T14:56:57Z",
+      "side": 1,
+      "message": "done (in future cl)",
+      "parentUuid": "be2f4ada_5047deca",
       "range": {
         "startLine": 307,
         "startChar": 56,
