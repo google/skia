@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63210094_1123b62e",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-25T22:32:59Z",
+      "side": 1,
+      "message": "So, how does this interact w/ the threads? Can any recording thread cause a purge?",
+      "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6b2a15d_596d178a",
+        "filename": "src/gpu/GrLegacyDirectContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-25T22:32:59Z",
+      "side": 1,
+      "message": "This seems like a lot of power to delegate to the thread safe context. flushAndSubmit isn\u0027t thread safe.",
+      "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c26b5541_ee2f32de",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-25T22:32:59Z",
+      "side": 1,
+      "message": "Why not do this in GrContextThreadSafeProxy::abandonContext?",
+      "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
