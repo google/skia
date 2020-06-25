@@ -325,12 +325,15 @@ void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
         runningInstanceCount = numTrianglesAtBeginningOfData;
     }
     for (int resolveLevel = 1; resolveLevel <= kMaxResolveLevel; ++resolveLevel) {
-        instanceLocations[resolveLevel] = cubicData + runningInstanceCount * 4;
-        if (int instanceCountAtCurrLevel = resolveLevelCounter[resolveLevel]) {
-            indirectData[indirectIdx++] = GrMiddleOutCubicShader::MakeDrawCubicsIndirectCmd(
-                    resolveLevel, instanceCountAtCurrLevel, baseInstance + runningInstanceCount);
-            runningInstanceCount += instanceCountAtCurrLevel;
+        int instanceCountAtCurrLevel = resolveLevelCounter[resolveLevel];
+        if (!instanceCountAtCurrLevel) {
+            SkDEBUGCODE(instanceLocations[resolveLevel] = nullptr;)
+            continue;
         }
+        instanceLocations[resolveLevel] = cubicData + runningInstanceCount * 4;
+        indirectData[indirectIdx++] = GrMiddleOutCubicShader::MakeDrawCubicsIndirectCmd(
+                resolveLevel, instanceCountAtCurrLevel, baseInstance + runningInstanceCount);
+        runningInstanceCount += instanceCountAtCurrLevel;
     }
 
 #ifdef SK_DEBUG
@@ -340,10 +343,18 @@ void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
     SkASSERT(fIndirectDrawCount > 0);
 
     SkPoint* endLocations[kMaxResolveLevel + 1];
-    memcpy(endLocations, instanceLocations + 1, kMaxResolveLevel * sizeof(SkPoint*));
+    int lastResolveLevel = 0;
+    for (int resolveLevel = 1; resolveLevel <= kMaxResolveLevel; ++resolveLevel) {
+        if (!instanceLocations[resolveLevel]) {
+            endLocations[resolveLevel] = nullptr;
+            continue;
+        }
+        endLocations[lastResolveLevel] = instanceLocations[resolveLevel];
+        lastResolveLevel = resolveLevel;
+    }
     int totalInstanceCount = numTrianglesAtBeginningOfData +
                              resolveLevelCounter.totalCubicInstanceCount();
-    endLocations[kMaxResolveLevel] = cubicData + totalInstanceCount * 4;
+    endLocations[lastResolveLevel] = cubicData + totalInstanceCount * 4;
 #endif
 
     fCubicVertexCount = numTrianglesAtBeginningOfData * 4;
