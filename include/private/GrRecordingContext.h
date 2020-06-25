@@ -76,10 +76,7 @@ protected:
     };
 
     GrRecordingContext(sk_sp<GrContextThreadSafeProxy>);
-    bool init() override;
     void setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting);
-
-    void abandonContext() override;
 
     GrDrawingManager* drawingManager();
 
@@ -172,8 +169,6 @@ private:
     OwnedArenas                       fArenas;
 
     std::unique_ptr<GrDrawingManager> fDrawingManager;
-
-    std::unique_ptr<GrTextBlobCache>  fTextBlobCache;
 
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
 
