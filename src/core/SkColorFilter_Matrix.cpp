@@ -26,7 +26,7 @@ static uint16_t ComputeFlags(const float matrix[20]) {
         && SkScalarNearlyZero (srcA[2])
         && SkScalarNearlyEqual(srcA[3], 1)
         && SkScalarNearlyZero (srcA[4])
-            ? SkColorFilter::kAlphaUnchanged_Flag : 0;
+            ? SkColorFilterBase::kAlphaUnchanged_Flag : 0;
 }
 
 SkColorFilter_Matrix::SkColorFilter_Matrix(const float array[20], Domain domain)
