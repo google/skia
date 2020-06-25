@@ -67,7 +67,6 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
 GM::GM(SkColor bgColor) {
     fMode = kGM_Mode;
     fBGColor = bgColor;
-    fHaveCalledOnceBeforeDraw = false;
 }
 
 GM::~GM() {}
@@ -85,10 +84,7 @@ DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
 
 DrawResult GM::drawContent(SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT0("GM", TRACE_FUNC);
-    if (!fHaveCalledOnceBeforeDraw) {
-        fHaveCalledOnceBeforeDraw = true;
-        this->onOnceBeforeDraw();
-    }
+    this->onceBeforeDraw();
     SkAutoCanvasRestore acr(canvas, true);
     DrawResult drawResult = this->onDraw(canvas, errorMsg);
     if (DrawResult::kOk != drawResult) {
@@ -105,11 +101,7 @@ DrawResult GM::drawContent(SkCanvas* canvas, SkString* errorMsg) {
 
 void GM::drawBackground(SkCanvas* canvas) {
     TRACE_EVENT0("GM", TRACE_FUNC);
-    if (!fHaveCalledOnceBeforeDraw) {
-        fHaveCalledOnceBeforeDraw = true;
-        this->onOnceBeforeDraw();
-    }
-    SkAutoCanvasRestore acr(canvas, true);
+    this->onceBeforeDraw();
     canvas->drawColor(fBGColor, SkBlendMode::kSrc);
 }
 
