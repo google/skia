@@ -59,7 +59,7 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
 
         for (int resId : rawAssets) {
             SkottieView view = new SkottieView(this);
-            view.setSource(getResources().openRawResource(resId));
+            view.setSkottieResource(resId);
             mAnimations.add(view);
         }
 

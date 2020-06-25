@@ -45,6 +45,13 @@ public class SkottieView extends TextureView {
         mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
     }
 
+    public void setSkottieResource(int resId) {
+        InputStream inputStream = getResources().openRawResource(resId);
+        mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
+    }
+
+
+
     public SkottieAnimation getSkottieAnimation() {
         return mAnimation;
     }
