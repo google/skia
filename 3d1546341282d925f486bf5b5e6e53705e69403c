@@ -22,6 +22,30 @@
       "revId": "3d1546341282d925f486bf5b5e6e53705e69403c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc572241_d3fe5c0f",
+        "filename": "modules/skparagraph/src/ParagraphUtil.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-06-25T13:36:33Z",
+      "side": 1,
+      "message": "I am not even sure where to place it - all checks of a utf8 unit for control, whitespace and whatever we are going to use.\nI moved it to util for now. We can wrap it into ICUInterface, of course.",
+      "parentUuid": "57e45508_9f305ec2",
+      "range": {
+        "startLine": 41,
+        "startChar": 11,
+        "endLine": 41,
+        "endChar": 20
+      },
+      "revId": "3d1546341282d925f486bf5b5e6e53705e69403c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
