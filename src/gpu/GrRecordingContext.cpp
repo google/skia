@@ -12,6 +12,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -43,17 +44,6 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy)
 
 GrRecordingContext::~GrRecordingContext() = default;
 
-bool GrRecordingContext::init() {
-
-    if (!INHERITED::init()) {
-        return false;
-    }
-
-    fTextBlobCache.reset(new GrTextBlobCache(this->contextID()));
-
-    return true;
-}
-
 void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
@@ -83,11 +73,6 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
 
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
-
-    // This assumes that all the contexts are essentially abandoned at the same time. It's not the
-    // case that one recording context is abandoned, while another keeps functioning while sharing
-    // the cache.
-    fTextBlobCache->freeAll();
 
     this->destroyDrawingManager();
 }
@@ -140,11 +125,11 @@ GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {
 }
 
 GrTextBlobCache* GrRecordingContext::getTextBlobCache() {
-    return fTextBlobCache.get();
+    return fThreadSafeProxy->priv().getTextBlobCache();
 }
 
 const GrTextBlobCache* GrRecordingContext::getTextBlobCache() const {
-    return fTextBlobCache.get();
+    return fThreadSafeProxy->priv().getTextBlobCache();
 }
 
 void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {

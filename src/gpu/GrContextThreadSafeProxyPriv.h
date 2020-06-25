@@ -12,6 +12,7 @@
 #include "include/private/GrContext_Base.h"
 
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/text/GrTextBlobCache.h"
 
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to
@@ -20,7 +21,9 @@
  */
 class GrContextThreadSafeProxyPriv {
 public:
-    void init(sk_sp<const GrCaps> caps) const { fProxy->init(std::move(caps)); }
+    void init(sk_sp<const GrCaps> caps) const {
+        fProxy->init(std::move(caps));
+    }
 
     bool matches(GrContext_Base* candidate) const {
         return fProxy == candidate->threadSafeProxy().get();
@@ -32,6 +35,9 @@ public:
 
     const GrCaps* caps() const { return fProxy->fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fProxy->fCaps; }
+
+    GrTextBlobCache* getTextBlobCache() { return fProxy->fTextBlobCache.get(); }
+    const GrTextBlobCache* getTextBlobCache() const { return fProxy->fTextBlobCache.get(); }
 
     void abandonContext() { fProxy->abandonContext(); }
     bool abandoned() const { return fProxy->abandoned(); }
