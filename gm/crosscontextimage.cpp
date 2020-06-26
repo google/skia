@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "src/gpu/GrContextPriv.h"
 #include "tools/Resources.h"
 
 class GrContext;
@@ -30,6 +31,12 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
         return skiagm::DrawResult::kFail;
     }
 
+    GrContext* direct = context->priv().asDirectContext();
+    if (!direct) {
+        *errorMsg = "CrossContext image creation requires a direct context.";
+        return skiagm::DrawResult::kSkip;
+    }
+
     sk_sp<SkImage> images[3];
     images[0] = SkImage::MakeFromEncoded(encodedData);
 
@@ -38,8 +45,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
     SkAssertResult(images[0]->asLegacyBitmap(&bmp) &&
                    bmp.peekPixels(&pixmap));
 
-    images[1] = SkImage::MakeCrossContextFromPixmap(context, pixmap, false);
-    images[2] = SkImage::MakeCrossContextFromPixmap(context, pixmap, true);
+    images[1] = SkImage::MakeCrossContextFromPixmap(direct, pixmap, false);
+    images[2] = SkImage::MakeCrossContextFromPixmap(direct, pixmap, true);
 
     canvas->translate(10, 10);
 

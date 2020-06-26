@@ -122,8 +122,11 @@ private:
         return SkImage::MakeFromAdoptedTexture(context, bet, origin, kRGBA_8888_SkColorType);
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
-                      SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+        if (!context || context->abandoned()) {
+            return DrawResult::kSkip;
+        }
+
         if (context->backend() != GrBackendApi::kOpenGL_GrBackend ||
             !static_cast<const GrGLCaps*>(context->priv().caps())->rectangleTextureSupport()) {
             *errorMsg = "This GM requires an OpenGL context that supports texture rectangles.";
@@ -131,17 +134,37 @@ private:
         }
 
         auto gradCircle = this->makeImagePixels(50, ImageType::kGradientCircle);
-        static constexpr SkScalar kPad = 5.f;
 
-        sk_sp<SkImage> gradImgs[] = {
-                this->createRectangleTextureImg(context, kTopLeft_GrSurfaceOrigin, gradCircle),
-                this->createRectangleTextureImg(context, kBottomLeft_GrSurfaceOrigin, gradCircle),
-        };
-        SkASSERT(SkToBool(gradImgs[0]) == SkToBool(gradImgs[1]));
-        if (!gradImgs[0]) {
-            *errorMsg = "Could not create rectangle texture image.";
+        fGradImgs[0] = this->createRectangleTextureImg(context, kTopLeft_GrSurfaceOrigin,
+                                                       gradCircle);
+        fGradImgs[1] = this->createRectangleTextureImg(context, kBottomLeft_GrSurfaceOrigin,
+                                                       gradCircle);
+        SkASSERT(SkToBool(fGradImgs[0]) == SkToBool(fGradImgs[1]));
+        if (!fGradImgs[0]) {
+            *errorMsg = "Could not create gradient rectangle texture images.";
             return DrawResult::kFail;
         }
+
+        fSmallImg = this->createRectangleTextureImg(context, kTopLeft_GrSurfaceOrigin,
+                                                    this->makeImagePixels(2, ImageType::k2x2));
+        if (!fSmallImg) {
+            *errorMsg = "Could not create 2x2 rectangle texture image.";
+            return DrawResult::kFail;
+        }
+
+        return DrawResult::kOk;
+    }
+
+    void onGpuTeardown() override {
+        fGradImgs[0] = fGradImgs[1] = nullptr;
+        fSmallImg = nullptr;
+    }
+
+    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
+        SkASSERT(fGradImgs[0] && fGradImgs[1] && fSmallImg);
+
+        static constexpr SkScalar kPad = 5.f;
 
         constexpr SkFilterQuality kQualities[] = {
                 kNone_SkFilterQuality,
@@ -153,8 +176,8 @@ private:
         constexpr SkScalar kScales[] = {1.0f, 1.2f, 0.75f};
 
         canvas->translate(kPad, kPad);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gradImgs); ++i) {
-            auto img = gradImgs[i];
+        for (size_t i = 0; i < kNumGradImages; ++i) {
+            auto img = fGradImgs[i];
             int w = img->width();
             int h = img->height();
             for (auto s : kScales) {
@@ -170,22 +193,22 @@ private:
                     // clamp/clamp shader
                     SkPaint clampPaint;
                     clampPaint.setFilterQuality(q);
-                    clampPaint.setShader(gradImgs[i]->makeShader());
+                    clampPaint.setShader(fGradImgs[i]->makeShader());
                     canvas->drawRect(SkRect::MakeWH(1.5f*w, 1.5f*h), clampPaint);
                     canvas->translate(1.5f*w + kPad, 0);
 
                     // repeat/mirror shader
                     SkPaint repeatPaint;
                     repeatPaint.setFilterQuality(q);
-                    repeatPaint.setShader(gradImgs[i]->makeShader(SkTileMode::kRepeat,
-                                                                  SkTileMode::kMirror));
+                    repeatPaint.setShader(fGradImgs[i]->makeShader(SkTileMode::kRepeat,
+                                                                   SkTileMode::kMirror));
                     canvas->drawRect(SkRect::MakeWH(1.5f*w, 1.5f*h), repeatPaint);
                     canvas->translate(1.5f*w + kPad, 0);
 
                     // drawImageRect with kStrict
                     auto srcRect = SkRect::MakeXYWH(.25f*w, .25f*h, .50f*w, .50f*h);
                     auto dstRect = SkRect::MakeXYWH(      0,     0, .50f*w, .50f*h);
-                    canvas->drawImageRect(gradImgs[i], srcRect, dstRect, &plainPaint,
+                    canvas->drawImageRect(fGradImgs[i], srcRect, dstRect, &plainPaint,
                                           SkCanvas::kStrict_SrcRectConstraint);
                     canvas->translate(.5f*w + kPad, 0);
                 }
@@ -194,11 +217,9 @@ private:
             }
         }
 
-        auto smallImg = this->createRectangleTextureImg(context, kTopLeft_GrSurfaceOrigin,
-                                                        this->makeImagePixels(2, ImageType::k2x2));
         static constexpr SkScalar kOutset = 25.f;
         canvas->translate(kOutset, kOutset);
-        auto dstRect = SkRect::Make(smallImg->dimensions()).makeOutset(kOutset, kOutset);
+        auto dstRect = SkRect::Make(fSmallImg->dimensions()).makeOutset(kOutset, kOutset);
 
         for (int fq = kNone_SkFilterQuality; fq <= kLast_SkFilterQuality; ++fq) {
             if (fq == kMedium_SkFilterQuality) {
@@ -212,8 +233,8 @@ private:
                     SkMatrix lm;
                     lm.setRotate(45.f, 1, 1);
                     lm.postScale(6.5f, 6.5f);
-                    auto shader = smallImg->makeShader(static_cast<SkTileMode>(tx),
-                                                       static_cast<SkTileMode>(ty), &lm);
+                    auto shader = fSmallImg->makeShader(static_cast<SkTileMode>(tx),
+                                                        static_cast<SkTileMode>(ty), &lm);
                     SkPaint paint;
                     paint.setShader(std::move(shader));
                     paint.setFilterQuality(static_cast<SkFilterQuality>(fq));
@@ -231,6 +252,11 @@ private:
     }
 
 private:
+    static const int kNumGradImages = 2;
+
+    sk_sp<SkImage> fGradImgs[kNumGradImages];
+    sk_sp<SkImage> fSmallImg;
+
     typedef GM INHERITED;
 };
 

@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 
 class GrRenderTargetContext;
 
@@ -28,15 +29,15 @@ static void draw_tile_bitmap_with_fractional_offset(GrContext* context, SkCanvas
     const int kBitmapLongEdge = 7 * kTileSize;
     const int kBitmapShortEdge = 1 * kTileSize;
 
-    // To trigger tiling, we also need the image to be more than 50% of the cache, so we ensure the
-    // cache is sized to make that true.
-    const int kBitmapArea = kBitmapLongEdge * kBitmapShortEdge;
-    const size_t kBitmapBytes = kBitmapArea * sizeof(SkPMColor);
+    if (GrContext* direct = context->priv().asDirectContext()) {
+        // To trigger tiling, we also need the image to be more than 50% of the cache, so we
+        // ensure the cache is sized to make that true.
+        const int kBitmapArea = kBitmapLongEdge * kBitmapShortEdge;
+        const size_t kBitmapBytes = kBitmapArea * sizeof(SkPMColor);
 
-    size_t oldMaxResourceBytes = context->getResourceCacheLimit();
-
-    const size_t newMaxResourceBytes = kBitmapBytes + (kBitmapBytes / 2);
-    context->setResourceCacheLimit(newMaxResourceBytes);
+        const size_t newMaxResourceBytes = kBitmapBytes + (kBitmapBytes / 2);
+        direct->setResourceCacheLimit(newMaxResourceBytes);
+    }
 
     // Construct our bitmap as either very wide or very tall
     SkBitmap bmp;
@@ -57,9 +58,6 @@ static void draw_tile_bitmap_with_fractional_offset(GrContext* context, SkCanvas
                                    SkRect::MakeXYWH(0.0f, 37.0f * i, 1124.0f, 32.0f), nullptr);
         }
     }
-
-    // Restore the cache
-    context->setResourceCacheLimit(oldMaxResourceBytes);
 }
 
 DEF_SIMPLE_GPU_GM_BG(
