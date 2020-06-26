@@ -7,6 +7,7 @@
 
 #include "src/gpu/effects/GrTextureEffect.h"
 
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/effects/GrMatrixEffect.h"

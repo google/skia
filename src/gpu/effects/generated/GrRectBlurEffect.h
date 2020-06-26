@@ -27,7 +27,6 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrRectBlurEffect : public GrFragmentProcessor {

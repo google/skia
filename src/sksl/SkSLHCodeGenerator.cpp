@@ -402,7 +402,6 @@ bool HCodeGenerator::generateCode() {
                  "\n");
     this->writeSection(HEADER_SECTION);
     this->writef("\n"
-                 "#include \"src/gpu/GrCoordTransform.h\"\n"
                  "#include \"src/gpu/GrFragmentProcessor.h\"\n"
                  "\n");
     this->writef("class %s : public GrFragmentProcessor {\n"

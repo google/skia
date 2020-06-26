@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkStrokeRec.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawOpTest.h"

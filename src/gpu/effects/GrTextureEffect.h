@@ -10,7 +10,6 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrTextureEffect : public GrFragmentProcessor {

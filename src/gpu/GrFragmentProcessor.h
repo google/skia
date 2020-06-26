@@ -11,10 +11,10 @@
 #include <tuple>
 
 #include "include/private/SkSLSampleMatrix.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/ops/GrOp.h"
 
+class GrCoordTransform;
 class GrGLSLFragmentProcessor;
 class GrPaint;
 class GrPipeline;
@@ -142,8 +142,7 @@ public:
      * shader-lifted varyings, or by providing the base local coordinate to the fragment shader.
      */
     bool sampleCoordsDependOnLocalCoords() const {
-        return (SkToBool(fFlags & kHasCoordTransforms_Flag) ||
-                SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) ||
+        return (SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) ||
                 SkToBool(fFlags & kUsesSampleCoordsIndirectly_Flag)) &&
                !SkToBool(fFlags & kSampledWithExplicitCoords_Flag);
     }
@@ -158,9 +157,7 @@ public:
      * specific to the FP's function and not the entire program.
      */
     bool referencesSampleCoords() const {
-        // HasCoordTransforms propagates up the FP tree, but we want the presence of an actual
-        // coord transform object (that's not one of the implicit workarounds).
-        return SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) || fCoordTransforms.count() > 0;
+        return SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag);
     }
 
     // True if this FP's parent invokes it with 'sample(float2)' or a variable 'sample(matrix)'
@@ -396,25 +393,6 @@ protected:
     }
 
     /**
-     * Fragment Processor subclasses call this from their constructor to register coordinate
-     * transformations. Coord transforms provide a mechanism for a processor to receive coordinates
-     * in their FS code. The matrix expresses a transformation from local space. For a given
-     * fragment the matrix will be applied to the local coordinate that maps to the fragment.
-     *
-     * When the transformation has perspective, the transformed coordinates will have
-     * 3 components. Otherwise they'll have 2.
-     *
-     * This must only be called from the constructor because GrProcessors are immutable. The
-     * processor subclass manages the lifetime of the transformations (this function only stores a
-     * pointer). The GrCoordTransform is typically a member field of the GrProcessor subclass.
-     *
-     * A processor subclass that has multiple methods of construction should always add its coord
-     * transforms in a consistent order. The non-virtual implementation of isEqual() automatically
-     * compares transforms and will assume they line up across the two processor instances.
-     */
-    void addCoordTransform(GrCoordTransform*);
-
-    /**
      * FragmentProcessor subclasses call this from their constructor to register any child
      * FragmentProcessors they have. This must be called AFTER all texture accesses and coord
      * transforms have been added.
@@ -510,23 +488,20 @@ private:
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
 
         // Propagate up the FP tree to the root
-        kHasCoordTransforms_Flag = kFirstPrivateFlag,
-        kUsesSampleCoordsIndirectly_Flag = kFirstPrivateFlag << 1,
+        kUsesSampleCoordsIndirectly_Flag = kFirstPrivateFlag,
 
         // Does not propagate at all
-        kUsesSampleCoordsDirectly_Flag = kFirstPrivateFlag << 2,
+        kUsesSampleCoordsDirectly_Flag = kFirstPrivateFlag << 1,
 
         // Propagates down the FP to all its leaves
-        kSampledWithExplicitCoords_Flag = kFirstPrivateFlag << 3,
-        kNetTransformHasPerspective_Flag = kFirstPrivateFlag << 4,
+        kSampledWithExplicitCoords_Flag = kFirstPrivateFlag << 2,
+        kNetTransformHasPerspective_Flag = kFirstPrivateFlag << 3,
     };
     void addAndPushFlagToChildren(PrivateFlags flag);
 
     uint32_t fFlags = 0;
 
     int fTextureSamplerCnt = 0;
-
-    SkSTArray<4, GrCoordTransform*, true> fCoordTransforms;
 
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
     const GrFragmentProcessor* fParent = nullptr;
