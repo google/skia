@@ -20,7 +20,7 @@ class  ExternalValue;
 struct FunctionDeclaration;
 
 #define VECTOR(name) name ## 4, name ## 3, name ## 2, name
-#define VECTOR_MATRIX(name) name ## 4, name ## 3, name ## 2, name, name ## N
+#define VECTOR_MATRIX(name) name ## N, name ## 4, name ## 3, name ## 2, name
 
 enum class ByteCodeInstruction : uint16_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
