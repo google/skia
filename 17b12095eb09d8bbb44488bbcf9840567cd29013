@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "966a1dfc_e8705e74",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-26T15:01:45Z",
+      "side": 0,
+      "message": "oops",
+      "range": {
+        "startLine": 119,
+        "startChar": 50,
+        "endLine": 119,
+        "endChar": 51
+      },
+      "revId": "17b12095eb09d8bbb44488bbcf9840567cd29013",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
