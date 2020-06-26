@@ -82,7 +82,11 @@ toolchain("msvc") {
       # platforms. (All our builders are x86-64, so x86 is always non-host.)
       cl_m32_flag = "-m32"
     }
-    if (host_os == "win") {
+    if (cc_wrapper == "/init") {  # WSL
+      cl = "$clang_win/bin/clang-cl.exe"
+      lib = "$clang_win/bin/lld-link.exe /lib"
+      link = "$clang_win/bin/lld-link.exe"
+    } else if (host_os == "win") {
       cl = "\"$clang_win/bin/clang-cl.exe\""
       lib = "\"$clang_win/bin/lld-link.exe\" /lib"
       link = "\"$clang_win/bin/lld-link.exe\""
