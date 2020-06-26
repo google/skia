@@ -21,6 +21,7 @@
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
@@ -735,9 +736,9 @@ public:
         auto noiseFP = GrTextureEffect::Make(std::move(noiseView), kPremul_SkAlphaType,
                                              SkMatrix::I(), kRepeatXSampler, caps);
 
-        return std::unique_ptr<GrFragmentProcessor>(
+        return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
                 new GrPerlinNoise2Effect(type, numOctaves, stitchTiles, std::move(paintingData),
-                                         std::move(permutationsFP), std::move(noiseFP), matrix));
+                                         std::move(permutationsFP), std::move(noiseFP))));
     }
 
     const char* name() const override { return "PerlinNoise"; }
@@ -752,7 +753,6 @@ public:
     bool stitchTiles() const { return fStitchTiles; }
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     int numOctaves() const { return fNumOctaves; }
-    const SkMatrix& matrix() const { return fCoordTransform.matrix(); }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -778,8 +778,7 @@ private:
                          bool stitchTiles,
                          std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                          std::unique_ptr<GrFragmentProcessor> permutationsFP,
-                         std::unique_ptr<GrFragmentProcessor> noiseFP,
-                         const SkMatrix& matrix)
+                         std::unique_ptr<GrFragmentProcessor> noiseFP)
             : INHERITED(kGrPerlinNoise2Effect_ClassID, kNone_OptimizationFlags)
             , fType(type)
             , fNumOctaves(numOctaves)
@@ -787,26 +786,23 @@ private:
             , fPaintingData(std::move(paintingData)) {
         this->registerExplicitlySampledChild(std::move(permutationsFP));
         this->registerExplicitlySampledChild(std::move(noiseFP));
-        fCoordTransform = GrCoordTransform(matrix);
-        this->addCoordTransform(&fCoordTransform);
+        this->setUsesSampleCoordsDirectly();
     }
 
     GrPerlinNoise2Effect(const GrPerlinNoise2Effect& that)
             : INHERITED(kGrPerlinNoise2Effect_ClassID, kNone_OptimizationFlags)
             , fType(that.fType)
-            , fCoordTransform(that.fCoordTransform)
             , fNumOctaves(that.fNumOctaves)
             , fStitchTiles(that.fStitchTiles)
             , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
         this->cloneAndRegisterAllChildProcessors(that);
-        this->addCoordTransform(&fCoordTransform);
+        this->setUsesSampleCoordsDirectly();
     }
 
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     SkPerlinNoiseShaderImpl::Type       fType;
-    GrCoordTransform                    fCoordTransform;
     int                                 fNumOctaves;
     bool                                fStitchTiles;
 
@@ -1109,9 +1105,10 @@ public:
                                       SkMatrix::I(), kRepeatXSampler, caps);
         auto gradientFP = GrTextureEffect::Make(std::move(gradientView), kPremul_SkAlphaType,
                                                 SkMatrix::I(), kRepeatXSampler, caps);
-        return std::unique_ptr<GrFragmentProcessor>(new GrImprovedPerlinNoiseEffect(
-                octaves, z, std::move(paintingData), std::move(permutationsFP),
-                std::move(gradientFP), matrix));
+        return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
+                    new GrImprovedPerlinNoiseEffect(octaves, z, std::move(paintingData),
+                                                    std::move(permutationsFP),
+                                                    std::move(gradientFP))));
     }
 
     const char* name() const override { return "ImprovedPerlinNoise"; }
@@ -1123,7 +1120,6 @@ public:
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     SkScalar z() const { return fZ; }
     int octaves() const { return fOctaves; }
-    const SkMatrix& matrix() const { return fCoordTransform.matrix(); }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -1144,31 +1140,27 @@ private:
                                 SkScalar z,
                                 std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                                 std::unique_ptr<GrFragmentProcessor> permutationsFP,
-                                std::unique_ptr<GrFragmentProcessor> gradientFP,
-                                const SkMatrix& matrix)
+                                std::unique_ptr<GrFragmentProcessor> gradientFP)
             : INHERITED(kGrImprovedPerlinNoiseEffect_ClassID, kNone_OptimizationFlags)
             , fOctaves(octaves)
             , fZ(z)
             , fPaintingData(std::move(paintingData)) {
         this->registerExplicitlySampledChild(std::move(permutationsFP));
         this->registerExplicitlySampledChild(std::move(gradientFP));
-        fCoordTransform = GrCoordTransform(matrix);
-        this->addCoordTransform(&fCoordTransform);
+        this->setUsesSampleCoordsDirectly();
     }
 
     GrImprovedPerlinNoiseEffect(const GrImprovedPerlinNoiseEffect& that)
             : INHERITED(kGrImprovedPerlinNoiseEffect_ClassID, kNone_OptimizationFlags)
-            , fCoordTransform(that.fCoordTransform)
             , fOctaves(that.fOctaves)
             , fZ(that.fZ)
             , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
         this->cloneAndRegisterAllChildProcessors(that);
-        this->addCoordTransform(&fCoordTransform);
+        this->setUsesSampleCoordsDirectly();
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    GrCoordTransform                    fCoordTransform;
     int                                 fOctaves;
     SkScalar                            fZ;
 
