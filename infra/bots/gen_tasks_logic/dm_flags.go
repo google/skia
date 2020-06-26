@@ -473,6 +473,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
 		}
+		if b.extraConfig("OOPRDDL") {
+			// This bot generates the real oopr/DDL images for the large skps and the GMs
+			configs = suffix(filter(configs, "gl", "vk", "mtl"), "ooprddl")
+			args = append(args, "--skpViewportSize", "2048")
+			args = append(args, "--gpuThreads", "0")
+		}
 	}
 
 	// Sharding.
@@ -560,6 +566,38 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		blacklist("_ svg _ _")
 		// skbug.com/9171 and 8847
 		blacklist("_ test _ InitialTextureClear")
+	}
+
+	if b.extraConfig("OOPRDDL") {
+		// This batch all call readpixels
+		blacklist("_ gm _ async_rescale_and_read_dog_down")
+		blacklist("_ gm _ async_rescale_and_read_dog_up")
+		blacklist("_ gm _ async_rescale_and_read_no_bleed")
+		blacklist("_ gm _ async_rescale_and_read_rose")
+		blacklist("_ gm _ async_rescale_and_read_text_down")
+		blacklist("_ gm _ async_rescale_and_read_text_up")
+		blacklist("_ gm _ async_rescale_and_read_text_up_large")
+		blacklist("_ gm _ async_rescale_and_read_yuv420_rose")
+		blacklist("_ gm _ async_yuv_no_scale")
+		blacklist("_ gm _ drawbitmaprect-subset")
+		blacklist("_ gm _ drawbitmaprect")
+		blacklist("_ gm _ image_subset")
+		blacklist("_ gm _ p3")
+		blacklist("_ gm _ p3_ovals")
+		blacklist("_ gm _ readpixels")
+		blacklist("_ gm _ scale-pixels ")
+		blacklist("_ gm _ zero_length_paths_aa")
+		blacklist("_ gm _ zero_length_paths_bw")
+		blacklist("_ gm _ zero_length_paths_dbl_aa")
+		blacklist("_ gm _ zero_length_paths_dbl_bw")
+		// This one explicitly rejects DDL recording
+		blacklist("_ gm _ blurrect_compare")
+		// These two trip up on CCPR behavior
+		blacklist("_ gm _ preservefillrule_big")
+		blacklist("_ gm _ preservefillrule_little")
+		// These two rely on munging the resource limits
+		blacklist("_ gm _ bitmaptiled_fractional_horizontal")
+		blacklist("_ gm _ bitmaptiled_fractional_vertical")
 	}
 
 	if b.model("TecnoSpark3Pro") {
