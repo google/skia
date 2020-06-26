@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0f8af91e_30dd4f31",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-26T17:33:42Z",
+      "side": 1,
+      "message": "Do you mean support the big variant, or just eliminate the 1-4 specializations? I\u0027ve been tempted to do the latter, because it should drastically reduce the code size (and complexity) of the interpreter/generator.",
+      "parentUuid": "1477b481_76e5ae2c",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 53
+      },
+      "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ce3fbb2_240ec726",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
