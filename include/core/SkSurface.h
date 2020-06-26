@@ -531,6 +531,8 @@ public:
     */
     GrContext* getContext();
 
+    GrRecordingContext* recordingContext();
+
     enum BackendHandleAccess {
         kFlushRead_BackendHandleAccess,    //!< back-end object is readable
         kFlushWrite_BackendHandleAccess,   //!< back-end object is writable

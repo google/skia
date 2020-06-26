@@ -61,7 +61,8 @@ public:
 
     ~SkGpuDevice() override {}
 
-    GrContext* context() const override { return fContext.get(); }
+    GrContext* context1() const override { return fContext.get(); }
+    GrRecordingContext* recordingContext() const override { return fContext.get(); }
 
     // set all pixels to 0
     void clearAll();
@@ -169,7 +170,7 @@ private:
 
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
-    static std::unique_ptr<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
+    static std::unique_ptr<GrRenderTargetContext> MakeRenderTargetContext(GrRecordingContext*,
                                                                           SkBudgeted,
                                                                           const SkImageInfo&,
                                                                           int sampleCount,

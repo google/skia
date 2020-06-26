@@ -26,6 +26,7 @@ public:
                                                     std::unique_ptr<GrRenderTargetContext>);
 
     GrContext* onGetContext() override;
+    GrRecordingContext* onGetRecordingContext() override;
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
     GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
