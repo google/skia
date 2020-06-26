@@ -17,6 +17,7 @@ skia_skrive_sources = [
   "$_src/Ellipse.cpp",
   "$_src/Node.cpp",
   "$_src/Paint.cpp",
+  "$_src/Rectangle.cpp",
   "$_src/Shape.cpp",
   "$_src/SkRive.cpp",
   "$_src/reader/BinaryReader.cpp",
