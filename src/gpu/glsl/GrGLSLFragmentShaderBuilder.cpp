@@ -153,45 +153,13 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
     // transforms), the value that would have been passed to _coords is lifted to the vertex shader
     // and stored in a unique varying. In that case it uses that variable and does not have a
     // second actual argument for _coords.
-    // FIXME: Once GrCoordTransforms are gone, and we can more easily associated this varying with
-    // the sample call site, then invokeChild() can pass the varying in, instead of requiring this
-    // dynamic signature.
-    int paramCount;
+    // FIXME: An alternative would be to have all FP functions have a float2 argument, and the
+    // parent FP invokes it with the varying reference when it's been lifted to the vertex shader.
+    int paramCount = 2;
     GrShaderVar params[] = { GrShaderVar(args.fInputColor, kHalf4_GrSLType),
                              GrShaderVar(args.fSampleCoord, kFloat2_GrSLType) };
 
-    if (args.fFp.isSampledWithExplicitCoords()) {
-        // All invokeChild() that point to 'fp' will evaluate these expressions and pass the float2
-        // in, so we need the 2nd argument.
-        paramCount = 2;
-
-        // FIXME: This is only needed for the short term until FPs no longer put transformation
-        // data in a GrCoordTransform (and we can then mark the parameter as read-only)
-        if (args.fTransformedCoords.count() > 0) {
-            SkASSERT(args.fTransformedCoords.count() == 1);
-
-            const GrShaderVar& transform = args.fTransformedCoords[0].fTransform;
-            switch (transform.getType()) {
-                case kFloat4_GrSLType:
-                    // This is a scale+translate, so there's no perspective division needed
-                    this->codeAppendf("%s = %s * %s.xz + %s.yw;\n", args.fSampleCoord,
-                                                                    args.fSampleCoord,
-                                                                    transform.c_str(),
-                                                                    transform.c_str());
-                    break;
-                case kFloat3x3_GrSLType:
-                    this->codeAppend("{\n");
-                    this->codeAppendf("float3 _coords3 = (%s * %s.xy1);\n",
-                                      transform.c_str(), args.fSampleCoord);
-                    this->codeAppendf("%s = _coords3.xy / _coords3.z;\n", args.fSampleCoord);
-                    this->codeAppend("}\n");
-                    break;
-                default:
-                    SkASSERT(transform.getType() == kVoid_GrSLType);
-                    break;
-            }
-        }
-    } else {
+    if (!args.fFp.isSampledWithExplicitCoords()) {
         // Sampled with a const/uniform matrix and/or a legacy coord transform. The actual
         // transformation code is emitted in the vertex shader, so this only has to access it.
         // Add a float2 _coords variable that maps to the associated varying and replaces the
@@ -210,7 +178,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                     // and since we won't actually have a function parameter for local coords, add
                     // it as a local variable.
                     this->codeAppendf("float2 %s = %s.xy / %s.z;\n", args.fSampleCoord,
-                                    varying.getName().c_str(), varying.getName().c_str());
+                                      varying.getName().c_str(), varying.getName().c_str());
                     break;
                 default:
                     SkDEBUGFAILF("Unexpected varying type for coord: %s %d\n",
@@ -218,7 +186,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                     break;
             }
         }
-    }
+    } // else the function keeps its two arguments
 
     this->codeAppendf("half4 %s;\n", args.fOutputColor);
     fp->emitCode(args);
