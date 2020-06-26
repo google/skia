@@ -127,7 +127,7 @@ private:
             return DrawResult::kSkip;
         }
 
-        if (context->backend() != GrBackendApi::kOpenGL_GrBackend ||
+if (context->backend() != GrBackendApi::kOpenGL_GrBackend ||
             !static_cast<const GrGLCaps*>(context->priv().caps())->rectangleTextureSupport()) {
             *errorMsg = "This GM requires an OpenGL context that supports texture rectangles.";
             return DrawResult::kSkip;
@@ -160,8 +160,8 @@ private:
         fSmallImg = nullptr;
     }
 
-    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas,
-                      SkString* errorMsg) override {
+    DrawResult onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString*) override {
         SkASSERT(fGradImgs[0] && fGradImgs[1] && fSmallImg);
 
         static constexpr SkScalar kPad = 5.f;

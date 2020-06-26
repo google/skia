@@ -76,7 +76,7 @@ void GrVkSecondaryCBDrawContext::releaseResources() {
 
 bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
+    GrContext* ctx = fDevice->context1();
 
     size_t maxResourceBytes = ctx->getResourceCacheLimit();
 
@@ -108,7 +108,7 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
 bool GrVkSecondaryCBDrawContext::isCompatible(
         const SkSurfaceCharacterization& characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
+    GrContext* ctx = fDevice->context1();
 
     if (!characterization.isValid()) {
         return false;
@@ -163,7 +163,7 @@ bool GrVkSecondaryCBDrawContext::draw(const SkDeferredDisplayList* ddl) {
     }
 
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
+    GrContext* ctx = fDevice->context1();
 
     ctx->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
     return true;
