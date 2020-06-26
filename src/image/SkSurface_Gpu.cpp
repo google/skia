@@ -40,7 +40,7 @@ SkSurface_Gpu::~SkSurface_Gpu() {
 }
 
 GrContext* SkSurface_Gpu::onGetContext() {
-    return fDevice->context();
+    return fDevice->context1();
 }
 
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
@@ -89,7 +89,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     GrSurfaceOrigin origin = fDevice->accessRenderTargetContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
-    return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
+    return SkSurface::MakeRenderTarget(fDevice->context1(), kBudgeted, info, sampleCount,
                                        origin, &this->props());
 }
 
@@ -99,7 +99,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         return nullptr;
     }
 
-    GrContext* ctx = fDevice->context();
+    GrContext* ctx = fDevice->context1();
 
     if (!rtc->asSurfaceProxy()) {
         return nullptr;
@@ -198,7 +198,7 @@ bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSema
 
 bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
+    GrContext* ctx = fDevice->context1();
 
     size_t maxResourceBytes = ctx->getResourceCacheLimit();
 
@@ -235,7 +235,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
     // If the dst is also GPU we try to not force a new image snapshot (by calling the base class
     // onDraw) since that may not always perform the copy-on-write optimization.
     auto tryDraw = [&] {
-        GrContext* context = fDevice->context();
+        GrContext* context = fDevice->context1();
         GrContext* canvasContext = canvas->getGrContext();
         if (!canvasContext) {
             return false;
@@ -269,7 +269,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
 
 bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
+    GrContext* ctx = fDevice->context1();
 
     if (!characterization.isValid()) {
         return false;
@@ -336,7 +336,7 @@ bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl) {
     }
 
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
+    GrContext* ctx = fDevice->context1();
 
     ctx->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
     return true;
@@ -348,7 +348,7 @@ bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
     }
 
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
+    GrContext* ctx = fDevice->context1();
 
     ctx->priv().copyRenderTasksFromDDL(ddl, rtc->asRenderTargetProxy());
     return true;
@@ -576,7 +576,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
         }
     });
 
-    auto context = this->fDevice->context();
+    auto context = this->fDevice->context1();
     if (context->abandoned()) {
         return false;
     }
