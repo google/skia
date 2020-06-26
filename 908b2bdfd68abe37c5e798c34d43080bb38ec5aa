@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a2a4ab97_0406bf1b",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-26T14:05:07Z",
+      "side": 1,
+      "message": "Yes, any recording thread can cause a purgeMore. The threads check for purging all the time, this is only used when all the stale text blobs have been purged, and more memory is required.",
+      "parentUuid": "63210094_1123b62e",
+      "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a6b2a15d_596d178a",
         "filename": "src/gpu/GrLegacyDirectContext.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2020-06-25T22:32:59Z",
       "side": 1,
       "message": "This seems like a lot of power to delegate to the thread safe context. flushAndSubmit isn\u0027t thread safe.",
+      "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0667d166_6230c225",
+        "filename": "src/gpu/GrLegacyDirectContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-26T14:05:07Z",
+      "side": 1,
+      "message": "Right, but this is only called under a mutex, so it should be thread safe.",
+      "parentUuid": "a6b2a15d_596d178a",
       "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -50,6 +86,24 @@
       "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c4a6cc3_fb315c8d",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-26T14:05:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c26b5541_ee2f32de",
+      "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
