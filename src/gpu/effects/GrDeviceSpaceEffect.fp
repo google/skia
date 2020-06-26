@@ -7,11 +7,8 @@
 
 in fragmentProcessor fp;
 
-in uniform float3x3 matrix;
-
 void main() {
-    float3 p = matrix * (sk_FragCoord.xy1);
-    sk_OutColor = sample(fp, sk_InColor, p.xy / p.z);
+    sk_OutColor = sample(fp, sk_InColor, sk_FragCoord.xy);
 }
 
 @optimizationFlags {
@@ -25,9 +22,8 @@ void main() {
 }
 
 @make{
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
-                                                     const SkMatrix& matrix = SkMatrix::I()) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp), matrix));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp)));
     }
 }
 
