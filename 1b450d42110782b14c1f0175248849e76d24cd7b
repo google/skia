@@ -46,6 +46,30 @@
       "revId": "1b450d42110782b14c1f0175248849e76d24cd7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1c0ff6d_b6961635",
+        "filename": "gm/gm.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-26T14:17:06Z",
+      "side": 1,
+      "message": "All four users should now work correctly:\n  \u0027dm\u0027 and \u0027fm\u0027 never had any difficulties\n  \u0027viewer\u0027 and \u0027nanobench\u0027 now explicitly reset when they are changing context",
+      "parentUuid": "ca784516_2ad85219",
+      "range": {
+        "startLine": 87,
+        "startChar": 9,
+        "endLine": 87,
+        "endChar": 24
+      },
+      "revId": "1b450d42110782b14c1f0175248849e76d24cd7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
