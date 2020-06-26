@@ -83,15 +83,25 @@ GM::~GM() {}
 
 DrawResult GM::gpuSetup(GrContext* context, SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
-    DrawResult gpuSetupResult = this->onGpuSetup(context, errorMsg);
-    if (DrawResult::kOk != gpuSetupResult) {
-        handle_gm_failure(canvas, gpuSetupResult, *errorMsg);
+    if (!fGpuSetup) {
+        // When drawn in viewer, gpuSetup will be called multiple times with the same
+        // GrContext.
+        fGpuSetup = true;
+        fGpuSetupResult = this->onGpuSetup(context, errorMsg);
     }
-    return gpuSetupResult;
+    if (DrawResult::kOk != fGpuSetupResult) {
+        handle_gm_failure(canvas, fGpuSetupResult, *errorMsg);
+    }
+
+    return fGpuSetupResult;
 }
 
 void GM::gpuTeardown() {
     this->onGpuTeardown();
+
+    // After 'gpuTeardown' a GM can be reused with a different GrContext. Reset the flag
+    // so 'onGpuSetup' will be called.
+    fGpuSetup = false;
 }
 
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {

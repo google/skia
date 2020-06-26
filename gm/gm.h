@@ -181,10 +181,12 @@ namespace skiagm {
         virtual void onSetControls(const SkMetaData&);
 
     private:
-        Mode     fMode;
-        SkString fShortName;
-        SkColor  fBGColor;
-        bool     fHaveCalledOnceBeforeDraw = false;
+        Mode       fMode;
+        SkString   fShortName;
+        SkColor    fBGColor;
+        bool       fHaveCalledOnceBeforeDraw = false;
+        bool       fGpuSetup = false;
+        DrawResult fGpuSetupResult = DrawResult::kOk;
     };
 
     using GMFactory = std::unique_ptr<skiagm::GM> (*)();

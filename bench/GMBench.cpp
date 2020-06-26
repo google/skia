@@ -22,12 +22,26 @@ bool GMBench::isSuitableFor(Backend backend) {
 }
 
 void GMBench::onPerCanvasPreDraw(SkCanvas* canvas) {
+    if (fGM->gpuSetup(canvas->getGrContext(), canvas) != skiagm::DrawResult::kOk) {
+        fGpuSetupFailed = true;
+    }
+
     fGM->onceBeforeDraw();
 }
 
-void GMBench::onPerCanvasPostDraw(SkCanvas*) {}
+void GMBench::onPerCanvasPostDraw(SkCanvas*) {
+    fGM->gpuTeardown();
+
+    // The same GM will be reused with multiple GrContexts. Let the next GrContext start
+    // afresh.
+    fGpuSetupFailed = false;
+}
 
 void GMBench::onDraw(int loops, SkCanvas* canvas) {
+    if (fGpuSetupFailed) {
+        return;
+    }
+
     fGM->drawBackground(canvas);
     for (int i = 0; i < loops; ++i) {
         fGM->drawContent(canvas);
