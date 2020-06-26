@@ -512,8 +512,8 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 skvm::F32 x = m[0]*local.x + m[3]*local.y + m[6],
                           y = m[1]*local.x + m[4]*local.y + m[7],
                           w = m[2]*local.x + m[5]*local.y + m[8];
-                x = x / w;
-                y = y / w;
+                x = x * (1.0f / w);
+                y = y * (1.0f / w);
 
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
                 skvm::Color c = as_SB(children[ix])->program(p, device, {x,y},paint,

@@ -258,8 +258,8 @@ skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
         x = dot(0);
         y = dot(1);
         if (m.hasPerspective()) {
-            x = p->div(x, dot(2));
-            y = p->div(y, dot(2));
+            x = x * (1.0f / dot(2));
+            y = y * (1.0f / dot(2));
         }
     }
     return {x,y};
