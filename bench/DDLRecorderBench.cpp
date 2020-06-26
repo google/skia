@@ -81,7 +81,7 @@ private:
     }
 
     std::unique_ptr<SkDeferredDisplayListRecorder>      fRecorder = nullptr;
-    std::vector<SkDDLPointer>                           fDDLs;
+    std::vector<sk_sp<SkDeferredDisplayList>>           fDDLs;
 
     typedef Benchmark INHERITED;
 };
