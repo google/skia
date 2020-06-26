@@ -53,6 +53,10 @@ sk_image_t* sk_surface_new_image_snapshot(sk_surface_t* csurf) {
     return ToImage(AsSurface(csurf)->makeImageSnapshot().release());
 }
 
+sk_image_t* sk_surface_new_image_snapshot_with_crop(sk_surface_t* surface, const sk_irect_t* bounds) {
+    return ToImage(AsSurface(surface)->makeImageSnapshot(*AsIRect(bounds)).release());
+}
+
 sk_surface_t* sk_surface_new_backend_render_target(gr_context_t* context, const gr_backendrendertarget_t* target, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_colorspace_t* colorspace, const sk_surfaceprops_t* props) {
     return ToSurface(SkSurface::MakeFromBackendRenderTarget(AsGrContext(context), *AsGrBackendRenderTarget(target), (GrSurfaceOrigin)origin, (SkColorType)colorType, sk_ref_sp(AsColorSpace(colorspace)), AsSurfaceProps(props)).release());
 }
