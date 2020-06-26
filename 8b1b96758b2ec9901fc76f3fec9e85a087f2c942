@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "18b33ea0_79104356",
+        "filename": "gm/fp_sample_chaining.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-26T15:30:15Z",
+      "side": 1,
+      "message": "Added a comment. Tried to hoist it to a local, and triggered another bug, which I\u0027m adding to the list of issues we\u0027ve uncovered (and will tackle in a follow-up CL).",
+      "parentUuid": "f73167e1_1558710c",
+      "range": {
+        "startLine": 302,
+        "startChar": 30,
+        "endLine": 302,
+        "endChar": 42
+      },
+      "revId": "8b1b96758b2ec9901fc76f3fec9e85a087f2c942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f72b3cfd_1836a660",
         "filename": "gm/fp_sample_chaining.cpp",
         "patchSetId": 3
@@ -107,6 +131,30 @@
       "writtenOn": "2020-06-26T15:17:03Z",
       "side": 1,
       "message": "This is currently affected by the matrix * 0.5, so it wouldn\u0027t quite match what the non-runtime variable effect is doing, right?",
+      "range": {
+        "startLine": 340,
+        "startChar": 46,
+        "endLine": 340,
+        "endChar": 72
+      },
+      "revId": "8b1b96758b2ec9901fc76f3fec9e85a087f2c942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ea6739f_b1e2c6e5",
+        "filename": "gm/fp_sample_chaining.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-26T15:30:15Z",
+      "side": 1,
+      "message": "Except that the *0.5 affects m_33, so it\u0027s a no-op after the perspective divide. ;)",
+      "parentUuid": "f72b3cfd_1836a660",
       "range": {
         "startLine": 340,
         "startChar": 46,
