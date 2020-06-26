@@ -20,11 +20,11 @@ template <>
 size_t parse_node<Component>(StreamReader* sr, Component* node) {
     node->setName(sr->readString("name"));
 
-    const auto parent_index = sr->readUInt16("parent");
+    const auto parent_id = sr->readId("parent");
 
-    SkDebugf(".. %s -> %d\n", node->getName().c_str(), parent_index);
+    SkDebugf(".. %s -> %d\n", node->getName().c_str(), parent_id);
 
-    return parent_index;
+    return parent_id;
 }
 
 template <>

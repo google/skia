@@ -20,13 +20,13 @@ extern void parse_fill_stroke(StreamReader*, Paint*);
 
 template <>
 size_t parse_node<ColorPaint>(StreamReader* sr, ColorPaint* node) {
-    const auto parent_index = parse_node<Paint>(sr, node);
+    const auto parent_id = parse_node<Paint>(sr, node);
 
     node->setColor(sr->readColor("color"));
 
     parse_fill_stroke(sr, node);
 
-    return parent_index;
+    return parent_id;
 }
 
 } // namespace internal

@@ -28,6 +28,10 @@ private:
         return next_pos <= block_end;
     }
 
+    uint16_t readId(const char label[]) override {
+        return this->readUInt16(label);
+    }
+
     bool readBool(const char[]) override {
         uint8_t v;
 
