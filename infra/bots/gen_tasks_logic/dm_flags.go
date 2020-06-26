@@ -956,7 +956,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
 	}
 
-	if b.extraConfig("Direct3D") {
+        if b.extraConfig("Direct3D") {
 		// skia:9935
 		match = append(match, "~^ColorTypeBackendAllocationTest$")
 		match = append(match, "~^CompressedBackendAllocationTest$")
@@ -971,13 +971,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~^TextureIdleStateTest$")
 		match = append(match, "~^TextureProxyTest$")
 	}
-	if b.extraConfig("Direct3D") && b.matchOs("Win") {
+
+        if b.extraConfig("Direct3D") && b.gpu("RadeonHD7770") && b.matchOs("Win") {
 		// skia:9935
-		match = append(match, "~^ImageAsyncReadPixels$")
-	}
-	if b.extraConfig("Direct3D") && b.gpu("RadeonHD7770") && b.matchOs("Win") {
-		// skia:9935
-		match = append(match, "~^SurfaceAsyncReadPixels$")
+		match = append(match, "~^AsyncReadPixels$")
 		match = append(match, "~^MorphologyFilterRadiusWithMirrorCTM_Gpu$")
 		match = append(match, "~^ReadPixels_Gpu$")
 		match = append(match, "~^ReadPixels_Texture$")
