@@ -76,6 +76,10 @@ GrContext* SkSurface_Base::onGetContext() {
     return nullptr;
 }
 
+GrRecordingContext* SkSurface_Base::onGetRecordingContext() {
+    return nullptr;
+}
+
 GrBackendTexture SkSurface_Base::onGetBackendTexture(BackendHandleAccess) {
     return GrBackendTexture(); // invalid
 }
@@ -330,6 +334,10 @@ void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
 
 GrContext* SkSurface::getContext() {
     return asSB(this)->onGetContext();
+}
+
+GrRecordingContext* SkSurface::recordingContext() {
+    return asSB(this)->onGetRecordingContext();
 }
 
 GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {

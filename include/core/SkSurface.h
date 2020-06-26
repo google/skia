@@ -531,6 +531,11 @@ public:
     */
     GrContext* getContext();
 
+    /**
+     * Experimental. SkSurfaces can actually only guarantee a GrRecordingContext.
+     */
+    GrRecordingContext* recordingContext();
+
     enum BackendHandleAccess {
         kFlushRead_BackendHandleAccess,    //!< back-end object is readable
         kFlushWrite_BackendHandleAccess,   //!< back-end object is writable

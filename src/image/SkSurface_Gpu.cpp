@@ -43,6 +43,10 @@ GrContext* SkSurface_Gpu::onGetContext() {
     return fDevice->context();
 }
 
+GrRecordingContext* SkSurface_Gpu::onGetRecordingContext() {
+    return fDevice->recordingContext();
+}
+
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
                                                       SkSurface::BackendHandleAccess access) {
     switch (access) {

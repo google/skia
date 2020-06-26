@@ -21,6 +21,7 @@ public:
     virtual ~SkSurface_Base();
 
     virtual GrContext* onGetContext();
+    virtual GrRecordingContext* onGetRecordingContext();
 
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
     virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);
