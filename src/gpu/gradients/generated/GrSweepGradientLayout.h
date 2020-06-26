@@ -18,7 +18,6 @@
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkSweepGradient.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrSweepGradientLayout : public GrFragmentProcessor {

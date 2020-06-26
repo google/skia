@@ -69,34 +69,22 @@ const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::textureSampler(i
 }
 
 int GrFragmentProcessor::numCoordTransforms() const {
-    if (SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) && fCoordTransforms.empty() &&
-        !this->isSampledWithExplicitCoords()) {
+    if (SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) && !this->isSampledWithExplicitCoords()) {
         // coordTransform(0) will return an implicitly defined coord transform so that varyings are
         // added for this FP in order to support const/uniform sample matrix lifting.
         return 1;
     } else {
-        return fCoordTransforms.count();
+        return 0;
     }
 }
 
 const GrCoordTransform& GrFragmentProcessor::coordTransform(int i) const {
-    SkASSERT(i >= 0 && i < this->numCoordTransforms());
-    if (SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) && fCoordTransforms.empty() &&
-        !this->isSampledWithExplicitCoords()) {
-        SkASSERT(i == 0);
-
-        // as things stand, matrices only work when there's a coord transform, so we need to add
-        // an identity transform to keep the downstream code happy
-        static const GrCoordTransform kImplicitIdentity;
-        return kImplicitIdentity;
-    } else {
-        return *fCoordTransforms[i];
-    }
-}
-
-void GrFragmentProcessor::addCoordTransform(GrCoordTransform* transform) {
-    fCoordTransforms.push_back(transform);
-    fFlags |= kHasCoordTransforms_Flag;
+    SkASSERT(i == 0 && SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) &&
+             !this->isSampledWithExplicitCoords());
+    // as things stand, matrices only work when there's a coord transform, so we need to add
+    // an identity transform to keep the downstream code happy
+    static const GrCoordTransform kImplicitIdentity;
+    return kImplicitIdentity;
 }
 
 void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
@@ -163,10 +151,6 @@ int GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chil
     }
     if (sampleMatrix.fKind != SkSL::SampleMatrix::Kind::kNone) {
         child->setSampleMatrix(sampleMatrix);
-    }
-
-    if (child->fFlags & kHasCoordTransforms_Flag) {
-        fFlags |= kHasCoordTransforms_Flag;
     }
 
     if (child->sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable) {

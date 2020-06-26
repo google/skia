@@ -263,7 +263,7 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
 void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                             const GrFragmentProcessor& processor) {
     const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
-    pdman.set2fv(fKernelOffsetUni, 1, conv.kernelOffset().ptr());
+    pdman.set2f(fKernelOffsetUni, conv.kernelOffset().fX, conv.kernelOffset().fY);
     float totalGain = conv.gain();
     if (conv.kernelIsSampled()) {
         totalGain *= conv.kernelSampleGain();
@@ -298,7 +298,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentP
     }
     fKernelOffset = {static_cast<float>(kernelOffset.x()),
                      static_cast<float>(kernelOffset.y())};
-    this->addCoordTransform(&fCoordTransform);
+    this->setUsesSampleCoordsDirectly();
 }
 
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEffect& that)
@@ -309,7 +309,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEf
         , fKernelOffset(that.fKernelOffset)
         , fConvolveAlpha(that.fConvolveAlpha) {
     this->cloneAndRegisterAllChildProcessors(that);
-    this->addCoordTransform(&fCoordTransform);
+    this->setUsesSampleCoordsDirectly();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::clone() const {

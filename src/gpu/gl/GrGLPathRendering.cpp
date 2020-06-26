@@ -7,6 +7,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/gl/GrGLGpu.h"
