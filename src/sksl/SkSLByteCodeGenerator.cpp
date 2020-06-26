@@ -721,7 +721,7 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruct
             break;
         case TypeCategory::kFloat: {
             if (count > 4) {
-                this->write((ByteCodeInstruction)((int)f + 1), count);
+                this->write((ByteCodeInstruction)((int)f + 1 - 5), count);
                 this->write8(count);
             } else {
                 this->write(vector_instruction(f, count));
