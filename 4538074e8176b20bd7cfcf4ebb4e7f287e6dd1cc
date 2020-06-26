@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "342a4e22_6d93bc7f",
+        "filename": "tools/gpu/BackendTextureImageFactory.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-26T15:11:43Z",
+      "side": 1,
+      "message": "Not for this CL but I wonder if we should merge/organize together this with some of the tool work Rob has been doing for YUV. Like he\u0027s made some yuv utils that make backend textures for classes with various release proc helpers, etc. Seems like some sort of unified \"here\u0027s a tool with a bunch of functions to get the backend textures you need for your test\" would be nice so we don\u0027t have a bunch of these one off helpers here and there.",
+      "range": {
+        "startLine": 23,
+        "startChar": 14,
+        "endLine": 23,
+        "endChar": 38
+      },
+      "revId": "4538074e8176b20bd7cfcf4ebb4e7f287e6dd1cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
