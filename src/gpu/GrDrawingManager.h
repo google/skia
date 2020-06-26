@@ -13,7 +13,6 @@
 #include "include/private/SkTHash.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
-#include "src/gpu/GrHashMapWithCache.h"
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrPathRendererChain.h"
 #include "src/gpu/GrResourceCache.h"
@@ -253,13 +252,17 @@ private:
     // Note: we do not expect a whole lot of these per flush
     SkTHashMap<uint32_t, GrRenderTargetProxy*> fDDLTargets;
 
-    struct SurfaceIDKeyTraits {
-        static uint32_t GetInvalidKey() {
-            return GrSurfaceProxy::UniqueID::InvalidID().asUInt();
+    struct CheapHash {
+        uint32_t operator()(uint32_t value) {
+            return SkChecksum::CheapMix(value);
         }
     };
 
-    GrHashMapWithCache<uint32_t, GrRenderTask*, SurfaceIDKeyTraits, GrCheapHash> fLastRenderTasks;
+    // The last render task for a given surface ID.
+    // Note: This table only contains entries for GrSurfaceProxies whose inline lastRenderTask
+    // storage was already reserved by a different drawing manager (e.g. DDL recorders).
+    SkTHashMap<uint32_t, GrRenderTask*, CheapHash> fLastRenderTasks;
+
 };
 
 #endif

@@ -38,6 +38,7 @@ void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
     for (const GrSurfaceProxyView& target : fTargets) {
         if (this == drawingMgr->getLastRenderTask(target.proxy())) {
             drawingMgr->setLastRenderTask(target.proxy(), nullptr);
+            target.proxy()->lastRenderTask().release(drawingMgr);
         }
     }
 }
