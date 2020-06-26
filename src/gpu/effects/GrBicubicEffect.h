@@ -103,7 +103,6 @@ private:
     };
 
     GrBicubicEffect(std::unique_ptr<GrFragmentProcessor>,
-                    const SkMatrix&,
                     Kernel,
                     Direction,
                     Clamp);
@@ -118,7 +117,6 @@ private:
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
-    GrCoordTransform fCoordTransform;
     Kernel fKernel;
     Direction fDirection;
     Clamp fClamp;
