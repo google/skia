@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a8e529aa_b2fb522a",
+        "filename": "gm/fp_sample_chaining.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-26T15:19:14Z",
+      "side": 1,
+      "message": "Right, it\u0027s implicitly transforming the incoming sample coords (xy in this case). In .fp files, that\u0027s also more convenient, because the coords aren\u0027t right there, so you need know what they\u0027re called.\n\nYou could write this as sample(child, matrix * xy), but in that case we see it as a call with \"explicit\" coords, so we don\u0027t know it was a (linear) matrix being applied. The matrix form lets us concatenate transforms from multiple effects chained together, and hoist that work to the vertex shader.",
+      "parentUuid": "0d7d2b4c_cde2dc4b",
+      "range": {
+        "startLine": 294,
+        "startChar": 30,
+        "endLine": 294,
+        "endChar": 36
+      },
+      "revId": "8b1b96758b2ec9901fc76f3fec9e85a087f2c942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f73167e1_1558710c",
         "filename": "gm/fp_sample_chaining.cpp",
         "patchSetId": 3
