@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "327315f0_535ad3e1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-26T17:38:09Z",
+      "side": 1,
+      "message": "Eliminate the 1-4 specializations, writing a byte count all the time for anything that supports N \u003e 1.",
+      "parentUuid": "0f8af91e_30dd4f31",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 53
+      },
+      "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ce3fbb2_240ec726",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
@@ -78,6 +102,24 @@
       "side": 1,
       "message": "We have some preliminary information that\u0027s tracked (currently just if there\u0027s perspective or not), but it\u0027s stored in fragment processors. There is a bit of analysis done up front when we create the runtime effect (which later feeds into the FP information), but we should be able to get to it (or propagate it). Michael and I want to add more type knowledge (scale+translate, etc...) so we can optimize the GPU implementation, too.",
       "parentUuid": "8ce3fbb2_240ec726",
+      "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e69ad82_0e9941ac",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-26T17:38:09Z",
+      "side": 1,
+      "message": "As is we\u0027ll have a little bit of metadata tracked through by skvm natively, including whether the values of the matrix are known constants or uniforms.  The constants stuff doesn\u0027t help quite as much as you think, as while we can optimize x*1 and 1*x to x, we can\u0027t turn 0*x or x*0 into 0.  Knowing what\u0027s uniform does let us hoist a big chunk of the y-dependent math.\n\nThat\u0027s all to say, knowing the shape of the matrix will help further beyond what skvm can divine, and that same equivalent logic we use in SkShaderBase::ApplyMatrix() has been a benefit.",
+      "parentUuid": "9768056e_18e63adb",
       "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
