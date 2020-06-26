@@ -39,6 +39,24 @@
       "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9768056e_18e63adb",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-26T17:32:24Z",
+      "side": 1,
+      "message": "We have some preliminary information that\u0027s tracked (currently just if there\u0027s perspective or not), but it\u0027s stored in fragment processors. There is a bit of analysis done up front when we create the runtime effect (which later feeds into the FP information), but we should be able to get to it (or propagate it). Michael and I want to add more type knowledge (scale+translate, etc...) so we can optimize the GPU implementation, too.",
+      "parentUuid": "8ce3fbb2_240ec726",
+      "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
