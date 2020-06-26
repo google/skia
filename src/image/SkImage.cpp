@@ -24,6 +24,7 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkReadPixelsRec.h"
+#include "src/image/SkRescaleAndReadPixels.h"
 #include "src/shaders/SkImageShader.h"
 
 #if SK_SUPPORT_GPU
@@ -50,6 +51,44 @@ bool SkImage::peekPixels(SkPixmap* pm) const {
 bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
                          int srcY, CachingHint chint) const {
     return as_IB(this)->onReadPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY, chint);
+}
+
+void SkImage::asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                        const SkIRect& srcRect,
+                                        RescaleGamma rescaleGamma,
+                                        SkFilterQuality rescaleQuality,
+                                        ReadPixelsCallback callback,
+                                        ReadPixelsContext context) {
+    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) ||
+        !SkImageInfoIsValid(info)) {
+        callback(context, nullptr);
+        return;
+    }
+    as_IB(this)->onAsyncRescaleAndReadPixels(
+            info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+}
+
+void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                              sk_sp<SkColorSpace> dstColorSpace,
+                                              const SkIRect& srcRect,
+                                              const SkISize& dstSize,
+                                              RescaleGamma rescaleGamma,
+                                              SkFilterQuality rescaleQuality,
+                                              ReadPixelsCallback callback,
+                                              ReadPixelsContext context) {
+    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) || dstSize.isZero() ||
+        (dstSize.width() & 0b1) || (dstSize.height() & 0b1)) {
+        callback(context, nullptr);
+        return;
+    }
+    as_IB(this)->onAsyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+                                                   std::move(dstColorSpace),
+                                                   srcRect,
+                                                   dstSize,
+                                                   rescaleGamma,
+                                                   rescaleQuality,
+                                                   callback,
+                                                   context);
 }
 
 bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingHint chint) const {
@@ -205,6 +244,44 @@ SkImage_Base::~SkImage_Base() {
     if (fAddedToRasterCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
+}
+
+void SkImage_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                               const SkIRect& origSrcRect,
+                                               RescaleGamma rescaleGamma,
+                                               SkFilterQuality rescaleQuality,
+                                               ReadPixelsCallback callback,
+                                               ReadPixelsContext context) {
+    SkBitmap src;
+    SkPixmap peek;
+    SkIRect srcRect;
+    if (this->peekPixels(&peek)) {
+        src.installPixels(peek);
+        srcRect = origSrcRect;
+    } else {
+        src.setInfo(this->imageInfo().makeDimensions(origSrcRect.size()));
+        src.allocPixels();
+        if (!this->readPixels(src.pixmap(), origSrcRect.x(), origSrcRect.y())) {
+            callback(context, nullptr);
+            return;
+        }
+        srcRect = SkIRect::MakeSize(src.dimensions());
+    }
+    return SkRescaleAndReadPixels(
+            src, info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+}
+
+void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+                                                     sk_sp<SkColorSpace> dstColorSpace,
+                                                     const SkIRect& srcRect,
+                                                     const SkISize& dstSize,
+                                                     RescaleGamma,
+                                                     SkFilterQuality,
+                                                     ReadPixelsCallback callback,
+                                                     ReadPixelsContext context) {
+    // TODO: Call non-YUV asyncRescaleAndReadPixels and then make our callback convert to YUV and
+    // call client's callback.
+    callback(context, nullptr);
 }
 
 GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
