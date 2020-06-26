@@ -1865,6 +1865,11 @@ GrContext* SkCanvas::getGrContext() {
     return device ? device->context() : nullptr;
 }
 
+GrRecordingContext* SkCanvas::recordingContext() {
+    SkBaseDevice* device = this->getTopDevice();
+    return device ? device->recordingContext() : nullptr;
+}
+
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
