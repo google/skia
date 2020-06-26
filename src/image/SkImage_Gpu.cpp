@@ -123,6 +123,47 @@ sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) c
                                    this->alphaType(), std::move(newCS));
 }
 
+void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                              const SkIRect& srcRect,
+                                              RescaleGamma rescaleGamma,
+                                              SkFilterQuality rescaleQuality,
+                                              ReadPixelsCallback callback,
+                                              ReadPixelsContext context) {
+    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
+    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
+                                      this->refColorSpace());
+    if (!ctx) {
+        callback(context, nullptr);
+        return;
+    }
+    ctx->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+}
+
+void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                    sk_sp<SkColorSpace> dstColorSpace,
+                                                    const SkIRect& srcRect,
+                                                    const SkISize& dstSize,
+                                                    RescaleGamma rescaleGamma,
+                                                    SkFilterQuality rescaleQuality,
+                                                    ReadPixelsCallback callback,
+                                                    ReadPixelsContext context) {
+    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
+    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
+                                      this->refColorSpace());
+    if (!ctx) {
+        callback(context, nullptr);
+        return;
+    }
+    ctx->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+                                         std::move(dstColorSpace),
+                                         srcRect,
+                                         dstSize,
+                                         rescaleGamma,
+                                         rescaleQuality,
+                                         callback,
+                                         context);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,

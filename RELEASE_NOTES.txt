@@ -16,6 +16,9 @@ Milestone 86
   * Enable BackendSemaphores for the Direct3D backend.
     https://review.skia.org/298752
 
+  * Added SkImage:asyncRescaleAndReadPixels and SkImage::asyncRescaleAndReadPixelsYUV420
+    https://review.skia.org/299281
+
 * * *
 
 Milestone 85

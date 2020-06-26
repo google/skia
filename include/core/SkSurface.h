@@ -769,22 +769,7 @@ public:
     */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
-    /** The result from asyncRescaleAndReadPixels() or asyncRescaleAndReadPixelsYUV420(). */
-    class AsyncReadResult {
-    public:
-        AsyncReadResult(const AsyncReadResult&) = delete;
-        AsyncReadResult(AsyncReadResult&&) = delete;
-        AsyncReadResult& operator=(const AsyncReadResult&) = delete;
-        AsyncReadResult& operator=(AsyncReadResult&&) = delete;
-
-        virtual ~AsyncReadResult() = default;
-        virtual int count() const = 0;
-        virtual const void* data(int i) const = 0;
-        virtual size_t rowBytes(int i) const = 0;
-
-    protected:
-        AsyncReadResult() = default;
-    };
+    using AsyncReadResult = SkImage::AsyncReadResult;
 
     /** Client-provided context that is passed to client-provided ReadPixelsContext. */
     using ReadPixelsContext = void*;
@@ -797,7 +782,7 @@ public:
     /** Controls the gamma that rescaling occurs in for asyncRescaleAndReadPixels() and
         asyncRescaleAndReadPixelsYUV420().
      */
-    enum RescaleGamma : bool { kSrc, kLinear };
+    using RescaleGamma = SkImage::RescaleGamma;
 
     /** Makes surface pixel data available to caller, possibly asynchronously. It can also rescale
         the surface pixels.
@@ -829,9 +814,12 @@ public:
         @param callback        function to call with result of the read
         @param context         passed to callback
      */
-    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
-                                   ReadPixelsCallback callback, ReadPixelsContext context);
+    void asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                   const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma,
+                                   SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback,
+                                   ReadPixelsContext context);
 
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
@@ -869,7 +857,7 @@ public:
                                          RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality,
                                          ReadPixelsCallback callback,
-                                         ReadPixelsContext);
+                                         ReadPixelsContext context);
 
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
