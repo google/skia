@@ -631,9 +631,6 @@ protected:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
 private:
-    // We really just want the unaltered local coords, but the only way to get that right now is
-    // an identity coord transform.
-    GrCoordTransform fCoordTransform = {};
     sk_sp<const SkImageFilterLight> fLight;
     SkScalar fSurfaceScale;
     SkMatrix fFilterMatrix;
@@ -1633,7 +1630,7 @@ GrLightingEffect::GrLightingEffect(ClassID classID,
                                       caps);
     }
     this->registerExplicitlySampledChild(std::move(child));
-    this->addCoordTransform(&fCoordTransform);
+    this->setUsesSampleCoordsDirectly();
 }
 
 GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
@@ -1643,7 +1640,7 @@ GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
         , fFilterMatrix(that.fFilterMatrix)
         , fBoundaryMode(that.fBoundaryMode) {
     this->cloneAndRegisterAllChildProcessors(that);
-    this->addCoordTransform(&fCoordTransform);
+    this->setUsesSampleCoordsDirectly();
 }
 
 bool GrLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

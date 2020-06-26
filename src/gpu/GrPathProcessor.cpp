@@ -8,6 +8,7 @@
 #include "src/gpu/GrPathProcessor.h"
 
 #include "include/private/SkTo.h"
+#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #ifdef SK_GL

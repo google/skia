@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 
 #include "include/core/SkYUVAIndex.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
@@ -50,7 +49,6 @@ private:
 
     SkYUVAIndex      fYUVAIndices[4];
     SkYUVColorSpace  fYUVColorSpace;
-    GrCoordTransform fTransform = {};
     bool             fSnap[2];
 };
 #endif

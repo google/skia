@@ -18,7 +18,6 @@
 
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrMatrixEffect.h"

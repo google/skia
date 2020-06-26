@@ -70,14 +70,14 @@ if (delta.x < 2.0 && delta.y < 2.0) {
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
-        SkString _coords1112("mix(coord, zoom_coord, weight)");
-        SkString _sample1112;
-        _sample1112 = this->invokeChild(_outer.src_index, args, _coords1112.c_str());
+        SkString _coords1077("mix(coord, zoom_coord, weight)");
+        SkString _sample1077;
+        _sample1077 = this->invokeChild(_outer.src_index, args, _coords1077.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = %s;
 )SkSL",
-                args.fOutputColor, _sample1112.c_str());
+                args.fOutputColor, _sample1077.c_str());
     }
 
 private:
@@ -136,7 +136,6 @@ bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         : INHERITED(kGrMagnifierEffect_ClassID, src.optimizationFlags())
-        , fCoordTransform0(src.fCoordTransform0)
         , bounds(src.bounds)
         , srcRect(src.srcRect)
         , xInvZoom(src.xInvZoom)
@@ -144,7 +143,6 @@ GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         , xInvInset(src.xInvInset)
         , yInvInset(src.yInvInset) {
     { src_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.src_index)); }
-    this->addCoordTransform(&fCoordTransform0);
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {

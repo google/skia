@@ -10,6 +10,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"

@@ -11,7 +11,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLPipelineStageCodeGenerator.h"

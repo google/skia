@@ -46,7 +46,7 @@ public:
 
     const SkIRect& bounds() const { return fBounds; }
     SkISize kernelSize() const { return fKernel.size(); }
-    const SkV2 kernelOffset() const { return fKernelOffset; }
+    const SkVector kernelOffset() const { return fKernelOffset; }
     bool kernelIsSampled() const { return fKernel.isSampled(); }
     const float *kernel() const { return fKernel.array().data(); }
     float kernelSampleGain() const { return fKernel.biasAndGain().fGain; }
@@ -129,14 +129,11 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    // We really just want the unaltered local coords, but the only way to get that right now is
-    // an identity coord transform.
-    GrCoordTransform fCoordTransform = {};
     SkIRect          fBounds;
     KernelWrapper    fKernel;
     float            fGain;
     float            fBias;
-    SkV2             fKernelOffset;
+    SkVector         fKernelOffset;
     bool             fConvolveAlpha;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST

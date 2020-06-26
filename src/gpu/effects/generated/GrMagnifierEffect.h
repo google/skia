@@ -14,7 +14,6 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkTypes.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrMagnifierEffect : public GrFragmentProcessor {
@@ -32,7 +31,6 @@ public:
     GrMagnifierEffect(const GrMagnifierEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MagnifierEffect"; }
-    GrCoordTransform fCoordTransform0;
     int src_index = -1;
     SkIRect bounds;
     SkRect srcRect;
@@ -50,7 +48,6 @@ private:
                       float xInvInset,
                       float yInvInset)
             : INHERITED(kGrMagnifierEffect_ClassID, kNone_OptimizationFlags)
-            , fCoordTransform0(SkMatrix::I())
             , bounds(bounds)
             , srcRect(srcRect)
             , xInvZoom(xInvZoom)
@@ -60,7 +57,6 @@ private:
         this->setUsesSampleCoordsDirectly();
         SkASSERT(src);
         src_index = this->registerExplicitlySampledChild(std::move(src));
-        this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

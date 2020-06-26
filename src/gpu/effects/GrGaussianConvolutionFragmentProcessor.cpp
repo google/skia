@@ -172,7 +172,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
     this->registerExplicitlySampledChild(std::move(child));
     SkASSERT(radius <= kMaxKernelRadius);
     fill_in_1D_gaussian_kernel(fKernel, gaussianSigma, fRadius);
-    this->addCoordTransform(&fCoordTransform);
+    this->setUsesSampleCoordsDirectly();
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
@@ -182,7 +182,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fDirection(that.fDirection) {
     this->cloneAndRegisterAllChildProcessors(that);
     memcpy(fKernel, that.fKernel, radius_to_width(fRadius) * sizeof(float));
-    this->addCoordTransform(&fCoordTransform);
+    this->setUsesSampleCoordsDirectly();
 }
 
 void GrGaussianConvolutionFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,

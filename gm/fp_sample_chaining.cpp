@@ -146,7 +146,7 @@ public:
     static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 7;
 
     TestPatternEffect() : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
-        this->addCoordTransform(&fCoordTransform);
+        this->setUsesSampleCoordsDirectly();
     }
 
     const char* name() const override { return "TestPatternEffect"; }
@@ -165,8 +165,6 @@ public:
         };
         return new Impl;
     }
-    // Placeholder identity coord transform to allow access to local coords
-    GrCoordTransform fCoordTransform = {};
 };
 
 SkBitmap make_test_bitmap() {
