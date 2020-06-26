@@ -430,6 +430,20 @@ func (b *taskBuilder) linuxGceDimensions(machineType string) {
 	)
 }
 
+// TODO(westont): Get rid of this, its a temporary fix.
+// linuxGceDimensions is like the above, but uses the to-be-removed OLD_OS_LINUX_GCE
+func (b *taskBuilder) oldLinuxGceDimensions(machineType string) {
+	b.dimension(
+		// Specify CPU to avoid running builds on bots with a more unique CPU.
+		"cpu:x86-64-Haswell_GCE",
+		"gpu:none",
+		// Currently all Linux GCE tasks run on 16-CPU machines.
+		fmt.Sprintf("machine_type:%s", machineType),
+		fmt.Sprintf("os:%s", OLD_OS_LINUX_GCE),
+		fmt.Sprintf("pool:%s", b.cfg.Pool),
+	)
+}
+
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func (b *jobBuilder) deriveCompileTaskName() string {
@@ -474,6 +488,8 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
 			ec = append(ec, "Docker")
+		} else if b.matchOs("Debian9") {
+			task_os = COMPILE_TASK_NAME_OS_LINUX_OLD
 		} else if b.matchOs("Ubuntu", "Debian") {
 			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.matchOs("Mac") {
@@ -734,7 +750,15 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		}
 	} else {
 		d["gpu"] = "none"
-		if d["os"] == DEFAULT_OS_LINUX_GCE {
+		if d["os"] == OLD_OS_LINUX_GCE {
+			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats") {
+				b.oldLinuxGceDimensions(MACHINE_TYPE_MEDIUM)
+				return
+			}
+			// Use many-core machines for Build tasks.
+			b.oldLinuxGceDimensions(MACHINE_TYPE_LARGE)
+			return
+		} else if d["os"] == DEFAULT_OS_LINUX_GCE {
 			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 				return
