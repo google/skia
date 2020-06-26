@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f958075c_c81bc043",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-26T14:01:23Z",
+      "side": 1,
+      "message": "I believe that is correct.",
+      "parentUuid": "54c53f67_adfd4b47",
+      "range": {
+        "startLine": 97,
+        "startChar": 27,
+        "endLine": 97,
+        "endChar": 47
+      },
+      "revId": "6079df0cb5528a9d6ee867b736b8e456b935a15e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30145902_68a65159",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "6079df0cb5528a9d6ee867b736b8e456b935a15e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "284cefa1_49f3ffcf",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-26T14:01:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30145902_68a65159",
+      "range": {
+        "startLine": 218,
+        "startChar": 4,
+        "endLine": 221,
+        "endChar": 46
+      },
+      "revId": "6079df0cb5528a9d6ee867b736b8e456b935a15e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
