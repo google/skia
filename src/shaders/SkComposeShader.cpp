@@ -205,10 +205,12 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
     if (!fpA) {
-        return GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(fpB), fMode);
+        return GrXfermodeFragmentProcessor::MakeFromSrcProcessor(/*inputFP=*/nullptr,
+                                                                 std::move(fpB), fMode);
     }
     if (!fpB) {
-        return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(fpA), fMode);
+        return GrXfermodeFragmentProcessor::MakeFromDstProcessor(/*inputFP=*/nullptr,
+                                                                 std::move(fpA), fMode);
     }
     return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB),
                                                               std::move(fpA), fMode);
