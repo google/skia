@@ -524,31 +524,6 @@ public:
      */
     void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
-    using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
-    using ReadPixelsContext = SkSurface::ReadPixelsContext;
-    using RescaleGamma = SkSurface::RescaleGamma;
-
-    // GPU implementation for SkSurface::asyncRescaleAndReadPixels.
-    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
-                                   ReadPixelsCallback callback, ReadPixelsContext context);
-    // GPU implementation for SkSurface::asyncRescaleAndReadPixelsYUV420.
-    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace,
-                                         const SkIRect& srcRect,
-                                         SkISize dstSize,
-                                         RescaleGamma rescaleGamma,
-                                         SkFilterQuality rescaleQuality,
-                                         ReadPixelsCallback callback,
-                                         ReadPixelsContext context);
-
-    /**
-     * After this returns any pending surface IO will be issued to the backend 3D API and
-     * if the surface has MSAA it will be resolved.
-     */
-    GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
-                                const GrBackendSurfaceMutableState*);
-
     /**
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in
      *  semaphores before executing any commands.
@@ -693,12 +668,6 @@ private:
     // The op should have already had setClippedBounds called on it.
     bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op,
                                                  GrXferProcessor::DstProxyView* result);
-
-    class AsyncReadResult;
-
-    // The async read step of asyncRescaleAndReadPixels()
-    void asyncReadPixels(const SkIRect& rect, SkColorType colorType, ReadPixelsCallback callback,
-                         ReadPixelsContext context);
 
     GrOpsTask* getOpsTask();
 
