@@ -22,6 +22,52 @@
       "revId": "8b1b96758b2ec9901fc76f3fec9e85a087f2c942",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f73167e1_1558710c",
+        "filename": "gm/fp_sample_chaining.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:17:03Z",
+      "side": 1,
+      "message": "Maybe we make a note here that this is only temporarily considered variable?\n\nI think a future proof way to right it would be\n\n   float3x3 varMatrix \u003d matrix * 0.5;\n   sample(child, varMatrix);",
+      "range": {
+        "startLine": 302,
+        "startChar": 30,
+        "endLine": 302,
+        "endChar": 42
+      },
+      "revId": "8b1b96758b2ec9901fc76f3fec9e85a087f2c942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f72b3cfd_1836a660",
+        "filename": "gm/fp_sample_chaining.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:17:03Z",
+      "side": 1,
+      "message": "This is currently affected by the matrix * 0.5, so it wouldn\u0027t quite match what the non-runtime variable effect is doing, right?",
+      "range": {
+        "startLine": 340,
+        "startChar": 46,
+        "endLine": 340,
+        "endChar": 72
+      },
+      "revId": "8b1b96758b2ec9901fc76f3fec9e85a087f2c942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
