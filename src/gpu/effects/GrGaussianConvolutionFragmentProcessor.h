@@ -8,7 +8,6 @@
 #ifndef GrGaussianConvolutionFragmentProcessor_DEFINED
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 /**
@@ -78,9 +77,6 @@ private:
 
     static constexpr int kMaxKernelWidth = 2*kMaxKernelRadius + 1;
 
-    // We really just want the unaltered local coords, but the only way to get that right now is
-    // an identity coord transform.
-    GrCoordTransform      fCoordTransform = {};
     // The array size must be a multiple of 4 because we pass it as an array of float4 uniform
     // values.
     float                 fKernel[SkAlign4(kMaxKernelWidth)];

@@ -145,7 +145,7 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
 
     if (fSnap[0] || fSnap[1]) {
         // Need this so that we can access coords in SKSL to perform snapping.
-        this->addCoordTransform(&fTransform);
+        this->setUsesSampleCoordsDirectly();
         for (int i = 0; i < numPlanes; ++i) {
             this->registerExplicitlySampledChild(std::move(planeFPs[i]));
         }
@@ -300,6 +300,9 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID, src.optimizationFlags())
         , fYUVColorSpace(src.fYUVColorSpace) {
     this->cloneAndRegisterAllChildProcessors(src);
+    if (src.fSnap[0] || src.fSnap[1]) {
+        this->setUsesSampleCoordsDirectly();
+    }
     std::copy_n(src.fYUVAIndices, this->numChildProcessors(), fYUVAIndices);
     std::copy_n(src.fSnap, 2, fSnap);
 }

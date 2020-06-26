@@ -10,7 +10,6 @@
 #include "src/core/SkPointPriv.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrGeometryProcessor.h"
