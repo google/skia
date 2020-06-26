@@ -14,6 +14,9 @@ Milestone 86
 Milestone 85
 ------------
 
+  * Added SkImage:asyncRescaleAndReadPixels and SkImage::asyncRescaleAndReadPixelsYUV420
+    https://review.skia.org/298558
+
   * Added GrContext::oomed() which reports whether Skia has seen a GL_OUT_OF_MEMORY
     error from Open GL [ES] or VK_ERROR_OUT_OF_*_MEMORY from Vulkan.
     https://review.skia.org/298216
