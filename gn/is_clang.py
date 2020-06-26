@@ -11,8 +11,8 @@ import subprocess
 import sys
 cc,cxx = sys.argv[1:3]
 
-if ('clang' in subprocess.check_output('%s --version' % cc, shell=True) and
-    'clang' in subprocess.check_output('%s --version' % cxx, shell=True)):
+if (b'clang' in subprocess.check_output('%s --version' % cc, shell=True) and
+    b'clang' in subprocess.check_output('%s --version' % cxx, shell=True)):
   print('true')
 else:
   print('false')
