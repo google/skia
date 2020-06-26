@@ -32,9 +32,11 @@ std::unique_ptr<GrFragmentProcessor> MakeFromSrcProcessor(
 /** Takes the input color, which is assumed to be unpremultiplied, passes it as an opaque color
     to both src and dst. The outputs of a src and dst are blended using mode and the original
     input's alpha is applied to the blended color to produce a premul output. */
-std::unique_ptr<GrFragmentProcessor> MakeFromTwoProcessors(std::unique_ptr<GrFragmentProcessor> src,
-                                                           std::unique_ptr<GrFragmentProcessor> dst,
-                                                           SkBlendMode mode);
+std::unique_ptr<GrFragmentProcessor> MakeFromTwoProcessors(
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        std::unique_ptr<GrFragmentProcessor> src,
+        std::unique_ptr<GrFragmentProcessor> dst,
+        SkBlendMode mode);
 
 };
 

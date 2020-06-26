@@ -204,15 +204,17 @@ static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorT
     if (!minLevelsChild || !otherChild) {
         return nullptr;
     }
-    SkBlendMode mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0,
-                                                               (int)SkBlendMode::kLastMode));
+    SkBlendMode mode =
+        static_cast<SkBlendMode>(d->fRandom->nextRangeU(0, (int)SkBlendMode::kLastMode));
     std::unique_ptr<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
-        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(minLevelsChild),
+        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(/*inputFP=*/nullptr,
+                                                                std::move(minLevelsChild),
                                                                 std::move(otherChild), mode);
         SkASSERT(fp);
     } else {
-        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(otherChild),
+        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(/*inputFP=*/nullptr,
+                                                                std::move(otherChild),
                                                                 std::move(minLevelsChild), mode);
         SkASSERT(fp);
     }
