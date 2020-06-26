@@ -14,6 +14,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkTypes.h"
 
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 
@@ -29,8 +30,6 @@ public:
     GrTwoPointConicalGradientLayout(const GrTwoPointConicalGradientLayout& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "TwoPointConicalGradientLayout"; }
-    GrCoordTransform fCoordTransform0;
-    SkMatrix gradientMatrix;
     Type type;
     bool isRadiusIncreasing;
     bool isFocalOnCircle;
@@ -40,8 +39,7 @@ public:
     SkPoint focalParams;
 
 private:
-    GrTwoPointConicalGradientLayout(SkMatrix gradientMatrix,
-                                    Type type,
+    GrTwoPointConicalGradientLayout(Type type,
                                     bool isRadiusIncreasing,
                                     bool isFocalOnCircle,
                                     bool isWellBehaved,
@@ -50,8 +48,6 @@ private:
                                     SkPoint focalParams)
             : INHERITED(kGrTwoPointConicalGradientLayout_ClassID,
                         (OptimizationFlags)kNone_OptimizationFlags)
-            , fCoordTransform0(gradientMatrix)
-            , gradientMatrix(gradientMatrix)
             , type(type)
             , isRadiusIncreasing(isRadiusIncreasing)
             , isFocalOnCircle(isFocalOnCircle)
@@ -60,7 +56,6 @@ private:
             , isNativelyFocal(isNativelyFocal)
             , focalParams(focalParams) {
         this->setUsesSampleCoordsDirectly();
-        this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
