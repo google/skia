@@ -1014,6 +1014,8 @@ public:
     GrSemaphoresSubmitted flush(const GrFlushInfo& info,
                                 const GrBackendSurfaceMutableState* newState = nullptr);
 
+    void flush() { this->flush({}); }
+
     /** Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
         executing any more commands on the GPU for this surface. Skia will take ownership of the
         underlying semaphores and delete them once they have been signaled and waited on.
