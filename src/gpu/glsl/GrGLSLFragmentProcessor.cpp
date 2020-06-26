@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"

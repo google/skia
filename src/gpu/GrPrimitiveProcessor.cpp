@@ -15,23 +15,17 @@
  * the transform code is applied.
  */
 enum SampleFlag {
-    kExplicitlySampled_Flag          = 0b0000001,  // GrFP::isSampledWithExplicitCoords()
+    kExplicitlySampled_Flag          = 0b00001,  // GrFP::isSampledWithExplicitCoords()
 
-    kLegacyCoordTransform_Flag       = 0b0000010, // !GrFP::coordTransform(i)::isNoOp()
+    kLegacyCoordTransform_Flag       = 0b00010, // !GrFP::coordTransform(i)::isNoOp()
 
-    kNone_SampleMatrix_Flag          = 0b0000100, // GrFP::sampleMatrix()::isNoOp()
-    kConstUniform_SampleMatrix_Flag  = 0b0001000, // GrFP::sampleMatrix()::isConstUniform()
-    kVariable_SampleMatrix_Flag      = 0b0001100, // GrFP::sampleMatrix()::isVariable()
-
-    // Legacy coord transforms specialize on identity, S+T, no-perspective, and general matrix types
-    // FIXME these (and kLegacyCoordTransform) can be removed once all FPs no longer use them
-    kLCT_ScaleTranslate_Matrix_Flag  = 0b0010000, // GrFP::coordTransform(i)::isScaleTranslate()
-    kLCT_NoPersp_Matrix_Flag         = 0b0100000, // !GrFP::coordTransform(i)::hasPerspective()
-    kLCT_General_Matrix_Flag         = 0b0110000, // any other matrix type
+    kNone_SampleMatrix_Flag          = 0b00100, // GrFP::sampleMatrix()::isNoOp()
+    kConstUniform_SampleMatrix_Flag  = 0b01000, // GrFP::sampleMatrix()::isConstUniform()
+    kVariable_SampleMatrix_Flag      = 0b01100, // GrFP::sampleMatrix()::isVariable()
 
     // Currently, sample(matrix) only specializes on no-perspective or general.
     // FIXME add new flags as more matrix types are supported.
-    kPersp_Matrix_Flag               = 0b1000000, // GrFP::sampleMatrix()::fHasPerspective
+    kPersp_Matrix_Flag               = 0b10000, // GrFP::sampleMatrix()::fHasPerspective
 };
 
 GrPrimitiveProcessor::GrPrimitiveProcessor(ClassID classID) : GrProcessor(classID) {}
@@ -42,30 +36,15 @@ const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::textureSampler
 }
 
 uint32_t GrPrimitiveProcessor::computeCoordTransformsKey(const GrFragmentProcessor& fp) const {
-    // This is highly coupled with the code in GrGLSLGeometryProcessor::emitTransforms().
-    // At this point, all effects either don't use legacy coord transforms, or only use 1.
-    SkASSERT(fp.numCoordTransforms() <= 1);
+    // This is highly coupled with the code in GrGLSLGeometryProcessor::collectTransforms().
+    // At this point, all effects do not use really coord transforms; they may implicitly report
+    // a noop coord transform but this does not impact the key.
+    SkASSERT(fp.numCoordTransforms() == 0 ||
+             (fp.numCoordTransforms() == 1 && fp.coordTransform(0).isNoOp()));
 
     uint32_t key = 0;
     if (fp.isSampledWithExplicitCoords()) {
         key |= kExplicitlySampled_Flag;
-    }
-    if (fp.numCoordTransforms() > 0) {
-        const GrCoordTransform& coordTransform = fp.coordTransform(0);
-        if (!coordTransform.isNoOp()) {
-            // A true identity matrix shouldn't result in a coord transform; proxy normalization
-            // and flipping will eventually present as a scale+translate matrix.
-            SkASSERT(!coordTransform.matrix().isIdentity() || coordTransform.normalize() ||
-                     coordTransform.reverseY());
-            key |= kLegacyCoordTransform_Flag;
-            if (coordTransform.matrix().isScaleTranslate()) {
-                key |= kLCT_ScaleTranslate_Matrix_Flag;
-            } else if (!coordTransform.matrix().hasPerspective()) {
-                key |= kLCT_NoPersp_Matrix_Flag;
-            } else {
-                key |= kLCT_General_Matrix_Flag;
-            }
-        }
     }
 
     switch(fp.sampleMatrix().fKind) {
