@@ -103,7 +103,7 @@ skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
                                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::F32 original = c.a;
     if ((c = this->onProgram(p,c, dstCS, uniforms,alloc))) {
-        if (this->getFlags() & kAlphaUnchanged_Flag) {
+        if (this->isAlphaUnchanged()) {
             c.a = original;
         }
         return c;
