@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "3a7ec547_0dac8782",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-26T17:41:14Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m going to go ahead and do that in a follow-up.",
+      "parentUuid": "327315f0_535ad3e1",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 53
+      },
+      "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ce3fbb2_240ec726",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
@@ -120,6 +144,24 @@
       "side": 1,
       "message": "As is we\u0027ll have a little bit of metadata tracked through by skvm natively, including whether the values of the matrix are known constants or uniforms.  The constants stuff doesn\u0027t help quite as much as you think, as while we can optimize x*1 and 1*x to x, we can\u0027t turn 0*x or x*0 into 0.  Knowing what\u0027s uniform does let us hoist a big chunk of the y-dependent math.\n\nThat\u0027s all to say, knowing the shape of the matrix will help further beyond what skvm can divine, and that same equivalent logic we use in SkShaderBase::ApplyMatrix() has been a benefit.",
       "parentUuid": "9768056e_18e63adb",
+      "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "456fac07_fcfb4f24",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-26T17:41:14Z",
+      "side": 1,
+      "message": "Yeah, the matrix specialization stuff is still under active development on the GPU side (I\u0027ve got a few more bugs to work out that we keep discovering as we add more complex test cases). But I\u0027ll plan to go back and route as much useful information as we can scrape to the VM builder, too.",
+      "parentUuid": "0e69ad82_0e9941ac",
       "revId": "ba4c2cd671be8e3ec487bbe4354bd83a2c24b096",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
