@@ -1,0 +1,61 @@
+syntax = "proto2";
+
+package perfetto.protos;
+
+import "protos/perfetto/metrics/metrics.proto";
+import "protos/perfetto/metrics/android/hwui_metric.proto";
+
+// Android HWUI graphics performance and graphics memory usage metrics augmented with
+// perf data which is specific to the Skottie player. Skottie app has an additional
+// render thread named "SkottieAnimator" in the traces. Perf metrics are filtered for
+// 'org.skia.skottie' process only.
+message ProcessRenderInfoEx {
+  //  original HWUI metric as defined by built-in perfetto proto.
+  optional ProcessRenderInfo hwui_process_info = 1;
+
+  // Number of times the Skottie GL thread rendered a frame and max/min/avg time for Skottie GL
+  // renderer to finish rendering in
+  // in nanoseconds. These values have 0 value for lottie player, because it does it renders only
+  // in RenderThread.
+  optional uint32 skottie_animator_count = 2;
+  optional int64 skottie_animator_max = 3;
+  optional int64 skottie_animator_min = 4;
+  optional double skottie_animator_avg = 5;
+
+  optional uint32 dequeue_buffer_count = 6;
+  optional int64 dequeue_buffer_max = 7;
+  optional int64 dequeue_buffer_min = 8;
+  optional double dequeue_buffer_avg = 9;
+
+  // The following 2 fields are useful to compare render thread performance between Lottie and
+  // Skottie players.
+  // Skottie metric is a sum of the time on RenderThread and SkottieAnimator threads, while Lottie
+  // is only the time on RenderThread.
+  optional double render_time_avg = 10;  // draw_frame_avg + skottie_animator_avg
+
+  // "render_time_avg_no_dequeue" tries to compensate the time spent to wait for a new buffer.
+  // It equals draw_frame_avg + skottie_animator_avg - dequeue_buffer_avg.
+  optional double render_time_avg_no_dequeue = 11;
+
+  optional int64 ui_thread_cpu_time = 12;  // CPU time spent on UI thread in nanoseconds
+  optional int64 rt_thread_cpu_time = 13;  // CPU time spent on RenderThread in nanoseconds
+  optional int64 hwui_tasks_cpu_time = 14; // CPU time spent on hwuiTask0/1 threads in nanoseconds
+  optional int64 skottie_animator_cpu_time = 15;  // CPU time spent on SkottieAnimator in ns
+
+  optional int64 total_cpu_time = 16;  // Total CPU time in nanoseconds. Equals
+  // ui_thread_cpu_time + rt_thread_cpu_time + skottie_animator_cpu_time + hwui_tasks_cpu_time
+
+  optional int64 total_gpu_time = 17;  // GPU time spent to render all content in nanoseconds.
+
+  // This one number is the "ultimate" benchmark to compare airbnb lottie vs skottie player.
+  // performance. It is the total time for any rendering related work on CPU and GPU combined.
+  optional int64 total_time = 18;      // This is total_cpu_time + total_gpu_time in nanoseconds.
+}
+
+message SkottieMetric {
+  repeated ProcessRenderInfoEx process_info = 1;
+}
+
+extend TraceMetrics {
+  optional SkottieMetric skottie_metric = 460;
+}
