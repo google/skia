@@ -11,6 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/gpu/GrAffinedStorage.h"
 #include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrSurface.h"
@@ -18,6 +19,7 @@
 
 class GrCaps;
 class GrContext_Base;
+class GrDrawingManager;
 class GrOpsTask;
 class GrRecordingContext;
 class GrRenderTargetProxy;
@@ -316,6 +318,12 @@ public:
                                       SkBackingFit,
                                       SkBudgeted);
 
+    // This accessor should only be used by the drawing manager as fast storage for the
+    // lastRenderTask association.
+    GrAffinedStorage<GrDrawingManager, GrRenderTask*>& lastRenderTask() const {
+        return fLastRenderTask;
+    }
+
 #if GR_TEST_UTILS
     int32_t testingOnly_getBackingRefCnt() const;
     GrInternalSurfaceFlags testingOnly_getFlags() const;
@@ -431,6 +439,8 @@ private:
     // If the proxy computes its own answer that answer is checked (in debug mode) in
     // the instantiation method.
     mutable size_t         fGpuMemorySize;
+
+    mutable GrAffinedStorage<GrDrawingManager, GrRenderTask*> fLastRenderTask{nullptr};
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrSurfaceProxy::ResolveFlags)
