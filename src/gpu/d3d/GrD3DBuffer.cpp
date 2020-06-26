@@ -200,6 +200,15 @@ void GrD3DBuffer::internalMap(size_t size) {
         range.End = size;
         fMappedResource->fD3DResource->Map(0, &range, &fMapPtr);
     } else {
+        if (!fResource->unique()) {
+            // in use by a previously submitted command list, so we need to create a new one
+            // TODO: try to use a recycled buffer resource
+            D3D12_RESOURCE_STATES resourceState;
+            fResource = Resource::Make(this->getD3DGpu(), this->size(), this->intendedType(),
+                                       this->accessPattern(), &resourceState);
+            SkASSERT(fResource);
+            fResourceState = resourceState; // no need to transition, this is a new resource
+        }
         fMappedResource = fResource;
         D3D12_RANGE range;
         range.Begin = 0;
