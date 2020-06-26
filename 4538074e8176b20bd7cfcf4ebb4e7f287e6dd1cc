@@ -22,6 +22,30 @@
       "revId": "4538074e8176b20bd7cfcf4ebb4e7f287e6dd1cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eb01c98_d792a4b4",
+        "filename": "tools/gpu/BackendTextureImageFactory.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-26T15:24:53Z",
+      "side": 1,
+      "message": "Yeah, I had the same thought. I also have another CL in progress that adds similar functionality for SkSurfaces. It\u0027d be nice to have consolidated set of helpers for making these wrapped test surface/image objects that clean themselves up. We have a bunch of test code that does it manually or has its own little helper.",
+      "parentUuid": "342a4e22_6d93bc7f",
+      "range": {
+        "startLine": 23,
+        "startChar": 14,
+        "endLine": 23,
+        "endChar": 38
+      },
+      "revId": "4538074e8176b20bd7cfcf4ebb4e7f287e6dd1cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
