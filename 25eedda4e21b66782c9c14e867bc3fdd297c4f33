@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5cfcab9_0eb87ae8",
+        "filename": "src/gpu/GrLegacyDirectContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-26T15:44:45Z",
+      "side": 1,
+      "message": "I think we still have the same problem because \u0027this\u0027 is the direct context not the recording context and so the test will always be true. I think fixing it would be something like:\n\n  auto overBudget \u003d [](GrRecordingContext* rc) {\n      if ((GrContext direct \u003d rc-\u003easDirecContext()))\n          this-\u003eflushAndSubmit();\n      }\n  }\n\nwhich means you\u0027d have to plumb the calling GrRecordingContext through the function calls that invoke the lambda in the cache. Which also obviates the need for a lambda. You could just inline that code where it would be called.\n\nAnother question, maybe for Rob, should the direct context check for overbudget status afte r or while flushing somewhere? I\u0027m wondering if all drawing is going through DDLs if we will ever actually try to purge the cache.",
+      "range": {
+        "startLine": 89,
+        "startChar": 36,
+        "endLine": 89,
+        "endChar": 40
+      },
+      "revId": "25eedda4e21b66782c9c14e867bc3fdd297c4f33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
