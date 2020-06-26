@@ -49,19 +49,7 @@ bool GrRecordingContext::init() {
         return false;
     }
 
-    auto overBudget = [this]() {
-        if (GrContext* direct = this->priv().asDirectContext(); direct != nullptr) {
-
-            // TODO: move text blob draw calls below context
-            // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on
-            // GrRenderTargetContext to perform a necessary flush. The solution is to move drawText
-            // calls to below the GrContext level, but this is not trivial because they call
-            // drawPath on SkGpuDevice.
-            direct->flushAndSubmit();
-        }
-    };
-
-    fTextBlobCache.reset(new GrTextBlobCache(overBudget, this->contextID()));
+    fTextBlobCache.reset(new GrTextBlobCache(this->contextID()));
 
     return true;
 }
