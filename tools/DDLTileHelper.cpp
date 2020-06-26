@@ -289,8 +289,10 @@ static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
 
     tile->draw(context);
 
+#ifdef SK_SP_IS_UNIQUE_POINTER
     // TODO: remove this flush once DDLs are reffed by the drawing manager
     context->flushAndSubmit();
+#endif
 
     tile->dropDDL();
 }
