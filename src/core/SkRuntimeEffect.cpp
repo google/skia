@@ -461,33 +461,36 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
       //auto u16 = [&]{ auto x = sk_unaligned_load<uint16_t>(ip); ip += sizeof(x); return x; };
         auto u32 = [&]{ auto x = sk_unaligned_load<uint32_t>(ip); ip += sizeof(x); return x; };
 
-        auto unary = [&](Inst base, auto&& fn, bool allow_big = false) {
-            int N = (int)base - (int)inst + 1;
-            SkASSERT(0 < N && N <= (allow_big ? 5 : 4));
-            if (N == 5) { N = u8(); }
-            std::vector<skvm::F32> args(N);
-            for (int i = 0; i < N; ++i) {
-                args[i] = pop();
-            }
-            for (int i = N; i --> 0;) {
-                push(fn(args[i]));
+        auto unary = [&](auto&& fn) {
+            int N = u8();
+            std::vector<skvm::F32> a(N);
+            for (int i = N; i --> 0; ) { a[i] = pop(); }
+
+            for (int i = 0; i < N; i++) {
+                push(fn(a[i]));
             }
         };
 
-        auto binary = [&](Inst base, auto&& fn, bool allow_big = false) {
-            int N = (int)base - (int)inst + 1;
-            SkASSERT(0 < N && N <= (allow_big ? 5 : 4));
-            if (N == 5) { N = u8(); }
-            std::vector<skvm::F32> right(N);
-            for (int i = 0; i < N; ++i) {
-                right[i] = pop();
+        auto binary = [&](auto&& fn) {
+            int N = u8();
+            std::vector<skvm::F32> a(N), b(N);
+            for (int i = N; i --> 0; ) { b[i] = pop(); }
+            for (int i = N; i --> 0; ) { a[i] = pop(); }
+
+            for (int i = 0; i < N; i++) {
+                push(fn(a[i], b[i]));
             }
-            std::vector<skvm::F32> left(N);
-            for (int i = 0; i < N; ++i) {
-                left[i] = pop();
-            }
-            for (int i = N; i --> 0;) {
-                push(fn(left[i], right[i]));
+        };
+
+        auto ternary = [&](auto&& fn) {
+            int N = u8();
+            std::vector<skvm::F32> a(N), b(N), c(N);
+            for (int i = N; i --> 0; ) { c[i] = pop(); }
+            for (int i = N; i --> 0; ) { b[i] = pop(); }
+            for (int i = N; i --> 0; ) { a[i] = pop(); }
+
+            for (int i = 0; i < N; i++) {
+                push(fn(a[i], b[i], c[i]));
             }
         };
 
@@ -552,55 +555,19 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             } break;
 
             case Inst::kLoad: {
-                int ix = u8();
-                push(stack[ix + 0]);
-            } break;
-
-            case Inst::kLoad2: {
-                int ix = u8();
-                push(stack[ix + 0]);
-                push(stack[ix + 1]);
-            } break;
-
-            case Inst::kLoad3: {
-                int ix = u8();
-                push(stack[ix + 0]);
-                push(stack[ix + 1]);
-                push(stack[ix + 2]);
-            } break;
-
-            case Inst::kLoad4: {
-                int ix = u8();
-                push(stack[ix + 0]);
-                push(stack[ix + 1]);
-                push(stack[ix + 2]);
-                push(stack[ix + 3]);
+                int N  = u8(),
+                    ix = u8();
+                for (int i = 0; i < N; ++i) {
+                    push(stack[ix + i]);
+                }
             } break;
 
             case Inst::kLoadUniform: {
-                int ix = u8();
-                push(uniform[ix]);
-            } break;
-
-            case Inst::kLoadUniform2: {
-                int ix = u8();
-                push(uniform[ix + 0]);
-                push(uniform[ix + 1]);
-            } break;
-
-            case Inst::kLoadUniform3: {
-                int ix = u8();
-                push(uniform[ix + 0]);
-                push(uniform[ix + 1]);
-                push(uniform[ix + 2]);
-            } break;
-
-            case Inst::kLoadUniform4: {
-                int ix = u8();
-                push(uniform[ix + 0]);
-                push(uniform[ix + 1]);
-                push(uniform[ix + 2]);
-                push(uniform[ix + 3]);
+                int N  = u8(),
+                    ix = u8();
+                for (int i = 0; i < N; ++i) {
+                    push(uniform[ix + i]);
+                }
             } break;
 
             case Inst::kLoadFragCoord: {
@@ -612,56 +579,22 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             } break;
 
             case Inst::kStore: {
-                int ix = u8();
-                stack[ix + 0] = pop();
+                int N  = u8(),
+                    ix = u8();
+                for (int i = N; i --> 0; ) {
+                    stack[ix + i] = pop();
+                }
             } break;
-
-            case Inst::kStore2: {
-                int ix = u8();
-                stack[ix + 1] = pop();
-                stack[ix + 0] = pop();
-            } break;
-
-            case Inst::kStore3: {
-                int ix = u8();
-                stack[ix + 2] = pop();
-                stack[ix + 1] = pop();
-                stack[ix + 0] = pop();
-            } break;
-
-            case Inst::kStore4: {
-                int ix = u8();
-                stack[ix + 3] = pop();
-                stack[ix + 2] = pop();
-                stack[ix + 1] = pop();
-                stack[ix + 0] = pop();
-            } break;
-
 
             case Inst::kPushImmediate: {
                 push(bit_cast(p->splat(u32())));
             } break;
 
             case Inst::kDup: {
-                push(stack[stack.size() - 1]);
-            } break;
-
-            case Inst::kDup2: {
-                push(stack[stack.size() - 2]);
-                push(stack[stack.size() - 2]);
-            } break;
-
-            case Inst::kDup3: {
-                push(stack[stack.size() - 3]);
-                push(stack[stack.size() - 3]);
-                push(stack[stack.size() - 3]);
-            } break;
-
-            case Inst::kDup4: {
-                push(stack[stack.size() - 4]);
-                push(stack[stack.size() - 4]);
-                push(stack[stack.size() - 4]);
-                push(stack[stack.size() - 4]);
+                int N = u8();
+                for (int i = 0; i < N; ++i) {
+                    push(stack[stack.size() - N]);
+                }
             } break;
 
             case Inst::kSwizzle: {
@@ -674,104 +607,34 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 }
             } break;
 
-            case Inst::kAddF:
-            case Inst::kAddF2:
-            case Inst::kAddF3:
-            case Inst::kAddF4:
-            case Inst::kAddFN: binary(Inst::kAddF, std::plus<>{}, true); break;
-
-            case Inst::kSubtractF:
-            case Inst::kSubtractF2:
-            case Inst::kSubtractF3:
-            case Inst::kSubtractF4:
-            case Inst::kSubtractFN: binary(Inst::kSubtractF, std::minus<>{}, true); break;
-
-            case Inst::kMultiplyF:
-            case Inst::kMultiplyF2:
-            case Inst::kMultiplyF3:
-            case Inst::kMultiplyF4:
-            case Inst::kMultiplyFN: binary(Inst::kMultiplyF, std::multiplies<>{}, true); break;
-
-            case Inst::kDivideF:
-            case Inst::kDivideF2:
-            case Inst::kDivideF3:
-            case Inst::kDivideF4:
-            case Inst::kDivideFN: binary(Inst::kDivideF, std::divides<>{}, true); break;
+            case Inst::kAddF:      binary(std::plus<>{});       break;
+            case Inst::kSubtractF: binary(std::minus<>{});      break;
+            case Inst::kMultiplyF: binary(std::multiplies<>{}); break;
+            case Inst::kDivideF:   binary(std::divides<>{});    break;
+            case Inst::kNegateF:    unary(std::negate<>{});     break;
 
             case Inst::kMinF:
-            case Inst::kMinF2:
-            case Inst::kMinF3:
-            case Inst::kMinF4:
-                binary(Inst::kMinF, [](skvm::F32 x, skvm::F32 y) { return skvm::min(x,y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return skvm::min(x,y); });
                 break;
 
             case Inst::kMaxF:
-            case Inst::kMaxF2:
-            case Inst::kMaxF3:
-            case Inst::kMaxF4:
-                binary(Inst::kMaxF, [](skvm::F32 x, skvm::F32 y) { return skvm::max(x,y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return skvm::max(x,y); });
                 break;
 
-            case Inst::kNegateF:
-            case Inst::kNegateF2:
-            case Inst::kNegateF3:
-            case Inst::kNegateF4:
-            case Inst::kNegateFN: unary(Inst::kNegateF, std::negate<>{}, true); break;
-
             case Inst::kPow:
-            case Inst::kPow2:
-            case Inst::kPow3:
-            case Inst::kPow4:
-                binary(Inst::kPow, [](skvm::F32 x, skvm::F32 y) { return skvm::approx_powf(x,y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return skvm::approx_powf(x,y); });
                 break;
 
             case Inst::kLerp:
-            case Inst::kLerp2:
-            case Inst::kLerp3:
-            case Inst::kLerp4: {
-                int N = (int)Inst::kLerp - (int)inst + 1;
+                ternary([](skvm::F32 x, skvm::F32 y, skvm::F32 t) { return skvm::lerp(x, y, t); });
+                break;
 
-                skvm::F32 t[4],
-                          b[4],
-                          a[4];
-                for (int i = N; i --> 0; ) { t[i] = pop(); }
-                for (int i = N; i --> 0; ) { b[i] = pop(); }
-                for (int i = N; i --> 0; ) { a[i] = pop(); }
-
-                for (int i = 0; i < N; i++) {
-                    push(skvm::lerp(a[i], b[i], t[i]));
-                }
-            } break;
-
-            case Inst::kATan:
-            case Inst::kATan2:
-            case Inst::kATan3:
-            case Inst::kATan4: unary(Inst::kATan, skvm::approx_atan); break;
-
-            case Inst::kCeil:
-            case Inst::kCeil2:
-            case Inst::kCeil3:
-            case Inst::kCeil4: unary(Inst::kCeil, skvm::ceil); break;
-
-            case Inst::kFloor:
-            case Inst::kFloor2:
-            case Inst::kFloor3:
-            case Inst::kFloor4: unary(Inst::kFloor, skvm::floor); break;
-
-            case Inst::kFract:
-            case Inst::kFract2:
-            case Inst::kFract3:
-            case Inst::kFract4: unary(Inst::kFract, skvm::fract); break;
-
-            case Inst::kSqrt:
-            case Inst::kSqrt2:
-            case Inst::kSqrt3:
-            case Inst::kSqrt4: unary(Inst::kSqrt, skvm::sqrt); break;
-
-            case Inst::kSin:
-            case Inst::kSin2:
-            case Inst::kSin3:
-            case Inst::kSin4: unary(Inst::kSin, skvm::approx_sin); break;
+            case Inst::kATan:  unary(skvm::approx_atan); break;
+            case Inst::kCeil:  unary(skvm::ceil);        break;
+            case Inst::kFloor: unary(skvm::floor);       break;
+            case Inst::kFract: unary(skvm::fract);       break;
+            case Inst::kSqrt:  unary(skvm::sqrt);        break;
+            case Inst::kSin:   unary(skvm::approx_sin);  break;
 
             case Inst::kMatrixMultiply: {
                 // Computes M = A*B (all stored column major)
@@ -798,11 +661,9 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kMaskPush:   break;
             case Inst::kMaskNegate: break;
 
-            case Inst::kCompareFLT: {
-                skvm::F32 x = pop(),
-                          a = pop();
-                push(bit_cast(a<x));
-            } break;
+            case Inst::kCompareFLT:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x<y); });
+                break;
 
             case Inst::kMaskBlend: {
                 std::vector<skvm::F32> if_true,
