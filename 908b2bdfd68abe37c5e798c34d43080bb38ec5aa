@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "922bd859_5d86fc89",
+        "filename": "src/gpu/GrLegacyDirectContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-26T14:21:53Z",
+      "side": 1,
+      "message": "At least for GL (and barring shared context groups) it can only be called on the thread that has the active GL context. Basically, this is grabbing a pointer to the all powerful direct context and giving access to it to all the lesser powered recording contexts.",
+      "parentUuid": "0667d166_6230c225",
+      "revId": "908b2bdfd68abe37c5e798c34d43080bb38ec5aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c26b5541_ee2f32de",
         "filename": "src/gpu/GrRecordingContext.cpp",
         "patchSetId": 3
