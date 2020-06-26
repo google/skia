@@ -1718,8 +1718,10 @@ Result GPUOOPRSink::ooprDraw(const Src& src,
 
     SkAssertResult(dstSurface->draw(ddl));
 
+#ifdef SK_SP_IS_UNIQUE_POINTER
     // TODO: remove this flush once DDLs are reffed by the drawing manager
     context->flushAndSubmit();
+#endif
 
     ddl.reset();
 
