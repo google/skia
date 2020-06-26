@@ -23,8 +23,6 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrSweepGradientLayout& _outer = args.fFp.cast<GrSweepGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix;
-        (void)gradientMatrix;
         auto bias = _outer.bias;
         (void)bias;
         auto scale = _outer.scale;
@@ -78,18 +76,14 @@ void GrSweepGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrSweepGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSweepGradientLayout& that = other.cast<GrSweepGradientLayout>();
     (void)that;
-    if (gradientMatrix != that.gradientMatrix) return false;
     if (bias != that.bias) return false;
     if (scale != that.scale) return false;
     return true;
 }
 GrSweepGradientLayout::GrSweepGradientLayout(const GrSweepGradientLayout& src)
         : INHERITED(kGrSweepGradientLayout_ClassID, src.optimizationFlags())
-        , fCoordTransform0(src.fCoordTransform0)
-        , gradientMatrix(src.gradientMatrix)
         , bias(src.bias)
         , scale(src.scale) {
-    this->addCoordTransform(&fCoordTransform0);
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::clone() const {
@@ -123,6 +117,7 @@ std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::Make(const SkSweepGr
         return nullptr;
     }
     matrix.postConcat(grad.getGradientMatrix());
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrSweepGradientLayout(matrix, grad.getTBias(), grad.getTScale()));
+    return GrMatrixEffect::Make(
+            matrix, std::unique_ptr<GrFragmentProcessor>(
+                            new GrSweepGradientLayout(grad.getTBias(), grad.getTScale())));
 }

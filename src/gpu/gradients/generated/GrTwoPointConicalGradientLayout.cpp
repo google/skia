@@ -24,8 +24,6 @@ public:
         const GrTwoPointConicalGradientLayout& _outer =
                 args.fFp.cast<GrTwoPointConicalGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix;
-        (void)gradientMatrix;
         auto type = _outer.type;
         (void)type;
         auto isRadiusIncreasing = _outer.isRadiusIncreasing;
@@ -160,7 +158,6 @@ void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& 
 bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTwoPointConicalGradientLayout& that = other.cast<GrTwoPointConicalGradientLayout>();
     (void)that;
-    if (gradientMatrix != that.gradientMatrix) return false;
     if (type != that.type) return false;
     if (isRadiusIncreasing != that.isRadiusIncreasing) return false;
     if (isFocalOnCircle != that.isFocalOnCircle) return false;
@@ -173,8 +170,6 @@ bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other
 GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
         const GrTwoPointConicalGradientLayout& src)
         : INHERITED(kGrTwoPointConicalGradientLayout_ClassID, src.optimizationFlags())
-        , fCoordTransform0(src.fCoordTransform0)
-        , gradientMatrix(src.gradientMatrix)
         , type(src.type)
         , isRadiusIncreasing(src.isRadiusIncreasing)
         , isFocalOnCircle(src.isFocalOnCircle)
@@ -182,7 +177,6 @@ GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
         , isSwapped(src.isSwapped)
         , isNativelyFocal(src.isNativelyFocal)
         , focalParams(src.focalParams) {
-    this->addCoordTransform(&fCoordTransform0);
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::clone() const {
@@ -339,7 +333,8 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::Make(
         matrix.postConcat(grad.getGradientMatrix());
     }
 
-    return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
-            matrix, grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved, isSwapped,
-            isNativelyFocal, focalParams));
+    return GrMatrixEffect::Make(
+            matrix, std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
+                            grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved, isSwapped,
+                            isNativelyFocal, focalParams)));
 }

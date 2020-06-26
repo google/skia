@@ -5,14 +5,8 @@
  * found in the LICENSE file.
  */
 
-in half3x3 gradientMatrix;
-
 layout(tracked) in uniform half bias;
 layout(tracked) in uniform half scale;
-
-@coordTransform {
-    gradientMatrix
-}
 
 void main() {
     // On some devices they incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
@@ -36,6 +30,7 @@ void main() {
 //////////////////////////////////////////////////////////////////////////////
 
 @header {
+    #include "src/gpu/effects/GrMatrixEffect.h"
     #include "src/gpu/gradients/GrGradientShader.h"
     #include "src/shaders/gradients/SkSweepGradient.h"
 }
@@ -58,8 +53,9 @@ void main() {
             return nullptr;
         }
         matrix.postConcat(grad.getGradientMatrix());
-        return std::unique_ptr<GrFragmentProcessor>(new GrSweepGradientLayout(
-                matrix, grad.getTBias(), grad.getTScale()));
+        return GrMatrixEffect::Make(
+                matrix, std::unique_ptr<GrFragmentProcessor>(new GrSweepGradientLayout(
+                        grad.getTBias(), grad.getTScale())));
     }
 }
 

@@ -23,8 +23,6 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrLinearGradientLayout& _outer = args.fFp.cast<GrLinearGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix;
-        (void)gradientMatrix;
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x) + 9.9999997473787516e-06;
 %s = half4(t, 1.0, 0.0, 0.0);
@@ -44,14 +42,10 @@ void GrLinearGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrLinearGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrLinearGradientLayout& that = other.cast<GrLinearGradientLayout>();
     (void)that;
-    if (gradientMatrix != that.gradientMatrix) return false;
     return true;
 }
 GrLinearGradientLayout::GrLinearGradientLayout(const GrLinearGradientLayout& src)
-        : INHERITED(kGrLinearGradientLayout_ClassID, src.optimizationFlags())
-        , fCoordTransform0(src.fCoordTransform0)
-        , gradientMatrix(src.gradientMatrix) {
-    this->addCoordTransform(&fCoordTransform0);
+        : INHERITED(kGrLinearGradientLayout_ClassID, src.optimizationFlags()) {
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::clone() const {
@@ -86,5 +80,6 @@ std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::Make(const SkLinear
         return nullptr;
     }
     matrix.postConcat(grad.getGradientMatrix());
-    return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout(matrix));
+    return GrMatrixEffect::Make(matrix,
+                                std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout()));
 }
