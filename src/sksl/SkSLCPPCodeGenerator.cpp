@@ -1109,12 +1109,6 @@ void CPPCodeGenerator::writeClone() {
         this->writef("%s::%s(const %s& src)\n"
                      ": INHERITED(k%s_ClassID, src.optimizationFlags())", fFullName.c_str(),
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
-        const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
-        for (size_t i = 0; i < transforms.size(); ++i) {
-            const Section& s = *transforms[i];
-            String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
-            this->writef("\n, %s(src.%s)", fieldName.c_str(), fieldName.c_str());
-        }
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
             if (param->fType.nonnullable() != *fContext.fFragmentProcessor_Type) {
@@ -1143,11 +1137,6 @@ void CPPCodeGenerator::writeClone() {
         }
         if (samplerCount) {
             this->writef("     this->setTextureSamplerCnt(%d);", samplerCount);
-        }
-        for (size_t i = 0; i < transforms.size(); ++i) {
-            const Section& s = *transforms[i];
-            String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
-            this->writef("    this->addCoordTransform(&%s);\n", fieldName.c_str());
         }
         if (fAccessSampleCoordsDirectly) {
             this->writef("    this->setUsesSampleCoordsDirectly();\n");
