@@ -9,9 +9,11 @@
 #define GrSurfaceContext_DEFINED
 
 #include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrImageInfo.h"
@@ -83,6 +85,28 @@ public:
     bool readPixels(const GrImageInfo& dstInfo, void* dst, size_t rowBytes, SkIPoint srcPt,
                     GrContext* direct = nullptr);
 
+    using ReadPixelsCallback = SkImage::ReadPixelsCallback;
+    using ReadPixelsContext  = SkImage::ReadPixelsContext;
+    using RescaleGamma       = SkImage::RescaleGamma;
+
+    // GPU implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixels.
+    void asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                   const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma,
+                                   SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback,
+                                   ReadPixelsContext context);
+
+    // GPU implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixelsYUV420.
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         SkISize dstSize,
+                                         RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality,
+                                         ReadPixelsCallback callback,
+                                         ReadPixelsContext context);
+
     /**
      * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the
      * renderTargetContext at the specified position.
@@ -124,8 +148,16 @@ public:
     std::unique_ptr<GrRenderTargetContext> rescale(const GrImageInfo& info,
                                                    GrSurfaceOrigin,
                                                    SkIRect srcRect,
-                                                   SkSurface::RescaleGamma,
+                                                   SkImage::RescaleGamma,
                                                    SkFilterQuality);
+
+    /**
+     * After this returns any pending surface IO will be issued to the backend 3D API and
+     * if the surface has MSAA it will be resolved.
+     */
+    GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access,
+                                const GrFlushInfo&,
+                                const GrBackendSurfaceMutableState*);
 
     GrAuditTrail* auditTrail();
 
@@ -171,6 +203,12 @@ protected:
     };
     PixelTransferResult transferPixels(GrColorType colorType, const SkIRect& rect);
 
+    // The async read step of asyncRescaleAndReadPixels()
+    void asyncReadPixels(const SkIRect& rect,
+                         SkColorType colorType,
+                         ReadPixelsCallback callback,
+                         ReadPixelsContext context);
+
 private:
     friend class GrSurfaceProxy; // for copy
 
@@ -191,6 +229,8 @@ private:
      *       of fSurfaceContext.
      */
     bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+
+    class AsyncReadResult;
 
     GrColorInfo fColorInfo;
 
