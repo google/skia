@@ -22,6 +22,10 @@ GMSlide::GMSlide(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
 
 GMSlide::~GMSlide() = default;
 
+void GMSlide::gpuTeardown() {
+    fGM->gpuTeardown();
+}
+
 void GMSlide::draw(SkCanvas* canvas) {
     SkString msg;
 
