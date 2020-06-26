@@ -38,9 +38,7 @@
 
 #if __cplusplus >= 199711L
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define ASSERT_MSG(SK, C) "ABI changed, you must write a enumeration mapper for " TOSTRING(#SK) " to " TOSTRING(#C) "."
+#define ASSERT_MSG(SK, C) "ABI changed, you must write a enumeration mapper for " SK_TO_STRING(#SK) " to " SK_TO_STRING(#C) "."
 
 // sk_font_style_slant_t
 static_assert ((int)SkFontStyle::Slant::kUpright_Slant   == (int)UPRIGHT_SK_FONT_STYLE_SLANT,   ASSERT_MSG(SkFontStyle::Slant, sk_font_style_slant_t));
@@ -103,22 +101,6 @@ static_assert ((int)SkImageFilter::CropRect::CropEdge::kHasTop_CropEdge      == 
 static_assert ((int)SkImageFilter::CropRect::CropEdge::kHasWidth_CropEdge    == (int)HAS_WIDTH_SK_CROP_RECT_FLAG,    ASSERT_MSG(SkImageFilter::CropRect::CropEdge, sk_crop_rect_flags_t));
 static_assert ((int)SkImageFilter::CropRect::CropEdge::kHasHeight_CropEdge   == (int)HAS_HEIGHT_SK_CROP_RECT_FLAG,   ASSERT_MSG(SkImageFilter::CropRect::CropEdge, sk_crop_rect_flags_t));
 static_assert ((int)SkImageFilter::CropRect::CropEdge::kHasAll_CropEdge      == (int)HAS_ALL_SK_CROP_RECT_FLAG,      ASSERT_MSG(SkImageFilter::CropRect::CropEdge, sk_crop_rect_flags_t));
-
-// sk_drop_shadow_image_filter_shadow_mode_t
-static_assert ((int)SkDropShadowImageFilter::ShadowMode::kDrawShadowAndForeground_ShadowMode   == (int)DRAW_SHADOW_AND_FOREGROUND_SK_DROP_SHADOW_IMAGE_FILTER_SHADOW_MODE,   ASSERT_MSG(SkDropShadowImageFilter::ShadowMode, sk_drop_shadow_image_filter_shadow_mode_t));
-static_assert ((int)SkDropShadowImageFilter::ShadowMode::kDrawShadowOnly_ShadowMode            == (int)DRAW_SHADOW_ONLY_SK_DROP_SHADOW_IMAGE_FILTER_SHADOW_MODE,             ASSERT_MSG(SkDropShadowImageFilter::ShadowMode, sk_drop_shadow_image_filter_shadow_mode_t));
-
-// sk_displacement_map_effect_channel_selector_type_t
-static_assert ((int)SkDisplacementMapEffect::ChannelSelectorType::kUnknown_ChannelSelectorType   == (int)UNKNOWN_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,   ASSERT_MSG(SkDisplacementMapEffect::ChannelSelectorType, sk_displacement_map_effect_channel_selector_type_t));
-static_assert ((int)SkDisplacementMapEffect::ChannelSelectorType::kR_ChannelSelectorType         == (int)R_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,         ASSERT_MSG(SkDisplacementMapEffect::ChannelSelectorType, sk_displacement_map_effect_channel_selector_type_t));
-static_assert ((int)SkDisplacementMapEffect::ChannelSelectorType::kG_ChannelSelectorType         == (int)G_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,         ASSERT_MSG(SkDisplacementMapEffect::ChannelSelectorType, sk_displacement_map_effect_channel_selector_type_t));
-static_assert ((int)SkDisplacementMapEffect::ChannelSelectorType::kB_ChannelSelectorType         == (int)B_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,         ASSERT_MSG(SkDisplacementMapEffect::ChannelSelectorType, sk_displacement_map_effect_channel_selector_type_t));
-static_assert ((int)SkDisplacementMapEffect::ChannelSelectorType::kA_ChannelSelectorType         == (int)A_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,         ASSERT_MSG(SkDisplacementMapEffect::ChannelSelectorType, sk_displacement_map_effect_channel_selector_type_t));
-
-// sk_matrix_convolution_tilemode_t
-static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kClamp_TileMode          == (int)CLAMP_SK_MATRIX_CONVOLUTION_TILEMODE,            ASSERT_MSG(SkMatrixConvolutionImageFilter::TileMode, sk_matrix_convolution_tilemode_t));
-static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kRepeat_TileMode         == (int)REPEAT_SK_MATRIX_CONVOLUTION_TILEMODE,           ASSERT_MSG(SkMatrixConvolutionImageFilter::TileMode, sk_matrix_convolution_tilemode_t));
-static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kClampToBlack_TileMode   == (int)CLAMP_TO_BLACK_SK_MATRIX_CONVOLUTION_TILEMODE,   ASSERT_MSG(SkMatrixConvolutionImageFilter::TileMode, sk_matrix_convolution_tilemode_t));
 
 // sk_blendmode_t
 static_assert ((int)SkBlendMode::kClear        == (int)CLEAR_SK_BLENDMODE,        ASSERT_MSG(SkBlendMode, sk_blendmode_t));

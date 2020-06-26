@@ -26,8 +26,8 @@ SK_C_API gr_context_t* gr_context_make_vulkan(const gr_vk_backendcontext_t vkBac
 SK_C_API void gr_context_unref(gr_context_t* context);
 SK_C_API void gr_context_abandon_context(gr_context_t* context);
 SK_C_API void gr_context_release_resources_and_abandon_context(gr_context_t* context);
-SK_C_API void gr_context_get_resource_cache_limits(gr_context_t* context, int* maxResources, size_t* maxResourceBytes);
-SK_C_API void gr_context_set_resource_cache_limits(gr_context_t* context, int maxResources, size_t maxResourceBytes);
+SK_C_API size_t gr_context_get_resource_cache_limit(gr_context_t* context);
+SK_C_API void gr_context_set_resource_cache_limit(gr_context_t* context, size_t maxResourceBytes);
 SK_C_API void gr_context_get_resource_cache_usage(gr_context_t* context, int* maxResources, size_t* maxResourceBytes);
 SK_C_API int gr_context_get_max_surface_sample_count_for_color_type(gr_context_t* context, sk_colortype_t colorType);
 SK_C_API void gr_context_flush(gr_context_t* context);

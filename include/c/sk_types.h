@@ -429,23 +429,11 @@ typedef enum {
 } sk_crop_rect_flags_t;
 
 typedef enum {
-    DRAW_SHADOW_AND_FOREGROUND_SK_DROP_SHADOW_IMAGE_FILTER_SHADOW_MODE,
-    DRAW_SHADOW_ONLY_SK_DROP_SHADOW_IMAGE_FILTER_SHADOW_MODE,
-} sk_drop_shadow_image_filter_shadow_mode_t;
-
-typedef enum {
-    UNKNOWN_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-    R_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-    G_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-    B_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-    A_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
-} sk_displacement_map_effect_channel_selector_type_t;
-
-typedef enum {
-    CLAMP_SK_MATRIX_CONVOLUTION_TILEMODE,
-    REPEAT_SK_MATRIX_CONVOLUTION_TILEMODE,
-    CLAMP_TO_BLACK_SK_MATRIX_CONVOLUTION_TILEMODE,
-} sk_matrix_convolution_tilemode_t;
+    R_SK_COLOR_CHANNEL,
+    G_SK_COLOR_CHANNEL,
+    B_SK_COLOR_CHANNEL,
+    A_SK_COLOR_CHANNEL,
+} sk_color_channel_t;
 
 /**
     The logical operations that can be performed when combining two regions.

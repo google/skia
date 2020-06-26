@@ -61,12 +61,12 @@ void gr_context_release_resources_and_abandon_context(gr_context_t* context) {
     SK_ONLY_GPU(AsGrContext(context)->releaseResourcesAndAbandonContext());
 }
 
-void gr_context_get_resource_cache_limits(gr_context_t* context, int* maxResources, size_t* maxResourceBytes) {
-    SK_ONLY_GPU(AsGrContext(context)->getResourceCacheLimits(maxResources, maxResourceBytes));
+size_t gr_context_get_resource_cache_limit(gr_context_t* context) {
+    return SK_ONLY_GPU(AsGrContext(context)->getResourceCacheLimit(), 0);
 }
 
-void gr_context_set_resource_cache_limits(gr_context_t* context, int maxResources, size_t maxResourceBytes) {
-    SK_ONLY_GPU(AsGrContext(context)->setResourceCacheLimits(maxResources, maxResourceBytes));
+void gr_context_set_resource_cache_limit(gr_context_t* context, size_t maxResourceBytes) {
+    SK_ONLY_GPU(AsGrContext(context)->setResourceCacheLimit(maxResourceBytes));
 }
 
 void gr_context_get_resource_cache_usage(gr_context_t* context, int* maxResources, size_t* maxResourceBytes) {
