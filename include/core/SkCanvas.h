@@ -33,6 +33,7 @@
 #include <vector>
 
 class GrContext;
+class GrRecordingContext;
 class GrRenderTargetContext;
 class SkBaseDevice;
 class SkBitmap;
@@ -288,6 +289,8 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_getGrContext
     */
     virtual GrContext* getGrContext();
+
+    virtual GrRecordingContext* recordingContext();
 
     /** Sometimes a canvas is owned by a surface. If it is, getSurface() will return a bare
      *  pointer to that surface, else this will return nullptr.
