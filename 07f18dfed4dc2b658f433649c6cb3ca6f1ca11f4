@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "326c5567_8b43a94d",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T20:31:09Z",
+      "side": 0,
+      "message": "I think the SkNx dependency somehow was coming through GrFragmentProcessor -\u003e GrCoordTransform, so this broke on some builds. There\u0027s no need for this to be a SIMD type, so I just switched it to SkVector.",
+      "range": {
+        "startLine": 139,
+        "startChar": 4,
+        "endLine": 139,
+        "endChar": 8
+      },
+      "revId": "07f18dfed4dc2b658f433649c6cb3ca6f1ca11f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
