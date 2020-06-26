@@ -22,6 +22,30 @@
       "revId": "a87a70663cb6ad301ecdb04373669fc860212b72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6b2619f_00fe35ff",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-06-26T17:54:14Z",
+      "side": 1,
+      "message": "I\u0027m assuming so. I don\u0027t know where we would do the check and the submitAndFlush(). I\u0027m trying to get a clear idea of how things function now.",
+      "parentUuid": "ff385398_d6007a37",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 50
+      },
+      "revId": "a87a70663cb6ad301ecdb04373669fc860212b72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
