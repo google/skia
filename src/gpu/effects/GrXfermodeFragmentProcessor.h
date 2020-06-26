@@ -17,13 +17,17 @@ namespace GrXfermodeFragmentProcessor {
 
 /** The color input to the returned processor is treated as the src and the passed in processor is
     the dst. */
-std::unique_ptr<GrFragmentProcessor> MakeFromDstProcessor(std::unique_ptr<GrFragmentProcessor> dst,
-                                                          SkBlendMode mode);
+std::unique_ptr<GrFragmentProcessor> MakeFromDstProcessor(
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        std::unique_ptr<GrFragmentProcessor> dst,
+        SkBlendMode mode);
 
 /** The color input to the returned processor is treated as the dst and the passed in processor is
     the src. */
-std::unique_ptr<GrFragmentProcessor> MakeFromSrcProcessor(std::unique_ptr<GrFragmentProcessor> src,
-                                                          SkBlendMode mode);
+std::unique_ptr<GrFragmentProcessor> MakeFromSrcProcessor(
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        std::unique_ptr<GrFragmentProcessor> src,
+        SkBlendMode mode);
 
 /** Takes the input color, which is assumed to be unpremultiplied, passes it as an opaque color
     to both src and dst. The outputs of a src and dst are blended using mode and the original
