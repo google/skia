@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e63aa115_317679b2",
+        "filename": "gm/fp_sample_chaining.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:19:48Z",
+      "side": 1,
+      "message": "Yep, implicit. But having \u0027float2 xy\u0027 declared in the main signature may be causing analysis to think the runtime effect references the sample coords directly (which it does not for this and the constant case).\n\nWe should probably update the sample coord reference detection for GrSkSLFP to not just look at the main signature.",
+      "parentUuid": "0d7d2b4c_cde2dc4b",
+      "range": {
+        "startLine": 294,
+        "startChar": 30,
+        "endLine": 294,
+        "endChar": 36
+      },
+      "revId": "8b1b96758b2ec9901fc76f3fec9e85a087f2c942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f73167e1_1558710c",
         "filename": "gm/fp_sample_chaining.cpp",
         "patchSetId": 3
