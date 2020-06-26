@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51e62461_b9669558",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:52:03Z",
+      "side": 1,
+      "message": "If these are anti-aliased, does that mess up combining non-butt caps with the geometry? Or do those not get marked as independent strokes?\n\nedit: later comment suggests AA is only done through MSAA, so I guess that wouldn\u0027t be an issue.",
+      "range": {
+        "startLine": 37,
+        "startChar": 64,
+        "endLine": 37,
+        "endChar": 75
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34516ac2_7e8bcad7",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:52:03Z",
+      "side": 1,
+      "message": "Should we assert that this isn\u0027t coverage?",
+      "range": {
+        "startLine": 48,
+        "startChar": 10,
+        "endLine": 48,
+        "endChar": 17
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84fd788f_afe51f5b",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:52:03Z",
+      "side": 1,
+      "message": "We assert in the tess emit code that the view matrix has to be identity (for now). Maybe we should assert that that remains the case here, until it\u0027s fully wired up.",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 64
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca9c6911_d102d119",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:52:03Z",
+      "side": 1,
+      "message": "I am not seeing where this is initialized in onEmitCode?",
+      "range": {
+        "startLine": 70,
+        "startChar": 40,
+        "endLine": 70,
+        "endChar": 58
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6a0f30f_321798e9",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:52:03Z",
+      "side": 1,
+      "message": "Nevermind, this addresses my uniform handle question :P",
+      "range": {
+        "startLine": 252,
+        "startChar": 8,
+        "endLine": 253,
+        "endChar": 27
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a82ce6a9_f1434339",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-26T15:52:03Z",
+      "side": 1,
+      "message": "spelling",
+      "range": {
+        "startLine": 37,
+        "startChar": 15,
+        "endLine": 37,
+        "endChar": 21
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
