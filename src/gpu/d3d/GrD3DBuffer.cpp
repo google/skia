@@ -200,6 +200,12 @@ void GrD3DBuffer::internalMap(size_t size) {
         range.End = size;
         fMappedResource->fD3DResource->Map(0, &range, &fMapPtr);
     } else {
+        if (!fResource->unique()) {
+            D3D12_RESOURCE_STATES resourceState;
+            fResource = Resource::Make(this->getD3DGpu(), size, this->intendedType(),
+                                       this->accessPattern(), &resourceState);
+            SkASSERT(fResource);
+        }
         fMappedResource = fResource;
         D3D12_RANGE range;
         range.Begin = 0;
