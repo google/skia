@@ -46,8 +46,9 @@ public:
     SkGaussianColorFilter() : INHERITED() {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override;
+    bool colorFilterAcceptsInputFP() const override { return true; }
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext*, const GrColorInfo&) const override;
 #endif
 
 protected:
@@ -83,10 +84,11 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
 
 #if SK_SUPPORT_GPU
 
-std::unique_ptr<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorInfo&) const {
-    return GrBlurredEdgeFragmentProcessor::Make(
-        /*inputFP=*/nullptr, GrBlurredEdgeFragmentProcessor::Mode::kGaussian);
+GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                      GrRecordingContext*,
+                                                      const GrColorInfo&) const {
+    return GrFPSuccess(GrBlurredEdgeFragmentProcessor::Make(
+                std::move(inputFP), GrBlurredEdgeFragmentProcessor::Mode::kGaussian));
 }
 #endif
 
