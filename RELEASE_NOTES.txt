@@ -6,6 +6,13 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 86
 ------------
+  * Adds default flush() calls to SkSurface, SkImage, and GrContext. These calls do
+    a basic flush without a submit. If you haven't updated Skia in a couple release
+    and still have flush() calls in your code that you expect to do a flush and
+    submit, you should update all those to the previously added flushAndSubmit() calls
+    instead.
+    https://review.skia.org/299141
+
   * Enable BackendSemaphores for the Direct3D backend.
     https://review.skia.org/298752
 
