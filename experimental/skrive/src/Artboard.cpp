@@ -24,9 +24,9 @@ template <typename T, typename... Args>
 std::tuple<sk_sp<Component>, size_t> make_from_stream(StreamReader* sr, Args&&... args) {
     auto node = sk_make_sp<T>(std::forward<Args>(args)...);
 
-    const auto parent_index = parse_node<T>(sr, node.get());
+    const auto parent_id = parse_node<T>(sr, node.get());
 
-    return std::make_tuple(std::move(node), parent_index);
+    return std::make_tuple(std::move(node), parent_id);
 }
 
 std::tuple<sk_sp<Component>, size_t> parse_component(StreamReader* sr) {
@@ -42,6 +42,8 @@ std::tuple<sk_sp<Component>, size_t> parse_component(StreamReader* sr) {
             return make_from_stream<ColorPaint>(sr, SkPaint::kStroke_Style);
         case StreamReader::BlockType::kActorEllipse:
             return make_from_stream<Ellipse>(sr);
+        case StreamReader::BlockType::kActorRectangle:
+            return make_from_stream<Rectangle>(sr);
         default:
             break;
     }
@@ -57,10 +59,15 @@ sk_sp<Node> parse_components(StreamReader* sr) {
     components.reserve(count);
 
     for (size_t i = 0; i < count; ++i) {
-        auto [ component, parent_index ] = parse_component(sr);
+        auto [ component, parent_id ] = parse_component(sr);
 
-        if (component && parent_index < i && components[parent_index]) {
-            if (Node* node = *components[parent_index]) {
+        // parent IDs are kinda-sorta one-based
+        if (parent_id > 0) {
+            parent_id -= 1;
+        }
+
+        if (component && parent_id < i && components[parent_id]) {
+            if (Node* node = *components[parent_id]) {
                 node->addChild(component);
             }
         }
