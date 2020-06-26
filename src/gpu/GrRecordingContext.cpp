@@ -100,10 +100,16 @@ void GrRecordingContext::abandonContext() {
     // case that one recording context is abandoned, while another keeps functioning while sharing
     // the cache.
     fTextBlobCache->freeAll();
+
+    this->destroyDrawingManager();
 }
 
 GrDrawingManager* GrRecordingContext::drawingManager() {
     return fDrawingManager.get();
+}
+
+void GrRecordingContext::destroyDrawingManager() {
+    fDrawingManager.reset();
 }
 
 GrRecordingContext::Arenas::Arenas(GrOpMemoryPool* opMemoryPool, SkArenaAlloc* recordTimeAllocator)
