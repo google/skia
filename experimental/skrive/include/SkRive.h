@@ -81,6 +81,7 @@ protected:
         kShape,
         kColorPaint,
         kEllipse,
+        kRectangle,
     };
 
     explicit Component(Type t) : fType(t) {}
@@ -196,7 +197,7 @@ private:
     using INHERITED = Paint;
 };
 
-class Geometry : public TransformableComponent {
+class Geometry : public Node {
 public:
     void draw(SkCanvas* canvas, const SkPaint& paint, SkPathFillType ftype) const {
         return this->onDraw(canvas, paint, ftype);
@@ -208,7 +209,7 @@ protected:
     virtual void onDraw(SkCanvas*, const SkPaint&, SkPathFillType) const = 0;
 
 private:
-    using INHERITED = TransformableComponent;
+    using INHERITED = Node;
 };
 
 class Ellipse final : public Geometry {
@@ -217,6 +218,21 @@ public:
 
     ACTOR_ATTR(Width , float, 0)
     ACTOR_ATTR(Height, float, 0)
+
+private:
+    void onRevalidate() override;
+    void onDraw(SkCanvas*, const SkPaint&, SkPathFillType) const override;
+
+    using INHERITED = Geometry;
+};
+
+class Rectangle final : public Geometry {
+public:
+    Rectangle() : INHERITED(Type::kRectangle) {}
+
+    ACTOR_ATTR(Width , float, 0)
+    ACTOR_ATTR(Height, float, 0)
+    ACTOR_ATTR(Radius, float, 0)
 
 private:
     void onRevalidate() override;
@@ -264,6 +280,7 @@ constexpr bool Component::is_base_of(Type t) {
     if (t == Type::kShape     ) return std::is_base_of<T, Shape     >::value;
     if (t == Type::kColorPaint) return std::is_base_of<T, ColorPaint>::value;
     if (t == Type::kEllipse   ) return std::is_base_of<T, Ellipse   >::value;
+    if (t == Type::kRectangle ) return std::is_base_of<T, Rectangle >::value;
 
     return false;
 }

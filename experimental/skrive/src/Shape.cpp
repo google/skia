@@ -18,11 +18,11 @@ size_t parse_node(StreamReader*, T*);
 
 template <>
 size_t parse_node<Shape>(StreamReader* sr, Shape* node) {
-    const auto parent_index = parse_node<Drawable>(sr, node);
+    const auto parent_id = parse_node<Drawable>(sr, node);
 
     node->setTransformAffectsStroke(sr->readBool("transformAffectsStroke"));
 
-    return parent_index;
+    return parent_id;
 }
 
 } // namespace internal

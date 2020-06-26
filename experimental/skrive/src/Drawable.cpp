@@ -15,7 +15,7 @@ size_t parse_node(StreamReader*, T*);
 
 template <>
 size_t parse_node<Drawable>(StreamReader* sr, Drawable* node) {
-    const auto parent_index = parse_node<Node>(sr, node);
+    const auto parent_id = parse_node<Node>(sr, node);
 
     node->setIsHidden(!sr->readBool("isVisible"));
 
@@ -26,7 +26,7 @@ size_t parse_node<Drawable>(StreamReader* sr, Drawable* node) {
 
     node->setDrawOrder(sr->readUInt16("drawOrder"));
 
-    return parent_index;
+    return parent_id;
 }
 
 } // namespace skrive::internal

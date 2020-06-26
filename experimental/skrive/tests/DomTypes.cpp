@@ -52,7 +52,7 @@ DEF_TEST(SkRive_DomTypes, reporter) {
 
         check_type<skrive::Component             >(reporter, node, true);
         check_type<skrive::TransformableComponent>(reporter, node, true);
-        check_type<skrive::Node                  >(reporter, node, false);
+        check_type<skrive::Node                  >(reporter, node, true);
         check_type<skrive::Drawable              >(reporter, node, false);
         check_type<skrive::Shape                 >(reporter, node, false);
         check_type<skrive::Paint                 >(reporter, node, false );

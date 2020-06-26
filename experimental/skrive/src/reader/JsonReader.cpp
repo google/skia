@@ -31,10 +31,13 @@ StreamReader::BlockType block_type(const char* type_name) {
         {"node"                , StreamReader::BlockType::kActorNode            },
         {"nodes"               , StreamReader::BlockType::kComponents           },
         {"path"                , StreamReader::BlockType::kActorPath            },
+        {"polygon"             , StreamReader::BlockType::kActorPolygon         },
         {"radialGradientFill"  , StreamReader::BlockType::kRadialGradientFill   },
         {"radialGradientStroke", StreamReader::BlockType::kRadialGradientStroke },
         {"rectangle"           , StreamReader::BlockType::kActorRectangle       },
         {"shape"               , StreamReader::BlockType::kActorShape           },
+        {"star"                , StreamReader::BlockType::kActorStar            },
+        {"triangle"            , StreamReader::BlockType::kActorTriangle        },
     };
 
     const TypeMapEntry key = { type_name, StreamReader::BlockType::kUnknown };
@@ -76,6 +79,11 @@ private:
         return ctx.fMemberIndex < jarr->size()
             ? static_cast<const T*>((*jarr)[ctx.fMemberIndex++])
             : nullptr;
+    }
+
+    uint16_t readId(const char label[]) override {
+        // unlike binary, json IDs are 0-based
+        return this->readUInt16(label) + 1;
     }
 
     bool readBool(const char label[]) override {
