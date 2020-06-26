@@ -50,6 +50,22 @@ public:
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
+    void onAsyncRescaleAndReadPixels(const SkImageInfo&,
+                                     const SkIRect& srcRect,
+                                     RescaleGamma,
+                                     SkFilterQuality,
+                                     ReadPixelsCallback,
+                                     ReadPixelsContext) override;
+
+    void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+                                           sk_sp<SkColorSpace>,
+                                           const SkIRect& srcRect,
+                                           const SkISize& dstSize,
+                                           RescaleGamma,
+                                           SkFilterQuality,
+                                           ReadPixelsCallback,
+                                           ReadPixelsContext) override;
+
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.
      */
