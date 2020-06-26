@@ -15,9 +15,8 @@ static inline bool SkShouldPostMessageToBus(
     return msg.fContextID == msgBusUniqueID;
 }
 
-GrTextBlobCache::GrTextBlobCache(PurgeMore purgeMore, uint32_t messageBusID)
-        : fPurgeMore(purgeMore)
-        , fSizeBudget(kDefaultBudget)
+GrTextBlobCache::GrTextBlobCache(uint32_t messageBusID)
+        : fSizeBudget(kDefaultBudget)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
@@ -74,12 +73,6 @@ void GrTextBlobCache::freeAll() {
     fCurrentSize = 0;
 }
 
-void GrTextBlobCache::setBudget(size_t budget) {
-    SkAutoMutexExclusive lock{fMutex};
-    fSizeBudget = budget;
-    this->internalCheckPurge();
-}
-
 void GrTextBlobCache::PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
     SkASSERT(blobID != SK_InvalidGenID);
     SkMessageBus<PurgeBlobMessage>::Post(PurgeBlobMessage(blobID, cacheID));
@@ -117,6 +110,11 @@ size_t GrTextBlobCache::usedBytes() const {
     return fCurrentSize;
 }
 
+bool GrTextBlobCache::isOverBudget() const {
+    SkAutoMutexExclusive lock{fMutex};
+    return fCurrentSize > fSizeBudget;
+}
+
 void GrTextBlobCache::internalCheckPurge(GrTextBlob* blob) {
     // First, purge all stale blob IDs.
     this->internalPurgeStaleBlobs();
@@ -131,13 +129,6 @@ void GrTextBlobCache::internalCheckPurge(GrTextBlob* blob) {
             iter.prev();
 
             this->internalRemove(lruBlob);
-        }
-
-        // If we break out of the loop with lruBlob == blob, then we haven't purged enough
-        // use the call back and try to free some more.  If we are still overbudget after this,
-        // then this single textblob is over our budget
-        if (blob && lruBlob == blob) {
-            fPurgeMore();
         }
 
     #ifdef SPEW_BUDGET_MESSAGE

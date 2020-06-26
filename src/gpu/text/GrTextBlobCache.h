@@ -20,10 +20,7 @@
 
 class GrTextBlobCache {
 public:
-     // The callback function used by the cache when it is still over budget after a purge.
-    using PurgeMore = std::function<void()>;
-
-    GrTextBlobCache(PurgeMore purgeMore, uint32_t messageBusID);
+    GrTextBlobCache(uint32_t messageBusID);
 
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
                                      const GrTextBlob::Key& key,
@@ -37,8 +34,6 @@ public:
     void makeMRU(GrTextBlob* blob) SK_EXCLUDES(fMutex);
 
     void freeAll() SK_EXCLUDES(fMutex);
-
-    void setBudget(size_t budget) SK_EXCLUDES(fMutex);
 
     struct PurgeBlobMessage {
         PurgeBlobMessage(uint32_t blobID, uint32_t contextUniqueID)
@@ -54,7 +49,10 @@ public:
 
     size_t usedBytes() const SK_EXCLUDES(fMutex);
 
+    bool isOverBudget() const SK_EXCLUDES(fMutex);
+
 private:
+    friend class GrTextBlobTestingPeer;
     using TextBlobList = SkTInternalLList<GrTextBlob>;
 
     struct BlobIDCacheEntry {
@@ -89,7 +87,6 @@ private:
     mutable SkMutex fMutex;
     TextBlobList fBlobList SK_GUARDED_BY(fMutex);
     SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fMutex);
-    PurgeMore fPurgeMore SK_GUARDED_BY(fMutex);
     size_t fSizeBudget SK_GUARDED_BY(fMutex);
     size_t fCurrentSize SK_GUARDED_BY(fMutex) {0};
 

@@ -29,6 +29,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/text/GrTextBlobCache.h"
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;
@@ -50,6 +51,15 @@ static void setup_always_evict_atlas(GrContext* context) {
     context->priv().getAtlasManager()->setAtlasDimensionsToMinimum_ForTesting();
 }
 
+class GrTextBlobTestingPeer {
+public:
+    static void SetBudget(GrTextBlobCache* cache, size_t budget) {
+        SkAutoMutexExclusive lock{cache->fMutex};
+        cache->fSizeBudget = budget;
+        cache->internalCheckPurge();
+    }
+};
+
 // This test hammers the GPU textblobcache and font atlas
 static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* context,
                                   int maxTotalText, int maxGlyphID, int maxFamilies, bool normal,
@@ -61,7 +71,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     // configure our context for maximum stressing of cache and atlas
     if (stressTest) {
         setup_always_evict_atlas(context);
-        context->priv().testingOnly_setTextBlobCacheLimit(0);
+        GrTextBlobTestingPeer::SetBudget(context->priv().getTextBlobCache(), 0);
     }
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
