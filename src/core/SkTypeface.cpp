@@ -289,20 +289,6 @@ std::unique_ptr<SkStreamAsset> SkTypeface::openStream(int* ttcIndex) const {
     return this->onOpenStream(ttcIndex);
 }
 
-std::unique_ptr<SkFontData> SkTypeface::makeFontData() const {
-    return this->onMakeFontData();
-}
-
-// This implementation is temporary until this method can be made pure virtual.
-std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
-    int index;
-    std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
-    if (!stream) {
-        return nullptr;
-    }
-    return std::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
-};
-
 void SkTypeface::unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
     if (count > 0 && glyphs && uni) {
         this->onCharsToGlyphs(uni, count, glyphs);
