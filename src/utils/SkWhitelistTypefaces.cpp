@@ -63,24 +63,20 @@ static int whitelist_name_index(const SkTypeface* tf) {
 }
 
 static uint32_t compute_checksum(const SkTypeface* tf) {
-    std::unique_ptr<SkFontData> fontData = tf->makeFontData();
-    if (!fontData) {
-        return 0;
-    }
-    SkStreamAsset* fontStream = fontData->getStream();
+    int index;
+    std::unique_ptr<SkStreamAsset> fontStream = tf->openStream(&index);
     if (!fontStream) {
         return 0;
     }
-    SkTDArray<char> data;
     size_t length = fontStream->getLength();
     if (!length) {
         return 0;
     }
-    data.setCount((int) length);
-    if (!fontStream->peek(data.begin(), length)) {
+    std::unique_ptr<char[]> data(new char[length]);
+    if (fontStream->read(data.get(), length) != length) {
         return 0;
     }
-    return SkOpts::hash(data.begin(), length);
+    return SkOpts::hash(data.get(), length);
 }
 
 static void serialize_sub(const char* fontName, SkFontStyle style, SkWStream* wstream) {
@@ -118,7 +114,18 @@ static void serialize_full(const SkTypeface* tf, SkWStream* wstream) {
 
     // Embed font data if it's a local font.
     if (isLocal && !desc.hasFontData()) {
-        desc.setFontData(tf->makeFontData());
+        SkFontArguments args;
+
+        int index;
+        std::unique_ptr<SkStreamAsset> stream = tf->openStream(&index);
+        args.setCollectionIndex(index);
+
+        // None of the whitelisted fonts use variations or anything special.
+
+        if (stream) {
+            std::unique_ptr<SkFontData> fontData(new SkFontData(std::move(stream), args));
+            desc.setFontData(std::move(fontData));
+        }
     }
     desc.serialize(wstream);
 }

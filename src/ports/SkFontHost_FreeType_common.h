@@ -88,6 +88,12 @@ public:
 
     /** Fetch units/EM from "head" table if needed (ie for bitmap fonts) */
     static int GetUnitsPerEm(FT_Face face);
+
+    /**
+     *  Return the font data, or nullptr on failure.
+     */
+    std::unique_ptr<SkFontData> makeFontData() const;
+
 protected:
     SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch)
         : INHERITED(style, isFixedPitch)
@@ -116,6 +122,9 @@ protected:
     size_t onGetTableData(SkFontTableTag, size_t offset,
                           size_t length, void* data) const override;
     sk_sp<SkData> onCopyTableData(SkFontTableTag) const override;
+
+    //TODO: make pure virtual
+    virtual std::unique_ptr<SkFontData> onMakeFontData() const;
 
 private:
     mutable SkMutex fC2GCacheMutex;
