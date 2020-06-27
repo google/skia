@@ -408,7 +408,7 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const = 0;
-    virtual sk_sp<SkData> onCopyTableData(SkFontTableTag) const;
+    virtual sk_sp<SkData> onCopyTableData(SkFontTableTag) const = 0;
 
     virtual bool onComputeBounds(SkRect*) const;
 
