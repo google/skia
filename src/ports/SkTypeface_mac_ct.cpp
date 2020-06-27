@@ -564,16 +564,9 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
         }
     }
 
-    // In 10.10 and earlier, CTFontCopyVariationAxes and CTFontCopyVariation do not work when
-    // applied to fonts which started life with CGFontCreateWithDataProvider (they simply always
-    // return nullptr). As a result, we are limited to CGFontCopyVariationAxes and
-    // CGFontCopyVariations here until support for 10.10 and earlier is removed.
-    SkUniqueCFRef<CGFontRef> cgFont(CTFontCopyGraphicsFont(ctFont.get(), nullptr));
-    if (cgFont) {
-        SkUniqueCFRef<CFArrayRef> cgAxes(CGFontCopyVariationAxes(cgFont.get()));
-        if (cgAxes && CFArrayGetCount(cgAxes.get()) > 0) {
-            info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
-        }
+    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ctFont.get()));
+    if (ctAxes && CFArrayGetCount(ctAxes.get()) > 0) {
+        info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
     }
 
     SkOTTableOS2_V4::Type fsType;
@@ -778,108 +771,60 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const
     return fStream->duplicate();
 }
 
-struct NonDefaultAxesContext {
-    SkFixed* axisValue;
-    CFArrayRef cgAxes;
-};
-static void set_non_default_axes(CFTypeRef key, CFTypeRef value, void* context) {
-    NonDefaultAxesContext* self = static_cast<NonDefaultAxesContext*>(context);
-
-    if (CFGetTypeID(key) != CFStringGetTypeID() || CFGetTypeID(value) != CFNumberGetTypeID()) {
-        return;
-    }
-
-    // The key is a CFString which is a string from the 'name' table.
-    // Search the cgAxes for an axis with this name, and use its index to store the value.
-    CFIndex keyIndex = -1;
-    CFStringRef keyString = static_cast<CFStringRef>(key);
-    for (CFIndex i = 0; i < CFArrayGetCount(self->cgAxes); ++i) {
-        CFTypeRef cgAxis = CFArrayGetValueAtIndex(self->cgAxes, i);
-        if (CFGetTypeID(cgAxis) != CFDictionaryGetTypeID()) {
-            continue;
-        }
-
-        CFDictionaryRef cgAxisDict = static_cast<CFDictionaryRef>(cgAxis);
-        CFTypeRef cgAxisName = CFDictionaryGetValue(cgAxisDict, kCGFontVariationAxisName);
-        if (!cgAxisName || CFGetTypeID(cgAxisName) != CFStringGetTypeID()) {
-            continue;
-        }
-        CFStringRef cgAxisNameString = static_cast<CFStringRef>(cgAxisName);
-        if (CFStringCompare(keyString, cgAxisNameString, 0) == kCFCompareEqualTo) {
-            keyIndex = i;
-            break;
-        }
-    }
-    if (keyIndex == -1) {
-        return;
-    }
-
-    CFNumberRef valueNumber = static_cast<CFNumberRef>(value);
-    double valueDouble;
-    if (!CFNumberGetValue(valueNumber, kCFNumberDoubleType, &valueDouble) ||
-        valueDouble < SkFixedToDouble(SK_FixedMin) || SkFixedToDouble(SK_FixedMax) < valueDouble)
-    {
-        return;
-    }
-    self->axisValue[keyIndex] = SkDoubleToFixed(valueDouble);
-}
-static bool get_variations(CTFontRef ctFont, CFIndex* cgAxisCount,
+static bool get_variations(CTFontRef ctFont, CFIndex* ctAxisCount,
                            SkAutoSTMalloc<4, SkFixed>* axisValues)
 {
-    // In 10.10 and earlier, CTFontCopyVariationAxes and CTFontCopyVariation do not work when
-    // applied to fonts which started life with CGFontCreateWithDataProvider (they simply always
-    // return nullptr). As a result, we are limited to CGFontCopyVariationAxes and
-    // CGFontCopyVariations here until support for 10.10 and earlier is removed.
-    SkUniqueCFRef<CGFontRef> cgFont(CTFontCopyGraphicsFont(ctFont, nullptr));
-    if (!cgFont) {
+    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ctFont));
+    if (!ctAxes) {
+        return false;
+    }
+    *ctAxisCount = CFArrayGetCount(ctAxes.get());
+    axisValues->reset(*ctAxisCount);
+
+    // On 10.12 and later, this only returns non-default variations.
+    SkUniqueCFRef<CFDictionaryRef> ctVariation(CTFontCopyVariation(ctFont));
+    if (!ctVariation) {
         return false;
     }
 
-    SkUniqueCFRef<CFDictionaryRef> cgVariations(CGFontCopyVariations(cgFont.get()));
-    // If a font has no variations CGFontCopyVariations returns nullptr (instead of an empty dict).
-    if (!cgVariations) {
-        return false;
+    for (int i = 0; i < *ctAxisCount; ++i) {
+        CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), i);
+        if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
+            return false;
+        }
+        CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
+
+        CFTypeRef tag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
+        if (!tag) {
+            return false;
+        }
+
+        CGFloat variationCGFloat;
+        CFTypeRef variationValue = CFDictionaryGetValue(ctVariation.get(), tag);
+        if (variationValue) {
+            if (CFGetTypeID(variationValue) != CFNumberGetTypeID()) {
+                return false;
+            }
+            CFNumberRef variationNumber = static_cast<CFNumberRef>(variationValue);
+            if (!CFNumberGetValue(variationNumber, kCFNumberCGFloatType, &variationCGFloat)) {
+                return false;
+            }
+        } else {
+            CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisDefaultValueKey);
+            if (!def || CFGetTypeID(def) != CFNumberGetTypeID()) {
+                return false;
+            }
+            CFNumberRef defNumber = static_cast<CFNumberRef>(def);
+            if (!CFNumberGetValue(defNumber, kCFNumberCGFloatType, &variationCGFloat)) {
+                return false;
+            }
+        }
+        if (variationCGFloat < SkFixedToDouble(SK_FixedMin) ||
+                               SkFixedToDouble(SK_FixedMax) < variationCGFloat) {
+            return false;
+        }
+        (*axisValues)[(int)i] = SkDoubleToFixed(variationCGFloat);
     }
-
-    SkUniqueCFRef<CFArrayRef> cgAxes(CGFontCopyVariationAxes(cgFont.get()));
-    if (!cgAxes) {
-        return false;
-    }
-    *cgAxisCount = CFArrayGetCount(cgAxes.get());
-    axisValues->reset(*cgAxisCount);
-
-    // Set all of the axes to their default values.
-    // Fail if any default value cannot be determined.
-    for (CFIndex i = 0; i < *cgAxisCount; ++i) {
-        CFTypeRef cgAxis = CFArrayGetValueAtIndex(cgAxes.get(), i);
-        if (CFGetTypeID(cgAxis) != CFDictionaryGetTypeID()) {
-            return false;
-        }
-
-        CFDictionaryRef cgAxisDict = static_cast<CFDictionaryRef>(cgAxis);
-        CFTypeRef axisDefaultValue = CFDictionaryGetValue(cgAxisDict,
-                                                          kCGFontVariationAxisDefaultValue);
-        if (!axisDefaultValue || CFGetTypeID(axisDefaultValue) != CFNumberGetTypeID()) {
-            return false;
-        }
-        CFNumberRef axisDefaultValueNumber = static_cast<CFNumberRef>(axisDefaultValue);
-        double axisDefaultValueDouble;
-        if (!CFNumberGetValue(axisDefaultValueNumber, kCFNumberDoubleType, &axisDefaultValueDouble))
-        {
-            return false;
-        }
-        if (axisDefaultValueDouble < SkFixedToDouble(SK_FixedMin) ||
-                                     SkFixedToDouble(SK_FixedMax) < axisDefaultValueDouble)
-        {
-            return false;
-        }
-        (*axisValues)[(int)i] = SkDoubleToFixed(axisDefaultValueDouble);
-    }
-
-    // Override the default values with the given font's stated axis values.
-    NonDefaultAxesContext c = { axisValues->get(), cgAxes.get() };
-    CFDictionaryApplyFunction(cgVariations.get(), set_non_default_axes, &c);
-
     return true;
 }
 std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
@@ -895,52 +840,9 @@ std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
     return std::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 }
 
-/** Creates a CT variation dictionary {tag, value} from a CG variation dictionary {name, value}. */
-static SkUniqueCFRef<CFDictionaryRef> ct_variation_from_cg_variation(CFDictionaryRef cgVariations,
-                                                                     CFArrayRef ctAxes) {
-
-    SkUniqueCFRef<CFMutableDictionaryRef> ctVariation(
-            CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
-                                      &kCFTypeDictionaryKeyCallBacks,
-                                      &kCFTypeDictionaryValueCallBacks));
-
-    CFIndex axisCount = CFArrayGetCount(ctAxes);
-    for (CFIndex i = 0; i < axisCount; ++i) {
-        CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes, i);
-        if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
-            return nullptr;
-        }
-        CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
-
-        // The assumption is that values produced by kCTFontVariationAxisNameKey and
-        // kCGFontVariationAxisName will always be equal.
-        CFTypeRef axisName = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisNameKey);
-        if (!axisName || CFGetTypeID(axisName) != CFStringGetTypeID()) {
-            return nullptr;
-        }
-
-        CFTypeRef axisValue = CFDictionaryGetValue(cgVariations, axisName);
-        if (!axisValue || CFGetTypeID(axisValue) != CFNumberGetTypeID()) {
-            return nullptr;
-        }
-
-        CFTypeRef axisTag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
-        if (!axisTag || CFGetTypeID(axisTag) != CFNumberGetTypeID()) {
-            return nullptr;
-        }
-
-        CFDictionaryAddValue(ctVariation.get(), axisTag, axisValue);
-    }
-    return std::move(ctVariation);
-}
-
 int SkTypeface_Mac::onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
 {
-    // The CGFont variation data does not contain the tag.
-
-    // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
-    // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
     SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fFontRef.get()));
     if (!ctAxes) {
         return -1;
@@ -950,25 +852,10 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
         return axisCount;
     }
 
-    // This call always returns nullptr on 10.11 and under for CGFontCreateWithDataProvider fonts.
-    // When this happens, try converting the CG variation to a CT variation.
     // On 10.12 and later, this only returns non-default variations.
     SkUniqueCFRef<CFDictionaryRef> ctVariation(CTFontCopyVariation(fFontRef.get()));
     if (!ctVariation) {
-        // When 10.11 and earlier are no longer supported, the following code can be replaced with
-        // return -1 and ct_variation_from_cg_variation can be removed.
-        SkUniqueCFRef<CGFontRef> cgFont(CTFontCopyGraphicsFont(fFontRef.get(), nullptr));
-        if (!cgFont) {
-            return -1;
-        }
-        SkUniqueCFRef<CFDictionaryRef> cgVariations(CGFontCopyVariations(cgFont.get()));
-        if (!cgVariations) {
-            return -1;
-        }
-        ctVariation = ct_variation_from_cg_variation(cgVariations.get(), ctAxes.get());
-        if (!ctVariation) {
-            return -1;
-        }
+        return -1;
     }
 
     for (int i = 0; i < axisCount; ++i) {
@@ -1010,7 +897,6 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
             }
         }
         coordinates[i].value = SkScalarFromCGFloat(variationCGFloat);
-
     }
     return axisCount;
 }
@@ -1405,7 +1291,7 @@ int SkTypeface_Mac::onGetVariationDesignParameters(SkFontParameters::Variation::
     }
 
     // Added in 10.13
-    CFStringRef* kCTFontVariationAxisHiddenKeyPtr =
+    static CFStringRef* kCTFontVariationAxisHiddenKeyPtr =
             static_cast<CFStringRef*>(dlsym(RTLD_DEFAULT, "kCTFontVariationAxisHiddenKey"));
 
     for (int i = 0; i < axisCount; ++i) {
