@@ -187,7 +187,27 @@ void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const
     //       has said they don't want the fontdata? Does this actually happen (getDescriptor returns
     //       fontdata as well?)
     if (shouldSerializeData && !desc.hasFontData()) {
-        desc.setFontData(this->onMakeFontData());
+        SkFontArguments args;
+
+        int index;
+        std::unique_ptr<SkStreamAsset> stream = this->openStream(&index);
+        args.setCollectionIndex(index);
+
+        SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> variation;
+        int numAxes = this->getVariationDesignPosition(nullptr, 0);
+        if (0 < numAxes) {
+            variation.reset(numAxes);
+            numAxes = this->getVariationDesignPosition(variation.get(), numAxes);
+            if (0 < numAxes) {
+                SkFontArguments::VariationPosition pos{variation.get(), numAxes};
+                args.setVariationDesignPosition(pos);
+            }
+        }
+
+        if (stream) {
+            std::unique_ptr<SkFontData> fontData(new SkFontData(std::move(stream), args));
+            desc.setFontData(std::move(fontData));
+        }
     }
     desc.serialize(wstream);
 }
