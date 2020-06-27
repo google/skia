@@ -10,6 +10,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
+#include "include/private/SkSLAnalysis.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -87,21 +88,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
-    // FIXME can the SkSL::Program just provide this for us?
-    bool mainHasSampleCoords = false;
-    for (const auto& e : *program) {
-        if (e.fKind == SkSL::ProgramElement::kFunction_Kind) {
-            const SkSL::FunctionDefinition& func = (const SkSL::FunctionDefinition&) e;
-            if (func.fDeclaration.fName == "main") {
-                SkASSERT(func.fDeclaration.fParameters.size() <= 2);
-                if (!func.fDeclaration.fParameters.empty() &&
-                    func.fDeclaration.fParameters.front()->fType.fName == "float2") {
-                    mainHasSampleCoords = true;
-                    break;
-                }
-            }
-        }
-    }
+    bool mainHasSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
 
     size_t offset = 0, uniformSize = 0;
     std::vector<Variable> inAndUniformVars;
