@@ -53,6 +53,8 @@ sk_sp<SkTypeface> SkTypeface_Empty::onMakeClone(const SkFontArguments& args) con
     return sk_ref_sp(this);
 }
 
+std::unique_ptr<SkFontData> SkTypeface_Empty::onMakeFontData() const { return nullptr; }
+
 SkTypeface_Stream::SkTypeface_Stream(std::unique_ptr<SkFontData> fontData,
                                      const SkFontStyle& style, bool isFixedPitch, bool sysFont,
                                      const SkString familyName)

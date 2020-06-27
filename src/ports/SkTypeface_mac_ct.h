@@ -93,7 +93,6 @@ public:
 protected:
     int onGetUPEM() const override;
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
-    std::unique_ptr<SkFontData> onMakeFontData() const override;
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
     void onGetFamilyName(SkString* familyName) const override;

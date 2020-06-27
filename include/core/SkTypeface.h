@@ -315,11 +315,6 @@ public:
     std::unique_ptr<SkStreamAsset> openStream(int* ttcIndex) const;
 
     /**
-     *  Return the font data, or nullptr on failure.
-     */
-    std::unique_ptr<SkFontData> makeFontData() const;
-
-    /**
      *  Return a scalercontext for the given descriptor. It may return a
      *  dummy scalercontext that will not crash, but will draw nothing.
      */
@@ -378,8 +373,6 @@ protected:
     virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const = 0;
 
     virtual std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const = 0;
-    // TODO: make pure virtual.
-    virtual std::unique_ptr<SkFontData> onMakeFontData() const;
 
     virtual int onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[],
