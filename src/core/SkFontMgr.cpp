@@ -164,10 +164,6 @@ sk_sp<SkTypeface> SkFontMgr::legacyMakeTypeface(const char familyName[], SkFontS
     return this->onLegacyMakeTypeface(familyName, style);
 }
 
-sk_sp<SkTypeface> SkFontMgr::onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
-                                                  const SkFontArguments& args) const {
-    return this->makeFromStream(std::move(stream), args.getCollectionIndex());
-}
 sk_sp<SkTypeface> SkFontMgr::onMakeFromFontData(std::unique_ptr<SkFontData> data) const {
     return this->makeFromStream(data->detachStream(), data->getIndex());
 }
