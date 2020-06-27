@@ -53,6 +53,10 @@ void sk_canvas_draw_line(sk_canvas_t* ccanvas, float x0, float y0, float x1, flo
     AsCanvas(ccanvas)->drawLine(x0, y0, x1, y1, *AsPaint(cpaint));
 }
 
+void sk_canvas_draw_simple_text(sk_canvas_t* ccanvas, const void* text, size_t byte_length, sk_text_encoding_t encoding, float x, float y, const sk_font_t* cfont, const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawSimpleText(text, byte_length, (SkTextEncoding)encoding, x, y, *AsFont(cfont), *AsPaint(cpaint));
+}
+
 void sk_canvas_draw_text_blob (sk_canvas_t* ccanvas, sk_textblob_t* text, float x, float y, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawTextBlob(AsTextBlob(text), x, y, *AsPaint(cpaint));
 }
