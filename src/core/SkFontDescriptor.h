@@ -17,11 +17,20 @@
 class SkFontData {
 public:
     /** Makes a copy of the data in 'axis'. */
-    SkFontData(std::unique_ptr<SkStreamAsset> stream, int index, const SkFixed axis[],int axisCount)
+    SkFontData(std::unique_ptr<SkStreamAsset> stream, int index, const SkFixed* axis, int axisCount)
         : fStream(std::move(stream)), fIndex(index), fAxisCount(axisCount), fAxis(axisCount)
     {
         for (int i = 0; i < axisCount; ++i) {
             fAxis[i] = axis[i];
+        }
+    }
+    SkFontData(std::unique_ptr<SkStreamAsset> stream, SkFontArguments args)
+        : fStream(std::move(stream)), fIndex(args.getCollectionIndex())
+        , fAxisCount(args.getVariationDesignPosition().coordinateCount)
+        , fAxis(args.getVariationDesignPosition().coordinateCount)
+    {
+        for (int i = 0; i < fAxisCount; ++i) {
+            fAxis[i] = SkFloatToFixed(args.getVariationDesignPosition().coordinates[i].value);
         }
     }
     SkFontData(const SkFontData& that)
