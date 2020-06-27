@@ -2294,6 +2294,11 @@ protected:
         return create_from_stream(std::move(stream));
     }
 
+    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
+                                           const SkFontArguments& args) const override {
+        return this->makeFromStream(std::move(stream), args.getCollectionIndex());
+    }
+
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
         // could be in base impl
         return this->makeFromStream(std::unique_ptr<SkStreamAsset>(new SkMemoryStream(std::move(data))),

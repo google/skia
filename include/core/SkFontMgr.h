@@ -146,7 +146,7 @@ protected:
     virtual sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                                     int ttcIndex) const = 0;
     virtual sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>,
-                                                   const SkFontArguments&) const;
+                                                   const SkFontArguments&) const = 0;
     virtual sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData>) const;
     virtual sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const = 0;
 
