@@ -395,7 +395,7 @@ static void ft_face_setup_axes(SkFaceRec* rec, const SkFontData& data) {
 
 // Will return nullptr on failure
 // Caller must lock f_t_mutex() before calling this function.
-static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
+static SkFaceRec* ref_ft_face(const SkTypeface_FreeType* typeface) {
     f_t_mutex().assertHeld();
 
     const SkFontID fontID = typeface->uniqueID();
@@ -484,7 +484,7 @@ extern /*static*/ void unref_ft_face(SkFaceRec* faceRec) {
 
 class AutoFTAccess {
 public:
-    AutoFTAccess(const SkTypeface* tf) : fFaceRec(nullptr) {
+    AutoFTAccess(const SkTypeface_FreeType* tf) : fFaceRec(nullptr) {
         f_t_mutex().acquire();
         SkASSERT_RELEASE(ref_ft_library());
         fFaceRec = ref_ft_face(tf);
@@ -513,7 +513,7 @@ private:
 
 class SkScalerContext_FreeType : public SkScalerContext_FreeType_Base {
 public:
-    SkScalerContext_FreeType(sk_sp<SkTypeface>,
+    SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType>,
                              const SkScalerContextEffects&,
                              const SkDescriptor* desc);
     ~SkScalerContext_FreeType() override;
@@ -720,8 +720,7 @@ SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContex
     return c.release();
 }
 
-std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(
-                                                            const SkFontArguments& args) const {
+std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArguments& args) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
@@ -859,7 +858,7 @@ static FT_Int chooseBitmapStrike(FT_Face face, FT_F26Dot6 scaleY) {
     return chosenStrikeIndex;
 }
 
-SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
+SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> typeface,
                                                    const SkScalerContextEffects& effects,
                                                    const SkDescriptor* desc)
     : SkScalerContext_FreeType_Base(std::move(typeface), effects, desc)
@@ -870,7 +869,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     SkAutoMutexExclusive  ac(f_t_mutex());
     SkASSERT_RELEASE(ref_ft_library());
 
-    fFaceRec.reset(ref_ft_face(this->getTypeface()));
+    fFaceRec.reset(ref_ft_face(static_cast<SkTypeface_FreeType*>(this->getTypeface())));
 
     // load the font file
     if (nullptr == fFaceRec) {
@@ -1829,6 +1828,10 @@ sk_sp<SkData> SkTypeface_FreeType::onCopyTableData(SkFontTableTag tag) const {
         }
     }
     return data;
+}
+
+std::unique_ptr<SkFontData> SkTypeface_FreeType::makeFontData() const {
+    return this->onMakeFontData();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

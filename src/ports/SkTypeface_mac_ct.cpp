@@ -771,73 +771,43 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const
     return fStream->duplicate();
 }
 
-static bool get_variations(CTFontRef ctFont, CFIndex* ctAxisCount,
-                           SkAutoSTMalloc<4, SkFixed>* axisValues)
-{
-    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ctFont));
-    if (!ctAxes) {
-        return false;
-    }
-    *ctAxisCount = CFArrayGetCount(ctAxes.get());
-    axisValues->reset(*ctAxisCount);
+/** Creates a CT variation dictionary {tag, value} from a CG variation dictionary {name, value}. */
+static SkUniqueCFRef<CFDictionaryRef> ct_variation_from_cg_variation(CFDictionaryRef cgVariations,
+                                                                     CFArrayRef ctAxes) {
 
-    // On 10.12 and later, this only returns non-default variations.
-    SkUniqueCFRef<CFDictionaryRef> ctVariation(CTFontCopyVariation(ctFont));
-    if (!ctVariation) {
-        return false;
-    }
+    SkUniqueCFRef<CFMutableDictionaryRef> ctVariation(
+            CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                      &kCFTypeDictionaryKeyCallBacks,
+                                      &kCFTypeDictionaryValueCallBacks));
 
-    for (int i = 0; i < *ctAxisCount; ++i) {
-        CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), i);
+    CFIndex axisCount = CFArrayGetCount(ctAxes);
+    for (CFIndex i = 0; i < axisCount; ++i) {
+        CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes, i);
         if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
-            return false;
+            return nullptr;
         }
         CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
 
-        CFTypeRef tag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
-        if (!tag) {
-            return false;
+        // The assumption is that values produced by kCTFontVariationAxisNameKey and
+        // kCGFontVariationAxisName will always be equal.
+        CFTypeRef axisName = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisNameKey);
+        if (!axisName || CFGetTypeID(axisName) != CFStringGetTypeID()) {
+            return nullptr;
         }
 
-        CGFloat variationCGFloat;
-        CFTypeRef variationValue = CFDictionaryGetValue(ctVariation.get(), tag);
-        if (variationValue) {
-            if (CFGetTypeID(variationValue) != CFNumberGetTypeID()) {
-                return false;
-            }
-            CFNumberRef variationNumber = static_cast<CFNumberRef>(variationValue);
-            if (!CFNumberGetValue(variationNumber, kCFNumberCGFloatType, &variationCGFloat)) {
-                return false;
-            }
-        } else {
-            CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisDefaultValueKey);
-            if (!def || CFGetTypeID(def) != CFNumberGetTypeID()) {
-                return false;
-            }
-            CFNumberRef defNumber = static_cast<CFNumberRef>(def);
-            if (!CFNumberGetValue(defNumber, kCFNumberCGFloatType, &variationCGFloat)) {
-                return false;
-            }
+        CFTypeRef axisValue = CFDictionaryGetValue(cgVariations, axisName);
+        if (!axisValue || CFGetTypeID(axisValue) != CFNumberGetTypeID()) {
+            return nullptr;
         }
-        if (variationCGFloat < SkFixedToDouble(SK_FixedMin) ||
-                               SkFixedToDouble(SK_FixedMax) < variationCGFloat) {
-            return false;
-        }
-        (*axisValues)[(int)i] = SkDoubleToFixed(variationCGFloat);
-    }
-    return true;
-}
-std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
-    int index;
-    std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
 
-    CFIndex cgAxisCount;
-    SkAutoSTMalloc<4, SkFixed> axisValues;
-    if (get_variations(fFontRef.get(), &cgAxisCount, &axisValues)) {
-        return std::make_unique<SkFontData>(std::move(stream), index,
-                                              axisValues.get(), cgAxisCount);
+        CFTypeRef axisTag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
+        if (!axisTag || CFGetTypeID(axisTag) != CFNumberGetTypeID()) {
+            return nullptr;
+        }
+
+        CFDictionaryAddValue(ctVariation.get(), axisTag, axisValue);
     }
-    return std::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
+    return std::move(ctVariation);
 }
 
 int SkTypeface_Mac::onGetVariationDesignPosition(
