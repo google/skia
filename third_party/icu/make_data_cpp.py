@@ -10,6 +10,8 @@ Generate a source file containing the given binary data.
 Output type is C++.
 '''
 
+from __future__ import print_function
+
 import os
 import struct
 import sys
@@ -21,7 +23,7 @@ def iterate_as_uint32(path):
         assert s.size == 4
         mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
         assert (len(mm) % s.size) == 0
-        for offset in xrange(0, len(mm), s.size):
+        for offset in range(0, len(mm), s.size):
             yield s.unpack_from(mm, offset)[0]
         mm.close()
 
@@ -44,5 +46,5 @@ cpp = ('#include <cstdint>\nextern "C" uint32_t {0}[] __attribute__((aligned(16)
        '', ',', '}};\n')
 
 if __name__ == '__main__':
-    print '\n'.join('>>>  %r' % x for x in sys.argv)
+    print('\n'.join('>>>  %r' % x for x in sys.argv))
     convert(cpp, sys.argv[1], sys.argv[2], sys.argv[3])
