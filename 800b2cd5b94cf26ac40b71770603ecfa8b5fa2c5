@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a52c4ba5_22778dc3",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-29T16:13:11Z",
+      "side": 1,
+      "message": "I\u0027m not sure why this was originally written as a switch. Direction only has two possible values, so this shouldn\u0027t ever actually need to use GrFPFailure.",
+      "range": {
+        "startLine": 258,
+        "startChar": 16,
+        "endLine": 258,
+        "endChar": 20
+      },
+      "revId": "800b2cd5b94cf26ac40b71770603ecfa8b5fa2c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
