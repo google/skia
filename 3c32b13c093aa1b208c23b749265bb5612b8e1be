@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7d9311c5_3cdf680c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-29T20:06:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f634543_5e48df84",
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8f4a396_0544686f",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71a08127_cf030953",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-29T20:06:07Z",
+      "side": 1,
+      "message": "Makes sense. I also realize that we don\u0027t have kMix being handled here, which would make use of that same ternary helper. I also cleaned up unary and binary to use a consistent pattern.",
+      "parentUuid": "c8f4a396_0544686f",
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -104,6 +140,30 @@
       "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c58d7e4_2f5be94e",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-29T20:06:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "749e4661_b6058b08",
+      "range": {
+        "startLine": 520,
+        "startChar": 5,
+        "endLine": 521,
+        "endChar": 36
+      },
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
