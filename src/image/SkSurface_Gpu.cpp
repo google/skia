@@ -580,8 +580,8 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
         }
     });
 
-    auto context = this->fDevice->context();
-    if (context->abandoned()) {
+    auto context = this->fDevice->recordingContext();
+    if (context->priv().abandoned()) {
         return false;
     }
     if (!backendTexture.isValid()) {

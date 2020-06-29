@@ -92,7 +92,7 @@ protected:
         }
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
         GrSurfaceProxyView views[3];
 
@@ -208,7 +208,7 @@ protected:
         }
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
         GrSurfaceProxyView views[2];
 
@@ -313,7 +313,7 @@ protected:
         }
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
         GrSurfaceProxyView views[3];
 
