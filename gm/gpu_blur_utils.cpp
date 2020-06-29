@@ -204,8 +204,8 @@ static void run(GrContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool
                     GrPaint paint;
                     // Compose against white (default paint color) and then replace the dst
                     // (SkBlendMode::kSrc).
-                    fp = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(fp),
-                                                                           SkBlendMode::kSrcOver);
+                    fp = GrXfermodeFragmentProcessor::Make(std::move(fp), /*dst=*/nullptr,
+                                                           SkBlendMode::kSrcOver);
                     paint.addColorFragmentProcessor(std::move(fp));
                     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                     rtc->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, m,

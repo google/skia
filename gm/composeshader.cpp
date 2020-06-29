@@ -336,11 +336,6 @@ static void draw_pair(SkCanvas* canvas, sk_sp<SkShader> src, sk_sp<SkShader> dst
     SkAlpha alpha = 0xFF;
     for (int y = 0; y < 2; ++y) {
         draw_cell(canvas, src, dst, mode, alpha);
-        canvas->save();
-        canvas->translate(gCellSize + gap, 0);
-        draw_composed(canvas, src, dst, mode, alpha);
-        canvas->restore();
-
         canvas->translate(0, gCellSize + gap);
         alpha = 0x80;
     }
