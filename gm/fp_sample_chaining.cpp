@@ -294,15 +294,14 @@ const char* gUniformMatrixSkSL = R"(
 )";
 
 // This form (uniform * constant) is currently detected as variable, thanks to our limited analysis
-// when scanning for sample matrices. If/when that improves, make this expression more complicated.
-// NOTE: An easy fix would be to hoist the expression to a local matrix variable, but that triggers
-// another bug where the resulting expression is used to compute the new local coords *before* the
-// local variable is declared.
+// when scanning for sample matrices. With that pulled into a separate local, it's highly unlikely
+// we'll ever treat this as anything else.
 const char* gVariableMatrixSkSL = R"(
     in shader child;
     uniform float3x3 matrix;
     void main(float2 xy, inout half4 color) {
-        color = sample(child, matrix * 0.5);
+        float3x3 varMatrix = matrix * 0.5;
+        color = sample(child, varMatrix);
     }
 )";
 
