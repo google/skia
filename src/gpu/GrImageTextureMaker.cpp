@@ -40,7 +40,7 @@ GrSurfaceProxyView GrImageTextureMaker::refOriginalTextureProxyView(GrMipMapped 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrRecordingContext* context, const SkImage* client)
+GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client)
         : INHERITED(context, client->imageInfo())
         , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
@@ -94,9 +94,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
 
     const auto& caps = *fImage->context()->priv().caps();
     const SkMatrix& m = filterOrNullForBicubic ? textureMatrix : SkMatrix::I();
-    GrSamplerState sampler(wrapX, wrapY, filter);
     auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVAIndices, fImage->fYUVColorSpace,
-                                     sampler, caps, m, domain);
+                                     filter, caps, m, domain);
     if (!filterOrNullForBicubic) {
         fp = GrBicubicEffect::Make(std::move(fp),
                                    fImage->alphaType(),
