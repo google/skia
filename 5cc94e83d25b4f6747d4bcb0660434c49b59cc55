@@ -22,6 +22,30 @@
       "revId": "5cc94e83d25b4f6747d4bcb0660434c49b59cc55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ccdb38a_3d0067d9",
+        "filename": "experimental/skottiekit/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-29T18:05:28Z",
+      "side": 1,
+      "message": "Confirmed, looks like he updated both places: https://skia-review.googlesource.com/c/skia/+/295437",
+      "parentUuid": "fb80d001_27a8c4fe",
+      "range": {
+        "startLine": 160,
+        "startChar": 2,
+        "endLine": 160,
+        "endChar": 38
+      },
+      "revId": "5cc94e83d25b4f6747d4bcb0660434c49b59cc55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
