@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b902c9b8_cbe366f8",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-29T14:08:37Z",
+      "side": 1,
+      "message": "Do you think we would get any mileage out of encapsulating this somewhere (i.e., SkTDistributedMap?) ?",
+      "range": {
+        "startLine": 592,
+        "startChar": 0,
+        "endLine": 603,
+        "endChar": 5
+      },
+      "revId": "103f013797847c7902a6dd8f9b2a5d8ddd0d8f2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
