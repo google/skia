@@ -34,6 +34,11 @@
     #include <arm_neon.h>
 #endif
 
+#if defined __wasm_simd128__
+    // WASM SIMD intrinsics definitions: https://github.com/llvm/llvm-project/blob/master/clang/lib/Headers/wasm_simd128.h
+    #include <wasm_simd128.h>
+#endif
+
 #if !defined(__clang__) && defined(__GNUC__) && defined(__mips64)
     // GCC 7 hits an internal compiler error when targeting MIPS64.
     #define SKVX_ALIGNMENT
@@ -602,6 +607,131 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
             return bit_pun<Vec<4,float>>(vfmaq_f32(bit_pun<float32x4_t>(z),
                                                    bit_pun<float32x4_t>(x),
                                                    bit_pun<float32x4_t>(y)));
+        }
+    #endif
+
+    // WASM SIMD compatible operations which are not automatically compiled to SIMD commands
+    // by emscripten:
+    #if defined __wasm_simd128__
+        static inline Vec<4,float> min(const Vec<4,float>& x, const Vec<4,float>& y) {
+            return to_vec<4,float>(wasm_f32x4_min(to_vext(x), to_vext(y)));
+        }
+        static inline Vec<4,float> max(const Vec<4,float>& x, const Vec<4,float>& y) {
+            return to_vec<4,float>(wasm_f32x4_max(to_vext(x), to_vext(y)));
+        }
+        static inline Vec<4,float> sqrt(const Vec<4,float>& x) {
+            return to_vec<4,float>(wasm_f32x4_sqrt(to_vext(x)));
+        }
+        static inline Vec<4,float> abs(const Vec<4,float>& x) {
+            return to_vec<4,float>(wasm_f32x4_abs(to_vext(x)));
+        }
+        static inline Vec<4,float> rcp(const Vec<4,float>& x) {
+            v128_t vec1 = wasm_f32x4_make(1.f, 1.f, 1.f, 1.f);
+            return to_vec<4,float>(wasm_f32x4_div(vec1, to_vext(x)));
+        }
+        static inline Vec<4,float> rsqrt(const Vec<4,float>& x) {
+            v128_t vec1 = wasm_f32x4_make(1.f, 1.f, 1.f, 1.f);
+            return to_vec<4,float>(wasm_f32x4_div(vec1, wasm_f32x4_sqrt(to_vext(x))));
+        }
+        static inline Vec<4,float> mad(const Vec<4,float>& f,
+                                       const Vec<4,float>& m,
+                                       const Vec<4,float>& a) {
+            return to_vec<4,float>(wasm_f32x4_add(
+                wasm_f32x4_mul(to_vext(f), to_vext(m)),
+                to_vext(a)
+            ));
+        }
+        static inline Vec<4,float> fma(const Vec<4,float>& x,
+                                       const Vec<4,float>& y,
+                                       const Vec<4,float>& z) {
+            return to_vec<4,float>(wasm_f32x4_add(
+                wasm_f32x4_mul(to_vext(x), to_vext(y)),
+                to_vext(z)
+            ));
+        }
+
+        static inline Vec<2,double> min(const Vec<2,double>& x, const Vec<2,double>& y) {
+            return to_vec<2,double>(wasm_f64x2_min(to_vext(x), to_vext(y)));
+        }
+        static inline Vec<2,double> max(const Vec<2,double>& x, const Vec<2,double>& y) {
+            return to_vec<2,double>(wasm_f64x2_max(to_vext(x), to_vext(y)));
+        }
+        static inline Vec<2,double> sqrt(const Vec<2,double>& x) {
+            return to_vec<2,double>(wasm_f64x2_sqrt(to_vext(x)));
+        }
+        static inline Vec<2,double> abs(const Vec<2,double>& x) {
+            return to_vec<2,double>(wasm_f64x2_abs(to_vext(x)));
+        }
+        static inline Vec<2,double> rcp(const Vec<2,double>& x) {
+            v128_t vec1 = wasm_f64x2_make(1.f, 1.f);
+            return to_vec<2,double>(wasm_f64x2_div(vec1, to_vext(x)));
+        }
+        static inline Vec<2,double> rsqrt(const Vec<2,double>& x) {
+            v128_t vec1 = wasm_f64x2_make(1.f, 1.f);
+            return to_vec<2,double>(wasm_f64x2_div(vec1, wasm_f64x2_sqrt(to_vext(x))));
+        }
+        static inline Vec<2,double> mad(const Vec<2,double>& f,
+                                       const Vec<2,double>& m,
+                                       const Vec<2,double>& a) {
+            return to_vec<2,double>(wasm_f64x2_add(
+                wasm_f64x2_mul(to_vext(f), to_vext(m)),
+                to_vext(a)
+            ));
+        }
+        static inline Vec<2,double> fma(const Vec<2,double>& x,
+                                       const Vec<2,double>& y,
+                                       const Vec<2,double>& z) {
+            return to_vec<2,double>(wasm_f64x2_add(
+                wasm_f64x2_mul(to_vext(x), to_vext(y)),
+                to_vext(z)
+            ));
+        }
+
+        static inline Vec<4,int> any(const Vec<4,int>& x) {
+            return to_vec<4,int>(wasm_i32x4_any_true(to_vext(x)));
+        }
+        static inline Vec<4,int> all(const Vec<4,int>& x) {
+            return to_vec<4,int>(wasm_i32x4_all_true(to_vext(x)));
+        }
+        static inline Vec<4,int> min(const Vec<4,int>& x, const Vec<4,int>& y) {
+            return to_vec<4,int>(wasm_i32x4_min(to_vext(x), to_vext(y)));
+        }
+        static inline Vec<4,int> max(const Vec<4,int>& x, const Vec<4,int>& y) {
+            return to_vec<4,int>(wasm_i32x4_max(to_vext(x), to_vext(y)));
+        }
+        static inline Vec<4,int> abs(const Vec<4,int>& x) {
+            return to_vec<4,int>(wasm_i32x4_abs(to_vext(x)));
+        }
+        static inline Vec<4,int> mad(const Vec<4,int>& f,
+                                       const Vec<4,int>& m,
+                                       const Vec<4,int>& a) {
+            return to_vec<4,int>(wasm_i32x4_add(
+                wasm_i32x4_mul(to_vext(f), to_vext(m)),
+                to_vext(a)
+            ));
+        }
+
+        static inline Vec<4,unsigned int> any(const Vec<4,unsigned int>& x) {
+            return to_vec<4,unsigned int>(wasm_i32x4_any_true(to_vext(x)));
+        }
+        static inline Vec<4,unsigned int> all(const Vec<4,unsigned int>& x) {
+            return to_vec<4,unsigned int>(wasm_i32x4_all_true(to_vext(x)));
+        }
+        static inline Vec<4,unsigned int> min(const Vec<4,unsigned int>& x,
+                                              const Vec<4,unsigned int>& y) {
+            return to_vec<4,unsigned int>(wasm_u32x4_min(to_vext(x), to_vext(y)));
+        }
+        static inline Vec<4,unsigned int> max(const Vec<4,unsigned int>& x,
+                                              const Vec<4,unsigned int>& y) {
+            return to_vec<4,unsigned int>(wasm_u32x4_max(to_vext(x), to_vext(y)));
+        }
+        static inline Vec<4,unsigned int> mad(const Vec<4,unsigned int>& f,
+                                       const Vec<4,unsigned int>& m,
+                                       const Vec<4,unsigned int>& a) {
+            return to_vec<4,unsigned int>(wasm_i32x4_add(
+                wasm_i32x4_mul(to_vext(f), to_vext(m)),
+                to_vext(a)
+            ));
         }
     #endif
 
