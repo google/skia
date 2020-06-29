@@ -87,12 +87,12 @@ public:
         // after 'fDisplayList' has been flushed (bc it owns the proxy the DDL's destination
         // trampoline points at).
         // TODO: fix the ref-order so we don't need 'fTileSurface' here
-        sk_sp<SkSurface>          fTileSurface;
+        sk_sp<SkSurface>              fTileSurface;
 
-        sk_sp<SkPicture>          fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>  fPromiseImages;    // All the promise images in the
+        sk_sp<SkPicture>              fReconstitutedPicture;
+        SkTArray<sk_sp<SkImage>>      fPromiseImages;    // All the promise images in the
                                                      // reconstituted picture
-        SkDDLPointer              fDisplayList;
+        sk_sp<SkDeferredDisplayList>  fDisplayList;
     };
 
     DDLTileHelper(GrContext* context,
@@ -110,7 +110,7 @@ public:
 
     // Create the DDL that will compose all the tile images into a final result.
     void createComposeDDL();
-    const SkDDLPointer& composeDDL() const { return fComposeDDL; }
+    const sk_sp<SkDeferredDisplayList>& composeDDL() const { return fComposeDDL; }
 
     void precompileAndDrawAllTiles(GrContext*);
 
@@ -137,7 +137,7 @@ private:
     int                                    fNumDivisions; // number of tiles along a side
     SkAutoTArray<TileData>                 fTiles;        // 'fNumDivisions' x 'fNumDivisions'
 
-    SkDDLPointer                           fComposeDDL;
+    sk_sp<SkDeferredDisplayList>           fComposeDDL;
 
     const SkSurfaceCharacterization        fDstCharacterization;
 };

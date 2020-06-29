@@ -8,8 +8,6 @@
 #ifndef GrUnrefDDLTask_DEFINED
 #define GrUnrefDDLTask_DEFINED
 
-#ifndef SK_DDL_IS_UNIQUE_POINTER
-
 #include "src/gpu/GrRenderTask.h"
 
 /** When a DDL is played back, the drawing manager refs the DDL and adds one
@@ -53,5 +51,4 @@ private:
     sk_sp<const SkDeferredDisplayList> fDDL;
 };
 
-#endif  // !SK_DDL_IS_UNIQUE_POINTER
 #endif

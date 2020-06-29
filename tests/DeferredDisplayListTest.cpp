@@ -166,7 +166,7 @@ public:
     }
 
     // Create a DDL whose characterization captures the current settings
-    SkDDLPointer createDDL(GrContext* context) const {
+    sk_sp<SkDeferredDisplayList> createDDL(GrContext* context) const {
         SkSurfaceCharacterization c = this->createCharacterization(context);
         SkAssertResult(c.isValid());
 
@@ -335,7 +335,7 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
     SkBitmap bitmap;
     bitmap.allocPixels(imageInfo);
 
-    SkDDLPointer ddl;
+    sk_sp<SkDeferredDisplayList> ddl;
 
     // First, create a DDL using the stock SkSurface parameters
     {
@@ -726,7 +726,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
     bitmap.allocPixels(imageInfo);
 
     for (bool textureability : { true, false }) {
-        SkDDLPointer ddl;
+        sk_sp<SkDeferredDisplayList> ddl;
 
         // First, create a DDL w/o textureability (and thus no mipmaps). TODO: once we have
         // reusable DDLs, move this outside of the loop.
@@ -1047,7 +1047,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
     FulfillInfo fulfillInfo;
     fulfillInfo.fTex = SkPromiseImageTexture::Make(backendTexture);
 
-    SkDDLPointer ddl;
+    sk_sp<SkDeferredDisplayList> ddl;
 
     {
         SkDeferredDisplayListRecorder recorder(characterization);
@@ -1126,7 +1126,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
     canvas1->save();
     canvas1->clipRect(SkRect::MakeXYWH(8, 8, 16, 16));
 
-    SkDDLPointer ddl1 = recorder.detach();
+    sk_sp<SkDeferredDisplayList> ddl1 = recorder.detach();
 
     SkCanvas* canvas2 = recorder.getCanvas();
 
@@ -1134,7 +1134,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
     p.setColor(SK_ColorGREEN);
     canvas2->drawRect(SkRect::MakeWH(32, 32), p);
 
-    SkDDLPointer ddl2 = recorder.detach();
+    sk_sp<SkDeferredDisplayList> ddl2 = recorder.detach();
 
     REPORTER_ASSERT(reporter, ddl1->priv().lazyProxyData());
     REPORTER_ASSERT(reporter, ddl2->priv().lazyProxyData());
