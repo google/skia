@@ -179,7 +179,8 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
     // If the caller expects the pixels in a different color space than the one from the image,
     // apply a color conversion to do this.
     std::unique_ptr<GrFragmentProcessor> colorConversionProcessor =
-            GrColorSpaceXformEffect::Make(srcColorSpace, kOpaque_SkAlphaType,
+            GrColorSpaceXformEffect::Make(/*childFP=*/nullptr,
+                                          srcColorSpace, kOpaque_SkAlphaType,
                                           dstColorSpace, kOpaque_SkAlphaType);
     if (colorConversionProcessor) {
         paint.addColorFragmentProcessor(std::move(colorConversionProcessor));
