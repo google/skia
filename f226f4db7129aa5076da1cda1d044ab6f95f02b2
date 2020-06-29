@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5fb3543f_dff45111",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-29T18:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e5ced0f_bcf5458e",
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cd366d9_f023e61e",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 11
@@ -39,6 +57,30 @@
       "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e081ee22_12af4be0",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 964,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-29T18:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cd366d9_f023e61e",
+      "range": {
+        "startLine": 964,
+        "startChar": 16,
+        "endLine": 964,
+        "endChar": 19
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "0adfb18c_0ef664bf",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1507,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-29T18:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9795f1a_50064c91",
+      "range": {
+        "startLine": 1507,
+        "startChar": 24,
+        "endLine": 1507,
+        "endChar": 33
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ea7bc990_4ac19cca",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 11
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "7fea32cd_2cbb82da",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1563,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-29T18:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea7bc990_4ac19cca",
+      "range": {
+        "startLine": 1563,
+        "startChar": 28,
+        "endLine": 1563,
+        "endChar": 37
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "244fe73e_d5c8f37a",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 11
@@ -108,6 +198,30 @@
       "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47e4eb38_5bbebf7d",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-29T18:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "244fe73e_d5c8f37a",
+      "range": {
+        "startLine": 1566,
+        "startChar": 67,
+        "endLine": 1566,
+        "endChar": 72
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +271,30 @@
     },
     {
       "key": {
+        "uuid": "d1f1810f_9413b8dc",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1601,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-29T18:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30cc602d_f57a1761",
+      "range": {
+        "startLine": 1596,
+        "startChar": 12,
+        "endLine": 1601,
+        "endChar": 13
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cddac990_ad22eb28",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 11
@@ -180,6 +318,30 @@
     },
     {
       "key": {
+        "uuid": "4b27a4d8_b2738a9d",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1611,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-29T18:24:25Z",
+      "side": 1,
+      "message": "I first look into the github and find that the commits are made 4 years ago, and I think it might be a good to add coverage on this one for now, and I look into the code and find MakeUninitialized() combined with fuzz-\u003enext() can make data content interesting. \nI have fixed all the issues, please take another look.",
+      "parentUuid": "cddac990_ad22eb28",
+      "range": {
+        "startLine": 1602,
+        "startChar": 12,
+        "endLine": 1611,
+        "endChar": 13
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bb0b445_974a1319",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 11
@@ -194,6 +356,24 @@
       "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6485ceb_3fc1c802",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1799,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-29T18:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1bb0b445_974a1319",
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
