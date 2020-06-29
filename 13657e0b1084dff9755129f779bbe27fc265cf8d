@@ -22,6 +22,30 @@
       "revId": "13657e0b1084dff9755129f779bbe27fc265cf8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb30262e_c44207a7",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-29T21:23:10Z",
+      "side": 1,
+      "message": "Good catch! I fixed these to be check for null. Every statement kind should(...) match the old code in SampleMatrix and SectionAndParameterHelper\u0027s visitor functions. It looks like do and while expect the test to be present, so I did not update those.",
+      "parentUuid": "3138a0ef_bbabb243",
+      "range": {
+        "startLine": 296,
+        "startChar": 19,
+        "endLine": 298,
+        "endChar": 53
+      },
+      "revId": "13657e0b1084dff9755129f779bbe27fc265cf8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
