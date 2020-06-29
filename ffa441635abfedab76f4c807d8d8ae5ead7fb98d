@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6e7faf78_cf5b5fa2",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-29T23:01:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e53b33d_0ceea689",
+      "range": {
+        "startLine": 562,
+        "startChar": 78,
+        "endLine": 562,
+        "endChar": 86
+      },
+      "revId": "ffa441635abfedab76f4c807d8d8ae5ead7fb98d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "45df9f36_fd337182",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 2
