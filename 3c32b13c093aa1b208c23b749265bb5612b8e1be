@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f634543_5e48df84",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:17:05Z",
+      "side": 1,
+      "message": "Are these asserts \"duh\" now?",
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8f4a396_0544686f",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:17:05Z",
+      "side": 1,
+      "message": "Think it\u0027d be weird (as a follow-up) to factor out a ternary() and make it support arbitrary N?  This guy just stands out as an oddball now, even if we\u0027ll only get lerp1-4.",
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c5ea45d_b21d5ad7",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:17:05Z",
+      "side": 1,
+      "message": "Is there anything we can do to make this sort of thing feel less stuttery?  Like, maybe write(Instruction,int) write the count byte too?",
+      "range": {
+        "startLine": 520,
+        "startChar": 5,
+        "endLine": 521,
+        "endChar": 36
+      },
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

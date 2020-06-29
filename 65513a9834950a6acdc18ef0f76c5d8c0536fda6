@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b635520_09154e42",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 717,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:17:05Z",
+      "side": 0,
+      "message": "Is there value perhaps in keeping something like vector_instruction() around to handle this pattern?",
+      "revId": "65513a9834950a6acdc18ef0f76c5d8c0536fda6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
