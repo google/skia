@@ -940,7 +940,6 @@ static GrColorType dxgi_format_to_backend_tex_clear_colortype(DXGI_FORMAT format
         case DXGI_FORMAT_R8_UNORM:            return GrColorType::kR_8;
 
         case DXGI_FORMAT_B5G6R5_UNORM:        return GrColorType::kBGR_565;
-        case DXGI_FORMAT_B4G4R4A4_UNORM:      return GrColorType::kABGR_4444;
         case DXGI_FORMAT_R8G8B8A8_UNORM:      return GrColorType::kRGBA_8888;
         case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB: return GrColorType::kRGBA_8888_SRGB;
 

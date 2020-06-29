@@ -287,13 +287,13 @@ static constexpr DXGI_FORMAT kDxgiFormats[] = {
     DXGI_FORMAT_R16_FLOAT,
     DXGI_FORMAT_R8G8_UNORM,
     DXGI_FORMAT_R10G10B10A2_UNORM,
-    DXGI_FORMAT_B4G4R4A4_UNORM,
     DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
     DXGI_FORMAT_BC1_UNORM,
     DXGI_FORMAT_R16_UNORM,
     DXGI_FORMAT_R16G16_UNORM,
     DXGI_FORMAT_R16G16B16A16_UNORM,
     DXGI_FORMAT_R16G16_FLOAT
+    // DXGI_FORMAT_B4G4R4A4_UNORM could be supported, but will require a new kARGB_4444 GrColorType
 };
 
 void GrD3DCaps::setColorType(GrColorType colorType, std::initializer_list<DXGI_FORMAT> formats) {
@@ -531,27 +531,6 @@ void GrD3DCaps::initFormatTable(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Devi
             }
         }
     }
-    // Format: DXGI_FORMAT_B4G4R4A4_UNORM
-    {
-        constexpr DXGI_FORMAT format = DXGI_FORMAT_B4G4R4A4_UNORM;
-        auto& info = this->getFormatInfo(format);
-        info.init(adapterDesc, device, format);
-        info.fBytesPerPixel = 2;
-        if (SkToBool(info.fFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 1;
-            info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
-            int ctIdx = 0;
-            // Format: DXGI_FORMAT_B4G4R4A4_UNORM, Surface: kABGR_4444
-            {
-                constexpr GrColorType ct = GrColorType::kABGR_4444;
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                ctInfo.fReadSwizzle = GrSwizzle("bgra");
-                ctInfo.fWriteSwizzle = GrSwizzle("bgra");
-            }
-        }
-    }
     // Format: DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
     {
         constexpr DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -666,7 +645,6 @@ void GrD3DCaps::initFormatTable(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Devi
 
     this->setColorType(GrColorType::kAlpha_8, { DXGI_FORMAT_R8_UNORM });
     this->setColorType(GrColorType::kBGR_565, { DXGI_FORMAT_B5G6R5_UNORM });
-    this->setColorType(GrColorType::kABGR_4444, { DXGI_FORMAT_B4G4R4A4_UNORM });
     this->setColorType(GrColorType::kRGBA_8888, { DXGI_FORMAT_R8G8B8A8_UNORM });
     this->setColorType(GrColorType::kRGBA_8888_SRGB, { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB });
     this->setColorType(GrColorType::kRGB_888x, { DXGI_FORMAT_R8G8B8A8_UNORM });
@@ -1067,7 +1045,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrD3DCaps::getTestingCombina
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
         {GrColorType::kAlpha_8,        GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8_UNORM)           },
         {GrColorType::kBGR_565,        GrBackendFormat::MakeDxgi(DXGI_FORMAT_B5G6R5_UNORM)       },
-        {GrColorType::kABGR_4444,      GrBackendFormat::MakeDxgi(DXGI_FORMAT_B4G4R4A4_UNORM)     },
         {GrColorType::kRGBA_8888,      GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8G8B8A8_UNORM)     },
         {GrColorType::kRGBA_8888_SRGB, GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB)},
         {GrColorType::kRGB_888x,       GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8G8B8A8_UNORM)     },

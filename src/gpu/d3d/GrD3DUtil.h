@@ -28,7 +28,6 @@ static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT vkFormat) {
         case DXGI_FORMAT_R16_FLOAT:                return kRed_SkColorChannelFlag;
         case DXGI_FORMAT_R8G8_UNORM:               return kRG_SkColorChannelFlags;
         case DXGI_FORMAT_R10G10B10A2_UNORM:        return kRGBA_SkColorChannelFlags;
-        case DXGI_FORMAT_B4G4R4A4_UNORM:           return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_R32G32B32A32_FLOAT:       return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:      return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_BC1_UNORM:                return kRGBA_SkColorChannelFlags;
@@ -52,7 +51,6 @@ static constexpr const char* GrDxgiFormatToStr(DXGI_FORMAT dxgiFormat) {
         case DXGI_FORMAT_R16_FLOAT:                return "R16_FLOAT";
         case DXGI_FORMAT_R8G8_UNORM:               return "R8G8_UNORM";
         case DXGI_FORMAT_R10G10B10A2_UNORM:        return "R10G10B10A2_UNORM";
-        case DXGI_FORMAT_B4G4R4A4_UNORM:           return "B4G4R4A4_UNORM";
         case DXGI_FORMAT_R32G32B32A32_FLOAT:       return "R32G32B32A32_FLOAT";
         case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:      return "R8G8B8A8_UNORM_SRGB";
         case DXGI_FORMAT_BC1_UNORM:                return "BC1_UNORM";
