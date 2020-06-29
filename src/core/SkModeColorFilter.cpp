@@ -88,28 +88,33 @@ skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
-std::unique_ptr<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorInfo& dstColorInfo) const {
+GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                  GrRecordingContext*,
+                                                  const GrColorInfo& dstColorInfo) const {
     if (SkBlendMode::kDst == fMode) {
-        return nullptr;
+        return GrFPFailure(std::move(inputFP));
     }
 
-    auto constFP = GrConstColorProcessor::Make(/*inputFP=*/nullptr,
+    SkDEBUGCODE(const bool fpHasConstIO = !inputFP || inputFP->hasConstantOutputForConstantInput();)
+
+    auto colorFP = GrConstColorProcessor::Make(/*inputFP=*/nullptr,
                                                SkColorToPMColor4f(fColor, dstColorInfo),
                                                GrConstColorProcessor::InputMode::kIgnore);
-    auto fp = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(
-                /*inputFP=*/nullptr, std::move(constFP), fMode);
-    if (!fp) {
-        return nullptr;
+    auto xferFP = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(inputFP),
+                                                                    std::move(colorFP),
+                                                                    fMode);
+    if (!xferFP) {
+        // This is only expected to happen if the mode is "dest," which we already checked earlier.
+        SkDEBUGFAIL("GrXfermodeFragmentProcessor::MakeFromSrcProcessor returned null");
+        return GrFPFailure(nullptr);
     }
-#ifdef SK_DEBUG
+
     // With a solid color input this should always be able to compute the blended color
     // (at least for coeff modes)
-    if ((unsigned)fMode <= (unsigned)SkBlendMode::kLastCoeffMode) {
-        SkASSERT(fp->hasConstantOutputForConstantInput());
-    }
-#endif
-    return fp;
+    SkASSERT(fMode > SkBlendMode::kLastCoeffMode ||
+             xferFP->hasConstantOutputForConstantInput() == fpHasConstIO);
+
+    return GrFPSuccess(std::move(xferFP));
 }
 
 #endif
