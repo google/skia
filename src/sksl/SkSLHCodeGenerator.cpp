@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLHCodeGenerator.h"
 
 #include "include/private/SkSLSampleMatrix.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLEnum.h"
@@ -273,8 +274,7 @@ void HCodeGenerator::writeConstructor() {
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
 
-    int usesSampleCoordsDirectly = fProgram.fSource->find("sk_TransformedCoords", 0);
-    if (usesSampleCoordsDirectly >= 0) {
+    if (Analysis::ReferencesSampleCoords(fProgram)) {
         this->writef("        this->setUsesSampleCoordsDirectly();\n");
     }
 
@@ -289,8 +289,8 @@ void HCodeGenerator::writeConstructor() {
                 this->writef("        SkASSERT(%s);", String(param->fName).c_str());
             }
 
-            bool explicitCoords = fSectionAndParameterHelper.hasCoordOverrides(*param);
-            SampleMatrix matrix = SampleMatrix::Make(fProgram, *param);
+            bool explicitCoords = Analysis::IsExplicitlySampled(fProgram, *param);
+            SampleMatrix matrix = Analysis::GetSampleMatrix(fProgram, *param);
 
             String registerFunc;
             String matrixArg;

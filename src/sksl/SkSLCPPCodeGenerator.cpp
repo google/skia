@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLCPPCodeGenerator.h"
 
 #include "include/private/SkSLSampleMatrix.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCPPUniformCTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLHCodeGenerator.h"
@@ -447,7 +448,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         } else if (c.fArguments.back()->fType.name() == "float3x3") {
             // Invoking child with a matrix, sampling relative to the input coords.
             invokeFunction = "invokeChildWithMatrix";
-            SampleMatrix matrix = SampleMatrix::Make(fProgram, child);
+            SampleMatrix matrix = Analysis::GetSampleMatrix(fProgram, child);
 
             if (!matrix.isConstUniform()) {
                 inputCoord = "_matrix" + to_string(c.fOffset);
