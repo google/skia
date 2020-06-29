@@ -115,22 +115,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
     const Expression& base = *i.fBase;
     if (base.fKind == Expression::kVariableReference_Kind) {
         int builtin = ((VariableReference&) base).fVariable.fModifiers.fLayout.fBuiltin;
-        if (SK_TRANSFORMEDCOORDS2D_BUILTIN == builtin) {
-            this->write("%s");
-            if (i.fIndex->fKind != Expression::kIntLiteral_Kind) {
-                fErrors.error(i.fIndex->fOffset,
-                              "index into sk_TransformedCoords2D must be an integer literal");
-                return;
-            }
-            int64_t index = ((IntLiteral&) *i.fIndex).fValue;
-            if (index != 0) {
-                fErrors.error(i.fIndex->fOffset, "Only sk_TransformedCoords2D[0] is allowed");
-                return;
-            }
-            fAccessSampleCoordsDirectly = true;
-            fFormatArgs.push_back("args.fSampleCoord");
-            return;
-        } else if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {
+        if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {
             this->write("%s");
             if (i.fIndex->fKind != Expression::kIntLiteral_Kind) {
                 fErrors.error(i.fIndex->fOffset,
@@ -296,6 +281,11 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
             fFormatArgs.push_back(String("args.fOutputColor"));
+            break;
+        case SK_MAIN_COORDS_BUILTIN:
+            this->write("%s");
+            fFormatArgs.push_back(String("args.fSampleCoord"));
+            fAccessSampleCoordsDirectly = true;
             break;
         case SK_WIDTH_BUILTIN:
             this->write("sk_Width");
