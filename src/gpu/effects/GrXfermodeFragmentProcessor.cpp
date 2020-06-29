@@ -98,7 +98,7 @@ private:
             case SkBlendMode::kClear:
             case SkBlendMode::kSrc:
             case SkBlendMode::kDst:
-                SK_ABORT("Should never create clear, src, or dst compose-two FP.");
+                SK_ABORT("GrXfermodeFragmentProcessor::Make should have optimized this away.");
                 flags = kNone_OptimizationFlags;
                 break;
 
@@ -267,25 +267,6 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, inputFrag.c_str());
 }
 
-std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoProcessors(
-        std::unique_ptr<GrFragmentProcessor> inputFP,
-        std::unique_ptr<GrFragmentProcessor> src,
-        std::unique_ptr<GrFragmentProcessor> dst,
-        SkBlendMode mode) {
-    switch (mode) {
-        case SkBlendMode::kClear:
-            return GrConstColorProcessor::Make(std::move(inputFP), SK_PMColor4fTRANSPARENT,
-                                               GrConstColorProcessor::InputMode::kIgnore);
-        case SkBlendMode::kSrc:
-            return src;
-        case SkBlendMode::kDst:
-            return dst;
-        default:
-            return ComposeTwoFragmentProcessor::Make(std::move(inputFP), std::move(src),
-                                                     std::move(dst), mode);
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 class ComposeOneFragmentProcessor : public GrFragmentProcessor {
@@ -344,20 +325,10 @@ private:
         OptimizationFlags flags;
         switch (mode) {
             case SkBlendMode::kClear:
-                SK_ABORT("Should never create clear compose-one FP.");
-                flags = kNone_OptimizationFlags;
-                break;
-
             case SkBlendMode::kSrc:
-                SkASSERT(child == kSrc_Child);
-                flags = childFP->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
-                                                        : kNone_OptimizationFlags;
-                break;
-
             case SkBlendMode::kDst:
-                SkASSERT(child == kDst_Child);
-                flags = childFP->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
-                                                        : kNone_OptimizationFlags;
+                SK_ABORT("GrXfermodeFragmentProcessor::Make should have optimized this away.");
+                flags = kNone_OptimizationFlags;
                 break;
 
             // Produces opaque if both src and dst are opaque. These also will modulate the child's
@@ -535,8 +506,7 @@ std::unique_ptr<GrFragmentProcessor> ComposeOneFragmentProcessor::TestCreate(
     do {
         mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0, (int)SkBlendMode::kLastMode));
         child = d->fRandom->nextBool() ? kDst_Child : kSrc_Child;
-    } while (SkBlendMode::kClear == mode || (SkBlendMode::kDst == mode && child == kSrc_Child) ||
-             (SkBlendMode::kSrc == mode && child == kDst_Child));
+    } while (SkBlendMode::kClear == mode || SkBlendMode::kDst == mode || SkBlendMode::kSrc == mode);
     return std::unique_ptr<GrFragmentProcessor>(
             new ComposeOneFragmentProcessor(/*inputFP=*/nullptr, std::move(dst), mode, child));
 }
@@ -552,39 +522,43 @@ std::unique_ptr<GrFragmentProcessor> ComposeOneFragmentProcessor::clone() const 
 
 //////////////////////////////////////////////////////////////////////////////
 
-// It may seems as though when the input FP is the dst and the mode is kDst (or same for src/kSrc)
-// that these factories could simply return the input FP. However, that doesn't have quite
-// the same effect as the returned child FP will replace the FP's input with solid white and
-// ignore the original input. This could be implemented as ConstColor(inputFP, WHITE, kIgnoreInput).
+// It may seems as though when the mode is kDst that these factories could simply return the dest
+// FP as-is (or same for src/kSrc). However, that doesn't have quite the same effect as the returned
+// child FP will replace the FP's input with solid white and ignore the original input.
 
-std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstProcessor(
+std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::Make(
         std::unique_ptr<GrFragmentProcessor> inputFP,
+        std::unique_ptr<GrFragmentProcessor> src,
         std::unique_ptr<GrFragmentProcessor> dst,
         SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
+            // The clear operation doesn't actually use the source or dest FPs.
             return GrConstColorProcessor::Make(std::move(inputFP), SK_PMColor4fTRANSPARENT,
                                                GrConstColorProcessor::InputMode::kIgnore);
-        case SkBlendMode::kSrc:
-            return nullptr;
-        default:
-            return ComposeOneFragmentProcessor::Make(std::move(inputFP), std::move(dst), mode,
-                                                     ComposeOneFragmentProcessor::kDst_Child);
-    }
-}
 
-std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromSrcProcessor(
-        std::unique_ptr<GrFragmentProcessor> inputFP,
-        std::unique_ptr<GrFragmentProcessor> src,
-        SkBlendMode mode) {
-    switch (mode) {
-        case SkBlendMode::kClear:
-            return GrConstColorProcessor::Make(std::move(inputFP), SK_PMColor4fTRANSPARENT,
-                                               GrConstColorProcessor::InputMode::kIgnore);
+        case SkBlendMode::kSrc:
+            return GrFragmentProcessor::OverrideInput(std::move(src), SK_PMColor4fWHITE,
+                                                      /*useUniform=*/false);
+
         case SkBlendMode::kDst:
-            return nullptr;
+            return GrFragmentProcessor::OverrideInput(std::move(dst), SK_PMColor4fWHITE,
+                                                      /*useUniform=*/false);
+
         default:
-            return ComposeOneFragmentProcessor::Make(std::move(inputFP), std::move(src), mode,
-                                                     ComposeOneFragmentProcessor::kSrc_Child);
+            break;
     }
+
+    if (dst == nullptr) {
+        return ComposeOneFragmentProcessor::Make(std::move(inputFP), std::move(src), mode,
+                                                 ComposeOneFragmentProcessor::kSrc_Child);
+    }
+
+    if (src == nullptr) {
+        return ComposeOneFragmentProcessor::Make(std::move(inputFP), std::move(dst), mode,
+                                                 ComposeOneFragmentProcessor::kDst_Child);
+    }
+
+    return ComposeTwoFragmentProcessor::Make(std::move(inputFP), std::move(src),
+                                             std::move(dst), mode);
 }
