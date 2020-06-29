@@ -84,6 +84,7 @@ public:
     void dump() const SK_EXCLUDES(fMu);
 
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
+    unsigned getGlyphCount() const;
 
 private:
     class GlyphMapHashTraits {

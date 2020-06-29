@@ -19,8 +19,8 @@ SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
         : SkScalerContext{std::move(tf), effects, desc}
         , fDiscardableManager{std::move(manager)} {}
 
-unsigned SkScalerContextProxy::generateGlyphCount()  {
-    SK_ABORT("Should never be called.");
+unsigned SkScalerContextProxy::generateGlyphCount() {
+    return 0;
 }
 
 bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {

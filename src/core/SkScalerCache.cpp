@@ -241,6 +241,10 @@ void SkScalerCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkS
     glyph->ensureIntercepts(bounds, scale, xPos, array, count, &fAlloc);
 }
 
+unsigned SkScalerCache::getGlyphCount() const {
+    return fScalerContext->getGlyphCount();
+}
+
 void SkScalerCache::dump() const {
     SkAutoMutexExclusive lock{fMu};
     const SkTypeface* face = fScalerContext->getTypeface();

@@ -22,6 +22,14 @@ class SkTraceMemoryDump;
     #define SK_DEFAULT_FONT_CACHE_COUNT_LIMIT   2048
 #endif
 
+#ifndef SK_DEFAULT_LARGE_FONT_CACHE_COUNT_LIMIT
+    #define SK_DEFAULT_LARGE_FONT_CACHE_COUNT_LIMIT 256
+#endif
+
+#ifndef SK_DEFAULT_LARGE_FONT_GLYPH_COUNT_THRESHHOLD
+    #define SK_DEFAULT_LARGE_FONT_GLYPH_COUNT_THRESHHOLD (10 * 1024)
+#endif
+
 #ifndef SK_DEFAULT_FONT_CACHE_LIMIT
     #define SK_DEFAULT_FONT_CACHE_LIMIT     (2 * 1024 * 1024)
 #endif
@@ -51,7 +59,10 @@ public:
                std::unique_ptr<SkStrikePinner> pinner)
                 : fStrikeCache{strikeCache}
                 , fScalerCache{desc, std::move(scaler), metrics}
-                , fPinner{std::move(pinner)} {}
+                , fPinner{std::move(pinner)} {
+            fHasLargeGlyph =
+                    fScalerCache.getGlyphCount() > SK_DEFAULT_LARGE_FONT_GLYPH_COUNT_THRESHHOLD;
+        }
 
         SkGlyph* mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from) {
             auto [glyph, increase] = fScalerCache.mergeGlyphAndImage(toID, from);
@@ -143,6 +154,8 @@ public:
         std::unique_ptr<SkStrikePinner> fPinner;
         size_t                          fMemoryUsed{sizeof(SkScalerCache)};
         bool                            fRemoved{false};
+        bool fHasLargeGlyph{false};
+
     };  // Strike
 
     static SkStrikeCache* GlobalStrikeCache();
@@ -181,6 +194,8 @@ public:
     size_t getCacheSizeLimit() const SK_EXCLUDES(fLock);
     size_t setCacheSizeLimit(size_t limit) SK_EXCLUDES(fLock);
     size_t getTotalMemoryUsed() const SK_EXCLUDES(fLock);
+
+    int setCacheLargeGlyphCountLimit(int newCount);
 
     int  getCachePointSizeLimit() const SK_EXCLUDES(fLock);
     int  setCachePointSizeLimit(int limit) SK_EXCLUDES(fLock);
@@ -224,6 +239,8 @@ private:
     size_t  fTotalMemoryUsed SK_GUARDED_BY(fLock) {0};
     int32_t fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};
     int32_t fCacheCount SK_GUARDED_BY(fLock) {0};
+    int32_t fCacheLargeGlyphCountLimit{SK_DEFAULT_LARGE_FONT_CACHE_COUNT_LIMIT};
+    int32_t fCacheLargeGlyphCount SK_GUARDED_BY(fLock){0};
     int32_t fPointSizeLimit{SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT};
 };
 
