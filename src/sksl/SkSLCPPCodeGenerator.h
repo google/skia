@@ -123,7 +123,8 @@ private:
     std::vector<String> fExtraEmitCodeBlocks;
 
     std::vector<String> fFormatArgs;
-    // true if the sksl referenced sk_TransformedCoords[0]
+    // true if the sksl declared its main() function with a float2 parameter AND referenced that
+    // parameter in its body.
     bool fAccessSampleCoordsDirectly = false;
 
     // if true, we are writing a C++ expression instead of a GLSL expression
