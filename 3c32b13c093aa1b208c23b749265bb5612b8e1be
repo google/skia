@@ -37,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "162260df_580dfb9c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T20:20:01Z",
+      "side": 1,
+      "message": "Yeah, good!  I almost mentioned that this layout felt backward compared to what we\u0027ve since worked out as the clearer way.  Glad to see binary and unary updated.",
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8f4a396_0544686f",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
@@ -164,6 +181,29 @@
       "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f765830_7cd7e405",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1769,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T20:20:01Z",
+      "side": 1,
+      "message": "This change feels really good.",
+      "range": {
+        "startLine": 1767,
+        "startChar": 0,
+        "endLine": 1769,
+        "endChar": 1
+      },
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

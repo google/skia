@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ab825f6_ee95773b",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T20:20:01Z",
+      "side": 1,
+      "message": "Thanks, this feels good to me.",
+      "range": {
+        "startLine": 638,
+        "startChar": 3,
+        "endLine": 655,
+        "endChar": 5
+      },
+      "revId": "fbe985c4d8c0abb3546c4436427e5a2a6470a2f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
