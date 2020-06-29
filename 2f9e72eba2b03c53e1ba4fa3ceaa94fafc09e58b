@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ab77416_91081705",
+        "filename": "src/image/SkSurface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-29T12:21:36Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 381,
+        "startChar": 30,
+        "endLine": 381,
+        "endChar": 33
+      },
+      "revId": "2f9e72eba2b03c53e1ba4fa3ceaa94fafc09e58b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
