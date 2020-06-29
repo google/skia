@@ -80,6 +80,30 @@
       "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "749e4661_b6058b08",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:25:46Z",
+      "side": 1,
+      "message": "Yeah, these all sound good to me... everything falling into the same simple pattern.",
+      "parentUuid": "5ca4d87b_e4f4e7a4",
+      "range": {
+        "startLine": 520,
+        "startChar": 5,
+        "endLine": 521,
+        "endChar": 36
+      },
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
