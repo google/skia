@@ -1,0 +1,199 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e5ced0f_bcf5458e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "Please make your commit message more descriptive. Explain what you are doing and *why* you are doing it.",
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cd366d9_f023e61e",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 964,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "Preallocate the size of the string\nhttps://stackoverflow.com/questions/3303527/how-to-pre-allocate-memory-for-a-stdstring-object",
+      "range": {
+        "startLine": 964,
+        "startChar": 16,
+        "endLine": 964,
+        "endChar": 19
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9795f1a_50064c91",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1507,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "This API is more interesting if it includes a blend mode.\n\nThere are two ways of representing color (as an int [SkColor] and as 4 floats [SkColor4f]). As a follow-on CL, it would be good to test more APIs with a SkColor4f in addition to SkColor.",
+      "range": {
+        "startLine": 1507,
+        "startChar": 24,
+        "endLine": 1507,
+        "endChar": 33
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea7bc990_4ac19cca",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1563,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "Note that texCoords can be null. Please add an option to make that so.",
+      "range": {
+        "startLine": 1563,
+        "startChar": 28,
+        "endLine": 1563,
+        "endChar": 37
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "244fe73e_d5c8f37a",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "This paint doesn\u0027t get fuzzed.",
+      "range": {
+        "startLine": 1566,
+        "startChar": 67,
+        "endLine": 1566,
+        "endChar": 72
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c17cf355_2c1c49f3",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "Add a TODO to re-enable this. Perhaps you can do some git history research and see which Skia engineer to ask about why this might be slow and how to make it faster?",
+      "range": {
+        "startLine": 1570,
+        "startChar": 19,
+        "endLine": 1570,
+        "endChar": 23
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30cc602d_f57a1761",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1601,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "Don\u0027t bother with the the drawDrawable API for now. Especially if you just put a nullptr in.",
+      "range": {
+        "startLine": 1596,
+        "startChar": 12,
+        "endLine": 1601,
+        "endChar": 13
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cddac990_ad22eb28",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1611,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "I don\u0027t think this API is worth fuzzing at the moment (note the docs say \"Only some canvas implementations, such as recording to SkPicture, or drawing to document PDF, use annotations.\")\n\nAs written, I\u0027m not sure an annotation with an empty data value is particularly interesting anyway. This one will require more research (and talking with Skia engineers who have domain knowledge).",
+      "range": {
+        "startLine": 1602,
+        "startChar": 12,
+        "endLine": 1611,
+        "endChar": 13
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bb0b445_974a1319",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1799,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T12:33:56Z",
+      "side": 1,
+      "message": "nit: no newline here",
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
