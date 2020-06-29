@@ -164,6 +164,7 @@ public:
         kTessellate_GrMiddleOutCubicShader_ClassID,
         kTessellate_GrStencilTriangleShader_ClassID,
         kTessellate_GrTessellateCubicShader_ClassID,
+        kTessellate_GrTessellateStrokeShader_ClassID,
         kTessellate_GrTessellateWedgeShader_ClassID,
         kTestFP_ClassID,
         kTestRectOp_ClassID,

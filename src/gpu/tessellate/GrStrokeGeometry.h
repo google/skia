@@ -39,6 +39,9 @@ public:
         kQuadraticStroke,
         kCubicStroke,
 
+        // Updates the last tangent without moving the current position on the stroke.
+        kRotate,
+
         // Joins are a triangles that connect the outer corners of two adjoining strokes. Miters
         // have an additional triangle cap on top of the bevel, and round joins have an arc on top.
         kBevelJoin,
@@ -102,16 +105,13 @@ private:
                  float rightMaxCurvatureT);
 
     // Pushes a new normal to fNormals and records a join, without changing the current position.
-    void rotateTo(Verb leftJoinVerb, SkVector normal);
+    void rotateTo(Verb leftJoinVerb, SkVector normal, SkPoint controlPoint);
 
     // Records a stroke in fElememts.
     void recordStroke(Verb, int numSegmentsLog2);
 
     // Records a join in fElememts with the previous stroke, if the cuurent contour is not empty.
     void recordLeftJoinIfNotEmpty(Verb joinType, SkVector nextNormal);
-    void recordBevelJoin(Verb originalJoinVerb);
-    void recordMiterJoin(float miterCapHeightOverWidth);
-    void recordRoundJoin(Verb roundJoinVerb, float miterCapHeightOverWidth, float conicWeight);
 
     void recordCapsIfAny();
 
@@ -164,6 +164,7 @@ inline bool GrStrokeGeometry::IsInternalJoinVerb(Verb verb) {
         case Verb::kLinearStroke:
         case Verb::kQuadraticStroke:
         case Verb::kCubicStroke:
+        case Verb::kRotate:
         case Verb::kBevelJoin:
         case Verb::kMiterJoin:
         case Verb::kRoundJoin:
