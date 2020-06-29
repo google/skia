@@ -8,7 +8,7 @@
 layout(tracked) in uniform half bias;
 layout(tracked) in uniform half scale;
 
-void main() {
+void main(float2 coord) {
     // On some devices they incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
     // atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). So to work around this we pass in (sqrt(x^2
     // + y^2) + x) as the second parameter to atan2 in these cases. We let the device handle the
@@ -16,10 +16,9 @@ void main() {
     // using atan instead.
     half angle;
     if (sk_Caps.atan2ImplementedAsAtanYOverX) {
-        angle = half(2 * atan(-sk_TransformedCoords2D[0].y,
-                              length(sk_TransformedCoords2D[0]) - sk_TransformedCoords2D[0].x));
+        angle = half(2 * atan(-coord.y, length(coord) - coord.x));
     } else {
-        angle = half(atan(-sk_TransformedCoords2D[0].y, -sk_TransformedCoords2D[0].x));
+        angle = half(atan(-coord.y, -coord.x));
     }
 
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]

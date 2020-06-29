@@ -239,19 +239,6 @@ void HCodeGenerator::writeConstructor() {
     }
     this->writef(")");
     this->writeSection(INITIALIZERS_SECTION, "\n    , ");
-    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
-    for (size_t i = 0; i < transforms.size(); ++i) {
-        const Section& s = *transforms[i];
-        String field = CoordTransformName(s.fArgument.c_str(), i);
-        if (s.fArgument.size()) {
-            this->writef("\n    , %s(%s, %s.proxy(), %s.origin())", field.c_str(), s.fText.c_str(),
-                         FieldName(s.fArgument.c_str()).c_str(),
-                         FieldName(s.fArgument.c_str()).c_str());
-        }
-        else {
-            this->writef("\n    , %s(%s)", field.c_str(), s.fText.c_str());
-        }
-    }
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String nameString(param->fName);
         const char* name = nameString.c_str();
@@ -345,22 +332,11 @@ void HCodeGenerator::writeConstructor() {
     if (samplerCount) {
         this->writef("        this->setTextureSamplerCnt(%d);", samplerCount);
     }
-    for (size_t i = 0; i < transforms.size(); ++i) {
-        const Section& s = *transforms[i];
-        String field = CoordTransformName(s.fArgument.c_str(), i);
-        this->writef("        this->addCoordTransform(&%s);\n", field.c_str());
-    }
     this->writef("    }\n");
 }
 
 void HCodeGenerator::writeFields() {
     this->writeSection(FIELDS_SECTION);
-    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
-    for (size_t i = 0; i < transforms.size(); ++i) {
-        const Section& s = *transforms[i];
-        this->writef("    GrCoordTransform %s;\n",
-                     CoordTransformName(s.fArgument.c_str(), i).c_str());
-    }
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String name = FieldName(String(param->fName).c_str());
         if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {

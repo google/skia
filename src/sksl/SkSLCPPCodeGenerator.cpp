@@ -115,22 +115,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
     const Expression& base = *i.fBase;
     if (base.fKind == Expression::kVariableReference_Kind) {
         int builtin = ((VariableReference&) base).fVariable.fModifiers.fLayout.fBuiltin;
-        if (SK_TRANSFORMEDCOORDS2D_BUILTIN == builtin) {
-            this->write("%s");
-            if (i.fIndex->fKind != Expression::kIntLiteral_Kind) {
-                fErrors.error(i.fIndex->fOffset,
-                              "index into sk_TransformedCoords2D must be an integer literal");
-                return;
-            }
-            int64_t index = ((IntLiteral&) *i.fIndex).fValue;
-            if (index != 0) {
-                fErrors.error(i.fIndex->fOffset, "Only sk_TransformedCoords2D[0] is allowed");
-                return;
-            }
-            fAccessSampleCoordsDirectly = true;
-            fFormatArgs.push_back("args.fSampleCoord");
-            return;
-        } else if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {
+        if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {
             this->write("%s");
             if (i.fIndex->fKind != Expression::kIntLiteral_Kind) {
                 fErrors.error(i.fIndex->fOffset,
@@ -296,6 +281,11 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
             fFormatArgs.push_back(String("args.fOutputColor"));
+            break;
+        case SK_MAIN_COORDS_BUILTIN:
+            this->write("%s");
+            fFormatArgs.push_back(String("args.fSampleCoord"));
+            fAccessSampleCoordsDirectly = true;
             break;
         case SK_WIDTH_BUILTIN:
             this->write("sk_Width");
@@ -1110,12 +1100,6 @@ void CPPCodeGenerator::writeClone() {
         this->writef("%s::%s(const %s& src)\n"
                      ": INHERITED(k%s_ClassID, src.optimizationFlags())", fFullName.c_str(),
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
-        const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
-        for (size_t i = 0; i < transforms.size(); ++i) {
-            const Section& s = *transforms[i];
-            String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
-            this->writef("\n, %s(src.%s)", fieldName.c_str(), fieldName.c_str());
-        }
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
             if (param->fType.nonnullable() != *fContext.fFragmentProcessor_Type) {
@@ -1144,11 +1128,6 @@ void CPPCodeGenerator::writeClone() {
         }
         if (samplerCount) {
             this->writef("     this->setTextureSamplerCnt(%d);", samplerCount);
-        }
-        for (size_t i = 0; i < transforms.size(); ++i) {
-            const Section& s = *transforms[i];
-            String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
-            this->writef("    this->addCoordTransform(&%s);\n", fieldName.c_str());
         }
         if (fAccessSampleCoordsDirectly) {
             this->writef("    this->setUsesSampleCoordsDirectly();\n");

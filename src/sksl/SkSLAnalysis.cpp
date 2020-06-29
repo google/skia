@@ -151,9 +151,15 @@ class SampleCoordsVisitor : public ProgramVisitor {
 protected:
     // Only bother recursing through the main function for the sample coord builtin
     bool visitProgramElement(const ProgramElement& pe) override {
-        if (pe.fKind == ProgramElement::kFunction_Kind &&
-            ((const FunctionDefinition&) pe).fDeclaration.fName == "main") {
-            return this->INHERITED::visitProgramElement(pe);
+        if (pe.fKind == ProgramElement::kFunction_Kind) {
+            // Both kFragmentProcessor and kPipelineStage types use the first argument for
+            // the main coords builtin. If that isn't in the signature, there's no need to
+            // recurse deeper.
+            const FunctionDeclaration& func = ((const FunctionDefinition&) pe).fDeclaration;
+            if (func.fName == "main" && func.fParameters.size() >= 1 &&
+                func.fParameters.front()->fType == *this->program().fContext->fFloat2_Type) {
+                return this->INHERITED::visitProgramElement(pe);
+            }
         }
         // No recursion, but returning false will allow visitor to continue to siblings
         return false;
@@ -161,20 +167,8 @@ protected:
 
     bool visitExpression(const Expression& e) override {
         if (e.fKind == Expression::kVariableReference_Kind) {
-            // For SkRuntimeEffects
             const VariableReference& var = (const VariableReference&) e;
             return var.fVariable.fModifiers.fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
-        } else if (e.fKind == Expression::kIndex_Kind) {
-            // For .fp files that use sk_TransformedCoords2D[0] for the time being
-            const IndexExpression& index = (const IndexExpression&) e;
-            if (index.fBase->fKind == Expression::kVariableReference_Kind) {
-                const VariableReference& base = (const VariableReference&) *index.fBase;
-                if (base.fVariable.fModifiers.fLayout.fBuiltin == SK_TRANSFORMEDCOORDS2D_BUILTIN) {
-                    SkASSERT(index.fIndex->fKind == Expression::kIntLiteral_Kind &&
-                                ((IntLiteral&) *index.fIndex).fValue == 0);
-                    return true;
-                }
-            }
         }
         return this->INHERITED::visitExpression(e);
     }
