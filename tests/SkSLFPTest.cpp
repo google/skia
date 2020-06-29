@@ -498,12 +498,12 @@ DEF_TEST(SkSLFPSections, r) {
          });
 }
 
-DEF_TEST(SkSLFPTransformedCoords, r) {
+DEF_TEST(SkSLFPMainCoords, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_OutColor = half4(sk_TransformedCoords2D[0], sk_TransformedCoords2D[0]);
+             void main(float2 coord) {
+                 sk_OutColor = half4(coord, coord);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -807,9 +807,8 @@ DEF_TEST(SkSLFPSampleCoords, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor child;
-             @coordTransform { SkMatrix() }
-             void main() {
-                 sk_OutColor = sample(child) + sample(child, sk_TransformedCoords2D[0] / 2);
+             void main(float2 coord) {
+                 sk_OutColor = sample(child) + sample(child, coord / 2);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -817,15 +816,15 @@ DEF_TEST(SkSLFPSampleCoords, r) {
              "this->setUsesSampleCoordsDirectly();"
          },
          /*expectedCPP=*/{
-            "SkString _sample150;\n",
-            "_sample150 = this->invokeChild(_outer.child_index, args);\n",
-            "SkString _sample166;\n",
-            "SkString _coords166 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);\n",
-            "_sample166 = this->invokeChild(_outer.child_index, args, _coords166.c_str());\n",
+            "SkString _sample118;\n",
+            "_sample118 = this->invokeChild(_outer.child_index, args);\n",
+            "SkString _sample118;\n",
+            "SkString _coords134 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);\n",
+            "_sample134 = this->invokeChild(_outer.child_index, args, _coords134.c_str());\n",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(%s = %s + %s;\n"
             ")SkSL\"\n"
-            ", args.fOutputColor, _sample150.c_str(), _sample166.c_str());"
+            ", args.fOutputColor, _sample118.c_str(), _sample134.c_str());"
         });
 }
 
@@ -972,9 +971,9 @@ DEF_TEST(SkSLFPMatrixSampleConstantAndExplicitly, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor? child;
-             void main() {
+             void main(float2 coord) {
                  sk_OutColor = sample(child, float3x3(0.5));
-                 sk_OutColor = sample(child, sk_TransformedCoords2D[0].xy / 2);
+                 sk_OutColor = sample(child, coord / 2);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -983,8 +982,8 @@ DEF_TEST(SkSLFPMatrixSampleConstantAndExplicitly, r) {
          },
          /*expectedCPP=*/{
              "this->invokeChildWithMatrix(_outer.child_index, args)",
-             "SkString _coords168 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
-             "this->invokeChild(_outer.child_index, args, _coords168.c_str())",
+             "SkString _coords180 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
+             "this->invokeChild(_outer.child_index, args, _coords180.c_str())",
          });
 }
 
@@ -993,10 +992,10 @@ DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor? child;
-             void main() {
+             void main(float2 coord) {
                  float3x3 matrix = float3x3(sk_InColor.a);
                  sk_OutColor = sample(child, matrix);
-                 sk_OutColor = sample(child, sk_TransformedCoords2D[0].xy / 2);
+                 sk_OutColor = sample(child, coord / 2);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -1004,9 +1003,9 @@ DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
                     "SkSL::SampleMatrix::MakeVariable(true), true);"
          },
          /*expectedCPP=*/{
-             "SkString _matrix166(\"matrix\");",
-             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix166.c_str())",
-             "SkString _coords220 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
-             "this->invokeChild(_outer.child_index, args, _coords220.c_str()",
+             "SkString _matrix178(\"matrix\");",
+             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix178.c_str())",
+             "SkString _coords232 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
+             "this->invokeChild(_outer.child_index, args, _coords232.c_str()",
          });
 }

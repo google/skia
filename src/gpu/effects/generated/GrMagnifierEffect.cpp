@@ -48,9 +48,8 @@ public:
         offsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                      kHalf2_GrSLType, "offset");
         fragBuilder->codeAppendf(
-                R"SkSL(float2 coord = %s;
-float2 zoom_coord = float2(%s) + coord * float2(%s, %s);
-float2 delta = (coord - %s.xy) * %s.zw;
+                R"SkSL(float2 zoom_coord = float2(%s) + %s * float2(%s, %s);
+float2 delta = (%s - %s.xy) * %s.zw;
 delta = min(delta, float2(half2(1.0, 1.0)) - delta);
 delta *= float2(%s, %s);
 float weight = 0.0;
@@ -63,21 +62,21 @@ if (delta.x < 2.0 && delta.y < 2.0) {
     float2 delta_squared = delta * delta;
     weight = min(min(delta_squared.x, delta_squared.y), 1.0);
 })SkSL",
-                args.fSampleCoord, args.fUniformHandler->getUniformCStr(offsetVar),
+                args.fUniformHandler->getUniformCStr(offsetVar), args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
-                args.fUniformHandler->getUniformCStr(yInvZoomVar),
+                args.fUniformHandler->getUniformCStr(yInvZoomVar), args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
-        SkString _coords1077("mix(coord, zoom_coord, weight)");
-        SkString _sample1077;
-        _sample1077 = this->invokeChild(_outer.src_index, args, _coords1077.c_str());
+        SkString _coords1043 = SkStringPrintf("mix(%s, zoom_coord, weight)", args.fSampleCoord);
+        SkString _sample1043;
+        _sample1043 = this->invokeChild(_outer.src_index, args, _coords1043.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = %s;
 )SkSL",
-                args.fOutputColor, _sample1077.c_str());
+                args.fOutputColor, _sample1043.c_str());
     }
 
 private:

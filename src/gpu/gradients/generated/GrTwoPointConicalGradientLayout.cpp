@@ -41,16 +41,15 @@ public:
         focalParamsVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                           kHalf2_GrSLType, "focalParams");
         fragBuilder->codeAppendf(
-                R"SkSL(float2 p = %s;
-float t = -1.0;
+                R"SkSL(float t = -1.0;
 half v = 1.0;
 @switch (%d) {
     case 1:
         {
             half r0_2 = %s.y;
-            t = float(r0_2) - p.y * p.y;
+            t = float(r0_2) - %s.y * %s.y;
             if (t >= 0.0) {
-                t = p.x + sqrt(t);
+                t = %s.x + sqrt(t);
             } else {
                 v = -1.0;
             }
@@ -60,9 +59,9 @@ half v = 1.0;
         {
             half r0 = %s.x;
             @if (%s) {
-                t = length(p) - float(r0);
+                t = length(%s) - float(r0);
             } else {
-                t = -length(p) - float(r0);
+                t = -length(%s) - float(r0);
             }
         }
         break;
@@ -72,16 +71,16 @@ half v = 1.0;
             half fx = %s.y;
             float x_t = -1.0;
             @if (%s) {
-                x_t = dot(p, p) / p.x;
+                x_t = dot(%s, %s) / %s.x;
             } else if (%s) {
-                x_t = length(p) - p.x * float(invR1);
+                x_t = length(%s) - %s.x * float(invR1);
             } else {
-                float temp = p.x * p.x - p.y * p.y;
+                float temp = %s.x * %s.x - %s.y * %s.y;
                 if (temp >= 0.0) {
                     @if (%s || !%s) {
-                        x_t = -sqrt(temp) - p.x * float(invR1);
+                        x_t = -sqrt(temp) - %s.x * float(invR1);
                     } else {
-                        x_t = sqrt(temp) - p.x * float(invR1);
+                        x_t = sqrt(temp) - %s.x * float(invR1);
                     }
                 }
             }
@@ -111,16 +110,18 @@ half v = 1.0;
 }
 %s = half4(half(t), v, 0.0, 0.0);
 )SkSL",
-                args.fSampleCoord, (int)_outer.type,
+                (int)_outer.type, args.fUniformHandler->getUniformCStr(focalParamsVar),
+                args.fSampleCoord, args.fSampleCoord, args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
+                (_outer.isRadiusIncreasing ? "true" : "false"), args.fSampleCoord,
+                args.fSampleCoord, args.fUniformHandler->getUniformCStr(focalParamsVar),
                 args.fUniformHandler->getUniformCStr(focalParamsVar),
-                (_outer.isRadiusIncreasing ? "true" : "false"),
-                args.fUniformHandler->getUniformCStr(focalParamsVar),
-                args.fUniformHandler->getUniformCStr(focalParamsVar),
-                (_outer.isFocalOnCircle ? "true" : "false"),
-                (_outer.isWellBehaved ? "true" : "false"), (_outer.isSwapped ? "true" : "false"),
-                (_outer.isRadiusIncreasing ? "true" : "false"),
-                (_outer.isWellBehaved ? "true" : "false"),
+                (_outer.isFocalOnCircle ? "true" : "false"), args.fSampleCoord, args.fSampleCoord,
+                args.fSampleCoord, (_outer.isWellBehaved ? "true" : "false"), args.fSampleCoord,
+                args.fSampleCoord, args.fSampleCoord, args.fSampleCoord, args.fSampleCoord,
+                args.fSampleCoord, (_outer.isSwapped ? "true" : "false"),
+                (_outer.isRadiusIncreasing ? "true" : "false"), args.fSampleCoord,
+                args.fSampleCoord, (_outer.isWellBehaved ? "true" : "false"),
                 (_outer.isRadiusIncreasing ? "true" : "false"),
                 (_outer.isNativelyFocal ? "true" : "false"),
                 (_outer.isNativelyFocal ? "true" : "false"), (_outer.isSwapped ? "true" : "false"),

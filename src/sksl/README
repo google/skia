@@ -82,7 +82,13 @@ SkSL Fragment Processors
 An extension of SkSL allows for the creation of fragment processors in pure
 SkSL. The program defines its inputs similarly to a normal SkSL program (with
 'in' and 'uniform' variables), but the 'main()' function represents only this
-fragment processor's portion of the overall fragment shader.
+fragment processor's portion of the overall fragment shader. The 'main' function
+can optionally have a 'float2' parameter that holds the sample coordinates the
+processor is evaluated at.
+
+Processors do not need to declare this parameter if they do not rely on local
+coordinates or only invoke child processors using the no-arg and matrix-based
+sample() functions.
 
 Within an '.fp' fragment processor file:
 
@@ -133,10 +139,6 @@ Within an '.fp' fragment processor file:
 * 'in uniform' variables support a 'tracked' flag in the layout that will
   have the generated code automatically implement state tracking on the uniform
   value to minimize GPU calls.
-* the 'sk_TransformedCoords2D' array provides access to 2D transformed
-  coordinates. sk_TransformedCoords2D[0] is equivalent to calling
-  fragBuilder->ensureCoords2D(args.fTransformedCoords[0]) (and the result is
-  cached, so you need not worry about using the value repeatedly).
 * Uniform variables support an additional 'when' layout key.
   'layout(when=foo) uniform int x;' means that this uniform will only be
   emitted when the 'foo' expression is true.

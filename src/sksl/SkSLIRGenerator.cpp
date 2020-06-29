@@ -862,6 +862,19 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 }
                 break;
             }
+            case Program::kFragmentProcessor_Kind: {
+                bool valid = parameters.size() <= 1;
+                if (parameters.size() == 1) {
+                    valid = parameters[0]->fType == *fContext.fFloat2_Type &&
+                            parameters[0]->fModifiers.fFlags == 0;
+                }
+
+                if (!valid) {
+                    fErrors.error(f.fOffset, ".fp 'main' must be declared main() or main(float2)");
+                    return;
+                }
+                break;
+            }
             case Program::kGeneric_Kind:
                 break;
             default:
@@ -948,6 +961,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             } else {
                 SkASSERT(parameters.size() == 1);
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+            }
+        } else if (fd.fName == "main" && fKind == Program::kFragmentProcessor_Kind) {
+            if (parameters.size() == 1) {
+                parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
             }
         }
         for (size_t i = 0; i < parameters.size(); i++) {
