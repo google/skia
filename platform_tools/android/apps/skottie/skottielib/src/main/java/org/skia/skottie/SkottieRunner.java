@@ -33,7 +33,7 @@ import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 
-public class SkottieRunner {
+class SkottieRunner {
     private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
     private static final int EGL_OPENGL_ES2_BIT = 4;
     private static final int STENCIL_BUFFER_SIZE = 8;
@@ -51,6 +51,9 @@ public class SkottieRunner {
     private EGLSurface mPBufferSurface;
     private long mNativeProxy;
 
+    static {
+        System.loadLibrary("skottie_android");
+    }
     /**
      * Gets SkottieRunner singleton instance.
      */
