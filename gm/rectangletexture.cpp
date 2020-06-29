@@ -160,8 +160,8 @@ private:
         fSmallImg = nullptr;
     }
 
-    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas,
-                      SkString* errorMsg) override {
+    DrawResult onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString*) override {
         SkASSERT(fGradImgs[0] && fGradImgs[1] && fSmallImg);
 
         static constexpr SkScalar kPad = 5.f;

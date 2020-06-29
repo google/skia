@@ -21,7 +21,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkClipOpPriv.h"
@@ -29,7 +29,6 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -152,8 +151,10 @@ private:
     constexpr static int kMaskCheckerSize = 5;
     SkString onShortName() final { return SkString("windowrectangles_mask"); }
     DrawResult onCoverClipStack(const SkClipStack&, SkCanvas*, SkString* errorMsg) final;
-    void visualizeAlphaMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
-    void visualizeStencilMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
+    void visualizeAlphaMask(GrRecordingContext*, GrRenderTargetContext*,
+                            const GrReducedClip&, GrPaint&&);
+    void visualizeStencilMask(GrRecordingContext*, GrRenderTargetContext*,
+                              const GrReducedClip&, GrPaint&&);
     void stencilCheckerboard(GrRenderTargetContext*, bool flip);
 };
 
@@ -205,7 +206,7 @@ static GrStencilClip make_stencil_only_clip(GrRenderTargetContext* rtc) {
 
 DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas,
                                                     SkString* errorMsg) {
-    GrContext* ctx = canvas->getGrContext();
+    auto ctx = canvas->recordingContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
     if (!ctx || !rtc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
@@ -230,7 +231,7 @@ DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, Sk
     return DrawResult::kOk;
 }
 
-void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetContext* rtc,
+void WindowRectanglesMaskGM::visualizeAlphaMask(GrRecordingContext* ctx, GrRenderTargetContext* rtc,
                                                 const GrReducedClip& reducedClip, GrPaint&& paint) {
     const int padRight = (kDeviceRect.right() - kCoverRect.right()) / 2;
     const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
@@ -264,10 +265,11 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
                   SkRect::Make(SkIRect::MakeXYWH(x, y, maskRTC->width(), maskRTC->height())));
 }
 
-void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTargetContext* rtc,
+void WindowRectanglesMaskGM::visualizeStencilMask(GrRecordingContext* ctx,
+                                                  GrRenderTargetContext* rtc,
                                                   const GrReducedClip& reducedClip,
                                                   GrPaint&& paint) {
-    if (ctx->abandoned()) {
+    if (ctx->priv().abandoned()) {
         // GrReducedClip assumes the context hasn't been abandoned, which is reasonable since it is
         // only ever used if a draw op is made. Since this GM calls it directly, it has to be taken
         // into account.
