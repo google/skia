@@ -84,8 +84,8 @@ public:
                              int numBarriers,
                              D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
-    bool waitFence(GrFence) override { return true; }
+    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    bool waitFence(GrFence) override;
     void deleteFence(GrFence) const override {}
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
@@ -214,7 +214,6 @@ private:
     bool submitDirectCommandList(SyncQueue sync);
 
     void checkForFinishedCommandLists();
-    void waitForQueueCompletion();
 
     void copySurfaceAsCopyTexture(GrSurface* dst, GrSurface* src, GrD3DTextureResource* dstResource,
                                   GrD3DTextureResource* srcResource, const SkIRect& srcRect,
