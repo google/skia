@@ -34,6 +34,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <functional>
@@ -286,6 +287,11 @@ DEF_GM( return new ScalePixelsGM; )
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
+    GrContext* direct = context->priv().asDirectContext();
+    if (!direct) {
+        return;
+    }
+
     auto render_image = [](SkCanvas* canvas) {
         canvas->clear(SK_ColorBLUE);
         SkPaint paint;
@@ -331,8 +337,8 @@ DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
                                             SkImage::BitDepth::kU8, srgbColorSpace);
         },
         // Create a texture image
-        [context, render_image]() -> sk_sp<SkImage> {
-            auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
+        [direct, render_image]() -> sk_sp<SkImage> {
+            auto surface(SkSurface::MakeRenderTarget(direct, SkBudgeted::kYes,
                                                      SkImageInfo::MakeS32(kSize, kSize,
                                                                           kPremul_SkAlphaType)));
             if (!surface) {
@@ -348,7 +354,7 @@ DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
     for (auto factory : imageFactories) {
         auto image(factory());
         if (image) {
-            sk_sp<SkImage> texImage(image->makeTextureImage(context));
+            sk_sp<SkImage> texImage(image->makeTextureImage(direct));
             if (texImage) {
                 canvas->drawImage(texImage, 0, 0);
             }

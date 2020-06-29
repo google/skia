@@ -71,7 +71,7 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
 class ClockwiseGM : public skiagm::GpuGM {
     SkString onShortName() override { return SkString("clockwise"); }
     SkISize onISize() override { return {300, 200}; }
-    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) override;
+    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas*) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +240,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas) {
+void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas) {
     rtc->clear(SK_PMColor4fBLACK);
 
     // Draw the test directly to the frame buffer.

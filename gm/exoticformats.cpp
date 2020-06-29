@@ -9,9 +9,11 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipMap.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/image/SkImage_Base.h"
 
@@ -365,7 +367,7 @@ protected:
 
     }
 
-    void drawImage(GrContext* context, SkCanvas* canvas, SkImage* image, int x, int y) {
+    void drawImage(GrRecordingContext* context, SkCanvas* canvas, SkImage* image, int x, int y) {
         if (!image) {
             return;
         }

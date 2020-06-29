@@ -19,8 +19,9 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
-#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <stdarg.h>
@@ -142,8 +143,8 @@ DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
 SkISize SimpleGpuGM::onISize() { return fSize; }
 SkString SimpleGpuGM::onShortName() { return fName; }
-DrawResult SimpleGpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
-                               SkString* errorMsg) {
+DrawResult SimpleGpuGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc,
+                               SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(ctx, rtc, canvas, errorMsg);
 }
 
@@ -187,23 +188,24 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
-DrawResult GpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+DrawResult GpuGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
                          SkString* errorMsg) {
     this->onDraw(ctx, rtc, canvas);
     return DrawResult::kOk;
 }
-void GpuGM::onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) {
+void GpuGM::onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas*) {
     SK_ABORT("Not implemented.");
 }
 
 DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
-    GrContext* ctx = canvas->getGrContext();
+
+    auto ctx = canvas->recordingContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
     if (!ctx || !rtc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
     }
-    if (ctx->abandoned()) {
+    if (ctx->priv().abandoned()) {
         *errorMsg = "GrContext abandoned.";
         return DrawResult::kSkip;
     }

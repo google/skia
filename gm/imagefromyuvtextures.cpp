@@ -258,7 +258,7 @@ protected:
         return fYUVAImages[index].get();
     }
 
-    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
         auto draw_image = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
             if (!image) {
                 return {0, 0};

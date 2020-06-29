@@ -25,6 +25,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/GrRecordingContext.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
@@ -273,7 +274,7 @@ private:
         fReferenceImages[0] = fReferenceImages[1] = nullptr;
     }
 
-    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
         SkASSERT(fReferenceImages[0] && fReferenceImages[1]);
 
         canvas->save();

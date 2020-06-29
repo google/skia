@@ -21,10 +21,13 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "third_party/etc1/etc1.h"
 
