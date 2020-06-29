@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da621e68_44827022",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T19:31:53Z",
+      "side": 1,
+      "message": "tack an \u0027s\u0027 onto one of these two words?",
+      "range": {
+        "startLine": 390,
+        "startChar": 15,
+        "endLine": 390,
+        "endChar": 29
+      },
+      "revId": "80ecf83850d1ced1c9c1c91bbcfca6bbc3986d6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
