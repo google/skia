@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "bb63eadd_b6bf76c7",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:40:55Z",
+      "side": 1,
+      "message": "This reads a little roundabout... I think you\u0027d expect to see something like\n\n    std::string str(len, 0);\n    for (int i \u003d 0; i \u003c len; i++) {\n        fuzz-\u003enext(\u0026str[i]);\n    }",
+      "range": {
+        "startLine": 965,
+        "startChar": 0,
+        "endLine": 970,
+        "endChar": 5
+      },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "197cfc0b_b234cafc",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:40:55Z",
+      "side": 1,
+      "message": "This function won\u0027t work.  You\u0027re returning a pointer into a std::string that will go out of scope with the } on line 972, so no one can legally use the pointer.\n\nTo fix this, return the string itself instead.",
+      "range": {
+        "startLine": 961,
+        "startChar": 0,
+        "endLine": 972,
+        "endChar": 1
+      },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d71413f8_11ca43ee",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 16
@@ -19,6 +65,23 @@
         "endLine": 1510,
         "endChar": 39
       },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "881455f0_dc4d2d33",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1518,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:40:55Z",
+      "side": 1,
+      "message": "Did you want to break here?",
       "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -88,6 +151,40 @@
         "endLine": 1611,
         "endChar": 21
       },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea7b310b_b957b116",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1613,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:40:55Z",
+      "side": 1,
+      "message": "Probably wanted to break here?",
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d1b679e_11dce27c",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1621,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T18:40:55Z",
+      "side": 1,
+      "message": "Same deal... this won\u0027t work.  The sk_sp\u003cSkData\u003e returned by MakeUninitialized() will go out of scope and drop its reference on the new SkData just after the call to .get() returns.  So you\u0027ll be holding onto a pointer to a deleted SkData.\n\nYou can write this as\n\n    sk_sp\u003cSkData\u003e value;\n    if (useSkData) {\n        value \u003d SkData::MakeUninitialized(size);\n    }\n    ...\n    canvas-\u003edrawAnnotation(rect, key, value.get());",
       "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
