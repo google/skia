@@ -5,6 +5,69 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 85
+------------
+
+  * Added GrContext::oomed() which reports whether Skia has seen a GL_OUT_OF_MEMORY
+    error from Open GL [ES] or VK_ERROR_OUT_OF_*_MEMORY from Vulkan.
+    https://review.skia.org/298216
+
+  * Add option on SkSurface::flush to pass in a GrBackendSurfaceMutableState which
+    we will set the gpu backend surface to be at the end of the flush.
+    https://review.skia.org/295567
+
+  * Add GrContext function to set mutable state on a backend surface. Currently this
+    is only used for setting vulkan VkImage layout and queue family.
+    https://review.skia.org/293844
+
+  * SkSurface factores that take GrBackendTexture or GrBackendRenderTarget now always
+    call the release proc (if provided) on failure. SkSurface::replaceBackendTexture
+    also calls the release proc on failure.
+    https://review.skia.org/293762
+
+  * SkSurface::asyncRescaleAndReadPixels and SkSurfaceasyncRescaleAndReadPixelsYUV420
+    now require explicit GrContext submit to guarantee finite time before callback
+    is invoked.
+    https://review.skia.org/292840
+
+  * Add VkSharingMode field to GrVkImageInfo.
+    https://review.skia.org/293559
+
+  * Move SkBitmapRegionDecoder into client_utils/android.
+
+  * SkCanvas.clear and SkCanvas.drawColor now accept SkColor4f in addition to SkColor.
+
+  * Remove SkSurface::MakeFromBackendTextureAsRenderTarget.
+    This factory existed to work around issues with GL_TEXTURE_RECTANGLE that existed
+    in Chrome's command buffer. Those issues have since been resolved. Use
+    SkSurface::MakeFromBackendTexutre or SkSurface::MakeFromBackendRenderTarget instead.
+    https://review.skia.org/292719
+
+  * Adds submittedProc callback to GrFlushInfo which will be called when the work
+    from the flush call is submitted to the GPU. This is specifically useful for knowing
+    when semahpores sent with the flush have been submitted and can be waiting on.
+    https://review.skia.org/291078
+
+  * GrContext submit is now required to be called in order to send GPU work to the
+    actual GPU. The flush calls simply produces 3D API specific objects that are ready
+    to be submitted (e.g. command buffers). For the GL backend, the flush will still
+    send commands to the driver. However, clients should still assume the must call
+    submit which is where any glFlush that is need for sync objects will be called. There,
+    are flushAndSubmit() functions of GrContext, SkSurface, and SkImage that will act
+    like the previous flush() functions. This will flush the work and immediately call
+    submit.
+    https://review.skia.org/289033
+
+  * Remove deprecated version of flush calls on GrContext and SkSurface.
+    https://review.skia.org/2290540
+
+  * SkCanvas::drawVertices and drawPatch now support mapping an SkShader without explicit
+    texture coordinates. If they're not supplied, the local positions (vertex position or
+    patch cubic positions) will be directly used to sample the SkShader.
+    https://review.skia.org/290130
+
+* * *
+
 Milestone 84
 ------------
 
