@@ -219,6 +219,19 @@ int SkStrikeCache::setCacheCountLimit(int newCount) {
     return prevCount;
 }
 
+int SkStrikeCache::setCacheLargeGlyphCountLimit(int newCount) {
+    if (newCount < 0) {
+        newCount = 0;
+    }
+
+    SkAutoSpinlock ac(fLock);
+
+    int prevCount = fCacheLargeGlyphCount;
+    fCacheLargeGlyphCount = newCount;
+    this->internalPurge();
+    return prevCount;
+}
+
 int SkStrikeCache::getCachePointSizeLimit() const {
     SkAutoSpinlock ac(fLock);
     return fPointSizeLimit;
@@ -264,25 +277,39 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
         countNeeded = std::max(countNeeded, fCacheCount >> 2);
     }
 
+    int largeGlyphCountNeeded = 0;
+    if (fCacheLargeGlyphCount > fCacheLargeGlyphCountLimit) {
+        largeGlyphCountNeeded = fCacheLargeGlyphCount - fCacheLargeGlyphCountLimit;
+        // no small purges!
+        largeGlyphCountNeeded = std::max(largeGlyphCountNeeded, fCacheLargeGlyphCountLimit >> 2);
+    }
+
     // early exit
-    if (!countNeeded && !bytesNeeded) {
+    if (!countNeeded && !bytesNeeded && !largeGlyphCountNeeded) {
         return 0;
     }
 
     size_t  bytesFreed = 0;
     int     countFreed = 0;
+    int largeGlyphCountFreed = 0;
 
     // Start at the tail and proceed backwards deleting; the list is in LRU
     // order, with unimportant entries at the tail.
     Strike* strike = fTail;
-    while (strike != nullptr && (bytesFreed < bytesNeeded || countFreed < countNeeded)) {
+    bool purgeStrikeAlong = (bytesFreed < bytesNeeded || countFreed < countNeeded);
+    while (strike != nullptr &&
+           (purgeStrikeAlong || largeGlyphCountFreed < largeGlyphCountNeeded)) {
         Strike* prev = strike->fPrev;
 
         // Only delete if the strike is not pinned.
         if (strike->fPinner == nullptr || strike->fPinner->canDelete()) {
-            bytesFreed += strike->fMemoryUsed;
-            countFreed += 1;
-            this->internalRemoveStrike(strike);
+            if (purgeStrikeAlong || strike->fHasLargeGlyph) {
+                bytesFreed += strike->fMemoryUsed;
+                countFreed += 1;
+                largeGlyphCountFreed += strike->fHasLargeGlyph ? 1 : 0;
+                this->internalRemoveStrike(strike);
+                purgeStrikeAlong = (bytesFreed < bytesNeeded || countFreed < countNeeded);
+            }
         }
         strike = prev;
     }
@@ -291,8 +318,8 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
 
 #ifdef SPEW_PURGE_STATUS
     if (countFreed) {
-        SkDebugf("purging %dK from font cache [%d entries]\n",
-                 (int)(bytesFreed >> 10), countFreed);
+        SkDebugf("purging %dK from font cache [%d entries, %d large entries]\n",
+                 (int)(bytesFreed >> 10), countFreed, largeGlyphCountFreed);
     }
 #endif
 
@@ -306,6 +333,7 @@ void SkStrikeCache::internalAttachToHead(sk_sp<Strike> strike) {
     SkASSERT(nullptr == strikePtr->fPrev && nullptr == strikePtr->fNext);
 
     fCacheCount += 1;
+    fCacheLargeGlyphCount += strikePtr->fHasLargeGlyph ? 1 : 0;
     fTotalMemoryUsed += strikePtr->fMemoryUsed;
 
     if (fHead != nullptr) {
@@ -323,6 +351,8 @@ void SkStrikeCache::internalAttachToHead(sk_sp<Strike> strike) {
 void SkStrikeCache::internalRemoveStrike(Strike* strike) {
     SkASSERT(fCacheCount > 0);
     fCacheCount -= 1;
+    fCacheLargeGlyphCount -= strike->fHasLargeGlyph ? 1 : 0;
+
     fTotalMemoryUsed -= strike->fMemoryUsed;
 
     if (strike->fPrev) {
@@ -345,11 +375,13 @@ void SkStrikeCache::validate() const {
 #ifdef SK_DEBUG
     size_t computedBytes = 0;
     int computedCount = 0;
+    int computedLargeGlyphCount = 0;
 
     const Strike* strike = fHead;
     while (strike != nullptr) {
         computedBytes += strike->fMemoryUsed;
         computedCount += 1;
+        computedLargeGlyphCount += strike->fHasLargeGlyph ? 1 : 0;
         SkASSERT(fStrikeLookup.findOrNull(strike->getDescriptor()) != nullptr);
         strike = strike->fNext;
     }
@@ -357,6 +389,11 @@ void SkStrikeCache::validate() const {
     if (fCacheCount != computedCount) {
         SkDebugf("fCacheCount: %d, computedCount: %d", fCacheCount, computedCount);
         SK_ABORT("fCacheCount != computedCount");
+    }
+    if (fCacheLargeGlyphCount != computedLargeGlyphCount) {
+        SkDebugf("fCacheLargeGlyphCount: %d, computedLargeGlyphCount: %d", fCacheLargeGlyphCount,
+                 computedLargeGlyphCount);
+        SK_ABORT("fCacheLargeGlyphCount != computedLargeGlyphCount");
     }
     if (fTotalMemoryUsed != computedBytes) {
         SkDebugf("fTotalMemoryUsed: %d, computedBytes: %d", fTotalMemoryUsed, computedBytes);
