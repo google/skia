@@ -246,7 +246,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         inner = GrTextureEffect::Make(std::move(view), srcAlphaType, lmInverse, samplerState, caps);
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(), srcAlphaType,
-                                          args.fDstColorInfo->colorSpace());
+                                          args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
 
     bool isAlphaOnly = SkColorTypeIsAlphaOnly(fImage->colorType());
     if (isAlphaOnly) {

@@ -663,8 +663,10 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     tmpUnfiltered.setImageFilter(nullptr);
 
     auto fp = GrTextureEffect::Make(std::move(view), special->alphaType());
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
-                                       fRenderTargetContext->colorInfo().colorSpace());
+    fp = GrColorSpaceXformEffect::Make(
+            std::move(fp),
+            result->getColorSpace(), result->alphaType(),
+            fRenderTargetContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
     if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {

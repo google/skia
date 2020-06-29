@@ -358,9 +358,9 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
         bgFP = GrTextureEffect::MakeSubset(std::move(backgroundView), background->alphaType(),
                                            backgroundMatrix, sampler, bgSubset, caps);
-        bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
-                                             background->alphaType(),
-                                             ctx.colorSpace());
+        bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP),
+                                             background->getColorSpace(), background->alphaType(),
+                                             ctx.colorSpace(), kPremul_SkAlphaType);
     } else {
         bgFP = GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fTRANSPARENT,
                                            GrConstColorProcessor::InputMode::kIgnore);
@@ -374,9 +374,8 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         auto fgFP = GrTextureEffect::MakeSubset(std::move(foregroundView), foreground->alphaType(),
                                                 foregroundMatrix, sampler, fgSubset, caps);
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP),
-                                             foreground->getColorSpace(),
-                                             foreground->alphaType(),
-                                             ctx.colorSpace());
+                                             foreground->getColorSpace(), foreground->alphaType(),
+                                             ctx.colorSpace(), kPremul_SkAlphaType);
         paint.addColorFragmentProcessor(std::move(fgFP));
 
         static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));

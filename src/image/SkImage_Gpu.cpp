@@ -87,7 +87,8 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
         return nullptr;
     }
 
-    auto xform = GrColorSpaceXformEffect::Make(this->colorSpace(), this->alphaType(),
+    auto xform = GrColorSpaceXformEffect::Make(/*childFP=*/nullptr,
+                                               this->colorSpace(), this->alphaType(),
                                                targetCS.get(), this->alphaType());
     SkASSERT(xform || targetCT != this->colorType());
 
