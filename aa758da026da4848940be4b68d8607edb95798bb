@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "463b74c2_7dd03a34",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T23:18:47Z",
+      "side": 1,
+      "message": "I\u0027d focus on uint8_t, int16_t, int32_t, float, and perhaps double.\n\nBut before you add any more, let\u0027s find a way to reduce the boilerplate, so that it\u0027s easier to add new types or operations, or to make sure everything\u0027s covered the way we want it to be.  We can land this and follow up.",
+      "parentUuid": "a1fa98d1_a5ce14c5",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8d921d61_1480df24",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
@@ -30,6 +48,133 @@
       "writtenOn": "2020-06-29T22:39:49Z",
       "side": 1,
       "message": "mtklein@ is it safe to assume that floats are 32 bits and so to use float in the input and output Vec types here? Likewise for the 32 bit int SIMD operations starting on line 690.",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10e80bda_f431a125",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T23:18:47Z",
+      "side": 1,
+      "message": "Yeah, assuming float and int are 32-bit is fine, though for int you can write int32_t if you want to be super explicit that its 32-bit-ness is important.",
+      "parentUuid": "8d921d61_1480df24",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82da8db2_91abd2fd",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T23:18:47Z",
+      "side": 1,
+      "message": "I think you can write this as\n\n    return 1.0f / x;\n\n?  Or just try leaving it out, the default impl. might be fine?",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 631,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71e2f581_c9d8930e",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T23:18:47Z",
+      "side": 1,
+      "message": "Try return 1.0f / sqrt(x)?",
+      "range": {
+        "startLine": 632,
+        "startChar": 0,
+        "endLine": 635,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a8f7e0b_8f63c6f3",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T23:18:47Z",
+      "side": 1,
+      "message": "Looking through SkVx.h, I don\u0027t see any reason for mad(a,b,c) to exist instead of just writing out a*b+c.  Why don\u0027t we warm up with a CL to remove mad() entirely?\n\nIf we can\u0027t remove this for some reason, just return f*m+a?",
+      "range": {
+        "startLine": 636,
+        "startChar": 0,
+        "endLine": 643,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18b2f25b_07c600ee",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T23:18:47Z",
+      "side": 1,
+      "message": "We\u0027ve got to leave this one out... we\u0027ve set ourselves the rule that fma() must fuse, and we can\u0027t guarantee that here except through the default std::fma() implementation.",
+      "range": {
+        "startLine": 644,
+        "startChar": 0,
+        "endLine": 651,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94aa10eb_9495c019",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 665,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-29T23:18:47Z",
+      "side": 1,
+      "message": "Same deal for all these as with the float versions.",
       "revId": "aa758da026da4848940be4b68d8607edb95798bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
