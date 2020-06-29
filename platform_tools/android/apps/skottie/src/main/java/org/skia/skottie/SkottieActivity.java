@@ -33,8 +33,6 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
 
     private final static long TIME_OUT_MS = 10000;
 
-    private SkottieApplication mApplication;
-
     private CountDownLatch mEnterAnimationFence = new CountDownLatch(1);
 
     private GridLayout mGrid;
