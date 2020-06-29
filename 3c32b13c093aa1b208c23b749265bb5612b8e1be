@@ -56,6 +56,30 @@
       "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ca4d87b_e4f4e7a4",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-29T18:22:52Z",
+      "side": 1,
+      "message": "Yeah, I\u0027ve been turning some of that over in my head since I wrote most of this on Friday. There are a handful of odd instructions that don\u0027t quite work that way, but I want a better pattern. Making the remaining single-element only instructions work on N elements would help. It may be a combination of just using a different method for things that write the count byte (vs. the handful that are taking the count only for stack size logic, but never write it). Or having all instructions write their \"count\" as their first byte, even if it\u0027s not directly relevant.",
+      "parentUuid": "1c5ea45d_b21d5ad7",
+      "range": {
+        "startLine": 520,
+        "startChar": 5,
+        "endLine": 521,
+        "endChar": 36
+      },
+      "revId": "3c32b13c093aa1b208c23b749265bb5612b8e1be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
