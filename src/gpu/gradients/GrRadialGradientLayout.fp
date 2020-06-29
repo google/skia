@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-void main() {
-    half t = half(length(sk_TransformedCoords2D[0]));
+void main(float2 coord) {
+    half t = half(length(coord));
     sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
 }
 
