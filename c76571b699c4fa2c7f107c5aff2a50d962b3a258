@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac7844e4_e2a137e5",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-06-29T16:19:12Z",
+      "side": 1,
+      "message": "This could be simplified to:\n\n   auto fp \u003d GrYUVToRGBEffect::Make(...);\n   fp \u003d GrColorSpaceXformEffect::Make(std::move(fp), ...);\n   // no need for if (fp) since YUV always succeeds, and when there\u0027s no transform, color space\n   // returns the original\n   paint.addColorFragmentProcessor(std::move(fp));",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 187,
+        "endChar": 5
+      },
+      "revId": "c76571b699c4fa2c7f107c5aff2a50d962b3a258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
