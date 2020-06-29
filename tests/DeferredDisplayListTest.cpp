@@ -268,6 +268,7 @@ private:
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
+    bool mipMapSupport = context->priv().caps()->mipMapSupport();
     for (int i = 0; i < SurfaceParameters::kNumParams; ++i) {
         SurfaceParameters params1(context);
         params1.modify(i);
@@ -277,6 +278,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
             continue;  // can happen on some platforms (ChromeOS)
         }
 
+        if (SurfaceParameters::kMipMipCount == i && !mipMapSupport) {
+            // If changing the mipmap setting won't result in a different surface characterization,
+            // skip this step.
+            continue;
+        }
+
         for (int j = 0; j < SurfaceParameters::kNumParams; ++j) {
             SurfaceParameters params2(context);
             params2.modify(j);
@@ -284,6 +291,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
             SkSurfaceCharacterization char2 = params2.createCharacterization(context);
             if (!char2.isValid()) {
                 continue;  // can happen on some platforms (ChromeOS)
+            }
+
+            if (SurfaceParameters::kMipMipCount == j && !mipMapSupport) {
+                // If changing the mipmap setting won't result in a different surface
+                // characterization, skip this step.
+                continue;
             }
 
             if (i == j) {
