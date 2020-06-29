@@ -62,8 +62,6 @@ public:
         return fParameters;
     }
 
-    bool hasCoordOverrides(const Variable& fp);
-
     static bool IsParameter(const Variable& var) {
         return (var.fModifiers.fFlags & Modifiers::kIn_Flag) &&
                -1 == var.fModifiers.fLayout.fBuiltin;
@@ -109,12 +107,6 @@ public:
     }
 
 private:
-    bool hasCoordOverrides(const Statement& s, const Variable& fp);
-
-    bool hasCoordOverrides(const Expression& e, const Variable& fp);
-
-    bool hasCoordOverrides(const ProgramElement& p, const Variable& fp);
-
     const Program& fProgram;
     std::vector<const Variable*> fParameters;
     std::unordered_map<String, std::vector<const Section*>> fSections;

@@ -20,6 +20,7 @@
 #include "src/core/SkUtils.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
@@ -87,21 +88,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
-    // FIXME can the SkSL::Program just provide this for us?
-    bool mainHasSampleCoords = false;
-    for (const auto& e : *program) {
-        if (e.fKind == SkSL::ProgramElement::kFunction_Kind) {
-            const SkSL::FunctionDefinition& func = (const SkSL::FunctionDefinition&) e;
-            if (func.fDeclaration.fName == "main") {
-                SkASSERT(func.fDeclaration.fParameters.size() <= 2);
-                if (!func.fDeclaration.fParameters.empty() &&
-                    func.fDeclaration.fParameters.front()->fType.fName == "float2") {
-                    mainHasSampleCoords = true;
-                    break;
-                }
-            }
-        }
-    }
+    bool mainHasSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
 
     size_t offset = 0, uniformSize = 0;
     std::vector<Variable> inAndUniformVars;
@@ -151,7 +138,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                     if (var.fModifiers.fFlags & flag) {
                         if (&var.fType == ctx.fFragmentProcessor_Type.get()) {
                             children.push_back(var.fName);
-                            sampleMatrices.push_back(SkSL::SampleMatrix::Make(*program, var));
+                            sampleMatrices.push_back(
+                                    SkSL::Analysis::GetSampleMatrix(*program, var));
                             continue;
                         }
 
