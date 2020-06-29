@@ -202,25 +202,17 @@ static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader
 std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
         const GrFPArgs& orig_args) const {
     const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
-    auto fpA = as_fp(args, fDst.get());
-    auto fpB = as_fp(args, fSrc.get());
-    if (!fpA) {
-        return GrXfermodeFragmentProcessor::MakeFromSrcProcessor(/*inputFP=*/nullptr,
-                                                                 std::move(fpB), fMode);
-    }
-    if (!fpB) {
-        return GrXfermodeFragmentProcessor::MakeFromDstProcessor(/*inputFP=*/nullptr,
-                                                                 std::move(fpA), fMode);
-    }
-    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(/*inputFP=*/nullptr, std::move(fpB),
-                                                              std::move(fpA), fMode);
+    auto fpDst = as_fp(args, fDst.get());
+    auto fpSrc = as_fp(args, fSrc.get());
+    return GrXfermodeFragmentProcessor::Make(
+               /*inputFP=*/nullptr, std::move(fpSrc), std::move(fpDst), fMode);
 }
 
 std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
         const GrFPArgs& orig_args) const {
     const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
-    auto fpA = as_fp(args, fDst.get());
-    auto fpB = as_fp(args, fSrc.get());
-    return GrComposeLerpEffect::Make(std::move(fpA), std::move(fpB), fWeight);
+    auto fpDst = as_fp(args, fDst.get());
+    auto fpSrc = as_fp(args, fSrc.get());
+    return GrComposeLerpEffect::Make(std::move(fpDst), std::move(fpSrc), fWeight);
 }
 #endif
