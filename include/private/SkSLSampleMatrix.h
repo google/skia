@@ -12,9 +12,6 @@
 
 namespace SkSL {
 
-struct Program;
-struct Variable;
-
 /**
  * Represents the matrix applied to a fragment processor by its parent's sample(child, matrix) call.
  */
@@ -48,8 +45,6 @@ struct SampleMatrix {
     static SampleMatrix MakeVariable(bool hasPerspective=true) {
         return SampleMatrix(Kind::kVariable, "", hasPerspective);
     }
-
-    static SampleMatrix Make(const Program& program, const Variable& fp);
 
     SampleMatrix merge(const SampleMatrix& other);
 
