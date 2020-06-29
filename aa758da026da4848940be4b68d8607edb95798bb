@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1fa98d1_a5ce14c5",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-29T22:39:49Z",
+      "side": 1,
+      "message": "mtklein@ I have added functions for SIMD operations using WASM intrinsics for Vectors with 4 floats, 2 doubles, 4 ints, and 4 unsigned ints. Should I also be adding intrinsics for Vectors with half ints? unsigned half ints? bytes? unsigned bytes? chars? unsigned chars? \n\nI expect that I will have to, just thought I would check that the way I am writing these intrinsics makes sense before I continue.",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d921d61_1480df24",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-29T22:39:49Z",
+      "side": 1,
+      "message": "mtklein@ is it safe to assume that floats are 32 bits and so to use float in the input and output Vec types here? Likewise for the 32 bit int SIMD operations starting on line 690.",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd90154e_55b7fd6c",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-29T22:39:49Z",
+      "side": 1,
+      "message": "mtklein@ is it safe to assume that ints are 32 bits and so to use int in the input and output Vec types here?",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
