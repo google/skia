@@ -462,8 +462,9 @@ static void draw_texture_producer(GrContext* context,
     }
     auto fp = producer->createFragmentProcessor(textureMatrix, src, constraintMode,
                                                 coordsAllInsideSrcRect, wm, wm, filterMode);
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), producer->colorSpace(), producer->alphaType(),
-                                       rtc->colorInfo().colorSpace());
+    fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                       producer->colorSpace(), producer->alphaType(),
+                                       rtc->colorInfo().colorSpace(), kPremul_SkAlphaType);
     if (!fp) {
         return;
     }

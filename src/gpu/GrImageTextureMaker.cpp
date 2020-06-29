@@ -104,8 +104,9 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
                                    GrBicubicEffect::Direction::kXY);
     }
     if (fImage->fFromColorSpace) {
-        fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fFromColorSpace.get(),
-                                           fImage->alphaType(), fImage->colorSpace());
+        fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                           fImage->fFromColorSpace.get(), fImage->alphaType(),
+                                           fImage->colorSpace(), kPremul_SkAlphaType);
     }
     return fp;
 }

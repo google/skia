@@ -255,10 +255,12 @@ public:
         SkAlphaType at = kPremul_SkAlphaType;
         switch (fDir) {
             case Direction::kLinearToSRGB:
-                return GrColorSpaceXformEffect::Make(sk_srgb_linear_singleton(), at,
+                return GrColorSpaceXformEffect::Make(/*childFP=*/nullptr,
+                                                     sk_srgb_linear_singleton(), at,
                                                      sk_srgb_singleton(),        at);
             case Direction::kSRGBToLinear:
-                return GrColorSpaceXformEffect::Make(sk_srgb_singleton(),        at,
+                return GrColorSpaceXformEffect::Make(/*childFP=*/nullptr,
+                                                     sk_srgb_singleton(),        at,
                                                      sk_srgb_linear_singleton(), at);
         }
         return nullptr;
