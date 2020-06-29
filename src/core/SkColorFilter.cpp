@@ -249,21 +249,25 @@ public:
     }()) {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override {
+    bool colorFilterAcceptsInputFP() const override { return true; }
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext* context,
+                                   const GrColorInfo& dstColorInfo) const override {
         // wish our caller would let us know if our input was opaque...
-        SkAlphaType at = kPremul_SkAlphaType;
+        constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
         switch (fDir) {
             case Direction::kLinearToSRGB:
-                return GrColorSpaceXformEffect::Make(/*childFP=*/nullptr,
-                                                     sk_srgb_linear_singleton(), at,
-                                                     sk_srgb_singleton(),        at);
+                return GrFPSuccess(GrColorSpaceXformEffect::Make(
+                                       std::move(inputFP),
+                                       sk_srgb_linear_singleton(), alphaType,
+                                       sk_srgb_singleton(),        alphaType));
             case Direction::kSRGBToLinear:
-                return GrColorSpaceXformEffect::Make(/*childFP=*/nullptr,
-                                                     sk_srgb_singleton(),        at,
-                                                     sk_srgb_linear_singleton(), at);
+                return GrFPSuccess(GrColorSpaceXformEffect::Make(
+                                       std::move(inputFP),
+                                       sk_srgb_singleton(),        alphaType,
+                                       sk_srgb_linear_singleton(), alphaType));
         }
-        return nullptr;
+        SkUNREACHABLE;
     }
 #endif
 
