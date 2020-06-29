@@ -197,6 +197,11 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
                                                   sk_sp<SkColorSpace> cs,
                                                   TextureReleaseProc releaseP,
                                                   ReleaseContext releaseC) {
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (releaseP) {
+        releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
+    }
+
     if (!ctx) {
         return nullptr;
     }
@@ -209,7 +214,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
 
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->wrapCompressedBackendTexture(
-            tex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, releaseP, releaseC);
+            tex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, std::move(releaseHelper));
     if (!proxy) {
         return nullptr;
     }
@@ -226,6 +231,13 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
+#ifndef SK_LEGACY_MAKEFROMTEXTURE_BEHAVIOR
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (releaseP) {
+        releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
+    }
+#endif
+
     if (!ctx) {
         return nullptr;
     }
@@ -241,10 +253,12 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
         return nullptr;
     }
 
+#ifdef SK_LEGACY_MAKEFROMTEXTURE_BEHAVIOR
     sk_sp<GrRefCntedCallback> releaseHelper;
     if (releaseP) {
         releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
     }
+#endif
 
     return new_wrapped_texture_common(ctx, tex, grColorType, origin, at, std::move(cs),
                                       kBorrow_GrWrapOwnership, std::move(releaseHelper));
@@ -368,6 +382,11 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         ReleaseContext releaseContext) {
     const GrCaps* caps = ctx->priv().caps();
 
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (textureReleaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
+    }
+
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, kRGBA_8888_SkColorType,
                                                                 backendTexture.getBackendFormat());
     if (GrColorType::kUnknown == grColorType) {
@@ -384,7 +403,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
     // in order to draw to it for the yuv->rgb conversion.
     auto renderTargetContext = GrRenderTargetContext::MakeFromBackendTexture(
             ctx, grColorType, std::move(imageColorSpace), backendTexture, 1, imageOrigin,
-            nullptr, textureReleaseProc, releaseContext);
+            nullptr, std::move(releaseHelper));
     if (!renderTargetContext) {
         return nullptr;
     }
