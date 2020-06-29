@@ -113,12 +113,9 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
         // Only check perspective for this specific matrix transform, not the aggregate FP property.
         // Any parent perspective will have already been applied when evaluated in the FS.
         if (childProc.sampleMatrix().fHasPerspective) {
-            SkString coords3 = args.fFragBuilder->newTmpVarName("coords3");
-            args.fFragBuilder->codeAppendf("float3 %s = (%s) * %s.xy1;\n",
-                                           coords3.c_str(), skslMatrix.c_str(), args.fSampleCoord);
-            return SkStringPrintf("%s(%s, %s.xy / %s.z)", fFunctionNames[childIndex].c_str(),
-                                  inputColor ? inputColor : "half4(1)", coords3.c_str(),
-                                  coords3.c_str());
+            return SkStringPrintf("%s(%s, proj((%s) * %s.xy1))", fFunctionNames[childIndex].c_str(),
+                                  inputColor ? inputColor : "half4(1)", skslMatrix.c_str(),
+                                  args.fSampleCoord);
         } else {
             return SkStringPrintf("%s(%s, ((%s) * %s.xy1).xy)",
                                   fFunctionNames[childIndex].c_str(),
