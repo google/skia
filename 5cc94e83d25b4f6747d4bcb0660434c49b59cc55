@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb80d001_27a8c4fe",
+        "filename": "experimental/skottiekit/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T17:34:43Z",
+      "side": 1,
+      "message": "bungeman updated this in CanvasKit recently. I don\u0027t remember if the change was backported to here. Can you confirm?",
+      "range": {
+        "startLine": 160,
+        "startChar": 2,
+        "endLine": 160,
+        "endChar": 38
+      },
+      "revId": "5cc94e83d25b4f6747d4bcb0660434c49b59cc55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
