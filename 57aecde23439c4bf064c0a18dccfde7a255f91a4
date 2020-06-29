@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f3ac8ec_e22a7b31",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-29T15:46:57Z",
+      "side": 1,
+      "message": "I\u0027m not 100% confident about this part--it\u0027s a change from the original implementation. This\nis an attempt to simplify the composition of \"source\" and \"dest\" only blends, by relying on\nthe input-overriding rule listed in the comment above. It doesn\u0027t appear to break any existing\nGM images but obviously that\u0027s not ironclad.",
+      "range": {
+        "startLine": 541,
+        "startChar": 0,
+        "endLine": 548,
+        "endChar": 0
+      },
+      "revId": "57aecde23439c4bf064c0a18dccfde7a255f91a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
