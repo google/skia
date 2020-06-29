@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f9ce2275_2f5d3d7a",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-29T21:35:15Z",
+      "side": 1,
+      "message": "Correct. That\u0027s a leftover comment from CCPR stroking. This whole file will be rewritten soon. I\u0027m just trying to get something rendering with gold images first.",
+      "parentUuid": "51e62461_b9669558",
+      "range": {
+        "startLine": 37,
+        "startChar": 64,
+        "endLine": 37,
+        "endChar": 75
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34516ac2_7e8bcad7",
         "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "080b6abc_a8eb7eab",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-29T21:35:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34516ac2_7e8bcad7",
+      "range": {
+        "startLine": 48,
+        "startChar": 10,
+        "endLine": 48,
+        "endChar": 17
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "619db571_7e7f5822",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-29T21:35:15Z",
+      "side": 1,
+      "message": "Done. How about I just rip it all out for now.",
+      "parentUuid": "84fd788f_afe51f5b",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 64
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca9c6911_d102d119",
         "filename": "src/gpu/tessellate/GrTessellateStrokeShader.cpp",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12ac2ad9_e781673d",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-29T21:35:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca9c6911_d102d119",
+      "range": {
+        "startLine": 70,
+        "startChar": 40,
+        "endLine": 70,
+        "endChar": 58
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "4baa703c_f83530d5",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-29T21:35:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d6a0f30f_321798e9",
+      "range": {
+        "startLine": 252,
+        "startChar": 8,
+        "endLine": 253,
+        "endChar": 27
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a82ce6a9_f1434339",
         "filename": "src/gpu/tessellate/GrTessellateStrokeShader.h",
         "patchSetId": 3
@@ -137,6 +257,30 @@
       "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e66b557_02eccf72",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-06-29T21:35:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a82ce6a9_f1434339",
+      "range": {
+        "startLine": 37,
+        "startChar": 15,
+        "endLine": 37,
+        "endChar": 21
+      },
+      "revId": "53c1739a082e2462691fab6823b465c536f8bcdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
