@@ -298,9 +298,13 @@ optional("android_utils") {
   ]
 }
 
-source_set("fontmgr_factory") {
-  configs += skia_library_configs
-  sources = [ skia_fontmgr_factory ]
+group("fontmgr_factory") {
+  public_deps = [ skia_fontmgr_factory ]
+}
+
+optional("fontmgr_empty_factory") {
+  enabled = true
+  sources = [ "src/ports/SkFontMgr_empty_factory.cpp" ]
 }
 
 optional("fontmgr_android") {
@@ -316,6 +320,11 @@ optional("fontmgr_android") {
     "src/ports/SkFontMgr_android_parser.cpp",
     "src/ports/SkFontMgr_android_parser.h",
   ]
+}
+optional("fontmgr_android_factory") {
+  enabled = skia_enable_fontmgr_android
+  deps = [ ":fontmgr_android" ]
+  sources = [ "src/ports/SkFontMgr_android_factory.cpp" ]
 }
 
 optional("fontmgr_custom") {
@@ -338,6 +347,11 @@ optional("fontmgr_custom_directory") {
   public = [ "include/ports/SkFontMgr_directory.h" ]
   sources = [ "src/ports/SkFontMgr_custom_directory.cpp" ]
 }
+optional("fontmgr_custom_directory_factory") {
+  enabled = skia_enable_fontmgr_custom_directory
+  deps = [ ":fontmgr_custom_directory" ]
+  sources = [ "src/ports/SkFontMgr_custom_directory_factory.cpp" ]
+}
 
 optional("fontmgr_custom_embedded") {
   enabled = skia_enable_fontmgr_custom_embedded
@@ -347,6 +361,11 @@ optional("fontmgr_custom_embedded") {
     ":typeface_freetype",
   ]
   sources = [ "src/ports/SkFontMgr_custom_embedded.cpp" ]
+}
+optional("fontmgr_custom_embedded_factory") {
+  enabled = skia_enable_fontmgr_custom_embedded
+  deps = [ ":fontmgr_custom_embedded" ]
+  sources = [ "src/ports/SkFontMgr_custom_embedded_factory.cpp" ]
 }
 
 optional("fontmgr_custom_empty") {
@@ -359,16 +378,25 @@ optional("fontmgr_custom_empty") {
   public = [ "include/ports/SkFontMgr_empty.h" ]
   sources = [ "src/ports/SkFontMgr_custom_empty.cpp" ]
 }
+optional("fontmgr_custom_empty_factory") {
+  enabled = skia_enable_fontmgr_custom_empty
+  deps = [ ":fontmgr_custom_empty" ]
+  sources = [ "src/ports/SkFontMgr_custom_empty_factory.cpp" ]
+}
 
 optional("fontmgr_fontconfig") {
   enabled = skia_enable_fontmgr_fontconfig
 
-  deps = [
-    ":typeface_freetype",
-    "//third_party:fontconfig",
-  ]
+  # The public header includes fontconfig.h and uses FcConfig*
+  public_deps = [ "//third_party:fontconfig" ]
   public = [ "include/ports/SkFontMgr_fontconfig.h" ]
+  deps = [ ":typeface_freetype" ]
   sources = [ "src/ports/SkFontMgr_fontconfig.cpp" ]
+}
+optional("fontmgr_fontconfig_factory") {
+  enabled = skia_enable_fontmgr_fontconfig
+  deps = [ ":fontmgr_fontconfig" ]
+  sources = [ "src/ports/SkFontMgr_fontconfig_factory.cpp" ]
 }
 
 optional("fontmgr_FontConfigInterface") {
@@ -389,6 +417,11 @@ optional("fontmgr_FontConfigInterface") {
     "src/ports/SkFontConfigTypeface.h",
     "src/ports/SkFontMgr_FontConfigInterface.cpp",
   ]
+}
+optional("fontmgr_FontConfigInterface_factory") {
+  enabled = skia_enable_fontmgr_FontConfigInterface
+  deps = [ ":fontmgr_FontConfigInterface" ]
+  sources = [ "src/ports/SkFontMgr_FontConfigInterface_factory.cpp" ]
 }
 
 optional("fontmgr_fuchsia") {
@@ -439,6 +472,11 @@ optional("fontmgr_mac_ct") {
     ]
   }
 }
+optional("fontmgr_mac_ct_factory") {
+  enabled = skia_use_fonthost_mac
+  deps = [ ":fontmgr_mac_ct" ]
+  sources = [ "src/ports/SkFontMgr_mac_ct_factory.cpp" ]
+}
 
 optional("fontmgr_win") {
   enabled = skia_enable_fontmgr_win
@@ -450,6 +488,11 @@ optional("fontmgr_win") {
     "src/ports/SkScalerContext_win_dw.cpp",
     "src/ports/SkTypeface_win_dw.cpp",
   ]
+}
+optional("fontmgr_win_factory") {
+  enabled = skia_enable_fontmgr_win
+  deps = [ ":fontmgr_win" ]
+  sources = [ "src/ports/SkFontMgr_win_dw_factory.cpp" ]
 }
 
 optional("fontmgr_win_gdi") {
