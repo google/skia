@@ -218,6 +218,15 @@ void D3D12WindowContext::resize(int width, int height) {
 
     this->setupSurfaces(width, height);
 
+    for (int i = 0; i < kNumFrames; ++i) {
+        fFenceValues[i] = 10000;   // use a high value to make it easier to track these in PIX
+    }
+    GR_D3D_CALL_ERRCHECK(fDevice->CreateFence(fFenceValues[fBufferIndex], D3D12_FENCE_FLAG_NONE,
+                                              IID_PPV_ARGS(&fFence)));
+
+    fFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    SkASSERT(fFenceEvent);
+
     fWidth = width;
     fHeight = height;
 }
