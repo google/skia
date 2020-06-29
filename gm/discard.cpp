@@ -16,7 +16,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 class GrContext;
@@ -43,13 +46,19 @@ protected:
         return SkISize::Make(100, 100);
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
+        auto direct = context->priv().asDirectContext();
+        if (!direct) {
+            *errorMsg = "GM relies on having access to a live direct context.";
+            return DrawResult::kSkip;
+        }
+
         SkISize size = this->getISize();
         size.fWidth /= 10;
         size.fHeight /= 10;
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
-        auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
+        sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(direct, SkBudgeted::kNo, info);
         if (nullptr == surface) {
             *errorMsg = "Could not create render target.";
             return DrawResult::kFail;
