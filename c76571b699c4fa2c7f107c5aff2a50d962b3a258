@@ -22,6 +22,30 @@
       "revId": "c76571b699c4fa2c7f107c5aff2a50d962b3a258",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1d3d29c_f858c976",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-06-29T16:32:12Z",
+      "side": 1,
+      "message": "Yup, seems to work fine to simply combine them. Done.",
+      "parentUuid": "ac7844e4_e2a137e5",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 187,
+        "endChar": 5
+      },
+      "revId": "c76571b699c4fa2c7f107c5aff2a50d962b3a258",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
