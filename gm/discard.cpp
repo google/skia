@@ -43,13 +43,13 @@ protected:
         return SkISize::Make(100, 100);
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         SkISize size = this->getISize();
         size.fWidth /= 10;
         size.fHeight /= 10;
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
-        auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
+        sk_sp<SkSurface> surface = nullptr; //SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
         if (nullptr == surface) {
             *errorMsg = "Could not create render target.";
             return DrawResult::kFail;

@@ -75,7 +75,7 @@ protected:
         SkASSERT(fBitmap.dimensions() == kImageSize);
     }
 
-    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
         GrMipMapped mipMapped = fFilter == GrSamplerState::Filter::kMipMap &&
                                 context->priv().caps()->mipMapSupport()
