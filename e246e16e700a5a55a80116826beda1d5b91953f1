@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d71413f8_11ca43ee",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1510,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T18:37:24Z",
+      "side": 1,
+      "message": "You didn\u0027t use blendMode here.",
+      "range": {
+        "startLine": 1510,
+        "startChar": 34,
+        "endLine": 1510,
+        "endChar": 39
+      },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "631cf857_2e154f04",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1579,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T18:37:24Z",
+      "side": 1,
+      "message": "zepenghu is your username.",
+      "range": {
+        "startLine": 1579,
+        "startChar": 25,
+        "endLine": 1579,
+        "endChar": 31
+      },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "999b07aa_037395a8",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1605,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T18:37:24Z",
+      "side": 1,
+      "message": "reorganize your cases so that this one goes near the other drawColor API. That way, it will be easier to see the difference between these two.",
+      "range": {
+        "startLine": 1605,
+        "startChar": 17,
+        "endLine": 1605,
+        "endChar": 19
+      },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "049ae79a_f46bc060",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1611,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T18:37:24Z",
+      "side": 1,
+      "message": "A valid colors has the alpha channel between 0 and 1.0 inclusively. I don\u0027t see that check here. Be sure to carefully read the APIs of the code you fuzz.",
+      "range": {
+        "startLine": 1611,
+        "startChar": 16,
+        "endLine": 1611,
+        "endChar": 21
+      },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "445c7a7e_eca6b7e1",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1622,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-29T18:37:24Z",
+      "side": 1,
+      "message": "This is not the right way to initialize the data inside an SkData. Please remove this case until after you do more research on how to do it properly. Please contact a Skia Engineer to confirm this is worth fuzzing.",
+      "range": {
+        "startLine": 1622,
+        "startChar": 26,
+        "endLine": 1622,
+        "endChar": 30
+      },
+      "revId": "e246e16e700a5a55a80116826beda1d5b91953f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
