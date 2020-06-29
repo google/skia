@@ -231,7 +231,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulChildByInputAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(fp), SkBlendMode::kDstIn);
+    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(/*inputFP=*/nullptr, std::move(fp),
+                                                             SkBlendMode::kDstIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
@@ -239,7 +240,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(fp), SkBlendMode::kSrcIn);
+    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(/*inputFP=*/nullptr, std::move(fp),
+                                                             SkBlendMode::kSrcIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampPremulOutput(
