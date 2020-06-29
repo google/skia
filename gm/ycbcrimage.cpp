@@ -94,7 +94,8 @@ protected:
         fYCbCrImage = nullptr;
     }
 
-    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas,  SkString*) override {
+    DrawResult onDraw(GrRecordingContext*, GrRenderTargetContext*,
+                      SkCanvas* canvas, SkString*) override {
         SkASSERT(fYCbCrImage);
 
         SkPaint paint;
