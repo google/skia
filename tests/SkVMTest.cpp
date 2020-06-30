@@ -1332,6 +1332,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vmovups(A::ymm5, A::Mem{A::rsi});
         a.vmovups(A::Mem{A::rsi}, A::ymm5);
 
+        a.vmovups(A::xmm5, A::Mem{A::rsi});
         a.vmovups(A::Mem{A::rsi}, A::xmm5);
 
         a.vpmovzxwd(A::ymm4, A::Mem{A::rsi});
@@ -1343,6 +1344,7 @@ DEF_TEST(SkVM_Assembler, r) {
         0xc5,     0xfc,   0x10,  0b00'101'110,
         0xc5,     0xfc,   0x11,  0b00'101'110,
 
+        0xc5,     0xf8,   0x10,  0b00'101'110,
         0xc5,     0xf8,   0x11,  0b00'101'110,
 
         0xc4,0xe2,0x7d,   0x33,  0b00'100'110,
