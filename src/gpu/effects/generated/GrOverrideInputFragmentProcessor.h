@@ -60,7 +60,7 @@ private:
             , uniformColor(uniformColor)
             , literalColor(literalColor) {
         SkASSERT(fp);
-        fp_index = this->registerChild(std::move(fp));
+        fp_index = this->registerChild(std::move(fp), SkSL::SampleUsage::MakePassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
