@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff65f8c2_5bfed800",
+        "filename": "fuzz/Fuzz.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T18:42:07Z",
+      "side": 1,
+      "message": "I\u0027m not a fan of this length being a magic value. Please revert this change for now. We can always clean it up later.",
+      "range": {
+        "startLine": 29,
+        "startChar": 29,
+        "endLine": 29,
+        "endChar": 33
+      },
+      "revId": "58fed69e3d4e9cf8f28117d3b10103dc239c7e16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
