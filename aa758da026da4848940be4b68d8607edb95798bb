@@ -309,6 +309,30 @@
     },
     {
       "key": {
+        "uuid": "69744c50_9c2b3a2e",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T21:26:39Z",
+      "side": 1,
+      "message": "Thanks. Changed \n  modules/canvaskit/wasm_tools/SIMD/build_simd_test.sh\n\nto use -O1 rather than -Os. I\u0027ll make sure to consider optimized builds from now on in my experimental builds.",
+      "parentUuid": "58cca083_2f10e4fe",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 631,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71e2f581_c9d8930e",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
