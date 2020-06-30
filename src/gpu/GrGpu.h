@@ -711,13 +711,6 @@ public:
     // Called before certain draws in order to guarantee coherent results from dst reads.
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
-    GrStagingBuffer* findStagingBuffer(size_t size);
-    GrStagingBuffer::Slice allocateStagingBufferSlice(size_t size);
-    virtual std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size) { return nullptr; }
-    void unmapStagingBuffers();
-    void moveStagingBufferFromActiveToBusy(GrStagingBuffer* buffer);
-    void moveStagingBufferFromBusyToAvailable(GrStagingBuffer* buffer);
-
 protected:
     static bool MipMapsAreCorrect(SkISize dimensions, GrMipMapped, const BackendTextureData*);
     static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
@@ -728,11 +721,6 @@ protected:
                            uint32_t mipLevels = 1) const;
 
     void setOOMed() { fOOMed = true; }
-
-    typedef SkTInternalLList<GrStagingBuffer> StagingBufferList;
-    const StagingBufferList& availableStagingBuffers() { return fAvailableStagingBuffers; }
-    const StagingBufferList& activeStagingBuffers() { return fActiveStagingBuffers; }
-    const StagingBufferList& busyStagingBuffers() { return fBusyStagingBuffers; }
 
     Stats                            fStats;
     std::unique_ptr<GrPathRendering> fPathRendering;
@@ -865,10 +853,6 @@ private:
         this->onResetContext(fResetBits);
         fResetBits = 0;
     }
-#ifdef SK_DEBUG
-    bool inStagingBuffers(GrStagingBuffer* b) const;
-    void validateStagingBuffers() const;
-#endif
 
     void callSubmittedProcs(bool success);
 
@@ -876,12 +860,6 @@ private:
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext* fContext;
     GrSamplePatternDictionary fSamplePatternDictionary;
-
-    std::vector<std::unique_ptr<GrStagingBuffer>> fStagingBuffers;
-
-    StagingBufferList                fAvailableStagingBuffers;
-    StagingBufferList                fActiveStagingBuffers;
-    StagingBufferList                fBusyStagingBuffers;
 
     struct SubmittedProc {
         SubmittedProc(GrGpuSubmittedProc proc, GrGpuSubmittedContext context)

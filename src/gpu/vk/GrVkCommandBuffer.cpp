@@ -676,9 +676,14 @@ void GrVkPrimaryCommandBuffer::addFinishedProc(sk_sp<GrRefCntedCallback> finishe
 }
 
 void GrVkPrimaryCommandBuffer::onReleaseResources() {
+    for (size_t i = 0; i < fStagingBuffers.size(); ++i) {
+        fStagingBuffers[i]->recycle();
+    }
+    fStagingBuffers.clear();
     for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
         fSecondaryCommandBuffers[i]->releaseResources();
     }
+    fSecondaryCommandBuffers.reset();
     this->callFinishedProcs();
 }
 
@@ -902,6 +907,7 @@ void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
         GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
     }
     SkASSERT(!fSecondaryCommandBuffers.count());
+    SkASSERT(!fStagingBuffers.size());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
