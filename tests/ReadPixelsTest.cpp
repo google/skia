@@ -422,19 +422,20 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto direct = ctxInfo().grContext()->priv().asDirectContext();
+
     SkBitmap bmp = make_src_bitmap();
 
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             sk_sp<GrTextureProxy> proxy = sk_gpu_test::MakeTextureProxyFromData(
-                    context, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
+                    direct, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
             GrColorType grColorType = SkColorTypeToGrColorType(bmp.colorType());
-            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+            GrSwizzle swizzle = direct->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                        grColorType);
             GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-            auto sContext = GrSurfaceContext::Make(context, std::move(view),
+            auto sContext = GrSurfaceContext::Make(direct, std::move(view),
                     grColorType, kPremul_SkAlphaType, nullptr);
             auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);
             test_readpixels_texture(reporter, std::move(sContext), info);

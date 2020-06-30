@@ -7,6 +7,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/private/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
@@ -20,7 +21,7 @@
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrDirectContext* context,
                                                GrRenderable renderable,
                                                GrSurfaceOrigin origin,
                                                const GrImageInfo& imageInfo,

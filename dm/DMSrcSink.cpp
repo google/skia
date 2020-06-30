@@ -94,7 +94,7 @@ namespace DM {
 
 GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
-Result GMSrc::draw(GrContext* context, SkCanvas* canvas) const {
+Result GMSrc::draw(GrDirectContext* context, SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     SkString msg;
 
@@ -173,7 +173,7 @@ static inline void alpha8_to_gray8(SkBitmap* bitmap) {
     }
 }
 
-Result BRDSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result BRDSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     SkColorType colorType = canvas->imageInfo().colorType();
     if (kRGB_565_SkColorType == colorType &&
         CodecSrc::kGetFromCanvas_DstColorType != fDstColorType)
@@ -414,7 +414,7 @@ static void set_bitmap_color_space(SkImageInfo* info) {
     *info = info->makeColorSpace(SkColorSpace::MakeSRGB());
 }
 
-Result CodecSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result CodecSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return Result::Fatal("Couldn't read %s.", fPath.c_str());
@@ -799,7 +799,7 @@ bool AndroidCodecSrc::veto(SinkFlags flags) const {
         || flags.approach != SinkFlags::kDirect;
 }
 
-Result AndroidCodecSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result AndroidCodecSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return Result::Fatal("Couldn't read %s.", fPath.c_str());
@@ -891,7 +891,7 @@ bool ImageGenSrc::veto(SinkFlags flags) const {
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
-Result ImageGenSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result ImageGenSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     if (kRGB_565_SkColorType == canvas->imageInfo().colorType()) {
         return Result::Skip("Uninteresting to test image generator to 565.");
     }
@@ -989,7 +989,7 @@ bool ColorCodecSrc::veto(SinkFlags flags) const {
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
-Result ColorCodecSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result ColorCodecSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return Result::Fatal("Couldn't read %s.", fPath.c_str());
@@ -1054,7 +1054,7 @@ static DEFINE_int(skpViewportSize, 1000,
 
 SKPSrc::SKPSrc(Path path) : fPath(path) { }
 
-Result SKPSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result SKPSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
         return Result::Fatal("Couldn't read %s.", fPath.c_str());
@@ -1096,7 +1096,7 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 BisectSrc::BisectSrc(Path path, const char* trail) : INHERITED(path), fTrail(trail) {}
 
-Result BisectSrc::draw(GrContext* context, SkCanvas* canvas) const {
+Result BisectSrc::draw(GrDirectContext* context, SkCanvas* canvas) const {
     struct FoundPath {
         SkPath fPath;
         SkPaint fPaint;
@@ -1152,7 +1152,7 @@ static DEFINE_bool(useLottieGlyphPaths, false,
 
 SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 
-Result SkottieSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result SkottieSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     auto resource_provider =
             skresources::DataURIResourceProviderProxy::Make(
                 skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
@@ -1229,7 +1229,7 @@ bool SkottieSrc::veto(SinkFlags flags) const {
 #if defined(SK_ENABLE_SKRIVE)
 SkRiveSrc::SkRiveSrc(Path path) : fPath(std::move(path)) {}
 
-Result SkRiveSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result SkRiveSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     auto fileStream = SkFILEStream::Make(fPath.c_str());
     if (!fileStream) {
         return Result::Fatal("Unable to open file: %s", fPath.c_str());
@@ -1314,7 +1314,7 @@ SVGSrc::SVGSrc(Path path)
     }
 }
 
-Result SVGSrc::draw(GrContext*, SkCanvas* canvas) const {
+Result SVGSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     if (!fDom) {
         return Result::Fatal("Unable to parse file: %s", fName.c_str());
     }
@@ -1365,10 +1365,10 @@ SkISize MSKPSrc::size(int i) const {
     return i >= 0 && i < fPages.count() ? fPages[i].fSize.toCeil() : SkISize{0, 0};
 }
 
-Result MSKPSrc::draw(GrContext* context, SkCanvas* c) const {
+Result MSKPSrc::draw(GrDirectContext* context, SkCanvas* c) const {
     return this->draw(0, context, c);
 }
-Result MSKPSrc::draw(int i, GrContext*, SkCanvas* canvas) const {
+Result MSKPSrc::draw(int i, GrDirectContext*, SkCanvas* canvas) const {
     if (this->pageCount() == 0) {
         return Result::Fatal("Unable to parse MultiPictureDocument file: %s", fPath.c_str());
     }
@@ -1703,7 +1703,7 @@ GPUOOPRSink::GPUOOPRSink(const SkCommandLineConfigGpu* config, const GrContextOp
 
 Result GPUOOPRSink::ooprDraw(const Src& src,
                              sk_sp<SkSurface> dstSurface,
-                             GrContext* context) const {
+                             GrDirectContext* context) const {
     SkSurfaceCharacterization dstCharacterization;
     SkAssertResult(dstSurface->characterize(&dstCharacterization));
 
@@ -1788,7 +1788,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                            SkTaskGroup* recordingTaskGroup,
                            SkTaskGroup* gpuTaskGroup,
                            sk_gpu_test::TestContext* gpuTestCtx,
-                           GrContext* gpuThreadCtx) const {
+                           GrDirectContext* gpuThreadCtx) const {
 
     // We have to do this here bc characterization can hit the SkGpuDevice's thread guard (i.e.,
     // leaving it until the DDLTileHelper ctor will result in multiple threads trying to use the

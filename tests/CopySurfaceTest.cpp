@@ -31,7 +31,8 @@
 #include <utility>
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto direct = ctxInfo.grContext()->priv().asDirectContext();
+
     static const int kW = 10;
     static const int kH = 10;
     static const size_t kRowBytes = sizeof(uint32_t) * kW;
@@ -78,7 +79,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                         for (auto dstPoint : kDstPoints) {
                             for (auto ii: kImageInfos) {
                                 auto src = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, sRenderable, sOrigin, ii, srcPixels.get(),
+                                        direct, sRenderable, sOrigin, ii, srcPixels.get(),
                                         kRowBytes);
                                 auto dst = sk_gpu_test::MakeTextureProxyFromData(
                                         context, dRenderable, dOrigin, ii, dstPixels.get(),

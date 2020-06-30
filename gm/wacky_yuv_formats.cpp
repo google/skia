@@ -36,8 +36,8 @@
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrConfig.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
@@ -46,10 +46,11 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
+//#include "include/gpu/GrContext.h"
+//#include "src/gpu/GrContextPriv.h"
 
 #include <math.h>
 #include <string.h>
@@ -1012,7 +1013,7 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     canvas->drawString(rowLabel, 0, y, font, paint);
 }
 
-static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& bm, int index,
+static GrBackendTexture create_yuva_texture(GrDirectContext* context, const SkBitmap& bm, int index,
                                             YUVABackendReleaseContext* releaseContext) {
     return context->createBackendTexture(bm.pixmap(), GrRenderable::kNo, GrProtected::kNo,
                                          YUVABackendReleaseContext::CreationCompleteProc(index),
@@ -1238,7 +1239,7 @@ protected:
                                              releaseContext);
     }
 
-    bool createImages(GrContext* context) {
+    bool createImages(GrDirectContext* context) {
         int counter = 0;
         for (bool opaque : { false, true }) {
             for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
@@ -1374,7 +1375,7 @@ protected:
         return true;
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
         this->createBitmaps();
 
         if (context && context->abandoned()) {
@@ -1532,7 +1533,7 @@ protected:
         fTargetColorSpace = SkColorSpace::MakeSRGB()->makeColorSpin();
     }
 
-    bool createImages(GrContext* context) {
+    bool createImages(GrDirectContext* context) {
         for (bool opaque : { false, true }) {
             PlaneData planes;
             extract_planes(fOriginalBMs[opaque], kJPEG_SkYUVColorSpace, &planes);
@@ -1602,12 +1603,10 @@ protected:
         return true;
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
         if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
-
-        SkASSERT(context->priv().asDirectContext());
 
         this->createBitmaps();
         if (!this->createImages(context)) {
