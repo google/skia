@@ -22,6 +22,30 @@
       "revId": "58fed69e3d4e9cf8f28117d3b10103dc239c7e16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed40ee79_55aa0c7f",
+        "filename": "fuzz/Fuzz.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-30T19:25:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff65f8c2_5bfed800",
+      "range": {
+        "startLine": 29,
+        "startChar": 29,
+        "endLine": 29,
+        "endChar": 33
+      },
+      "revId": "58fed69e3d4e9cf8f28117d3b10103dc239c7e16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -141,6 +141,30 @@
       "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32ffcde7_7b43a8e8",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1515,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-30T19:25:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "184d001a_5af37b81",
+      "range": {
+        "startLine": 1515,
+        "startChar": 16,
+        "endLine": 1515,
+        "endChar": 42
+      },
+      "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
