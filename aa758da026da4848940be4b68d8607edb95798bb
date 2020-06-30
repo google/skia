@@ -237,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "e6f9ecb4_12c3d78a",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-30T21:07:21Z",
+      "side": 1,
+      "message": "Are you comparing unoptimized builds?  I\u0027d kind of expect this all to be moot, modulo wrappers functions and types that would compile away.",
+      "parentUuid": "18130637_ef153542",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 631,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71e2f581_c9d8930e",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
@@ -366,6 +390,30 @@
       "side": 1,
       "message": "Ok, removed the fma().\n\nI guess fuse means that the multiplication and add get combined into a single instruction?",
       "parentUuid": "18b2f25b_07c600ee",
+      "range": {
+        "startLine": 644,
+        "startChar": 0,
+        "endLine": 651,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c308ad82_9cf5b2e1",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-30T21:07:21Z",
+      "side": 1,
+      "message": "yeah, but even more than that, the add happens as if the result of the multiply was done at \"infinite\" precision, so the whole thing only rounds once.  ARM actually has two different sets of instructions, one that does a mul-add in one instruction rounding twice, and one that does a fused mul-add in one instruction, rounding once.\n\nIt\u0027s a very similar result to (float)( (double)f * (double)m + (double)a ), but IIRC that\u0027s not _quite_ a legal implementation either.  (And most places we use FMA, we use it because we know it\u0027s as fast as a multiply, and we don\u0027t mind the fusion, not exactly because we require it.  But we want to know ahead of time that it will fuse or not.)",
+      "parentUuid": "cafcfa9f_01168f53",
       "range": {
         "startLine": 644,
         "startChar": 0,

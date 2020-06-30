@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4048be46_b666a14c",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-30T21:07:21Z",
+      "side": 1,
+      "message": "You can probably preemptively ditch these integer mad() functions.  It\u0027s only the sort of thing we\u0027d call on floats.",
+      "revId": "d9ac7066380b8d938dcee6fa5e69d52288f75730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
