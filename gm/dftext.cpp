@@ -59,7 +59,7 @@ protected:
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
 
         // set up offscreen rendering with distance field text
-        GrContext* ctx = inputCanvas->getGrContext();
+        auto ctx = inputCanvas->recordingContext();
         SkISize size = onISize();
         SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
                                                 inputCanvas->imageInfo().refColorSpace());

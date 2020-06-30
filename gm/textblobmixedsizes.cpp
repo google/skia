@@ -107,7 +107,7 @@ protected:
         sk_sp<SkSurface> surface;
         if (fUseDFT) {
             // Create a new Canvas to enable DFT
-            GrContext* ctx = inputCanvas->getGrContext();
+            auto ctx = inputCanvas->recordingContext();
             SkISize size = onISize();
             sk_sp<SkColorSpace> colorSpace = inputCanvas->imageInfo().refColorSpace();
             SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(),

@@ -60,8 +60,8 @@ protected:
     }
 
     void onDraw(SkCanvas* inputCanvas) override {
-    // set up offscreen rendering with distance field text
-        GrContext* ctx = inputCanvas->getGrContext();
+        // set up offscreen rendering with distance field text
+        auto ctx = inputCanvas->recordingContext();
         SkISize size = this->onISize();
         if (!inputCanvas->getBaseLayerSize().isEmpty()) {
             size = inputCanvas->getBaseLayerSize();
