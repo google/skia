@@ -1,0 +1,51 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a03be14e_681ba868",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T19:47:04Z",
+      "side": 1,
+      "message": "\u003e \"persepective\" is a possible misspelling of \"perspective\".\n\nPlease fix.",
+      "parentUuid": "7e220d2b_302a6b06",
+      "range": {
+        "startLine": 24,
+        "startChar": 62,
+        "endLine": 24,
+        "endChar": 74
+      },
+      "revId": "53bb99d20a6954e3d5e6523a211a2cb91e83f532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87680b61_b0cff918",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1007,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T19:47:04Z",
+      "side": 1,
+      "message": "neither expected nor mat is a TypedArray. Move this test to matrix.spec.js where there is a expectArrayCloseTo helper",
+      "range": {
+        "startLine": 1007,
+        "startChar": 8,
+        "endLine": 1007,
+        "endChar": 32
+      },
+      "revId": "53bb99d20a6954e3d5e6523a211a2cb91e83f532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
