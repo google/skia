@@ -23,9 +23,7 @@ struct Variable;
  * Provides utilities for analyzing SkSL statically before it's composed into a full program.
  */
 struct Analysis {
-    static SampleMatrix GetSampleMatrix(const Program& program, const Variable& fp);
-
-    static bool IsExplicitlySampled(const Program& program, const Variable& fp);
+    static SampleUsage GetSampleUsage(const Program& program, const Variable& fp);
 
     static bool ReferencesSampleCoords(const Program& program);
 };

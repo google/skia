@@ -56,7 +56,9 @@ private:
             , yInvInset(yInvInset) {
         this->setUsesSampleCoordsDirectly();
         SkASSERT(src);
-        src_index = this->registerExplicitlySampledChild(std::move(src));
+        src_index = this->registerChild(
+                std::move(src),
+                SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, "", false, true, false));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

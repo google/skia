@@ -869,7 +869,7 @@ DEF_TEST(SkSLFPMatrixSampleConstant, r) {
          )__SkSL__",
          /*expectedH=*/{
              "this->registerChild(std::move(child), "
-                    "SkSL::SampleMatrix::MakeConstUniform(\"float3x3(2.0)\", true));"
+                    "SkSL::SampleUsage::MakeConstUniform(\"float3x3(2.0)\", true));"
          },
          /*expectedCPP=*/{
              "this->invokeChildWithMatrix(_outer.child_index, args)"
@@ -889,7 +889,7 @@ DEF_TEST(SkSLFPMatrixSampleUniform, r) {
          /*expectedH=*/{
              // Since 'matrix' is just a uniform, the generated code can't determine perspective.
              "this->registerChild(std::move(child), "
-                    "SkSL::SampleMatrix::MakeConstUniform(\"matrix\", true));"
+                    "SkSL::SampleUsage::MakeConstUniform(\"matrix\", true));"
          },
          /*expectedCPP=*/{
              "this->invokeChildWithMatrix(_outer.child_index, args)"
@@ -909,7 +909,7 @@ DEF_TEST(SkSLFPMatrixSampleInUniform, r) {
          /*expectedH=*/{
              // Since 'matrix' is marked 'in', we can detect perspective at runtime
              "this->registerChild(std::move(child), "
-                    "SkSL::SampleMatrix::MakeConstUniform(\"matrix\", matrix.hasPerspective()));"
+                    "SkSL::SampleUsage::MakeConstUniform(\"matrix\", matrix.hasPerspective()));"
          },
          /*expectedCPP=*/{
              "this->invokeChildWithMatrix(_outer.child_index, args)"
@@ -932,7 +932,7 @@ DEF_TEST(SkSLFPMatrixSampleMultipleInUniforms, r) {
              // FIXME it would be nice if codegen can produce
              // (matrixA.hasPerspective() || matrixB.hasPerspective()) even though it's variable.
              "this->registerChild(std::move(child), "
-                    "SkSL::SampleMatrix::MakeVariable(true));"
+                    "SkSL::SampleUsage::MakeVariable(true));"
          },
          /*expectedCPP=*/{
              "SkString _matrix191(args.fUniformHandler->getUniformCStr(matrixAVar));",
@@ -957,7 +957,7 @@ DEF_TEST(SkSLFPMatrixSampleConstUniformExpression, r) {
              // the vertex shader, once downstream code is able to properly map 'matrix' within the
              // expression.
              "this->registerChild(std::move(child), "
-                    "SkSL::SampleMatrix::MakeVariable(true));"
+                    "SkSL::SampleUsage::MakeVariable(true));"
          },
          /*expectedCPP=*/{
             "SkString _matrix145 = SkStringPrintf(\"0.5 * %s\", "
@@ -978,7 +978,7 @@ DEF_TEST(SkSLFPMatrixSampleConstantAndExplicitly, r) {
          )__SkSL__",
          /*expectedH=*/{
              "this->registerChild(std::move(child), "
-                    "SkSL::SampleMatrix::MakeConstUniform(\"float3x3(0.5)\", true), true);"
+                    "SkSL::SampleUsage::MakeConstUniform(\"float3x3(0.5)\", true), true);"
          },
          /*expectedCPP=*/{
              "this->invokeChildWithMatrix(_outer.child_index, args)",
@@ -1000,7 +1000,7 @@ DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
          )__SkSL__",
          /*expectedH=*/{
              "this->registerChild(std::move(child), "
-                    "SkSL::SampleMatrix::MakeVariable(true), true);"
+                    "SkSL::SampleUsage::MakeVariable(true), true);"
          },
          /*expectedCPP=*/{
              "SkString _matrix178(\"matrix\");",

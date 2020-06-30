@@ -46,10 +46,14 @@ private:
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
         if (inputFP) {
-            inputFP_index = this->registerChild(std::move(inputFP));
+            inputFP_index = this->registerChild(
+                    std::move(inputFP),
+                    SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, "", false, false, true));
         }
         SkASSERT(maskFP);
-        maskFP_index = this->registerChild(std::move(maskFP));
+        maskFP_index = this->registerChild(
+                std::move(maskFP),
+                SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, "", false, false, true));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

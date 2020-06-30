@@ -55,9 +55,13 @@ private:
             : INHERITED(kGrMixerEffect_ClassID, (OptimizationFlags)OptFlags(fp0, fp1))
             , weight(weight) {
         SkASSERT(fp0);
-        fp0_index = this->registerChild(std::move(fp0));
+        fp0_index = this->registerChild(
+                std::move(fp0),
+                SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, "", false, false, true));
         if (fp1) {
-            fp1_index = this->registerChild(std::move(fp1));
+            fp1_index = this->registerChild(
+                    std::move(fp1),
+                    SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, "", false, false, true));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

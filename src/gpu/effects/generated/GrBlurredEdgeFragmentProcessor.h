@@ -35,7 +35,9 @@ private:
             : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , mode(mode) {
         if (inputFP) {
-            inputFP_index = this->registerChild(std::move(inputFP));
+            inputFP_index = this->registerChild(
+                    std::move(inputFP),
+                    SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, "", false, false, true));
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
