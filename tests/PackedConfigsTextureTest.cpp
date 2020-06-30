@@ -13,13 +13,14 @@
 
 #include "tests/Test.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/private/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "tools/gpu/ProxyUtils.h"
+//#include "include/gpu/GrContext.h"
 
 static const int DEV_W = 10, DEV_H = 10;
 static const uint8_t TOL = 0x4;
@@ -97,7 +98,7 @@ static void check_565(skiatest::Reporter* reporter,
     }
 }
 
-static void run_test(skiatest::Reporter* reporter, GrContext* context, int arraySize,
+static void run_test(skiatest::Reporter* reporter, GrDirectContext* context, int arraySize,
                      SkColorType colorType) {
     SkTDArray<uint16_t> controlPixelData;
     // We will read back into an 8888 buffer since 565/4444 read backs aren't supported

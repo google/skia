@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
+#include "include/private/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
@@ -21,7 +22,7 @@
 
 using sk_gpu_test::GrContextFactory;
 
-void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColorType ct,
+void basic_texture_test(skiatest::Reporter* reporter, GrDirectContext* context, SkColorType ct,
                         GrRenderable renderable) {
     const int kWidth = 16;
     const int kHeight = 16;

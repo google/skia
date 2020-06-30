@@ -28,13 +28,13 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/gl/GrGLDefines.h"
+//#include "include/gpu/GrContext.h"
+//#include "src/gpu/GrContextPriv.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -122,7 +122,7 @@ private:
         return SkImage::MakeFromAdoptedTexture(context, bet, origin, kRGBA_8888_SkColorType);
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
         if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
