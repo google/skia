@@ -160,7 +160,7 @@ GrDrawingManager::~GrDrawingManager() {
 }
 
 bool GrDrawingManager::wasAbandoned() const {
-    return fContext->priv().abandoned();
+    return fContext->abandoned();
 }
 
 void GrDrawingManager::freeGpuResources() {
