@@ -450,20 +450,22 @@
   // TODO(nifong): This function is in desperate need of some explanation of what it does
   // cam is a object having eye, coa, up, near, far, angle
   function saveCamera(canvas, /* rect */ area, /* scalar */ zscale, cam) {
-    const camera = CanvasKit.SkM44.lookat(cam.eye, cam.coa, cam.up);
-    const perspective = CanvasKit.SkM44.perspective(cam.near, cam.far, cam.angle);
-    // Calculate viewport scale. Even through we know these values are all constants in this
-    // example it might be handy to change the size later.
-    const center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
-    const viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
-    const viewport = CanvasKit.SkM44.multiply(
-      CanvasKit.SkM44.translated(center),
-      CanvasKit.SkM44.scaled(viewScale));
+    // const camera = CanvasKit.SkM44.lookat(cam.eye, cam.coa, cam.up);
+    // const perspective = CanvasKit.SkM44.perspective(cam.near, cam.far, cam.angle);
+    // // Calculate viewport scale. Even through we know these values are all constants in this
+    // // example it might be handy to change the size later.
+    // const center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
+    // const viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
+    // const viewport = CanvasKit.SkM44.multiply(
+    //   CanvasKit.SkM44.translated(center),
+    //   CanvasKit.SkM44.scaled(viewScale));
 
-    // want "world" to be in our big coordinates (e.g. area), so apply this inverse
-    // as part of our "camera".
-    canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
-    canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
+    // // want "world" to be in our big coordinates (e.g. area), so apply this inverse
+    // // as part of our "camera".
+    // canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
+    // canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
+    //foo
+    canvas.concat(CanvasKit.SkM44.setupCamera(area, zscale, cam));
     // Mark the matrix to make it available to the shader by this name.
     canvas.markCTM('local_to_world');
   }
