@@ -438,9 +438,9 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         } else if (c.fArguments.back()->fType.name() == "float3x3") {
             // Invoking child with a matrix, sampling relative to the input coords.
             invokeFunction = "invokeChildWithMatrix";
-            SampleMatrix matrix = Analysis::GetSampleMatrix(fProgram, child);
+            SampleUsage usage = Analysis::GetSampleUsage(fProgram, child);
 
-            if (!matrix.isConstUniform()) {
+            if (!usage.hasConstUniformMatrix()) {
                 inputCoord = "_matrix" + to_string(c.fOffset);
                 addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), inputCoord));
                 inputCoord.append(".c_str()");

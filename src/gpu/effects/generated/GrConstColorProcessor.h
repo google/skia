@@ -73,7 +73,8 @@ private:
             , color(color)
             , mode(mode) {
         if (inputFP) {
-            inputFP_index = this->registerChild(std::move(inputFP));
+            inputFP_index =
+                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::MakePassThrough());
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

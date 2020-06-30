@@ -340,7 +340,7 @@ GrMorphologyEffect::GrMorphologyEffect(GrSurfaceProxyView view,
         , fUseRange(SkToBool(range)) {
     this->setUsesSampleCoordsDirectly();
     auto te = GrTextureEffect::Make(std::move(view), srcAlphaType);
-    this->registerExplicitlySampledChild(std::move(te));
+    this->registerChild(std::move(te), SkSL::SampleUsage::MakeExplicitCoords());
     if (fUseRange) {
         fRange[0] = range[0];
         fRange[1] = range[1];
