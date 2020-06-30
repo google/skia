@@ -21,6 +21,7 @@ skia_gpu_sources = [
 
   # Private includes
   "$_include/private/GrContext_Base.h",
+  "$_include/private/GrDirectContext.h",
   "$_include/private/GrGLTypesPriv.h",
   "$_include/private/GrImageContext.h",
   "$_include/private/GrRecordingContext.h",
@@ -81,6 +82,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrDefaultGeoProcFactory.h",
   "$_src/gpu/GrDeferredProxyUploader.h",
   "$_src/gpu/GrDeferredUpload.h",
+  "$_src/gpu/GrDirectContext.cpp",
   "$_src/gpu/GrDistanceFieldGenFromVector.cpp",
   "$_src/gpu/GrDistanceFieldGenFromVector.h",
   "$_src/gpu/GrDrawOpAtlas.cpp",
@@ -115,7 +117,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrImageInfo.h",
   "$_src/gpu/GrImageTextureMaker.cpp",
   "$_src/gpu/GrImageTextureMaker.h",
-  "$_src/gpu/GrLegacyDirectContext.cpp",
   "$_src/gpu/GrManagedResource.cpp",
   "$_src/gpu/GrManagedResource.h",
   "$_src/gpu/GrMemoryPool.cpp",
