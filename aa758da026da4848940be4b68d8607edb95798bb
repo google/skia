@@ -284,6 +284,23 @@
     },
     {
       "key": {
+        "uuid": "0f7be505_0cbac6ee",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-06-30T14:49:36Z",
+      "side": 1,
+      "message": "This isn\u0027t really a test if it doesn\u0027t run all of the operations. It\u0027s a development tool. You need an actual unit test that runs them all, and it needs to be run as a part of the existing suite triggered by presubmit",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ba6faa8_04613f15",
         "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
         "patchSetId": 1
