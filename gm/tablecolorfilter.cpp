@@ -131,7 +131,6 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
         canvas->translate(20, 20);
 
-
         static sk_sp<SkColorFilter> (*gColorFilterMakers[])() = {
             make_null_cf, make_cf0, make_cf1, make_cf2, make_cf3
         };
@@ -142,7 +141,7 @@ protected:
         //  - A first line with the original bitmap, followed by the image drawn once
         //  with each of the N color filters
         //  - N lines of the bitmap drawn N times, this will cover all N*N combinations of
-        //  pair of color filters in order to test the collpsing of consecutive table
+        //  pair of color filters in order to test the collapsing of consecutive table
         //  color filters.
         //
         //  Here is a graphical representation of the result for 2 bitmaps and 2 filters
