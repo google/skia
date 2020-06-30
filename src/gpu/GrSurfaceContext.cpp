@@ -27,7 +27,7 @@
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
-#define RETURN_FALSE_IF_ABANDONED  if (this->fContext->priv().abandoned()) { return false; }
+#define RETURN_FALSE_IF_ABANDONED  if (this->fContext->abandoned()) { return false; }
 
 std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* context,
                                                          GrSurfaceProxyView readView,
@@ -38,7 +38,7 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
     // GrSurfaceContext which need the context will mostly likely fail later on without an issue.
     // However having this hear adds some reassurance in case there is a path doesn't handle an
     // abandoned context correctly. It also lets us early out of some extra work.
-    if (context->priv().abandoned()) {
+    if (context->abandoned()) {
         return nullptr;
     }
     GrSurfaceProxy* proxy = readView.proxy();
@@ -108,7 +108,7 @@ GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
         : fContext(context)
         , fReadView(std::move(readView))
         , fColorInfo(colorType, alphaType, std::move(colorSpace)) {
-    SkASSERT(!context->priv().abandoned());
+    SkASSERT(!context->abandoned());
 }
 
 const GrCaps* GrSurfaceContext::caps() const { return fContext->priv().caps(); }
@@ -1151,7 +1151,7 @@ GrSemaphoresSubmitted GrSurfaceContext::flush(SkSurface::BackendSurfaceAccess ac
                                               const GrFlushInfo& info,
                                               const GrBackendSurfaceMutableState* newState) {
     ASSERT_SINGLE_OWNER
-    if (fContext->priv().abandoned()) {
+    if (fContext->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
