@@ -54,10 +54,6 @@ struct VariableReference : public Expression {
         }
     }
 
-    bool isConstant() const override {
-        return 0 != (fVariable.fModifiers.fFlags & Modifiers::kConst_Flag);
-    }
-
     bool isConstantOrUniform() const override {
         return (fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) != 0;
     }
