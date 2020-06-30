@@ -65,7 +65,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
         // and skslCoords is _coords (a const/uniform sample call would go through
         // invokeChildWithMatrix, and if a child was sampled with sample(matrix) and sample(), it
         // should have been flagged as variable and hit the branch above).
-        SkASSERT(skslCoords == args.fSampleCoord && childProc.sampleMatrix().isNoOp());
+        SkASSERT(skslCoords == args.fSampleCoord && !childProc.sampleUsage().hasMatrix());
         return SkStringPrintf("%s(%s)", fFunctionNames[childIndex].c_str(),
                                         inputColor ? inputColor : "half4(1)");
     }
@@ -78,23 +78,24 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
     this->emitChildFunction(childIndex, args);
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
+    SkASSERT(childProc.sampleUsage().hasMatrix());
 
     // Since this is const/uniform, the provided sksl expression should exactly match the
     // expression stored on the FP, or it should match the mangled uniform name.
     if (skslMatrix.empty()) {
-        // Empty matrix expression replaces with the sampleMatrix expression stored on the FP, but
+        // Empty matrix expression replaces with the sample matrix expression stored on the FP, but
         // that is only valid for const/uniform sampled FPs
-        SkASSERT(childProc.sampleMatrix().isConstUniform());
-        skslMatrix.assign(childProc.sampleMatrix().fExpression);
+        SkASSERT(childProc.sampleUsage().hasConstUniformMatrix());
+        skslMatrix.assign(childProc.sampleUsage().fExpression);
     }
 
-    if (childProc.sampleMatrix().isConstUniform()) {
+    if (childProc.sampleUsage().hasConstUniformMatrix()) {
         // Attempt to resolve the uniform name from the raw name that was stored in the sample
         // matrix. Since this is const/uniform, the provided expression better match what was given
         // to the FP.
-        SkASSERT(childProc.sampleMatrix().fExpression == skslMatrix);
+        SkASSERT(childProc.sampleUsage().fExpression == skslMatrix);
         GrShaderVar uniform = args.fUniformHandler->getUniformMapping(
-                args.fFp, SkString(childProc.sampleMatrix().fExpression));
+                args.fFp, SkString(childProc.sampleUsage().fExpression));
         if (uniform.getType() != kVoid_GrSLType) {
             // Found the uniform, so replace the expression with the actual uniform name
             SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
@@ -112,10 +113,9 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
     // In all other cases, we need to insert sksl to compute matrix * parent coords and then invoke
     // the function.
     if (childProc.isSampledWithExplicitCoords()) {
-        SkASSERT(!childProc.sampleMatrix().isNoOp());
         // Only check perspective for this specific matrix transform, not the aggregate FP property.
         // Any parent perspective will have already been applied when evaluated in the FS.
-        if (childProc.sampleMatrix().fHasPerspective) {
+        if (childProc.sampleUsage().fHasPerspective) {
             return SkStringPrintf("%s(%s, proj((%s) * %s.xy1))", fFunctionNames[childIndex].c_str(),
                                   inputColor ? inputColor : "half4(1)", skslMatrix.c_str(),
                                   args.fSampleCoord);
@@ -128,7 +128,7 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
     } else {
         // A variable matrix expression should mark the child as explicitly sampled. A no-op
         // matrix should match sample(color), not sample(color, matrix).
-        SkASSERT(childProc.sampleMatrix().isConstUniform());
+        SkASSERT(childProc.sampleUsage().hasConstUniformMatrix());
 
         // Since this is const/uniform and not explicitly sampled, it's transform has been
         // promoted to the vertex shader and the signature doesn't take a float2 coord.
