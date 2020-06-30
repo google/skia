@@ -47,10 +47,12 @@ private:
             , solidRadius(solidRadius)
             , textureRadius(textureRadius) {
         if (inputFP) {
-            inputFP_index = this->registerChild(std::move(inputFP));
+            inputFP_index =
+                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::MakePassThrough());
         }
         SkASSERT(blurProfile);
-        blurProfile_index = this->registerExplicitlySampledChild(std::move(blurProfile));
+        blurProfile_index = this->registerChild(std::move(blurProfile),
+                                                SkSL::SampleUsage::MakeExplicitCoords());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
