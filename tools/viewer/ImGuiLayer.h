@@ -72,7 +72,7 @@ struct DragCanvas {
         ImGui::SetCursorScreenPos(ImVec2(center.fX - 5, center.fY - 5));
         ImGui::InvisibleButton("", ImVec2(10, 10));
 
-        if (ImGui::IsItemActive() && ImGui::IsMouseDragging()) {
+        if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) {
             // Update screen position to track mouse, clamped to our area
             ImGuiIO& io = ImGui::GetIO();
             center.set(SkTPin(io.MousePos.x, fPos.x, fPos.x + fSize.x),
