@@ -339,6 +339,7 @@ var CanvasKit = {
   SkM44: {
     identity: function() {},
     invert: function() {},
+    mustInvert: function() {},
     multiply: function() {},
     rotatedUnitSinCos: function() {},
     rotated: function() {},
@@ -348,6 +349,7 @@ var CanvasKit = {
     perspective: function() {},
     rc: function() {},
     transpose: function() {},
+    setupCamera: function() {},
   },
 
   SkMatrix: {
