@@ -321,7 +321,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
 
 std::unique_ptr<GrFragmentProcessor> SkXfermodeImageFilterImpl::makeFGFrag(
         std::unique_ptr<GrFragmentProcessor> bgFP) const {
-    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(bgFP), fMode);
+    return GrXfermodeFragmentProcessor::Make(/*src=*/nullptr, std::move(bgFP), fMode);
 }
 
 #endif
