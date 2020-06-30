@@ -40,6 +40,15 @@ private:
 
 } // namespace
 
+#define RETURN_IF_EITHER_IS_NULL(a, b)  \
+    do {                                \
+        if (!(a)) {                     \
+            return b;                   \
+        } else if (!(b)) {              \
+            return a;                   \
+        }                               \
+    } while (0)
+
 sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
     switch (mode) {
         case SkBlendMode::kClear: return Color(0);
@@ -47,6 +56,8 @@ sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<Sk
         case SkBlendMode::kSrc:   return src;
         default: break;
     }
+    RETURN_IF_EITHER_IS_NULL(src, dst);
+
     return sk_sp<SkShader>(new SkShader_Blend(mode, std::move(dst), std::move(src)));
 }
 
@@ -60,6 +71,8 @@ sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShade
     if (weight >= 1) {
         return src;
     }
+    RETURN_IF_EITHER_IS_NULL(src, dst);
+
     return sk_sp<SkShader>(new SkShader_Lerp(weight, std::move(dst), std::move(src)));
 }
 
