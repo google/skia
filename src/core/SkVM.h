@@ -23,18 +23,6 @@ class SkWStream;
     #define SKVM_LLVM
 #endif
 
-// JIT code isn't MSAN-instrumented, so we won't see when it uses
-// uninitialized memory, and we'll not see the writes it makes as properly
-// initializing memory.  Instead force the interpreter, which should let
-// MSAN see everything our programs do properly.
-//
-// Similarly, we can't get ASAN's checks unless we let it instrument our interpreter.
-#if defined(__has_feature)
-    #if __has_feature(memory_sanitizer) || __has_feature(address_sanitizer)
-        #undef SKVM_JIT
-    #endif
-#endif
-
 namespace skvm {
 
     bool fma_supported();
