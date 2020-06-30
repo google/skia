@@ -155,13 +155,7 @@ void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float 
 
     // Decide how many flat line segments to chop the curve into.
     int numSegments = wangs_formula_quadratic(p0, p1, p2);
-    numSegments = std::min(numSegments, 1 << kMaxNumLinearSegmentsLog2);
-    if (numSegments <= 1) {
-        this->rotateTo(leftJoinVerb, normals[0]);
-        this->lineTo(Verb::kInternalRoundJoin, P[2]);
-        this->rotateTo(Verb::kInternalRoundJoin, normals[1]);
-        return;
-    }
+    numSegments = std::clamp(numSegments, 1, 1 << kMaxNumLinearSegmentsLog2);
 
     // At + B gives a vector tangent to the quadratic.
     Sk2f A = p0 - p1*2 + p2;
@@ -193,8 +187,7 @@ void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float 
     // FIXME: This is quite costly and the vast majority of curves only have moderate curvature. We
     // would benefit significantly from a quick reject that detects curves that don't need special
     // treatment for strong curvature.
-    bool isCurvatureTooStrong = calc_curvature_costheta(leftTan, rightTan) < fMaxCurvatureCosTheta;
-    if (isCurvatureTooStrong) {
+    if (numSegments > 1 && calc_curvature_costheta(leftTan, rightTan) < fMaxCurvatureCosTheta) {
         SkPoint ptsBuffer[5];
         const SkPoint* currQuadratic = P;
 
@@ -206,7 +199,7 @@ void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float 
             }
             currQuadratic = ptsBuffer + 2;
         } else {
-            this->rotateTo(leftJoinVerb, normals[0]);
+            this->rotateTo(leftJoinVerb, normals[0], currQuadratic[1]);
         }
 
         if (rightT < 1) {
@@ -215,8 +208,16 @@ void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float 
             this->quadraticTo(Verb::kInternalRoundJoin, ptsBuffer + 2, /*maxCurvatureT=*/0);
         } else {
             this->lineTo(Verb::kInternalRoundJoin, currQuadratic[2]);
-            this->rotateTo(Verb::kInternalRoundJoin, normals[1]);
+            this->rotateTo(Verb::kInternalRoundJoin, normals[1],
+                           currQuadratic[2]*2 - currQuadratic[1]);
         }
+        return;
+    }
+    if (numSegments > fMaxTessellationSegments) {
+        SkPoint ptsBuffer[5];
+        SkChopQuadAt(P, ptsBuffer, 0.5f);
+        this->quadraticTo(leftJoinVerb, ptsBuffer, 0);
+        this->quadraticTo(Verb::kInternalRoundJoin, ptsBuffer + 3, 0);
         return;
     }
 
@@ -283,13 +284,7 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
 
     // Decide how many flat line segments to chop the curve into.
     int numSegments = wangs_formula_cubic(p0, p1, p2, p3);
-    numSegments = std::min(numSegments, 1 << kMaxNumLinearSegmentsLog2);
-    if (numSegments <= 1) {
-        this->rotateTo(leftJoinVerb, normals[0]);
-        this->lineTo(leftJoinVerb, P[3]);
-        this->rotateTo(Verb::kInternalRoundJoin, normals[1]);
-        return;
-    }
+    numSegments = std::clamp(numSegments, 1, 1 << kMaxNumLinearSegmentsLog2);
 
     // At^2 + Bt + C gives a vector tangent to the cubic. (More specifically, it's the derivative
     // minus an irrelevant scale by 3, since all we care about is the direction.)
@@ -323,8 +318,7 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
     // FIXME: This is quite costly and the vast majority of curves only have moderate curvature. We
     // would benefit significantly from a quick reject that detects curves that don't need special
     // treatment for strong curvature.
-    bool isCurvatureTooStrong = calc_curvature_costheta(leftTan, rightTan) < fMaxCurvatureCosTheta;
-    if (isCurvatureTooStrong) {
+    if (numSegments > 1 && calc_curvature_costheta(leftTan, rightTan) < fMaxCurvatureCosTheta) {
         SkPoint ptsBuffer[7];
         p0.store(ptsBuffer);
         p1.store(ptsBuffer + 1);
@@ -346,7 +340,8 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
             }
             currCubic = ptsBuffer + 3;
         } else {
-            this->rotateTo(leftJoinVerb, normals[0]);
+            SkPoint c1 = (ptsBuffer[1] == ptsBuffer[0]) ? ptsBuffer[2] : ptsBuffer[1];
+            this->rotateTo(leftJoinVerb, normals[0], c1);
         }
 
         if (rightT < 1) {
@@ -357,7 +352,8 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
                           kLeftMaxCurvatureNone, kRightMaxCurvatureNone);
         } else {
             this->lineTo(Verb::kInternalRoundJoin, currCubic[3]);
-            this->rotateTo(Verb::kInternalRoundJoin, normals[1]);
+            SkPoint c2 = (currCubic[2] == currCubic[3]) ? currCubic[1] : currCubic[2];
+            this->rotateTo(Verb::kInternalRoundJoin, normals[1], currCubic[3]*2 - c2);
         }
         return;
     }
@@ -374,6 +370,14 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
                       kRightMaxCurvatureNone);
         return;
     }
+    if (numSegments > fMaxTessellationSegments) {
+        SkPoint ptsBuffer[7];
+        SkChopCubicAt(P, ptsBuffer, 0.5f);
+        this->cubicTo(leftJoinVerb, ptsBuffer, 0, kLeftMaxCurvatureNone, kRightMaxCurvatureNone);
+        this->cubicTo(Verb::kInternalRoundJoin, ptsBuffer + 3, 0, kLeftMaxCurvatureNone,
+                      kRightMaxCurvatureNone);
+        return;
+    }
 
     this->recordLeftJoinIfNotEmpty(leftJoinVerb, normals[0]);
     fNormals.push_back_n(2, normals);
@@ -386,17 +390,19 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
 
 void GrStrokeGeometry::recordStroke(Verb verb, int numSegmentsLog2) {
     SkASSERT(Verb::kLinearStroke != verb || 0 == numSegmentsLog2);
-    SkASSERT(numSegmentsLog2 <= kMaxNumLinearSegmentsLog2);
     fVerbs.push_back(verb);
     if (Verb::kLinearStroke != verb) {
-        SkASSERT(numSegmentsLog2 > 0);
         fParams.push_back().fNumLinearSegmentsLog2 = numSegmentsLog2;
     }
     ++fCurrStrokeTallies->fStrokes[numSegmentsLog2];
 }
 
-void GrStrokeGeometry::rotateTo(Verb leftJoinVerb, SkVector normal) {
+void GrStrokeGeometry::rotateTo(Verb leftJoinVerb, SkVector normal, SkPoint controlPoint) {
+    SkASSERT(fPoints.count() > fCurrContourFirstPtIdx);
     this->recordLeftJoinIfNotEmpty(leftJoinVerb, normal);
+    fVerbs.push_back(Verb::kRotate);
+    fPoints.push_back(controlPoint);
+    fPoints.push_back(fPoints[fPoints.count() - 2]);
     fNormals.push_back(normal);
 }
 
@@ -406,105 +412,7 @@ void GrStrokeGeometry::recordLeftJoinIfNotEmpty(Verb joinVerb, SkVector nextNorm
         SkASSERT(fNormals.count() == fCurrContourFirstNormalIdx);
         return;
     }
-
-    if (Verb::kBevelJoin == joinVerb) {
-        this->recordBevelJoin(Verb::kBevelJoin);
-        return;
-    }
-
-    Sk2f n0 = Sk2f::Load(&fNormals.back());
-    Sk2f n1 = Sk2f::Load(&nextNormal);
-    Sk2f base = n1 - n0;
-    if ((base.abs() * fCurrStrokeRadius < kMaxErrorFromLinearization).allTrue()) {
-        // Treat any join as a bevel when the outside corners of the two adjoining strokes are
-        // close enough to each other. This is important because "miterCapHeightOverWidth" becomes
-        // unstable when n0 and n1 are nearly equal.
-        this->recordBevelJoin(joinVerb);
-        return;
-    }
-
-    // We implement miters and round joins by placing a triangle-shaped cap on top of a bevel join.
-    // (For round joins this triangle cap comprises the conic control points.) Find how tall to make
-    // this triangle cap, relative to its width.
-    //
-    // NOTE: This value would be infinite at 180 degrees, but we clamp miterCapHeightOverWidth at
-    // near-infinity. 180-degree round joins still look perfectly acceptable like this (though
-    // technically not pure arcs).
-    Sk2f cross = base * SkNx_shuffle<1,0>(n0);
-    Sk2f dot = base * n0;
-    float miterCapHeight = SkScalarAbs(dot[0] + dot[1]);
-    float miterCapWidth = SkScalarAbs(cross[0] - cross[1]) * 2;
-
-    if (Verb::kMiterJoin == joinVerb) {
-        if (miterCapHeight > fMiterMaxCapHeightOverWidth * miterCapWidth) {
-            // This join is tighter than the miter limit. Treat it as a bevel.
-            this->recordBevelJoin(Verb::kMiterJoin);
-            return;
-        }
-        this->recordMiterJoin(miterCapHeight / miterCapWidth);
-        return;
-    }
-
-    SkASSERT(Verb::kRoundJoin == joinVerb || Verb::kInternalRoundJoin == joinVerb);
-
-    // Conic arcs become unstable when they approach 180 degrees. When the conic control point
-    // begins shooting off to infinity (i.e., height/width > 32), split the conic into two.
-    static constexpr float kAlmost180Degrees = 32;
-    if (miterCapHeight > kAlmost180Degrees * miterCapWidth) {
-        Sk2f bisect = normalize(n0 - n1);
-        this->rotateTo(joinVerb, SkVector::Make(-bisect[1], bisect[0]));
-        this->recordLeftJoinIfNotEmpty(joinVerb, nextNormal);
-        return;
-    }
-
-    float miterCapHeightOverWidth = miterCapHeight / miterCapWidth;
-
-    // Find the heights of this round join's conic control point as well as the arc itself.
-    Sk2f X, Y;
-    transpose(base * base, n0 * n1, &X, &Y);
-    Sk2f r = Sk2f::Max(X + Y + Sk2f(0, 1), 0.f).sqrt();
-    Sk2f heights = SkNx_fma(r, Sk2f(miterCapHeightOverWidth, -SK_ScalarRoot2Over2), Sk2f(0, 1));
-    float controlPointHeight = SkScalarAbs(heights[0]);
-    float curveHeight = heights[1];
-    if (curveHeight * fCurrStrokeRadius < kMaxErrorFromLinearization) {
-        // Treat round joins as bevels when their curvature is nearly flat.
-        this->recordBevelJoin(joinVerb);
-        return;
-    }
-
-    float w = curveHeight / (controlPointHeight - curveHeight);
-    this->recordRoundJoin(joinVerb, miterCapHeightOverWidth, w);
-}
-
-void GrStrokeGeometry::recordBevelJoin(Verb originalJoinVerb) {
-    if (!IsInternalJoinVerb(originalJoinVerb)) {
-        fVerbs.push_back(Verb::kBevelJoin);
-        ++fCurrStrokeTallies->fTriangles;
-    } else {
-        fVerbs.push_back(Verb::kInternalBevelJoin);
-        fCurrStrokeTallies->fTriangles += 2;
-    }
-}
-
-void GrStrokeGeometry::recordMiterJoin(float miterCapHeightOverWidth) {
-    fVerbs.push_back(Verb::kMiterJoin);
-    fParams.push_back().fMiterCapHeightOverWidth = miterCapHeightOverWidth;
-    fCurrStrokeTallies->fTriangles += 2;
-}
-
-void GrStrokeGeometry::recordRoundJoin(Verb joinVerb, float miterCapHeightOverWidth,
-                                         float conicWeight) {
     fVerbs.push_back(joinVerb);
-    fParams.push_back().fConicWeight = conicWeight;
-    fParams.push_back().fMiterCapHeightOverWidth = miterCapHeightOverWidth;
-    if (Verb::kRoundJoin == joinVerb) {
-        ++fCurrStrokeTallies->fTriangles;
-        ++fCurrStrokeTallies->fConics;
-    } else {
-        SkASSERT(Verb::kInternalRoundJoin == joinVerb);
-        fCurrStrokeTallies->fTriangles += 2;
-        fCurrStrokeTallies->fConics += 2;
-    }
 }
 
 void GrStrokeGeometry::closeContour() {
@@ -514,14 +422,7 @@ void GrStrokeGeometry::closeContour() {
         // Draw a line back to the beginning.
         this->lineTo(fCurrStrokeJoinVerb, fPoints[fCurrContourFirstPtIdx]);
     }
-    if (fNormals.count() > fCurrContourFirstNormalIdx) {
-        // Join the first and last lines.
-        this->rotateTo(fCurrStrokeJoinVerb,fNormals[fCurrContourFirstNormalIdx]);
-    } else {
-        // This contour is empty. Add a bogus normal since the iterator always expects one.
-        SkASSERT(fNormals.count() == fCurrContourFirstNormalIdx);
-        fNormals.push_back({0, 0});
-    }
+    fVerbs.push_back(fCurrStrokeJoinVerb);
     fVerbs.push_back(Verb::kEndContour);
     SkDEBUGCODE(fInsideContour = false);
 }

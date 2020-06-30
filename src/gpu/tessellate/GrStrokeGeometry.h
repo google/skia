@@ -22,8 +22,9 @@ class GrStrokeGeometry {
 public:
     static constexpr int kMaxNumLinearSegmentsLog2 = 15;
 
-    GrStrokeGeometry(int numSkPoints = 0, int numSkVerbs = 0)
-            : fVerbs(numSkVerbs * 5/2)  // Reserve for a 2.5x expansion in verbs. (Joins get their
+    GrStrokeGeometry(int maxTessellationSegments, int numSkPoints = 0, int numSkVerbs = 0)
+            : fMaxTessellationSegments(maxTessellationSegments)
+            , fVerbs(numSkVerbs * 5/2)  // Reserve for a 2.5x expansion in verbs. (Joins get their
                                         // own separate verb in our representation.)
             , fParams(numSkVerbs * 3)  // Somewhere around 1-2 params per verb.
             , fPoints(numSkPoints * 5/4)  // Reserve for a 1.25x expansion in points and normals.
@@ -38,6 +39,9 @@ public:
         kLinearStroke,
         kQuadraticStroke,
         kCubicStroke,
+
+        // Updates the last tangent without moving the current position on the stroke.
+        kRotate,
 
         // Joins are a triangles that connect the outer corners of two adjoining strokes. Miters
         // have an additional triangle cap on top of the bevel, and round joins have an arc on top.
@@ -102,16 +106,13 @@ private:
                  float rightMaxCurvatureT);
 
     // Pushes a new normal to fNormals and records a join, without changing the current position.
-    void rotateTo(Verb leftJoinVerb, SkVector normal);
+    void rotateTo(Verb leftJoinVerb, SkVector normal, SkPoint controlPoint);
 
     // Records a stroke in fElememts.
     void recordStroke(Verb, int numSegmentsLog2);
 
     // Records a join in fElememts with the previous stroke, if the cuurent contour is not empty.
     void recordLeftJoinIfNotEmpty(Verb joinType, SkVector nextNormal);
-    void recordBevelJoin(Verb originalJoinVerb);
-    void recordMiterJoin(float miterCapHeightOverWidth);
-    void recordRoundJoin(Verb roundJoinVerb, float miterCapHeightOverWidth, float conicWeight);
 
     void recordCapsIfAny();
 
@@ -138,6 +139,7 @@ private:
 
     SkDEBUGCODE(bool fInsideContour = false);
 
+    const int fMaxTessellationSegments;
     SkSTArray<128, Verb, true> fVerbs;
     SkSTArray<128, Parameter, true> fParams;
     SkSTArray<128, SkPoint, true> fPoints;
@@ -164,6 +166,7 @@ inline bool GrStrokeGeometry::IsInternalJoinVerb(Verb verb) {
         case Verb::kLinearStroke:
         case Verb::kQuadraticStroke:
         case Verb::kCubicStroke:
+        case Verb::kRotate:
         case Verb::kBevelJoin:
         case Verb::kMiterJoin:
         case Verb::kRoundJoin:
