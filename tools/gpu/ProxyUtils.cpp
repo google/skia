@@ -7,6 +7,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
@@ -26,7 +27,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
                                                const GrImageInfo& imageInfo,
                                                const void* data,
                                                size_t rowBytes) {
-    if (context->priv().abandoned()) {
+    if (context->abandoned()) {
         return nullptr;
     }
 

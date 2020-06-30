@@ -34,6 +34,13 @@ public:
         return INHERITED::defaultBackendFormat(ct, renderable);
     }
 
+    /**
+     * Returns true if the context was abandoned. Note that, if this context isn't the
+     * GrDirectContext, then it is just reporting the status. Recording contexts, by
+     * themselves, can neither abandon nor actively check for a lost device.
+     */
+    bool abandoned() override { return INHERITED::abandoned(); }
+
     // Provides access to functions that aren't part of the public API.
     GrRecordingContextPriv priv();
     const GrRecordingContextPriv priv() const;
