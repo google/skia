@@ -32,7 +32,7 @@ private:
     GrTextureGradientColorizer(std::unique_ptr<GrFragmentProcessor> textureFP)
             : INHERITED(kGrTextureGradientColorizer_ClassID, kNone_OptimizationFlags) {
         SkASSERT(textureFP);
-        textureFP_index = this->registerExplicitlySampledChild(std::move(textureFP));
+        textureFP_index = this->registerChild(std::move(textureFP), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

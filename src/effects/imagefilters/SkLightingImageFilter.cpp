@@ -1629,7 +1629,7 @@ GrLightingEffect::GrLightingEffect(ClassID classID,
         child = GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, SkMatrix::I(), kSampler,
                                       caps);
     }
-    this->registerExplicitlySampledChild(std::move(child));
+    this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
     this->setUsesSampleCoordsDirectly();
 }
 

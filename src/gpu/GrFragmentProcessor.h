@@ -10,7 +10,7 @@
 
 #include <tuple>
 
-#include "include/private/SkSLSampleMatrix.h"
+#include "include/private/SkSLSampleUsage.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/ops/GrOp.h"
 
@@ -171,10 +171,10 @@ public:
         return SkToBool(fFlags & kNetTransformHasPerspective_Flag);
     }
 
-    // The SampleMatrix describing how this FP is invoked by its parent using 'sample(matrix)'
+    // The SampleUsage describing how this FP is invoked by its parent using 'sample(matrix)'
     // This only reflects the immediate sampling from parent to this FP
-    const SkSL::SampleMatrix& sampleMatrix() const {
-        return fMatrix;
+    const SkSL::SampleUsage& sampleUsage() const {
+        return fUsage;
     }
 
     /**
@@ -397,27 +397,14 @@ protected:
      * FragmentProcessors they have. This must be called AFTER all texture accesses and coord
      * transforms have been added.
      * This is for processors whose shader code will be composed of nested processors whose output
-     * colors will be combined somehow to produce its output color.  Registering these child
+     * colors will be combined somehow to produce its output color. Registering these child
      * processors will allow the ProgramBuilder to automatically handle their transformed coords and
      * texture accesses and mangle their uniform and output color names.
      *
-     * Depending on the 2nd and 3rd parameters, this corresponds to the following SkSL sample calls:
-     *  - sample(child): Keep default arguments
-     *  - sample(child, matrix): Provide approprate SampleMatrix matching SkSL
-     *  - sample(child, float2): SampleMatrix() and 'true', or use 'registerExplicitlySampledChild'
-     *  - sample(child, matrix)+sample(child, float2): Appropriate SampleMatrix and 'true'
+     * The SampleUsage parameter describes all of the ways that the child is sampled by the parent.
      */
     int registerChild(std::unique_ptr<GrFragmentProcessor> child,
-                      SkSL::SampleMatrix sampleMatrix = SkSL::SampleMatrix(),
-                      bool explicitlySampled = false);
-
-    /**
-     * A helper for use when the child is only invoked with sample(float2), and not sample()
-     * or sample(matrix).
-     */
-    int registerExplicitlySampledChild(std::unique_ptr<GrFragmentProcessor> child) {
-        return this->registerChild(std::move(child), SkSL::SampleMatrix(), true);
-    }
+                      SkSL::SampleUsage sampleUsage = SkSL::SampleUsage::PassThrough());
 
     /**
      * This method takes an existing fragment processor, clones it, registers it as a child of this
@@ -482,8 +469,6 @@ private:
 
     bool hasSameTransforms(const GrFragmentProcessor&) const;
 
-    void setSampleMatrix(SkSL::SampleMatrix matrix);
-
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
 
@@ -505,7 +490,7 @@ private:
 
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
     const GrFragmentProcessor* fParent = nullptr;
-    SkSL::SampleMatrix fMatrix;
+    SkSL::SampleUsage fUsage;
 
     typedef GrProcessor INHERITED;
 };

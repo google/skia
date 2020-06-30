@@ -31,7 +31,7 @@ GrShaderVar GrGLSLUniformHandler::liftUniformToVertexShader(const GrFragmentProc
         }
     }
     // Uniform not found; it's better to return a void variable than to assert because sample
-    // matrices that are const/uniform are treated the same for most of the code. When the sample
+    // matrices that are uniform are treated the same for most of the code. When the sample
     // matrix expression can't be found as a uniform, we can infer it's a constant.
     return GrShaderVar();
 }

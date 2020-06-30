@@ -15,17 +15,17 @@
  * the transform code is applied.
  */
 enum SampleFlag {
-    kExplicitlySampled_Flag          = 0b00001,  // GrFP::isSampledWithExplicitCoords()
+    kExplicitlySampled_Flag      = 0b00001,  // GrFP::isSampledWithExplicitCoords()
 
-    kLegacyCoordTransform_Flag       = 0b00010, // !GrFP::coordTransform(i)::isNoOp()
+    kLegacyCoordTransform_Flag   = 0b00010, // !GrFP::coordTransform(i)::isNoOp()
 
-    kNone_SampleMatrix_Flag          = 0b00100, // GrFP::sampleMatrix()::isNoOp()
-    kConstUniform_SampleMatrix_Flag  = 0b01000, // GrFP::sampleMatrix()::isConstUniform()
-    kVariable_SampleMatrix_Flag      = 0b01100, // GrFP::sampleMatrix()::isVariable()
+    kNone_SampleMatrix_Flag      = 0b00100, // GrFP::sampleUsage()::hasMatrix() == false
+    kUniform_SampleMatrix_Flag   = 0b01000, // GrFP::sampleUsage()::hasUniformMatrix()
+    kVariable_SampleMatrix_Flag  = 0b01100, // GrFP::sampleUsage()::hasVariableMatrix()
 
     // Currently, sample(matrix) only specializes on no-perspective or general.
     // FIXME add new flags as more matrix types are supported.
-    kPersp_Matrix_Flag               = 0b10000, // GrFP::sampleMatrix()::fHasPerspective
+    kPersp_Matrix_Flag           = 0b10000, // GrFP::sampleUsage()::fHasPerspective
 };
 
 GrPrimitiveProcessor::GrPrimitiveProcessor(ClassID classID) : GrProcessor(classID) {}
@@ -47,18 +47,18 @@ uint32_t GrPrimitiveProcessor::computeCoordTransformsKey(const GrFragmentProcess
         key |= kExplicitlySampled_Flag;
     }
 
-    switch(fp.sampleMatrix().fKind) {
-        case SkSL::SampleMatrix::Kind::kNone:
+    switch(fp.sampleUsage().fKind) {
+        case SkSL::SampleUsage::Kind::kNone:
             key |= kNone_SampleMatrix_Flag;
             break;
-        case SkSL::SampleMatrix::Kind::kConstantOrUniform:
-            key |= kConstUniform_SampleMatrix_Flag;
+        case SkSL::SampleUsage::Kind::kUniform:
+            key |= kUniform_SampleMatrix_Flag;
             break;
-        case SkSL::SampleMatrix::Kind::kVariable:
+        case SkSL::SampleUsage::Kind::kVariable:
             key |= kVariable_SampleMatrix_Flag;
             break;
     }
-    if (fp.sampleMatrix().fHasPerspective) {
+    if (fp.sampleUsage().fHasPerspective) {
         key |= kPersp_Matrix_Flag;
     }
 

@@ -7,7 +7,7 @@
 
 #include "src/sksl/SkSLHCodeGenerator.h"
 
-#include "include/private/SkSLSampleMatrix.h"
+#include "include/private/SkSLSampleUsage.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLUtil.h"
@@ -276,53 +276,24 @@ void HCodeGenerator::writeConstructor() {
                 this->writef("        SkASSERT(%s);", String(param->fName).c_str());
             }
 
-            bool explicitCoords = Analysis::IsExplicitlySampled(fProgram, *param);
-            SampleMatrix matrix = Analysis::GetSampleMatrix(fProgram, *param);
+            SampleUsage usage = Analysis::GetSampleUsage(fProgram, *param);
 
-            String registerFunc;
-            String matrixArg;
-            String explicitArg;
-
-            if (explicitCoords && matrix.fKind == SampleMatrix::Kind::kNone) {
-                registerFunc = "registerExplicitlySampledChild";
-            } else {
-                registerFunc = "registerChild";
-                if (explicitCoords) {
-                    explicitArg = ", true";
-                }
-                switch(matrix.fKind) {
-                    case SampleMatrix::Kind::kVariable:
-                        // FIXME As it stands, matrix.fHasPerspective will always be true. Ideally
-                        // we could build an expression from all const/uniform sample matrices used
-                        // in the sksl, e.g. m1.hasPerspective() || m2.hasPerspective(), where each
-                        // term was the type expression for the original const/uniform sample
-                        // matrices before they were merged during sksl analysis.
-                        matrixArg.appendf(", SkSL::SampleMatrix::MakeVariable(%s)",
-                                          matrix.fHasPerspective ? "true" : "false");
+            std::string perspExpression;
+            if (usage.hasUniformMatrix()) {
+                for (const Variable* p : fSectionAndParameterHelper.getParameters()) {
+                    if ((p->fModifiers.fFlags & Modifiers::kIn_Flag) &&
+                        usage.fExpression == String(p->fName)) {
+                        perspExpression = usage.fExpression + ".hasPerspective()";
                         break;
-                    case SampleMatrix::Kind::kConstantOrUniform: {
-                        std::string perspExpression = matrix.fHasPerspective ? "true" : "false";
-                        for (const Variable* p : fSectionAndParameterHelper.getParameters()) {
-                            if ((p->fModifiers.fFlags & Modifiers::kIn_Flag) &&
-                                matrix.fExpression == String(p->fName)) {
-                                perspExpression = matrix.fExpression + ".hasPerspective()";
-                                break;
-                            }
-                        }
-                        matrixArg.appendf(", SkSL::SampleMatrix::MakeConstUniform(\"%s\", %s)",
-                                          matrix.fExpression.c_str(), perspExpression.c_str());
-                        break; }
-                    case SampleMatrix::Kind::kNone:
-                        break;
+                    }
                 }
             }
+            std::string usageArg = usage.constructor(std::move(perspExpression));
 
-            this->writef("            %s_index = this->%s(std::move(%s)%s%s);",
+            this->writef("            %s_index = this->registerChild(std::move(%s), %s);",
                          FieldName(String(param->fName).c_str()).c_str(),
-                         registerFunc.c_str(),
                          String(param->fName).c_str(),
-                         matrixArg.c_str(),
-                         explicitArg.c_str());
+                         usageArg.c_str());
 
             if (param->fType.kind() == Type::kNullable_Kind) {
                 this->writef("       }");

@@ -199,7 +199,7 @@ GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp,
         , fDirection(direction)
         , fClamp(clamp) {
     this->setUsesSampleCoordsDirectly();
-    this->registerExplicitlySampledChild(std::move(fp));
+    this->registerChild(std::move(fp), SkSL::SampleUsage::Explicit());
 }
 
 GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)

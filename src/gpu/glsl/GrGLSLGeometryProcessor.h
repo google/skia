@@ -24,7 +24,7 @@ public:
 
     // Generate the final code for assigning transformed coordinates to the varyings recorded in
     // the call to collectTransforms(). This must happen after FP code emission so that it has
-    // access to any uniforms the FPs registered for const/uniform sample matrix invocations.
+    // access to any uniforms the FPs registered for uniform sample matrix invocations.
     void emitTransformCode(GrGLSLVertexBuilder* vb,
                            GrGLSLUniformHandler* uniformHandler) override;
 
