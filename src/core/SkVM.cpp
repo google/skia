@@ -1854,6 +1854,7 @@ namespace skvm {
 
     void Assembler::vmovdqa(Ymm dst, Operand src) { this->op(0x66,0x0f,0x6f, dst,src); }
     void Assembler::vmovups(Ymm dst, Operand src) { this->op(   0,0x0f,0x10, dst,src); }
+    void Assembler::vmovups(Xmm dst, Operand src) { this->op(   0,0x0f,0x10, dst,src); }
     void Assembler::vmovups(Operand dst, Ymm src) { this->op(   0,0x0f,0x11, src,dst); }
     void Assembler::vmovups(Operand dst, Xmm src) { this->op(   0,0x0f,0x11, src,dst); }
 
@@ -2848,10 +2849,10 @@ namespace skvm {
                     a->mov(A::Mem{A::rsp, 8}, A::rdi);
                     a->mov(A::rdi, A::Mem{A::rsp, 48});
                 }
-                // 3) Save ymm6-ymm15 (really just need to save xmm6-xmm15, but this works).
-                a->sub(A::rsp, 10*K*4);
+                // 3) Save xmm6-xmm15.
+                a->sub(A::rsp, 10*16);
                 for (int i = 0; i < 10; i++) {
-                    a->vmovups(A::Mem{A::rsp, i*K*4}, (A::Ymm)(i+6));
+                    a->vmovups(A::Mem{A::rsp, i*16}, (A::Xmm)(i+6));
                 }
 
                 // Now our normal "make space for values".
@@ -2860,11 +2861,11 @@ namespace skvm {
             auto exit  = [&]{
                 if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
                 // Undo MS ABI setup in reverse.
-                // 3) restore ymm6-ymm15
+                // 3) restore xmm6-xmm15
                 for (int i = 0; i < 10; i++) {
-                    a->vmovups((A::Ymm)(i+6), A::Mem{A::rsp, i*K*4});
+                    a->vmovups((A::Xmm)(i+6), A::Mem{A::rsp, i*16});
                 }
-                a->add(A::rsp, 10*K*4);
+                a->add(A::rsp, 10*16);
                 // 2) restore rdi if we used it
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::rdi, A::Mem{A::rsp, 8});

@@ -163,6 +163,7 @@ namespace skvm {
 
         void vmovdqa(Ymm dst, Operand x);
         void vmovups(Ymm dst, Operand x);
+        void vmovups(Xmm dst, Operand x);
         void vmovups(Operand dst, Ymm x);
         void vmovups(Operand dst, Xmm x);
 
