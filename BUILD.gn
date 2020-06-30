@@ -2430,7 +2430,13 @@ if (skia_enable_tools) {
         sources += [ "gm/xform.cpp" ]
       }
       if (skia_use_vulkan) {
-        deps += [ "//third_party/spirv-tools:spvtools" ]
+        deps += [
+          "//third_party/spirv-tools:spvtools",
+
+          #spvtools depends on this but doesn't deps it in. Looks like upstream bug
+          #that we replicated in our third_party/spirv-tools/BUILD.gn
+          "//third_party/spirv-tools:spvtools_val",
+        ]
       }
     }
   }
