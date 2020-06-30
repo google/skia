@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5fcf7924_f71bf4ef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:51:59Z",
+      "side": 1,
+      "message": "Cool, thanks. Done.",
+      "parentUuid": "8a25b18e_b9639fb5",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc63aa1a_55e42189",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "aa758da026da4848940be4b68d8607edb95798bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d27fdf5_07709261",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc63aa1a_55e42189",
+      "range": {
+        "startLine": 13,
+        "startChar": 9,
+        "endLine": 13,
+        "endChar": 20
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
