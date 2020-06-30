@@ -47,9 +47,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     canvas->clear(SK_ColorGREEN);
     auto image = surface->makeImageSnapshot();
 
-    GrFlushInfo flushInfoSyncCpu;
-    flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-    ctx->flush(flushInfoSyncCpu);
+    ctx->flush();
     ctx->submit(true);
 
     int count = 0;
@@ -58,7 +56,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     flushInfoFinishedProc.fFinishedProc = testing_finished_proc;
     flushInfoFinishedProc.fFinishedContext = (void*)&count;
     // There is no work on the surface so flushing may immediately call the finished proc.
-    surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfoFinishedProc);
+    surface->flush(flushInfoFinishedProc);
     ctx->submit();
     REPORTER_ASSERT(reporter, count == 0 || count == 1);
     // Busy waiting should detect that the work is done.
@@ -66,7 +64,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
 
     canvas->clear(SK_ColorRED);
 
-    surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfoFinishedProc);
+    surface->flush(flushInfoFinishedProc);
     ctx->submit();
 
     bool expectAsyncCallback =
@@ -82,7 +80,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     } else {
         REPORTER_ASSERT(reporter, count == 2);
     }
-    ctx->flush(flushInfoSyncCpu);
+    ctx->flush();
     ctx->submit(true);
     REPORTER_ASSERT(reporter, count == 2);
 
@@ -97,7 +95,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     } else {
         REPORTER_ASSERT(reporter, count == 3);
     }
-    ctx->flush(flushInfoSyncCpu);
+    ctx->flush();
     ctx->submit(true);
     REPORTER_ASSERT(reporter, count == 3);
 
@@ -112,7 +110,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     } else {
         REPORTER_ASSERT(reporter, count == 4);
     }
-    ctx->flush(flushInfoSyncCpu);
+    ctx->flush();
     ctx->submit(true);
     REPORTER_ASSERT(reporter, count == 4);
 
@@ -125,7 +123,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     count = 0;
     int count2 = 0;
     canvas->clear(SK_ColorGREEN);
-    surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfoFinishedProc);
+    surface->flush(flushInfoFinishedProc);
     ctx->submit();
     // There is no work to be flushed here so this will return immediately, but make sure the
     // finished call from this proc isn't called till the previous surface flush also is finished.
@@ -134,7 +132,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     ctx->submit();
     REPORTER_ASSERT(reporter, count <= 1 && count2 <= count);
 
-    ctx->flush(flushInfoSyncCpu);
+    ctx->flush();
     ctx->submit(true);
 
     REPORTER_ASSERT(reporter, count == 1);

@@ -975,9 +975,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu, reporter, ctxI
         }
 
         surface->getCanvas()->clear(SK_ColorRED);
-        GrFlushInfo info;
-        info.fFlags = kSyncCpu_GrFlushFlag;
-        surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, info);
+        surface->flush();
         ctx->submit(true);
 
         // Now exercise the release proc

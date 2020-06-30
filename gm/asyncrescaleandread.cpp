@@ -112,9 +112,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     };
 
     *cleanup = {[context, backendTextures] {
-        GrFlushInfo flushInfo;
-        flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-        context->flush(flushInfo);
+        context->flush();
         context->submit(true);
         context->deleteBackendTexture(backendTextures[0]);
         context->deleteBackendTexture(backendTextures[1]);

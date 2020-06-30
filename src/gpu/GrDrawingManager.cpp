@@ -200,8 +200,8 @@ bool GrDrawingManager::flush(
 
     SkDEBUGCODE(this->validate());
 
-    if (kNone_GrFlushFlags == info.fFlags && !info.fNumSemaphores && !info.fFinishedProc &&
-            access == SkSurface::BackendSurfaceAccess::kNoAccess && !newState) {
+    if (!info.fNumSemaphores && !info.fFinishedProc &&
+        access == SkSurface::BackendSurfaceAccess::kNoAccess && !newState) {
         bool canSkip = numProxies > 0;
         for (int i = 0; i < numProxies && canSkip; ++i) {
             canSkip = !fDAG.isUsed(proxies[i]) && !this->isDDLTarget(proxies[i]);

@@ -1863,9 +1863,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                                            // TODO: switch over to using the promiseImage callbacks
                                            // to free the backendTextures. This is complicated a
                                            // bit by which thread possesses the direct context.
-                                           GrFlushInfo flushInfoSyncCpu;
-                                           flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-                                           gpuThreadCtx->flush(flushInfoSyncCpu);
+                                           gpuThreadCtx->flush();
                                            gpuThreadCtx->submit(true);
                                        });
 
@@ -2334,9 +2332,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 
             // We need to ensure all the GPU work is finished so the promise image callback
             // contexts will delete all the backend textures.
-            GrFlushInfo flushInfoSyncCpu;
-            flushInfoSyncCpu.fFlags = kSyncCpu_GrFlushFlag;
-            context->flush(flushInfoSyncCpu);
+            context->flush();
             context->submit(true);
         }
         return Result::Ok();
