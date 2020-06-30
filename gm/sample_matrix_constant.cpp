@@ -22,7 +22,7 @@ public:
     SampleMatrixConstantEffect(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(CLASS_ID, kNone_OptimizationFlags) {
         this->registerChild(std::move(child),
-                            SkSL::SampleMatrix::MakeConstUniform(
+                            SkSL::SampleUsage::UniformMatrix(
                                     "float3x3(float3(0.5, 0.0, 0.0), "
                                              "float3(0.0, 0.5, 0.0), "
                                              "float3(0.0, 0.0, 1.0))"));

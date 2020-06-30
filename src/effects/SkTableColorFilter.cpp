@@ -308,7 +308,7 @@ ColorTableEffect::ColorTableEffect(GrSurfaceProxyView view)
         // Not bothering with table-specific optimizations.
         : INHERITED(kColorTableEffect_ClassID, kNone_OptimizationFlags) {
     auto te = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
-    this->registerExplicitlySampledChild(std::move(te));
+    this->registerChild(std::move(te), SkSL::SampleUsage::Explicit());
 }
 
 ColorTableEffect::ColorTableEffect(const ColorTableEffect& that)

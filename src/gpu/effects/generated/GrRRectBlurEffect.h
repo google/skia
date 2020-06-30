@@ -138,10 +138,12 @@ private:
             , rect(rect)
             , cornerRadius(cornerRadius) {
         if (inputFP) {
-            inputFP_index = this->registerChild(std::move(inputFP));
+            inputFP_index =
+                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         }
         SkASSERT(ninePatchFP);
-        ninePatchFP_index = this->registerExplicitlySampledChild(std::move(ninePatchFP));
+        ninePatchFP_index =
+                this->registerChild(std::move(ninePatchFP), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -35,7 +35,7 @@ private:
             : INHERITED(kGrDeviceSpaceEffect_ClassID,
                         (OptimizationFlags)ProcessorOptimizationFlags(fp.get())) {
         SkASSERT(fp);
-        fp_index = this->registerExplicitlySampledChild(std::move(fp));
+        fp_index = this->registerChild(std::move(fp), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

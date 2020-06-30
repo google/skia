@@ -42,7 +42,8 @@ private:
             , edgeType(edgeType)
             , rect(rect) {
         if (inputFP) {
-            inputFP_index = this->registerChild(std::move(inputFP));
+            inputFP_index =
+                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

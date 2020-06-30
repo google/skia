@@ -7,7 +7,7 @@
 
 #include "src/sksl/SkSLAnalysis.h"
 
-#include "include/private/SkSLSampleMatrix.h"
+#include "include/private/SkSLSampleUsage.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -69,78 +69,62 @@ static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
             &((VariableReference&) *fc.fArguments[0]).fVariable == &fp;
 }
 
-// Visitor that determines the merged SampleMatrix for a given child 'fp' in the program.
-class MergeSampleMatrixVisitor : public ProgramVisitor {
+// Visitor that determines the merged SampleUsage for a given child 'fp' in the program.
+class MergeSampleUsageVisitor : public ProgramVisitor {
 public:
-    MergeSampleMatrixVisitor(const Variable& fp) : fFP(fp) {}
+    MergeSampleUsageVisitor(const Variable& fp) : fFP(fp) {}
 
-    SampleMatrix visit(const Program& program) {
-        fMatrix = SampleMatrix(); // reset to none
+    SampleUsage visit(const Program& program) {
+        fUsage = SampleUsage(); // reset to none
         this->INHERITED::visit(program);
-        return fMatrix;
+        return fUsage;
     }
 
 protected:
     const Variable& fFP;
-    SampleMatrix fMatrix;
+    SampleUsage fUsage;
 
     bool visitExpression(const Expression& e) override {
-        // Looking for sample(fp, inColor?, float3x3)
+        // Looking for sample(fp, inColor?, ...)
         if (e.fKind == Expression::kFunctionCall_Kind) {
             const FunctionCall& fc = (const FunctionCall&) e;
-            if (is_sample_call_to_fp(fc, fFP) && fc.fArguments.size() >= 2 &&
-                fc.fArguments.back()->fType == *this->program().fContext->fFloat3x3_Type) {
-                // Determine the type of matrix for this call site, then merge it with the
-                // previously accumulated matrix state.
-                if (fc.fArguments.back()->isConstantOrUniform()) {
-                    if (fc.fArguments.back()->fKind == Expression::Kind::kVariableReference_Kind ||
-                        fc.fArguments.back()->fKind == Expression::Kind::kConstructor_Kind) {
-                        // FIXME if this is a constant, we should parse the float3x3 constructor and
-                        // determine if the resulting matrix introduces perspective.
-                        fMatrix.merge(SampleMatrix::MakeConstUniform(
-                                fc.fArguments.back()->description()));
+            if (is_sample_call_to_fp(fc, fFP)) {
+                // Determine the type of call at this site, and merge it with the accumulated state
+                const Expression* lastArg = fc.fArguments.back().get();
+                const Context& context = *this->program().fContext;
+
+                if (lastArg->fType == *context.fFloat2_Type) {
+                    fUsage.merge(SampleUsage::Explicit());
+                } else if (lastArg->fType == *context.fFloat3x3_Type) {
+                    // Determine the type of matrix for this call site
+                    if (lastArg->isConstantOrUniform()) {
+                        if (lastArg->fKind == Expression::Kind::kVariableReference_Kind ||
+                            lastArg->fKind == Expression::Kind::kConstructor_Kind) {
+                            // FIXME if this is a constant, we should parse the float3x3 constructor
+                            // and determine if the resulting matrix introduces perspective.
+                            fUsage.merge(SampleUsage::UniformMatrix(lastArg->description()));
+                        } else {
+                            // FIXME this is really to workaround a restriction of the downstream
+                            // code that relies on the SampleUsage's fExpression to identify uniform
+                            // names. Once they are tracked separately, any uniform expression can
+                            // work, but right now this avoids issues from '0.5 * matrix' that is
+                            // both a constant AND a uniform.
+                            fUsage.merge(SampleUsage::VariableMatrix());
+                        }
                     } else {
-                        // FIXME this is really to workaround a restriction of the downstream code
-                        // that relies on the SampleMatrix's fExpression to identify uniform names.
-                        // Once they are tracked separately, any constant/uniform expression can
-                        // work, but right now this avoids issues from '0.5 * matrix' that is both
-                        // a constant AND a uniform.
-                        fMatrix.merge(SampleMatrix::MakeVariable());
+                        fUsage.merge(SampleUsage::VariableMatrix());
                     }
                 } else {
-                    fMatrix.merge(SampleMatrix::MakeVariable());
+                    // The only other signatures do pass-through sampling
+                    fUsage.merge(SampleUsage::PassThrough());
                 }
-                // NOTE: we don't return true here just because we found a sample matrix usage,
-                // we need to process the entire program and merge across all encountered calls.
+                // NOTE: we don't return true here just because we found a sample call. We need to
+                //  process the entire program and merge across all encountered calls.
             }
         }
 
         return this->INHERITED::visitExpression(e);
     }
-
-    typedef ProgramVisitor INHERITED;
-};
-
-// Visitor that searches a program for sample() calls with the given 'fp' as the argument
-// and returns true if explicit float2 coords were passed to that call site.
-class ExplicitCoordsVisitor : public ProgramVisitor {
-public:
-    ExplicitCoordsVisitor(const Variable& fp) : fFP(fp) {}
-
-protected:
-    bool visitExpression(const Expression& e) override {
-        // Looking for sample(fp, inColor?, float2)
-        if (e.fKind == Expression::kFunctionCall_Kind) {
-            const FunctionCall& fc = (const FunctionCall&) e;
-            if (is_sample_call_to_fp(fc, fFP) && fc.fArguments.size() >= 2 &&
-                fc.fArguments.back()->fType == *this->program().fContext->fFloat2_Type) {
-                return true;
-            }
-        }
-        return this->INHERITED::visitExpression(e);
-    }
-
-    const Variable& fFP;
 
     typedef ProgramVisitor INHERITED;
 };
@@ -181,13 +165,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 // Analysis
 
-SampleMatrix Analysis::GetSampleMatrix(const Program& program, const Variable& fp) {
-    MergeSampleMatrixVisitor visitor(fp);
-    return visitor.visit(program);
-}
-
-bool Analysis::IsExplicitlySampled(const Program& program, const Variable& fp) {
-    ExplicitCoordsVisitor visitor(fp);
+SampleUsage Analysis::GetSampleUsage(const Program& program, const Variable& fp) {
+    MergeSampleUsageVisitor visitor(fp);
     return visitor.visit(program);
 }
 

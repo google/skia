@@ -174,7 +174,7 @@ public:
      * expression that evaluates to a float3x3 and is passed in as the 3rd argument.
      *
      * If skslMatrix is the empty string, then it is automatically replaced with the expression
-     * attached to the child's SampleMatrix object. This is only valid if the child is sampled with
+     * attached to the child's SampleUsage object. This is only valid if the child is sampled with
      * a const-uniform matrix. If the sample matrix is const-or-uniform, the expression will be
      * automatically resolved to the mangled uniform name.
      */

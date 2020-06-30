@@ -169,7 +169,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                     ProcessorOptimizationFlags(child.get()))
         , fRadius(radius)
         , fDirection(direction) {
-    this->registerExplicitlySampledChild(std::move(child));
+    this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
     SkASSERT(radius <= kMaxKernelRadius);
     fill_in_1D_gaussian_kernel(fKernel, gaussianSigma, fRadius);
     this->setUsesSampleCoordsDirectly();

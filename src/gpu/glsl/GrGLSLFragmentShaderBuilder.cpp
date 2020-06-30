@@ -149,7 +149,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
     this->nextStage();
 
     // An FP's function signature is theoretically always main(half4 color, float2 _coords).
-    // However, if it is only sampled by a chain of const/uniform matrices (or legacy coord
+    // However, if it is only sampled by a chain of uniform matrix expressions (or legacy coord
     // transforms), the value that would have been passed to _coords is lifted to the vertex shader
     // and stored in a unique varying. In that case it uses that variable and does not have a
     // second actual argument for _coords.
@@ -160,7 +160,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                              GrShaderVar(args.fSampleCoord, kFloat2_GrSLType) };
 
     if (!args.fFp.isSampledWithExplicitCoords()) {
-        // Sampled with a const/uniform matrix and/or a legacy coord transform. The actual
+        // Sampled with a uniform matrix expression and/or a legacy coord transform. The actual
         // transformation code is emitted in the vertex shader, so this only has to access it.
         // Add a float2 _coords variable that maps to the associated varying and replaces the
         // absent 2nd argument to the fp's function.

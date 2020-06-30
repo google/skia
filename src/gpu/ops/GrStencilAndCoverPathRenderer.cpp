@@ -32,7 +32,7 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
 }
 
 static bool has_matrix(const GrFragmentProcessor& fp) {
-    if (fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
+    if (fp.sampleUsage().hasMatrix()) {
         return true;
     }
     for (int i = fp.numChildProcessors() - 1; i >= 0; --i) {

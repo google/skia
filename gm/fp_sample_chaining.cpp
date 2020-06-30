@@ -24,7 +24,7 @@ public:
     ConstantMatrixEffect(std::unique_ptr<GrFragmentProcessor> child)
             : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
         this->registerChild(std::move(child),
-                            SkSL::SampleMatrix::MakeConstUniform(
+                            SkSL::SampleUsage::UniformMatrix(
                                 "float3x3(float3(0.5, 0.0, 0.0), "
                                         "float3(0.0, 1.0, 0.0), "
                                         "float3(0.0, 0.0, 1.0))"));
@@ -54,7 +54,7 @@ public:
 
     UniformMatrixEffect(std::unique_ptr<GrFragmentProcessor> child)
             : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
-        this->registerChild(std::move(child), SkSL::SampleMatrix::MakeConstUniform("matrix"));
+        this->registerChild(std::move(child), SkSL::SampleUsage::UniformMatrix("matrix"));
     }
 
     const char* name() const override { return "UniformMatrixEffect"; }
@@ -90,7 +90,7 @@ public:
 
     VariableMatrixEffect(std::unique_ptr<GrFragmentProcessor> child)
             : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
-        this->registerChild(std::move(child), SkSL::SampleMatrix::MakeVariable());
+        this->registerChild(std::move(child), SkSL::SampleUsage::VariableMatrix());
     }
 
     const char* name() const override { return "VariableMatrixEffect"; }
@@ -118,7 +118,7 @@ public:
 
     ExplicitCoordEffect(std::unique_ptr<GrFragmentProcessor> child)
             : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
-        this->registerExplicitlySampledChild(std::move(child));
+        this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
         this->setUsesSampleCoordsDirectly();
     }
 

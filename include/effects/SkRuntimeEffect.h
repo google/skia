@@ -11,7 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkString.h"
-#include "include/private/SkSLSampleMatrix.h"
+#include "include/private/SkSLSampleUsage.h"
 
 #include <string>
 #include <vector>
@@ -141,7 +141,7 @@ private:
                     std::unique_ptr<SkSL::Program> baseProgram,
                     std::vector<Variable>&& inAndUniformVars,
                     std::vector<SkString>&& children,
-                    std::vector<SkSL::SampleMatrix>&& sampleMatrices,
+                    std::vector<SkSL::SampleUsage>&& sampleUsages,
                     std::vector<Varying>&& varyings,
                     size_t uniformSize,
                     bool mainHasSampleCoords);
@@ -152,7 +152,7 @@ private:
 
 #if SK_SUPPORT_GPU
     friend class GrSkSLFP;      // toPipelineStage
-    friend class GrGLSLSkSLFP;  // fSampleMatrices
+    friend class GrGLSLSkSLFP;  // fSampleUsages
 
     // This re-compiles the program from scratch, using the supplied shader caps.
     // This is necessary to get the correct values of settings.
@@ -179,7 +179,7 @@ private:
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
     std::vector<SkString> fChildren;
-    std::vector<SkSL::SampleMatrix> fSampleMatrices;
+    std::vector<SkSL::SampleUsage> fSampleUsages;
     std::vector<Varying>  fVaryings;
 
     size_t fUniformSize;

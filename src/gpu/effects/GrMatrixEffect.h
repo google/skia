@@ -20,10 +20,7 @@ public:
         if (matrix.isIdentity()) {
             return child;
         }
-        SkASSERT(!child->isSampledWithExplicitCoords());
-        SkASSERT(child->sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kNone);
-        return std::unique_ptr<GrFragmentProcessor>(
-                new GrMatrixEffect(matrix, std::move(child)));
+        return std::unique_ptr<GrFragmentProcessor>(new GrMatrixEffect(matrix, std::move(child)));
     }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -38,7 +35,7 @@ private:
             , fMatrix(matrix) {
         SkASSERT(child);
         this->registerChild(std::move(child),
-                            SkSL::SampleMatrix::MakeConstUniform(
+                            SkSL::SampleUsage::UniformMatrix(
                                     "matrix", matrix.hasPerspective()));
     }
 

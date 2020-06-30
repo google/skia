@@ -506,7 +506,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(SkColorChannel xChannelSelector
         , fYChannelSelector(yChannelSelector)
         , fScale(scale) {
     this->registerChild(std::move(displacement));
-    this->registerExplicitlySampledChild(std::move(color));
+    this->registerChild(std::move(color), SkSL::SampleUsage::Explicit());
     this->setUsesSampleCoordsDirectly();
 }
 
