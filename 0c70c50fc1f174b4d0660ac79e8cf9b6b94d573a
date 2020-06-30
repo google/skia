@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33813761_9d7b9c2b",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-06-30T20:44:30Z",
+      "side": 1,
+      "message": "nit: argument spacing seems off",
+      "revId": "0c70c50fc1f174b4d0660ac79e8cf9b6b94d573a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
