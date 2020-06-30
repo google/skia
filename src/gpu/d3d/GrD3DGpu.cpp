@@ -161,15 +161,14 @@ void GrD3DGpu::checkForFinishedCommandLists() {
     // value is less than the last signaled value. If so we pop it off and move onto the next.
     // Repeat till we find a command list that has not finished yet (and all others afterwards are
     // also guaranteed to not have finished).
-    SkDeque::F2BIter iter(fOutstandingCommandLists);
-    const OutstandingCommandList* curList = (const OutstandingCommandList*)iter.next();
-    while (curList && curList->fFenceValue <= currentFenceValue) {
-        curList = (const OutstandingCommandList*)iter.next();
-        OutstandingCommandList* front = (OutstandingCommandList*)fOutstandingCommandLists.front();
-        fResourceProvider.recycleDirectCommandList(std::move(front->fCommandList));
+    OutstandingCommandList* front = (OutstandingCommandList*)fOutstandingCommandLists.front();
+    while (front && front->fFenceValue <= currentFenceValue) {
+        std::unique_ptr<GrD3DDirectCommandList> currList(std::move(front->fCommandList));
         // Since we used placement new we are responsible for calling the destructor manually.
         front->~OutstandingCommandList();
         fOutstandingCommandLists.pop_front();
+        fResourceProvider.recycleDirectCommandList(std::move(currList));
+        front = (OutstandingCommandList*)fOutstandingCommandLists.front();
     }
 }
 
