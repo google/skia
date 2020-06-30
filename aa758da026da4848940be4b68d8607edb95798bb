@@ -77,6 +77,24 @@
     },
     {
       "key": {
+        "uuid": "9d6f1524_1eab7da2",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Ok cool. For now I\u0027ve just replaced int types with int32_t, but otherwise I will wait to add uint8_t and int16_t operations until a follow up CL.",
+      "parentUuid": "463b74c2_7dd03a34",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d921d61_1480df24",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
@@ -112,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "2402f6b5_c7028e8a",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Ok, I\u0027ve switched over to int32_t from int types.",
+      "parentUuid": "10e80bda_f431a125",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82da8db2_91abd2fd",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
@@ -132,6 +168,30 @@
       "revId": "aa758da026da4848940be4b68d8607edb95798bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18130637_ef153542",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "The default impl. does not produce a SIMD div operation in the compiled WASM, but I do not know why.\n\nUsing the code:\n  return 1.0f / x;\n\ndoes result in a SIMD div operation 👍.\n\nThe alternative code:\n  v128_t vec1 \u003d wasm_f32x4_make(1.f, 1.f, 1.f, 1.f);\n  return to_vec\u003c4,float\u003e(wasm_f32x4_div(vec1, to_vext(x)));\n\ndoes result in less WASM bytes though. I won\u0027t worry about that for now, but just taking note.",
+      "parentUuid": "82da8db2_91abd2fd",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 631,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -158,6 +218,30 @@
     },
     {
       "key": {
+        "uuid": "8af5e4c3_367e3f80",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "That works 👍. \n\nSame as the note in the comment above, it results in more WASM bytes.",
+      "parentUuid": "71e2f581_c9d8930e",
+      "range": {
+        "startLine": 632,
+        "startChar": 0,
+        "endLine": 635,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a8f7e0b_8f63c6f3",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
@@ -178,6 +262,30 @@
       "revId": "aa758da026da4848940be4b68d8607edb95798bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e34fe84_1f492d6d",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Okay, I will take note to create a CL to remove mad(a,b,c) from SkVx.h and any of its uses in Skia code. \n\nFor this CL, I switched to using \n  return f*m+a;\n\nand tested that it does indeed work.",
+      "parentUuid": "3a8f7e0b_8f63c6f3",
+      "range": {
+        "startLine": 636,
+        "startChar": 0,
+        "endLine": 643,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -204,6 +312,30 @@
     },
     {
       "key": {
+        "uuid": "cafcfa9f_01168f53",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Ok, removed the fma().\n\nI guess fuse means that the multiplication and add get combined into a single instruction?",
+      "parentUuid": "18b2f25b_07c600ee",
+      "range": {
+        "startLine": 644,
+        "startChar": 0,
+        "endLine": 651,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94aa10eb_9495c019",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
@@ -221,6 +353,24 @@
     },
     {
       "key": {
+        "uuid": "ff93bf57_8a1f4ba0",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 665,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Done. Changed to \n  return 1.0f / x;\n\nand\n  return 1.0f / sqrt(x);\n\nrespectively.",
+      "parentUuid": "94aa10eb_9495c019",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd90154e_55b7fd6c",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
@@ -235,6 +385,24 @@
       "revId": "aa758da026da4848940be4b68d8607edb95798bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d60a7a0_578e157e",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd90154e_55b7fd6c",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -261,6 +429,30 @@
     },
     {
       "key": {
+        "uuid": "1f512bb9_07396820",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/output/.gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "ok. done.",
+      "parentUuid": "b2cbae15_bbf1e054",
+      "range": {
+        "startLine": 3,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 11
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30656c5a_e1bbecdd",
         "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
         "patchSetId": 1
@@ -284,6 +476,30 @@
     },
     {
       "key": {
+        "uuid": "d45f8a97_68de3b34",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30656c5a_e1bbecdd",
+      "range": {
+        "startLine": 28,
+        "startChar": 94,
+        "endLine": 28,
+        "endChar": 101
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f7be505_0cbac6ee",
         "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
         "patchSetId": 1
@@ -298,6 +514,24 @@
       "revId": "aa758da026da4848940be4b68d8607edb95798bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c17b42c_607c7774",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Ah, right. Doesn\u0027t make sense to name it a \"test\". \n\nI\u0027ve changed the name of the file to simd_float_capabilities.cpp, and just renamed this function to main.",
+      "parentUuid": "0f7be505_0cbac6ee",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -322,6 +556,30 @@
       "revId": "aa758da026da4848940be4b68d8607edb95798bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acbcf90c_304c522a",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T20:48:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ba6faa8_04613f15",
+      "range": {
+        "startLine": 73,
+        "startChar": 38,
+        "endLine": 73,
+        "endChar": 46
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
