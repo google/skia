@@ -45,6 +45,30 @@
       "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7fe9ed1_2b469722",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1515,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-30T15:25:39Z",
+      "side": 1,
+      "message": "The values don\u0027t really matter in terms of control flow, but if you want to cover an extreme range of colors,something like [-1,2] would suffice.\n\nNaN/Inf aren\u0027t meaningful here, and if we were receiving them at SkCanvas, we\u0027d be wanting to fix whatever code passed us those values, not trying to protect from them in canvas or lower.  (Same with alpha outside [0,1].)",
+      "parentUuid": "f49601d9_61da3588",
+      "range": {
+        "startLine": 1515,
+        "startChar": 16,
+        "endLine": 1515,
+        "endChar": 42
+      },
+      "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
