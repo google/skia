@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ff38706_5f6a2c7f",
+        "filename": "src/gpu/GrStagingBufferManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-30T19:16:28Z",
+      "side": 1,
+      "message": "Instead of passing in the mapPtr to this call (and the buffers constructor), we could make a map() virtual on GrStagingBuffer. The manager would call map() here and when it creates a new buffer. We\u0027d probably want an equivalent virtual unmap() if we do that which we\u0027d call here in the base during detachStagedBuffers(). I picked this route cause it avoids needing the extra virtuals on GrStagingBuffer and some implementations may not need to actually do the mapping and unmapping (obviously those one could just do nothing in the virtual calls).",
+      "range": {
+        "startLine": 37,
+        "startChar": 71,
+        "endLine": 37,
+        "endChar": 83
+      },
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f8e288d_8475f3be",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-30T19:16:28Z",
+      "side": 1,
+      "message": "I debated moving this up to the base classes submitToGpu. That would mean we would need a virtual on GrGpu which returns a GrStagingBufferManager*. Then we\u0027d call the virtual and if it returns a manager then we\u0027d call detach on it. What do y\u0027all think is the cleaner way? I choose this so its one less virtual call on GrGpu, but it has the downside that backends that have a manager need to make sure they call detach here.",
+      "range": {
+        "startLine": 490,
+        "startChar": 26,
+        "endLine": 490,
+        "endChar": 46
+      },
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
