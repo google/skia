@@ -30,7 +30,7 @@ GrCCClipProcessor::GrCCClipProcessor(std::unique_ptr<GrFragmentProcessor> inputF
         , fMustCheckBounds(MustCheckBounds::kYes == mustCheckBounds) {
     auto view = make_view(caps, clipPath->atlasLazyProxy(), fIsCoverageCount);
     auto texEffect = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
-    this->registerExplicitlySampledChild(std::move(texEffect));
+    this->registerChild(std::move(texEffect), SkSL::SampleUsage::Explicit());
 
     if (inputFP != nullptr) {
         this->registerChild(std::move(inputFP));

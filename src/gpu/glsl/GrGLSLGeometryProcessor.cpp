@@ -115,8 +115,8 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
                     varyingVar = getBaseLocalCoord();
                 }
             } else {
-                // The FP's local coordinates are determined by the const/uniform transform
-                // hierarchy from this FP to the root, and can be computed in the vertex shader.
+                // The FP's local coordinates are determined by the uniform transform hierarchy
+                // from this FP to the root, and can be computed in the vertex shader.
                 // If this hierarchy would be the identity transform, then we should use the
                 // original local coordinate.
                 // NOTE: The actual transform logic is handled in emitTransformCode(), this just
@@ -127,10 +127,9 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
                 const GrFragmentProcessor* node = &fp;
                 while(node) {
                     SkASSERT(!node->isSampledWithExplicitCoords() &&
-                             (node->sampleMatrix().isNoOp() ||
-                              node->sampleMatrix().isConstUniform()));
+                             !node->sampleUsage().hasVariableMatrix());
 
-                    if (node->sampleMatrix().isConstUniform()) {
+                    if (node->sampleUsage().hasUniformMatrix()) {
                         // We can stop once we hit an FP that adds transforms; this FP can reuse
                         // that FPs varying (possibly vivifying it if this was the first use).
                         transformedLocalCoord = localCoordsMap[node];
@@ -183,8 +182,8 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                                                 GrGLSLUniformHandler* uniformHandler) {
     std::unordered_map<const GrFragmentProcessor*, GrShaderVar> localCoordsMap;
     for (const auto& tr : fTransformInfos) {
-        // If we recorded a transform info, its sample matrix must be const/uniform
-        SkASSERT(tr.fFP->sampleMatrix().isConstUniform());
+        // If we recorded a transform info, its sample matrix must be uniform
+        SkASSERT(tr.fFP->sampleUsage().hasUniformMatrix());
 
         SkString localCoords;
         // Build a concatenated matrix expression that we apply to the root local coord.
@@ -203,11 +202,11 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                     localCoords = SkStringPrintf("%s.xy1", cachedBaseCoord.getName().c_str());
                 }
                 break;
-            } else if (base->sampleMatrix().isConstUniform()) {
+            } else if (base->sampleUsage().hasUniformMatrix()) {
                 // The FP knows the matrix expression it's sampled with, but its parent defined
                 // the uniform (when the expression is not a constant).
                 GrShaderVar uniform = uniformHandler->liftUniformToVertexShader(
-                        *base->parent(), SkString(base->sampleMatrix().fExpression));
+                        *base->parent(), SkString(base->sampleUsage().fExpression));
 
                 // Accumulate the base matrix expression as a preConcat
                 SkString matrix;
@@ -216,7 +215,7 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                     matrix = uniform.getName();
                 } else {
                     // No uniform found, so presumably this is a constant
-                    matrix = SkString(base->sampleMatrix().fExpression);
+                    matrix = SkString(base->sampleUsage().fExpression);
                 }
 
                 if (!transformExpression.isEmpty()) {
@@ -226,7 +225,7 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
             } else {
                 // This intermediate FP is just a pass through and doesn't need to be built
                 // in to the expression, but must visit its parents in case they add transforms
-                SkASSERT(base->sampleMatrix().isNoOp());
+                SkASSERT(!base->sampleUsage().hasMatrix() && !base->sampleUsage().fExplicitCoords);
             }
 
             base = base->parent();

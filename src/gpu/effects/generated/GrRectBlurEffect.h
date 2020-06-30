@@ -144,10 +144,11 @@ private:
             , rect(rect)
             , isFast(isFast) {
         if (inputFP) {
-            inputFP_index = this->registerChild(std::move(inputFP));
+            inputFP_index =
+                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         }
         SkASSERT(integral);
-        integral_index = this->registerExplicitlySampledChild(std::move(integral));
+        integral_index = this->registerChild(std::move(integral), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

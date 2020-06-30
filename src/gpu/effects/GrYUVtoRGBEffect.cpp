@@ -147,7 +147,7 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
         // Need this so that we can access coords in SKSL to perform snapping.
         this->setUsesSampleCoordsDirectly();
         for (int i = 0; i < numPlanes; ++i) {
-            this->registerExplicitlySampledChild(std::move(planeFPs[i]));
+            this->registerChild(std::move(planeFPs[i]), SkSL::SampleUsage::Explicit());
         }
     } else {
         for (int i = 0; i < numPlanes; ++i) {
