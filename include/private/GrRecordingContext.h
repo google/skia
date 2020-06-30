@@ -34,6 +34,30 @@ public:
         return INHERITED::defaultBackendFormat(ct, renderable);
     }
 
+    /**
+     * Can a SkSurface be created with the given color type. To check whether MSAA is supported
+     * use maxSurfaceSampleCountForColorType().
+     */
+    bool colorTypeSupportedAsSurface(SkColorType colorType) const {
+        if (kR16G16_unorm_SkColorType == colorType ||
+            kA16_unorm_SkColorType == colorType ||
+            kA16_float_SkColorType == colorType ||
+            kR16G16_float_SkColorType == colorType ||
+            kR16G16B16A16_unorm_SkColorType == colorType ||
+            kGray_8_SkColorType == colorType) {
+            return false;
+        }
+
+        return this->maxSurfaceSampleCountForColorType(colorType) > 0;
+    }
+
+    /**
+     * Gets the maximum supported sample count for a color type. 1 is returned if only non-MSAA
+     * rendering is supported for the color type. 0 is returned if rendering to this color type
+     * is not supported at all.
+     */
+    int maxSurfaceSampleCountForColorType(SkColorType) const;
+
     // Provides access to functions that aren't part of the public API.
     GrRecordingContextPriv priv();
     const GrRecordingContextPriv priv() const;

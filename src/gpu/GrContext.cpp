@@ -281,13 +281,6 @@ bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
     return format.isValid();
 }
 
-int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
-    GrBackendFormat format =
-            this->caps()->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
-                                                  GrRenderable::kYes);
-    return this->caps()->maxRenderTargetSampleCount(format);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]) {
