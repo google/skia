@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "8a25b18e_b9639fb5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T11:52:38Z",
+      "side": 1,
+      "message": "nit: Keep your first sentence in the commit message to 80 characters or less (ish). It becomes the title in Gerrit, and we don\u0027t need a mega long title.",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc63aa1a_55e42189",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T11:52:38Z",
+      "side": 1,
+      "message": "nit: spelling",
+      "range": {
+        "startLine": 13,
+        "startChar": 9,
+        "endLine": 13,
+        "endChar": 20
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a1fa98d1_a5ce14c5",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
@@ -192,6 +232,76 @@
       "writtenOn": "2020-06-29T22:39:49Z",
       "side": 1,
       "message": "mtklein@ is it safe to assume that ints are 32 bits and so to use int in the input and output Vec types here?",
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2cbae15_bbf1e054",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/output/.gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T11:52:38Z",
+      "side": 1,
+      "message": "Probably the easiest way to achieve this is to add a .gitignore to wasm_tools/SIMD with the rule \"output/\"",
+      "range": {
+        "startLine": 3,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 11
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30656c5a_e1bbecdd",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T11:52:38Z",
+      "side": 1,
+      "message": "nit: wrap comments to 100 cols",
+      "range": {
+        "startLine": 28,
+        "startChar": 94,
+        "endLine": 28,
+        "endChar": 101
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ba6faa8_04613f15",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/simd_float_test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T11:52:38Z",
+      "side": 1,
+      "message": "\u003e \"avilable\" is a possible misspelling of \"available\".\n\nPlease fix.",
+      "parentUuid": "aa1173b9_7d2d2b6f",
+      "range": {
+        "startLine": 73,
+        "startChar": 38,
+        "endLine": 73,
+        "endChar": 46
+      },
       "revId": "aa758da026da4848940be4b68d8607edb95798bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
