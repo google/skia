@@ -753,10 +753,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
                                             std::move(cs));
     surfaceContext.writePixels(srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), {0, 0});
 
-    GrFlushInfo info;
-    info.fFlags = kSyncCpu_GrFlushFlag;
     GrSurfaceProxy* p[1] = {surfaceContext.asSurfaceProxy()};
-    drawingManager->flush(p, 1, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
+    drawingManager->flush(p, 1, SkSurface::BackendSurfaceAccess::kNoAccess, {}, nullptr);
 
     return image;
 }

@@ -324,9 +324,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrContext *
 
     // Make sure the gpu has finished all its work before we exit this function and delete the
     // fence.
-    GrFlushInfo flushInfo;
-    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-    context->flush(flushInfo);
+    context->flush();
     context->submit(true);
 
     promiseImageHelper.deleteAllFromGPU(nullptr, context);
@@ -364,9 +362,7 @@ static void run_benchmark(GrContext* context, SkSurface* surface, SkpProducer* s
 
     // Make sure the gpu has finished all its work before we exit this function and delete the
     // fence.
-    GrFlushInfo flushInfo;
-    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-    surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface->flush();
     context->submit(true);
 }
 
@@ -434,9 +430,7 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer, GrContext* c
 
     // Make sure the gpu has finished all its work before we exit this function and delete the
     // fence.
-    GrFlushInfo flushInfo;
-    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-    surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    surface->flush();
     context->submit(true);
 }
 
