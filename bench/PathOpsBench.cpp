@@ -188,9 +188,8 @@ protected:
             case MakeType::kArray: {
             //    ArrayPath<N*12> arrays;
             //    run_builder(arrays, false, N);
-                return SkPathBuilder::Make(fArrays.fPts, fArrays.fPIndex,
-                                           fArrays.fVbs, fArrays.fVIndex,
-                                           nullptr, 0, SkPathFillType::kWinding);
+                return SkPathBuilder::Make(SkPathFillType::kWinding, fArrays.fVbs, fArrays.fVIndex,
+                                           fArrays.fPts, fArrays.fPIndex);
             }
         }
         return SkPath();

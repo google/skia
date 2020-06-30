@@ -113,7 +113,8 @@ describe('Path Behavior', () => {
 
         mWeights.toTypedArray().set([117]);
 
-        let path = CanvasKit.SkPath.MakeFromVerbsPointsWeights(mVerbs, mPoints, mWeights);
+        let path = CanvasKit.SkPath.MakeFromVerbsPointsWeights(CanvasKit.FillType.Winding, mVerbs,
+                                                               mPoints, mWeights, true);
 
         let cmds = path.toCmds();
         expect(cmds).toEqual([
@@ -127,7 +128,8 @@ describe('Path Behavior', () => {
         path.delete();
 
         // If given insufficient points, it stops early (but doesn't read out of bounds).
-        path = CanvasKit.SkPath.MakeFromVerbsPointsWeights(mVerbs, mPoints.subarray(0, 10), mWeights);
+        path = CanvasKit.SkPath.MakeFromVerbsPointsWeights(CanvasKit.FillType.EvenOdd, mVerbs,
+                                                           mPoints.subarray(0, 10), mWeights);
 
         cmds = path.toCmds();
         expect(cmds).toEqual([
@@ -143,6 +145,7 @@ describe('Path Behavior', () => {
 
     it('can create and update a path with verbs and points (no weights)', () => {
         const path = CanvasKit.SkPath.MakeFromVerbsPointsWeights(
+          CanvasKit.FillType.Winding,
           [CanvasKit.MOVE_VERB, CanvasKit.LINE_VERB],
           [1,2, 3,4]);
         let cmds = path.toCmds();
