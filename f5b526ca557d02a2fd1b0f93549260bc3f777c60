@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a21e45f_6fc2114f",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T11:39:43Z",
+      "side": 1,
+      "message": "Please also update the test in path.spec.js that calls this API. Make sure that it correctly handles not supplying isVolatile.",
+      "range": {
+        "startLine": 536,
+        "startChar": 48,
+        "endLine": 536,
+        "endChar": 56
+      },
+      "revId": "f5b526ca557d02a2fd1b0f93549260bc3f777c60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
