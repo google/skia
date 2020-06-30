@@ -933,36 +933,10 @@ bool copy_src_data(GrD3DGpu* gpu, char* mapPtr, DXGI_FORMAT dxgiFormat,
     return true;
 }
 
-// Used to "clear" a backend texture to a constant color by transferring.
-static GrColorType dxgi_format_to_backend_tex_clear_colortype(DXGI_FORMAT format) {
-    switch (format) {
-        case DXGI_FORMAT_A8_UNORM:            return GrColorType::kAlpha_8;
-        case DXGI_FORMAT_R8_UNORM:            return GrColorType::kR_8;
-
-        case DXGI_FORMAT_B5G6R5_UNORM:        return GrColorType::kBGR_565;
-        case DXGI_FORMAT_B4G4R4A4_UNORM:      return GrColorType::kABGR_4444;
-        case DXGI_FORMAT_R8G8B8A8_UNORM:      return GrColorType::kRGBA_8888;
-        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB: return GrColorType::kRGBA_8888_SRGB;
-
-        case DXGI_FORMAT_R8G8_UNORM:          return GrColorType::kRG_88;
-        case DXGI_FORMAT_B8G8R8A8_UNORM:      return GrColorType::kBGRA_8888;
-        case DXGI_FORMAT_R10G10B10A2_UNORM:   return GrColorType::kRGBA_1010102;
-        case DXGI_FORMAT_R16_FLOAT:           return GrColorType::kR_F16;
-        case DXGI_FORMAT_R16G16B16A16_FLOAT:  return GrColorType::kRGBA_F16;
-        case DXGI_FORMAT_R16_UNORM:           return GrColorType::kR_16;
-        case DXGI_FORMAT_R16G16_UNORM:        return GrColorType::kRG_1616;
-        case DXGI_FORMAT_R16G16B16A16_UNORM:  return GrColorType::kRGBA_16161616;
-        case DXGI_FORMAT_R16G16_FLOAT:        return GrColorType::kRG_F16;
-        default:                              return GrColorType::kUnknown;
-    }
-
-    SkUNREACHABLE;
-}
-
-
-bool copy_color_data(char* mapPtr, DXGI_FORMAT dxgiFormat, SkISize dimensions,
-                     D3D12_PLACED_SUBRESOURCE_FOOTPRINT* placedFootprints, SkColor4f color) {
-    auto colorType = dxgi_format_to_backend_tex_clear_colortype(dxgiFormat);
+bool copy_color_data(const GrD3DCaps& caps, char* mapPtr, DXGI_FORMAT dxgiFormat,
+                     SkISize dimensions, D3D12_PLACED_SUBRESOURCE_FOOTPRINT* placedFootprints,
+                     SkColor4f color) {
+    auto colorType = caps.getFormatColorType(dxgiFormat);
     if (colorType == GrColorType::kUnknown) {
         return false;
     }
@@ -1044,7 +1018,8 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         SkImage::CompressionType compression =
                 GrBackendFormatToCompressionType(backendTexture.getBackendFormat());
         if (SkImage::CompressionType::kNone == compression) {
-            result = copy_color_data(bufferData, info.fFormat, backendTexture.dimensions(),
+            result = copy_color_data(this->d3dCaps(), bufferData, info.fFormat,
+                                     backendTexture.dimensions(),
                                      placedFootprints, data->color());
         } else {
             GrFillInCompressedData(compression, backendTexture.dimensions(),

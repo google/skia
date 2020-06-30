@@ -49,6 +49,8 @@ public:
     size_t bytesPerPixel(const GrBackendFormat&) const override;
     size_t bytesPerPixel(DXGI_FORMAT) const;
 
+    GrColorType getFormatColorType(DXGI_FORMAT) const;
+
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override;
@@ -183,6 +185,11 @@ private:
         SkTDArray<int> fColorSampleCounts;
         // This value is only valid for regular formats. Compressed formats will be 0.
         size_t fBytesPerPixel = 0;
+
+        // This GrColorType represents how the actually GPU format lays out its memory. This is used
+        // for uploading data to backend textures to make sure we've arranged the memory in the
+        // correct order.
+        GrColorType fFormatColorType = GrColorType::kUnknown;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
