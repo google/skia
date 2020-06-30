@@ -442,25 +442,29 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
         bool skipClip = false;
         SkIRect clipRect = SkIRect::MakeEmpty();
         SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
-        SkRRect clipRRect = SkRRect::MakeRect(rtBounds);
-        GrAA aa;
         // We can clip geometrically if we're not using SDFs or transformed glyphs,
         // and we have an axis-aligned rectangular non-AA clip
-        if (!this->drawAsDistanceFields() &&
-            !this->needsTransform() &&
-            (!clip || (clip->isRRect(&clipRRect, &aa) &&
-                       clipRRect.isRect() && GrAA::kNo == aa))) {
+        if (!this->drawAsDistanceFields() && !this->needsTransform()) {
             // We only need to do clipping work if the subrun isn't contained by the clip
+            skipClip = true;
             SkRect subRunBounds = this->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
-            if (!clipRRect.getBounds().contains(subRunBounds)) {
+            if (!clip && !rtBounds.intersects(subRunBounds)) {
                 // If the subrun is completely outside, don't add an op for it
-                if (!clipRRect.getBounds().intersects(subRunBounds)) {
+                return;
+            } else if (clip) {
+                GrClip::PreClipResult result = clip->preApply(subRunBounds);
+                if (result.fEffect == GrClip::Effect::kClipped) {
+                    if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
+                        // Embed non-AA axis-aligned clip into the draw
+                        result.fRRect.getBounds().round(&clipRect);
+                    } else {
+                        // Can't actually skip the regular clipping
+                        skipClip = false;
+                    }
+                } else if (result.fEffect == GrClip::Effect::kClippedOut) {
                     return;
-                } else {
-                    clipRRect.getBounds().round(&clipRect);
                 }
             }
-            skipClip = true;
         }
 
         auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect, paint, props, target);
