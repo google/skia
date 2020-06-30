@@ -139,6 +139,30 @@
       "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35e16ef4_6ea239c6",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-30T21:47:43Z",
+      "side": 1,
+      "message": "I guess having a null ptr there is a little weird, but every backend except GL should be using it. And that virtual pointer would be returning NULL anyway. I\u0027m not sold on any of the possible implementations, though my least favorite is the virtual.",
+      "parentUuid": "ead6b50b_d7561c2f",
+      "range": {
+        "startLine": 490,
+        "startChar": 26,
+        "endLine": 490,
+        "endChar": 46
+      },
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
