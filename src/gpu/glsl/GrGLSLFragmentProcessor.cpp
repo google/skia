@@ -17,6 +17,7 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
 }
 
 void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) {
+    SkASSERT(childIndex >= 0);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     while (childIndex >= (int) fFunctionNames.size()) {
         fFunctionNames.emplace_back();
@@ -43,6 +44,7 @@ void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) 
 
 SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
                                               EmitArgs& args, SkSL::String skslCoords) {
+    SkASSERT(childIndex >= 0);
     this->emitChildFunction(childIndex, args);
 
     if (skslCoords.empty()) {
@@ -72,6 +74,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
 SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const char* inputColor,
                                                         EmitArgs& args,
                                                         SkSL::String skslMatrix) {
+    SkASSERT(childIndex >= 0);
     this->emitChildFunction(childIndex, args);
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
