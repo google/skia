@@ -6,7 +6,7 @@
  */
 
 
-#include "include/gpu/GrContext.h"
+#include "include/private/GrDirectContext.h"
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/gpu/GrContextPriv.h"
@@ -44,88 +44,77 @@ static const bool kDefaultReduceOpsTaskSplitting = false;
 static const bool kDefaultReduceOpsTaskSplitting = false;
 #endif
 
-class GrLegacyDirectContext : public GrContext {
-public:
-    GrLegacyDirectContext(GrBackendApi backend, const GrContextOptions& options)
-            : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options))
-            , fAtlasManager(nullptr) {
-    }
+GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
+        : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options))
+        , fAtlasManager(nullptr) {
+}
 
-    ~GrLegacyDirectContext() override {
-        // this if-test protects against the case where the context is being destroyed
-        // before having been fully created
-        if (this->priv().getGpu()) {
-            this->flushAndSubmit();
-        }
-
-        delete fAtlasManager;
-    }
-
-    void abandonContext() override {
-        INHERITED::abandonContext();
-        fAtlasManager->freeAll();
-    }
-
-    void releaseResourcesAndAbandonContext() override {
-        INHERITED::releaseResourcesAndAbandonContext();
-        fAtlasManager->freeAll();
-    }
-
-    void freeGpuResources() override {
+GrDirectContext::~GrDirectContext() {
+    // this if-test protects against the case where the context is being destroyed
+    // before having been fully created
+    if (this->priv().getGpu()) {
         this->flushAndSubmit();
-        fAtlasManager->freeAll();
-
-        INHERITED::freeGpuResources();
     }
 
-protected:
-    bool init() override {
-        const GrGpu* gpu = this->priv().getGpu();
-        if (!gpu) {
-            return false;
-        }
+    delete fAtlasManager;
+}
 
-        fThreadSafeProxy->priv().init(gpu->refCaps());
-        if (!INHERITED::init()) {
-            return false;
-        }
+void GrDirectContext::abandonContext() {
+    INHERITED::abandonContext();
+    fAtlasManager->freeAll();
+}
 
-        bool reduceOpsTaskSplitting = kDefaultReduceOpsTaskSplitting;
-        if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplitting) {
-            reduceOpsTaskSplitting = false;
-        } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
-            reduceOpsTaskSplitting = true;
-        }
+void GrDirectContext::releaseResourcesAndAbandonContext() {
+    INHERITED::releaseResourcesAndAbandonContext();
+    fAtlasManager->freeAll();
+}
 
-        this->setupDrawingManager(true, reduceOpsTaskSplitting);
+void GrDirectContext::freeGpuResources() {
+    this->flushAndSubmit();
+    fAtlasManager->freeAll();
 
-        GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
-        if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||
-            // multitexturing supported only if range can represent the index + texcoords fully
-            !(this->caps()->shaderCaps()->floatIs32Bits() ||
-              this->caps()->shaderCaps()->integerSupport())) {
-            allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
-        } else {
-            allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
-        }
+    INHERITED::freeGpuResources();
+}
 
-        GrProxyProvider* proxyProvider = this->priv().proxyProvider();
-
-        fAtlasManager = new GrAtlasManager(proxyProvider,
-                                           this->options().fGlyphCacheTextureMaximumBytes,
-                                           allowMultitexturing);
-        this->priv().addOnFlushCallbackObject(fAtlasManager);
-
-        return true;
+bool GrDirectContext::init() {
+    const GrGpu* gpu = this->priv().getGpu();
+    if (!gpu) {
+        return false;
     }
 
-    GrAtlasManager* onGetAtlasManager() override { return fAtlasManager; }
+    fThreadSafeProxy->priv().init(gpu->refCaps());
+    if (!INHERITED::init()) {
+        return false;
+    }
 
-private:
-    GrAtlasManager* fAtlasManager;
+    bool reduceOpsTaskSplitting = kDefaultReduceOpsTaskSplitting;
+    if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplitting) {
+        reduceOpsTaskSplitting = false;
+    } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
+        reduceOpsTaskSplitting = true;
+    }
 
-    typedef GrContext INHERITED;
-};
+    this->setupDrawingManager(true, reduceOpsTaskSplitting);
+
+    GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
+    if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||
+        // multitexturing supported only if range can represent the index + texcoords fully
+        !(this->caps()->shaderCaps()->floatIs32Bits() ||
+        this->caps()->shaderCaps()->integerSupport())) {
+        allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
+    } else {
+        allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
+    }
+
+    GrProxyProvider* proxyProvider = this->priv().proxyProvider();
+
+    fAtlasManager = new GrAtlasManager(proxyProvider,
+                                       this->options().fGlyphCacheTextureMaximumBytes,
+                                       allowMultitexturing);
+    this->priv().addOnFlushCallbackObject(fAtlasManager);
+
+    return true;
+}
 
 #ifdef SK_GL
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface) {
@@ -173,7 +162,7 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
                                    const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kOpenGL, options));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kOpenGL, options));
 #if GR_TEST_UTILS
     if (options.fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);
@@ -201,7 +190,7 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMock, options));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMock, options));
 
     context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
     if (!context->init()) {
@@ -223,7 +212,7 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext)
 sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                        const GrContextOptions& options) {
 #ifdef SK_VULKAN
-    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kVulkan, options));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kVulkan, options));
 
     context->fGpu = GrVkGpu::Make(backendContext, options, context.get());
     if (!context->init()) {
@@ -243,7 +232,7 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
 }
 
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMetal, options));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMetal, options));
 
     context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
     if (!context->init()) {
@@ -262,7 +251,7 @@ sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendConte
 
 sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
                                          const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kDirect3D, options));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kDirect3D, options));
 
     context->fGpu = GrD3DGpu::Make(backendContext, options, context.get());
     if (!context->init()) {
@@ -280,7 +269,7 @@ sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
 }
 
 sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kDawn, options));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kDawn, options));
 
     context->fGpu = GrDawnGpu::Make(device, options, context.get());
     if (!context->init()) {
