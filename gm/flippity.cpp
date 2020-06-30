@@ -23,8 +23,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrContextPriv.h"
@@ -32,6 +32,7 @@
 #include "src/image/SkImage_Gpu.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/ProxyUtils.h"
+//#include "include/gpu/GrContext.h"
 
 #include <string.h>
 #include <utility>
@@ -112,7 +113,7 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
 
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
 // or top-left.
-static sk_sp<SkImage> make_reference_image(GrContext* context,
+static sk_sp<SkImage> make_reference_image(GrDirectContext* context,
                                            const SkTArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
     SkASSERT(kNumLabels == labels.count());
@@ -231,7 +232,7 @@ private:
         canvas->restore();
     }
 
-    void makeLabels(GrContext* context) {
+    void makeLabels(GrDirectContext* context) {
         if (fLabels.count()) {
             return;
         }
@@ -251,7 +252,7 @@ private:
         SkASSERT(kNumLabels == fLabels.count());
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
         if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }

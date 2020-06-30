@@ -20,7 +20,7 @@
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrDirectContext* context,
                                                GrRenderable renderable,
                                                GrSurfaceOrigin origin,
                                                const GrImageInfo& imageInfo,
