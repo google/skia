@@ -79,7 +79,7 @@ void GrD3DGpu::destroyResources() {
     }
 
     // We need to make sure everything has finished on the queue.
-    this->waitForQueueCompletion();
+    this->waitFence(fCurrentFenceValue);
 
     SkDEBUGCODE(uint64_t fenceValue = fFence->GetCompletedValue();)
 
@@ -122,7 +122,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
         return false;
     } else if (result == GrD3DDirectCommandList::SubmitResult::kNoWork) {
         if (sync == SyncQueue::kForce) {
-            this->waitForQueueCompletion();
+            this->waitFence(fCurrentFenceValue);
             this->checkForFinishedCommandLists();
         }
         return true;
@@ -132,14 +132,12 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     // uniform data as dirty.
     fResourceProvider.markPipelineStateUniformsDirty();
 
+    GrFence fence = this->insertFence();
     new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
-            std::move(fCurrentDirectCommandList), ++fCurrentFenceValue);
-
-    SkDEBUGCODE(HRESULT hr = ) fQueue->Signal(fFence.get(), fCurrentFenceValue);
-    SkASSERT(SUCCEEDED(hr));
+            std::move(fCurrentDirectCommandList), fence);
 
     if (sync == SyncQueue::kForce) {
-        this->waitForQueueCompletion();
+        this->waitFence(fence);
     }
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
@@ -169,18 +167,6 @@ void GrD3DGpu::checkForFinishedCommandLists() {
         fOutstandingCommandLists.pop_front();
         fResourceProvider.recycleDirectCommandList(std::move(currList));
         front = (OutstandingCommandList*)fOutstandingCommandLists.front();
-    }
-}
-
-void GrD3DGpu::waitForQueueCompletion() {
-    if (fFence->GetCompletedValue() < fCurrentFenceValue) {
-        HANDLE fenceEvent;
-        fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        SkASSERT(fenceEvent);
-        SkDEBUGCODE(HRESULT hr = ) fFence->SetEventOnCompletion(fCurrentFenceValue, fenceEvent);
-        SkASSERT(SUCCEEDED(hr));
-        WaitForSingleObject(fenceEvent, INFINITE);
-        CloseHandle(fenceEvent);
     }
 }
 
@@ -1212,4 +1198,23 @@ void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
     GrD3DSemaphore* d3dSem = static_cast<GrD3DSemaphore*>(semaphore);
     // TODO: Do we need to track the lifetime of this?
     fQueue->Wait(d3dSem->fence(), d3dSem->value());
+}
+
+GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
+    SkDEBUGCODE(HRESULT hr = ) fQueue->Signal(fFence.get(), ++fCurrentFenceValue);
+    return fCurrentFenceValue;
+}
+
+bool GrD3DGpu::waitFence(GrFence fence) {
+    if (fFence->GetCompletedValue() < fence) {
+        HANDLE fenceEvent;
+        fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        SkASSERT(fenceEvent);
+        SkDEBUGCODE(HRESULT hr = ) fFence->SetEventOnCompletion(fence, fenceEvent);
+        SkASSERT(SUCCEEDED(hr));
+        WaitForSingleObject(fenceEvent, INFINITE);
+        CloseHandle(fenceEvent);
+    }
+
+    return true;
 }

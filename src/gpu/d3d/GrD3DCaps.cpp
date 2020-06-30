@@ -35,8 +35,8 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     fDrawInstancedSupport = true;
 
     fSemaphoreSupport = true;
+    fFenceSyncSupport = true;
     // TODO: implement these
-    fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = false;
 
