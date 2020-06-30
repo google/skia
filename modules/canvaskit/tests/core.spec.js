@@ -986,4 +986,24 @@ describe('Core canvas behavior', () => {
             expect(expected[i]).toBeCloseTo(actual[i], 5, `element ${i}`);
         }
     }
+
+    it('can create a camera setup matrix', () => {
+        const camAngle = Math.PI / 12;
+        const cam = {
+          'eye'  : [0, 0, 1 / Math.tan(camAngle/2) - 1],
+          'coa'  : [0, 0, 0],
+          'up'   : [0, 1, 0],
+          'near' : 0.02,
+          'far'  : 4,
+          'angle': camAngle,
+        };
+        const mat = CanvasKit.SkM44.setupCamera(CanvasKit.LTRBRect(0, 0, 200, 200), 200, cam);
+        [7.5957541127251496, 0, -0.5, 0, 0, 7.5957541127251496, -0.5, 0, 0, 0, 1.0100502512562812, -1324.3684187515128, 0, 0, -0.005, 7.595754112725151]
+        const expected = [
+            7.595754, 0, -0.5, 0,
+            0, 7.595754, -0.5, 0,
+            0, 0, 1.010050, -1324.368418,
+            0, 0, -0.005, 7.595754];
+        expectTypedArraysToEqual(expected, mat);
+    });
 });
