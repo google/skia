@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8eb67f76_6aeddfa6",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-06-30T21:56:06Z",
+      "side": 1,
+      "message": "Do you think you could land this change by first moving what exists into GrStagingBufferManager\n(with as few changes as possible), and then by modifying it in a subsequent CL? It would be much easier to review that way.",
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b96a053a_75da2524",
         "filename": "src/gpu/GrStagingBufferManager.cpp",
         "patchSetId": 3
@@ -48,6 +65,23 @@
     },
     {
       "key": {
+        "uuid": "0c618849_6f77a42f",
+        "filename": "src/gpu/GrStagingBufferManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-06-30T21:56:06Z",
+      "side": 1,
+      "message": "I find the naming of this function confusing. What\u0027s it detaching the buffers from? I\u0027m guessing \"staged\" is a new state? We used to have Busy, Available, Active. What are the new states, and do they correspond to the old ones at all?",
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ff38706_5f6a2c7f",
         "filename": "src/gpu/GrStagingBufferManager.h",
         "patchSetId": 3
@@ -59,6 +93,30 @@
       "writtenOn": "2020-06-30T19:16:28Z",
       "side": 1,
       "message": "Instead of passing in the mapPtr to this call (and the buffers constructor), we could make a map() virtual on GrStagingBuffer. The manager would call map() here and when it creates a new buffer. We\u0027d probably want an equivalent virtual unmap() if we do that which we\u0027d call here in the base during detachStagedBuffers(). I picked this route cause it avoids needing the extra virtuals on GrStagingBuffer and some implementations may not need to actually do the mapping and unmapping (obviously those one could just do nothing in the virtual calls).",
+      "range": {
+        "startLine": 37,
+        "startChar": 71,
+        "endLine": 37,
+        "endChar": 83
+      },
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8517ec88_6290e9a4",
+        "filename": "src/gpu/GrStagingBufferManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-06-30T21:56:06Z",
+      "side": 1,
+      "message": "I guess Recycle means \"move from Busy to Available\"? I found the old names clearer, but I suppose it only works if there\u0027s a Busy list (which not all backends have, I\u0027m guessing).",
+      "parentUuid": "7ff38706_5f6a2c7f",
       "range": {
         "startLine": 37,
         "startChar": 71,
@@ -160,6 +218,64 @@
         "endLine": 490,
         "endChar": 46
       },
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55fc1c54_7be56c16",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-06-30T21:56:06Z",
+      "side": 1,
+      "message": "I vote for moving this call up to GrGpu as well. (Do modify the comment on it, which currently says that it\u0027s the backend\u0027s responsibility to call it.)",
+      "parentUuid": "ead6b50b_d7561c2f",
+      "range": {
+        "startLine": 490,
+        "startChar": 26,
+        "endLine": 490,
+        "endChar": 46
+      },
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb7395ef_f0e7707e",
+        "filename": "src/gpu/dawn/GrDawnStagingBufferManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-06-30T21:56:06Z",
+      "side": 1,
+      "message": "Naming nit: StagingBuffers is kind of redundant in the method name here; maybe call this mapBusyBuffers?",
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5a5b00a_3965f53d",
+        "filename": "src/gpu/dawn/GrDawnStagingBufferManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-06-30T21:56:06Z",
+      "side": 1,
+      "message": "Seems a shame that we have a linked list, but can\u0027t remove in O(1) time. Did you consider using an SkInternalList instead? Then you wouldn\u0027t need a loop at all.",
       "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
