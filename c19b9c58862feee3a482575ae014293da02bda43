@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b458fc2_0b0739fb",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 937,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-30T16:25:02Z",
+      "side": 0,
+      "message": "If instead of adding the GrColorType to the FormatInfo in the caps, I\u0027m happy to go back to this and just DXGI_FORMAT_B4G4R4A4_UNORM return the new colorType. But it seemed like the table is where all the other format properties are. I\u0027m really fine either way.",
+      "range": {
+        "startLine": 937,
+        "startChar": 19,
+        "endLine": 937,
+        "endChar": 61
+      },
+      "revId": "c19b9c58862feee3a482575ae014293da02bda43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
