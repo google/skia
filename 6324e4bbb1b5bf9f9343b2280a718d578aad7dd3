@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a4bd5504_46484933",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 969,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-30T18:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58605783_9623f619",
+      "range": {
+        "startLine": 961,
+        "startChar": 0,
+        "endLine": 969,
+        "endChar": 1
+      },
+      "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f49601d9_61da3588",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 18
@@ -69,6 +93,30 @@
       "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b512315a_57c9d882",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1515,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-30T18:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7fe9ed1_2b469722",
+      "range": {
+        "startLine": 1515,
+        "startChar": 16,
+        "endLine": 1515,
+        "endChar": 42
+      },
+      "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
