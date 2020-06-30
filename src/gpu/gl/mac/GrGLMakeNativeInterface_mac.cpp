@@ -4,6 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkTypes.h"
+#if defined(SK_BUILD_FOR_MAC)
+
+
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 
@@ -74,3 +78,5 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
+
+#endif//defined(SK_BUILD_FOR_MAC)
