@@ -10,6 +10,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/GrBackendSemaphore.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrImageContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/private/SkShadowFlags.h"

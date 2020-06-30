@@ -29,6 +29,8 @@ protected:
 
     GrAtlasManager* onGetAtlasManager() override { return fAtlasManager; }
 
+    GrDirectContext* asDirectContext() override { return this; }
+
 private:
     GrAtlasManager* fAtlasManager;
 

@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
@@ -31,7 +32,7 @@ static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* context,
     const int kBitmapLongEdge = 7 * kTileSize;
     const int kBitmapShortEdge = 1 * kTileSize;
 
-    if (GrContext* direct = context->priv().asDirectContext()) {
+    if (auto direct = context->priv().asDirectContext()) {
         // To trigger tiling, we also need the image to be more than 50% of the cache, so we
         // ensure the cache is sized to make that true.
         const int kBitmapArea = kBitmapLongEdge * kBitmapShortEdge;

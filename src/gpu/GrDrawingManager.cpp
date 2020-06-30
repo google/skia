@@ -9,6 +9,7 @@
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/gpu/GrBackendSemaphore.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTTopoSort.h"

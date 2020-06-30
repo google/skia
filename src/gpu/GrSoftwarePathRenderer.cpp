@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrSoftwarePathRenderer.h"
 
+#include "include/private/GrDirectContext.h"
 #include "include/private/SkSemaphore.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"

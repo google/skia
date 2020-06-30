@@ -15,8 +15,8 @@
 
 class GrBaseContextPriv;
 class GrCaps;
-class GrContext;
 class GrContextThreadSafeProxy;
+class GrDirectContext;
 class GrImageContext;
 class GrRecordingContext;
 
@@ -77,7 +77,7 @@ protected:
 
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
-    virtual GrContext* asDirectContext() { return nullptr; }
+    virtual GrDirectContext* asDirectContext() { return nullptr; }
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 

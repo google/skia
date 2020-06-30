@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrSurfaceContext.h"
 
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkYUVMath.h"
@@ -131,7 +132,7 @@ GrSingleOwner* GrSurfaceContext::singleOwner() {
 #endif
 
 bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, size_t rowBytes,
-                                  SkIPoint pt, GrContext* direct) {
+                                  SkIPoint pt, GrDirectContext* direct) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -289,7 +290,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
 }
 
 bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* src, size_t rowBytes,
-                                   SkIPoint pt, GrContext* direct) {
+                                   SkIPoint pt, GrDirectContext* direct) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
