@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58605783_9623f619",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 969,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-30T15:11:20Z",
+      "side": 1,
+      "message": "Maybe we should promote this to `void Fuzz::next(std::string*)`?\n\nOne other thing I\u0027ve just remembered: as written everything looks fine, but we don\u0027t usually have things that interact with Fuzz return the result.  Instead we tend to use an out-parameter, as returning the value makes it easy to become sensitive to function argument evaluation order.  E.g. foo(make_fuzz_string(fuzz), make_fuzz_string(fuzz)) can evaluate in two orders, and does depending on the compiler.)",
+      "range": {
+        "startLine": 961,
+        "startChar": 0,
+        "endLine": 969,
+        "endChar": 1
+      },
+      "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
