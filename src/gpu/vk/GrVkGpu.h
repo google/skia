@@ -16,6 +16,7 @@
 #include "src/gpu/vk/GrVkMeshBuffer.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 #include "src/gpu/vk/GrVkSemaphore.h"
+#include "src/gpu/vk/GrVkStagingBufferManager.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 class GrPipeline;
@@ -66,6 +67,7 @@ public:
     bool protectedContext() const { return fProtectedContext == GrProtected::kYes; }
 
     GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
+    GrVkStagingBufferManager* stagingManager() { return &fStagingBufferManager; }
 
     GrVkPrimaryCommandBuffer* currentCommandBuffer() const { return fMainCmdBuffer; }
 
@@ -326,6 +328,7 @@ private:
 
     // Created by GrVkGpu
     GrVkResourceProvider                                  fResourceProvider;
+    GrVkStagingBufferManager                              fStagingBufferManager;
 
     GrVkCommandPool*                                      fMainCmdPool;
     // just a raw pointer; object's lifespan is managed by fCmdPool
