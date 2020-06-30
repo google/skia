@@ -16,6 +16,24 @@
       "revId": "d9ac7066380b8d938dcee6fa5e69d52288f75730",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "191e5acb_86306380",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T21:16:05Z",
+      "side": 1,
+      "message": "Done. Good to know.",
+      "parentUuid": "4048be46_b666a14c",
+      "revId": "d9ac7066380b8d938dcee6fa5e69d52288f75730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
