@@ -205,6 +205,8 @@ static inline float dither_range_for_config(GrColorType dstColorType) {
     switch (dstColorType) {
         // 4 bit
         case GrColorType::kABGR_4444:
+        case GrColorType::kARGB_4444:
+        case GrColorType::kBGRA_4444:
             return 1 / 15.f;
         // 6 bit
         case GrColorType::kBGR_565:
