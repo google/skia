@@ -23,6 +23,7 @@
 #include "include/gpu/gl/GrGLTypes.h"
 
 #include "modules/skottie/include/Skottie.h"
+#include "modules/sksg/include/SkSGInvalidationController.h"
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -191,6 +192,15 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
         return;
     }
 
+    sksg::InvalidationController ic;
+
+    if (skottieAnimation->mAnimation) {
+        skottieAnimation->mAnimation->seek(progress, &ic);
+        if (ic.bounds().isEmpty()) {
+            return;
+        }
+    }
+
     SkColorType colorType;
     // setup surface for fbo0
     GrGLFramebufferInfo fboInfo;
@@ -212,13 +222,10 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
 
     auto canvas = renderTarget->getCanvas();
     canvas->clear(SK_ColorTRANSPARENT);
-    if (skottieAnimation->mAnimation) {
-        skottieAnimation->mAnimation->seek(progress);
 
-        SkAutoCanvasRestore acr(canvas, true);
-        SkRect bounds = SkRect::MakeWH(width, height);
-        skottieAnimation->mAnimation->render(canvas, &bounds);
-    }
+    SkAutoCanvasRestore acr(canvas, true);
+    SkRect bounds = SkRect::MakeWH(width, height);
+    skottieAnimation->mAnimation->render(canvas, &bounds);
 
     canvas->flush();
 }
