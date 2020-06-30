@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5c8131b_c96f343c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-06-30T16:34:22Z",
+      "side": 1,
+      "message": "create a bug in Skia\u0027s bug tracker (bugs.skia.org) that states the problem and can be used to track additional work and/or dependencies.  Then in the commit message you include the following line.\n\nBug: skia:\u003cbug_id\u003e",
+      "revId": "36c1f85e8d2fe64600543a6d0883393b8a609ed9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
