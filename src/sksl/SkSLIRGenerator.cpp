@@ -617,7 +617,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
             if (!caseValue) {
                 return nullptr;
             }
-            if (!caseValue->isConstant()) {
+            if (!caseValue->isCompileTimeConstant()) {
                 fErrors.error(caseValue->fOffset, "case value must be a constant");
                 return nullptr;
             }
@@ -1593,16 +1593,16 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       const Expression& right) const {
     // If the left side is a constant boolean literal, the right side does not need to be constant
     // for short circuit optimizations to allow the constant to be folded.
-    if (left.fKind == Expression::kBoolLiteral_Kind && !right.isConstant()) {
+    if (left.fKind == Expression::kBoolLiteral_Kind && !right.isCompileTimeConstant()) {
         return short_circuit_boolean(fContext, left, op, right);
-    } else if (right.fKind == Expression::kBoolLiteral_Kind && !left.isConstant()) {
+    } else if (right.fKind == Expression::kBoolLiteral_Kind && !left.isCompileTimeConstant()) {
         // There aren't side effects in SKSL within expressions, so (left OP right) is equivalent to
         // (right OP left) for short-circuit optimizations
         return short_circuit_boolean(fContext, right, op, left);
     }
 
     // Other than the short-circuit cases above, constant folding requires both sides to be constant
-    if (!left.isConstant() || !right.isConstant()) {
+    if (!left.isCompileTimeConstant() || !right.isCompileTimeConstant()) {
         return nullptr;
     }
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum

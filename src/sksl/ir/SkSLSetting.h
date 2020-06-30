@@ -22,7 +22,7 @@ struct Setting : public Expression {
     : INHERITED(offset, kSetting_Kind, value->fType)
     , fName(std::move(name))
     , fValue(std::move(value)) {
-        SkASSERT(fValue->isConstant());
+        SkASSERT(fValue->isCompileTimeConstant());
     }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
@@ -44,7 +44,7 @@ struct Setting : public Expression {
         return false;
     }
 
-    bool isConstant() const override {
+    bool isCompileTimeConstant() const override {
         return true;
     }
 

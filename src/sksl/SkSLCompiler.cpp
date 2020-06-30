@@ -595,7 +595,7 @@ bool is_constant(const Expression& expr, double value) {
             Constructor& c = (Constructor&) expr;
             bool isFloat = c.fType.columns() > 1 ? c.fType.componentType().isFloat()
                                                  : c.fType.isFloat();
-            if (c.fType.kind() == Type::kVector_Kind && c.isConstant()) {
+            if (c.fType.kind() == Type::kVector_Kind && c.isCompileTimeConstant()) {
                 for (int i = 0; i < c.fType.columns(); ++i) {
                     if (isFloat) {
                         if (c.getFVecComponent(i) != value) {
@@ -1251,7 +1251,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         }
         case Statement::kSwitch_Kind: {
             SwitchStatement& s = (SwitchStatement&) *stmt;
-            if (s.fValue->isConstant()) {
+            if (s.fValue->isCompileTimeConstant()) {
                 // switch is constant, replace it with the case that matches
                 bool found = false;
                 SwitchCase* defaultCase = nullptr;
