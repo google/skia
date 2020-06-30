@@ -357,6 +357,30 @@
     },
     {
       "key": {
+        "uuid": "38e1cfe1_363a0f40",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-06-30T22:09:44Z",
+      "side": 1,
+      "message": "Ah! My mistake. For some reason I believed that -Os meant unoptimized. \n\nSwitched back to -Os.\n\nAlright, confirming that I understand that the code-size difference between the two alternative pieces of code is relevant in this case. I\u0027ll take note and follow up on that.",
+      "parentUuid": "138e9da5_abadd2a1",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 631,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71e2f581_c9d8930e",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
