@@ -77,6 +77,7 @@ public:
     void next(bool* b);
     void next(SkImageFilter::CropRect* cropRect);
     void next(SkRegion* region);
+    void next(std::string*);
 
     void nextRange(float* f, float min, float max);
 

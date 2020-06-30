@@ -24,6 +24,16 @@ void Fuzz::next(SkImageFilter::CropRect* cropRect) {
     *cropRect = SkImageFilter::CropRect(rect, flags);
 }
 
+void Fuzz::next(std::string* str) {
+    uint8_t len;
+    this->nextRange(&len, 0, 0x20);
+    *str = std::string(len, 0);
+    for (int i = 0; i < len; i++) {
+        this->next(&str[i]);
+    }
+}
+
+
 void Fuzz::nextBytes(void* n, size_t size) {
     if ((fNextByte + size) > fBytes->size()) {
         sk_bzero(n, size);
