@@ -44,8 +44,9 @@ public:
      * Creates an SkGpuDevice from a GrRenderTargetContext whose backing width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
-    static sk_sp<SkGpuDevice> Make(
-            GrContext*, std::unique_ptr<GrRenderTargetContext>, InitContents);
+    static sk_sp<SkGpuDevice> Make(GrRecordingContext*,
+                                   std::unique_ptr<GrRenderTargetContext>,
+                                   InitContents);
 
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
@@ -55,13 +56,13 @@ public:
      * This entry point creates a kExact backing store. It is used when creating SkGpuDevices
      * for SkSurfaces.
      */
-    static sk_sp<SkGpuDevice> Make(GrContext*, SkBudgeted, const SkImageInfo&,
+    static sk_sp<SkGpuDevice> Make(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
                                    int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
                                    GrMipMapped mipMapped, InitContents);
 
     ~SkGpuDevice() override {}
 
-    GrContext* context() const override { return fContext.get(); }
+    GrContext* context() const override;
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
 
     // set all pixels to 0
@@ -128,7 +129,7 @@ protected:
 
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
-    sk_sp<GrContext> fContext;
+    sk_sp<GrRecordingContext> fContext;
     std::unique_ptr<GrRenderTargetContext> fRenderTargetContext;
     GrClipStackClip  fClip;
 
@@ -140,7 +141,7 @@ private:
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);
 
-    SkGpuDevice(GrContext*, std::unique_ptr<GrRenderTargetContext>, unsigned flags);
+    SkGpuDevice(GrRecordingContext*, std::unique_ptr<GrRenderTargetContext>, unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 

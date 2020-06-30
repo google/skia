@@ -76,7 +76,7 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
     return true;
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context,
                                      std::unique_ptr<GrRenderTargetContext> renderTargetContext,
                                      InitContents init) {
     if (!renderTargetContext || context->priv().abandoned()) {
@@ -93,7 +93,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
     return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext), flags));
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context, SkBudgeted budgeted,
                                      const SkImageInfo& info, int sampleCount,
                                      GrSurfaceOrigin origin, const SkSurfaceProps* props,
                                      GrMipMapped mipMapped, InitContents init) {
@@ -112,6 +112,11 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
     return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext), flags));
 }
 
+GrContext* SkGpuDevice::context() const {
+    // CONTEXT TODO: remove this use of 'backdoor'.
+    return fContext->priv().backdoor();
+}
+
 static SkImageInfo make_info(GrRenderTargetContext* context, bool opaque) {
     SkColorType colorType = GrColorTypeToSkColorType(context->colorInfo().colorType());
     return SkImageInfo::Make(context->width(), context->height(), colorType,
@@ -119,7 +124,7 @@ static SkImageInfo make_info(GrRenderTargetContext* context, bool opaque) {
                              context->colorInfo().refColorSpace());
 }
 
-SkGpuDevice::SkGpuDevice(GrContext* context,
+SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
                          std::unique_ptr<GrRenderTargetContext> renderTargetContext,
                          unsigned flags)
         : INHERITED(make_info(renderTargetContext.get(), SkToBool(flags & kIsOpaque_Flag)),
@@ -891,7 +896,7 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     }
 }
 
-static bool init_vertices_paint(GrContext* context,
+static bool init_vertices_paint(GrRecordingContext* context,
                                 const GrColorInfo& colorInfo,
                                 const SkPaint& skPaint,
                                 const SkMatrixProvider& matrixProvider,
@@ -1017,8 +1022,13 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::flush() {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return;
+    }
+
     this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
-    this->context()->submit();
+    direct->submit();
 }
 
 GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
