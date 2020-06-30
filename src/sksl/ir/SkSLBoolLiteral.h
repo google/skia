@@ -29,7 +29,7 @@ struct BoolLiteral : public Expression {
         return false;
     }
 
-    bool isConstant() const override {
+    bool isCompileTimeConstant() const override {
         return true;
     }
 

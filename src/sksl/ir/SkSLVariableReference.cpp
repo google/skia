@@ -53,7 +53,7 @@ void VariableReference::setRefKind(RefKind refKind) {
 
 std::unique_ptr<Expression> VariableReference::copy_constant(const IRGenerator& irGenerator,
                                                              const Expression* expr) {
-    SkASSERT(expr->isConstant());
+    SkASSERT(expr->isCompileTimeConstant());
     switch (expr->fKind) {
         case Expression::kIntLiteral_Kind:
             return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
@@ -100,12 +100,12 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
         return irGenerator.getArg(fOffset, fVariable.fName);
     }
     if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
-        fVariable.fInitialValue->isConstant() && fType.kind() != Type::kArray_Kind) {
+        fVariable.fInitialValue->isCompileTimeConstant() && fType.kind() != Type::kArray_Kind) {
         return copy_constant(irGenerator, fVariable.fInitialValue);
     }
     auto exprIter = definitions.find(&fVariable);
     if (exprIter != definitions.end() && exprIter->second &&
-        (*exprIter->second)->isConstant()) {
+        (*exprIter->second)->isCompileTimeConstant()) {
         return copy_constant(irGenerator, exprIter->second->get());
     }
     return nullptr;

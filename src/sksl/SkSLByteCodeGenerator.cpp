@@ -529,7 +529,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
             int length = i.fBase->fType.columns();
             SkASSERT(length <= 255);
             int offset = -1;
-            if (i.fIndex->isConstant()) {
+            if (i.fIndex->isCompileTimeConstant()) {
                 int64_t index = i.fIndex->getConstantInt();
                 if (index < 0 || index >= length) {
                     fErrors.error(i.fIndex->fOffset, "Array index out of bounds.");
@@ -729,7 +729,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
         case Token::Kind::TK_SHR: {
             SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
                                     tc == SkSL::TypeCategory::kUnsigned));
-            if (!b.fRight->isConstant()) {
+            if (!b.fRight->isCompileTimeConstant()) {
                 fErrors.error(b.fRight->fOffset, "Shift amounts must be constant");
                 return false;
             }

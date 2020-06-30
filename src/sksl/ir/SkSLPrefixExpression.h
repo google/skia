@@ -25,8 +25,8 @@ struct PrefixExpression : public Expression {
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
-    bool isConstant() const override {
-        return fOperator == Token::Kind::TK_MINUS && fOperand->isConstant();
+    bool isCompileTimeConstant() const override {
+        return fOperator == Token::Kind::TK_MINUS && fOperand->isCompileTimeConstant();
     }
 
     bool hasProperty(Property property) const override {
