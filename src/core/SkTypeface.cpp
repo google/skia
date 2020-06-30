@@ -25,16 +25,6 @@ SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
 
 SkTypeface::~SkTypeface() { }
 
-#ifdef SK_WHITELIST_SERIALIZED_TYPEFACES
-extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
-#define SK_TYPEFACE_DELEGATE WhitelistSerializeTypeface
-#else
-#define SK_TYPEFACE_DELEGATE nullptr
-#endif
-
-void (*gSerializeTypefaceDelegate)(const SkTypeface*, SkWStream* ) = SK_TYPEFACE_DELEGATE;
-sk_sp<SkTypeface> (*gDeserializeTypefaceDelegate)(SkStream* ) = nullptr;
-
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace {
@@ -182,11 +172,6 @@ sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const {
-    if (gSerializeTypefaceDelegate) {
-        (*gSerializeTypefaceDelegate)(this, wstream);
-        return;
-    }
-
     bool isLocalData = false;
     SkFontDescriptor desc;
     this->onGetFontDescriptor(&desc, &isLocalData);
@@ -214,10 +199,6 @@ sk_sp<SkData> SkTypeface::serialize(SerializeBehavior behavior) const {
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
-    if (gDeserializeTypefaceDelegate) {
-        return (*gDeserializeTypefaceDelegate)(stream);
-    }
-
     SkFontDescriptor desc;
     if (!SkFontDescriptor::Deserialize(stream, &desc)) {
         return nullptr;
