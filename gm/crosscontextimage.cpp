@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/Resources.h"
@@ -32,7 +33,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
         return skiagm::DrawResult::kFail;
     }
 
-    GrContext* direct = context->priv().asDirectContext();
+    auto direct = context->priv().asDirectContext();
     if (!direct) {
         *errorMsg = "CrossContext image creation requires a direct context.";
         return skiagm::DrawResult::kSkip;

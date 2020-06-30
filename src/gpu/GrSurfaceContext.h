@@ -83,7 +83,7 @@ public:
      *                      is a GrDirectContext and fail otherwise.
      */
     bool readPixels(const GrImageInfo& dstInfo, void* dst, size_t rowBytes, SkIPoint srcPt,
-                    GrContext* direct = nullptr);
+                    GrDirectContext* direct = nullptr);
 
     using ReadPixelsCallback = SkImage::ReadPixelsCallback;
     using ReadPixelsContext  = SkImage::ReadPixelsContext;
@@ -118,7 +118,7 @@ public:
      *                      is a GrDirectContext and fail otherwise.
      */
     bool writePixels(const GrImageInfo& srcInfo, const void* src, size_t rowBytes, SkIPoint dstPt,
-                     GrContext* direct = nullptr);
+                     GrDirectContext* direct = nullptr);
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }

@@ -8,7 +8,7 @@
 
 #include "src/gpu/GrPathRendererChain.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"

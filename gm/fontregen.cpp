@@ -30,6 +30,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTemplates.h"
