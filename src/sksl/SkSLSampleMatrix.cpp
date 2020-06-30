@@ -30,24 +30,75 @@
 
 namespace SkSL {
 
-SampleMatrix SampleMatrix::merge(const SampleMatrix& other) {
-    if (fKind == Kind::kVariable || other.fKind == Kind::kVariable) {
-        *this = SampleMatrix::MakeVariable(this->fHasPerspective || other.fHasPerspective);
-        return *this;
-    }
-    if (other.fKind == Kind::kConstantOrUniform) {
-        if (fKind == other.fKind) {
-            if (fExpression == other.fExpression) {
-                return *this;
+SampleUsage SampleUsage::merge(const SampleUsage& other) {
+    if (other.fExplicitCoords) { fExplicitCoords = true; }
+    if (other.fPassThrough)    { fPassThrough    = true; }
+    if (other.fHasPerspective) { fHasPerspective = true; }
+
+    if (other.fKind == Kind::kVariable) {
+        fKind = Kind::kVariable;
+        fExpression.clear();
+    } else if (other.fKind == Kind::kConstantOrUniform) {
+        if (fKind == Kind::kConstantOrUniform) {
+            if (fExpression != other.fExpression) {
+                fKind = Kind::kVariable;
+                fExpression.clear();
+            } else {
+                // Identical constant expressions, so leave things as-is
             }
-            *this = SampleMatrix::MakeVariable(this->fHasPerspective || other.fHasPerspective);
-            return *this;
+        } else if (fKind == Kind::kNone) {
+            fKind = Kind::kConstantOrUniform;
+            fExpression = other.fExpression;
+        } else {
+            // We were already variable, so leave things as-is
+            SkASSERT(fKind == Kind::kVariable);
         }
-        SkASSERT(fKind == Kind::kNone);
-        *this = other;
-        return *this;
+    } else {
+        // other had no matrix information, so we're done
     }
+
     return *this;
+}
+
+std::string SampleUsage::constructor(std::string perspectiveExpression) const {
+    SkASSERT(this->hasMatrix() || perspectiveExpression.empty());
+    if (perspectiveExpression.empty()) {
+        perspectiveExpression = fHasPerspective ? "true" : "false";
+    }
+
+    // Check for special cases where we can use our factories:
+    if (!this->hasMatrix()) {
+        if (fExplicitCoords && !fPassThrough) {
+            return "SkSL::SampleUsage::MakeExplicitCoords()";
+        } else if (fPassThrough && !fExplicitCoords) {
+            return "SkSL::SampleUsage::MakePassThrough()";
+        }
+    }
+    if (!fExplicitCoords && !fPassThrough) {
+        if (fKind == Kind::kVariable) {
+            return "SkSL::SampleUsage::MakeVariable(" + perspectiveExpression + ")";
+        } else if (fKind == Kind::kConstantOrUniform) {
+            return "SkSL::SampleUsage::MakeConstUniform(\"" + fExpression + "\", " +
+                   perspectiveExpression + ")";
+        }
+    }
+
+    // For more complex scenarios (mixed sampling), fall back to our universal constructor
+    std::string result = "SkSL::SampleUsage(SkSL::SampleUsage::Kind::";
+    switch (fKind) {
+        case Kind::kNone:              result += "kNone";              break;
+        case Kind::kConstantOrUniform: result += "kConstantOrUniform"; break;
+        case Kind::kVariable:          result += "kVariable";          break;
+    }
+    result += ", \"";
+    result += fExpression;
+    result += "\", ";
+    result += perspectiveExpression;
+    result += ", ";
+    result += fExplicitCoords ? "true, " : "false, ";
+    result += fPassThrough    ? "true)"  : "false)";
+
+    return result;
 }
 
 } // namespace
