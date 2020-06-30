@@ -333,6 +333,30 @@
     },
     {
       "key": {
+        "uuid": "138e9da5_abadd2a1",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-30T21:27:54Z",
+      "side": 1,
+      "message": "I\u0027m sorry I think we got confused here somewhere.  -Os is more optimized than -O1.  I\u0027d stick with -Os if that\u0027s what you\u0027re using, and if so, it\u0027s interesting to follow up on the codegen differences between the approaches you tried.",
+      "parentUuid": "69744c50_9c2b3a2e",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 631,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71e2f581_c9d8930e",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
