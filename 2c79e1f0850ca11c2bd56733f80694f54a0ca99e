@@ -82,6 +82,24 @@
     },
     {
       "key": {
+        "uuid": "739ae6bb_d1a2b29a",
+        "filename": "src/gpu/GrStagingBufferManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-30T22:20:42Z",
+      "side": 1,
+      "message": "So it is detaching the buffers from the GrStagingBufferManager. The dawn implementation happens to then store them on the GrDawnStagingBufferManager in the busy list, but if you look at the vulkan implemenation the ownership is passed on to a GrVkCommandBuffer. The dawn implemenation could also very easy decide to store its busy list on the GrDawnGpu instead.\n\nAnother way to think about it is the base class here, GrStagingBufferManager, is the cache and provider of staging slices for the GrGpu to use in a frame. The GrGpu then takes ownership of them as they are used on the gpu. It is then the backends decision whether it wants to give the buffers back to the manager to reuse or it has the option of just throwing them away.",
+      "parentUuid": "0c618849_6f77a42f",
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ff38706_5f6a2c7f",
         "filename": "src/gpu/GrStagingBufferManager.h",
         "patchSetId": 3
@@ -117,6 +135,30 @@
       "side": 1,
       "message": "I guess Recycle means \"move from Busy to Available\"? I found the old names clearer, but I suppose it only works if there\u0027s a Busy list (which not all backends have, I\u0027m guessing).",
       "parentUuid": "7ff38706_5f6a2c7f",
+      "range": {
+        "startLine": 37,
+        "startChar": 71,
+        "endLine": 37,
+        "endChar": 83
+      },
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "575c5e3f_b91025f5",
+        "filename": "src/gpu/GrStagingBufferManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-30T22:20:42Z",
+      "side": 1,
+      "message": "Yeah its not really a move from busy to available cause the backends can do whatever they want with the buffers onces they take ownership with the detach call. The backends then can decide to recycle the buffers back to GrStagingBufferManagers cache of available bufffers.",
+      "parentUuid": "8517ec88_6290e9a4",
       "range": {
         "startLine": 37,
         "startChar": 71,
@@ -276,6 +318,24 @@
       "writtenOn": "2020-06-30T21:56:06Z",
       "side": 1,
       "message": "Seems a shame that we have a linked list, but can\u0027t remove in O(1) time. Did you consider using an SkInternalList instead? Then you wouldn\u0027t need a loop at all.",
+      "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f83dfb8_6e0aea38",
+        "filename": "src/gpu/dawn/GrDawnStagingBufferManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-30T22:20:42Z",
+      "side": 1,
+      "message": "First this did remind me that I left SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrStagingBuffer) in the code. I don\u0027t really want to add that GrStagingBuffer, but I\u0027d be happy to add it for dawn only here. The awkward thing would be how dawn manages the ownership of the staging buffer. When we, as it currently is called, detach the buffers dawn has to hold the ownership. I guess we can call release on the unique_ptr to get a raw pointer, then add that to the list. Then when we recycle the buffer dawn just needs to re-wrap back into a unique_ptr. We would have to remember if we ever need to delete the list that still has buffers to call delete on them. However, that should never be case and we should only ever delete buffers in available or active.\n\nOkay talking this out, it sounds like it can work well. I\u0027ll give it a shot.",
+      "parentUuid": "d5a5b00a_3965f53d",
       "revId": "2c79e1f0850ca11c2bd56733f80694f54a0ca99e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
