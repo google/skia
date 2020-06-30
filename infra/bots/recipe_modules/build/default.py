@@ -129,13 +129,54 @@ def compile_fn(api, checkout_root, out_dir):
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
+  # This is a build requiring the newer xcode.
+  if os == 'Mac10.15.5':
+    # XCode build is listed in parentheses after the version at
+    # https://developer.apple.com/news/releases/, or on Wikipedia here:
+    # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
+    # Use lowercase letters.
+    XCODE_BUILD_VERSION = '11c29'
+    extra_cflags.append(
+        '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
+    mac_toolchain_cmd = api.vars.slave_dir.join(
+        'mac_toolchain', 'mac_toolchain')
+    xcode_app_path = api.vars.cache_dir.join('Xcode.app')
+    # Copied from
+    # https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#322
+    with api.step.nest('ensure xcode') as step_result:
+      step_result.presentation.step_text = (
+          'Ensuring Xcode version %s in %s' % (
+              XCODE_BUILD_VERSION, xcode_app_path))
+      install_xcode_cmd = [
+          mac_toolchain_cmd, 'install',
+          # "ios" is needed for simulator builds
+          # (Build-Mac-Clang-x64-Release-iOS).
+          '-kind', 'ios',
+          '-xcode-version', XCODE_BUILD_VERSION,
+          '-output-dir', xcode_app_path,
+      ]
+      api.step('install xcode', install_xcode_cmd)
+      api.step('select xcode', [
+          'sudo', 'xcode-select', '-switch', xcode_app_path])
+      if 'iOS' in extra_tokens:
+        if target_arch == 'arm':
+          # Can only compile for 32-bit up to iOS 10.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
+        else:
+          # Our iOS devices are on an older version.
+          # Can't compile for Metal before 11.0.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+      else:
+        # We have some bots on 10.13.
+        env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
+
   if 'CheckGeneratedFiles' in extra_tokens:
     compiler = 'Clang'
     args['skia_compile_processors'] = 'true'
     args['skia_generate_workarounds'] = 'true'
 
   # ccache + clang-tidy.sh chokes on the argument list.
-  if (api.vars.is_linux or os == 'Mac') and 'Tidy' not in extra_tokens:
+  if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
       ccache = api.vars.slave_dir.join('ccache_linux', 'bin', 'ccache')
       # As of 2020-02-07, the sum of each Debian10-Clang-x86
