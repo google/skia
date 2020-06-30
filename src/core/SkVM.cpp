@@ -81,6 +81,19 @@ bool gSkVMJITViaDylib{false};
     #endif
 #endif
 
+// JIT code isn't MSAN-instrumented, so we won't see when it uses
+// uninitialized memory, and we'll not see the writes it makes as properly
+// initializing memory.  Instead force the interpreter, which should let
+// MSAN see everything our programs do properly.
+//
+// Similarly, we can't get ASAN's checks unless we let it instrument our interpreter.
+#if defined(__has_feature)
+    #if __has_feature(memory_sanitizer) || __has_feature(address_sanitizer)
+        #define SKVM_JIT_BUT_IGNORE_IT
+    #endif
+#endif
+
+
 
 namespace skvm {
 
@@ -2189,13 +2202,15 @@ namespace skvm {
             });
         }
     #endif
+
+    #if !defined(SKVM_JIT_BUT_IGNORE_IT)
         // This may fail either simply because we can't JIT, or when using LLVM,
         // because the work represented by fImpl->llvm_compiling hasn't finished yet.
         if (const void* b = fImpl->jit_entry.load()) {
-    #if SKVM_JIT_STATS
+        #if SKVM_JIT_STATS
             jits++;
             fast += n;
-    #endif
+        #endif
             void** a = args;
             switch (fImpl->strides.size()) {
                 case 0: return ((void(*)(int                        ))b)(n                    );
@@ -2208,6 +2223,7 @@ namespace skvm {
                 default: SkUNREACHABLE;  // TODO
             }
         }
+    #endif
 
         // So we'll sometimes use the interpreter here even if later calls will use the JIT.
         SkOpts::interpret_skvm(fImpl->instructions.data(), (int)fImpl->instructions.size(),
