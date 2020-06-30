@@ -30,6 +30,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkReadBuffer.h"
@@ -287,7 +288,7 @@ DEF_GM( return new ScalePixelsGM; )
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
-    GrContext* direct = context->priv().asDirectContext();
+    auto direct = context->priv().asDirectContext();
     if (!direct) {
         return;
     }
