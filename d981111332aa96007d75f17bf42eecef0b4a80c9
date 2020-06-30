@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9b60ddc_3cb61838",
+        "filename": "src/sksl/SkSLSampleMatrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-06-30T20:55:53Z",
+      "side": 1,
+      "message": "We could add some special cases here when there\u0027s only one kind of sampling present, to keep generated code looking more like it does today. Thoughts?",
+      "revId": "d981111332aa96007d75f17bf42eecef0b4a80c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
