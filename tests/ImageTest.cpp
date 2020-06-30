@@ -182,7 +182,7 @@ DEF_TEST(ImageEncode, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
-    test_encode(reporter, create_gpu_image(ctxInfo.grContext()).get());
+    test_encode(reporter, create_gpu_image(ctxInfo.context()).get());
 }
 
 DEF_TEST(Image_MakeFromRasterBitmap, reporter) {

@@ -108,7 +108,7 @@ DEF_GPUTEST_FOR_CONTEXTS(GrMeshTest, IsContextTypeForOutputPNGs, reporter, ctxIn
 #else
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 #endif
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
 
     auto rtc = GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,

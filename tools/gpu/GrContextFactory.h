@@ -140,7 +140,7 @@ public:
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone);
+    GrDirectContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone);
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
@@ -172,7 +172,7 @@ public:
     GrContextFactory::ContextType type() const { return fType; }
     GrBackendApi backend() const { return GrContextFactory::ContextTypeBackend(fType); }
 
-    GrContext* grContext() const { return fGrContext; }
+    GrDirectContext* context() const { return fContext; }
 
     TestContext* testContext() const { return fTestContext; }
 
@@ -186,14 +186,16 @@ public:
     const GrContextOptions& options() const { return fOptions; }
 
 private:
-    ContextInfo(GrContextFactory::ContextType type, TestContext* testContext, GrContext* grContext,
+    ContextInfo(GrContextFactory::ContextType type,
+                TestContext* testContext,
+                GrDirectContext* context,
                 const GrContextOptions& options)
-            : fType(type), fTestContext(testContext), fGrContext(grContext), fOptions(options) {}
+            : fType(type), fTestContext(testContext), fContext(context), fOptions(options) {}
 
     GrContextFactory::ContextType fType = GrContextFactory::kGL_ContextType;
     // Valid until the factory destroys it via abandonContexts() or destroyContexts().
     TestContext* fTestContext = nullptr;
-    GrContext* fGrContext = nullptr;
+    GrDirectContext* fContext = nullptr;
     GrContextOptions fOptions;
 
     friend class GrContextFactory;

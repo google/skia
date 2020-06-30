@@ -115,9 +115,10 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
-    const GrCaps* caps = ctxInfo.grContext()->priv().caps();
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
+    auto context = ctxInfo.context();
+    const GrCaps* caps = context->priv().caps();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 
     struct TestCase {
         ProxyParams   fP1;
@@ -158,8 +159,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     }
 
     auto beFormat = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kYes);
-    int k2 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(2, beFormat);
-    int k4 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(4, beFormat);
+    int k2 = ctxInfo.context()->priv().caps()->getRenderTargetSampleCount(2, beFormat);
+    int k4 = ctxInfo.context()->priv().caps()->getRenderTargetSampleCount(4, beFormat);
 
     //--------------------------------------------------------------------------------------------
     TestCase gNonOverlappingTests[] = {
@@ -214,13 +215,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
                 {{64, kNotRT, kRGBA, kE, 1, kNotB}, {64, kNotRT, kRGBA, kE, 1, kNotB}, kDontShare}};
 
         GrBackendTexture backEndTex;
-        sk_sp<GrSurfaceProxy> p1 = make_backend(ctxInfo.grContext(), t[0].fP1, &backEndTex);
+        sk_sp<GrSurfaceProxy> p1 = make_backend(ctxInfo.context(), t[0].fP1, &backEndTex);
         sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, t[0].fP2);
 
         non_overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2),
                          t[0].fExpectation);
 
-        cleanup_backend(ctxInfo.grContext(), backEndTex);
+        cleanup_backend(ctxInfo.context(), backEndTex);
     }
 }
 
@@ -237,7 +238,7 @@ static void draw(GrContext* context) {
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
 
     size_t maxBytes = context->getResourceCacheLimit();
 
@@ -282,7 +283,7 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
 // it is over budget. The two opsTasks should be flushed separately and the opsTask indices
 // returned from assign should be correct.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
     const GrCaps* caps = context->priv().caps();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
@@ -340,7 +341,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
 // http://crbug.com/996610.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
                                    reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
     const GrCaps* caps = context->priv().caps();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
@@ -370,8 +371,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
     // Wrapped proxy that will be ignored by the resourceAllocator. We use this to try and get the
     // resource allocator fCurOpsTaskIndex to fall behind what it really should be.
     GrBackendTexture backEndTex;
-    sk_sp<GrSurfaceProxy> proxyWrapped = make_backend(ctxInfo.grContext(), params,
-                                                      &backEndTex);
+    sk_sp<GrSurfaceProxy> proxyWrapped = make_backend(context, params, &backEndTex);
     if (!proxyWrapped) {
         return;
     }
@@ -379,10 +379,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
     // Same as above, but we actually need to have at least two intervals that don't go through the
     // resource allocator to expose the index bug.
     GrBackendTexture backEndTex2;
-    sk_sp<GrSurfaceProxy> proxyWrapped2 = make_backend(ctxInfo.grContext(), params,
-                                                       &backEndTex2);
+    sk_sp<GrSurfaceProxy> proxyWrapped2 = make_backend(context, params, &backEndTex2);
     if (!proxyWrapped2) {
-        cleanup_backend(ctxInfo.grContext(), backEndTex);
+        cleanup_backend(context, backEndTex);
         return;
     }
 
@@ -423,8 +422,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
     REPORTER_ASSERT(reporter, 3 == startIndex && 4 == stopIndex);
 
-    cleanup_backend(ctxInfo.grContext(), backEndTex);
-    cleanup_backend(ctxInfo.grContext(), backEndTex2);
+    cleanup_backend(context, backEndTex);
+    cleanup_backend(context, backEndTex2);
 
     context->setResourceCacheLimit(origMaxBytes);
 }

@@ -129,8 +129,8 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
     }
 }
 
-GrContext* GrContextFactory::get(ContextType type, ContextOverrides overrides) {
-    return this->getContextInfo(type, overrides).grContext();
+GrDirectContext* GrContextFactory::get(ContextType type, ContextOverrides overrides) {
+    return this->getContextInfo(type, overrides).context();
 }
 
 ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOverrides overrides,

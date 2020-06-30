@@ -14,7 +14,8 @@
 #include "include/gpu/vk/GrVkVulkan.h"
 
 #include "include/gpu/GrBackendSurface.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/private/GrDirectContext.h"
+//#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -174,9 +175,9 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkWrapTests, reporter, ctxInfo) {
-    wrap_tex_test(reporter, ctxInfo.grContext());
-    wrap_rt_test(reporter, ctxInfo.grContext());
-    wrap_trt_test(reporter, ctxInfo.grContext());
+    wrap_tex_test(reporter, ctxInfo.context());
+    wrap_rt_test(reporter, ctxInfo.context());
+    wrap_trt_test(reporter, ctxInfo.context());
 }
 
 #endif
