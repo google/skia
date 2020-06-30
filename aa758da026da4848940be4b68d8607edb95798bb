@@ -285,6 +285,30 @@
     },
     {
       "key": {
+        "uuid": "58cca083_2f10e4fe",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-06-30T21:18:12Z",
+      "side": 1,
+      "message": "I would switch over to at least building with -O1 (by default, forever, but especially when thinking about WASM and SkVx and similar).  Totally unoptimized code is carefully compiled to reflect the structure of the original source code, which is not something we care about at all here.",
+      "parentUuid": "e8e58029_6133c232",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 631,
+        "endChar": 9
+      },
+      "revId": "aa758da026da4848940be4b68d8607edb95798bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71e2f581_c9d8930e",
         "filename": "include/private/SkVx.h",
         "patchSetId": 1
