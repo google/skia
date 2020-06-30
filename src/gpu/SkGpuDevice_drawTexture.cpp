@@ -15,6 +15,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrImageTextureMaker.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTextureAdjuster.h"
@@ -153,7 +154,7 @@ static SkIRect determine_clipped_src_rect(int width, int height,
 }
 
 // tileSize and clippedSubset are valid if true is returned
-static bool should_tile_image_id(GrContext* context,
+static bool should_tile_image_id(GrRecordingContext* context,
                                  SkISize rtSize,
                                  const GrClip* clip,
                                  uint32_t imageID,
@@ -185,14 +186,15 @@ static bool should_tile_image_id(GrContext* context,
     // and theoretically, the resource cache's limits could be being changed on another thread, so
     // even having access to just the limit wouldn't be a reliable test during recording here.
     // Instead, we will just upload the entire image to be on the safe side and not tile.
-    if (!context->priv().asDirectContext()) {
+    auto direct = context->priv().asDirectContext();
+    if (!direct) {
         return false;
     }
 
     // assumption here is that sw bitmap size is a good proxy for its size as
     // a texture
     size_t bmpSize = area * sizeof(SkPMColor);  // assume 32bit pixels
-    size_t cacheSize = context->getResourceCacheLimit();
+    size_t cacheSize = direct->getResourceCacheLimit();
     if (bmpSize < cacheSize / 2) {
         return false;
     }
@@ -381,7 +383,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip* clip, const S
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
-static void draw_texture_producer(GrContext* context,
+static void draw_texture_producer(GrRecordingContext* context,
                                   GrRenderTargetContext* rtc,
                                   const GrClip* clip,
                                   const SkMatrixProvider& matrixProvider,
@@ -641,7 +643,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     bool doBicubic;
     GrSamplerState::Filter fm = GrSkFilterQualityToGrFilterMode(
             image->width(), image->height(), paint.getFilterQuality(), ctm, srcToDst,
-            fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
+            fContext1->priv().options().fSharpenMipmappedTextures, &doBicubic);
 
     auto clip = this->clip();
 
@@ -652,8 +654,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
-        GrYUVAImageTextureMaker maker(fContext.get(), image);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+        GrYUVAImageTextureMaker maker(fContext1.get(), image);
+        draw_texture_producer(fContext1.get(), fRenderTargetContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode, fm, doBicubic);
         return;
@@ -668,7 +670,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
         GrColorInfo colorInfo;
-        if (fContext->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
+        if (fContext1->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
             SkASSERT(image->imageInfo().colorType() == kRGBA_8888_SkColorType);
             colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, image->imageInfo().alphaType(),
                                     image->imageInfo().refColorSpace());
@@ -676,8 +678,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
             colorInfo = GrColorInfo(image->imageInfo().colorInfo());
         }
 
-        GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+        GrTextureAdjuster adjuster(fContext1.get(), std::move(view), colorInfo, pinnedUniqueID);
+        draw_texture_producer(fContext1.get(), fRenderTargetContext.get(), clip, matrixProvider,
                               paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,
                               constraint, wrapMode, fm, doBicubic);
         return;
@@ -696,10 +698,10 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         } else {
             tileFilterPad = 1;
         }
-        int maxTileSize = fContext->priv().caps()->maxTileSize() - 2 * tileFilterPad;
+        int maxTileSize = fContext1->priv().caps()->maxTileSize() - 2 * tileFilterPad;
         int tileSize;
         SkIRect clippedSubset;
-        if (should_tile_image_id(fContext.get(), SkISize::Make(fRenderTargetContext->width(),
+        if (should_tile_image_id(fContext1.get(), SkISize::Make(fRenderTargetContext->width(),
                                                                fRenderTargetContext->height()),
                                  clip, image->unique(), image->dimensions(), ctm, srcToDst, &src,
                                  maxTileSize, &tileSize, &clippedSubset)) {
@@ -710,7 +712,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
                 // This is the funnel for all paths that draw tiled bitmaps/images. Log histogram
                 SK_HISTOGRAM_BOOLEAN("DrawTiled", true);
                 LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
-                draw_tiled_bitmap(fContext.get(), fRenderTargetContext.get(), clip, bm, tileSize,
+                draw_tiled_bitmap(fContext1.get(), fRenderTargetContext.get(), clip, bm, tileSize,
                                   matrixProvider, srcToDst, src, clippedSubset, paint, aa,
                                   constraint, wrapMode, fm, doBicubic);
                 return;
@@ -725,8 +727,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Lazily generated images must get drawn as a texture producer that handles the final
     // texture creation.
     if (image->isLazyGenerated()) {
-        GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+        GrImageTextureMaker maker(fContext1.get(), image, GrImageTexGenPolicy::kDraw);
+        draw_texture_producer(fContext1.get(), fRenderTargetContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode, fm, doBicubic);
         return;
@@ -734,8 +736,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm)) {
-        GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+        GrBitmapTextureMaker maker(fContext1.get(), bm, GrImageTexGenPolicy::kDraw);
+        draw_texture_producer(fContext1.get(), fRenderTargetContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               wrapMode, fm, doBicubic);
     }

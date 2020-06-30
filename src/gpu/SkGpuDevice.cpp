@@ -49,7 +49,7 @@
 #include "src/image/SkSurface_Gpu.h"
 #include "src/utils/SkUTF.h"
 
-#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
+#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext1->priv().singleOwner())
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,12 +119,12 @@ static SkImageInfo make_info(GrRenderTargetContext* context, bool opaque) {
                              context->colorInfo().refColorSpace());
 }
 
-SkGpuDevice::SkGpuDevice(GrContext* context,
+SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
                          std::unique_ptr<GrRenderTargetContext> renderTargetContext,
                          unsigned flags)
         : INHERITED(make_info(renderTargetContext.get(), SkToBool(flags & kIsOpaque_Flag)),
                     renderTargetContext->surfaceProps())
-        , fContext(SkRef(context))
+        , fContext1(SkRef(context))
         , fRenderTargetContext(std::move(renderTargetContext))
         , fClip(fRenderTargetContext->dimensions(), &this->cs(), &this->asMatrixProvider()) {
     if (flags & kNeedClear_Flag) {

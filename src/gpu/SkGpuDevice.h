@@ -61,8 +61,7 @@ public:
 
     ~SkGpuDevice() override {}
 
-    GrContext* context() const override { return fContext.get(); }
-    GrRecordingContext* recordingContext() const override { return fContext.get(); }
+    GrRecordingContext* recordingContext() const override { return fContext1.get(); }
 
     // set all pixels to 0
     void clearAll();
@@ -128,7 +127,7 @@ protected:
 
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
-    sk_sp<GrContext> fContext;
+    sk_sp<GrRecordingContext> fContext1;
     std::unique_ptr<GrRenderTargetContext> fRenderTargetContext;
     GrClipStackClip  fClip;
 
@@ -140,7 +139,7 @@ private:
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);
 
-    SkGpuDevice(GrContext*, std::unique_ptr<GrRenderTargetContext>, unsigned flags);
+    SkGpuDevice(GrRecordingContext*, std::unique_ptr<GrRenderTargetContext>, unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
