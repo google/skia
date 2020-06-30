@@ -51,9 +51,11 @@ private:
             , makePremul(makePremul)
             , colorsAreOpaque(colorsAreOpaque) {
         SkASSERT(colorizer);
-        colorizer_index = this->registerChild(std::move(colorizer));
+        colorizer_index =
+                this->registerChild(std::move(colorizer), SkSL::SampleUsage::MakePassThrough());
         SkASSERT(gradLayout);
-        gradLayout_index = this->registerChild(std::move(gradLayout));
+        gradLayout_index =
+                this->registerChild(std::move(gradLayout), SkSL::SampleUsage::MakePassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

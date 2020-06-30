@@ -37,10 +37,12 @@ private:
                         float weight)
             : INHERITED(kGrComposeLerpEffect_ClassID, kNone_OptimizationFlags), weight(weight) {
         if (child1) {
-            child1_index = this->registerChild(std::move(child1));
+            child1_index =
+                    this->registerChild(std::move(child1), SkSL::SampleUsage::MakePassThrough());
         }
         if (child2) {
-            child2_index = this->registerChild(std::move(child2));
+            child2_index =
+                    this->registerChild(std::move(child2), SkSL::SampleUsage::MakePassThrough());
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

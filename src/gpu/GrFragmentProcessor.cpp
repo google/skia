@@ -87,19 +87,19 @@ const GrCoordTransform& GrFragmentProcessor::coordTransform(int i) const {
     return kImplicitIdentity;
 }
 
-void GrFragmentProcessor::setSampleMatrix(SkSL::SampleMatrix newMatrix) {
-    SkASSERT(!newMatrix.isNoOp());
-    SkASSERT(fMatrix.isNoOp());
+void GrFragmentProcessor::setSampleUsage(SkSL::SampleUsage newUsage) {
+    SkASSERT(newUsage.hasMatrix());
+    SkASSERT(!fUsage.isSampled());
 
-    fMatrix = newMatrix;
+    fUsage = newUsage;
     // When an FP is sampled using variable matrix expressions, it is effectively being sampled
     // explicitly, except that the call site will automatically evaluate the matrix expression to
     // produce the float2 passed into this FP.
-    if (fMatrix.isVariable()) {
+    if (fUsage.hasVariableMatrix()) {
         this->addAndPushFlagToChildren(kSampledWithExplicitCoords_Flag);
     }
     // Push perspective matrix type to children
-    if (fMatrix.fHasPerspective) {
+    if (fUsage.fHasPerspective) {
         this->addAndPushFlagToChildren(kNetTransformHasPerspective_Flag);
     }
 }
@@ -138,22 +138,26 @@ bool GrFragmentProcessor::isInstantiated() const {
 #endif
 
 int GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> child,
-                                       SkSL::SampleMatrix sampleMatrix,
-                                       bool explicitlySampled) {
+                                       SkSL::SampleUsage sampleUsage) {
     // The child should not have been attached to another FP already and not had any sampling
     // strategy set on it.
-    SkASSERT(child && !child->fParent && child->sampleMatrix().isNoOp() &&
+    SkASSERT(child && !child->fParent && !child->sampleUsage().isSampled() &&
              !child->isSampledWithExplicitCoords() && !child->hasPerspectiveTransform());
 
+    // If a child is sampled directly (sample(child)), and with a single const/uniform matrix,
+    // we need to treat it as if it were sampled with multiple matrices (eg variable).
+    bool variableMatrix = sampleUsage.hasVariableMatrix() ||
+                          (sampleUsage.fPassThrough && sampleUsage.hasConstUniformMatrix());
+
     // Configure child's sampling state first
-    if (explicitlySampled) {
+    if (sampleUsage.fExplicitCoords || variableMatrix) {
         child->addAndPushFlagToChildren(kSampledWithExplicitCoords_Flag);
     }
-    if (sampleMatrix.fKind != SkSL::SampleMatrix::Kind::kNone) {
-        child->setSampleMatrix(sampleMatrix);
+    if (sampleUsage.hasMatrix()) {
+        child->setSampleUsage(sampleUsage);
     }
 
-    if (child->sampleMatrix().fKind == SkSL::SampleMatrix::Kind::kVariable) {
+    if (variableMatrix) {
         // Since the child is sampled with a variable matrix expression, auto-generated code in
         // invokeChildWithMatrix() for this FP will refer to the local coordinates.
         this->setUsesSampleCoordsDirectly();
@@ -181,14 +185,15 @@ int GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chil
 
     // Sanity check: our sample strategy comes from a parent we shouldn't have yet.
     SkASSERT(!this->isSampledWithExplicitCoords() && !this->hasPerspectiveTransform() &&
-             fMatrix.isNoOp() && !fParent);
+             !fUsage.isSampled() && !fParent);
     return index;
 }
 
 int GrFragmentProcessor::cloneAndRegisterChildProcessor(const GrFragmentProcessor& fp) {
     std::unique_ptr<GrFragmentProcessor> clone = fp.clone();
-    return this->registerChild(std::move(clone), fp.sampleMatrix(),
-                               fp.isSampledWithExplicitCoords());
+    // TODO: Is this correct? Previously, we were passing the propagated explicit-coords flag to
+    // control if the cloned child would get explicit coord sampling. Should be okay?
+    return this->registerChild(std::move(clone), fp.sampleUsage());
 }
 
 void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src) {
