@@ -2789,7 +2789,7 @@ namespace skvm {
                 if (instructions[v].immy == 0) {
                     a->vpxor(r,r,r);
                 } else {
-                    a->vmovups(r, &constants[instructions[v].immy]);
+                    a->vmovups(r, constants.find(instructions[v].immy));
                 }
             } else {
                 SkASSERT(stack_slot[v] != NA);
@@ -2821,7 +2821,7 @@ namespace skvm {
                 if (instructions[v].immy == 0) {
                     a->eor16b(r,r,r);
                 } else {
-                    a->ldrq(r, &constants[instructions[v].immy]);
+                    a->ldrq(r, constants.find(instructions[v].immy));
                 }
             } else {
                 SkASSERT(stack_slot[v] != NA);
@@ -2982,7 +2982,7 @@ namespace skvm {
                     return (Reg)found;
                 }
                 if (instructions[v].op == Op::splat) {
-                    return &constants[instructions[v].immy];
+                    return constants.find(instructions[v].immy);
                 }
                 return A::Mem{A::rsp, stack_slot[v]*K*4};
             };
@@ -2995,8 +2995,10 @@ namespace skvm {
         #endif
 
             switch (op) {
-                // Splats are handled above.
-                case Op::splat: break;
+                case Op::splat:
+                    // Make sure splat constants can be found by load_from_memory() or any().
+                    (void)constants[immy];
+                    break;
 
             #if defined(__x86_64__)
                 case Op::assert_true: {
