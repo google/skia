@@ -22,6 +22,29 @@
       "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f49601d9_61da3588",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 1515,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-06-30T15:19:46Z",
+      "side": 1,
+      "message": "That\u0027s not what I meant. The RGB values can be outside the range of 0 to 1. Only the Alpha need be restricted to 0 to 1.\n\nMake the range for RGB -10 to positive 10. I\u0027m sure if it\u0027s valid to have NaN or Infinity be passed into SkColor4f",
+      "range": {
+        "startLine": 1515,
+        "startChar": 16,
+        "endLine": 1515,
+        "endChar": 42
+      },
+      "revId": "6324e4bbb1b5bf9f9343b2280a718d578aad7dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
