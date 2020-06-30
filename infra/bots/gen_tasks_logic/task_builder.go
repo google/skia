@@ -159,7 +159,7 @@ func (b *taskBuilder) cipd(pkgs ...*specs.CipdPackage) {
 func (b *taskBuilder) useIsolatedAssets() bool {
 	// Only do this on the RPIs for now. Other, faster machines shouldn't
 	// see much benefit and we don't need the extra complexity, for now.
-	if b.os("Android", "ChromeOS", "iOS") {
+	if b.os("Android", "ChromeOS", "iOS", "Mac") {
 		return true
 	}
 	return false
