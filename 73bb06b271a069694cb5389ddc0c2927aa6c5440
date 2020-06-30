@@ -22,6 +22,30 @@
       "revId": "73bb06b271a069694cb5389ddc0c2927aa6c5440",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "552475b0_4ef5009f",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-06-30T17:48:22Z",
+      "side": 1,
+      "message": "Done - yeah - yours was clearer - thanks!",
+      "parentUuid": "8b7332c1_585e39e1",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 64
+      },
+      "revId": "73bb06b271a069694cb5389ddc0c2927aa6c5440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
