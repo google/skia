@@ -22,6 +22,30 @@
       "revId": "c19b9c58862feee3a482575ae014293da02bda43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea00c650_c8c12b6c",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 937,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-30T16:31:28Z",
+      "side": 0,
+      "message": "It\u0027s probably clearer with your change.",
+      "parentUuid": "6b458fc2_0b0739fb",
+      "range": {
+        "startLine": 937,
+        "startChar": 19,
+        "endLine": 937,
+        "endChar": 61
+      },
+      "revId": "c19b9c58862feee3a482575ae014293da02bda43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

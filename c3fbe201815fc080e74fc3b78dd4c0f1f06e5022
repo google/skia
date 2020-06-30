@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04fe1de0_e03c1363",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-06-30T16:31:28Z",
+      "side": 1,
+      "message": "Setting up for Vulkan I assume?",
+      "range": {
+        "startLine": 832,
+        "startChar": 4,
+        "endLine": 832,
+        "endChar": 14
+      },
+      "revId": "c3fbe201815fc080e74fc3b78dd4c0f1f06e5022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
