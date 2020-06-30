@@ -2239,24 +2239,36 @@ if (skia_enable_tools) {
       ":skia",
     ]
     sources = [
+      "tools/sk_app/Application.h",
       "tools/sk_app/CommandSet.cpp",
+      "tools/sk_app/CommandSet.h",
+      "tools/sk_app/DisplayParams.h",
+      "tools/sk_app/RasterWindowContext.h",
       "tools/sk_app/Window.cpp",
+      "tools/sk_app/Window.h",
+      "tools/sk_app/WindowContext.h",
     ]
     libs = []
 
     if (is_android) {
       sources += [
         "tools/sk_app/android/RasterWindowContext_android.cpp",
+        "tools/sk_app/android/WindowContextFactory_android.h",
         "tools/sk_app/android/Window_android.cpp",
+        "tools/sk_app/android/Window_android.h",
         "tools/sk_app/android/main_android.cpp",
         "tools/sk_app/android/surface_glue_android.cpp",
+        "tools/sk_app/android/surface_glue_android.h",
       ]
       libs += [ "android" ]
     } else if (is_linux) {
       sources += [
         "tools/sk_app/unix/RasterWindowContext_unix.cpp",
+        "tools/sk_app/unix/WindowContextFactory_unix.h",
         "tools/sk_app/unix/Window_unix.cpp",
+        "tools/sk_app/unix/Window_unix.h",
         "tools/sk_app/unix/keysym2ucs.c",
+        "tools/sk_app/unix/keysym2ucs.h",
         "tools/sk_app/unix/main_unix.cpp",
       ]
       libs += [
@@ -2266,12 +2278,16 @@ if (skia_enable_tools) {
     } else if (is_win) {
       sources += [
         "tools/sk_app/win/RasterWindowContext_win.cpp",
+        "tools/sk_app/win/WindowContextFactory_win.h",
         "tools/sk_app/win/Window_win.cpp",
+        "tools/sk_app/win/Window_win.h",
         "tools/sk_app/win/main_win.cpp",
       ]
     } else if (is_mac) {
       sources += [
         "tools/sk_app/mac/RasterWindowContext_mac.mm",
+        "tools/sk_app/mac/WindowContextFactory_mac.h",
+        "tools/sk_app/mac/Window_mac.h",
         "tools/sk_app/mac/Window_mac.mm",
         "tools/sk_app/mac/main_mac.mm",
       ]
@@ -2283,6 +2299,8 @@ if (skia_enable_tools) {
     } else if (is_ios) {
       sources += [
         "tools/sk_app/ios/RasterWindowContext_ios.mm",
+        "tools/sk_app/ios/WindowContextFactory_ios.h",
+        "tools/sk_app/ios/Window_ios.h",
         "tools/sk_app/ios/Window_ios.mm",
         "tools/sk_app/ios/main_ios.mm",
       ]
@@ -2291,6 +2309,7 @@ if (skia_enable_tools) {
 
     if (skia_use_gl) {
       sources += [ "tools/sk_app/GLWindowContext.cpp" ]
+      sources += [ "tools/sk_app/GLWindowContext.h" ]
       if (is_android) {
         sources += [ "tools/sk_app/android/GLWindowContext_android.cpp" ]
       } else if (is_linux) {
@@ -2309,6 +2328,7 @@ if (skia_enable_tools) {
 
     if (skia_use_vulkan) {
       sources += [ "tools/sk_app/VulkanWindowContext.cpp" ]
+      sources += [ "tools/sk_app/VulkanWindowContext.h" ]
       if (is_android) {
         sources += [ "tools/sk_app/android/VulkanWindowContext_android.cpp" ]
       } else if (is_linux) {
@@ -2321,6 +2341,7 @@ if (skia_enable_tools) {
 
     if (skia_use_metal) {
       sources += [ "tools/sk_app/MetalWindowContext.mm" ]
+      sources += [ "tools/sk_app/MetalWindowContext.h" ]
       if (is_mac) {
         sources += [ "tools/sk_app/mac/MetalWindowContext_mac.mm" ]
       } else if (is_ios) {
@@ -2334,6 +2355,7 @@ if (skia_enable_tools) {
 
     if (skia_use_dawn) {
       sources += [ "tools/sk_app/DawnWindowContext.cpp" ]
+      sources += [ "tools/sk_app/DawnWindowContext.h" ]
       if (is_linux) {
         if (dawn_enable_vulkan) {
           sources += [ "tools/sk_app/unix/DawnVulkanWindowContext_unix.cpp" ]
