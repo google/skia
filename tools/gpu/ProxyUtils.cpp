@@ -27,7 +27,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
                                                const GrImageInfo& imageInfo,
                                                const void* data,
                                                size_t rowBytes) {
-    if (context->priv().abandoned()) {
+    if (context->abandoned()) {
         return nullptr;
     }
 

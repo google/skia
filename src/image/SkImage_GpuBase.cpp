@@ -251,7 +251,7 @@ GrTexture* SkImage_GpuBase::getTexture() const {
 
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {
     // The base class has already checked that context isn't abandoned (if it's not nullptr)
-    if (fContext->priv().abandoned()) {
+    if (fContext->abandoned()) {
         return false;
     }
 

@@ -120,11 +120,11 @@ private:
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define ASSERT_SINGLE_OWNER_PRIV   GR_ASSERT_SINGLE_OWNER(fRenderTargetContext->singleOwner())
-#define RETURN_IF_ABANDONED        if (fContext->priv().abandoned()) { return; }
-#define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->fContext->priv().abandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED  if (fContext->priv().abandoned()) { return false; }
-#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->fContext->priv().abandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (fContext->priv().abandoned()) { return nullptr; }
+#define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
+#define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->fContext->abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED  if (fContext->abandoned()) { return false; }
+#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->fContext->abandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED   if (fContext->abandoned()) { return nullptr; }
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -183,7 +183,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     // GrRenderTargetContext which need the context will mostly likely fail later on without an
     // issue. However having this hear adds some reassurance in case there is a path doesn't handle
     // an abandoned context correctly. It also lets us early out of some extra work.
-    if (context->priv().abandoned()) {
+    if (context->abandoned()) {
         return nullptr;
     }
 
@@ -1225,7 +1225,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip* clip,
                                            const SkPath& path,
                                            const SkDrawShadowRec& rec) {
     ASSERT_SINGLE_OWNER
-    if (fContext->priv().abandoned()) {
+    if (fContext->abandoned()) {
         return true;
     }
     SkDEBUGCODE(this->validate();)
@@ -1882,7 +1882,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip* clip,
 SkBudgeted GrRenderTargetContextPriv::isBudgeted() const {
     ASSERT_SINGLE_OWNER_PRIV
 
-    if (fRenderTargetContext->fContext->priv().abandoned()) {
+    if (fRenderTargetContext->fContext->abandoned()) {
         return SkBudgeted::kNo;
     }
 
@@ -2022,7 +2022,7 @@ void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
 void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDrawOp> op,
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
-    if (fContext->priv().abandoned()) {
+    if (fContext->abandoned()) {
         fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }

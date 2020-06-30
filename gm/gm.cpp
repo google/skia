@@ -21,7 +21,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <stdarg.h>
@@ -205,7 +204,7 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
     }
-    if (ctx->priv().abandoned()) {
+    if (ctx->abandoned()) {
         *errorMsg = "GrContext abandoned.";
         return DrawResult::kSkip;
     }

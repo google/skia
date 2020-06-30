@@ -458,7 +458,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* co
                                                           sk_sp<SkColorSpace> colorSpace,
                                                           const SkSurfaceProps* props,
                                                           SkAlphaType at) {
-    if (!context || context->priv().abandoned() || !view.asTextureProxy()) {
+    if (!context || context->abandoned() || !view.asTextureProxy()) {
         return nullptr;
     }
     SkASSERT_RELEASE(rect_fits(subset, view.proxy()->width(), view.proxy()->height()));

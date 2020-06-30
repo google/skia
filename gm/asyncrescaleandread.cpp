@@ -206,7 +206,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         if (!surface) {
             *errorMsg = "Could not create surface for image.";
             // When testing abandoned GrContext we expect surface creation to fail.
-            if (canvas->recordingContext() && canvas->recordingContext()->priv().abandoned()) {
+            if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
                 return skiagm::DrawResult::kSkip;
             }
             return skiagm::DrawResult::kFail;
@@ -221,7 +221,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         if (!image) {
             *errorMsg = "Could not create image.";
             // When testing abandoned GrContext we expect surface creation to fail.
-            if (canvas->recordingContext() && canvas->recordingContext()->priv().abandoned()) {
+            if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
                 return skiagm::DrawResult::kSkip;
             }
             return skiagm::DrawResult::kFail;

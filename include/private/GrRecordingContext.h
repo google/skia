@@ -34,6 +34,14 @@ public:
         return INHERITED::defaultBackendFormat(ct, renderable);
     }
 
+    /**
+     * Reports whether the GrDirectContext associated with this GrRecordingContext is abandoned.
+     * When called on a GrDirectContext it may actively check whether the underlying 3D API
+     * device/context has been disconnected before reporting the status. If so, calling this
+     * method will transition the GrDirectContext to the abandoned state.
+     */
+    bool abandoned() override { return INHERITED::abandoned(); }
+
     // Provides access to functions that aren't part of the public API.
     GrRecordingContextPriv priv();
     const GrRecordingContextPriv priv() const;

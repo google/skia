@@ -81,7 +81,7 @@ GrAHardwareBufferImageGenerator::~GrAHardwareBufferImageGenerator() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext* context) {
-    if (context->priv().abandoned()) {
+    if (context->abandoned()) {
         return {};
     }
 

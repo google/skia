@@ -32,10 +32,8 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrBlurUtils.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageTextureMaker.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -79,7 +77,7 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
                                      std::unique_ptr<GrRenderTargetContext> renderTargetContext,
                                      InitContents init) {
-    if (!renderTargetContext || context->priv().abandoned()) {
+    if (!renderTargetContext || context->abandoned()) {
         return nullptr;
     }
 
@@ -220,7 +218,7 @@ void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetConte
     SkASSERT(rtc->numSamples() == fRenderTargetContext->numSamples());
     SkASSERT(rtc->asSurfaceProxy()->priv().isExact());
     if (mode == SkSurface::kRetain_ContentChangeMode) {
-        if (this->recordingContext()->priv().abandoned()) {
+        if (this->recordingContext()->abandoned()) {
             return;
         }
 

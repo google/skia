@@ -50,7 +50,7 @@ GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
 }
 
 GrSurfaceProxyView GrTextureAdjuster::onView(GrMipMapped mipMapped) {
-    if (this->context()->priv().abandoned()) {
+    if (this->context()->abandoned()) {
         // The texture was abandoned.
         return {};
     }

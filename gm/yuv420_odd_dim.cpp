@@ -18,7 +18,6 @@
 #include "include/private/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCachedData.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/image/SkImage_Base.h"
 
 static constexpr int kScale = 10;
@@ -78,7 +77,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim, canvas, errMsg,
                        kScale* kImageDim.width(), kScale* kImageDim.height()) {
     auto image = make_image(canvas->getGrContext());
     if (!image) {
-        if (canvas->recordingContext() && canvas->recordingContext()->priv().abandoned()) {
+        if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
             return skiagm::DrawResult::kOk;
         }
         return skiagm::DrawResult::kFail;

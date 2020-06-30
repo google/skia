@@ -449,7 +449,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                           const SkPaint& paint,
                                           const SkMatrixProvider& matrixProvider,
                                           const GrStyledShape& shape) {
-    if (context->priv().abandoned()) {
+    if (context->abandoned()) {
         return;
     }
 

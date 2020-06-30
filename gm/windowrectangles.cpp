@@ -259,7 +259,7 @@ void WindowRectanglesMaskGM::visualizeStencilMask(GrRecordingContext* ctx,
                                                   GrRenderTargetContext* rtc,
                                                   const GrReducedClip& reducedClip,
                                                   GrPaint&& paint) {
-    if (ctx->priv().abandoned()) {
+    if (ctx->abandoned()) {
         // GrReducedClip assumes the context hasn't been abandoned, which is reasonable since it is
         // only ever used if a draw op is made. Since this GM calls it directly, it has to be taken
         // into account.
