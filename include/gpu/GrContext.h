@@ -704,8 +704,6 @@ protected:
 
     bool init() override;
 
-    GrContext* asDirectContext() override { return this; }
-
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
 private:

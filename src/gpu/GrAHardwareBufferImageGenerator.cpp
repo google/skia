@@ -17,8 +17,8 @@
 #include <android/hardware_buffer.h>
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/GrAHardwareBufferUtils.h"
