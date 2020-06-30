@@ -17,6 +17,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -34,8 +35,7 @@ namespace skiagm {
 class DiscardGM : public GpuGM {
 
 public:
-    DiscardGM() {
-    }
+    DiscardGM() {}
 
 protected:
     SkString onShortName() override {

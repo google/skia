@@ -44,7 +44,7 @@ public:
 private:
     // TODO: Here we're pretending this isn't derived from GrContext. Switch this to be derived from
     // GrRecordingContext!
-    GrContext* asDirectContext() override { return nullptr; }
+    GrDirectContext* asDirectContext() override { return nullptr; }
 
     bool init() override {
         if (!INHERITED::init()) {

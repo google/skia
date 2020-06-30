@@ -7,6 +7,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/private/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
@@ -30,7 +31,12 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
         return nullptr;
     }
 
-    const GrCaps* caps = context->priv().caps();
+    auto direct = context->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    const GrCaps* caps = direct->priv().caps();
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(imageInfo.colorType(), renderable);
     if (!format.isValid()) {
@@ -39,19 +45,19 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     GrSwizzle swizzle = caps->getReadSwizzle(format, imageInfo.colorType());
 
     sk_sp<GrTextureProxy> proxy;
-    proxy = context->priv().proxyProvider()->createProxy(format, imageInfo.dimensions(), renderable,
-                                                         1, GrMipMapped::kNo, SkBackingFit::kExact,
-                                                         SkBudgeted::kYes, GrProtected::kNo);
+    proxy = direct->priv().proxyProvider()->createProxy(format, imageInfo.dimensions(), renderable,
+                                                        1, GrMipMapped::kNo, SkBackingFit::kExact,
+                                                        SkBudgeted::kYes, GrProtected::kNo);
     if (!proxy) {
         return nullptr;
     }
     GrSurfaceProxyView view(proxy, origin, swizzle);
-    auto sContext = GrSurfaceContext::Make(context, std::move(view), imageInfo.colorType(),
+    auto sContext = GrSurfaceContext::Make(direct, std::move(view), imageInfo.colorType(),
                                            imageInfo.alphaType(), imageInfo.refColorSpace());
     if (!sContext) {
         return nullptr;
     }
-    if (!sContext->writePixels(imageInfo, data, rowBytes, {0, 0}, context)) {
+    if (!sContext->writePixels(imageInfo, data, rowBytes, {0, 0}, direct)) {
         return nullptr;
     }
     return proxy;
