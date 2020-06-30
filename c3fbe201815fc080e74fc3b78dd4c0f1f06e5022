@@ -22,6 +22,30 @@
       "revId": "c3fbe201815fc080e74fc3b78dd4c0f1f06e5022",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0415ced3_84f86fd6",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-06-30T17:41:45Z",
+      "side": 1,
+      "message": "Yeah figured I\u0027d try to hit all the switch statements in one go instead of finding them a second time.",
+      "parentUuid": "04fe1de0_e03c1363",
+      "range": {
+        "startLine": 832,
+        "startChar": 4,
+        "endLine": 832,
+        "endChar": 14
+      },
+      "revId": "c3fbe201815fc080e74fc3b78dd4c0f1f06e5022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
