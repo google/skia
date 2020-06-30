@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "99283971_b91d839c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-30T15:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5434954b_237c4252",
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cd366d9_f023e61e",
         "filename": "fuzz/FuzzCanvas.cpp",
         "patchSetId": 11
@@ -263,6 +281,30 @@
       "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd36c5fb_f2eb1d10",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-06-30T15:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c17cf355_2c1c49f3",
+      "range": {
+        "startLine": 1570,
+        "startChar": 19,
+        "endLine": 1570,
+        "endChar": 23
+      },
+      "revId": "f226f4db7129aa5076da1cda1d044ab6f95f02b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
