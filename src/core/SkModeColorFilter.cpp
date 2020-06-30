@@ -88,27 +88,39 @@ skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
-std::unique_ptr<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorInfo& dstColorInfo) const {
-    if (SkBlendMode::kDst == fMode) {
-        return nullptr;
+GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                  GrRecordingContext*,
+                                                  const GrColorInfo& dstColorInfo) const {
+    if (fMode == SkBlendMode::kDst) {
+        // If the blend mode is "dest," the blend color won't factor into it at all.
+        // We can return the input FP as-is.
+        return GrFPSuccess(std::move(inputFP));
     }
 
-    auto constFP = GrConstColorProcessor::Make(/*inputFP=*/nullptr,
-                                               SkColorToPMColor4f(fColor, dstColorInfo),
-                                               GrConstColorProcessor::InputMode::kIgnore);
-    auto fp = GrXfermodeFragmentProcessor::Make(std::move(constFP), /*dst=*/nullptr, fMode);
-    if (!fp) {
-        return nullptr;
+    SkDEBUGCODE(const bool fpHasConstIO = !inputFP || inputFP->hasConstantOutputForConstantInput();)
+
+    auto colorFP = GrConstColorProcessor::Make(
+            /*inputFP=*/nullptr, SkColorToPMColor4f(fColor, dstColorInfo),
+            GrConstColorProcessor::InputMode::kIgnore);
+    auto xferFP = GrXfermodeFragmentProcessor::Make(
+            std::move(colorFP), std::move(inputFP), fMode,
+            GrXfermodeFragmentProcessor::ComposeBehavior::kSkModeBehavior);
+
+    if (xferFP == nullptr) {
+        // This is only expected to happen if the blend mode is "dest" and the input FP is null.
+        // Since we already did an early-out in the "dest" blend mode case, we shouldn't get here.
+        SkDEBUGFAIL("GrXfermodeFragmentProcessor::Make returned null unexpectedly");
+        return GrFPFailure(nullptr);
     }
-#ifdef SK_DEBUG
+
     // With a solid color input this should always be able to compute the blended color
-    // (at least for coeff modes)
-    if ((unsigned)fMode <= (unsigned)SkBlendMode::kLastCoeffMode) {
-        SkASSERT(fp->hasConstantOutputForConstantInput());
-    }
-#endif
-    return fp;
+    // (at least for coeff modes).
+    // Occasionally, we even do better than we started; specifically, in "src" blend mode, we end up
+    // ditching the input FP entirely, which turns a non-constant operation into a constant one.
+    SkASSERT(fMode > SkBlendMode::kLastCoeffMode ||
+             xferFP->hasConstantOutputForConstantInput() >= fpHasConstIO);
+
+    return GrFPSuccess(std::move(xferFP));
 }
 
 #endif
