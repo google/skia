@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b7332c1_585e39e1",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-06-30T17:02:02Z",
+      "side": 1,
+      "message": "I find the comment a little unclear. What about something like:\n\n\"Reports whether the GrDirectContext associated with this GrRecordingContext is abandoned. When called on a GrDirectContext it may actively check whether underlying 3D API device/context has been disconnected before reporting the status. If so, calling this transitions the GrDirectContext to the abandoned state.\"",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 64
+      },
+      "revId": "73bb06b271a069694cb5389ddc0c2927aa6c5440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
