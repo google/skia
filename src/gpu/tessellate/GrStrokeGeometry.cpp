@@ -155,7 +155,7 @@ void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float 
 
     // Decide how many flat line segments to chop the curve into.
     int numSegments = wangs_formula_quadratic(p0, p1, p2);
-    numSegments = std::clamp(numSegments, 1, 1 << kMaxNumLinearSegmentsLog2);
+    numSegments = SkTPin(numSegments, 1, 1 << kMaxNumLinearSegmentsLog2);
 
     // At + B gives a vector tangent to the quadratic.
     Sk2f A = p0 - p1*2 + p2;
@@ -284,7 +284,7 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
 
     // Decide how many flat line segments to chop the curve into.
     int numSegments = wangs_formula_cubic(p0, p1, p2, p3);
-    numSegments = std::clamp(numSegments, 1, 1 << kMaxNumLinearSegmentsLog2);
+    numSegments = SkTPin(numSegments, 1, 1 << kMaxNumLinearSegmentsLog2);
 
     // At^2 + Bt + C gives a vector tangent to the cubic. (More specifically, it's the derivative
     // minus an irrelevant scale by 3, since all we care about is the direction.)
