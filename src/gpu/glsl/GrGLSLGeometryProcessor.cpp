@@ -95,83 +95,67 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
 
     for (int i = 0; *handler; ++*handler, ++i) {
         const auto& fp = handler->get();
-        // FIXME: GrCoordTransform is used solely as a vehicle for iterating over all FPs that
-        // require sample coordinates directly. We should make this iteration lighter weight.
+
+        SkASSERT(fp.referencesSampleCoords());
+        SkASSERT(!fp.isSampledWithExplicitCoords());
 
         // FPs that use local coordinates need a varying to convey the coordinate. This may be the
         // base GP's local coord if transforms have to be computed in the FS, or it may be a unique
         // varying that computes the equivalent transformation hierarchy in the VS.
         GrShaderVar varyingVar;
 
-        // If the FP references local coords, we need to make sure the vertex shader sets up the
-        // right transforms or pass-through variables for the FP to evaluate in the fragment shader
-        if (fp.referencesSampleCoords()) {
-            if (fp.isSampledWithExplicitCoords()) {
-                // If the FP local coords are evaluated in the fragment shader, we only need to
-                // produce the original local coordinate to pass into the root; any other situation,
-                // the FP will have a 2nd parameter to its function and the caller sends the coords
-                if (!fp.parent()) {
-                    varyingVar = getBaseLocalCoord();
+        // The FP's local coordinates are determined by the uniform transform hierarchy
+        // from this FP to the root, and can be computed in the vertex shader.
+        // If this hierarchy would be the identity transform, then we should use the
+        // original local coordinate.
+        // NOTE: The actual transform logic is handled in emitTransformCode(), this just
+        // needs to determine if a unique varying should be added for the FP.
+        GrShaderVar transformedLocalCoord;
+        const GrFragmentProcessor* coordOwner = nullptr;
+
+        const GrFragmentProcessor* node = &fp;
+        while(node) {
+            SkASSERT(!node->isSampledWithExplicitCoords() &&
+                     !node->sampleUsage().hasVariableMatrix());
+
+            if (node->sampleUsage().hasUniformMatrix()) {
+                // We can stop once we hit an FP that adds transforms; this FP can reuse
+                // that FPs varying (possibly vivifying it if this was the first use).
+                transformedLocalCoord = localCoordsMap[node];
+                coordOwner = node;
+                break;
+            } // else intervening FP is an identity transform so skip past it
+
+            node = node->parent();
+        }
+
+        if (coordOwner) {
+            // The FP will use coordOwner's varying; add varying if this was the first use
+            if (transformedLocalCoord.getType() == kVoid_GrSLType) {
+                GrGLSLVarying v(kFloat2_GrSLType);
+                if (GrSLTypeVecLength(localCoordsVar.getType()) == 3 ||
+                    coordOwner->hasPerspectiveTransform()) {
+                    v = GrGLSLVarying(kFloat3_GrSLType);
                 }
-            } else {
-                // The FP's local coordinates are determined by the uniform transform hierarchy
-                // from this FP to the root, and can be computed in the vertex shader.
-                // If this hierarchy would be the identity transform, then we should use the
-                // original local coordinate.
-                // NOTE: The actual transform logic is handled in emitTransformCode(), this just
-                // needs to determine if a unique varying should be added for the FP.
-                GrShaderVar transformedLocalCoord;
-                const GrFragmentProcessor* coordOwner = nullptr;
+                SkString strVaryingName;
+                strVaryingName.printf("TransformedCoords_%d", i);
+                varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
-                const GrFragmentProcessor* node = &fp;
-                while(node) {
-                    SkASSERT(!node->isSampledWithExplicitCoords() &&
-                             !node->sampleUsage().hasVariableMatrix());
-
-                    if (node->sampleUsage().hasUniformMatrix()) {
-                        // We can stop once we hit an FP that adds transforms; this FP can reuse
-                        // that FPs varying (possibly vivifying it if this was the first use).
-                        transformedLocalCoord = localCoordsMap[node];
-                        coordOwner = node;
-                        break;
-                    } // else intervening FP is an identity transform so skip past it
-
-                    node = node->parent();
-                }
-
-                if (coordOwner) {
-                    // The FP will use coordOwner's varying; add varying if this was the first use
-                    if (transformedLocalCoord.getType() == kVoid_GrSLType) {
-                        GrGLSLVarying v(kFloat2_GrSLType);
-                        if (GrSLTypeVecLength(localCoordsVar.getType()) == 3 ||
-                            coordOwner->hasPerspectiveTransform()) {
-                            v = GrGLSLVarying(kFloat3_GrSLType);
-                        }
-                        SkString strVaryingName;
-                        strVaryingName.printf("TransformedCoords_%d", i);
-                        varyingHandler->addVarying(strVaryingName.c_str(), &v);
-
-                        fTransformInfos.push_back({GrShaderVar(v.vsOut(), v.type()),
-                                                   localCoordsVar,
-                                                   coordOwner});
-                        transformedLocalCoord = GrShaderVar(SkString(v.fsIn()), v.type(),
-                                                            GrShaderVar::TypeModifier::In);
-                        localCoordsMap[coordOwner] = transformedLocalCoord;
-                    }
-
-                    varyingVar = transformedLocalCoord;
-                } else {
-                    // The FP transform hierarchy is the identity, so use the original local coord
-                    varyingVar = getBaseLocalCoord();
-                }
+                fTransformInfos.push_back(
+                        {GrShaderVar(v.vsOut(), v.type()), localCoordsVar, coordOwner});
+                transformedLocalCoord =
+                        GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::TypeModifier::In);
+                localCoordsMap[coordOwner] = transformedLocalCoord;
             }
+
+            varyingVar = transformedLocalCoord;
+        } else {
+            // The FP transform hierarchy is the identity, so use the original local coord
+            varyingVar = getBaseLocalCoord();
         }
 
-        if (varyingVar.getType() != kVoid_GrSLType) {
-            handler->specifyCoordsForCurrCoordTransform(GrShaderVar(), varyingVar);
-        } else {
-            handler->omitCoordsForCurrCoordTransform();
-        }
+        SkASSERT(varyingVar.getType() != kVoid_GrSLType);
+        handler->specifyCoordsForCurrCoordTransform(varyingVar);
     }
 }
 
