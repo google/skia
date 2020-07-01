@@ -10,6 +10,7 @@
 #include "tests/Test.h"
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/private/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetPriv.h"
@@ -109,9 +110,10 @@ static void check_texture(skiatest::Reporter* reporter,
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
-    const GrCaps& caps = *ctxInfo.grContext()->priv().caps();
+    auto context = ctxInfo.directContext();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
+    const GrCaps& caps = *context->priv().caps();
 
     int attempt = 0; // useful for debugging
 
@@ -205,8 +207,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     GrGpu* gpu = context->priv().getGpu();
     const GrCaps& caps = *context->priv().caps();
@@ -221,7 +223,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         // Tests wrapBackendRenderTarget with a GrBackendRenderTarget
         // Our test-only function that creates a backend render target doesn't currently support
         // sample counts :(.
-        if (ctxInfo.grContext()->colorTypeSupportedAsSurface(colorType)) {
+        if (context->colorTypeSupportedAsSurface(colorType)) {
             GrBackendRenderTarget backendRT = gpu->createTestingOnlyBackendRenderTarget(
                     kWidthHeight, kWidthHeight, grColorType);
             sk_sp<GrSurfaceProxy> sProxy(
@@ -330,7 +332,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrProxyProvider* provider = context->priv().proxyProvider();
 
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {

@@ -15,9 +15,10 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/private/GrDirectContext.h"
 #include "tools/gpu/vk/VkYcbcrSamplerHelper.h"
+//#include "include/gpu/GrContext.h"
+//#include "src/gpu/GrContextPriv.h"
 
 static void release_ycbcrhelper(void* releaseContext) {
     VkYcbcrSamplerHelper* ycbcrHelper = reinterpret_cast<VkYcbcrSamplerHelper*>(releaseContext);
@@ -70,12 +71,10 @@ protected:
         return DrawResult::kOk;
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
         if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
-
-        SkASSERT(context->asDirectContext());
 
         if (context->backend() != GrBackendApi::kVulkan) {
             *errorMsg = "This GM requires a Vulkan context.";
