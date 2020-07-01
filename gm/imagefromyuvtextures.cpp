@@ -215,7 +215,7 @@ protected:
             return DrawResult::kSkip;
         }
 
-        SkASSERT(context->priv().asDirectContext());
+        SkASSERT(context->asDirectContext());
 
         fRGBABmp = CreateBmpAndPlanes("images/mandrill_32.png", fYUVABmps);
 
