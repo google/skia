@@ -127,25 +127,21 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     D3D12_FEATURE_DATA_FEATURE_LEVELS flDesc = {};
     flDesc.NumFeatureLevels = _countof(featureLevels);
     flDesc.pFeatureLevelsRequested = featureLevels;
-    SkDEBUGCODE(HRESULT hr =) device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &flDesc,
-                                                          sizeof(flDesc));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &flDesc,
+                                                     sizeof(flDesc)));
     // This had better be true
     SkASSERT(flDesc.MaxSupportedFeatureLevel >= D3D_FEATURE_LEVEL_11_0);
 
     DXGI_ADAPTER_DESC adapterDesc;
-    SkDEBUGCODE(hr =) adapter->GetDesc(&adapterDesc);
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(adapter->GetDesc(&adapterDesc));
 
     D3D12_FEATURE_DATA_D3D12_OPTIONS optionsDesc;
-    SkDEBUGCODE(hr =) device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &optionsDesc,
-                                     sizeof(optionsDesc));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &optionsDesc,
+                                                     sizeof(optionsDesc)));
 
     D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2Desc;
-    SkDEBUGCODE(hr =) device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2Desc,
-                                     sizeof(options2Desc));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2Desc,
+                                                     sizeof(options2Desc)));
 
     // See https://docs.microsoft.com/en-us/windows/win32/direct3d12/hardware-support
     if (D3D12_RESOURCE_BINDING_TIER_1 == optionsDesc.ResourceBindingTier) {
@@ -267,10 +263,9 @@ void GrD3DCaps::applyDriverCorrectnessWorkarounds(int vendorID) {
 bool stencil_format_supported(ID3D12Device* device, DXGI_FORMAT format) {
     D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupportDesc;
     formatSupportDesc.Format = format;
-    SkDEBUGCODE(HRESULT hr = ) device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT,
-                                                           &formatSupportDesc,
-                                                           sizeof(formatSupportDesc));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT,
+                                                     &formatSupportDesc,
+                                                     sizeof(formatSupportDesc)));
     return SkToBool(D3D12_FORMAT_SUPPORT1_DEPTH_STENCIL & formatSupportDesc.Support1);
 }
 
@@ -736,9 +731,8 @@ static bool multisample_count_supported(ID3D12Device* device, DXGI_FORMAT format
     D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msqLevels;
     msqLevels.Format = format;
     msqLevels.SampleCount = sampleCount;
-    SkDEBUGCODE(HRESULT hr =) device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
-                                                          &msqLevels, sizeof(msqLevels));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
+                                                     &msqLevels, sizeof(msqLevels)));
 
     return msqLevels.NumQualityLevels > 0;
 }
@@ -777,10 +771,9 @@ void GrD3DCaps::FormatInfo::init(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Dev
                                  DXGI_FORMAT format) {
     D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupportDesc;
     formatSupportDesc.Format = format;
-    SkDEBUGCODE(HRESULT hr =) device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT,
-                                                          &formatSupportDesc,
-                                                          sizeof(formatSupportDesc));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT,
+                                                     &formatSupportDesc,
+                                                     sizeof(formatSupportDesc)));
 
     InitFormatFlags(formatSupportDesc, &fFlags);
     if (fFlags & kRenderable_Flag) {
