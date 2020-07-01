@@ -7,6 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -18,7 +19,7 @@ DEF_GPUTEST(GrContext_abandonContext, reporter, options) {
             GrContextFactory testFactory(options);
             GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
             ContextInfo info = testFactory.getContextInfo(ctxType);
-            if (GrContext* context = info.grContext()) {
+            if (auto context = info.directContext()) {
                 switch (testType) {
                     case 0:
                         context->abandonContext();

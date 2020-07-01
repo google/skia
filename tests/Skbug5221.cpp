@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 
 // This passes by not crashing.
 static void test(SkCanvas* canvas) {
@@ -24,7 +25,7 @@ DEF_TEST(skbug5221, r) {
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(skbug5221_GPU, r, contextInfo) {
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
-            contextInfo.grContext(), SkBudgeted::kYes,
+            contextInfo.directContext(), SkBudgeted::kYes,
             SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
     test(surface->getCanvas());
 }

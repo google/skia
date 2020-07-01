@@ -9,6 +9,7 @@
 
 #include "tests/Test.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -33,7 +34,7 @@ static void check_instantiation_status(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     // Calling instantiate on a GrRenderTargetContext's textureProxy also instantiates the
     // GrRenderTargetContext

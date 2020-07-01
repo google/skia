@@ -49,6 +49,8 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
+//#include "include/gpu/GrContext.h"
+//#include "src/gpu/GrContextPriv.h"
 
 #include <math.h>
 #include <string.h>

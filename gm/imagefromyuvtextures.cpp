@@ -30,6 +30,8 @@
 #include "src/core/SkYUVMath.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
+//#include "include/gpu/GrContext.h"
+//#include "src/gpu/GrContextPriv.h"
 
 using sk_gpu_test::YUVABackendReleaseContext;
 
