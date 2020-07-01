@@ -207,6 +207,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrSoftwarePathRenderer.h",
   "$_src/gpu/GrStagingBuffer.cpp",
   "$_src/gpu/GrStagingBuffer.h",
+  "$_src/gpu/GrStagingBufferManager.cpp",
+  "$_src/gpu/GrStagingBufferManager.h",
   "$_src/gpu/GrStencilAttachment.cpp",
   "$_src/gpu/GrStencilAttachment.h",
   "$_src/gpu/GrStencilClip.h",
