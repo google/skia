@@ -18,18 +18,18 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkTableColorFilter.h"
+#include "include/private/GrDirectContext.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
+#include "src/gpu/GrCaps.h"
+//#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
-
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
 
 static const int kBitmapSize = 4;
 
@@ -582,7 +582,7 @@ DEF_TEST(ImageFilterNegativeBlurSigma, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, ctxInfo) {
-    test_negative_blur_sigma(reporter, ctxInfo.grContext());
+    test_negative_blur_sigma(reporter, ctxInfo.context());
 }
 
 static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter, GrContext* context) {
@@ -662,7 +662,7 @@ DEF_TEST(MorphologyFilterRadiusWithMirrorCTM, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MorphologyFilterRadiusWithMirrorCTM_Gpu, reporter, ctxInfo) {
-    test_morphology_radius_with_mirror_ctm(reporter, ctxInfo.grContext());
+    test_morphology_radius_with_mirror_ctm(reporter, ctxInfo.context());
 }
 
 static void test_zero_blur_sigma(skiatest::Reporter* reporter, GrContext* context) {
@@ -704,7 +704,7 @@ DEF_TEST(ImageFilterZeroBlurSigma, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterZeroBlurSigma_Gpu, reporter, ctxInfo) {
-    test_zero_blur_sigma(reporter, ctxInfo.grContext());
+    test_zero_blur_sigma(reporter, ctxInfo.context());
 }
 
 
@@ -734,7 +734,7 @@ DEF_TEST(ImageFilterFailAffectsTransparentBlack, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterFailAffectsTransparentBlack_Gpu, reporter, ctxInfo) {
-    test_fail_affects_transparent_black(reporter, ctxInfo.grContext());
+    test_fail_affects_transparent_black(reporter, ctxInfo.context());
 }
 
 DEF_TEST(ImageFilterDrawTiled, reporter) {
@@ -1012,7 +1012,7 @@ DEF_TEST(ImageFilterMergeResultSize, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMergeResultSize_Gpu, reporter, ctxInfo) {
-    test_imagefilter_merge_result_size(reporter, ctxInfo.grContext());
+    test_imagefilter_merge_result_size(reporter, ctxInfo.context());
 }
 
 static void draw_blurred_rect(SkCanvas* canvas) {
@@ -1171,7 +1171,7 @@ DEF_TEST(ImageFilterMatrixConvolutionBigKernel, reporter) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMatrixConvolutionBigKernel_Gpu,
                                    reporter, ctxInfo) {
-    test_big_kernel(reporter, ctxInfo.grContext());
+    test_big_kernel(reporter, ctxInfo.context());
 }
 
 DEF_TEST(ImageFilterCropRect, reporter) {
@@ -1179,7 +1179,7 @@ DEF_TEST(ImageFilterCropRect, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCropRect_Gpu, reporter, ctxInfo) {
-    test_cropRects(reporter, ctxInfo.grContext());
+    test_cropRects(reporter, ctxInfo.context());
 }
 
 DEF_TEST(ImageFilterMatrix, reporter) {
@@ -1241,7 +1241,7 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterClippedPictureImageFilter_Gpu, reporter, ctxInfo) {
-    test_clipped_picture_imagefilter(reporter, ctxInfo.grContext());
+    test_clipped_picture_imagefilter(reporter, ctxInfo.context());
 }
 
 DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
@@ -1468,7 +1468,7 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterOffset_Gpu, reporter, ctxInfo) {
-    test_composed_imagefilter_offset(reporter, ctxInfo.grContext());
+    test_composed_imagefilter_offset(reporter, ctxInfo.context());
 }
 
 static void test_composed_imagefilter_bounds(skiatest::Reporter* reporter, GrContext* context) {
@@ -1509,7 +1509,7 @@ DEF_TEST(ComposedImageFilterBounds, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterBounds_Gpu, reporter, ctxInfo) {
-    test_composed_imagefilter_bounds(reporter, ctxInfo.grContext());
+    test_composed_imagefilter_bounds(reporter, ctxInfo.context());
 }
 
 DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
@@ -1612,7 +1612,7 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
     int largeW = 5000;
     int largeH = 5000;
     // If we're GPU-backed make the bitmap too large to be converted into a texture.
-    if (GrContext* ctx = canvas->getGrContext()) {
+    if (auto ctx = canvas->recordingContext()) {
         largeW = ctx->priv().caps()->maxTextureSize() + 1;
     }
 
@@ -1717,12 +1717,12 @@ DEF_TEST(ImageFilterMakeWithFilter, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Gpu, reporter, ctxInfo) {
-    test_make_with_filter(reporter, ctxInfo.grContext());
+    test_make_with_filter(reporter, ctxInfo.context());
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
 
-    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
+    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.context(),
                                                       SkBudgeted::kNo,
                                                       SkImageInfo::MakeN32Premul(100, 100)));
 
@@ -1734,7 +1734,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
     sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(
-            ctxInfo.grContext(),
+            ctxInfo.context(),
             SkBudgeted::kNo,
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
 
@@ -1743,7 +1743,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo) {
     auto surface(SkSurface::MakeRenderTarget(
-            ctxInfo.grContext(), SkBudgeted::kYes,
+            ctxInfo.context(), SkBudgeted::kYes,
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
     test_large_blur_input(reporter, surface->getCanvas());
 }

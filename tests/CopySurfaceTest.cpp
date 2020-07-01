@@ -10,8 +10,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkUtils.h"
@@ -31,7 +31,8 @@
 #include <utility>
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto direct = ctxInfo.context();
+
     static const int kW = 10;
     static const int kH = 10;
     static const size_t kRowBytes = sizeof(uint32_t) * kW;
@@ -78,10 +79,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                         for (auto dstPoint : kDstPoints) {
                             for (auto ii: kImageInfos) {
                                 auto src = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, sRenderable, sOrigin, ii, srcPixels.get(),
+                                        direct, sRenderable, sOrigin, ii, srcPixels.get(),
                                         kRowBytes);
                                 auto dst = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, dRenderable, dOrigin, ii, dstPixels.get(),
+                                        direct, dRenderable, dOrigin, ii, dstPixels.get(),
                                         kRowBytes);
 
                                 // Should always work if the color type is RGBA, but may not work
@@ -93,7 +94,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                         continue;
                                     }
                                 } else {
-                                    if (!context->defaultBackendFormat(
+                                    if (!direct->defaultBackendFormat(
                                             kBGRA_8888_SkColorType, GrRenderable::kNo).isValid()) {
                                         continue;
                                     }
@@ -105,7 +106,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
-                                GrSwizzle dstSwizzle = context->priv().caps()->getReadSwizzle(
+                                GrSwizzle dstSwizzle = direct->priv().caps()->getReadSwizzle(
                                         dst->backendFormat(), grColorType);
                                 GrSurfaceProxyView dstView(std::move(dst), dOrigin, dstSwizzle);
                                 auto dstContext = GrSurfaceContext::Make(context,

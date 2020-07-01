@@ -17,11 +17,11 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
+//#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -132,7 +132,7 @@ static bool fill_plot(GrDrawOpAtlas* atlas,
 // This is a basic DrawOpAtlas test. It simply verifies that multitexture atlases correctly
 // add and remove pages. Note that this is simulating flush-time behavior.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
-    auto context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
     auto proxyProvider = context->priv().proxyProvider();
     auto resourceProvider = context->priv().resourceProvider();
     auto drawingManager = context->priv().drawingManager();

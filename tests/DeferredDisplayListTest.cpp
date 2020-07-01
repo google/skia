@@ -266,7 +266,7 @@ private:
 
 // Test out operator== && operator!=
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
 
     bool mipMapSupport = context->priv().caps()->mipMapSupport();
     for (int i = 0; i < SurfaceParameters::kNumParams; ++i) {

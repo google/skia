@@ -82,7 +82,7 @@ GM::GM(SkColor bgColor) {
 
 GM::~GM() {}
 
-DrawResult GM::gpuSetup(GrContext* context, SkCanvas* canvas, SkString* errorMsg) {
+DrawResult GM::gpuSetup(GrDirectContext* context, SkCanvas* canvas, SkString* errorMsg) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
     if (!fGpuSetup) {
         // When drawn in viewer, gpuSetup will be called multiple times with the same

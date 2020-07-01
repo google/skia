@@ -198,9 +198,9 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
     test_image_backed(reporter, nullptr, srcImage);
 }
 
-#include "include/gpu/GrContext.h"
+#include "include/private/GrDirectContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
-#include "src/gpu/GrContextPriv.h"
+//#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -214,7 +214,7 @@ static GrSurfaceProxyView create_proxy_view(GrRecordingContext* context) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
 
     GrSurfaceProxyView srcView = create_proxy_view(context);
     if (!srcView.proxy()) {
@@ -255,7 +255,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
 
     GrSurfaceProxyView srcView = create_proxy_view(context);
     if (!srcView.proxy()) {

@@ -561,7 +561,7 @@ static void test_color(skiatest::Reporter* reporter, const SkBitmap& bm, int x, 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kNumViews = 3;
 
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
     auto proxyProvider = context->priv().proxyProvider();
 
     AtlasObject object(reporter);
