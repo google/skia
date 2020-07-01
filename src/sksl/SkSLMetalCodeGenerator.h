@@ -117,6 +117,9 @@ protected:
         kGreaterThanEqual_MetalIntrinsic,
     };
 
+    class GlobalStructVisitor;
+    void visitGlobalStruct(GlobalStructVisitor* visitor);
+
     void setupIntrinsics();
 
     void write(const char* s);
@@ -147,6 +150,7 @@ protected:
     int alignment(const Type* type, bool isPacked) const;
 
     void writeGlobalStruct();
+    void writeGlobalInit();
 
     void writePrecisionModifier();
 
@@ -167,8 +171,6 @@ protected:
     void writeLayout(const Layout& layout);
 
     void writeModifiers(const Modifiers& modifiers, bool globalContext);
-
-    void writeGlobalVars(const VarDeclaration& vs);
 
     void writeVarInitializer(const Variable& var, const Expression& value);
 
@@ -254,13 +256,10 @@ protected:
     typedef std::pair<IntrinsicKind, int32_t> Intrinsic;
     std::unordered_map<String, Intrinsic> fIntrinsicMap;
     std::unordered_set<String> fReservedWords;
-    std::vector<const VarDeclaration*> fInitNonConstGlobalVars;
-    std::vector<const Variable*> fTextures;
     std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
     std::unordered_map<const InterfaceBlock*, String> fInterfaceBlockNameMap;
     int fAnonInterfaceCount = 0;
     int fPaddingCount = 0;
-    bool fNeedsGlobalStructInit = false;
     const char* fLineEnding;
     const Context& fContext;
     StringStream fHeader;
