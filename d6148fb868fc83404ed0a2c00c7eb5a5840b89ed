@@ -45,6 +45,29 @@
       "revId": "d6148fb868fc83404ed0a2c00c7eb5a5840b89ed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4cb97a4_4d12a348",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-01T16:14:19Z",
+      "side": 1,
+      "message": "Does this return the same value when the join type is not miter?",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 85
+      },
+      "revId": "d6148fb868fc83404ed0a2c00c7eb5a5840b89ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
