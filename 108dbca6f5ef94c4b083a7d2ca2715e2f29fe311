@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da003496_03e79143",
+        "filename": "tools/perf-canvaskit-puppeteer/benchmark.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-01T18:27:50Z",
+      "side": 1,
+      "message": "set this to false if warmupFrames is zero",
+      "range": {
+        "startLine": 38,
+        "startChar": 15,
+        "endLine": 38,
+        "endChar": 19
+      },
+      "revId": "108dbca6f5ef94c4b083a7d2ca2715e2f29fe311",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af4b2a13_1d2c8718",
+        "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-01T18:27:50Z",
+      "side": 1,
+      "message": "nit: move this to right after it\u0027s measured (line 55)",
+      "range": {
+        "startLine": 69,
+        "startChar": 17,
+        "endLine": 69,
+        "endChar": 26
+      },
+      "revId": "108dbca6f5ef94c4b083a7d2ca2715e2f29fe311",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a72ffb7_20d9d746",
+        "filename": "tools/perf-canvaskit-puppeteer/skottie-frames.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-01T18:27:50Z",
+      "side": 1,
+      "message": "It is intentional for Skotties to have zero warmup frames. We want to measure the jank of the initial load.",
+      "range": {
+        "startLine": 31,
+        "startChar": 10,
+        "endLine": 31,
+        "endChar": 24
+      },
+      "revId": "108dbca6f5ef94c4b083a7d2ca2715e2f29fe311",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e50df757_2e68b763",
+        "filename": "tools/perf-canvaskit-puppeteer/skottie-frames.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-01T18:27:50Z",
+      "side": 1,
+      "message": "json_load_ms (and move this to right after it\u0027s been measured)",
+      "range": {
+        "startLine": 82,
+        "startChar": 12,
+        "endLine": 82,
+        "endChar": 23
+      },
+      "revId": "108dbca6f5ef94c4b083a7d2ca2715e2f29fe311",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
