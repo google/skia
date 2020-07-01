@@ -108,13 +108,12 @@ public:
     }
 
 private:
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 const CoordTransformRange& transformRange) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const auto& proc = primProc.cast<GrCCPathProcessor>();
         pdman.set2f(fAtlasAdjustUniform,
                     1.0f / proc.fAtlasDimensions.fWidth,
                     1.0f / proc.fAtlasDimensions.fHeight);
-        this->setTransformDataHelper(pdman, transformRange);
         this->setTransform(pdman, fLocalMatrixUni, proc.fLocalMatrix, &fLocalMatrix);
     }
 

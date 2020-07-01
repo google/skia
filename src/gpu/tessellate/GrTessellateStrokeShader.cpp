@@ -42,8 +42,8 @@ private:
         args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 const CoordTransformRange& transformRange) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const auto& shader = primProc.cast<GrTessellateStrokeShader>();
 
         if (shader.fMiterLimitOrZero != 0 && fCachedMiterLimitValue != shader.fMiterLimitOrZero) {
@@ -55,8 +55,6 @@ private:
             pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
             fCachedColorValue = shader.fColor;
         }
-
-        this->setTransformDataHelper(pdman, transformRange);
     }
 
     GrGLSLUniformHandler::UniformHandle fMiterLimitUniform;

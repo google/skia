@@ -28,11 +28,5 @@ void main() {
 }
 
 @test(d) {
-    std::unique_ptr<GrFragmentProcessor> fp;
-    // We have a restriction that explicit coords only work for FPs with zero or one
-    // coord transform.
-    do {
-        fp = GrProcessorUnitTest::MakeChildFP(d);
-    } while (fp->numCoordTransforms() > 1);
-    return GrDeviceSpaceEffect::Make(std::move(fp));
+    return GrDeviceSpaceEffect::Make(GrProcessorUnitTest::MakeChildFP(d));
 }

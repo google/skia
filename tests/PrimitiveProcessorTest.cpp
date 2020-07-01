@@ -84,8 +84,7 @@ private:
                         fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
-                                 const GrPrimitiveProcessor& primProc,
-                                 const CoordTransformRange&) override {}
+                                 const GrPrimitiveProcessor& primProc) override {}
                 };
                 return new GLSLGP();
             }

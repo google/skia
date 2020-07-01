@@ -521,8 +521,7 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     this->setRenderTargetState(renderTarget, programInfo.origin());
     const GrPipeline& pipeline = programInfo.pipeline();
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
-    GrFragmentProcessor::PipelineCoordTransformRange transformRange(pipeline);
-    fGeometryProcessor->setData(fDataManager, primProc, transformRange);
+    fGeometryProcessor->setData(fDataManager, primProc);
     GrFragmentProcessor::CIter fpIter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {

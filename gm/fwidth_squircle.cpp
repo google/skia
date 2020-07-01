@@ -129,8 +129,8 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 const CoordTransformRange&) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const auto& proc = primProc.cast<FwidthSquircleTestProcessor>();
         pdman.setSkMatrix(fViewMatrixHandle, proc.fViewMatrix);
     }
