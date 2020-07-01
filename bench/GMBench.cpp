@@ -7,6 +7,9 @@
 
 #include "bench/GMBench.h"
 
+#include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+
 GMBench::GMBench(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
     fGM->setMode(skiagm::GM::kBench_Mode);
 
@@ -22,7 +25,10 @@ bool GMBench::isSuitableFor(Backend backend) {
 }
 
 void GMBench::onPerCanvasPreDraw(SkCanvas* canvas) {
-    if (fGM->gpuSetup(canvas->getGrContext(), canvas) != skiagm::DrawResult::kOk) {
+    auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
+                                             : nullptr;
+
+    if (fGM->gpuSetup(direct, canvas) != skiagm::DrawResult::kOk) {
         fGpuSetupFailed = true;
     }
 

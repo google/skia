@@ -23,7 +23,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTArray.h"
@@ -112,7 +112,7 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
 
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
 // or top-left.
-static sk_sp<SkImage> make_reference_image(GrContext* context,
+static sk_sp<SkImage> make_reference_image(GrDirectContext* context,
                                            const SkTArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
     SkASSERT(kNumLabels == labels.count());
@@ -231,7 +231,7 @@ private:
         canvas->restore();
     }
 
-    void makeLabels(GrContext* context) {
+    void makeLabels(GrDirectContext* context) {
         if (fLabels.count()) {
             return;
         }
@@ -251,12 +251,10 @@ private:
         SkASSERT(kNumLabels == fLabels.count());
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
         if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
-
-        SkASSERT(context->asDirectContext());
 
         this->makeLabels(context);
         fReferenceImages[0] = make_reference_image(context, fLabels, false);
