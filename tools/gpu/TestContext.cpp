@@ -8,9 +8,8 @@
 
 #include "tools/gpu/TestContext.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/GrContextPriv.h"
 #include "tools/gpu/FlushFinishTracker.h"
 #include "tools/gpu/GpuTimer.h"
 
@@ -35,7 +34,7 @@ SkScopeExit TestContext::makeCurrentAndAutoRestore() const {
     return asr;
 }
 
-void TestContext::flushAndWaitOnSync(GrContext* context) {
+void TestContext::flushAndWaitOnSync(GrDirectContext* context) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(context);
 

@@ -97,7 +97,7 @@ static void check_565(skiatest::Reporter* reporter,
     }
 }
 
-static void run_test(skiatest::Reporter* reporter, GrContext* context, int arraySize,
+static void run_test(skiatest::Reporter* reporter, GrDirectContext* context, int arraySize,
                      SkColorType colorType) {
     SkTDArray<uint16_t> controlPixelData;
     // We will read back into an 8888 buffer since 565/4444 read backs aren't supported
@@ -147,12 +147,12 @@ static const int CONTROL_ARRAY_SIZE = DEV_W * DEV_H;
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RGBA4444TextureTest, reporter, ctxInfo) {
     if (ctxInfo.grContext()->colorTypeSupportedAsImage(kARGB_4444_SkColorType)) {
-        run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, kARGB_4444_SkColorType);
+        run_test(reporter, ctxInfo.directContext(), CONTROL_ARRAY_SIZE, kARGB_4444_SkColorType);
     }
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RGB565TextureTest, reporter, ctxInfo) {
     if (ctxInfo.grContext()->colorTypeSupportedAsImage(kRGB_565_SkColorType)) {
-        run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, kRGB_565_SkColorType);
+        run_test(reporter, ctxInfo.directContext(), CONTROL_ARRAY_SIZE, kRGB_565_SkColorType);
     }
 }

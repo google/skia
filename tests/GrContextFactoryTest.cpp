@@ -54,7 +54,7 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, options) {
         testFactory.abandonContexts();
 
         // Test that creating a context in a share group with an abandoned context fails.
-        ContextInfo info2 = testFactory.getSharedContextInfo(info1.grContext());
+        ContextInfo info2 = testFactory.getSharedContextInfo(info1.directContext());
         REPORTER_ASSERT(reporter, !info2.grContext());
         info1.grContext()->unref();
 
@@ -62,7 +62,7 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, options) {
         ContextInfo info3 = testFactory.getContextInfo(ctxType);
 
         // Creating a context in a share group may fail, but should never crash.
-        ContextInfo info4 = testFactory.getSharedContextInfo(info3.grContext());
+        ContextInfo info4 = testFactory.getSharedContextInfo(info3.directContext());
         if (!info4.grContext()) {
             continue;
         }
@@ -70,7 +70,7 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, options) {
         REPORTER_ASSERT(reporter, info3.testContext() != info4.testContext());
 
         // Passing a different index should create a new (unique) context.
-        ContextInfo info5 = testFactory.getSharedContextInfo(info3.grContext(), 1);
+        ContextInfo info5 = testFactory.getSharedContextInfo(info3.directContext(), 1);
         REPORTER_ASSERT(reporter, info5.grContext());
         REPORTER_ASSERT(reporter, info5.testContext());
         REPORTER_ASSERT(reporter, info5.grContext() != info4.grContext());
