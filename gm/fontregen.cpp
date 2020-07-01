@@ -85,7 +85,7 @@ class FontRegenGM : public skiagm::GpuGM {
     }
 
     void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
-        auto direct = context->priv().asDirectContext();
+        auto direct = context->asDirectContext();
         if (!direct) {
             return;
         }

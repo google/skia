@@ -135,7 +135,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                                           SkString* errorMsg,
                                           int pad = 0) {
     if (doYUV420) {
-        if (!canvas->recordingContext() || !canvas->recordingContext()->priv().asDirectContext()) {
+        if (!canvas->recordingContext() || !canvas->recordingContext()->asDirectContext()) {
             errorMsg->printf("YUV420 only supported on direct GPU for now.");
             return skiagm::DrawResult::kSkip;
         }

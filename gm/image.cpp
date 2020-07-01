@@ -288,7 +288,7 @@ DEF_GM( return new ScalePixelsGM; )
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
-    auto direct = context->priv().asDirectContext();
+    auto direct = context->asDirectContext();
     if (!direct) {
         return;
     }

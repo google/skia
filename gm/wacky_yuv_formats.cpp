@@ -1603,7 +1603,7 @@ protected:
             return DrawResult::kSkip;
         }
 
-        SkASSERT(context->priv().asDirectContext());
+        SkASSERT(context->asDirectContext());
 
         this->createBitmaps();
         if (!this->createImages(context)) {

@@ -149,7 +149,7 @@ protected:
         surface->draw(canvas, 0, 0, nullptr);
         yOffset += stride;
 
-        if (auto direct = context->priv().asDirectContext()) {
+        if (auto direct = context->asDirectContext()) {
             // free gpu resources and verify
             direct->freeGpuResources();
         }

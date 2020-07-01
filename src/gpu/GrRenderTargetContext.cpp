@@ -1712,7 +1712,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
         return false;
     }
 
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         return false;
     }
