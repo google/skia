@@ -172,7 +172,9 @@ public:
     GrContextFactory::ContextType type() const { return fType; }
     GrBackendApi backend() const { return GrContextFactory::ContextTypeBackend(fType); }
 
+    // TODO: remove 'grContext' - replacing all instances w/ 'directContext'
     GrContext* grContext() const { return fGrContext; }
+    GrDirectContext* directContext() const { return fGrContext->asDirectContext(); }
 
     TestContext* testContext() const { return fTestContext; }
 
