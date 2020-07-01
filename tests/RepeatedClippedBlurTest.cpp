@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrResourceCache.h"
 #include "tests/Test.h"
@@ -22,7 +23,7 @@
 // 2D canvas and compositor image filtering. In this case Chrome doesn't regularly purge
 // the cache. This would result in Ganesh quickly running up to its max cache limit.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrResourceCache* cache = context->priv().getResourceCache();
 
     const SkImageInfo ii = SkImageInfo::Make(1024, 600, kRGBA_8888_SkColorType,

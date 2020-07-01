@@ -10,6 +10,8 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/core/SkPathPriv.h"
@@ -883,8 +885,8 @@ protected:
 #define DEF_CCPR_RENDERING_TEST(name) \
     DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name, reporter, ctxInfo) { \
         name test; \
-        test.run(reporter, ctxInfo.grContext(), DoStroke::kNo); \
-        test.run(reporter, ctxInfo.grContext(), DoStroke::kYes); \
+        test.run(reporter, ctxInfo.directContext(), DoStroke::kNo); \
+        test.run(reporter, ctxInfo.directContext(), DoStroke::kYes); \
     }
 
 class CCPR_busyPath : public CCPRRenderingTest {

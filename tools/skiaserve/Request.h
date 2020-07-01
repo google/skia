@@ -68,7 +68,7 @@ private:
     SkSurface* createCPUSurface();
     SkSurface* createGPUSurface();
     SkIRect getBounds();
-    GrContext* getContext();
+    GrDirectContext* directContext();
 
     sk_sp<SkPicture> fPicture;
     sk_gpu_test::GrContextFactory* fContextFactory;
