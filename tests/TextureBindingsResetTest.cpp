@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -17,7 +18,7 @@
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInfo) {
 #define GL(F) GR_GL_CALL(ctxInfo.glContext()->gl(), F)
 
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrGpu* gpu = context->priv().getGpu();
     GrGLGpu* glGpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 

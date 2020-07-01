@@ -10,6 +10,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrTexture.h"
@@ -165,7 +166,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
 
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
     GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex = ctx->createBackendTexture(
@@ -306,7 +307,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     const int kWidth = 10;
     const int kHeight = 10;
 
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     GrBackendTexture backendTex = ctx->createBackendTexture(
             kWidth, kHeight, kAlpha_8_SkColorType,
@@ -373,7 +374,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
 
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     // Do all this just to get a valid backend format for the image.
     GrBackendTexture backendTex;

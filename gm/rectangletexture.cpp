@@ -28,7 +28,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrContextPriv.h"
@@ -94,7 +94,7 @@ private:
         SkUNREACHABLE;
     }
 
-    sk_sp<SkImage> createRectangleTextureImg(GrContext* context, GrSurfaceOrigin origin,
+    sk_sp<SkImage> createRectangleTextureImg(GrDirectContext* context, GrSurfaceOrigin origin,
                                              const SkBitmap content) {
         SkASSERT(content.colorType() == kRGBA_8888_SkColorType);
         auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
@@ -122,7 +122,7 @@ private:
         return SkImage::MakeFromAdoptedTexture(context, bet, origin, kRGBA_8888_SkColorType);
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
         if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
