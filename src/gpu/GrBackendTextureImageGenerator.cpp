@@ -6,7 +6,7 @@
  */
 
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/GrBackendTextureImageGenerator.h"
 #include "src/gpu/GrContextPriv.h"

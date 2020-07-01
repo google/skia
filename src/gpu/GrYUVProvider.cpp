@@ -9,7 +9,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAIndex.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkResourceCache.h"

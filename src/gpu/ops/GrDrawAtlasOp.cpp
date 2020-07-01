@@ -8,7 +8,7 @@
 #include "src/gpu/ops/GrDrawAtlasOp.h"
 
 #include "include/core/SkRSXform.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"

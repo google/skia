@@ -16,15 +16,15 @@ skia_gpu_sources = [
   "$_include/gpu/GrContext.h",
   "$_include/gpu/GrContextOptions.h",
   "$_include/gpu/GrContextThreadSafeProxy.h",
+  "$_include/gpu/GrDirectContext.h",
   "$_include/gpu/GrDriverBugWorkarounds.h",
+  "$_include/gpu/GrRecordingContext.h",
   "$_include/gpu/GrTypes.h",
 
   # Private includes
   "$_include/private/GrContext_Base.h",
-  "$_include/private/GrDirectContext.h",
   "$_include/private/GrGLTypesPriv.h",
   "$_include/private/GrImageContext.h",
-  "$_include/private/GrRecordingContext.h",
   "$_include/private/GrResourceKey.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrTypesPriv.h",

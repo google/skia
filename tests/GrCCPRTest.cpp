@@ -10,8 +10,8 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/mock/GrMockTypes.h"
-#include "include/private/GrRecordingContext.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
