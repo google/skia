@@ -9,6 +9,7 @@
 #define GrContextPriv_DEFINED
 
 #include "include/gpu/GrContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 
 class GrAtlasManager;
 class GrBackendFormat;
@@ -165,6 +166,10 @@ public:
 
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
+
+    GrSDFTOptions SDFTOptions() const {
+        return {this->options().fMinDistanceFieldFontSize, this->options().fGlyphsAsPathsFontSize};
+    }
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}

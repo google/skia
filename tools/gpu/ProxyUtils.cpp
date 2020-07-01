@@ -21,18 +21,13 @@
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrDirectContext* direct,
                                                GrRenderable renderable,
                                                GrSurfaceOrigin origin,
                                                const GrImageInfo& imageInfo,
                                                const void* data,
                                                size_t rowBytes) {
-    if (context->abandoned()) {
-        return nullptr;
-    }
-
-    auto direct = context->asDirectContext();
-    if (!direct) {
+    if (direct->abandoned()) {
         return nullptr;
     }
 
