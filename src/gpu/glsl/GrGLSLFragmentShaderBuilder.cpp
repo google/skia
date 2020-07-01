@@ -67,7 +67,7 @@ uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin)
 }
 
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program)
-        : GrGLSLFragmentBuilder(program) {
+        : GrGLSLShaderBuilder(program) {
     fSubstageIndices.push_back(0);
 }
 
@@ -274,13 +274,6 @@ const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
 bool GrGLSLFragmentShaderBuilder::primaryColorOutputIsInOut() const {
     return fCustomColorOutput &&
            fCustomColorOutput->getTypeModifier() == GrShaderVar::TypeModifier::InOut;
-}
-
-void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {
-    va_list argp;
-    va_start(argp, fmt);
-    inputs().appendVAList(fmt, argp);
-    va_end(argp);
 }
 
 const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {

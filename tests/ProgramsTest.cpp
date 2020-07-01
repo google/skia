@@ -44,7 +44,7 @@ class GLBigKeyProcessor : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
         // pass through
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         if (args.fInputColor) {
             fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         } else {
