@@ -89,6 +89,7 @@ public:
         virtual void onBackendCreated() {}
         virtual void onAttach(Window* window) {}
         virtual bool onChar(SkUnichar c, skui::ModifierKey) { return false; }
+        virtual bool onModifiers(skui::ModifierKey modifiers) { return false; }
         virtual bool onKey(skui::Key, skui::InputState, skui::ModifierKey) { return false; }
         virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) { return false; }
         virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
@@ -113,6 +114,7 @@ public:
 
     void onBackendCreated();
     bool onChar(SkUnichar c, skui::ModifierKey modifiers);
+    bool onModifiers(skui::ModifierKey modifiers);
     bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers);
     bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers);
     bool onMouseWheel(float delta, skui::ModifierKey modifiers);

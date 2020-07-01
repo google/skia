@@ -5,6 +5,8 @@
 * found in the LICENSE file.
 */
 
+#include <Carbon/Carbon.h>
+
 #include "src/core/SkUtils.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 #include "tools/sk_app/mac/Window_mac.h"
@@ -195,34 +197,37 @@ static skui::Key get_key(unsigned short vk) {
     // Something more robust would be needed to support alternate keyboards.
     static const struct {
         unsigned short fVK;
-        skui::Key    fKey;
+        skui::Key      fKey;
     } gPair[] = {
-        { 0x33, skui::Key::kBack },
-        { 0x24, skui::Key::kOK },
-        { 0x7E, skui::Key::kUp },
-        { 0x7D, skui::Key::kDown },
-        { 0x7B, skui::Key::kLeft },
-        { 0x7C, skui::Key::kRight },
-        { 0x30, skui::Key::kTab },
-        { 0x74, skui::Key::kPageUp },
-        { 0x79, skui::Key::kPageDown },
-        { 0x73, skui::Key::kHome },
-        { 0x77, skui::Key::kEnd },
-        { 0x75, skui::Key::kDelete },
-        { 0x35, skui::Key::kEscape },
-        { 0x38, skui::Key::kShift },
-        { 0x3C, skui::Key::kShift },
-        { 0x3B, skui::Key::kCtrl },
-        { 0x3E, skui::Key::kCtrl },
-        { 0x3A, skui::Key::kOption },
-        { 0x3D, skui::Key::kOption },
-        { 0x00, skui::Key::kA },
-        { 0x08, skui::Key::kC },
-        { 0x09, skui::Key::kV },
-        { 0x07, skui::Key::kX },
-        { 0x10, skui::Key::kY },
-        { 0x06, skui::Key::kZ },
+        { kVK_Delete,        skui::Key::kBack },
+        { kVK_Return,        skui::Key::kOK },
+        { kVK_UpArrow,       skui::Key::kUp },
+        { kVK_DownArrow,     skui::Key::kDown },
+        { kVK_LeftArrow,     skui::Key::kLeft },
+        { kVK_RightArrow,    skui::Key::kRight },
+        { kVK_Tab,           skui::Key::kTab },
+        { kVK_PageUp,        skui::Key::kPageUp },
+        { kVK_PageDown,      skui::Key::kPageDown },
+        { kVK_Home,          skui::Key::kHome },
+        { kVK_End,           skui::Key::kEnd },
+        { kVK_ForwardDelete, skui::Key::kDelete },
+        { kVK_Escape,        skui::Key::kEscape },
+        { kVK_Shift,         skui::Key::kShift },
+        { kVK_RightShift,    skui::Key::kShift },
+        { kVK_Control,       skui::Key::kCtrl },
+        { kVK_RightControl,  skui::Key::kCtrl },
+        { kVK_Option,        skui::Key::kOption },
+        { kVK_RightOption,   skui::Key::kOption },
+        { kVK_Command,       skui::Key::kSuper },
+        { kVK_RightCommand,  skui::Key::kSuper },
+        { kVK_ANSI_A,        skui::Key::kA },
+        { kVK_ANSI_C,        skui::Key::kC },
+        { kVK_ANSI_V,        skui::Key::kV },
+        { kVK_ANSI_X,        skui::Key::kX },
+        { kVK_ANSI_Y,        skui::Key::kY },
+        { kVK_ANSI_Z,        skui::Key::kZ },
     };
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fVK == vk) {
             return gPair[i].fKey;
@@ -249,8 +254,7 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
         modifiers |= skui::ModifierKey::kOption;
     }
 
-    if ((NSKeyDown == [event type] || NSKeyUp == [event type]) &&
-        NO == [event isARepeat]) {
+    if ((NSKeyDown == [event type] || NSKeyUp == [event type]) && ![event isARepeat]) {
         modifiers |= skui::ModifierKey::kFirstPress;
     }
 
@@ -341,6 +345,10 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
     if (key != skui::Key::kNONE) {
         (void) fWindow->onKey(key, skui::InputState::kUp, get_modifiers(event));
     }
+}
+
+-(void)flagsChanged:(NSEvent *)event {
+    (void) fWindow->onModifiers(get_modifiers(event));
 }
 
 - (void)mouseDown:(NSEvent *)event {

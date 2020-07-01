@@ -44,6 +44,10 @@ bool Window::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     return this->signalLayers([=](Layer* layer) { return layer->onChar(c, modifiers); });
 }
 
+bool Window::onModifiers(skui::ModifierKey modifiers) {
+    return this->signalLayers([=](Layer* layer) { return layer->onModifiers(modifiers); });
+}
+
 bool Window::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {
     return this->signalLayers([=](Layer* layer) { return layer->onKey(key, state, modifiers); });
 }

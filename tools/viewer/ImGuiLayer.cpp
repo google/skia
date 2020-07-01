@@ -18,6 +18,8 @@
 #include "imgui.h"
 
 #include <stdlib.h>
+#include <algorithm>
+#include <iterator>
 #include <map>
 
 using namespace sk_app;
@@ -109,6 +111,7 @@ void ImGuiLayer::onPrePaint() {
     io.KeyAlt = io.KeysDown[static_cast<int>(skui::Key::kOption)];
     io.KeyCtrl = io.KeysDown[static_cast<int>(skui::Key::kCtrl)];
     io.KeyShift = io.KeysDown[static_cast<int>(skui::Key::kShift)];
+    io.KeySuper = io.KeysDown[static_cast<int>(skui::Key::kSuper)];
 
     ImGui::NewFrame();
 }
@@ -182,6 +185,30 @@ void ImGuiLayer::onPaint(SkSurface* surface) {
     }
 
     fSkiaWidgetFuncs.reset();
+}
+
+bool ImGuiLayer::onModifiers(skui::ModifierKey modifiers) {
+    using sknonstd::Any;
+    ImGuiIO& io = ImGui::GetIO();
+
+    bool oldKeyCtrl  = io.KeysDown[static_cast<int>(skui::Key::kCtrl)];
+    bool oldKeyShift = io.KeysDown[static_cast<int>(skui::Key::kShift)];
+    bool oldKeyAlt   = io.KeysDown[static_cast<int>(skui::Key::kOption)];
+    bool oldKeySuper = io.KeysDown[static_cast<int>(skui::Key::kSuper)];
+    io.KeysDown[static_cast<int>(skui::Key::kCtrl)] = Any(modifiers & skui::ModifierKey::kControl);
+    io.KeysDown[static_cast<int>(skui::Key::kShift)] = Any(modifiers & skui::ModifierKey::kShift);
+    io.KeysDown[static_cast<int>(skui::Key::kOption)] = Any(modifiers & skui::ModifierKey::kOption);
+    io.KeysDown[static_cast<int>(skui::Key::kSuper)] = Any(modifiers & skui::ModifierKey::kCommand);
+
+    // We will not receive keyUp events for keys pressed with modifiers; manually reset them all.
+    if ((oldKeyShift && !io.KeysDown[static_cast<int>(skui::Key::kShift)]) ||
+        (oldKeyCtrl  && !io.KeysDown[static_cast<int>(skui::Key::kCtrl)]) ||
+        (oldKeyAlt   && !io.KeysDown[static_cast<int>(skui::Key::kOption)]) ||
+        (oldKeySuper && !io.KeysDown[static_cast<int>(skui::Key::kSuper)])) {
+        std::fill(std::begin(io.KeysDown), std::end(io.KeysDown), false);
+    }
+
+    return io.WantCaptureKeyboard;
 }
 
 bool ImGuiLayer::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {
