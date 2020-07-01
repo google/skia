@@ -307,6 +307,10 @@ public:
         fFinishedProcs.reset();
     }
 
+    void addStagingBuffer(GrVkStagingBuffer* buffer) {
+        fStagingBuffers.push_back(buffer);
+    }
+
     void recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool);
 
 private:
@@ -321,6 +325,8 @@ private:
     SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fSecondaryCommandBuffers;
     VkFence                                                     fSubmitFence;
     SkTArray<sk_sp<GrRefCntedCallback>>                         fFinishedProcs;
+    std::vector<GrVkStagingBuffer*>                             fStagingBuffers;
+
 
     typedef GrVkCommandBuffer INHERITED;
 };

@@ -45,10 +45,11 @@ void GrDawnBuffer::onMap() {
     if (this->wasDestroyed()) {
         return;
     }
-    GrStagingBuffer::Slice slice = getGpu()->allocateStagingBufferSlice(this->size());
+    GrStagingBuffer::Slice slice =
+            this->getDawnGpu()->stagingManager()->allocateStagingBufferSlice(this->size());
     fStagingBuffer = static_cast<GrDawnStagingBuffer*>(slice.fBuffer)->buffer();
     fStagingOffset = slice.fOffset;
-    fMapPtr = slice.fData;
+    fMapPtr = slice.fOffsetMapPtr;
 }
 
 void GrDawnBuffer::onUnmap() {

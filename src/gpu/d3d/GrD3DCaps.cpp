@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/d3d/GrD3DCaps.h"
+
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
@@ -15,7 +17,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStencilSettings.h"
-#include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DTexture.h"

@@ -11,20 +11,28 @@
 #include "dawn/webgpu_cpp.h"
 #include "src/gpu/GrStagingBuffer.h"
 
+class GrDawnStagingBufferManager;
+
 class GrDawnStagingBuffer : public GrStagingBuffer {
 public:
-    GrDawnStagingBuffer(GrGpu* gpu, wgpu::Buffer buffer, size_t size, void* data)
-        : INHERITED(gpu, size, data), fBuffer(buffer) {}
-    ~GrDawnStagingBuffer() override {}
-    void           mapAsync();
-    wgpu::Buffer   buffer() const { return fBuffer; }
-    GrDawnGpu*     getDawnGpu() const;
+    GrDawnStagingBuffer(GrDawnStagingBufferManager* manager,
+                        wgpu::Buffer buffer,
+                        size_t size,
+                        void* mapPtr)
+        : INHERITED(size, mapPtr), fManager(manager), fBuffer(buffer) {}
+    void mapAsync();
+    void unmap();
+    void markAvailable(void* data);
+
+    wgpu::Buffer buffer() const { return fBuffer; }
 
 private:
-    void           onUnmap() override;
-
+    GrDawnStagingBufferManager* fManager;
     wgpu::Buffer   fBuffer;
+    bool fNeedsToBeMapped = false;
     typedef GrStagingBuffer INHERITED;
+
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrDawnStagingBuffer);
 };
 
 #endif

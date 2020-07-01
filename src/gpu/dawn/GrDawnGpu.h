@@ -15,6 +15,7 @@
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
+#include "src/gpu/dawn/GrDawnStagingBufferManager.h"
 
 #include <unordered_map>
 
@@ -39,6 +40,8 @@ public:
     const wgpu::Device& device() const { return fDevice; }
     const wgpu::Queue&  queue() const { return fQueue; }
 
+    GrDawnStagingBufferManager* stagingManager() { return &fStagingBufferManager; }
+
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     void deleteBackendTexture(const GrBackendTexture&) override;
@@ -53,7 +56,7 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
-    std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size) override;
+    std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -183,8 +186,6 @@ private:
 
     bool onSubmitToGpu(bool syncCpu) override;
 
-    void mapStagingBuffers();
-
     wgpu::Device                                    fDevice;
     wgpu::Queue                                     fQueue;
     std::unique_ptr<SkSL::Compiler>                 fCompiler;
@@ -192,6 +193,7 @@ private:
     GrDawnRingBuffer                                fUniformRingBuffer;
     wgpu::CommandEncoder                            fCopyEncoder;
     std::vector<wgpu::CommandBuffer>                fCommandBuffers;
+    GrDawnStagingBufferManager                      fStagingBufferManager;
 
     struct ProgramDescHash {
         uint32_t operator()(const GrProgramDesc& desc) const {

@@ -16,14 +16,20 @@ static void callback(WGPUBufferMapAsyncStatus status, void* data, uint64_t dataL
     buffer->markAvailable(data);
 }
 
-GrDawnGpu* GrDawnStagingBuffer::getDawnGpu() const {
-    return static_cast<GrDawnGpu*>(this->getGpu());
-}
-
 void GrDawnStagingBuffer::mapAsync() {
-    fBuffer.MapWriteAsync(callback, this);
+    if (fNeedsToBeMapped) {
+        fBuffer.MapWriteAsync(callback, this);
+        fNeedsToBeMapped = false;
+    }
 }
 
-void GrDawnStagingBuffer::onUnmap() {
+void GrDawnStagingBuffer::unmap() {
     fBuffer.Unmap();
+    fNeedsToBeMapped = true;
+}
+
+void GrDawnStagingBuffer::markAvailable(void* mapPtr) {
+    std::unique_ptr<GrStagingBuffer> buffer = fManager->removeFromBusy(this);
+    SkASSERT(buffer);
+    fManager->recycleStagingBuffer(std::move(buffer), mapPtr);
 }
