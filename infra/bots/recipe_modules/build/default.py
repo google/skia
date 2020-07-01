@@ -82,6 +82,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
+  xcode            = str(api.vars.slave_dir.join('xcode-11.4.1', 'Xcode.app'))
 
   cc, cxx, ccache = None, None, None
   extra_cflags = []
@@ -129,13 +130,37 @@ def compile_fn(api, checkout_root, out_dir):
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
+  # This is a build requiring the newer xcode.
+  if os == 'Mac10.15.5':
+    extra_cflags.append(
+        '-DDUMMY_xcode_build_version=11.4.1')
+    with api.step.nest('ensure xcode') as step_result:
+      step_result.presentation.step_text = (
+          'Ensuring Xcode version %s in %s' % (
+              '11.4.1', xcode))
+      api.step('select xcode', [
+          'sudo', 'xcode-select', '-switch', xcode])
+      api.step('accept Xcode License', [
+          'sudo', 'xcodebuild', '-license', 'accept'])
+      if 'iOS' in extra_tokens:
+        if target_arch == 'arm':
+          # Can only compile for 32-bit up to iOS 10.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
+        else:
+          # Our iOS devices are on an older version.
+          # Can't compile for Metal before 11.0.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+      else:
+        # We have some bots on 10.13.
+        env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
+
   if 'CheckGeneratedFiles' in extra_tokens:
     compiler = 'Clang'
     args['skia_compile_processors'] = 'true'
     args['skia_generate_workarounds'] = 'true'
 
   # ccache + clang-tidy.sh chokes on the argument list.
-  if (api.vars.is_linux or os == 'Mac') and 'Tidy' not in extra_tokens:
+  if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
       ccache = api.vars.slave_dir.join('ccache_linux', 'bin', 'ccache')
       # As of 2020-02-07, the sum of each Debian10-Clang-x86
