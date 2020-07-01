@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d093a22d_e40cfaef",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2573,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T21:06:07Z",
+      "side": 1,
+      "message": "We can add these asserts to all the GrGPU subclasses right?",
+      "range": {
+        "startLine": 2573,
+        "startChar": 4,
+        "endLine": 2573,
+        "endChar": 24
+      },
+      "revId": "bdf05f2b3bf8944a775e717599fec167269c7987",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
