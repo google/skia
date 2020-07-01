@@ -17,28 +17,12 @@ class GrRenderTarget;
 class GrGLSLVarying;
 
 /*
- * This base class encapsulates the common functionality which all processors use to build fragment
- * shaders.
- */
-class GrGLSLFragmentBuilder : public GrGLSLShaderBuilder {
-public:
-    GrGLSLFragmentBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
-    virtual ~GrGLSLFragmentBuilder() {}
-
-    // TODO: remove this method.
-    void declAppendf(const char* fmt, ...);
-
-private:
-    typedef GrGLSLShaderBuilder INHERITED;
-};
-
-/*
  * This class is used by fragment processors to build their fragment code.
  */
-class GrGLSLFPFragmentBuilder : virtual public GrGLSLFragmentBuilder {
+class GrGLSLFPFragmentBuilder : virtual public GrGLSLShaderBuilder {
 public:
-    /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
-    GrGLSLFPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {
+    /** Appease the compiler; the derived class initializes GrGLSLShaderBuilder. */
+    GrGLSLFPFragmentBuilder() : GrGLSLShaderBuilder(nullptr) {
         // Suppress unused warning error
         (void) fDummyPadding;
     }
@@ -105,7 +89,7 @@ private:
     // to start aligned, even though clang is already correctly offsetting the individual fields
     // that require the larger alignment. In the current world, this extra padding is sufficient to
     // correctly initialize GrGLSLXPFragmentBuilder second.
-    char fDummyPadding[4];
+    char fDummyPadding[4] = {};
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrGLSLFPFragmentBuilder::ScopeFlags);
@@ -113,10 +97,10 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrGLSLFPFragmentBuilder::ScopeFlags);
 /*
  * This class is used by Xfer processors to build their fragment code.
  */
-class GrGLSLXPFragmentBuilder : virtual public GrGLSLFragmentBuilder {
+class GrGLSLXPFragmentBuilder : virtual public GrGLSLShaderBuilder {
 public:
-    /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
-    GrGLSLXPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
+    /** Appease the compiler; the derived class initializes GrGLSLShaderBuilder. */
+    GrGLSLXPFragmentBuilder() : GrGLSLShaderBuilder(nullptr) {}
 
     virtual bool hasCustomColorOutput() const = 0;
     virtual bool hasSecondaryOutput() const = 0;
