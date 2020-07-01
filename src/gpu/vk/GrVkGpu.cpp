@@ -2570,6 +2570,8 @@ std::unique_ptr<GrSemaphore> GrVkGpu::wrapBackendSemaphore(
 }
 
 void GrVkGpu::insertSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
+
     GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore);
 
     GrVkSemaphore::Resource* resource = vkSem->getResource();
@@ -2580,6 +2582,8 @@ void GrVkGpu::insertSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrVkGpu::waitSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
+
     GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore);
 
     GrVkSemaphore::Resource* resource = vkSem->getResource();

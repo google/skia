@@ -1188,12 +1188,14 @@ std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(
 }
 
 void GrD3DGpu::insertSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
     GrD3DSemaphore* d3dSem = static_cast<GrD3DSemaphore*>(semaphore);
     // TODO: Do we need to track the lifetime of this? How do we know it's done?
     fQueue->Signal(d3dSem->fence(), d3dSem->value());
 }
 
 void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
     GrD3DSemaphore* d3dSem = static_cast<GrD3DSemaphore*>(semaphore);
     // TODO: Do we need to track the lifetime of this?
     fQueue->Wait(d3dSem->fence(), d3dSem->value());
