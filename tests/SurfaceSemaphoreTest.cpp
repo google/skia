@@ -9,6 +9,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "tests/Test.h"
@@ -71,7 +72,7 @@ void draw_child(skiatest::Reporter* reporter,
     const SkImageInfo childII = SkImageInfo::Make(CHILD_W, CHILD_H, kRGBA_8888_SkColorType,
                                                   kPremul_SkAlphaType);
 
-    GrContext* childCtx = childInfo.grContext();
+    auto childCtx = childInfo.directContext();
     sk_sp<SkSurface> childSurface(SkSurface::MakeRenderTarget(childCtx, SkBudgeted::kNo,
                                                               childII, 0, kTopLeft_GrSurfaceOrigin,
                                                               nullptr));
@@ -112,7 +113,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
                             const sk_gpu_test::ContextInfo& childInfo1,
                             const sk_gpu_test::ContextInfo& childInfo2,
                             FlushType flushType) {
-    GrContext* mainCtx = mainInfo.grContext();
+    auto mainCtx = mainInfo.directContext();
     if (!mainCtx->priv().caps()->semaphoreSupport()) {
         return;
     }
@@ -209,12 +210,12 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
             }
             skiatest::ReporterContext ctx(
                    reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
-            if (ctxInfo.grContext()) {
+            if (ctxInfo.directContext()) {
                 sk_gpu_test::ContextInfo child1 =
-                        factory.getSharedContextInfo(ctxInfo.grContext(), 0);
+                        factory.getSharedContextInfo(ctxInfo.directContext(), 0);
                 sk_gpu_test::ContextInfo child2 =
-                        factory.getSharedContextInfo(ctxInfo.grContext(), 1);
-                if (!child1.grContext() || !child2.grContext()) {
+                        factory.getSharedContextInfo(ctxInfo.directContext(), 1);
+                if (!child1.directContext() || !child2.directContext()) {
                     continue;
                 }
 
@@ -226,7 +227,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
 #endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo) {
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
     if (!ctx->priv().caps()->semaphoreSupport()) {
         return;
     }
