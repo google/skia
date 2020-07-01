@@ -10,7 +10,7 @@
 
 #include "include/core/SkBlendMode.h"
 
-class GrGLSLFragmentBuilder;
+class GrGLSLShaderBuilder;
 
 namespace GrGLSLBlend {
 /*
@@ -25,7 +25,7 @@ const char* BlendFuncName(SkBlendMode mode);
  * Appends GLSL code to fsBuilder that assigns a specified blend of the srcColor and dstColor
  * variables to the outColor variable.
  */
-void AppendMode(GrGLSLFragmentBuilder* fsBuilder,
+void AppendMode(GrGLSLShaderBuilder* fsBuilder,
                 const char* srcColor,
                 const char* dstColor,
                 const char* outColor,
