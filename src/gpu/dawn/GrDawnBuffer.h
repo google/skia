@@ -28,7 +28,14 @@ public:
 private:
     wgpu::Buffer fBuffer;
     wgpu::Buffer fStagingBuffer;
-    size_t       fStagingOffset;
+    size_t       fStagingOffset = 0;
+
+    enum class Mappable {
+        kNot,
+        kReadOnly,
+        kReadAndWrite,
+    };
+    Mappable fMappable = Mappable::kNot;
     typedef GrGpuBuffer INHERITED;
 };
 
