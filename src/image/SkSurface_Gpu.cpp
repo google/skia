@@ -244,7 +244,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
         if (!canvasContext) {
             return false;
         }
-        if (!canvasContext->priv().asDirectContext() ||
+        if (!canvasContext->asDirectContext() ||
             canvasContext->priv().contextID() != context->priv().contextID()) {
             return false;
         }

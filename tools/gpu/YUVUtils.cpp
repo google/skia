@@ -109,7 +109,7 @@ void YUVABackendReleaseContext::Unwind(GrContext* context, YUVABackendReleaseCon
 
 YUVABackendReleaseContext::YUVABackendReleaseContext(GrContext* context) : fContext(context) {
     SkASSERT(context->priv().getGpu());
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 }
 
 YUVABackendReleaseContext::~YUVABackendReleaseContext() {

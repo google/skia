@@ -90,7 +90,7 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
     SkASSERT(proxy->canSkipResourceAllocator());
 
     // TODO: this class should probably just get a GrDirectContext
-    auto direct = fDrawingMgr->getContext()->priv().asDirectContext();
+    auto direct = fDrawingMgr->getContext()->asDirectContext();
     if (!direct) {
         return false;
     }
@@ -107,7 +107,7 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
 sk_sp<GrGpuBuffer> GrOnFlushResourceProvider::makeBuffer(GrGpuBufferType intendedType, size_t size,
                                                          const void* data) {
     // TODO: this class should probably just get a GrDirectContext
-    auto direct = fDrawingMgr->getContext()->priv().asDirectContext();
+    auto direct = fDrawingMgr->getContext()->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -121,7 +121,7 @@ sk_sp<GrGpuBuffer> GrOnFlushResourceProvider::makeBuffer(GrGpuBufferType intende
 sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
         GrGpuBufferType intendedType, size_t size, const void* data, const GrUniqueKey& key) {
     // TODO: class should probably just get a GrDirectContext
-    auto direct = fDrawingMgr->getContext()->priv().asDirectContext();
+    auto direct = fDrawingMgr->getContext()->asDirectContext();
     if (!direct) {
         return nullptr;
     }

@@ -205,7 +205,7 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImage(SkDeferredDisplayListRe
 }
 
 void DDLTileHelper::TileData::CreateBackendTexture(GrContext* context, TileData* tile) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
     SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
 
     GrBackendTexture beTex = context->createBackendTexture(tile->fCharacterization);
@@ -213,7 +213,7 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrContext* context, TileData*
 }
 
 void DDLTileHelper::TileData::DeleteBackendTexture(GrContext* context, TileData* tile) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
     SkASSERT(tile->fCallbackContext);
 
     // TODO: it seems that, on the Linux bots, backend texture creation is failing
@@ -355,7 +355,7 @@ void DDLTileHelper::resetAllTiles() {
 }
 
 void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 
     if (taskGroup) {
         for (int i = 0; i < this->numTiles(); ++i) {
@@ -371,7 +371,7 @@ void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrContext* con
 }
 
 void DDLTileHelper::deleteBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 
     if (taskGroup) {
         for (int i = 0; i < this->numTiles(); ++i) {

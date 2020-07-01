@@ -33,7 +33,7 @@ static GrSurfaceProxyView blur(GrRecordingContext* ctx,
 };
 
 static void run(GrRecordingContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool ref) {
-    auto direct = ctx->priv().asDirectContext();
+    auto direct = ctx->asDirectContext();
     if (!direct) {
         return;
     }

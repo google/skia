@@ -185,7 +185,7 @@ static bool should_tile_image_id(GrContext* context,
     // and theoretically, the resource cache's limits could be being changed on another thread, so
     // even having access to just the limit wouldn't be a reliable test during recording here.
     // Instead, we will just upload the entire image to be on the safe side and not tile.
-    if (!context->priv().asDirectContext()) {
+    if (!context->asDirectContext()) {
         return false;
     }
 

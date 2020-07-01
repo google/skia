@@ -75,7 +75,7 @@ protected:
             return DrawResult::kSkip;
         }
 
-        SkASSERT(context->priv().asDirectContext());
+        SkASSERT(context->asDirectContext());
 
         if (context->backend() != GrBackendApi::kVulkan) {
             *errorMsg = "This GM requires a Vulkan context.";

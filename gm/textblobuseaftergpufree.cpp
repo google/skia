@@ -16,7 +16,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/GrDirectContext.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -52,7 +51,7 @@ protected:
         canvas->drawTextBlob(blob, 20, 60, SkPaint());
 
         // This text should look fine
-        if (auto direct = context->priv().asDirectContext()) {
+        if (auto direct = context->asDirectContext()) {
             direct->freeGpuResources();
         }
         canvas->drawTextBlob(blob, 20, 160, SkPaint());

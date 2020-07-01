@@ -256,7 +256,7 @@ private:
             return DrawResult::kSkip;
         }
 
-        SkASSERT(context->priv().asDirectContext());
+        SkASSERT(context->asDirectContext());
 
         this->makeLabels(context);
         fReferenceImages[0] = make_reference_image(context, fLabels, false);

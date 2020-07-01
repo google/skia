@@ -25,6 +25,11 @@ public:
     virtual ~GrContext_Base();
 
     /*
+     * Safely downcast to a GrDirectContext.
+     */
+    virtual GrDirectContext* asDirectContext() { return nullptr; }
+
+    /*
      * The 3D API backing this context
      */
     SK_API GrBackendApi backend() const;
@@ -77,7 +82,6 @@ protected:
 
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
-    virtual GrDirectContext* asDirectContext() { return nullptr; }
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 

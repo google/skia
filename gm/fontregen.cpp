@@ -35,7 +35,6 @@
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTemplates.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 class GrRenderTargetContext;
@@ -85,7 +84,7 @@ class FontRegenGM : public skiagm::GpuGM {
     }
 
     void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
-        auto direct = context->priv().asDirectContext();
+        auto direct = context->asDirectContext();
         if (!direct) {
             return;
         }

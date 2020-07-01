@@ -20,7 +20,6 @@
 #include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 class GrContext;
@@ -48,7 +47,7 @@ protected:
 
     DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
-        auto direct = context->priv().asDirectContext();
+        auto direct = context->asDirectContext();
         if (!direct) {
             *errorMsg = "GM relies on having access to a live direct context.";
             return DrawResult::kSkip;
