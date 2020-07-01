@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 #include "tests/Test.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrContextPriv.h"
@@ -185,7 +185,7 @@ private:
 };
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrResourceProvider* rp = context->priv().resourceProvider();
 
     auto rtc = GrRenderTargetContext::Make(

@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "include/private/GrDirectContext.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrCaps.h"
@@ -105,7 +106,7 @@ public:
 
     void waitIfNeeded();
 
-    sk_gpu_test::FlushFinishTracker* newFlushTracker(GrContext* context);
+    sk_gpu_test::FlushFinishTracker* newFlushTracker(GrDirectContext* context);
 
 private:
     enum { kMaxFrameLag = 3 };
@@ -122,7 +123,7 @@ enum class ExitErr {
     kSoftware     = 70
 };
 
-static void flush_with_sync(GrContext*, GpuSync&);
+static void flush_with_sync(GrDirectContext*, GpuSync&);
 static void draw_skp_and_flush_with_sync(GrContext*, SkSurface*, const SkPicture*, GpuSync&);
 static sk_sp<SkPicture> create_warmup_skp();
 static sk_sp<SkPicture> create_skp_from_svg(SkStream*, const char* filename);
@@ -200,7 +201,7 @@ private:
     std::vector<SkDocumentPage> fFrames;
 };
 
-static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSync,
+static void ddl_sample(GrDirectContext* context, DDLTileHelper* tiles, GpuSync& gpuSync,
                        Sample* sample, SkTaskGroup* recordingTaskGroup, SkTaskGroup* gpuTaskGroup,
                        std::chrono::high_resolution_clock::time_point* startStopTime) {
     using clock = std::chrono::high_resolution_clock;
@@ -241,7 +242,7 @@ static void ddl_sample(GrContext* context, DDLTileHelper* tiles, GpuSync& gpuSyn
     }
 }
 
-static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrContext *context,
+static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrDirectContext *context,
                               sk_sp<SkSurface> dstSurface, SkPicture* inputPicture,
                               std::vector<Sample>* samples) {
     using clock = std::chrono::high_resolution_clock;
@@ -551,7 +552,7 @@ int main(int argc, char** argv) {
     sk_gpu_test::GrContextFactory factory(ctxOptions);
     sk_gpu_test::ContextInfo ctxInfo =
         factory.getContextInfo(config->getContextType(), config->getContextOverrides());
-    GrContext* ctx = ctxInfo.grContext();
+    GrDirectContext* ctx = ctxInfo.directContext();
     if (!ctx) {
         exitf(ExitErr::kUnavailable, "failed to create context for config %s",
                                      config->getTag().c_str());
@@ -643,7 +644,7 @@ int main(int argc, char** argv) {
     return(0);
 }
 
-static void flush_with_sync(GrContext* context, GpuSync& gpuSync) {
+static void flush_with_sync(GrDirectContext* context, GpuSync& gpuSync) {
     gpuSync.waitIfNeeded();
 
     GrFlushInfo flushInfo;
@@ -654,7 +655,7 @@ static void flush_with_sync(GrContext* context, GpuSync& gpuSync) {
     context->submit();
 }
 
-static void draw_skp_and_flush_with_sync(GrContext* context, SkSurface* surface,
+static void draw_skp_and_flush_with_sync(GrDirectContext* context, SkSurface* surface,
                                          const SkPicture* skp, GpuSync& gpuSync) {
     auto canvas = surface->getCanvas();
     canvas->drawPicture(skp);
@@ -741,7 +742,7 @@ void GpuSync::waitIfNeeded() {
     }
 }
 
-sk_gpu_test::FlushFinishTracker* GpuSync::newFlushTracker(GrContext* context) {
+sk_gpu_test::FlushFinishTracker* GpuSync::newFlushTracker(GrDirectContext* context) {
     fFinishTrackers[fCurrentFlushIdx].reset(new sk_gpu_test::FlushFinishTracker(context));
 
     sk_gpu_test::FlushFinishTracker* tracker = fFinishTrackers[fCurrentFlushIdx].get();
