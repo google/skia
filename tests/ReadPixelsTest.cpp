@@ -422,7 +422,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     SkBitmap bmp = make_src_bitmap();
 
     // On the GPU we will also try reading back from a non-renderable texture.
