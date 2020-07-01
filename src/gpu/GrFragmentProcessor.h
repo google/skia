@@ -308,16 +308,15 @@ public:
     // Implementation detail for using CoordTransformIter and TextureSamplerIter in range-for loops.
     template <typename Src, typename ItemIter> class FPItemRange;
 
-    // These allow iteration over coord transforms/texture samplers for various FP sources via
-    // range-for loops. An example usage for looping over the coord transforms in a pipeline:
-    // for (auto [transform, fp] : GrFragmentProcessor::PipelineCoordTransformRange(pipeline)) {
+    // These allow iteration over texture samplers for various FP sources via range-for loops.
+    // An example usage for looping over the texture samplers in a pipeline:
+    // for (auto [sampler, fp] : GrFragmentProcessor::PipelineTextureSamplerRange(pipeline)) {
     //     ...
     // }
     // Only the combinations of FP sources and iterable things have been defined but it is easy
     // to add more as they become useful. Maybe someday we'll have template argument deduction
     // with guides for type aliases and the sources can be removed from the type aliases:
     // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1021r5.html
-    using PipelineCoordTransformRange = FPItemRange<const GrPipeline, CoordTransformIter>;
     using PipelineTextureSamplerRange = FPItemRange<const GrPipeline, TextureSamplerIter>;
     using FPTextureSamplerRange = FPItemRange<const GrFragmentProcessor, TextureSamplerIter>;
     using ProcessorSetTextureSamplerRange = FPItemRange<const GrProcessorSet, TextureSamplerIter>;
@@ -466,8 +465,6 @@ private:
     virtual bool onIsEqual(const GrFragmentProcessor&) const = 0;
 
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
-
-    bool hasSameTransforms(const GrFragmentProcessor&) const;
 
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
