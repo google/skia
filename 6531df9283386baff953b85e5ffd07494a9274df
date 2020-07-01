@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "275a026c_c4c3ed84",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1028,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-01T14:41:54Z",
+      "side": 1,
+      "message": "Should there be an assert here? Not suggesting there _should_ just checking my understanding that this code path can\u0027t be reached with DDLs.",
+      "revId": "6531df9283386baff953b85e5ffd07494a9274df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
