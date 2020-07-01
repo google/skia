@@ -21,6 +21,7 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
+#include "src/gpu/d3d/GrD3DUtil.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #include <d3dcompiler.h>
@@ -527,9 +528,8 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
     psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     gr_cp<ID3D12PipelineState> pipelineState;
-    SkDEBUGCODE(HRESULT hr = )gpu->device()->CreateGraphicsPipelineState(
-        &psoDesc, IID_PPV_ARGS(&pipelineState));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(gpu->device()->CreateGraphicsPipelineState(
+            &psoDesc, IID_PPV_ARGS(&pipelineState)));
 
     return pipelineState;
 }
