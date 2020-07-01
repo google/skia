@@ -1009,7 +1009,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
         }
 
         // Rescale quality and linearity don't matter since we're doing a non-scaling readback.
-        image->asyncRescaleAndReadPixels(pixels.info(), rect, SkImage::RescaleGamma::kSrc,
+        image->asyncRescaleAndReadPixels(context, pixels.info(), rect, SkImage::RescaleGamma::kSrc,
                                          kNone_SkFilterQuality, async_callback, &asyncContext);
         context->submit();
         while (!asyncContext.fCalled) {

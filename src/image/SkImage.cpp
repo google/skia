@@ -29,6 +29,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
 #include "include/gpu/GrBackendSurface.h"
@@ -58,14 +59,26 @@ void SkImage::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                         RescaleGamma rescaleGamma,
                                         SkFilterQuality rescaleQuality,
                                         ReadPixelsCallback callback,
-                                        ReadPixelsContext context) {
+                                        ReadPixelsContext cbContext) {
+    GrRecordingContext* context = as_IB(this)->recordingContext_deprecated();
+    this->asyncRescaleAndReadPixels(context, info, srcRect, rescaleGamma, rescaleQuality,
+                                    callback, cbContext);
+}
+
+void SkImage::asyncRescaleAndReadPixels(GrRecordingContext* context,
+                                        const SkImageInfo& info,
+                                        const SkIRect& srcRect,
+                                        RescaleGamma rescaleGamma,
+                                        SkFilterQuality rescaleQuality,
+                                        ReadPixelsCallback callback,
+                                        ReadPixelsContext cbContext) {
     if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) ||
         !SkImageInfoIsValid(info)) {
         callback(context, nullptr);
         return;
     }
-    as_IB(this)->onAsyncRescaleAndReadPixels(
-            info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+    as_IB(this)->onAsyncRescaleAndReadPixels(context, info, srcRect, rescaleGamma,
+                                             rescaleQuality, callback, context);
 }
 
 void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -75,20 +88,35 @@ void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                               RescaleGamma rescaleGamma,
                                               SkFilterQuality rescaleQuality,
                                               ReadPixelsCallback callback,
-                                              ReadPixelsContext context) {
+                                              ReadPixelsContext cbContext) {
+    GrRecordingContext* context = as_IB(this)->recordingContext_deprecated();
+    this->asyncRescaleAndReadPixelsYUV420(context, yuvColorSpace, std::move(dstColorSpace),
+                                          srcRect, dstSize, rescaleGamma, rescaleQuality,
+                                          callback, cbContext);
+}
+
+void SkImage::asyncRescaleAndReadPixelsYUV420(GrRecordingContext* context,
+                                              SkYUVColorSpace yuvColorSpace,
+                                              sk_sp<SkColorSpace> dstColorSpace,
+                                              const SkIRect& srcRect,
+                                              const SkISize& dstSize,
+                                              RescaleGamma rescaleGamma,
+                                              SkFilterQuality rescaleQuality,
+                                              ReadPixelsCallback callback,
+                                              ReadPixelsContext cbContext) {
     if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) || dstSize.isZero() ||
         (dstSize.width() & 0b1) || (dstSize.height() & 0b1)) {
         callback(context, nullptr);
         return;
     }
-    as_IB(this)->onAsyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+    as_IB(this)->onAsyncRescaleAndReadPixelsYUV420(context, yuvColorSpace,
                                                    std::move(dstColorSpace),
                                                    srcRect,
                                                    dstSize,
                                                    rescaleGamma,
                                                    rescaleQuality,
                                                    callback,
-                                                   context);
+                                                   cbContext);
 }
 
 bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingHint chint) const {
@@ -164,6 +192,11 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
+    GrRecordingContext* context = as_IB(this)->recordingContext_deprecated();
+    return this->makeSubset(context, subset);
+}
+
+sk_sp<SkImage> SkImage::makeSubset(GrRecordingContext* context, const SkIRect& subset) const {
     if (subset.isEmpty()) {
         return nullptr;
     }
@@ -178,12 +211,7 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    // CONTEXT TODO: propagate the context parameter to the top-level API
-#if SK_SUPPORT_GPU
-    return as_IB(this)->onMakeSubset(as_IB(this)->context(), subset);
-#else
-    return as_IB(this)->onMakeSubset(nullptr, subset);
-#endif
+    return as_IB(this)->onMakeSubset(context, subset);
 }
 
 #if SK_SUPPORT_GPU
@@ -246,7 +274,17 @@ SkImage_Base::~SkImage_Base() {
     }
 }
 
-void SkImage_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+GrRecordingContext* SkImage_Base::recordingContext_deprecated() const {
+#if SK_SUPPORT_GPU
+    GrImageContext* ctx = this->context();
+    return ctx ? ctx->priv().asRecordingContext() : nullptr;
+#else
+    return nullptr;
+#endif
+}
+
+void SkImage_Base::onAsyncRescaleAndReadPixels(GrRecordingContext*,
+                                               const SkImageInfo& info,
                                                const SkIRect& origSrcRect,
                                                RescaleGamma rescaleGamma,
                                                SkFilterQuality rescaleQuality,
@@ -271,7 +309,8 @@ void SkImage_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
             src, info, srcRect, rescaleGamma, rescaleQuality, callback, context);
 }
 
-void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(GrRecordingContext*,
+                                                     SkYUVColorSpace,
                                                      sk_sp<SkColorSpace> dstColorSpace,
                                                      const SkIRect& srcRect,
                                                      const SkISize& dstSize,
@@ -339,12 +378,11 @@ sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize&
 sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
                                        SkIPoint* offset) const {
-    GrContext* context = as_IB(this)->context();
-
+    GrRecordingContext* context = as_IB(this)->recordingContext_deprecated();
     return this->makeWithFilter(context, filter, subset, clipBounds, outSubset, offset);
 }
 
-sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
+sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* context,
                                        const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
                                        SkIPoint* offset) const {
@@ -352,11 +390,7 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
         return nullptr;
     }
     sk_sp<SkSpecialImage> srcSpecialImage =
-#if SK_SUPPORT_GPU
-        SkSpecialImage::MakeFromImage(grContext, subset, sk_ref_sp(const_cast<SkImage*>(this)));
-#else
-        SkSpecialImage::MakeFromImage(nullptr, subset, sk_ref_sp(const_cast<SkImage*>(this)));
-#endif
+        SkSpecialImage::MakeFromImage(context, subset, sk_ref_sp(const_cast<SkImage*>(this)));
     if (!srcSpecialImage) {
         return nullptr;
     }
@@ -368,12 +402,12 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
     // subset's top left corner. But the clip bounds and any crop rects on the filters are in the
     // original coordinate system, so configure the CTM to correct crop rects and explicitly adjust
     // the clip bounds (since it is assumed to already be in image space).
-    SkImageFilter_Base::Context context(SkMatrix::Translate(-subset.x(), -subset.y()),
+    SkImageFilter_Base::Context filterCtx(SkMatrix::Translate(-subset.x(), -subset.y()),
                                         clipBounds.makeOffset(-subset.topLeft()),
                                         cache.get(), fInfo.colorType(), fInfo.colorSpace(),
                                         srcSpecialImage.get());
 
-    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context).imageAndOffset(offset);
+    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(filterCtx).imageAndOffset(offset);
     if (!result) {
         return nullptr;
     }
@@ -407,6 +441,12 @@ bool SkImage::isLazyGenerated() const {
 bool SkImage::isAlphaOnly() const { return SkColorTypeIsAlphaOnly(fInfo.colorType()); }
 
 sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
+    GrRecordingContext* context = as_IB(this)->recordingContext_deprecated();
+    return this->makeColorSpace(context, std::move(target));
+}
+
+sk_sp<SkImage> SkImage::makeColorSpace(GrRecordingContext* context,
+                                       sk_sp<SkColorSpace> target) const {
     if (!target) {
         return nullptr;
     }
@@ -422,16 +462,17 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    // CONTEXT TODO: propagate the context parameter to the top-level API
-#if SK_SUPPORT_GPU
-    return as_IB(this)->onMakeColorTypeAndColorSpace(as_IB(this)->context(),
-#else
-    return as_IB(this)->onMakeColorTypeAndColorSpace(nullptr,
-#endif
-                                                     this->colorType(), std::move(target));
+    return as_IB(this)->onMakeColorTypeAndColorSpace(context, this->colorType(), std::move(target));
 }
 
 sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
+                                                   sk_sp<SkColorSpace> targetColorSpace) const {
+    return this->makeColorTypeAndColorSpace(as_IB(this)->recordingContext_deprecated(),
+                                            targetColorType, std::move(targetColorSpace));
+}
+
+sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(GrRecordingContext* context,
+                                                   SkColorType targetColorType,
                                                    sk_sp<SkColorSpace> targetColorSpace) const {
     if (kUnknown_SkColorType == targetColorType || !targetColorSpace) {
         return nullptr;
@@ -447,13 +488,8 @@ sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    // CONTEXT TODO: propagate the context parameter to the top-level API
-#if SK_SUPPORT_GPU
-    return as_IB(this)->onMakeColorTypeAndColorSpace(as_IB(this)->context(),
-#else
-    return as_IB(this)->onMakeColorTypeAndColorSpace(nullptr,
-#endif
-                                                     targetColorType, std::move(targetColorSpace));
+    return as_IB(this)->onMakeColorTypeAndColorSpace(context, targetColorType,
+                                                     std::move(targetColorSpace));
 }
 
 sk_sp<SkImage> SkImage::reinterpretColorSpace(sk_sp<SkColorSpace> target) const {
