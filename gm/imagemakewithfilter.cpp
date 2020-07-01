@@ -366,7 +366,8 @@ private:
             SkIRect outSubset;
             SkIPoint offset;
 
-            result = mainImage->makeWithFilter(filter.get(), subset, clip, &outSubset, &offset);
+            result = mainImage->makeWithFilter(canvas->recordingContext(), filter.get(), subset,
+                                               clip, &outSubset, &offset);
 
             SkASSERT(result);
             SkASSERT(mainImage->isTextureBacked() == result->isTextureBacked());

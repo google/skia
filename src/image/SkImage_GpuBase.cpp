@@ -15,6 +15,7 @@
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -24,7 +25,7 @@
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkReadPixelsRec.h"
 
-SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, SkISize size, uint32_t uniqueID,
+SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, SkISize size, uint32_t uniqueID,
                                  SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
         : INHERITED(SkImageInfo::Make(size, ct, at, std::move(cs)), uniqueID)
         , fContext(std::move(context)) {}
@@ -188,7 +189,7 @@ GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
         return {};
     }
 
-    GrTextureAdjuster adjuster(fContext.get(), *this->view(context), this->imageInfo().colorInfo(),
+    GrTextureAdjuster adjuster(context, *this->view(context), this->imageInfo().colorInfo(),
                                this->uniqueID());
     return adjuster.view(mipMapped);
 }
@@ -250,11 +251,11 @@ GrTexture* SkImage_GpuBase::getTexture() const {
 
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {
     // The base class has already checked that context isn't abandoned (if it's not nullptr)
-    if (fContext->abandoned()) {
+    if (!context || context->abandoned()) {
         return false;
     }
 
-    if (context && !fContext->priv().matches(context)) {
+    if (!fContext->priv().matches(context)) {
         return false;
     }
 
@@ -305,7 +306,8 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx,
     return true;
 }
 
-bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
+bool SkImage_GpuBase::RenderYUVAToRGBA(GrImageContext* context,
+                                       GrRenderTargetContext* renderTargetContext,
                                        const SkRect& rect, SkYUVColorSpace yuvColorSpace,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        GrSurfaceProxyView views[4],
@@ -318,7 +320,7 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    const auto& caps = *ctx->priv().caps();
+    const auto& caps = *context->priv().caps();
     auto fp = GrYUVtoRGBEffect::Make(views, yuvaIndices, yuvColorSpace,
                                      GrSamplerState::Filter::kNearest, caps);
     if (colorSpaceXform) {
