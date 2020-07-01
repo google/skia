@@ -30,7 +30,7 @@
 
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
-SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context,
+SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                                  SkISize size,
                                  uint32_t uniqueID,
                                  SkYUVColorSpace colorSpace,
@@ -63,8 +63,10 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context,
 }
 
 // For onMakeColorSpace()
-SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace> targetCS)
-        : INHERITED(image->fContext, image->dimensions(), kNeedNewImageUniqueID, kAssumedColorType,
+SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image,
+                                 sk_sp<SkColorSpace> targetCS)
+        : INHERITED(image->fContext, image->dimensions(), kNeedNewImageUniqueID,
+                    kAssumedColorType,
                     // If an alpha channel is present we always switch to kPremul. This is because,
                     // although the planar data is always un-premul, the final interleaved RGB image
                     // is/would-be premul.
@@ -116,7 +118,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrContext* context, const GrFlushInfo& info) {
-    if (!context || !fContext->priv().matches(context) || fContext->abandoned()) {
+    if (!context || !fContext->priv().matches(context) || context->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
