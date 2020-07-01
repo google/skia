@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aab6fcc2_bbc48810",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-01T14:14:50Z",
+      "side": 1,
+      "message": "extra \\n",
+      "revId": "76b7f72c7ddad84609f5c29e35409b0df44a7b21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
