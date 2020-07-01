@@ -167,7 +167,7 @@ private:
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
 #if GR_GPU_STATS
     GrGpu* gpu = context->priv().getGpu();
 #endif

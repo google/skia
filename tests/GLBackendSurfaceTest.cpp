@@ -15,6 +15,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/GrDirectContext.h"
 #include "include/private/GrGLTypesPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrTexture.h"
@@ -46,7 +47,7 @@ static bool params_valid(const GrGLTextureParameters& parameters, const GrGLCaps
 }
 
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
 
     GrBackendTexture backendTex = context->createBackendTexture(
             1, 1, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);

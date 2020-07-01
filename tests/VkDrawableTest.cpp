@@ -16,7 +16,8 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendDrawableInfo.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/private/GrDirectContext.h"
+//#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkMemory.h"
@@ -263,7 +264,7 @@ void draw_drawable_test(skiatest::Reporter* reporter, GrContext* context, GrCont
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkDrawableTest, reporter, ctxInfo) {
-    draw_drawable_test(reporter, ctxInfo.grContext(), nullptr);
+    draw_drawable_test(reporter, ctxInfo.context(), nullptr);
 }
 
 DEF_GPUTEST(VkDrawableImportTest, reporter, options) {
@@ -277,14 +278,14 @@ DEF_GPUTEST(VkDrawableImportTest, reporter, options) {
         sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
         skiatest::ReporterContext ctx(
                    reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
-        if (ctxInfo.grContext()) {
+        if (ctxInfo.context()) {
             sk_gpu_test::ContextInfo child =
-                    factory.getSharedContextInfo(ctxInfo.grContext(), 0);
-            if (!child.grContext()) {
+                    factory.getSharedContextInfo(ctxInfo.context(), 0);
+            if (!child.context()) {
                 continue;
             }
 
-            draw_drawable_test(reporter, ctxInfo.grContext(), child.grContext());
+            draw_drawable_test(reporter, ctxInfo.context(), child.context());
         }
     }
 }

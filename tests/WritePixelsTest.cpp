@@ -15,8 +15,8 @@
 #include "tools/ToolUtils.h"
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/private/GrDirectContext.h"
+//#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
 
@@ -444,11 +444,11 @@ static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context, 
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
-    test_write_pixels(reporter, ctxInfo.grContext(), 1);
+    test_write_pixels(reporter, ctxInfo.context(), 1);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
-    test_write_pixels(reporter, ctxInfo.grContext(), 1);
+    test_write_pixels(reporter, ctxInfo.context(), 1);
 }
 
 static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
@@ -478,11 +478,11 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo) {
-    test_write_pixels_non_texture(reporter, ctxInfo.grContext(), 1);
+    test_write_pixels_non_texture(reporter, ctxInfo.context(), 1);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTextureMSAA_Gpu, reporter, ctxInfo) {
-    test_write_pixels_non_texture(reporter, ctxInfo.grContext(), 4);
+    test_write_pixels_non_texture(reporter, ctxInfo.context(), 4);
 }
 
 static sk_sp<SkSurface> create_surf(GrContext* context, int width, int height) {
@@ -509,7 +509,7 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
 // second writePixels takes effect (i.e., that writePixels correctly flushes
 // in between uses of the shared backing resource).
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();
 

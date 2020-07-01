@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/GrDirectContext.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/gpu/SkGpuDevice.h"
@@ -77,7 +78,7 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.context();
 
     static const int kWidth = 100;
     static const int kHeight = 90;

@@ -20,7 +20,7 @@ DEF_GPUTEST(GrContext_oomed, reporter, originalOptions) {
     sk_gpu_test::GrContextFactory factory(options);
     for (int ct = 0; ct < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++ct) {
         auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(ct);
-        GrContext* context = factory.get(contextType);
+        auto context = factory.get(contextType);
         if (!context) {
             continue;
         }
