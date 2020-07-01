@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "a7b15d00_0c93b2d3",
+        "filename": "include/private/SkSLSampleMatrix.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T13:06:30Z",
+      "side": 1,
+      "message": "Rename this and the file?",
+      "range": {
+        "startLine": 8,
+        "startChar": 8,
+        "endLine": 8,
+        "endChar": 32
+      },
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d708eef7_c33a5333",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 2
@@ -13,6 +36,47 @@
       "writtenOn": "2020-06-30T20:55:53Z",
       "side": 1,
       "message": "Seems like we also need this flag if:\n\n(sampleUsage.fPassThrough \u0026\u0026 sampleUsage.hasConstUniformMatrix) ?",
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22a31e1f_9e7aa642",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T13:06:30Z",
+      "side": 1,
+      "message": "I\u0027m interpreting that as it has at least one call to sample() and one call to sample(uniform matrix). Then I agree we\u0027d need to have the child FP explicitly sampled. Hypothetically, we could have the geometry processor produce a varying for each call site and then invokeChild would choose the appropriate one, but that gets tricky. Right now, since the varying is referenced in the child\u0027s body, any sample usage that would have it evaluated at multiple coordinates will need to mark this flag.",
+      "parentUuid": "d708eef7_c33a5333",
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a67227a5_03e2d2b6",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T13:06:30Z",
+      "side": 1,
+      "message": "This would also need the if (passthrough \u0026\u0026 hasConstUniform). That sample usage should be treated like faux-variable for the time being.",
+      "range": {
+        "startLine": 155,
+        "startChar": 8,
+        "endLine": 155,
+        "endChar": 48
+      },
       "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -36,6 +100,70 @@
     },
     {
       "key": {
+        "uuid": "b2d8f851_14d6d6aa",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T13:06:30Z",
+      "side": 1,
+      "message": "I\u0027m not sure. In registerChild(), you only set the sample usage on the child if the sample usage has a matrix. If the usage object also had explicit coords, the original child does get the FP-tracked flag set on it, but that isn\u0027t stored in its SampleUsage instance so cloning would then deviate.",
+      "parentUuid": "13b339b2_c8db3392",
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5176889e_6aae45e9",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T13:06:30Z",
+      "side": 1,
+      "message": "I like this name.",
+      "range": {
+        "startLine": 407,
+        "startChar": 73,
+        "endLine": 407,
+        "endChar": 88
+      },
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81f6ab44_401230c6",
+        "filename": "src/gpu/effects/GrMatrixEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T13:06:30Z",
+      "side": 1,
+      "message": "We can probably just remove these asserts since they are re-done in registerChild()",
+      "range": {
+        "startLine": 23,
+        "startChar": 8,
+        "endLine": 24,
+        "endChar": 52
+      },
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b653dfe6_14572dff",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 2
@@ -47,6 +175,47 @@
       "writtenOn": "2020-06-30T20:55:53Z",
       "side": 1,
       "message": "😊",
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec96e2b4_43277060",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T13:06:30Z",
+      "side": 1,
+      "message": "😎",
+      "parentUuid": "b653dfe6_14572dff",
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc4a5327_6f8c032e",
+        "filename": "src/sksl/SkSLSampleMatrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-01T13:06:30Z",
+      "side": 1,
+      "message": "Also rename this cpp file?",
+      "range": {
+        "startLine": 8,
+        "startChar": 26,
+        "endLine": 8,
+        "endChar": 42
+      },
       "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
