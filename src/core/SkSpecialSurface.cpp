@@ -128,8 +128,7 @@ public:
                          int width, int height, const SkIRect& subset)
             : INHERITED(subset, &renderTargetContext->surfaceProps())
             , fReadView(renderTargetContext->readSurfaceView()) {
-        // CONTEXT TODO: remove this use of 'backdoor' to create an SkGpuDevice
-        auto device = SkGpuDevice::Make(context->priv().backdoor(), std::move(renderTargetContext),
+        auto device = SkGpuDevice::Make(context, std::move(renderTargetContext),
                                         SkGpuDevice::kUninit_InitContents);
         if (!device) {
             return;
@@ -150,7 +149,7 @@ public:
 
         // Note: SkSpecialImages can only be snapShotted once, so this call is destructive and we
         // move fReadMove.
-        return SkSpecialImage::MakeDeferredFromGpu(fCanvas->getGrContext(),
+        return SkSpecialImage::MakeDeferredFromGpu(fCanvas->recordingContext(),
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
                                                    std::move(fReadView), ct,

@@ -43,6 +43,13 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy)
 
 GrRecordingContext::~GrRecordingContext() = default;
 
+int GrRecordingContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
+    GrBackendFormat format =
+            this->caps()->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
+                                                  GrRenderable::kYes);
+    return this->caps()->maxRenderTargetSampleCount(format);
+}
+
 bool GrRecordingContext::init() {
 
     if (!INHERITED::init()) {
