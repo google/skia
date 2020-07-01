@@ -63,7 +63,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(std::move(spr));
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
-        auto direct = context->priv().asDirectContext();
+        auto direct = context->asDirectContext();
         if (direct) {
             auto resourceProvider = direct->priv().resourceProvider();
 

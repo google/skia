@@ -24,7 +24,6 @@
 #include "src/gpu/GrAHardwareBufferUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
@@ -85,7 +84,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
         return {};
     }
 
-    auto direct = context->priv().asDirectContext();
+    auto direct = context->asDirectContext();
     if (!direct) {
         return {};
     }

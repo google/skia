@@ -58,7 +58,7 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
 
 #ifdef SK_DEBUG
     {
-        auto direct = fImageContext->priv().asDirectContext();
+        auto direct = fImageContext->asDirectContext();
         if (direct) {
             GrResourceCache* resourceCache = direct->priv().getResourceCache();
             // If there is already a GrResource with this key then the caller has violated the
@@ -127,7 +127,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
     if (this->isAbandoned()) {
         return nullptr;
     }
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -212,7 +212,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
         return result;
     }
 
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -296,7 +296,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         return nullptr;
     }
 
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (direct) {
         GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -474,7 +474,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
         return nullptr;
     }
 
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (direct) {
         GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
         // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
@@ -498,7 +498,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
     }
 
     // This is only supported on a direct GrContext.
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -533,7 +533,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(
     }
 
     // This is only supported on a direct GrContext.
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -569,7 +569,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
     }
 
     // This is only supported on a direct GrContext.
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -607,7 +607,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
     }
 
     // This is only supported on a direct GrContext.
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -638,7 +638,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
     }
 
     // This is only supported on a direct GrContext.
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -665,7 +665,7 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
     }
 
     // This is only supported on a direct GrContext.
-    auto direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -845,7 +845,7 @@ void GrProxyProvider::processInvalidUniqueKeyImpl(const GrUniqueKey& key, GrText
     // proxy's unique key. We must do it in this order because 'key' may alias the proxy's key.
     sk_sp<GrGpuResource> invalidGpuResource;
     if (InvalidateGPUResource::kYes == invalidateGPUResource) {
-        auto direct = fImageContext->priv().asDirectContext();
+        auto direct = fImageContext->asDirectContext();
         if (direct) {
             GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
             invalidGpuResource = resourceProvider->findByUniqueKey<GrGpuResource>(key);
@@ -868,7 +868,7 @@ void GrProxyProvider::processInvalidUniqueKeyImpl(const GrUniqueKey& key, GrText
 }
 
 GrDDLProvider GrProxyProvider::isDDLProvider() const {
-    return fImageContext->priv().asDirectContext() ? GrDDLProvider::kNo : GrDDLProvider::kYes;
+    return fImageContext->asDirectContext() ? GrDDLProvider::kNo : GrDDLProvider::kYes;
 }
 
 uint32_t GrProxyProvider::contextID() const {
@@ -906,5 +906,5 @@ void GrProxyProvider::removeAllUniqueKeys() {
 }
 
 bool GrProxyProvider::renderingDirectly() const {
-    return fImageContext->priv().asDirectContext();
+    return fImageContext->asDirectContext();
 }

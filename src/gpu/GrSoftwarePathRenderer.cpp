@@ -328,7 +328,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         GrAA aa = GrAA(GrAAType::kCoverage == args.fAAType);
 
         SkTaskGroup* taskGroup = nullptr;
-        if (auto direct = args.fContext->priv().asDirectContext()) {
+        if (auto direct = args.fContext->asDirectContext()) {
             taskGroup = direct->priv().getTaskGroup();
         }
 
