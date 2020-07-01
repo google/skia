@@ -24,7 +24,12 @@ void GrWaitRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 
 bool GrWaitRenderTask::onExecute(GrOpFlushState* flushState) {
     for (int i = 0; i < fNumSemaphores; ++i) {
-        flushState->gpu()->waitSemaphore(fSemaphores[i].get());
+        // If we don't have a semaphore here it means we failed to wrap it. That happens if the
+        // client didn't give us a valid semaphore to begin with. Therefore, it is fine to not wait
+        // on it.
+        if (fSemaphores[i].get()) {
+            flushState->gpu()->waitSemaphore(fSemaphores[i].get());
+        }
     }
     return true;
 }

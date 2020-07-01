@@ -298,7 +298,11 @@ bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[
         std::unique_ptr<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
                 waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
                 kAdopt_GrWrapOwnership);
-        fGpu->waitSemaphore(sema.get());
+        // If we failed to wrap the semaphore it means the client didn't give us a valid semaphore
+        // to begin with. Therefore, it is fine to not wait on it.
+        if (sema) {
+            fGpu->waitSemaphore(sema.get());
+        }
     }
     return true;
 }
