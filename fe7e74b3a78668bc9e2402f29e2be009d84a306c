@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7d678eb_bc97fa0f",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/build_simd_test.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-01T12:14:25Z",
+      "side": 1,
+      "message": "This requirement should probably go in the CanvasKit readme under a new heading",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 60
+      },
+      "revId": "fe7e74b3a78668bc9e2402f29e2be009d84a306c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
