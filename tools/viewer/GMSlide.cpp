@@ -12,6 +12,8 @@
 */
 
 #include "include/core/SkCanvas.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "tools/viewer/GMSlide.h"
 
 GMSlide::GMSlide(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
@@ -29,7 +31,10 @@ void GMSlide::gpuTeardown() {
 void GMSlide::draw(SkCanvas* canvas) {
     SkString msg;
 
-    auto result = fGM->gpuSetup(canvas->getGrContext(), canvas, &msg);
+    auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
+                                             : nullptr;
+
+    auto result = fGM->gpuSetup(direct, canvas, &msg);
     if (result != skiagm::GM::DrawResult::kOk) {
         return;
     }

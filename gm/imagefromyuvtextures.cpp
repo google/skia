@@ -23,12 +23,11 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
-#include "src/gpu/GrContextPriv.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
 
@@ -120,7 +119,7 @@ protected:
         return rgbaBmp;
     }
 
-    static bool CreateYUVBackendTextures(GrContext* context, SkBitmap bmps[4],
+    static bool CreateYUVBackendTextures(GrDirectContext* context, SkBitmap bmps[4],
                                          SkYUVAIndex indices[4],
                                          YUVABackendReleaseContext* beContext) {
         for (int i = 0; i < 4; ++i) {
@@ -150,7 +149,7 @@ protected:
         return true;
     }
 
-    sk_sp<SkImage> makeYUVAImage(GrContext* context) {
+    sk_sp<SkImage> makeYUVAImage(GrDirectContext* context) {
         auto releaseContext = new YUVABackendReleaseContext(context);
         SkYUVAIndex indices[4];
 
@@ -170,7 +169,7 @@ protected:
                                              releaseContext);
     }
 
-    sk_sp<SkImage> createReferenceImage(GrContext* context) {
+    sk_sp<SkImage> createReferenceImage(GrDirectContext* context) {
         auto planeReleaseContext = new YUVABackendReleaseContext(context);
         SkYUVAIndex indices[4];
 
@@ -210,12 +209,10 @@ protected:
          return tmp;
     }
 
-    DrawResult onGpuSetup(GrContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
         if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
-
-        SkASSERT(context->asDirectContext());
 
         fRGBABmp = CreateBmpAndPlanes("images/mandrill_32.png", fYUVABmps);
 
