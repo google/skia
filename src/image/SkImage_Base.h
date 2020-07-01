@@ -17,12 +17,13 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrTextureProxy.h"
 
-class GrRecordingContext;
 class GrTexture;
 #endif
 
 #include <new>
 
+class GrImageContext;
+class GrRecordingContext;
 class GrSamplerState;
 class SkCachedData;
 struct SkYUVASizeInfo;
@@ -49,7 +50,8 @@ public:
     /**
      * Default implementation does a rescale/read and then calls the callback.
      */
-    virtual void onAsyncRescaleAndReadPixels(const SkImageInfo&,
+    virtual void onAsyncRescaleAndReadPixels(GrRecordingContext*,
+                                             const SkImageInfo&,
                                              const SkIRect& srcRect,
                                              RescaleGamma,
                                              SkFilterQuality,
@@ -58,7 +60,8 @@ public:
     /**
      * Default implementation does a rescale/read/yuv conversion and then calls the callback.
      */
-    virtual void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+    virtual void onAsyncRescaleAndReadPixelsYUV420(GrRecordingContext*,
+                                                   SkYUVColorSpace,
                                                    sk_sp<SkColorSpace> dstColorSpace,
                                                    const SkIRect& srcRect,
                                                    const SkISize& dstSize,
@@ -67,7 +70,10 @@ public:
                                                    ReadPixelsCallback,
                                                    ReadPixelsContext);
 
-    virtual GrContext* context() const { return nullptr; }
+    virtual GrImageContext* context() const { return nullptr; }
+
+    // TODO: Remove helper once users are migrated to GrRecordingContext method variants.
+    GrRecordingContext* recordingContext_deprecated() const;
 
 #if SK_SUPPORT_GPU
     virtual GrSemaphoresSubmitted onFlush(GrContext* context, const GrFlushInfo&) {

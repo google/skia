@@ -35,7 +35,7 @@ sk_sp<SkImage> make_raster_image(const char* path) {
 }
 
 sk_sp<SkImage> make_color_space(sk_sp<SkImage> orig, sk_sp<SkColorSpace> colorSpace) {
-    sk_sp<SkImage> xform = orig->makeColorSpace(colorSpace);
+    sk_sp<SkImage> xform = orig->makeColorSpace(nullptr, colorSpace);
 
     // Assign an sRGB color space on the xformed image, so we can see the effects of the xform
     // when we draw.
@@ -103,14 +103,15 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
 
             // 565 in a wide color space (should be visibly quantized). Fails with the color_wheel,
             // because of the codec issues mentioned above.
-            auto image565 = image->makeColorTypeAndColorSpace(kRGB_565_SkColorType, rec2020);
+            auto image565 = image->makeColorTypeAndColorSpace(canvas->recordingContext(),
+                                                              kRGB_565_SkColorType, rec2020);
             if (!lazy || image565->makeRasterImage()) {
                 canvas->drawImage(image565, 128, 0);
             }
 
             // Grayscale in the original color space. This fails in even more cases, due to the
             // above opaque issue, and because Ganesh doesn't support drawing to gray, at all.
-            auto imageGray = image->makeColorTypeAndColorSpace(kGray_8_SkColorType,
+            auto imageGray = image->makeColorTypeAndColorSpace(nullptr, kGray_8_SkColorType,
                                                                image->refColorSpace());
             if (!lazy || imageGray->makeRasterImage()) {
                 canvas->drawImage(imageGray, 256, 0);
@@ -147,10 +148,12 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
         return skiagm::DrawResult::kFail;
     }
 
+    auto context = canvas->recordingContext();
     // Lazy images
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(spin)->reinterpretColorSpace(srgb), 256.0f, 0.0f);
+    canvas->drawImage(image->makeColorSpace(context, spin)->reinterpretColorSpace(srgb),
+                      256.0f, 0.0f);
 
     canvas->translate(0.0f, 128.0f);
 
@@ -158,7 +161,8 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     image = image->makeRasterImage();
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(spin)->reinterpretColorSpace(srgb), 256.0f, 0.0f);
+    canvas->drawImage(image->makeColorSpace(context, spin)->reinterpretColorSpace(srgb),
+                      256.0f, 0.0f);
 
     canvas->translate(0.0f, 128.0f);
 
@@ -169,7 +173,8 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
 
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(spin)->reinterpretColorSpace(srgb), 256.0f, 0.0f);
+    canvas->drawImage(image->makeColorSpace(context, spin)->reinterpretColorSpace(srgb),
+                      256.0f, 0.0f);
 
     return skiagm::DrawResult::kOk;
 }

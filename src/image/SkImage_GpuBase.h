@@ -20,7 +20,7 @@ class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
 public:
-    GrContext* context() const final { return fContext.get(); }
+    GrImageContext* context() const final { return fContext.get(); }
 
     bool getROPixels(SkBitmap*, CachingHint) const final;
     sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect& subset) const final;
@@ -71,7 +71,7 @@ public:
     using PromiseImageTextureDoneProc = SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc;
 
 protected:
-    SkImage_GpuBase(sk_sp<GrContext>, SkISize size, uint32_t uniqueID, SkColorType, SkAlphaType,
+    SkImage_GpuBase(sk_sp<GrImageContext>, SkISize size, uint32_t uniqueID, SkColorType, SkAlphaType,
                     sk_sp<SkColorSpace>);
 
     using PromiseImageApiVersion = SkDeferredDisplayListRecorder::PromiseImageApiVersion;
@@ -84,13 +84,13 @@ protected:
             PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext, PromiseImageApiVersion);
 
-    static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
+    static bool RenderYUVAToRGBA(GrImageContext*, GrRenderTargetContext* renderTargetContext,
                                  const SkRect& rect, SkYUVColorSpace yuvColorSpace,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  GrSurfaceProxyView views[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
-    sk_sp<GrContext> fContext;
+    sk_sp<GrImageContext> fContext;
 
 private:
     typedef SkImage_Base INHERITED;
