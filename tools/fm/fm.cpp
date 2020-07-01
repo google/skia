@@ -11,6 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
@@ -301,8 +302,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
     auto overrides = GrContextFactory::ContextOverrides::kNone;
     if (!FLAGS_stencils) { overrides |= GrContextFactory::ContextOverrides::kAvoidStencilBuffers; }
 
-    GrContext* context = factory->getContextInfo(api, overrides)
-                                 .grContext();
+    auto context = factory->getContextInfo(api, overrides).directContext();
 
     uint32_t flags = FLAGS_dit ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag
                                : 0;

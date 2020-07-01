@@ -556,7 +556,7 @@ int main(int argc, char** argv) {
     sk_gpu_test::GrContextFactory factory(ctxOptions);
     sk_gpu_test::ContextInfo ctxInfo =
         factory.getContextInfo(config->getContextType(), config->getContextOverrides());
-    GrDirectContext* ctx = ctxInfo.directContext();
+    auto ctx = ctxInfo.directContext();
     if (!ctx) {
         exitf(ExitErr::kUnavailable, "failed to create context for config %s",
                                      config->getTag().c_str());

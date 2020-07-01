@@ -8,6 +8,7 @@
 #include "tools/skiaserve/Request.h"
 
 #include "include/core/SkPictureRecorder.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/utils/SkJSONWriter.h"
 #include "tools/ToolUtils.h"
 
@@ -92,9 +93,9 @@ sk_sp<SkData> Request::writeOutSkp() {
     return recorder.finishRecordingAsPicture()->serialize();
 }
 
-GrContext* Request::getContext() {
-    GrContext* result = fContextFactory->get(GrContextFactory::kGL_ContextType,
-                                             GrContextFactory::ContextOverrides::kNone);
+GrDirectContext* Request::directContext() {
+    auto result = fContextFactory->get(GrContextFactory::kGL_ContextType,
+                                       GrContextFactory::ContextOverrides::kNone);
     if (!result) {
         result = fContextFactory->get(GrContextFactory::kGLES_ContextType,
                                       GrContextFactory::ContextOverrides::kNone);
@@ -107,7 +108,7 @@ SkIRect Request::getBounds() {
     if (fPicture) {
         bounds = fPicture->cullRect().roundOut();
         if (fGPUEnabled) {
-            int maxRTSize = this->getContext()->maxRenderTargetSize();
+            int maxRTSize = this->directContext()->maxRenderTargetSize();
             bounds = SkIRect::MakeWH(std::min(bounds.width(), maxRTSize),
                                      std::min(bounds.height(), maxRTSize));
         }
@@ -149,7 +150,7 @@ SkSurface* Request::createCPUSurface() {
 }
 
 SkSurface* Request::createGPUSurface() {
-    GrContext* context = this->getContext();
+    auto context = this->directContext();
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
     auto colorSpace = kRGBA_F16_SkColorType == cap.fColorType
