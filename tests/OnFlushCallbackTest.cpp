@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkPointPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
@@ -561,7 +562,7 @@ static void test_color(skiatest::Reporter* reporter, const SkBitmap& bm, int x, 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kNumViews = 3;
 
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     auto proxyProvider = context->priv().proxyProvider();
 
     AtlasObject object(reporter);

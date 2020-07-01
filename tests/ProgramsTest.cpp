@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkChecksum.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
@@ -350,7 +351,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
 static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
     int maxStages = 6;
 #ifdef SK_GL
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     if (skiatest::IsGLContextType(ctxInfo.type())) {
         GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
         if (kGLES_GrGLStandard == gpu->glStandard()) {
@@ -390,7 +391,7 @@ static int get_programs_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
         maxTreeLevels = 2;
 #endif
 #ifdef SK_BUILD_FOR_ANDROID
-        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctxInfo.grContext()->priv().getGpu());
+        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctxInfo.directContext()->priv().getGpu());
         // Tecno Spark 3 Pro with Power VR Rogue GE8300 will fail shader compiles with
         // no message if the shader is particularly long.
         if (gpu->ctxInfo().vendor() == kImagination_GrGLVendor) {
@@ -416,7 +417,7 @@ static void test_programs(skiatest::Reporter* reporter, const sk_gpu_test::Conte
         return;
     }
 
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages,
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.directContext(), maxStages,
                                                                 maxLevels));
 }
 
