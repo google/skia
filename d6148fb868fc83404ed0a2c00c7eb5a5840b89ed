@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3c9e105_47dedd57",
+        "filename": "src/gpu/GrSTArenaList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-01T04:34:58Z",
+      "side": 1,
+      "message": "Do you think it\u0027s useful to put this in its own file?",
+      "range": {
+        "startLine": 15,
+        "startChar": 27,
+        "endLine": 15,
+        "endChar": 40
+      },
+      "revId": "d6148fb868fc83404ed0a2c00c7eb5a5840b89ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb2a4ff2_2aa7131f",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-01T04:34:58Z",
+      "side": 1,
+      "message": "This whole chunk of code is just scaffolding. It\u0027s next on the chopping block after this CL lands and I can redo GrStrokeGeometry.",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 52
+      },
+      "revId": "d6148fb868fc83404ed0a2c00c7eb5a5840b89ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
