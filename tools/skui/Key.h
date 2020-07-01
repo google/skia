@@ -41,6 +41,7 @@ enum class Key {
     kShift,
     kCtrl,
     kOption, // AKA Alt
+    kSuper,  // AKA Command
     kA,
     kC,
     kV,
