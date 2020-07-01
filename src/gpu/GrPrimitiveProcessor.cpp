@@ -17,8 +17,6 @@
 enum SampleFlag {
     kExplicitlySampled_Flag      = 0b00001,  // GrFP::isSampledWithExplicitCoords()
 
-    kLegacyCoordTransform_Flag   = 0b00010, // !GrFP::coordTransform(i)::isNoOp()
-
     kNone_SampleMatrix_Flag      = 0b00100, // GrFP::sampleUsage()::hasMatrix() == false
     kUniform_SampleMatrix_Flag   = 0b01000, // GrFP::sampleUsage()::hasUniformMatrix()
     kVariable_SampleMatrix_Flag  = 0b01100, // GrFP::sampleUsage()::hasVariableMatrix()
@@ -39,8 +37,6 @@ uint32_t GrPrimitiveProcessor::computeCoordTransformsKey(const GrFragmentProcess
     // This is highly coupled with the code in GrGLSLGeometryProcessor::collectTransforms().
     // At this point, all effects do not use really coord transforms; they may implicitly report
     // a noop coord transform but this does not impact the key.
-    SkASSERT(fp.numCoordTransforms() == 0 ||
-             (fp.numCoordTransforms() == 1 && fp.coordTransform(0).isNoOp()));
 
     uint32_t key = 0;
     if (fp.isSampledWithExplicitCoords()) {

@@ -7,6 +7,7 @@
 
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -97,7 +98,6 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
         auto [coordTransform, fp] = handler->get();
         // FIXME: GrCoordTransform is used solely as a vehicle for iterating over all FPs that
         // require sample coordinates directly. We should make this iteration lighter weight.
-        SkASSERT(coordTransform.isNoOp());
 
         // FPs that use local coordinates need a varying to convey the coordinate. This may be the
         // base GP's local coord if transforms have to be computed in the FS, or it may be a unique
@@ -263,7 +263,7 @@ void GrGLSLGeometryProcessor::setTransformDataHelper(const GrGLSLProgramDataMana
     int i = 0;
     for (auto [transform, fp] : transformRange) {
         if (fInstalledTransforms[i].fHandle.isValid()) {
-            SkMatrix m = GetTransformMatrix(transform, SkMatrix::I());
+            SkMatrix m = SkMatrix::I();
             if (!SkMatrixPriv::CheapEqual(fInstalledTransforms[i].fCurrentValue, m)) {
                 if (fInstalledTransforms[i].fType == kFloat4_GrSLType) {
                     float values[4] = {m.getScaleX(), m.getTranslateX(),

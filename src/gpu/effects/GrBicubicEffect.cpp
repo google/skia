@@ -282,14 +282,8 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
             SkAlphaType at;
             do {
                 at = static_cast<SkAlphaType>(d->fRandom->nextULessThan(kLastEnum_SkAlphaType + 1));
-            } while (at != kUnknown_SkAlphaType);
-            std::unique_ptr<GrFragmentProcessor> fp;
-            // We have a restriction that explicit coords only work for FPs with zero or one
-            // coord transform.
-            do {
-                fp = GrProcessorUnitTest::MakeChildFP(d);
-            } while (fp->numCoordTransforms() > 1);
-            return Make(std::move(fp), at, m, kernel, direction);
+            } while (at == kUnknown_SkAlphaType);
+            return Make(GrProcessorUnitTest::MakeChildFP(d), at, m, kernel, direction);
         }
     }
 }

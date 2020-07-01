@@ -8,6 +8,7 @@
 #include "src/gpu/GrPathProcessor.h"
 
 #include "include/private/SkTo.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -68,33 +69,11 @@ public:
             GrShaderVar fragmentVar;
             GrShaderVar transformVar;
             if (fp.isSampledWithExplicitCoords()) {
-                if (coordTransform.isNoOp()) {
-                    transformHandler->omitCoordsForCurrCoordTransform();
-                    continue;
-                } else {
-                    const char* name;
-                    SkString strUniName;
-                    strUniName.printf("CoordTransformMatrix_%d", i);
-                    auto& uni = fUniformTransform.push_back();
-                    if (coordTransform.matrix().isScaleTranslate()) {
-                        uni.fType = kFloat4_GrSLType;
-                    } else {
-                        uni.fType = kFloat3x3_GrSLType;
-                    }
-                    uni.fHandle = uniformHandler
-                                          ->addUniform(nullptr,
-                                                       kFragment_GrShaderFlag,
-                                                       uni.fType,
-                                                       strUniName.c_str(),
-                                                       &name)
-                                          .toIndex();
-                    transformVar = uniformHandler->getUniformVariable(uni.fHandle);
-                }
+                transformHandler->omitCoordsForCurrCoordTransform();
             } else {
                 SkString strVaryingName;
                 strVaryingName.printf("TransformedCoord_%d", i);
-                GrSLType varyingType = coordTransform.matrix().hasPerspective() ? kFloat3_GrSLType
-                                                                                : kFloat2_GrSLType;
+                GrSLType varyingType = kFloat2_GrSLType;
                 GrGLSLVarying v(varyingType);
 #ifdef SK_GL
                 GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*)varyingHandler;
@@ -104,8 +83,8 @@ public:
 #endif
                 fVaryingTransform.back().fType = varyingType;
                 fragmentVar = {SkString(v.fsIn()), varyingType};
+                transformHandler->specifyCoordsForCurrCoordTransform(transformVar, fragmentVar);
             }
-            transformHandler->specifyCoordsForCurrCoordTransform(transformVar, fragmentVar);
         }
     }
 
@@ -118,30 +97,13 @@ public:
             fColor = pathProc.color();
         }
 
-        int v = 0, u = 0;
+        int v = 0;
         for (auto [transform, fp] : transformRange) {
             if (fp.isSampledWithExplicitCoords()) {
-                if (transform.isNoOp()) {
-                    continue;
-                }
-                if (fUniformTransform[u].fHandle.isValid()) {
-                    SkMatrix m = GetTransformMatrix(transform, SkMatrix::I());
-                    if (!SkMatrixPriv::CheapEqual(fUniformTransform[u].fCurrentValue, m)) {
-                        fUniformTransform[u].fCurrentValue = m;
-                        if (fUniformTransform[u].fType == kFloat4_GrSLType) {
-                            float values[4] = {m.getScaleX(), m.getTranslateX(),
-                                               m.getScaleY(), m.getTranslateY()};
-                            pd.set4fv(fUniformTransform[u].fHandle.toIndex(), 1, values);
-                        } else {
-                            SkASSERT(fUniformTransform[u].fType == kFloat3x3_GrSLType);
-                            pd.setSkMatrix(fUniformTransform[u].fHandle.toIndex(), m);
-                        }
-                    }
-                }
-                ++u;
+                continue;
             } else {
                 SkASSERT(fVaryingTransform[v].fHandle.isValid());
-                SkMatrix m = GetTransformMatrix(transform, pathProc.localMatrix());
+                SkMatrix m = pathProc.localMatrix();
                 if (!SkMatrixPriv::CheapEqual(fVaryingTransform[v].fCurrentValue, m)) {
                     fVaryingTransform[v].fCurrentValue = m;
                     SkASSERT(fVaryingTransform[v].fType == kFloat2_GrSLType ||
@@ -165,16 +127,8 @@ private:
         SkMatrix      fCurrentValue = SkMatrix::InvalidMatrix();
         GrSLType      fType = kVoid_GrSLType;
     };
-    // For explicitly sampled FPs we stick a uniform in the FS and apply it to the explicit coords
-    // to implement the CoordTransform.
-    struct TransformUniform {
-        UniformHandle fHandle;
-        SkMatrix      fCurrentValue = SkMatrix::InvalidMatrix();
-        GrSLType      fType = kVoid_GrSLType;
-    };
 
     SkTArray<TransformVarying, true> fVaryingTransform;
-    SkTArray<TransformUniform, true> fUniformTransform;
 
     UniformHandle fColorUniform;
     SkPMColor4f fColor;

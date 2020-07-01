@@ -467,8 +467,6 @@ private:
 
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
-    bool hasSameTransforms(const GrFragmentProcessor&) const;
-
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
 
