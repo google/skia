@@ -456,27 +456,30 @@ class SkottieRunner {
                         mNewSurface = true;
                         return;
                     }
-
-                    nDrawFrame(mNativeProxy, mSurfaceWidth, mSurfaceHeight, false,
-                            mProgress);
-                    if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) {
-                        int error = mEgl.eglGetError();
-                        if (error == EGL10.EGL_BAD_SURFACE
+                    // only if nDrawFrames() returns true do we need to swap buffers
+                    if(nDrawFrame(mNativeProxy, mSurfaceWidth, mSurfaceHeight, false,
+                            mProgress)) {
+                        if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) {
+                            int error = mEgl.eglGetError();
+                            if (error == EGL10.EGL_BAD_SURFACE
                                 || error == EGL10.EGL_BAD_NATIVE_WINDOW) {
-                            // For some reason our surface was destroyed. Recreate EGL surface
-                            // on next frame.
-                            mNewSurface = true;
-                            // This really shouldn't happen, but if it does we can recover easily
-                            // by just not trying to use the surface anymore
-                            Log.w(LOG_TAG, "swapBuffers failed "
+                                // For some reason our surface was destroyed. Recreate EGL surface
+                                // on next frame.
+                                mNewSurface = true;
+                                // This really shouldn't happen, but if it does we can recover
+                                // easily by just not trying to use the surface anymore
+                                Log.w(LOG_TAG, "swapBuffers failed "
                                     + GLUtils.getEGLErrorString(error));
-                            return;
-                        }
+                                return;
+                            }
 
-                        // Some other fatal EGL error happened, log an error and stop the animation.
-                        throw new RuntimeException("Cannot swap buffers "
+                            // Some other fatal EGL error happened, log an error and stop the
+                            // animation.
+                            throw new RuntimeException("Cannot swap buffers "
                                 + GLUtils.getEGLErrorString(error));
+                        }
                     }
+
 
                     // If animation stopped, release EGL surface.
                     if (!mIsRunning) {
@@ -538,8 +541,8 @@ class SkottieRunner {
 
         private native long nCreateProxy(long runner, ByteBuffer data);
         private native void nDeleteProxy(long nativeProxy);
-        private native void nDrawFrame(long nativeProxy, int width, int height,
-                                       boolean wideColorGamut, float progress);
+        private native boolean nDrawFrame(long nativeProxy, int width, int height,
+                                          boolean wideColorGamut, float progress);
         private native long nGetDuration(long nativeProxy);
     }
 
