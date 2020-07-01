@@ -439,6 +439,14 @@ PORTS_SRCS_FUCHSIA = struct(
     ],
 )
 
+GL_SRCS_MACOS = struct(
+    include = [
+        "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp",
+    ],
+    exclude = [],
+)
+PORTS_SRCS_MACOS = PORTS_SRCS_IOS
+
 def base_srcs():
     return skia_glob(BASE_SRCS_ALL)
 
@@ -451,6 +459,7 @@ def ports_srcs(os_conditions):
             skia_glob(PORTS_SRCS_IOS),
             skia_glob(PORTS_SRCS_WASM),
             skia_glob(PORTS_SRCS_FUCHSIA),
+            skia_glob(PORTS_SRCS_MACOS),
         ],
     )
 
@@ -463,6 +472,7 @@ def gl_srcs(os_conditions):
             skia_glob(GL_SRCS_IOS),
             skia_glob(GL_SRCS_WASM),
             skia_glob(GL_SRCS_FUCHSIA),
+            skia_glob(GL_SRCS_MACOS),
         ],
     )
 
@@ -628,6 +638,7 @@ def dm_srcs(os_conditions):
             [],  # iOS
             [],  # WASM
             [],  # Fuchsia
+            [],  # macOS
         ],
     )
 
@@ -668,6 +679,7 @@ def base_copts(os_conditions):
             [],  # iOS
             [],  # wasm
             [],  # Fuchsia
+            [],  # macOS
         ],
     )
 
@@ -743,6 +755,10 @@ def base_defines(os_conditions):
                 "SK_ENCODE_WEBP",
                 "SK_R32_SHIFT=16",
             ],
+            # MACOS
+            [
+                "SK_BUILD_FOR_MAC",
+            ],
         ],
     )
 
@@ -772,6 +788,14 @@ def base_linkopts(os_conditions):
             ],
             [],  # wasm
             [],  # Fuchsia
+            # MACOS
+            [
+                "-framework CoreFoundation",
+                "-framework CoreGraphics",
+                "-framework CoreText",
+                "-framework ImageIO",
+                "-framework ApplicationServices",
+            ],
         ],
     )
 
