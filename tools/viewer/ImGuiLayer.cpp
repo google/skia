@@ -106,9 +106,10 @@ void ImGuiLayer::onPrePaint() {
     io.DisplaySize.x = static_cast<float>(fWindow->width());
     io.DisplaySize.y = static_cast<float>(fWindow->height());
 
-    io.KeyAlt = io.KeysDown[static_cast<int>(skui::Key::kOption)];
-    io.KeyCtrl = io.KeysDown[static_cast<int>(skui::Key::kCtrl)];
+    io.KeyAlt   = io.KeysDown[static_cast<int>(skui::Key::kOption)];
+    io.KeyCtrl  = io.KeysDown[static_cast<int>(skui::Key::kCtrl)];
     io.KeyShift = io.KeysDown[static_cast<int>(skui::Key::kShift)];
+    io.KeySuper = io.KeysDown[static_cast<int>(skui::Key::kSuper)];
 
     ImGui::NewFrame();
 }
