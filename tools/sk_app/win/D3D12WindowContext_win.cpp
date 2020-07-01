@@ -131,6 +131,7 @@ void D3D12WindowContext::initializeContext() {
     fHeight = height;
 }
 
+
 void D3D12WindowContext::setupSurfaces(int width, int height) {
     // set up base resource info
     GrD3DTextureResourceInfo info(nullptr,

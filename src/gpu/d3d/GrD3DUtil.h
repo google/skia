@@ -13,6 +13,15 @@
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/GrTypesPriv.h"
 
+#define GR_D3D_CALL_ERRCHECK(X)                                       \
+    do {                                                              \
+       HRESULT result = X;                                            \
+       SkASSERT(SUCCEEDED(result));                                   \
+       if (!SUCCEEDED(result)) {                                      \
+           SkDebugf("Failed Direct3D call. Error: 0x%08x\n", result); \
+       }                                                              \
+    } while(false)
+
 /**
  * Returns true if the format is compressed.
  */
