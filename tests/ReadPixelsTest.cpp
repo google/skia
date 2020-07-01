@@ -994,7 +994,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
     using Image = sk_sp<SkImage>;
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Image>>([context](const Image& image,
                                                                const SkIVector& offset,
                                                                const SkPixmap& pixels) {
@@ -1009,7 +1009,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
         }
 
         // Rescale quality and linearity don't matter since we're doing a non-scaling readback.
-        image->asyncRescaleAndReadPixels(pixels.info(), rect, SkImage::RescaleGamma::kSrc,
+        image->asyncRescaleAndReadPixels(context, pixels.info(), rect, SkImage::RescaleGamma::kSrc,
                                          kNone_SkFilterQuality, async_callback, &asyncContext);
         context->submit();
         while (!asyncContext.fCalled) {
