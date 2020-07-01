@@ -20,6 +20,8 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+#include <type_traits>
+
 namespace {
 struct AsyncContext {
     bool fCalled = false;
@@ -46,8 +48,13 @@ static sk_sp<SkImage> do_read_and_scale(Src* src,
                                         SkImage::RescaleGamma rescaleGamma,
                                         SkFilterQuality quality) {
     auto* asyncContext = new AsyncContext();
-    src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, async_callback,
-                                   asyncContext);
+    if constexpr (std::is_same<Src, SkImage>::value) {
+        src->asyncRescaleAndReadPixels(context, ii, srcRect, rescaleGamma, quality, async_callback,
+                                       asyncContext);
+    } else {
+        src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, async_callback,
+                                       asyncContext);
+    }
     if (context) {
         context->submit();
     }
@@ -80,8 +87,14 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     SkImageInfo uvII = SkImageInfo::Make(uvSize, kGray_8_SkColorType, kPremul_SkAlphaType);
 
     AsyncContext asyncContext;
-    src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
-                                         rescaleGamma, quality, async_callback, &asyncContext);
+    if constexpr (std::is_same<Src, SkImage>::value) {
+        src->asyncRescaleAndReadPixelsYUV420(context, yuvCS, SkColorSpace::MakeSRGB(), srcRect,
+                                             size, rescaleGamma, quality, async_callback,
+                                             &asyncContext);
+    } else {
+        src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
+                                             rescaleGamma, quality, async_callback, &asyncContext);
+    }
     if (context) {
         context->submit();
     }

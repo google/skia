@@ -28,6 +28,7 @@ class SkImageFilter;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
+class GrRecordingContext;
 class SkSurface;
 class GrBackendTexture;
 class GrContext;
@@ -1007,20 +1008,31 @@ public:
         is GPU-backed the data is immediately invalidated if the GrContext is abandoned or
         destroyed.
 
+        @param context         the GrRecordingContext in play, if it exists
         @param info            info of the requested pixels
         @param srcRect         subrectangle of image to read
         @param rescaleGamma    controls whether rescaling is done in the image's gamma or whether
                                the source data is transformed to a linear gamma before rescaling.
         @param rescaleQuality  controls the quality (and cost) of the rescaling
         @param callback        function to call with result of the read
-        @param context         passed to callback
+        @param cbContext       passed to callback
     */
+    void asyncRescaleAndReadPixels(GrRecordingContext* context,
+                                   const SkImageInfo& info,
+                                   const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma,
+                                   SkFilterQuality rescaleQuality,
+                                   ReadPixelsCallback callback,
+                                   ReadPixelsContext cbContext);
+
+    /** Deprecated.
+     */
     void asyncRescaleAndReadPixels(const SkImageInfo& info,
                                    const SkIRect& srcRect,
                                    RescaleGamma rescaleGamma,
                                    SkFilterQuality rescaleQuality,
                                    ReadPixelsCallback callback,
-                                   ReadPixelsContext context);
+                                   ReadPixelsContext cbContext);
 
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
@@ -1040,16 +1052,29 @@ public:
         is GPU-backed the data is immediately invalidated if the GrContext is abandoned or
         destroyed.
 
-        @param yuvColorSpace  The transformation from RGB to YUV. Applied to the resized image
-                              after it is converted to dstColorSpace.
-        @param dstColorSpace  The color space to convert the resized image to, after rescaling.
-        @param srcRect        The portion of the image to rescale and convert to YUV planes.
-        @param dstSize        The size to rescale srcRect to
+        @param context        the GrRecordingContext in play, if it exists
+        @param yuvColorSpace  the transformation from RGB to YUV. Applied to the resized image
+                              after it is converted to dstColorSpace
+        @param dstColorSpace  the color space to convert the resized image to, after rescaling
+        @param srcRect        the portion of the image to rescale and convert to YUV planes
+        @param dstSize        the size to rescale srcRect to
         @param rescaleGamma   controls whether rescaling is done in the image's gamma or whether
-                              the source data is transformed to a linear gamma before rescaling.
+                              the source data is transformed to a linear gamma before rescaling
         @param rescaleQuality controls the quality (and cost) of the rescaling
         @param callback       function to call with the planar read result
-        @param context        passed to callback
+        @param cbContext      passed to callback
+     */
+    void asyncRescaleAndReadPixelsYUV420(GrRecordingContext* context,
+                                         SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         const SkISize& dstSize,
+                                         RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality,
+                                         ReadPixelsCallback callback,
+                                         ReadPixelsContext cbContext);
+
+    /** Deprecated.
      */
     void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                          sk_sp<SkColorSpace> dstColorSpace,
@@ -1058,7 +1083,7 @@ public:
                                          RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality,
                                          ReadPixelsCallback callback,
-                                         ReadPixelsContext context);
+                                         ReadPixelsContext cbContext);
 
     /** Copies SkImage to dst, scaling pixels to fit dst.width() and dst.height(), and
         converting pixels to match dst.colorType() and dst.alphaType(). Returns true if
@@ -1144,10 +1169,15 @@ public:
         Returns nullptr if subset is empty, or subset is not contained by bounds, or
         pixels in SkImage could not be read or copied.
 
+        @param context the GrContext in play - if it exists
         @param subset  bounds of returned SkImage
         @return        partial or full SkImage, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_makeSubset
+    */
+    sk_sp<SkImage> makeSubset(GrRecordingContext* context, const SkIRect& subset) const;
+
+    /** Deprecated.
     */
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
 
@@ -1225,12 +1255,12 @@ public:
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
     */
-    sk_sp<SkImage> makeWithFilter(GrContext* context,
+    sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
                                   const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
 
-    /** To be deprecated.
+    /** Deprecated.
     */
     sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
@@ -1303,11 +1333,16 @@ public:
         Otherwise, converts pixels from SkImage SkColorSpace to target SkColorSpace.
         If SkImage colorSpace() returns nullptr, SkImage SkColorSpace is assumed to be sRGB.
 
+        @param context the GrRecordingContext in play, if it exists
         @param target  SkColorSpace describing color range of returned SkImage
         @return        created SkImage in target SkColorSpace
 
         example: https://fiddle.skia.org/c/@Image_makeColorSpace
     */
+    sk_sp<SkImage> makeColorSpace(GrRecordingContext* context, sk_sp<SkColorSpace> target) const;
+
+    /** Deprecated.
+     */
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
 
     /** Experimental.
@@ -1316,10 +1351,16 @@ public:
 
         Returns original SkImage if it is in target SkColorType and SkColorSpace.
 
+        @param context          the GrRecordingContext in play, if it exists
         @param targetColorType  SkColorType of returned SkImage
         @param targetColorSpace SkColorSpace of returned SkImage
         @return                 created SkImage in target SkColorType and SkColorSpace
     */
+    sk_sp<SkImage> makeColorTypeAndColorSpace(GrRecordingContext* context,
+                                              SkColorType targetColorType,
+                                              sk_sp<SkColorSpace> targetColorSpace) const;
+    /** Deprecated.
+     */
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkColorType targetColorType,
                                               sk_sp<SkColorSpace> targetColorSpace) const;
 
