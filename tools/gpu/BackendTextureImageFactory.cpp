@@ -23,14 +23,13 @@ public:
         }
     }
 
-    static void Proc(void* context) { static_cast<ManagedBackendTexture*>(context)->unref(); }
+    static void Release(void* context) { static_cast<ManagedBackendTexture*>(context)->unref(); }
 
     template <typename... Args>
     static sk_sp<ManagedBackendTexture> Make(GrContext* context, Args&&... args) {
         sk_sp<ManagedBackendTexture> mbet(new ManagedBackendTexture);
         mbet->fContext = context;
-        mbet->fTexture = context->createBackendTexture(std::forward<Args>(args)...,
-                                                       Proc,
+        mbet->fTexture = context->createBackendTexture(std::forward<Args>(args)..., Release,
                                                        mbet->refAndPassAsContext());
         return mbet;
     }
@@ -66,18 +65,13 @@ sk_sp<SkImage> MakeBackendTextureImage(GrContext* context,
         src = &temp;
     }
     auto mbet = ManagedBackendTexture::Make(context, src, 1, renderable, GrProtected::kNo);
-    auto image = SkImage::MakeFromTexture(context, mbet->texture(), origin, src->colorType(),
-                                          src->alphaType(), src->refColorSpace(),
-                                          ManagedBackendTexture::Proc, mbet->refAndPassAsContext());
-    // We currently have an issue where depending on how MakeFromTexture fails it may not
-    // call the release proc (to be fixed soon, crbug.com/1097484). For now we use this hack
-    // to see if it failed without calling Proc.
-    if (!image) {
-        context->submit(true);
-        if (!mbet->unique()) {
-            ManagedBackendTexture::Proc(mbet.get());
-        }
-    }
-    return image;
+    return SkImage::MakeFromTexture(context,
+                                    mbet->texture(),
+                                    origin,
+                                    src->colorType(),
+                                    src->alphaType(),
+                                    src->refColorSpace(),
+                                    ManagedBackendTexture::Release,
+                                    mbet->refAndPassAsContext());
 }
 }  // namespace sk_gpu_test
