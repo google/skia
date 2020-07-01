@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "tools/gpu/GrContextFactory.h"
 #ifdef SK_GL
@@ -129,12 +130,13 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
     }
 }
 
-GrContext* GrContextFactory::get(ContextType type, ContextOverrides overrides) {
-    return this->getContextInfo(type, overrides).grContext();
+GrDirectContext* GrContextFactory::get(ContextType type, ContextOverrides overrides) {
+    return this->getContextInfo(type, overrides).directContext();
 }
 
 ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOverrides overrides,
-                                                     GrContext* shareContext, uint32_t shareIndex) {
+                                                     GrDirectContext* shareContext,
+                                                     uint32_t shareIndex) {
     // (shareIndex != 0) -> (shareContext != nullptr)
     SkASSERT((shareIndex == 0) || (shareContext != nullptr));
 
@@ -302,10 +304,14 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     if (ContextOverrides::kAvoidStencilBuffers & overrides) {
         grOptions.fAvoidStencilBuffers = true;
     }
-    sk_sp<GrContext> grCtx;
+    sk_sp<GrDirectContext> grCtx;
     {
         auto restore = testCtx->makeCurrentAndAutoRestore();
-        grCtx = testCtx->makeGrContext(grOptions);
+        // CONTEXT TODO: makeGrContext should return an sk_sp<GrDirectContext>
+        auto tmp = testCtx->makeGrContext(grOptions);
+        if (tmp) {
+            grCtx = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+        }
     }
     if (!grCtx.get()) {
         return ContextInfo();
@@ -331,7 +337,8 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     return this->getContextInfoInternal(type, overrides, nullptr, 0);
 }
 
-ContextInfo GrContextFactory::getSharedContextInfo(GrContext* shareContext, uint32_t shareIndex) {
+ContextInfo GrContextFactory::getSharedContextInfo(GrDirectContext* shareContext,
+                                                   uint32_t shareIndex) {
     SkASSERT(shareContext);
     for (int i = 0; i < fContexts.count(); ++i) {
         if (!fContexts[i].fAbandoned && fContexts[i].fGrContext == shareContext) {
