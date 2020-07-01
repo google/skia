@@ -2823,54 +2823,56 @@ namespace skvm {
         const int nstack_slots = *stack_hint >= 0 ? *stack_hint
                                                   : stack_slot.size();
 
+        std::vector<int> REServed_regs_to_restore;
 
     #if defined(__x86_64__) || defined(_M_X64)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
         const int K = 8;
+        using Reg = A::Ymm;
         #if defined(_M_X64)  // Important to check this first; clang-cl defines both.
             const A::GP64 N = A::rcx,
                         GP0 = A::rax,
                         GP1 = A::r11,
                         arg[]    = { A::rdx, A::r8, A::r9, A::r10, A::rdi };
+
+            // xmm6-xmm15 must be preserved by the callee in the MS ABI.
+            std::array<Val,16> regs = {
+                 NA, NA, NA, NA,  NA, NA,RES,RES,
+                RES,RES,RES,RES, RES,RES,RES,RES,
+            };
+
             auto enter = [&]{
-                // Fun extra setup to work within the MS ABI:
-                // 0) rcx,rdx,r8,r9 are all already holding their correct values,
-                //    and rax,r10,r11 can be used freely.
-                // 1) Load r10 from rsp+40 if there's a fourth arg.
+                // rcx,rdx,r8,r9 are all already holding their correct values,
+                // and rax,r10,r11 can be used freely.
+                // If there's a 4th arg on the stack, we'll load it into r10.
                 if (fImpl->strides.size() >= 4) {
                     a->mov(A::r10, A::Mem{A::rsp, 40});
                 }
-                // 2) Load rdi from rsp+48 if there's a fifth arg,
-                //    first preserving its original callee-saved value at rsp+8,
-                //    which is an ABI reserved shadow area usually for spilling rcx.
+                // If there's a 5th arg we'll load it into callee-saved rdi,
+                // first saving rdi's value to the ABI-reserved slot usually
+                // used to spill rcx, rsp+8.
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::Mem{A::rsp, 8}, A::rdi);
                     a->mov(A::rdi, A::Mem{A::rsp, 48});
                 }
-                // 3) Save xmm6-xmm15.
-                a->sub(A::rsp, 10*16);
-                for (int i = 0; i < 10; i++) {
-                    a->vmovups(A::Mem{A::rsp, i*16}, (A::Xmm)(i+6));
-                }
 
-                // Now our normal "make space for values".
-                if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); }
+                // Make space on the stack to spill any normal Vals,
+                // and an extra 160-byte chunk to spill reserved xmm6-xmm15.
+                if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4 + 10*16); }
             };
             auto exit  = [&]{
-                if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
-                // Undo MS ABI setup in reverse.
-                // 3) restore xmm6-xmm15
-                for (int i = 0; i < 10; i++) {
-                    a->vmovups((A::Xmm)(i+6), A::Mem{A::rsp, i*16});
+                for (int r : REServed_regs_to_restore) {
+                    a->vmovups((A::Xmm)r, A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16});
                 }
-                a->add(A::rsp, 10*16);
-                // 2) restore rdi if we used it
+                if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4 + 10*16); }
+
+                // Restore rdi if we used it; no need to restore caller-saved r10.
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::rdi, A::Mem{A::rsp, 8});
                 }
-                // 1) no need to restore caller-saved r10
+
                 a->vzeroupper();
                 a->ret();
             };
@@ -2880,18 +2882,17 @@ namespace skvm {
                         GP1 = A::r11,
                         arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
+            // All 16 ymm registers are available to use.
+            std::array<Val,16> regs = {
+                NA,NA,NA,NA, NA,NA,NA,NA,
+                NA,NA,NA,NA, NA,NA,NA,NA,
+            };
+
             auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
             auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
                               a->vzeroupper();
                               a->ret(); };
         #endif
-
-        // All 16 ymm registers are available to use.
-        using Reg = A::Ymm;
-        std::array<Val,16> regs = {
-            NA,NA,NA,NA, NA,NA,NA,NA,
-            NA,NA,NA,NA, NA,NA,NA,NA,
-        };
 
         auto load_from_memory = [&](Reg r, Val v) {
             if (instructions[v].op == Op::splat) {
