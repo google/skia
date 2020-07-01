@@ -167,7 +167,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
         paramCount = 1;
 
         if (args.fFp.referencesSampleCoords()) {
-            const GrShaderVar& varying = args.fTransformedCoords[0].fVaryingPoint;
+            const GrShaderVar& varying = args.fTransformedCoords[0];
             switch(varying.getType()) {
                 case kFloat2_GrSLType:
                     // Just point the local coords to the varying

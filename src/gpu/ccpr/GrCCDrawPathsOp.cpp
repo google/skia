@@ -18,7 +18,7 @@
 
 static bool has_coord_transforms(const GrPaint& paint) {
     for (const auto& fp : GrFragmentProcessor::PaintCRange(paint)) {
-        if (fp.numCoordTransforms() > 0) {
+        if (fp.referencesPrimitiveSampleCoords() > 0) {
             return true;
         }
     }
