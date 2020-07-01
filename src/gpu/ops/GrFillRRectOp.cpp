@@ -739,10 +739,7 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange& transformRange) override {
-        this->setTransformDataHelper(pdman, transformRange);
-    }
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
 };
 
 
@@ -843,10 +840,7 @@ class FillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
         f->codeAppendf("}");
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange& transformRange) override {
-        this->setTransformDataHelper(pdman, transformRange);
-    }
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
 };
 
 GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
