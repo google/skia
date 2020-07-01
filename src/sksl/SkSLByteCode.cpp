@@ -141,8 +141,9 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kRemainderU, "remainderu")
         DISASSEMBLE_COUNT(kReserve, "reserve")
         DISASSEMBLE_COUNT(kReturn, "return")
-        case ByteCodeInstruction::kSampleExplicit: printf("sample %d", READ8()); break;
-        case ByteCodeInstruction::kSampleMatrix: printf("sampleMtx %d", READ8()); break;
+        case ByteCodeInstruction::kSample: printf("sample %d", READ8()); break;
+        case ByteCodeInstruction::kSampleExplicit: printf("sampleExplicit %d", READ8()); break;
+        case ByteCodeInstruction::kSampleMatrix: printf("sampleMatrix %d", READ8()); break;
         case ByteCodeInstruction::kScalarToMatrix: {
             int cols = READ8();
             int rows = READ8();
@@ -878,6 +879,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             } continue;
 
             case ByteCodeInstruction::kLoadFragCoord:
+            case ByteCodeInstruction::kSample:
             case ByteCodeInstruction::kSampleExplicit:
             case ByteCodeInstruction::kSampleMatrix:
             default:

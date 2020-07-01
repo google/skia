@@ -490,6 +490,24 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 #endif
                 return {};
 
+            case Inst::kSample: {
+                // Child shader to run.
+                int ix = u8();
+
+                SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
+                skvm::Color c = as_SB(children[ix])->program(p, device,local,paint,
+                                                             mats, nullptr,
+                                                             quality, dst,
+                                                             uniforms, alloc);
+                if (!c) {
+                    return {};
+                }
+                push(c.r);
+                push(c.g);
+                push(c.b);
+                push(c.a);
+            } break;
+
             case Inst::kSampleMatrix: {
                 // Child shader to run.
                 int ix = u8();
@@ -506,7 +524,7 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 y = y * (1.0f / w);
 
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                skvm::Color c = as_SB(children[ix])->program(p, device, {x,y},paint,
+                skvm::Color c = as_SB(children[ix])->program(p, device,{x,y},paint,
                                                              mats, nullptr,
                                                              quality, dst,
                                                              uniforms, alloc);
@@ -528,7 +546,7 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                           x = pop();
 
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                skvm::Color c = as_SB(children[ix])->program(p, device, {x,y},paint,
+                skvm::Color c = as_SB(children[ix])->program(p, device,{x,y},paint,
                                                              mats, nullptr,
                                                              quality, dst,
                                                              uniforms, alloc);

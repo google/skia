@@ -379,6 +379,8 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
 
         // Miscellaneous
 
+        // () -> (R, G, B, A)
+        case ByteCodeInstruction::kSample: return 4;
         // (X, Y) -> (R, G, B, A)
         case ByteCodeInstruction::kSampleExplicit: return 4 - 2;
         // (float3x3) -> (R, G, B, A)
@@ -1023,7 +1025,12 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
         return;
     }
     Intrinsic intrin = found->second;
-    int count = SlotCount(c.fArguments[0]->fType);
+
+    const auto& args = c.fArguments;
+    const size_t nargs = args.size();
+    SkASSERT(nargs >= 1);
+
+    int count = SlotCount(args[0]->fType);
 
     // Several intrinsics have variants where one argument is either scalar, or the same size as
     // the first argument. Call dupSmallerType(SlotCount(argType)) to ensure equal component count.
@@ -1035,23 +1042,25 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     };
 
     if (intrin.is_special && intrin.special == SpecialIntrinsic::kSample) {
-        // Sample is very special, the first argument is an FP, which can't be pushed to the stack
-        if (c.fArguments.size() != 2 ||
-            c.fArguments[0]->fType != *fContext.fFragmentProcessor_Type ||
-            (c.fArguments[1]->fType != *fContext.fFloat2_Type &&
-             c.fArguments[1]->fType != *fContext.fFloat3x3_Type)) {
+        // Sample is very special, the first argument is an FP, which can't be pushed to the stack.
+        if (nargs > 2 || args[0]->fType != *fContext.fFragmentProcessor_Type ||
+            (nargs == 2 && (args[1]->fType != *fContext.fFloat2_Type &&
+                            args[1]->fType != *fContext.fFloat3x3_Type))) {
             fErrors.error(c.fOffset, "Unsupported form of sample");
             return;
         }
 
-        // Write our coords or matrix
-        this->writeExpression(*c.fArguments[1]);
+        if (nargs == 2) {
+            // Write our coords or matrix
+            this->writeExpression(*args[1]);
+            this->write(args[1]->fType == *fContext.fFloat3x3_Type
+                                ? ByteCodeInstruction::kSampleMatrix
+                                : ByteCodeInstruction::kSampleExplicit);
+        } else {
+            this->write(ByteCodeInstruction::kSample);
+        }
 
-        this->write(c.fArguments[1]->fType == *fContext.fFloat3x3_Type
-                            ? ByteCodeInstruction::kSampleMatrix
-                            : ByteCodeInstruction::kSampleExplicit);
-
-        Location childLoc = this->getLocation(*c.fArguments[0]);
+        Location childLoc = this->getLocation(*args[0]);
         SkASSERT(childLoc.fStorage == Storage::kChildFP);
         this->write8(childLoc.fSlot);
         return;
@@ -1061,21 +1070,21 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                               intrin.special == SpecialIntrinsic::kSaturate)) {
         // These intrinsics are extra-special, we need instructions interleaved with arguments
         bool saturate = (intrin.special == SpecialIntrinsic::kSaturate);
-        SkASSERT(c.fArguments.size() == (saturate ? 1 : 3));
-        int limitCount = saturate ? 1 : SlotCount(c.fArguments[1]->fType);
+        SkASSERT(nargs == (saturate ? 1 : 3));
+        int limitCount = saturate ? 1 : SlotCount(args[1]->fType);
 
         // 'x'
-        this->writeExpression(*c.fArguments[0]);
+        this->writeExpression(*args[0]);
 
         // 'minVal'
         if (saturate) {
             this->write(ByteCodeInstruction::kPushImmediate);
             this->write32(float_to_bits(0.0f));
         } else {
-            this->writeExpression(*c.fArguments[1]);
+            this->writeExpression(*args[1]);
         }
         dupSmallerType(limitCount);
-        this->writeTypedInstruction(c.fArguments[0]->fType,
+        this->writeTypedInstruction(args[0]->fType,
                                     ByteCodeInstruction::kMaxS,
                                     ByteCodeInstruction::kMaxS,
                                     ByteCodeInstruction::kMaxF,
@@ -1086,11 +1095,11 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             this->write(ByteCodeInstruction::kPushImmediate);
             this->write32(float_to_bits(1.0f));
         } else {
-            SkASSERT(limitCount == SlotCount(c.fArguments[2]->fType));
-            this->writeExpression(*c.fArguments[2]);
+            SkASSERT(limitCount == SlotCount(args[2]->fType));
+            this->writeExpression(*args[2]);
         }
         dupSmallerType(limitCount);
-        this->writeTypedInstruction(c.fArguments[0]->fType,
+        this->writeTypedInstruction(args[0]->fType,
                                     ByteCodeInstruction::kMinS,
                                     ByteCodeInstruction::kMinS,
                                     ByteCodeInstruction::kMinF,
@@ -1099,7 +1108,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     }
 
     // All other intrinsics can handle their arguments being on the stack in order
-    for (const auto& arg : c.fArguments) {
+    for (const auto& arg : args) {
         this->writeExpression(*arg);
     }
 
@@ -1118,8 +1127,8 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             } break;
 
             case SpecialIntrinsic::kDot: {
-                SkASSERT(c.fArguments.size() == 2);
-                SkASSERT(count == SlotCount(c.fArguments[1]->fType));
+                SkASSERT(nargs == 2);
+                SkASSERT(count == SlotCount(args[1]->fType));
                 this->write(ByteCodeInstruction::kMultiplyF, count);
                 for (int i = count-1; i --> 0;) {
                     this->write(ByteCodeInstruction::kAddF, 1);
@@ -1127,7 +1136,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             } break;
 
             case SpecialIntrinsic::kLength: {
-                SkASSERT(c.fArguments.size() == 1);
+                SkASSERT(nargs == 1);
                 this->write(ByteCodeInstruction::kDup, count);
                 this->write(ByteCodeInstruction::kMultiplyF, count);
                 for (int i = count-1; i --> 0;) {
@@ -1138,17 +1147,17 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
 
             case SpecialIntrinsic::kMax:
             case SpecialIntrinsic::kMin: {
-                SkASSERT(c.fArguments.size() == 2);
+                SkASSERT(nargs == 2);
                 // There are variants where the second argument is scalar
-                dupSmallerType(SlotCount(c.fArguments[1]->fType));
+                dupSmallerType(SlotCount(args[1]->fType));
                 if (intrin.special == SpecialIntrinsic::kMax) {
-                    this->writeTypedInstruction(c.fArguments[0]->fType,
+                    this->writeTypedInstruction(args[0]->fType,
                                                 ByteCodeInstruction::kMaxS,
                                                 ByteCodeInstruction::kMaxS,
                                                 ByteCodeInstruction::kMaxF,
                                                 count);
                 } else {
-                    this->writeTypedInstruction(c.fArguments[0]->fType,
+                    this->writeTypedInstruction(args[0]->fType,
                                                 ByteCodeInstruction::kMinS,
                                                 ByteCodeInstruction::kMinS,
                                                 ByteCodeInstruction::kMinF,
@@ -1158,11 +1167,11 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
 
             case SpecialIntrinsic::kMix: {
                 // Two main variants of mix to handle
-                SkASSERT(c.fArguments.size() == 3);
-                SkASSERT(count == SlotCount(c.fArguments[1]->fType));
-                int selectorCount = SlotCount(c.fArguments[2]->fType);
+                SkASSERT(nargs == 3);
+                SkASSERT(count == SlotCount(args[1]->fType));
+                int selectorCount = SlotCount(args[2]->fType);
 
-                if (is_generic_type(&c.fArguments[2]->fType, fContext.fGenBType_Type.get())) {
+                if (is_generic_type(&args[2]->fType, fContext.fGenBType_Type.get())) {
                     // mix(genType, genType, genBoolType)
                     SkASSERT(selectorCount == count);
                     this->write(ByteCodeInstruction::kMix, count);
@@ -1174,7 +1183,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             } break;
 
             case SpecialIntrinsic::kNormalize: {
-                SkASSERT(c.fArguments.size() == 1);
+                SkASSERT(nargs == 1);
                 this->write(ByteCodeInstruction::kDup, count);
                 this->write(ByteCodeInstruction::kDup, count);
                 this->write(ByteCodeInstruction::kMultiplyF, count);
@@ -1192,7 +1201,6 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     } else {
         switch (intrin.inst_f) {
             case ByteCodeInstruction::kInverse2x2: {
-                SkASSERT(c.fArguments.size() > 0);
                 auto op = ByteCodeInstruction::kInverse2x2;
                 switch (count) {
                     case 4: break;  // float2x2
@@ -1205,7 +1213,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             }
 
             default:
-                this->writeTypedInstruction(c.fArguments[0]->fType,
+                this->writeTypedInstruction(args[0]->fType,
                                             intrin.inst_s,
                                             intrin.inst_u,
                                             intrin.inst_f,

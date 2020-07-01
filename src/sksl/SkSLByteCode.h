@@ -108,10 +108,12 @@ enum class ByteCodeInstruction : uint16_t {
     kReserve,
     // Followed by a byte indicating the number of slots being returned
     kReturn,
-    // kSampleExplicit/kSampleMatrix are followed by a byte indicating the FP slot to sample
-    // Expects stack to contain (X, Y), produces (R, G, B, A)
+    // kSample* are followed by a byte indicating the FP slot to sample, and produce (R, G, B, A)
+    // Does "pass-through" sampling at the same coords as the parent
+    kSample,
+    // Expects stack to contain (X, Y)
     kSampleExplicit,
-    // Expects stack to contain a 3x3 matrix, produces (R, G, B, A)
+    // Expects stack to contain a 3x3 matrix (applied to parent's sample coords)
     kSampleMatrix,
     // Followed by two bytes indicating columns and rows of matrix (2, 3, or 4 each).
     // Takes a single value from the top of the stack, and converts to a CxR matrix with that value
