@@ -13,12 +13,15 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkScopeExit.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#include <type_traits>
 
 namespace {
 struct AsyncContext {
@@ -40,14 +43,19 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
 // the result in a raster image.
 template <typename Src>
 static sk_sp<SkImage> do_read_and_scale(Src* src,
-                                        GrContext* context,
+                                        GrDirectContext* context,
                                         const SkIRect& srcRect,
                                         const SkImageInfo& ii,
                                         SkImage::RescaleGamma rescaleGamma,
                                         SkFilterQuality quality) {
     auto* asyncContext = new AsyncContext();
-    src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, async_callback,
-                                   asyncContext);
+    if constexpr (std::is_same<Src, SkImage>::value) {
+        src->asyncRescaleAndReadPixels(context, ii, srcRect, rescaleGamma, quality, async_callback,
+                                       asyncContext);
+    } else {
+        src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, async_callback,
+                                       asyncContext);
+    }
     if (context) {
         context->submit();
     }
@@ -80,8 +88,14 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     SkImageInfo uvII = SkImageInfo::Make(uvSize, kGray_8_SkColorType, kPremul_SkAlphaType);
 
     AsyncContext asyncContext;
-    src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
-                                         rescaleGamma, quality, async_callback, &asyncContext);
+    if constexpr (std::is_same<Src, SkImage>::value) {
+        src->asyncRescaleAndReadPixelsYUV420(context->asDirectContext(), yuvCS,
+                                             SkColorSpace::MakeSRGB(), srcRect, size, rescaleGamma,
+                                             quality, async_callback, &asyncContext);
+    } else {
+        src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
+                                             rescaleGamma, quality, async_callback, &asyncContext);
+    }
     if (context) {
         context->submit();
     }
@@ -127,7 +141,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
 template <typename Src>
 static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                                           Src* src,
-                                          GrContext* context,
+                                          GrDirectContext* context,
                                           const SkIRect& srcRect,
                                           SkISize newSize,
                                           bool doYUV420,
@@ -194,6 +208,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         *errorMsg = "Not supported on recording/vector backends.";
         return skiagm::DrawResult::kSkip;
     }
+    auto context = canvas->recordingContext()->asDirectContext();
     if (doSurface) {
         // Turn the image into a surface in order to call the read and rescale API
         auto surfInfo = image->imageInfo().makeDimensions(image->dimensions());
@@ -204,8 +219,8 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         }
         if (!surface) {
             *errorMsg = "Could not create surface for image.";
-            // When testing abandoned GrContext we expect surface creation to fail.
-            if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
+            // When testing abandoned context we expect surface creation to fail.
+            if (context && context->abandoned()) {
                 return skiagm::DrawResult::kSkip;
             }
             return skiagm::DrawResult::kFail;
@@ -213,21 +228,20 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         surface->getCanvas()->drawImage(image, 0, 0, &paint);
-        return do_rescale_grid(canvas, surface.get(), canvas->getGrContext(), srcRect, newSize,
+        return do_rescale_grid(canvas, surface.get(), context, srcRect, newSize,
                                doYUV420, errorMsg);
-    } else if (auto ctx = canvas->getGrContext()) {
-        image = image->makeTextureImage(ctx);
+    } else if (context) {
+        image = image->makeTextureImage(context);
         if (!image) {
             *errorMsg = "Could not create image.";
-            // When testing abandoned GrContext we expect surface creation to fail.
-            if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
+            // When testing abandoned context we expect surface creation to fail.
+            if (context->abandoned()) {
                 return skiagm::DrawResult::kSkip;
             }
             return skiagm::DrawResult::kFail;
         }
     }
-    return do_rescale_grid(canvas, image.get(), canvas->getGrContext(), srcRect, newSize, doYUV420,
-                           errorMsg);
+    return do_rescale_grid(canvas, image.get(), context, srcRect, newSize, doYUV420, errorMsg);
 }
 
 #define DEF_RESCALE_AND_READ_SURF_GM(IMAGE_FILE, TAG, SRC_RECT, W, H)                      \
@@ -318,10 +332,11 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
             SkImageInfo::Make(kInner + 2 * kBorder, kInner + 2 * kBorder, kRGBA_8888_SkColorType,
                               kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
     auto surface = canvas->makeSurface(surfaceII);
+    auto context = canvas->recordingContext()->asDirectContext();
     if (!surface) {
         *errorMsg = "Could not create surface for image.";
-        // When testing abandoned GrContext we expect surface creation to fail.
-        if (canvas->getGrContext() && canvas->getGrContext()->abandoned()) {
+        // When testing abandoned context we expect surface creation to fail.
+        if (context && context->abandoned()) {
             return skiagm::DrawResult::kSkip;
         }
         return skiagm::DrawResult::kFail;
@@ -335,7 +350,6 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     canvas->translate(kPad, kPad);
     skiagm::DrawResult result;
     SkISize downSize = {static_cast<int>(kInner/2),  static_cast<int>(kInner / 2)};
-    GrContext* context = canvas->getGrContext();
     result = do_rescale_grid(canvas, surface.get(), context, srcRect, downSize, false, errorMsg,
                              kPad);
 

@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -29,6 +30,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -45,7 +47,7 @@
 #include "src/gpu/gl/GrGLTexture.h"
 #include "src/image/SkImage_Gpu.h"
 
-SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, GrSurfaceProxyView view,
+SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context, uint32_t uniqueID, GrSurfaceProxyView view,
                          SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> colorSpace)
         : INHERITED(std::move(context), view.proxy()->backingStoreDimensions(), uniqueID,
                     ct, at, colorSpace)
@@ -66,7 +68,7 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, GrSurfaceP
 SkImage_Gpu::~SkImage_Gpu() {}
 
 GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrContext* context, const GrFlushInfo& info) {
-    if (!context || !fContext->priv().matches(context) || fContext->abandoned()) {
+    if (!context || !fContext->priv().matches(context) || context->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
@@ -124,45 +126,48 @@ sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) c
                                    this->alphaType(), std::move(newCS));
 }
 
-void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+void SkImage_Gpu::onAsyncRescaleAndReadPixels(GrDirectContext* context,
+                                              const SkImageInfo& info,
                                               const SkIRect& srcRect,
                                               RescaleGamma rescaleGamma,
                                               SkFilterQuality rescaleQuality,
                                               ReadPixelsCallback callback,
-                                              ReadPixelsContext context) {
+                                              ReadPixelsContext cbContext) {
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
-                                      this->refColorSpace());
-    if (!ctx) {
-        callback(context, nullptr);
+    auto surfCtx = GrSurfaceContext::Make(context, fView, ct, this->alphaType(),
+                                          this->refColorSpace());
+    if (!surfCtx) {
+        callback(cbContext, nullptr);
         return;
     }
-    ctx->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+    surfCtx->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality,
+                                       callback, cbContext);
 }
 
-void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(GrDirectContext* context,
+                                                    SkYUVColorSpace yuvColorSpace,
                                                     sk_sp<SkColorSpace> dstColorSpace,
                                                     const SkIRect& srcRect,
                                                     const SkISize& dstSize,
                                                     RescaleGamma rescaleGamma,
                                                     SkFilterQuality rescaleQuality,
                                                     ReadPixelsCallback callback,
-                                                    ReadPixelsContext context) {
+                                                    ReadPixelsContext cbContext) {
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
-                                      this->refColorSpace());
-    if (!ctx) {
-        callback(context, nullptr);
+    auto surfCtx = GrSurfaceContext::Make(context, fView, ct, this->alphaType(),
+                                          this->refColorSpace());
+    if (!surfCtx) {
+        callback(cbContext, nullptr);
         return;
     }
-    ctx->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
-                                         std::move(dstColorSpace),
-                                         srcRect,
-                                         dstSize,
-                                         rescaleGamma,
-                                         rescaleQuality,
-                                         callback,
-                                         context);
+    surfCtx->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+                                             std::move(dstColorSpace),
+                                             srcRect,
+                                             dstSize,
+                                             rescaleGamma,
+                                             rescaleQuality,
+                                             callback,
+                                             cbContext);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

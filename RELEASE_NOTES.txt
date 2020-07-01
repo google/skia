@@ -23,6 +23,10 @@ Milestone 86
   * Added SkImage:asyncRescaleAndReadPixels and SkImage::asyncRescaleAndReadPixelsYUV420
     https://review.skia.org/299281
 
+  * Updated various SkImage methods to take a GrRecording/DirectContext pointer when
+    using GPU. The variants that do not take the argument are deprecated.
+    https://review.skia.org/300219
+
 * * *
 
 Milestone 85

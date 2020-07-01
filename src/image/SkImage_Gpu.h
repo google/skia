@@ -11,6 +11,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkImagePriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/SkGr.h"
@@ -23,8 +24,8 @@ struct SkYUVAIndex;
 
 class SkImage_Gpu : public SkImage_GpuBase {
 public:
-    SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, GrSurfaceProxyView, SkColorType, SkAlphaType,
-                sk_sp<SkColorSpace>);
+    SkImage_Gpu(sk_sp<GrImageContext>, uint32_t uniqueID, GrSurfaceProxyView, SkColorType,
+                SkAlphaType, sk_sp<SkColorSpace>);
     ~SkImage_Gpu() override;
 
     GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
@@ -45,19 +46,21 @@ public:
         return true;
     }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
-                                                SkColorType, sk_sp<SkColorSpace>) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*, SkColorType,
+                                                sk_sp<SkColorSpace>) const final;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
-    void onAsyncRescaleAndReadPixels(const SkImageInfo&,
+    void onAsyncRescaleAndReadPixels(GrDirectContext*,
+                                     const SkImageInfo&,
                                      const SkIRect& srcRect,
                                      RescaleGamma,
                                      SkFilterQuality,
                                      ReadPixelsCallback,
                                      ReadPixelsContext) override;
 
-    void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+    void onAsyncRescaleAndReadPixelsYUV420(GrDirectContext*,
+                                           SkYUVColorSpace,
                                            sk_sp<SkColorSpace>,
                                            const SkIRect& srcRect,
                                            const SkISize& dstSize,
