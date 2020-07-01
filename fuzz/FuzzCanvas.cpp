@@ -50,6 +50,7 @@
 #include "tools/flags/CommandLineFlags.h"
 
 #ifdef SK_GL
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -1707,7 +1708,7 @@ DEF_FUZZ(SerializedImageFilter, fuzz) {
 
 #ifdef SK_GL
 
-static void dump_GPU_info(GrContext* context) {
+static void dump_GPU_info(GrDirectContext* context) {
     const GrGLInterface* gl = static_cast<GrGLGpu*>(context->priv().getGpu())
                                     ->glInterface();
     const GrGLubyte* output;
@@ -1721,7 +1722,7 @@ static void dump_GPU_info(GrContext* context) {
     SkDebugf("GL_VERSION %s\n", (const char*) output);
 }
 
-static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
+static void fuzz_ganesh(Fuzz* fuzz, GrDirectContext* context) {
     SkASSERT(context);
     auto surface = SkSurface::MakeRenderTarget(
             context,
@@ -1733,7 +1734,7 @@ static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
 
 DEF_FUZZ(NativeGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
-    GrContext* context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
+    auto context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
     if (!context) {
         context = f.get(sk_gpu_test::GrContextFactory::kGLES_ContextType);
     }
