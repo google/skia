@@ -15,7 +15,7 @@
 class SkDeferredDisplayListPriv;
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTArray.h"
 #include <map>
 class GrRenderTask;

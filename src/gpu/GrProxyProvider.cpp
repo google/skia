@@ -9,7 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkImage.h"
-#include "include/private/GrDirectContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrImageContext.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/GrSingleOwner.h"

@@ -14,7 +14,7 @@
 
 #include "tests/Test.h"
 
-#include "include/private/GrDirectContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkHalf.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"

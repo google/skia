@@ -21,7 +21,7 @@
 #include "src/gpu/gradients/generated/GrTextureGradientColorizer.h"
 #include "src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h"
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrColorInfo.h"

@@ -10,7 +10,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrRecordingContextPriv.h"

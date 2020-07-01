@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 
 #include "include/effects/SkGradientShader.h"
-#include "include/private/GrDirectContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"

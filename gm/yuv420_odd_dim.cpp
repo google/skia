@@ -15,7 +15,7 @@
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"

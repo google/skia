@@ -13,7 +13,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkScopeExit.h"
