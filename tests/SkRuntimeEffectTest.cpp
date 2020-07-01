@@ -9,7 +9,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTLazy.h"
 #include "tests/Test.h"
 
@@ -163,5 +163,5 @@ DEF_TEST(SkRuntimeEffectSimple, r) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU, r, ctxInfo) {
-    test_RuntimeEffect_Shaders(r, ctxInfo.grContext());
+    test_RuntimeEffect_Shaders(r, ctxInfo.directContext());
 }

@@ -17,8 +17,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
@@ -133,7 +133,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
 DEF_GPUTEST_FOR_CONTEXTS(GrDefaultPathRendererTest,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
                          reporter, ctxInfo, only_allow_default) {
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     run_test(ctx, reporter);
 }
