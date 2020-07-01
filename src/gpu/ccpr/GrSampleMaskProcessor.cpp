@@ -15,8 +15,7 @@ public:
     Impl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
 
 private:
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 const CoordTransformRange&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 

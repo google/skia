@@ -59,8 +59,7 @@ GrMtlPipelineState::GrMtlPipelineState(
 void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
-    GrFragmentProcessor::PipelineCoordTransformRange transformRange(programInfo.pipeline());
-    fGeometryProcessor->setData(fDataManager, programInfo.primProc(), transformRange);
+    fGeometryProcessor->setData(fDataManager, programInfo.primProc());
 
     GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);

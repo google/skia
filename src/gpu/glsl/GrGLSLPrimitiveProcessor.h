@@ -25,7 +25,6 @@ class GrGLSLPrimitiveProcessor {
 public:
     using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
     using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
-    using CoordTransformRange   = GrFragmentProcessor::PipelineCoordTransformRange;
 
     struct TransformVar {
         // The transform as a variable. This may be a kFloat3x3 matrix or a kFloat4 representing
@@ -55,7 +54,7 @@ public:
         operator bool() const { return (bool)fIter; }
 
         // Gets the current coord transform and its owning GrFragmentProcessor.
-        std::pair<const GrCoordTransform&, const GrFragmentProcessor&> get() const;
+        const GrFragmentProcessor& get() const;
 
         FPCoordTransformHandler& operator++();
 
@@ -141,10 +140,7 @@ public:
      * The range will iterate over the transforms in the same order as the TransformHandler passed
      * to emitCode.
      */
-    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                         const CoordTransformRange&) = 0;
-
-    static SkMatrix GetTransformMatrix(const GrCoordTransform&, const SkMatrix& preMatrix);
+    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) = 0;
 
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,

@@ -46,10 +46,8 @@ private:
     class GLSLGP : public GrGLSLGeometryProcessor {
     public:
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& pp,
-                     const CoordTransformRange& transformRange) override {
+                     const GrPrimitiveProcessor& pp) override {
             const auto& gp = pp.cast<GP>();
-            this->setTransformDataHelper(pdman, transformRange);
             this->setTransform(pdman, fLocalMatrixUni, gp.fLocalMatrix);
         }
 

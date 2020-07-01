@@ -18,10 +18,7 @@ public:
             : fShader(std::move(shader)), fNumSides(numSides) {}
 
 private:
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange& transformRange) final {
-        this->setTransformDataHelper(pdman, transformRange);
-    }
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 

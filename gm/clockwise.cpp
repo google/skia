@@ -108,8 +108,7 @@ private:
 };
 
 class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange&) override {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const ClockwiseTestProcessor& proc = args.fGP.cast<ClockwiseTestProcessor>();

@@ -615,10 +615,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp,
-                     const CoordTransformRange& transformRange) override {
+                     const GrPrimitiveProcessor& gp) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
-            this->setTransformDataHelper(pdman, transformRange);
             this->setTransform(pdman, fLocalMatrixUniform, qe.fLocalMatrix, &fLocalMatrix);
         }
 

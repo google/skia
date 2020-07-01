@@ -46,10 +46,9 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
         class GLSLProcessor : public GrGLSLGeometryProcessor {
         public:
-            void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                         const CoordTransformRange& transformRange) override {
+            void setData(const GrGLSLProgramDataManager& pdman,
+                         const GrPrimitiveProcessor& proc) override {
                 const auto& latticeGP = proc.cast<LatticeGP>();
-                this->setTransformDataHelper(pdman, transformRange);
                 fColorSpaceXformHelper.setData(pdman, latticeGP.fColorSpaceXform.get());
             }
 

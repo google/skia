@@ -29,10 +29,6 @@ public:
                            GrGLSLUniformHandler* uniformHandler) override;
 
 protected:
-    // A helper which subclasses can use to upload coord transform matrices in setData().
-    void setTransformDataHelper(const GrGLSLProgramDataManager& pdman,
-                                const CoordTransformRange&);
-
     // A helper for setting the matrix on a uniform handle initialized through
     // writeOutputPosition or writeLocalCoord. Automatically handles elided uniforms,
     // scale+translate matrices, and state tracking (if provided state pointer is non-null).
@@ -112,14 +108,6 @@ private:
                            GrGLSLUniformHandler* uniformHandler,
                            const GrShaderVar& localCoordsVar,
                            FPCoordTransformHandler* handler);
-
-    struct TransformUniform {
-        UniformHandle  fHandle;
-        GrSLType       fType = kVoid_GrSLType;
-        SkMatrix       fCurrentValue = SkMatrix::InvalidMatrix();
-    };
-
-    SkTArray<TransformUniform, true> fInstalledTransforms;
 
     struct TransformInfo {
         // The vertex-shader output variable to assign the transformed coordinates to

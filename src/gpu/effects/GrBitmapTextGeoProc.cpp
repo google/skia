@@ -72,8 +72,7 @@ public:
         }
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
-                 const CoordTransformRange& transformRange) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
         const GrBitmapTextGeoProc& btgp = gp.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
             pdman.set4fv(fColorUniform, 1, btgp.color().vec());
@@ -91,7 +90,6 @@ public:
         }
 
         this->setTransform(pdman, fLocalMatrixUniform, btgp.localMatrix(), &fLocalMatrix);
-        this->setTransformDataHelper(pdman, transformRange);
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,

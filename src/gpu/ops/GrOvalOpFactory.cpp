@@ -216,9 +216,8 @@ private:
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     const CoordTransformRange& transformRange) override {
-            this->setTransformDataHelper(pdman, transformRange);
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& primProc) override {
             this->setTransform(pdman, fLocalMatrixUniform,
                                primProc.cast<CircleGeometryProcessor>().fLocalMatrix,
                                &fLocalMatrix);
@@ -477,9 +476,8 @@ private:
             b->add32(ComputeMatrixKey(bcscgp.fLocalMatrix));
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     const CoordTransformRange& transformRange) override {
-            this->setTransformDataHelper(pdman, transformRange);
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& primProc) override {
             this->setTransform(pdman, fLocalMatrixUniform,
                                primProc.cast<ButtCapDashedCircleGeometryProcessor>().fLocalMatrix,
                                &fLocalMatrix);
@@ -668,10 +666,9 @@ private:
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     const CoordTransformRange& transformRange) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& primProc) override {
             const EllipseGeometryProcessor& egp = primProc.cast<EllipseGeometryProcessor>();
-            this->setTransformDataHelper(pdman, transformRange);
             this->setTransform(pdman, fLocalMatrixUniform, egp.fLocalMatrix, &fLocalMatrix);
         }
 
@@ -862,12 +859,11 @@ private:
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
-                     const CoordTransformRange& transformRange) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& gp) override {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
 
             this->setTransform(pdman, fViewMatrixUniform, diegp.fViewMatrix, &fViewMatrix);
-            this->setTransformDataHelper(pdman, transformRange);
         }
 
     private:

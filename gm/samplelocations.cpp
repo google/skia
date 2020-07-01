@@ -195,8 +195,7 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("}");
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 const CoordTransformRange&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
 };
 
 GrGLSLPrimitiveProcessor* SampleLocationsTestProcessor::createGLSLInstance(
