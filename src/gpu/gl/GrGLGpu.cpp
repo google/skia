@@ -3948,6 +3948,7 @@ std::unique_ptr<GrSemaphore> GrGLGpu::wrapBackendSemaphore(
 }
 
 void GrGLGpu::insertSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore);
 
     GrGLsync sync;
@@ -3957,6 +3958,7 @@ void GrGLGpu::insertSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore);
 
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
