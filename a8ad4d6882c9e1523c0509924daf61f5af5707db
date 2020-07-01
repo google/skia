@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84f5f3b1_e7bae4b2",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-01T20:11:41Z",
+      "side": 1,
+      "message": "nit: fix line length here and elsewhere in this \u0027if\u0027 block",
+      "revId": "a8ad4d6882c9e1523c0509924daf61f5af5707db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7692fa71_1eaeb5cf",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-01T20:11:41Z",
+      "side": 1,
+      "message": "nit: fix spacing",
+      "range": {
+        "startLine": 544,
+        "startChar": 39,
+        "endLine": 544,
+        "endChar": 46
+      },
+      "revId": "a8ad4d6882c9e1523c0509924daf61f5af5707db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
