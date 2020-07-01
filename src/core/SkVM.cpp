@@ -2823,54 +2823,57 @@ namespace skvm {
         const int nstack_slots = *stack_hint >= 0 ? *stack_hint
                                                   : stack_slot.size();
 
-
     #if defined(__x86_64__) || defined(_M_X64)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
         const int K = 8;
+        using Reg = A::Ymm;
         #if defined(_M_X64)  // Important to check this first; clang-cl defines both.
             const A::GP64 N = A::rcx,
                         GP0 = A::rax,
                         GP1 = A::r11,
                         arg[]    = { A::rdx, A::r8, A::r9, A::r10, A::rdi };
+
+            // xmm6-xmm15 must be preserved by the callee in the MS ABI.
+            std::array<Val,16> regs = {
+                 NA, NA, NA, NA,  NA, NA,RES,RES,
+                RES,RES,RES,RES, RES,RES,RES,RES,
+            };
+            uint16_t REServed_regs_to_restore = 0;
+
             auto enter = [&]{
-                // Fun extra setup to work within the MS ABI:
-                // 0) rcx,rdx,r8,r9 are all already holding their correct values,
-                //    and rax,r10,r11 can be used freely.
-                // 1) Load r10 from rsp+40 if there's a fourth arg.
+                // rcx,rdx,r8,r9 are all already holding their correct values,
+                // and rax,r10,r11 can be used freely.
+                // If there's a 4th arg on the stack, we'll load it into r10.
                 if (fImpl->strides.size() >= 4) {
                     a->mov(A::r10, A::Mem{A::rsp, 40});
                 }
-                // 2) Load rdi from rsp+48 if there's a fifth arg,
-                //    first preserving its original callee-saved value at rsp+8,
-                //    which is an ABI reserved shadow area usually for spilling rcx.
+                // If there's a 5th arg we'll load it into callee-saved rdi,
+                // first saving rdi's value to the ABI-reserved slot usually
+                // used to spill rcx, rsp+8.
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::Mem{A::rsp, 8}, A::rdi);
                     a->mov(A::rdi, A::Mem{A::rsp, 48});
                 }
-                // 3) Save xmm6-xmm15.
-                a->sub(A::rsp, 10*16);
-                for (int i = 0; i < 10; i++) {
-                    a->vmovups(A::Mem{A::rsp, i*16}, (A::Xmm)(i+6));
-                }
 
-                // Now our normal "make space for values".
-                if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); }
+                // Make space on the stack to spill any normal Vals,
+                // and an extra 160-byte chunk to spill reserved xmm6-xmm15.
+                a->sub(A::rsp, nstack_slots*K*4 + 10*16);
             };
             auto exit  = [&]{
-                if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
-                // Undo MS ABI setup in reverse.
-                // 3) restore xmm6-xmm15
-                for (int i = 0; i < 10; i++) {
-                    a->vmovups((A::Xmm)(i+6), A::Mem{A::rsp, i*16});
+                for (int r = 6; r < 16; r++) {
+                    if (REServed_regs_to_restore & (1<<r)) {
+                        a->vmovups((A::Xmm)r, A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16});
+                    }
                 }
-                a->add(A::rsp, 10*16);
-                // 2) restore rdi if we used it
+                a->add(A::rsp, nstack_slots*K*4 + 10*16);
+
+                // Restore rdi if we used it; no need to restore caller-saved r10.
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::rdi, A::Mem{A::rsp, 8});
                 }
-                // 1) no need to restore caller-saved r10
+
                 a->vzeroupper();
                 a->ret();
             };
@@ -2880,18 +2883,17 @@ namespace skvm {
                         GP1 = A::r11,
                         arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
+            // All 16 ymm registers are available to use.
+            std::array<Val,16> regs = {
+                NA,NA,NA,NA, NA,NA,NA,NA,
+                NA,NA,NA,NA, NA,NA,NA,NA,
+            };
+
             auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
             auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
                               a->vzeroupper();
                               a->ret(); };
         #endif
-
-        // All 16 ymm registers are available to use.
-        using Reg = A::Ymm;
-        std::array<Val,16> regs = {
-            NA,NA,NA,NA, NA,NA,NA,NA,
-            NA,NA,NA,NA, NA,NA,NA,NA,
-        };
 
         auto load_from_memory = [&](Reg r, Val v) {
             if (instructions[v].op == Op::splat) {
@@ -2967,12 +2969,22 @@ namespace skvm {
                 auto avail = std::find_if(regs.begin(), regs.end(), [](Val v) { return v == NA; });
                 if (avail == regs.end()) {
                     auto score_spills = [&](Val v) -> int {
-                        // We cannot spill REServed registers,
-                        // nor any registers we need for this instruction.
-                        if (v == RES ||
-                            v == TMP || v == id || v == x || v == y || v == z) {
+                        // A REServed register is the absolute best kind of register to spill;
+                        // we won't need to restore its value until the end of the program.
+                        if (v == RES) {
+                        #if defined(_M_X64)
+                            return -1;
+                        #else
+                            // TODO: RES spilling on ARM.  (__x86_64__ has no RES registers).
+                            return 0x7fff'ffff;
+                        #endif
+                        }
+
+                        // We cannot spill any registers we need for this instruction.
+                        if (v == TMP || v == id || v == x || v == y || v == z) {
                             return 0x7fff'ffff;
                         }
+
                         // At this point spilling is arbitrary, so we're in the realm of heuristics.
                         // Here, spill the oldest value.  This is nice because,
                         //    A) it's very predictable, even in assembly, and
@@ -2987,6 +2999,22 @@ namespace skvm {
 
                 Reg r = (Reg)std::distance(regs.begin(), avail);
                 Val& v = regs[r];
+
+                #if defined(_M_X64)
+                if (v == RES) {
+                    // This is ymm6-ymm15... we need to save the lower xmm part.
+                    SkASSERT(A::ymm6 <= r && r <= A::ymm15);
+
+                    // Only need to / can save the reserved value once; if we "save"
+                    // it twice we'll clobber the real saved value with one of our own!
+                    if ((REServed_regs_to_restore & (1<<r)) == 0) {
+                        a->vmovups(A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16}, (A::Xmm)r);
+                        REServed_regs_to_restore |= (1<<r);
+                    }
+
+                    v = NA;
+                }
+                #endif
 
                 SkASSERT(v == NA || v >= 0);
                 if (v >= 0) {
