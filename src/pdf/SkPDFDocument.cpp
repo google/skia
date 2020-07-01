@@ -334,6 +334,18 @@ std::unique_ptr<SkPDFArray> SkPDFDocument::getAnnotations() {
             SkDEBUGFAIL("Unknown link type.");
         }
 
+        if (link->fNodeId) {
+            // Ignore the return value, but call this to ensure that this node
+            // isn't pruned from the tree if it happens to be associated with
+            // an annotation but isn't also associated with marked content.
+            getMarkIdForNodeId(link->fNodeId);
+
+            int parentTreeId = getParentTreeIdForNodeId(link->fNodeId);
+            if (parentTreeId != -1) {
+                annotation.insertInt("StructParent", parentTreeId);
+            }
+        }
+
         SkPDFIndirectReference annotationRef = emit(annotation);
         array->appendRef(annotationRef);
         if (link->fNodeId) {
@@ -521,6 +533,10 @@ const SkMatrix& SkPDFDocument::currentPageTransform() const {
 
 int SkPDFDocument::getMarkIdForNodeId(int nodeId) {
     return fTagTree.getMarkIdForNodeId(nodeId, SkToUInt(this->currentPageIndex()));
+}
+
+int SkPDFDocument::getParentTreeIdForNodeId(int nodeId) {
+    return fTagTree.getParentTreeIdForNodeId(nodeId);
 }
 
 static std::vector<const SkPDFFont*> get_fonts(const SkPDFDocument& canon) {
