@@ -758,6 +758,7 @@ def base_defines(os_conditions):
             # MACOS
             [
                 "SK_BUILD_FOR_MAC",
+                "SK_BUILD_NO_OPTS",
             ],
         ],
     )
