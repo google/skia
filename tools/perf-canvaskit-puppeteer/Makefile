@@ -22,5 +22,5 @@ test_path_transform_with_snap:
 skp_with_local:
 	node perf-canvaskit-with-puppeteer.js --canvaskit_js ../../out/canvaskit_wasm/canvaskit.js \
 	--canvaskit_wasm ../../out/canvaskit_wasm/canvaskit.wasm --use_gpu \
-	--input_skp ${HOME}/skps/desk_nytimes.skp \
+	--input_skp ${HOME}/skps/picture2.skp \
 	--bench_html render-skp.html
