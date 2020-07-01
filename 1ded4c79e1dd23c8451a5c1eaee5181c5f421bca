@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59e41cb7_4890b4cf",
+        "filename": "src/gpu/GrStagingBufferManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-01T19:28:34Z",
+      "side": 1,
+      "message": "If we wanted to we could drop this entire call. Instead we could have Slices return an sk_sp\u003cGrGpuBuffer\u003e instead of a pointer. The backends would then be responsible for taking refs to those buffers at the time. We\u0027ll obviously get a lot of duplicate buffer refs that way, so its up to the backends to dedup their stored refs if they want to.",
+      "range": {
+        "startLine": 44,
+        "startChar": 29,
+        "endLine": 44,
+        "endChar": 42
+      },
+      "revId": "1ded4c79e1dd23c8451a5c1eaee5181c5f421bca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
