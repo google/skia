@@ -58,25 +58,17 @@ public:
                         GrGLSLUniformHandler* uniformHandler,
                         FPCoordTransformHandler* transformHandler) {
         for (int i = 0; *transformHandler; ++*transformHandler, ++i) {
-            const auto& fp = transformHandler->get();
-
-            GrShaderVar fragmentVar;
-            GrShaderVar transformVar;
-            if (fp.isSampledWithExplicitCoords()) {
-                transformHandler->omitCoordsForCurrCoordTransform();
-            } else {
-                SkString strVaryingName;
-                strVaryingName.printf("TransformedCoord_%d", i);
-                GrGLSLVarying v(kFloat2_GrSLType);
+            SkString strVaryingName;
+            strVaryingName.printf("TransformedCoord_%d", i);
+            GrGLSLVarying v(kFloat2_GrSLType);
 #ifdef SK_GL
-                GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*)varyingHandler;
-                fVaryingTransform.push_back().fHandle =
-                        glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(), &v)
-                                .toIndex();
+            GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*)varyingHandler;
+            fVaryingTransform.push_back().fHandle =
+                    glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(), &v)
+                            .toIndex();
 #endif
-                fragmentVar = {SkString(v.fsIn()), kFloat2_GrSLType};
-                transformHandler->specifyCoordsForCurrCoordTransform(transformVar, fragmentVar);
-            }
+            GrShaderVar fragmentVar = {SkString(v.fsIn()), kFloat2_GrSLType};
+            transformHandler->specifyCoordsForCurrCoordTransform(fragmentVar);
         }
     }
 
@@ -104,7 +96,7 @@ private:
 
     // Varying transforms are used for non-explicitly sampled FPs. We provide a matrix
     // to GL as fixed function state and it uses it to compute a varying that we pick up
-    // in the FS as the output of the coord transform.
+    // in the FS as the transformed local coords.
     struct TransformVarying {
         VaryingHandle fHandle;
         SkMatrix      fCurrentValue = SkMatrix::InvalidMatrix();

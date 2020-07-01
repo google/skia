@@ -787,8 +787,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                       "%s\n", describe_fp(*fp).c_str());
             REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors(),
                                       "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->sampleCoordsDependOnLocalCoords() ==
-                                      clone->sampleCoordsDependOnLocalCoords(),
+            REPORTER_ASSERT(reporter, fp->usesVaryingCoords() == clone->usesVaryingCoords(),
                                       "%s\n", describe_fp(*fp).c_str());
             REPORTER_ASSERT(reporter, fp->referencesSampleCoords() ==
                                       clone->referencesSampleCoords(),

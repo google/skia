@@ -16,9 +16,9 @@
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/ccpr/GrOctoBounds.h"
 
-static bool has_coord_transforms(const GrPaint& paint) {
+static bool uses_varying_coords(const GrPaint& paint) {
     for (const auto& fp : GrFragmentProcessor::PaintCRange(paint)) {
-        if (fp.numCoordTransforms() > 0) {
+        if (fp.usesVaryingCoordsDirectly()) {
             return true;
         }
     }
@@ -102,7 +102,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrStyledShape& shape,
                                  const SkIRect& maskDevIBounds, const SkRect& conservativeDevBounds,
                                  GrPaint&& paint)
         : GrDrawOp(ClassID())
-        , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
+        , fViewMatrixIfUsingLocalCoords(uses_varying_coords(paint) ? m : SkMatrix::I())
         , fDraws(m, shape, strokeDevWidth, shapeConservativeIBounds, maskDevIBounds,
                  paint.getColor4f())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.

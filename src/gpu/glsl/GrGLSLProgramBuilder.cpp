@@ -140,7 +140,7 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
         output = this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, output,
                                               &glslFragmentProcessors);
         for (const auto& subFP : GrFragmentProcessor::FPCRange(fp)) {
-            transformedCoordVarsIdx += subFP.numCoordTransforms();
+            transformedCoordVarsIdx += subFP.numVaryingCoordsUsed();
         }
         **inOut = output;
     }
@@ -185,8 +185,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                                        name.c_str()));
         }
     }
-    const GrGLSLPrimitiveProcessor::TransformVar* coordVars = fTransformedCoordVars.begin() +
-                                                              transformedCoordVarsIdx;
+    const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
     GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, texSamplers.begin());
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
@@ -200,11 +199,11 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            textureSamplers);
 
     if (fp.referencesSampleCoords()) {
-        // The fp's generated code expects a _coords variable, but we're a the root so _coords
+        // The fp's generated code expects a _coords variable, but we're at the root so _coords
         // is just the local coordinates produced by the primitive processor.
-        SkASSERT(coords.count() > 0);
+        SkASSERT(fp.usesVaryingCoordsDirectly());
 
-        const GrShaderVar& varying = coordVars[0].fVaryingPoint;
+        const GrShaderVar& varying = coordVars[0];
         switch(varying.getType()) {
             case kFloat2_GrSLType:
                 fFS.codeAppendf("float2 %s = %s.xy;\n",

@@ -395,7 +395,6 @@ private:
         Modifiers mods(Layout(), Modifiers::kConst_Flag);
         std::vector<Type::Field> fields = {
             Type::Field(mods, "numTextureSamplers", intType),
-            Type::Field(mods, "numCoordTransforms", intType),
             Type::Field(mods, "numChildProcessors", intType),
             Type::Field(mods, "usesLocalCoords", boolType),
             Type::Field(mods, "compatibleWithCoverageAsAlpha", boolType),
