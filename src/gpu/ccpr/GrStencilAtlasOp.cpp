@@ -58,8 +58,7 @@ class StencilResolveProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = %s = half4(1);", args.fOutputColor, args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 const CoordTransformRange&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
 };
 
 GrGLSLPrimitiveProcessor* StencilResolveProcessor::createGLSLInstance(const GrShaderCaps&) const {

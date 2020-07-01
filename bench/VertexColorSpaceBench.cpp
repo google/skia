@@ -80,8 +80,7 @@ public:
                 fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
             }
             void setData(const GrGLSLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor& primProc,
-                         const CoordTransformRange&) override {
+                         const GrPrimitiveProcessor& primProc) override {
                 const GP& gp = primProc.cast<GP>();
                 fColorSpaceHelper.setData(pdman, gp.fColorSpaceXform.get());
             }

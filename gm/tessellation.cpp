@@ -80,8 +80,8 @@ private:
             this->writeFragmentShader(args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
         }
         void writeFragmentShader(GrGLSLFPFragmentBuilder*, const char* color, const char* coverage);
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                     const CoordTransformRange&) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& proc) override {
             pdman.setSkMatrix(fViewMatrixUniform,
                               proc.cast<TessellationTestTriShader>().fViewMatrix);
         }
@@ -198,8 +198,8 @@ private:
             this->writeFragmentShader(args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
         }
         void writeFragmentShader(GrGLSLFPFragmentBuilder*, const char* color, const char* coverage);
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                     const CoordTransformRange&) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& proc) override {
             pdman.setSkMatrix(fViewMatrixUniform,
                               proc.cast<TessellationTestRectShader>().fViewMatrix);
         }

@@ -37,8 +37,8 @@ public:
         args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 const CoordTransformRange& transformRange) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const GrFillPathShader& shader = primProc.cast<GrFillPathShader>();
         pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());
 
@@ -49,8 +49,6 @@ public:
             const SkRect& b = primProc.cast<GrFillBoundingBoxShader>().pathBounds();
             pdman.set4f(fPathBoundsUniform, b.left(), b.top(), b.right(), b.bottom());
         }
-
-        this->setTransformDataHelper(pdman, transformRange);
     }
 
     GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;

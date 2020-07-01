@@ -30,7 +30,8 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
             return false;
         }
     }
-    if (!this->hasSameTransforms(that)) {
+    if (this->numCoordTransforms() != that.numCoordTransforms()) {
+        // FPs have either 0 or 1 coord transform, and if they have 1, it's the identity
         return false;
     }
     if (!this->onIsEqual(that)) {
@@ -188,19 +189,6 @@ void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentPro
     for (int i = 0; i < src.numChildProcessors(); ++i) {
         this->cloneAndRegisterChildProcessor(src.childProcessor(i));
     }
-}
-
-bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) const {
-    if (this->numCoordTransforms() != that.numCoordTransforms()) {
-        return false;
-    }
-    int count = this->numCoordTransforms();
-    for (int i = 0; i < count; ++i) {
-        if (!this->coordTransform(i).hasSameEffectiveMatrix(that.coordTransform(i))) {
-            return false;
-        }
-    }
-    return true;
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulChildByInputAlpha(
