@@ -26,55 +26,38 @@ public:
     using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
     using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
 
-    struct TransformVar {
-        // The transform as a variable. This may be a kFloat3x3 matrix or a kFloat4 representing
-        // {scaleX, transX, scaleY, transY}. For explicitly sampled FPs this is visible in the
-        // FS. This is not available for NV_path_rendering with non-explicitly sampled FPs.
-        GrShaderVar fTransform;
-        // The transformed coordinate output by the vertex shader and consumed by the fragment
-        // shader. Only valid for non-explicitly sampled FPs.
-        GrShaderVar fVaryingPoint;
-    };
-
-
     virtual ~GrGLSLPrimitiveProcessor() {}
 
     /**
-     * This class provides access to the GrCoordTransforms across all GrFragmentProcessors in a
-     * GrPipeline. It is also used by the primitive processor to specify the fragment shader
-     * variable that will hold the transformed coords for each GrCoordTransform. It is required that
-     * the primitive processor iterate over each coord transform and insert a shader var result for
-     * each. The GrGLSLFragmentProcessors will reference these variables in their fragment code.
+     * This class provides access to each GrFragmentProcessor in a GrPipeline that requires varying
+     * local coords to be produced by the primitive processor. It is also used by the primitive
+     * processor to specify the fragment shader variable that will hold the transformed coords for
+     * each of those GrFragmentProcessors. It is required that the primitive processor iterate over
+     * each fragment processor and insert a shader var result for each. The GrGLSLFragmentProcessors
+     * will reference these variables in their fragment code.
      */
     class FPCoordTransformHandler : public SkNoncopyable {
     public:
-        FPCoordTransformHandler(const GrPipeline&, SkTArray<TransformVar>*);
+        FPCoordTransformHandler(const GrPipeline&, SkTArray<GrShaderVar>*);
         ~FPCoordTransformHandler() { SkASSERT(!fIter); }
 
         operator bool() const { return (bool)fIter; }
 
-        // Gets the current coord transform and its owning GrFragmentProcessor.
+        // Gets the current GrFragmentProcessor
         const GrFragmentProcessor& get() const;
 
         FPCoordTransformHandler& operator++();
 
-        // 'args' are constructor params to GrShaderVar.
-        void specifyCoordsForCurrCoordTransform(GrShaderVar transformVar, GrShaderVar varyingVar) {
+        void specifyCoordsForCurrCoordTransform(GrShaderVar varyingVar) {
             SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->push_back({transformVar, varyingVar});
-            SkDEBUGCODE(fAddedCoord = true;)
-        }
-
-        void omitCoordsForCurrCoordTransform() {
-            SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->push_back();
+            fTransformedCoordVars->push_back(varyingVar);
             SkDEBUGCODE(fAddedCoord = true;)
         }
 
     private:
-        GrFragmentProcessor::CoordTransformIter fIter;
-        SkDEBUGCODE(bool                        fAddedCoord = false;)
-        SkTArray<TransformVar>*                 fTransformedCoordVars;
+        GrFragmentProcessor::CIter fIter;
+        SkDEBUGCODE(bool           fAddedCoord = false;)
+        SkTArray<GrShaderVar>*     fTransformedCoordVars;
     };
 
     struct EmitArgs {

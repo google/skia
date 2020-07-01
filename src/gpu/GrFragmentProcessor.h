@@ -14,7 +14,6 @@
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/ops/GrOp.h"
 
-class GrCoordTransform;
 class GrGLSLFragmentProcessor;
 class GrPaint;
 class GrPipeline;
@@ -23,9 +22,7 @@ class GrShaderCaps;
 class GrSwizzle;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (half4) and
-    produce an output color. They may reference textures and uniforms. They may use
-    GrCoordTransforms to receive a transformation of the local coordinates that map from local space
-    to the fragment being processed.
+    produce an output color. They may reference textures and uniforms.
  */
 class GrFragmentProcessor : public GrProcessor {
 public:
@@ -121,8 +118,7 @@ public:
     int numTextureSamplers() const { return fTextureSamplerCnt; }
     const TextureSampler& textureSampler(int i) const;
 
-    int numCoordTransforms() const;
-    const GrCoordTransform& coordTransform(int index) const;
+    int numPrimitiveCoordsUsed() const { return this->requiresPrimitiveCoords() ? 1 : 0; }
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
@@ -163,6 +159,11 @@ public:
     // True if this FP's parent invokes it with 'sample(float2)' or a variable 'sample(matrix)'
     bool isSampledWithExplicitCoords() const {
         return SkToBool(fFlags & kSampledWithExplicitCoords_Flag);
+    }
+
+    // True if this FP requires local coordinates to be produced by the primitive processor.
+    bool requiresPrimitiveCoords() const {
+        return this->referencesSampleCoords() && !this->isSampledWithExplicitCoords();
     }
 
     // True if the transform chain from root to this FP introduces perspective into the local
@@ -281,19 +282,9 @@ public:
     // gets the number of Items owned by each FP and GetFn is a member that gets them by index.
     template <typename Item, CountFn Count, GetFn<Item> Get> class FPItemIter;
 
-    // Loops over all the GrCoordTransforms owned by GrFragmentProcessors. The possible sources for
+    // Loops over all the TextureSamplers owned by GrFragmentProcessors. The possible sources for
     // the iteration are the same as those for Iter and the FPs are walked in the same order as
-    // Iter. This provides access to the coord transform and the FP that owns it. Example usage:
-    //   for (GrFragmentProcessor::CoordTransformIter iter(pipeline); iter; ++iter) {
-    //       // transform is const GrCoordTransform& and owningFP is const GrFragmentProcessor&.
-    //       auto [transform, owningFP] = *iter;
-    //       ...
-    //   }
-    // See the ranges below to make this simpler a la range-for loops.
-    using CoordTransformIter = FPItemIter<const GrCoordTransform,
-                                          &GrFragmentProcessor::numCoordTransforms,
-                                          &GrFragmentProcessor::coordTransform>;
-    // Same as CoordTransformIter but for TextureSamplers:
+    // Iter. This provides access to the texture sampler and the FP that owns it. Example usage:
     //   for (GrFragmentProcessor::TextureSamplerIter iter(pipeline); iter; ++iter) {
     //       // TextureSamplerIter is const GrFragmentProcessor::TextureSampler& and
     //       // owningFP is const GrFragmentProcessor&.
@@ -305,7 +296,7 @@ public:
                                           &GrFragmentProcessor::numTextureSamplers,
                                           &GrFragmentProcessor::textureSampler>;
 
-    // Implementation detail for using CoordTransformIter and TextureSamplerIter in range-for loops.
+    // Implementation detail for using TextureSamplerIter in range-for loops.
     template <typename Src, typename ItemIter> class FPItemRange;
 
     // These allow iteration over texture samplers for various FP sources via range-for loops.
@@ -459,8 +450,7 @@ private:
     /**
      * Subclass implements this to support isEqual(). It will only be called if it is known that
      * the two processors are of the same subclass (i.e. they return the same object from
-     * getFactory()). The processor subclass should not compare its coord transforms as that will
-     * be performed automatically in the non-virtual isEqual().
+     * getFactory()).
      */
     virtual bool onIsEqual(const GrFragmentProcessor&) const = 0;
 
