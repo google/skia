@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "00244bac_b5440b49",
+        "filename": "include/private/SkSLSampleMatrix.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-01T13:35:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7b15d00_0c93b2d3",
+      "range": {
+        "startLine": 8,
+        "startChar": 8,
+        "endLine": 8,
+        "endChar": 32
+      },
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d708eef7_c33a5333",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 2
@@ -60,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "afe51e50_e7f7c51d",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-01T13:35:33Z",
+      "side": 1,
+      "message": "Yup. I added support for pass-through sampling to runtime effects (in PS3), which makes it easy to trigger this bug. Originally we\u0027d trigger an assert during an invokeChild. After fixing this spot, we just end up with a shader that doesn\u0027t compile (because it doesn\u0027t have coords declared). Fixing the check below (that you highlighted) corrects that, as you predicted.",
+      "parentUuid": "22a31e1f_9e7aa642",
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a67227a5_03e2d2b6",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 2
@@ -80,6 +122,30 @@
       "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af802eeb_152369d0",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-01T13:35:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a67227a5_03e2d2b6",
+      "range": {
+        "startLine": 155,
+        "startChar": 8,
+        "endLine": 155,
+        "endChar": 48
+      },
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -112,6 +178,24 @@
       "side": 1,
       "message": "I\u0027m not sure. In registerChild(), you only set the sample usage on the child if the sample usage has a matrix. If the usage object also had explicit coords, the original child does get the FP-tracked flag set on it, but that isn\u0027t stored in its SampleUsage instance so cloning would then deviate.",
       "parentUuid": "13b339b2_c8db3392",
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3df3991a_1ac7fef3",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-01T13:35:33Z",
+      "side": 1,
+      "message": "Ah, true. I\u0027m thinking that I should just unconditionally set the usage on the child in registerChild, actually. That should fix this loophole, but it also ensures that in any future situation, we can rely on the child always having an accurate description of how it\u0027s sampled (directly via fUsage, indirectly via flags).",
+      "parentUuid": "b2d8f851_14d6d6aa",
       "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -161,6 +245,30 @@
       "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfe7844b_68a6e91b",
+        "filename": "src/gpu/effects/GrMatrixEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-01T13:35:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81f6ab44_401230c6",
+      "range": {
+        "startLine": 23,
+        "startChar": 8,
+        "endLine": 24,
+        "endChar": 52
+      },
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -219,6 +327,30 @@
       "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d9d1e98_e2cb94c2",
+        "filename": "src/sksl/SkSLSampleMatrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-01T13:35:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc4a5327_6f8c032e",
+      "range": {
+        "startLine": 8,
+        "startChar": 26,
+        "endLine": 8,
+        "endChar": 42
+      },
+      "revId": "bd961e817e04bbb09ee3621007ebe68e827291e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
