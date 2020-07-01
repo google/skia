@@ -56,9 +56,8 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
     SkASSERT(fCurrentDirectCommandList);
 
     SkASSERT(fCurrentFenceValue == 0);
-    SkDEBUGCODE(HRESULT hr = ) fDevice->CreateFence(fCurrentFenceValue, D3D12_FENCE_FLAG_NONE,
-                                                    IID_PPV_ARGS(&fFence));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(fDevice->CreateFence(fCurrentFenceValue, D3D12_FENCE_FLAG_NONE,
+                                              IID_PPV_ARGS(&fFence)));
 
 #if GR_TEST_UTILS
     HRESULT getAnalysis = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&fGraphicsAnalysis));
@@ -1201,7 +1200,7 @@ void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
-    SkDEBUGCODE(HRESULT hr = ) fQueue->Signal(fFence.get(), ++fCurrentFenceValue);
+    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), ++fCurrentFenceValue));
     return fCurrentFenceValue;
 }
 
@@ -1210,8 +1209,7 @@ bool GrD3DGpu::waitFence(GrFence fence) {
         HANDLE fenceEvent;
         fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         SkASSERT(fenceEvent);
-        SkDEBUGCODE(HRESULT hr = ) fFence->SetEventOnCompletion(fence, fenceEvent);
-        SkASSERT(SUCCEEDED(hr));
+        GR_D3D_CALL_ERRCHECK(fFence->SetEventOnCompletion(fence, fenceEvent));
         WaitForSingleObject(fenceEvent, INFINITE);
         CloseHandle(fenceEvent);
     }
