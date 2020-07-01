@@ -115,10 +115,10 @@ class ThresholdRT : public skiagm::GM {
             }
 
             void main(float2 xy, inout half4 color) {
-                half4 before = sample(before_map, xy);
-                half4 after = sample(after_map, xy);
+                half4 before = sample(before_map);
+                half4 after = sample(after_map);
 
-                float m = smooth_cutoff(sample(threshold_map, xy).a);
+                float m = smooth_cutoff(sample(threshold_map).a);
                 color = mix(before, after, half(m));
             }
         )";
@@ -251,7 +251,7 @@ class ColorCubeRT : public skiagm::GM {
             uniform float inv_size;
 
             void main(float2 xy, inout half4 color) {
-                float4 c = float4(unpremul(sample(input, xy)));
+                float4 c = float4(unpremul(sample(input)));
 
                 // Map to cube coords:
                 float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
