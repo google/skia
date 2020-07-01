@@ -7,8 +7,8 @@
 
 #include "src/gpu/GrSurfaceContext.h"
 
-#include "include/private/GrDirectContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/GrAuditTrail.h"

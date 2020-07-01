@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"

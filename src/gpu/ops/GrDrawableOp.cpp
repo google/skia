@@ -8,7 +8,7 @@
 #include "src/gpu/ops/GrDrawableOp.h"
 
 #include "include/core/SkDrawable.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"

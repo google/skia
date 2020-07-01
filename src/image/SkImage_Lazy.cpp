@@ -16,7 +16,7 @@
 #include "src/core/SkNextID.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"

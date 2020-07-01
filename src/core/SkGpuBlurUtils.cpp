@@ -10,7 +10,7 @@
 #include "include/core/SkRect.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"

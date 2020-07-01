@@ -199,7 +199,7 @@ skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
 
 #if SK_SUPPORT_GPU
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrComposeLerpEffect.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"

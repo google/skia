@@ -17,8 +17,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/GrDirectContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "tools/Resources.h"
 
 class GrContext;

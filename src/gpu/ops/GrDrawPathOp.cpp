@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTemplates.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrMemoryPool.h"
