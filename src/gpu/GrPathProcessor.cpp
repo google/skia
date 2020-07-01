@@ -60,8 +60,6 @@ public:
         for (int i = 0; *transformHandler; ++*transformHandler, ++i) {
             const auto& fp = transformHandler->get();
 
-            GrShaderVar fragmentVar;
-            GrShaderVar transformVar;
             if (fp.isSampledWithExplicitCoords()) {
                 transformHandler->omitCoordsForCurrCoordTransform();
             } else {
@@ -74,8 +72,8 @@ public:
                         glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(), &v)
                                 .toIndex();
 #endif
-                fragmentVar = {SkString(v.fsIn()), kFloat2_GrSLType};
-                transformHandler->specifyCoordsForCurrCoordTransform(transformVar, fragmentVar);
+                GrShaderVar fragmentVar = {SkString(v.fsIn()), kFloat2_GrSLType};
+                transformHandler->specifyCoordsForCurrCoordTransform(fragmentVar);
             }
         }
     }

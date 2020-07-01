@@ -14,7 +14,6 @@
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/ops/GrOp.h"
 
-class GrCoordTransform;
 class GrGLSLFragmentProcessor;
 class GrPaint;
 class GrPipeline;
@@ -23,9 +22,7 @@ class GrShaderCaps;
 class GrSwizzle;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (half4) and
-    produce an output color. They may reference textures and uniforms. They may use
-    GrCoordTransforms to receive a transformation of the local coordinates that map from local space
-    to the fragment being processed.
+    produce an output color. They may reference textures and uniforms.
  */
 class GrFragmentProcessor : public GrProcessor {
 public:
@@ -122,7 +119,6 @@ public:
     const TextureSampler& textureSampler(int i) const;
 
     int numCoordTransforms() const;
-    const GrCoordTransform& coordTransform(int index) const;
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
@@ -281,19 +277,9 @@ public:
     // gets the number of Items owned by each FP and GetFn is a member that gets them by index.
     template <typename Item, CountFn Count, GetFn<Item> Get> class FPItemIter;
 
-    // Loops over all the GrCoordTransforms owned by GrFragmentProcessors. The possible sources for
+    // Loops over all the TextureSamplers owner by GrFragmentProcessors. The possible sources for
     // the iteration are the same as those for Iter and the FPs are walked in the same order as
-    // Iter. This provides access to the coord transform and the FP that owns it. Example usage:
-    //   for (GrFragmentProcessor::CoordTransformIter iter(pipeline); iter; ++iter) {
-    //       // transform is const GrCoordTransform& and owningFP is const GrFragmentProcessor&.
-    //       auto [transform, owningFP] = *iter;
-    //       ...
-    //   }
-    // See the ranges below to make this simpler a la range-for loops.
-    using CoordTransformIter = FPItemIter<const GrCoordTransform,
-                                          &GrFragmentProcessor::numCoordTransforms,
-                                          &GrFragmentProcessor::coordTransform>;
-    // Same as CoordTransformIter but for TextureSamplers:
+    // Iter. This provides access to the texture sampler and the FP that owns it. Example usage:
     //   for (GrFragmentProcessor::TextureSamplerIter iter(pipeline); iter; ++iter) {
     //       // TextureSamplerIter is const GrFragmentProcessor::TextureSampler& and
     //       // owningFP is const GrFragmentProcessor&.
@@ -305,7 +291,7 @@ public:
                                           &GrFragmentProcessor::numTextureSamplers,
                                           &GrFragmentProcessor::textureSampler>;
 
-    // Implementation detail for using CoordTransformIter and TextureSamplerIter in range-for loops.
+    // Implementation detail for using TextureSamplerIter in range-for loops.
     template <typename Src, typename ItemIter> class FPItemRange;
 
     // These allow iteration over texture samplers for various FP sources via range-for loops.

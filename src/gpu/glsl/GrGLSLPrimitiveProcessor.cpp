@@ -37,13 +37,15 @@ GrGLSLPrimitiveProcessor::FPCoordTransformHandler::FPCoordTransformHandler(
         : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {}
 
 const GrFragmentProcessor& GrGLSLPrimitiveProcessor::FPCoordTransformHandler::get() const {
-    return (*fIter).second;
+    return *fIter;
 }
 
 GrGLSLPrimitiveProcessor::FPCoordTransformHandler&
 GrGLSLPrimitiveProcessor::FPCoordTransformHandler::operator++() {
     SkASSERT(fAddedCoord);
-    ++fIter;
+    do {
+        ++fIter;
+    } while (fIter && !fIter->numCoordTransforms());
     SkDEBUGCODE(fAddedCoord = false;)
     return *this;
 }

@@ -95,9 +95,6 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
 
     for (int i = 0; *handler; ++*handler, ++i) {
         const auto& fp = handler->get();
-        // FIXME: GrCoordTransform is used solely as a vehicle for iterating over all FPs that
-        // require sample coordinates directly. We should make this iteration lighter weight.
-
         // FPs that use local coordinates need a varying to convey the coordinate. This may be the
         // base GP's local coord if transforms have to be computed in the FS, or it may be a unique
         // varying that computes the equivalent transformation hierarchy in the VS.
@@ -168,7 +165,7 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
         }
 
         if (varyingVar.getType() != kVoid_GrSLType) {
-            handler->specifyCoordsForCurrCoordTransform(GrShaderVar(), varyingVar);
+            handler->specifyCoordsForCurrCoordTransform(varyingVar);
         } else {
             handler->omitCoordsForCurrCoordTransform();
         }

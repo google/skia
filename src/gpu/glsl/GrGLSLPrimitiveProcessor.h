@@ -27,15 +27,10 @@ public:
     using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
 
     struct TransformVar {
-        // The transform as a variable. This may be a kFloat3x3 matrix or a kFloat4 representing
-        // {scaleX, transX, scaleY, transY}. For explicitly sampled FPs this is visible in the
-        // FS. This is not available for NV_path_rendering with non-explicitly sampled FPs.
-        GrShaderVar fTransform;
         // The transformed coordinate output by the vertex shader and consumed by the fragment
         // shader. Only valid for non-explicitly sampled FPs.
         GrShaderVar fVaryingPoint;
     };
-
 
     virtual ~GrGLSLPrimitiveProcessor() {}
 
@@ -59,9 +54,9 @@ public:
         FPCoordTransformHandler& operator++();
 
         // 'args' are constructor params to GrShaderVar.
-        void specifyCoordsForCurrCoordTransform(GrShaderVar transformVar, GrShaderVar varyingVar) {
+        void specifyCoordsForCurrCoordTransform(GrShaderVar varyingVar) {
             SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->push_back({transformVar, varyingVar});
+            fTransformedCoordVars->push_back({varyingVar});
             SkDEBUGCODE(fAddedCoord = true;)
         }
 
@@ -72,9 +67,9 @@ public:
         }
 
     private:
-        GrFragmentProcessor::CoordTransformIter fIter;
-        SkDEBUGCODE(bool                        fAddedCoord = false;)
-        SkTArray<TransformVar>*                 fTransformedCoordVars;
+        GrFragmentProcessor::CIter fIter;
+        SkDEBUGCODE(bool           fAddedCoord = false;)
+        SkTArray<TransformVar>*    fTransformedCoordVars;
     };
 
     struct EmitArgs {
