@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd815915_1f4d0c68",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1020,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-01T19:30:46Z",
+      "side": 1,
+      "message": "I think this has to be a GrDirectContext. In this instance the image may only have a recording context. If the user wants the async call to succeed they need to provide the direct context.",
+      "range": {
+        "startLine": 1020,
+        "startChar": 35,
+        "endLine": 1020,
+        "endChar": 53
+      },
+      "revId": "ade09541862c8302bb63a0e204f55a0f4403965e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
