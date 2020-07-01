@@ -122,15 +122,15 @@ public:
         fTrackedRecycledResources.append(1, &resource);
     }
 
+    void addGpuBuffer(sk_sp<GrGpuBuffer> buffer) {
+        fTrackedGpuBuffers.push_back(std::move(buffer));
+    }
+
     void releaseResources();
 
     void freeGPUData(const GrGpu* gpu, VkCommandPool pool) const;
 
     bool hasWork() const { return fHasWork; }
-
-#ifdef SK_DEBUG
-    bool validateNoSharedImageResources(const GrVkCommandBuffer* other);
-#endif
 
 protected:
     GrVkCommandBuffer(VkCommandBuffer cmdBuffer, bool isWrapped = false)
@@ -147,8 +147,9 @@ protected:
 
     void submitPipelineBarriers(const GrVkGpu* gpu);
 
-    SkTDArray<const GrManagedResource*>   fTrackedResources;
-    SkTDArray<const GrRecycledResource*>  fTrackedRecycledResources;
+    SkTDArray<const GrManagedResource*>  fTrackedResources;
+    SkTDArray<const GrRecycledResource*> fTrackedRecycledResources;
+    SkSTArray<16, sk_sp<GrGpuBuffer>>    fTrackedGpuBuffers;
 
     // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
     // new commands to the buffer;

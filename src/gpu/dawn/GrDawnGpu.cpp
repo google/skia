@@ -10,6 +10,7 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
@@ -113,23 +114,27 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
         , fQueue(device.GetDefaultQueue())
         , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
+        , fStagingBufferManager(this->getContext()->priv().resourceProvider())
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
         , fFinishCallbacks(this) {
     fCaps.reset(new GrDawnCaps(options));
 }
 
 GrDawnGpu::~GrDawnGpu() {
-    while (!this->busyStagingBuffers().isEmpty()) {
+    while (!this->busyStagingBuffers().isEmpty() || !fBusyStagingBuffers.empty()) {
         fDevice.Tick();
+        this->checkCompletedStagingBuffers();
     }
 }
 
 void GrDawnGpu::disconnect(DisconnectType type) {
     if (DisconnectType::kCleanup == type) {
-        while (!this->busyStagingBuffers().isEmpty()) {
+        while (!this->busyStagingBuffers().isEmpty() || !fBusyStagingBuffers.empty()) {
             fDevice.Tick();
+            this->checkCompletedStagingBuffers();
         }
     }
+    fStagingBufferManager.reset();
     fQueue = nullptr;
     fDevice = nullptr;
     INHERITED::disconnect(type);
@@ -477,11 +482,33 @@ void GrDawnGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
     fFinishCallbacks.add(finishedProc, finishedContext);
 }
 
+void GrDawnGpu::checkCompletedStagingBuffers() {
+    while (!fBusyStagingBuffers.empty()) {
+        auto& front = fBusyStagingBuffers.front();
+        if (this->waitFence(front.fFence)) {
+            fBusyStagingBuffers.pop_front();
+        } else {
+            // We expect all the fences to trigger in order so we bail after the first non finished
+            // fence.
+            break;
+        }
+    }
+}
+
 static void callback(WGPUFenceCompletionStatus status, void* userData) {
     *static_cast<bool*>(userData) = true;
 }
 
 bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
+    if (fStagingBufferManager.hasBuffers()) {
+        auto& back = fBusyStagingBuffers.emplace_back();
+        std::vector<sk_sp<GrGpuBuffer>>* buffers = &back.fBuffers;
+        auto moveStagingBuffersToBusy = [buffers](sk_sp<GrGpuBuffer> buffer) {
+            buffers->push_back(std::move(buffer));
+        };
+        fStagingBufferManager.detachBuffers(moveStagingBuffersToBusy);
+    }
+
     this->flushCopyEncoder();
     if (!fCommandBuffers.empty()) {
         fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
@@ -498,6 +525,8 @@ bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
         }
         fFinishCallbacks.callAll(true);
     }
+
+    this->checkCompletedStagingBuffers();
     return true;
 }
 
