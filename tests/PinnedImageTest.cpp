@@ -15,6 +15,7 @@ using namespace sk_gpu_test;
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkImagePriv.h"
 
 static bool surface_is_expected_color(SkSurface* surf, const SkImageInfo& ii, SkColor color) {
@@ -98,12 +99,12 @@ static void cleanup_test(skiatest::Reporter* reporter) {
 
         {
             sk_sp<SkImage> img;
-            GrContext* context = nullptr;
+            GrDirectContext* context = nullptr;
 
             {
                 GrContextFactory testFactory;
                 ContextInfo info = testFactory.getContextInfo(ctxType);
-                context = info.grContext();
+                context = info.directContext();
                 if (!context) {
                     continue;
                 }
@@ -123,6 +124,6 @@ static void cleanup_test(skiatest::Reporter* reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PinnedImageTest, reporter, ctxInfo) {
-    basic_test(reporter, ctxInfo.grContext());
+    basic_test(reporter, ctxInfo.directContext());
     cleanup_test(reporter);
 }
