@@ -860,7 +860,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         GrContextFactory testFactory(options);
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
-        GrContext* ctx = ctxInfo.grContext();
+        auto ctx = ctxInfo.directContext();
         if (!ctx) {
             continue;
         }

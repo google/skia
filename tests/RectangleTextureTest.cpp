@@ -8,7 +8,7 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -87,7 +87,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
 }
 
 static void test_copy_to_surface(skiatest::Reporter* reporter,
-                                 GrContext* context,
+                                 GrDirectContext* context,
                                  GrSurfaceContext* dstContext,
                                  const char* testName) {
 
@@ -116,7 +116,7 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
 
 #ifdef SK_GL
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     static const int kWidth = 16;
     static const int kHeight = 16;

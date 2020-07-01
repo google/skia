@@ -17,6 +17,7 @@
 #include "tools/gpu/FenceSync.h"
 
 class GrContext;
+class GrDirectContext;
 struct GrContextOptions;
 
 namespace sk_gpu_test {
@@ -70,7 +71,7 @@ public:
      * unfinished flushes active on the GPU at a time. If we have 2 outstanding flushes then we will
      * wait on the CPU until one has finished.
      */
-    void flushAndWaitOnSync(GrContext* context);
+    void flushAndWaitOnSync(GrDirectContext* context);
 
     /**
      * This notifies the context that we are deliberately testing abandoning

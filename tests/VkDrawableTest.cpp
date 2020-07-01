@@ -279,7 +279,7 @@ DEF_GPUTEST(VkDrawableImportTest, reporter, options) {
                    reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
         if (ctxInfo.grContext()) {
             sk_gpu_test::ContextInfo child =
-                    factory.getSharedContextInfo(ctxInfo.grContext(), 0);
+                    factory.getSharedContextInfo(ctxInfo.directContext(), 0);
             if (!child.grContext()) {
                 continue;
             }
