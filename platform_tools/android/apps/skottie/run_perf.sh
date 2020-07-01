@@ -16,7 +16,7 @@ declare -a testnames=("movie_loading" "uk" "white_material_wave_loading"
             "check_animation" "confetti" "gears"
             "hand_sanitizer" "heart_preloader" "i_was_scared_after_that_brouhaha"
             "im_thirsty" "true_will" "workout_monkey_stay_healthy"
-            "ripple_loading_animation" "signature" "asdasd")
+            "ripple_loading_animation" "signature" "asdasd" "celebration" "check")
 
 adb root
 # get out of the lock screen
@@ -32,7 +32,7 @@ for renderer in {0,2}
 do
 echo "renderer " ${renderer_names[${renderer}]}
 # iterate over each of the 15 lottie files
-for file in {0..14}
+for file in {0..16}
 do
 if [[ $1 == "delay" ]]; then
   # start program first and wait 7 seconds for program to load fully
