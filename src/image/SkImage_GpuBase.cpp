@@ -87,7 +87,7 @@ bool SkImage_GpuBase::ValidateCompressedBackendTexture(const GrCaps* caps,
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
@@ -158,7 +158,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
 
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                    int srcX, int srcY, CachingHint) const {
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
@@ -196,7 +196,7 @@ GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
 
 GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,
                                                       GrSurfaceOrigin* origin) const {
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         // This image was created with a DDL context and cannot be instantiated.
         return GrBackendTexture();  // invalid
@@ -233,7 +233,7 @@ GrTexture* SkImage_GpuBase::getTexture() const {
         return proxy->peekTexture();
     }
 
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         // This image was created with a DDL context and cannot be instantiated.
         return nullptr;

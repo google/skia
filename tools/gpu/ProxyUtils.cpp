@@ -31,7 +31,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
         return nullptr;
     }
 
-    auto direct = context->priv().asDirectContext();
+    auto direct = context->asDirectContext();
     if (!direct) {
         return nullptr;
     }

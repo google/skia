@@ -138,7 +138,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::readPixels");
 
-    if (!direct && !(direct = fContext->priv().asDirectContext())) {
+    if (!direct && !(direct = fContext->asDirectContext())) {
         return false;
     }
 
@@ -296,7 +296,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::writePixels");
 
-    if (!direct && !(direct = fContext->priv().asDirectContext())) {
+    if (!direct && !(direct = fContext->asDirectContext())) {
         return false;
     }
 
@@ -483,7 +483,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                                  SkFilterQuality rescaleQuality,
                                                  ReadPixelsCallback callback,
                                                  ReadPixelsContext context) {
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
 
     // We implement this by rendering and we don't currently support rendering kUnpremul.
     if (info.alphaType() == kUnpremul_SkAlphaType) {
@@ -667,7 +667,7 @@ void GrSurfaceContext::asyncReadPixels(const SkIRect& rect,
         return;
     }
 
-    auto directContext = fContext->priv().asDirectContext();
+    auto directContext = fContext->asDirectContext();
     SkASSERT(directContext);
     auto mappedBufferManager = directContext->priv().clientMappedBufferManager();
 
@@ -736,7 +736,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorS
     SkASSERT(!dstSize.isZero());
     SkASSERT((dstSize.width() % 2 == 0) && (dstSize.height() % 2 == 0));
 
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         callback(context, nullptr);
         return;
@@ -1170,7 +1170,7 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
                                                                        const SkIRect& rect) {
     SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
     SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         return {};
     }

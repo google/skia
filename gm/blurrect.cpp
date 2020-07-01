@@ -254,7 +254,7 @@ protected:
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (canvas->imageInfo().colorType() == kUnknown_SkColorType ||
-            (canvas->recordingContext() && !canvas->recordingContext()->priv().asDirectContext())) {
+            (canvas->recordingContext() && !canvas->recordingContext()->asDirectContext())) {
             *errorMsg = "Not supported when recording, relies on canvas->makeSurface()";
             return DrawResult::kSkip;
         }

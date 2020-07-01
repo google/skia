@@ -471,7 +471,7 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(reducedClip.width(), reducedClip.height());
 
     SkTaskGroup* taskGroup = nullptr;
-    if (auto direct = context->priv().asDirectContext()) {
+    if (auto direct = context->asDirectContext()) {
         taskGroup = direct->priv().getTaskGroup();
     }
 

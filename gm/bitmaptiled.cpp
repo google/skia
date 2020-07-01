@@ -32,7 +32,7 @@ static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* context,
     const int kBitmapLongEdge = 7 * kTileSize;
     const int kBitmapShortEdge = 1 * kTileSize;
 
-    if (auto direct = context->priv().asDirectContext()) {
+    if (auto direct = context->asDirectContext()) {
         // To trigger tiling, we also need the image to be more than 50% of the cache, so we
         // ensure the cache is sized to make that true.
         const int kBitmapArea = kBitmapLongEdge * kBitmapShortEdge;
