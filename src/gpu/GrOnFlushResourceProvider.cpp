@@ -7,8 +7,8 @@
 
 #include "src/gpu/GrOnFlushResourceProvider.h"
 
-#include "include/private/GrDirectContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrProxyProvider.h"

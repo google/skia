@@ -8,7 +8,7 @@
 #include "src/gpu/ops/GrAtlasTextOp.h"
 
 #include "include/core/SkPoint3.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkStrikeCache.h"

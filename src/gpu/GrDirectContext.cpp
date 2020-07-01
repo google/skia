@@ -6,7 +6,7 @@
  */
 
 
-#include "include/private/GrDirectContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/gpu/GrContextPriv.h"

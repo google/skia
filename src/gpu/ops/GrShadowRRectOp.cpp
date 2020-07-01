@@ -7,7 +7,7 @@
 
 #include "src/gpu/ops/GrShadowRRectOp.h"
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDrawOpTest.h"

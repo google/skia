@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
