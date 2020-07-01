@@ -7,7 +7,7 @@
 
 #include "src/gpu/GrClipStackClip.h"
 
-#include "include/private/GrDirectContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkTaskGroup.h"

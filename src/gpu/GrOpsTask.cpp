@@ -7,7 +7,7 @@
 
 #include "src/gpu/GrOpsTask.h"
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
