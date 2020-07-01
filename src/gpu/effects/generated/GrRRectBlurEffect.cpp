@@ -94,25 +94,25 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        SkString _input9604(args.fInputColor);
-        SkString _sample9604;
+        SkString _input9600(args.fInputColor);
+        SkString _sample9600;
         if (_outer.inputFP_index >= 0) {
-            _sample9604 = this->invokeChild(_outer.inputFP_index, _input9604.c_str(), args);
+            _sample9600 = this->invokeChild(_outer.inputFP_index, _input9600.c_str(), args);
         } else {
-            _sample9604.swap(_input9604);
+            _sample9600.swap(_input9600);
         }
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample9604.c_str());
-        SkString _coords9664("float2(texCoord)");
-        SkString _sample9664;
-        _sample9664 = this->invokeChild(_outer.ninePatchFP_index, args, _coords9664.c_str());
+                _sample9600.c_str());
+        SkString _coords9660("float2(texCoord)");
+        SkString _sample9660;
+        _sample9660 = this->invokeChild(_outer.ninePatchFP_index, args, _coords9660.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s;
 )SkSL",
-                args.fOutputColor, _sample9664.c_str());
+                args.fOutputColor, _sample9660.c_str());
     }
 
 private:
