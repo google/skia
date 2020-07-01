@@ -61,8 +61,8 @@ protected:
         // No fragment shader.
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 const CoordTransformRange& transformRange) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const auto& shader = primProc.cast<GrStencilPathShader>();
         if (!shader.viewMatrix().isIdentity()) {
             pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());

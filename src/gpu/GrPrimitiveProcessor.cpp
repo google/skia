@@ -7,7 +7,6 @@
 
 #include "src/gpu/GrPrimitiveProcessor.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 /**

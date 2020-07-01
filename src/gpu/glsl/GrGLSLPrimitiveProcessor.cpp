@@ -37,9 +37,8 @@ GrGLSLPrimitiveProcessor::FPCoordTransformHandler::FPCoordTransformHandler(
         const GrPipeline& pipeline, SkTArray<TransformVar>* transformedCoordVars)
         : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {}
 
-std::pair<const GrCoordTransform&, const GrFragmentProcessor&>
-GrGLSLPrimitiveProcessor::FPCoordTransformHandler::get() const {
-    return *fIter;
+const GrFragmentProcessor& GrGLSLPrimitiveProcessor::FPCoordTransformHandler::get() const {
+    return (*fIter).second;
 }
 
 GrGLSLPrimitiveProcessor::FPCoordTransformHandler&
