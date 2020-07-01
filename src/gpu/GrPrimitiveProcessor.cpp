@@ -34,8 +34,6 @@ const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::textureSampler
 
 uint32_t GrPrimitiveProcessor::computeCoordTransformsKey(const GrFragmentProcessor& fp) const {
     // This is highly coupled with the code in GrGLSLGeometryProcessor::collectTransforms().
-    // At this point, all effects do not use really coord transforms; they may implicitly report
-    // a noop coord transform but this does not impact the key.
 
     uint32_t key = 0;
     if (fp.isSampledWithExplicitCoords()) {

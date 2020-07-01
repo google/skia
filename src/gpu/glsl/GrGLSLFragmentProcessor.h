@@ -71,8 +71,8 @@ private:
     };
 
 public:
-    using TransformedCoordVars = BuilderInputProvider<GrGLSLPrimitiveProcessor::TransformVar,
-                                                      &GrFragmentProcessor::numCoordTransforms>;
+    using TransformedCoordVars =
+            BuilderInputProvider<GrShaderVar, &GrFragmentProcessor::numVaryingCoordsUsed>;
     using TextureSamplers =
             BuilderInputProvider<SamplerHandle, &GrFragmentProcessor::numTextureSamplers>;
 

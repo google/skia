@@ -71,7 +71,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrContextThreadSafeProxy.cpp",
   "$_src/gpu/GrContextThreadSafeProxyPriv.h",
   "$_src/gpu/GrContext_Base.cpp",
-  "$_src/gpu/GrCoordTransform.h",
   "$_src/gpu/GrCopyRenderTask.cpp",
   "$_src/gpu/GrCopyRenderTask.h",
   "$_src/gpu/GrCpuBuffer.h",

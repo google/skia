@@ -33,17 +33,23 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBu
 //////////////////////////////////////////////////////////////////////////////
 
 GrGLSLPrimitiveProcessor::FPCoordTransformHandler::FPCoordTransformHandler(
-        const GrPipeline& pipeline, SkTArray<TransformVar>* transformedCoordVars)
-        : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {}
+        const GrPipeline& pipeline, SkTArray<GrShaderVar>* transformedCoordVars)
+        : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {
+    while (fIter && !fIter->usesVaryingCoordsDirectly()) {
+        ++fIter;
+    }
+}
 
 const GrFragmentProcessor& GrGLSLPrimitiveProcessor::FPCoordTransformHandler::get() const {
-    return (*fIter).second;
+    return *fIter;
 }
 
 GrGLSLPrimitiveProcessor::FPCoordTransformHandler&
 GrGLSLPrimitiveProcessor::FPCoordTransformHandler::operator++() {
     SkASSERT(fAddedCoord);
-    ++fIter;
+    do {
+        ++fIter;
+    } while (fIter && !fIter->usesVaryingCoordsDirectly());
     SkDEBUGCODE(fAddedCoord = false;)
     return *this;
 }

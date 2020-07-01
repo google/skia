@@ -5,7 +5,6 @@
 * found in the LICENSE file.
 */
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessorAnalysis.h"
@@ -30,8 +29,7 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
             return false;
         }
     }
-    if (this->numCoordTransforms() != that.numCoordTransforms()) {
-        // FPs have either 0 or 1 coord transform, and if they have 1, it's the identity
+    if (this->usesVaryingCoordsDirectly() != that.usesVaryingCoordsDirectly()) {
         return false;
     }
     if (!this->onIsEqual(that)) {
@@ -67,25 +65,6 @@ GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
 const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::textureSampler(int i) const {
     SkASSERT(i >= 0 && i < fTextureSamplerCnt);
     return this->onTextureSampler(i);
-}
-
-int GrFragmentProcessor::numCoordTransforms() const {
-    if (SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) && !this->isSampledWithExplicitCoords()) {
-        // coordTransform(0) will return an implicitly defined coord transform so that varyings are
-        // added for this FP in order to support uniform sample matrix lifting.
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-const GrCoordTransform& GrFragmentProcessor::coordTransform(int i) const {
-    SkASSERT(i == 0 && SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag) &&
-             !this->isSampledWithExplicitCoords());
-    // as things stand, matrices only work when there's a coord transform, so we need to add
-    // an identity transform to keep the downstream code happy
-    static const GrCoordTransform kImplicitIdentity;
-    return kImplicitIdentity;
 }
 
 void GrFragmentProcessor::addAndPushFlagToChildren(PrivateFlags flag) {
