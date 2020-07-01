@@ -116,8 +116,13 @@ public:
     SkPDFIndirectReference currentPage() const {
         return SkASSERT(!fPageRefs.empty()), fPageRefs.back();
     }
-    // Returns -1 if no mark ID.
+    // Used to allow marked content to refer to its corresponding structure
+    // tree node, via a page entry in the parent tree. Returns -1 if no
+    // mark ID.
     int getMarkIdForNodeId(int nodeId);
+    // Used to allow annotations to refer to their corresponding structure
+    // tree node, via the parent tree. Returns -1 if no parent tree ID.
+    int getParentTreeIdForNodeId(int nodeId);
 
     std::unique_ptr<SkPDFArray> getAnnotations();
 
