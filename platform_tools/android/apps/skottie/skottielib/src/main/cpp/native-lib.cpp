@@ -173,7 +173,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDeleteProxy(JNIEn
     delete skottieAnimation;
 }
 
-extern "C" JNIEXPORT void
+extern "C" JNIEXPORT bool
 JNICALL
 Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv *env, jclass clazz,
                                                                      jlong nativeProxy, jint width,
@@ -182,14 +182,14 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
                                                                      jfloat progress) {
     ATRACE_NAME("SkottieDrawFrame");
     if (!nativeProxy) {
-        return;
+        return false;
     }
     SkottieAnimation* skottieAnimation = reinterpret_cast<SkottieAnimation*>(nativeProxy);
 
     auto grContext = skottieAnimation->mRunner->mGrContext;
 
     if (!grContext) {
-        return;
+        return false;
     }
 
     sksg::InvalidationController ic;
@@ -197,7 +197,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
     if (skottieAnimation->mAnimation) {
         skottieAnimation->mAnimation->seek(progress, &ic);
         if (ic.bounds().isEmpty()) {
-            return;
+            return false;
         }
     }
 
@@ -228,6 +228,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
     skottieAnimation->mAnimation->render(canvas, &bounds);
 
     canvas->flush();
+    return true;
 }
 
 extern "C" JNIEXPORT jlong
