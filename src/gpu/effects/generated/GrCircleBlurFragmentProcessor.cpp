@@ -304,25 +304,25 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar));
-        SkString _input13945(args.fInputColor);
-        SkString _sample13945;
+        SkString _input13941(args.fInputColor);
+        SkString _sample13941;
         if (_outer.inputFP_index >= 0) {
-            _sample13945 = this->invokeChild(_outer.inputFP_index, _input13945.c_str(), args);
+            _sample13941 = this->invokeChild(_outer.inputFP_index, _input13941.c_str(), args);
         } else {
-            _sample13945.swap(_input13945);
+            _sample13941.swap(_input13941);
         }
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample13945.c_str());
-        SkString _coords14005("float2(half2(dist, 0.5))");
-        SkString _sample14005;
-        _sample14005 = this->invokeChild(_outer.blurProfile_index, args, _coords14005.c_str());
+                _sample13941.c_str());
+        SkString _coords14001("float2(half2(dist, 0.5))");
+        SkString _sample14001;
+        _sample14001 = this->invokeChild(_outer.blurProfile_index, args, _coords14001.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s.w;
 )SkSL",
-                args.fOutputColor, _sample14005.c_str());
+                args.fOutputColor, _sample14001.c_str());
     }
 
 private:
