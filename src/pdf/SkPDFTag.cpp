@@ -66,6 +66,15 @@ static const char* tag_name_from_type(SkPDF::DocumentStructureType type) {
     SK_ABORT("bad tag");
 }
 
+// The parent tree consists of one entry per page, followed by entries
+// for individual struct tree nodes corresponding to annotations.
+// The page entries get consecutive IDs starting at 0. Since we don't
+// know the total number of pages in the document at the time we start
+// processing annotations, start the parent tree IDs for annotations with
+// a large number, which effectively becomes the maximum number of pages in
+// a PDF we can handle.
+const int kFirstAnnotationParentTreeId = 100000;
+
 struct SkPDFTagNode {
     // Structure element nodes need a unique alphanumeric ID,
     // and we need to be able to output them sorted in lexicographic
@@ -258,6 +267,21 @@ int SkPDFTagTree::getMarkIdForNodeId(int nodeId, unsigned pageIndex) {
     return markId;
 }
 
+int SkPDFTagTree::getParentTreeIdForNodeId(int nodeId) {
+    if (!fRoot) {
+        return -1;
+    }
+    SkPDFTagNode** tagPtr = fNodeMap.find(nodeId);
+    if (!tagPtr) {
+        return -1;
+    }
+
+    int nextParentTreeId = kFirstAnnotationParentTreeId +
+        static_cast<int>(fParentTreeAnnotationNodeIds.size());
+    fParentTreeAnnotationNodeIds.push_back(nodeId);
+    return nextParentTreeId;
+}
+
 static bool can_discard(SkPDFTagNode* node) {
     if (node->fCanDiscard == SkPDFTagNode::kYes) {
         return true;
@@ -363,11 +387,15 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
     structTreeRoot.insertRef("K", PrepareTagTreeToEmit(ref, fRoot, doc));
     structTreeRoot.insertInt("ParentTreeNextKey", SkToInt(pageCount));
 
-    // Build the parent tree, which is a mapping from the marked
-    // content IDs on each page to their corressponding tags.
+    // Build the parent tree, which consists of two things:
+    // (1) For each page, a mapping from the marked content IDs on
+    // each page to their corressponding tags
+    // (2) For each annotation, an indirect reference to that
+    // annotation's struct tree element.
     SkPDFDict parentTree("ParentTree");
     auto parentTreeNums = SkPDFMakeArray();
 
+    // First, one entry per page.
     SkASSERT(fMarksPerPage.size() <= pageCount);
     for (size_t j = 0; j < fMarksPerPage.size(); ++j) {
         const SkTArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[j];
@@ -379,6 +407,22 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
         parentTreeNums->appendInt(j);
         parentTreeNums->appendRef(doc->emit(markToTagArray));
     }
+
+    // Then, one entry per annotation.
+    for (size_t j = 0; j < fParentTreeAnnotationNodeIds.size(); ++j) {
+        int nodeId = fParentTreeAnnotationNodeIds[j];
+        int parentTreeId = kFirstAnnotationParentTreeId +
+            static_cast<int>(j);
+
+        SkPDFTagNode** tagPtr = fNodeMap.find(nodeId);
+        if (!tagPtr) {
+            continue;
+        }
+        SkPDFTagNode* tag = *tagPtr;
+        parentTreeNums->appendInt(parentTreeId);
+        parentTreeNums->appendRef(tag->fRef);
+    }
+
     parentTree.insertObject("Nums", std::move(parentTreeNums));
     structTreeRoot.insertRef("ParentTree", doc->emit(parentTree));
 

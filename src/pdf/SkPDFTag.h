@@ -23,7 +23,14 @@ public:
     ~SkPDFTagTree();
     void init(SkPDF::StructureElementNode*);
     void reset();
+    // Used to allow marked content to refer to its corresponding structure
+    // tree node, via a page entry in the parent tree. Returns -1 if no
+    // mark ID.
     int getMarkIdForNodeId(int nodeId, unsigned pageIndex);
+    // Used to allow annotations to refer to their corresponding structure
+    // tree node, via the parent tree. Returns -1 if no parent tree ID.
+    int getParentTreeIdForNodeId(int nodeId);
+
     void addNodeAnnotation(int nodeId, SkPDFIndirectReference annotationRef);
     SkPDFIndirectReference makeStructTreeRoot(SkPDFDocument* doc);
 
@@ -48,6 +55,7 @@ private:
     SkPDFTagNode* fRoot = nullptr;
     SkTArray<SkTArray<SkPDFTagNode*>> fMarksPerPage;
     std::vector<IDTreeEntry> fIdTreeEntries;
+    std::vector<int> fParentTreeAnnotationNodeIds;
 
     SkPDFTagTree(const SkPDFTagTree&) = delete;
     SkPDFTagTree& operator=(const SkPDFTagTree&) = delete;
