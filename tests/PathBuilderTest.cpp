@@ -163,6 +163,6 @@ DEF_TEST(pathbuilder_make, reporter) {
         pts[i] = {x, y}; vbs[i] = (uint8_t)SkPathVerb::kLine;
     }
     auto p0 = b.detach();
-    auto p1 = SkPathBuilder::Make(pts, N, vbs, N, nullptr, 0, p0.getFillType());
+    auto p1 = SkPath::Make(pts, N, vbs, N, nullptr, 0, p0.getFillType());
     REPORTER_ASSERT(reporter, p0 == p1);
 }
