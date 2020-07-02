@@ -40,6 +40,29 @@ class SkWStream;
 */
 class SK_API SkPath {
 public:
+    /**
+     *  Create a new path with the specified segments.
+     *
+     *  The points and weights arrays are read in order, based on the sequence of verbs.
+     *
+     *  Move    1 point
+     *  Line    1 point
+     *  Quad    2 points
+     *  Conic   2 points and 1 weight
+     *  Cubic   3 points
+     *  Close   0 points
+     *
+     *  If an illegal sequence of verbs is encountered, or the specified number of points
+     *  or weights is not sufficient given the verbs, an empty Path is returned.
+     *
+     *  A legal sequence of verbs consists of any number of Contours. A contour always begins
+     *  with a Move verb, followed by 0 or more segments: Line, Quad, Conic, Cubic, followed
+     *  by an optional Close.
+     */
+    static SkPath Make(const SkPoint[],  int pointCount,
+                       const uint8_t[],  int verbCount,
+                       const SkScalar[], int conicWeightCount,
+                       SkPathFillType, bool isVolatile = false);
 
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
         FillType is set to kWinding.
