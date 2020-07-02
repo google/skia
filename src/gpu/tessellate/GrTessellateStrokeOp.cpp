@@ -43,16 +43,34 @@ GrTessellateStrokeOp::GrTessellateStrokeOp(const SkMatrix& viewMatrix, const SkP
                                            const SkStrokeRec& stroke, GrPaint&& paint,
                                            GrAAType aaType)
         : GrDrawOp(ClassID())
-        , fDevPath(transform_path(viewMatrix, path))
-        , fDevStroke(transform_stroke(viewMatrix, stroke))
-        , fAAType(aaType)
+        , fPathStrokes(transform_path(viewMatrix, path), transform_stroke(viewMatrix, stroke))
+        , fNumVerbs(path.countVerbs())
+        , fNumPoints(path.countPoints())
         , fColor(get_paint_constant_blended_color(paint))
+        , fAAType(aaType)
         , fProcessors(std::move(paint)) {
     SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples support yet.
-    SkRect devBounds = fDevPath.getBounds();
-    float inflationRadius = fDevStroke.getInflationRadius();
+    SkStrokeRec& headStroke = fPathStrokes.head().fStroke;
+    if (headStroke.getJoin() == SkPaint::kMiter_Join) {
+        float miter = headStroke.getMiter();
+        if (miter <= 0) {
+            headStroke.setStrokeParams(headStroke.getCap(), SkPaint::kBevel_Join, 0);
+        } else {
+            fMiterLimitOrZero = miter;
+        }
+    }
+    SkRect devBounds = fPathStrokes.head().fPath.getBounds();
+    float inflationRadius = fPathStrokes.head().fStroke.getInflationRadius();
     devBounds.outset(inflationRadius, inflationRadius);
     this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
+}
+
+GrDrawOp::FixedFunctionFlags GrTessellateStrokeOp::fixedFunctionFlags() const {
+    auto flags = FixedFunctionFlags::kNone;
+    if (GrAAType::kNone != fAAType) {
+        flags |= FixedFunctionFlags::kUsesHWAA;
+    }
+    return flags;
 }
 
 GrProcessorSet::Analysis GrTessellateStrokeOp::finalize(const GrCaps& caps,
@@ -64,12 +82,28 @@ GrProcessorSet::Analysis GrTessellateStrokeOp::finalize(const GrCaps& caps,
                                 clampType, &fColor);
 }
 
-GrDrawOp::FixedFunctionFlags GrTessellateStrokeOp::fixedFunctionFlags() const {
-    auto flags = FixedFunctionFlags::kNone;
-    if (GrAAType::kNone != fAAType) {
-        flags |= FixedFunctionFlags::kUsesHWAA;
+GrOp::CombineResult GrTessellateStrokeOp::onCombineIfPossible(GrOp* grOp,
+                                                              GrRecordingContext::Arenas* arenas,
+                                                              const GrCaps&) {
+    auto* op = grOp->cast<GrTessellateStrokeOp>();
+    if (fColor != op->fColor ||
+        fViewMatrix != op->fViewMatrix ||
+        fAAType != op->fAAType ||
+        ((fMiterLimitOrZero * op->fMiterLimitOrZero != 0) &&  // Are both non-zero?
+         fMiterLimitOrZero != op->fMiterLimitOrZero) ||
+        fProcessors != op->fProcessors) {
+        return CombineResult::kCannotCombine;
     }
-    return flags;
+
+    fPathStrokes.concat(std::move(op->fPathStrokes), arenas->recordTimeAllocator());
+    if (op->fMiterLimitOrZero != 0) {
+        SkASSERT(fMiterLimitOrZero == 0 || fMiterLimitOrZero == op->fMiterLimitOrZero);
+        fMiterLimitOrZero = op->fMiterLimitOrZero;
+    }
+    fNumVerbs += op->fNumVerbs;
+    fNumPoints += op->fNumPoints;
+
+    return CombineResult::kMerged;
 }
 
 void GrTessellateStrokeOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView,
@@ -120,41 +154,42 @@ static void write_square_cap(SkPoint* patch, const SkPoint& endPoint,
 }
 
 void GrTessellateStrokeOp::onPrepare(GrOpFlushState* flushState) {
-    float strokeRadius = fDevStroke.getWidth() * .5f;
-
     // Rebuild the stroke using GrStrokeGeometry.
     GrStrokeGeometry strokeGeometry(flushState->caps().shaderCaps()->maxTessellationSegments(),
-                                    fDevPath.countPoints(), fDevPath.countVerbs());
-    GrStrokeGeometry::InstanceTallies tallies = GrStrokeGeometry::InstanceTallies();
-    strokeGeometry.beginPath(fDevStroke, strokeRadius * 2, &tallies);
-    SkPathVerb previousVerb = SkPathVerb::kClose;
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(fDevPath)) {
-        switch (verb) {
-            case SkPathVerb::kMove:
-                if (previousVerb != SkPathVerb::kClose) {
-                    strokeGeometry.capContourAndExit();
-                }
-                strokeGeometry.moveTo(pts[0]);
-                break;
-            case SkPathVerb::kClose:
-                strokeGeometry.closeContour();
-                break;
-            case SkPathVerb::kLine:
-                strokeGeometry.lineTo(pts[1]);
-                break;
-            case SkPathVerb::kQuad:
-                strokeGeometry.quadraticTo(pts);
-                break;
-            case SkPathVerb::kCubic:
-                strokeGeometry.cubicTo(pts);
-                break;
-            case SkPathVerb::kConic:
-                SkUNREACHABLE;
+                                    fNumPoints, fNumVerbs);
+    for (auto& [path, stroke] : fPathStrokes) {
+        float strokeRadius = stroke.getWidth() * .5f;
+        GrStrokeGeometry::InstanceTallies tallies = GrStrokeGeometry::InstanceTallies();
+        strokeGeometry.beginPath(stroke, strokeRadius * 2, &tallies);
+        SkPathVerb previousVerb = SkPathVerb::kClose;
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+            switch (verb) {
+                case SkPathVerb::kMove:
+                    if (previousVerb != SkPathVerb::kClose) {
+                        strokeGeometry.capContourAndExit();
+                    }
+                    strokeGeometry.moveTo(pts[0]);
+                    break;
+                case SkPathVerb::kClose:
+                    strokeGeometry.closeContour();
+                    break;
+                case SkPathVerb::kLine:
+                    strokeGeometry.lineTo(pts[1]);
+                    break;
+                case SkPathVerb::kQuad:
+                    strokeGeometry.quadraticTo(pts);
+                    break;
+                case SkPathVerb::kCubic:
+                    strokeGeometry.cubicTo(pts);
+                    break;
+                case SkPathVerb::kConic:
+                    SkUNREACHABLE;
+            }
+            previousVerb = verb;
         }
-        previousVerb = verb;
-    }
-    if (previousVerb != SkPathVerb::kClose) {
-        strokeGeometry.capContourAndExit();
+        if (previousVerb != SkPathVerb::kClose) {
+            strokeGeometry.capContourAndExit();
+        }
     }
 
     auto vertexData = static_cast<SkPoint*>(flushState->makeVertexSpace(
@@ -176,11 +211,20 @@ void GrTessellateStrokeOp::onPrepare(GrOpFlushState* flushState) {
     SkPoint firstJoinControlPoint = {0, 0};
     SkPoint lastJoinControlPoint = {0, 0};
     bool hasFirstControlPoint = false;
+    float currStrokeRadius = 0;
+    auto pathStrokesIter = fPathStrokes.begin();
     for (auto verb : strokeGeometry.verbs()) {
         SkPoint patch[4];
         float overrideNumSegments = 0;
         switch (verb) {
             case Verb::kBeginPath:
+                SkASSERT(pathStrokesIter != fPathStrokes.end());
+                pendingJoin = Verb::kEndContour;
+                firstJoinControlPoint = {0, 0};
+                lastJoinControlPoint = {0, 0};
+                hasFirstControlPoint = false;
+                currStrokeRadius = (*pathStrokesIter).fStroke.getWidth() * .5f;
+                ++pathStrokesIter;
                 continue;
             case Verb::kRoundJoin:
             case Verb::kInternalRoundJoin:
@@ -207,7 +251,7 @@ void GrTessellateStrokeOp::onPrepare(GrOpFlushState* flushState) {
                 break;
             case Verb::kSquareCap: {
                 SkASSERT(pendingJoin == Verb::kEndContour);
-                write_square_cap(patch, pathPts[i], lastJoinControlPoint, strokeRadius);
+                write_square_cap(patch, pathPts[i], lastJoinControlPoint, currStrokeRadius);
                 // This cubic steps outside the cap, but if we force it to only have one segment, we
                 // will just get the rectangular cap.
                 overrideNumSegments = 1;
@@ -236,18 +280,18 @@ void GrTessellateStrokeOp::onPrepare(GrOpFlushState* flushState) {
             vertexData[3] = patch[0];
             switch (pendingJoin) {
                 case Verb::kBevelJoin:
-                    vertexData[4].set(1, strokeRadius);
+                    vertexData[4].set(1, currStrokeRadius);
                     break;
                 case Verb::kMiterJoin:
-                    vertexData[4].set(2, strokeRadius);
+                    vertexData[4].set(2, currStrokeRadius);
                     break;
                 case Verb::kRoundJoin:
-                    vertexData[4].set(3, strokeRadius);
+                    vertexData[4].set(3, currStrokeRadius);
                     break;
                 case Verb::kInternalRoundJoin:
                 case Verb::kInternalBevelJoin:
                 default:
-                    vertexData[4].set(4, strokeRadius);
+                    vertexData[4].set(4, currStrokeRadius);
                     break;
             }
             vertexData += 5;
@@ -269,11 +313,12 @@ void GrTessellateStrokeOp::onPrepare(GrOpFlushState* flushState) {
             hasFirstControlPoint = false;
         } else if (verb != Verb::kRotate && verb != Verb::kRoundCap) {
             memcpy(vertexData, patch, sizeof(SkPoint) * 4);
-            vertexData[4].set(-overrideNumSegments, strokeRadius);
+            vertexData[4].set(-overrideNumSegments, currStrokeRadius);
             vertexData += 5;
             fVertexCount += 5;
         }
     }
+    SkASSERT(pathStrokesIter == fPathStrokes.end());
 
     SkASSERT(fVertexCount <= strokeGeometry.verbs().count() * 2 * 5);
     flushState->putBackVertices(strokeGeometry.verbs().count() * 2 * 5 - fVertexCount,
@@ -296,7 +341,8 @@ void GrTessellateStrokeOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
-    GrTessellateStrokeShader strokeShader(SkMatrix::I(), fDevStroke.getMiter(), fColor);
+    SkASSERT(fViewMatrix.isIdentity());  // Only identity matrices supported for now.
+    GrTessellateStrokeShader strokeShader(fViewMatrix, fColor, fMiterLimitOrZero);
     GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline, &strokeShader);
 
     flushState->bindPipelineAndScissorClip(programInfo, this->bounds() /*chainBounds??*/);

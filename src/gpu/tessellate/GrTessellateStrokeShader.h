@@ -23,6 +23,7 @@ class GrGLSLUniformHandler;
 //   (P4.x < 0)  : The patch is still a cubic, but will be linearized into exactly |P4.x| segments.
 //   (P4.x == 1) : The patch is an outer bevel join.
 //   (P4.x == 2) : The patch is an outer miter join.
+//                 (NOTE: If miterLimitOrZero == 0, then miter join patches are illegal.)
 //   (P4.x == 3) : The patch is an outer round join.
 //   (P4.x == 4) : The patch is an inner and outer round join.
 //   P4.y        : Represents the stroke radius.
@@ -37,11 +38,11 @@ class GrGLSLUniformHandler;
 // tessellationPatchVertexCount of 5.
 class GrTessellateStrokeShader : public GrPathShader {
 public:
-    GrTessellateStrokeShader(const SkMatrix& viewMatrix, float miterLimit, SkPMColor4f color)
+    GrTessellateStrokeShader(const SkMatrix& viewMatrix, SkPMColor4f color, float miterLimitOrZero)
             : GrPathShader(kTessellate_GrTessellateStrokeShader_ClassID, viewMatrix,
                            GrPrimitiveType::kPatches, 5)
-            , fMiterLimit(miterLimit)
-            , fColor(color) {
+            , fColor(color)
+            , fMiterLimitOrZero(miterLimitOrZero) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
@@ -63,8 +64,8 @@ private:
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 
-    const float fMiterLimit;
     const SkPMColor4f fColor;
+    const float fMiterLimitOrZero;  // Zero if there will not be any miter join patches.
 
     class Impl;
 };
