@@ -71,9 +71,10 @@ private:
     void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&,
                              const SkV2&, const TextAnimator::DomainSpan*) const;
 
-    void adjustLineTracking(const TextAnimator::ModulatorBuffer&,
-                            const TextAnimator::DomainSpan&,
-                            float line_tracking) const;
+    void adjustLineProps(const TextAnimator::ModulatorBuffer&,
+                         const TextAnimator::DomainSpan&,
+                         const SkV2& line_offset,
+                         float line_tracking) const;
 
     SkV2 fragmentAnchorPoint(const FragmentRec&, const SkV2&,
                              const TextAnimator::DomainSpan*) const;
