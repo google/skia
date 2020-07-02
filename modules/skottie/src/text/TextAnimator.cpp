@@ -123,8 +123,9 @@ TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& pro
     modulated_props.scale    *= SkV3{1,1,1} +
             (static_cast<SkV3>(fTextProps.scale) * 0.01f - SkV3{1,1,1}) * amount;
 
-    // ... as does blur
-    modulated_props.blur += fTextProps.blur * amount;
+    // ... as does blur and line spacing
+    modulated_props.blur         += fTextProps.blur         * amount;
+    modulated_props.line_spacing += fTextProps.line_spacing * amount;
 
     const auto lerp_color = [](SkColor c0, SkColor c1, float t) {
         const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
@@ -158,9 +159,10 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
     : fSelectors(std::move(selectors))
     , fRequiresAnchorPoint(false) {
 
-    acontainer->bind(*abuilder, jprops["p"], fTextProps.position);
-    acontainer->bind(*abuilder, jprops["o"], fTextProps.opacity );
-    acontainer->bind(*abuilder, jprops["t"], fTextProps.tracking);
+    acontainer->bind(*abuilder, jprops["p" ], fTextProps.position);
+    acontainer->bind(*abuilder, jprops["o" ], fTextProps.opacity );
+    acontainer->bind(*abuilder, jprops["t" ], fTextProps.tracking);
+    acontainer->bind(*abuilder, jprops["ls"], fTextProps.line_spacing);
 
     // Scale and rotation are anchor-point-dependent.
     fRequiresAnchorPoint |= acontainer->bind(*abuilder, jprops["s"], fTextProps.scale);
