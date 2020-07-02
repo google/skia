@@ -46,9 +46,9 @@ private:
                  const CoordTransformRange& transformRange) override {
         const auto& shader = primProc.cast<GrTessellateStrokeShader>();
 
-        if (fCachedMiterLimitValue != shader.fMiterLimit) {
-            pdman.set1f(fMiterLimitUniform, shader.fMiterLimit);
-            fCachedMiterLimitValue = shader.fMiterLimit;
+        if (shader.fMiterLimitOrZero != 0 && fCachedMiterLimitValue != shader.fMiterLimitOrZero) {
+            pdman.set1f(fMiterLimitUniform, shader.fMiterLimitOrZero);
+            fCachedMiterLimitValue = shader.fMiterLimitOrZero;
         }
 
         if (fCachedColorValue != shader.fColor) {
