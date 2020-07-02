@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ceaac70e_f235ee95",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-02T03:40:24Z",
+      "side": 1,
+      "message": "If the link-\u003efNodeId id already was associated with a mark id by calling getMarkIdForNodeId, this will add it again and that addition will have a different id. I think this will end up associating the nodeId with markIds which were never written out as MCIDs.",
+      "range": {
+        "startLine": 341,
+        "startChar": 12,
+        "endLine": 341,
+        "endChar": 30
+      },
+      "revId": "02084f4915b745c369f98a29ab1097b8d53048cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff4a4259_097c5c57",
+        "filename": "src/pdf/SkPDFDocumentPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-02T03:40:24Z",
+      "side": 1,
+      "message": "In general, these to names don\u0027t seem to suit what they do. The \u0027get\u0027 implies some form of idempotent behavior, that if one calls this with a given nodeId at one point and then calls it with the same nodeId later that the same value will be returned. But these actually always create a new markId / parentTreeId (actually a structParentId?). They should either be renamed \u0027createNew*\u0027 instead of \u0027get*\u0027 to eliminate the confusion, or they should be modified to actually be getters (which may create a new id if not already present, but that would be opaque to the caller).",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 45
+      },
+      "revId": "02084f4915b745c369f98a29ab1097b8d53048cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3649aa2f_b6bb5898",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-02T03:40:24Z",
+      "side": 1,
+      "message": "So this is actually a map from an ordered list of StructParent Keys (the index, to which some base is added to create the key) to the nodeIds which reference them. From these StructParent Keys the ParentTree is created.\n\nIt seems that different StructParent Keys which pointed to the same node would all be identical mappings.",
+      "range": {
+        "startLine": 412,
+        "startChar": 27,
+        "endLine": 412,
+        "endChar": 55
+      },
+      "revId": "02084f4915b745c369f98a29ab1097b8d53048cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e1201fe_95af8907",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-02T03:40:24Z",
+      "side": 1,
+      "message": "This is a structParentId or the structParentKey, that is to say it isn\u0027t the id of the parent tree, it is the Key of the StructParent for the given nodeId. The StructParent Key just happens to also be used as a Key in the ParentTree.",
+      "range": {
+        "startLine": 414,
+        "startChar": 12,
+        "endLine": 414,
+        "endChar": 22
+      },
+      "revId": "02084f4915b745c369f98a29ab1097b8d53048cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
