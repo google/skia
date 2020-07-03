@@ -9,11 +9,10 @@ _src = get_path_info("src", "abspath")
 skia_sksg_sources = [
   "$_src/SkSGClipEffect.cpp",
   "$_src/SkSGColorFilter.cpp",
-  "$_src/SkSGDashEffect.cpp",
   "$_src/SkSGDraw.cpp",
   "$_src/SkSGEffectNode.cpp",
+  "$_src/SkSGGeometryEffect.cpp",
   "$_src/SkSGGeometryNode.cpp",
-  "$_src/SkSGGeometryTransform.cpp",
   "$_src/SkSGGradient.cpp",
   "$_src/SkSGGroup.cpp",
   "$_src/SkSGImage.cpp",
@@ -29,10 +28,8 @@ skia_sksg_sources = [
   "$_src/SkSGRect.cpp",
   "$_src/SkSGRenderEffect.cpp",
   "$_src/SkSGRenderNode.cpp",
-  "$_src/SkSGRoundEffect.cpp",
   "$_src/SkSGScene.cpp",
   "$_src/SkSGText.cpp",
   "$_src/SkSGTransform.cpp",
   "$_src/SkSGTransformPriv.h",
-  "$_src/SkSGTrimEffect.cpp",
 ]
