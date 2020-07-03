@@ -12,7 +12,10 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
+#include "include/pathops/SkPathOps.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
+
+#include <cmath>
 
 namespace sksg {
 
@@ -128,6 +131,32 @@ SkPath RoundEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
     if (const auto round = SkCornerPathEffect::Make(fRadius)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
         SkAssertResult(round->filterPath(&path, path, &rec, nullptr));
+    }
+
+    return path;
+}
+
+SkPath OffsetEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
+    SkPath path = child->asPath();
+
+    if (!SkScalarNearlyZero(fOffset)) {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(std::abs(fOffset) * 2);
+        paint.setStrokeMiter(fMiterLimit);
+        paint.setStrokeJoin(fJoin);
+
+        SkPath fill_path;
+        paint.getFillPath(path, &fill_path, nullptr);
+
+        if (fOffset > 0) {
+            Op(path, fill_path, kUnion_SkPathOp, &path);
+        } else {
+            Op(path, fill_path, kDifference_SkPathOp, &path);
+        }
+
+        // TODO: this seems to break path combining (winding mismatch?)
+        // Simplify(path, &path);
     }
 
     return path;
