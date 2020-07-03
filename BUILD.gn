@@ -906,7 +906,6 @@ optional("wuffs") {
   enabled = skia_use_wuffs
   public_defines = [
     "SK_HAS_WUFFS_LIBRARY",
-
     # SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2 is temporary, used during a multiple step
     # transition (perhaps a month or two in mid 2020), distributed across
     # multiple repositories:
@@ -925,7 +924,10 @@ optional("wuffs") {
     # Steps 2a and 2b can occur concurrently. Similarly for 3a and 3b.
     #
     # "Users" means software that uses Skia+Wuffs, such as Chromium or Flutter.
-    "SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2",
+    #
+    # Uncommenting the next line (as well as changing "0.2" to "0.3" in
+    # "etc/wuffs-v0.2.c" in third_party/wuffs/BUILD.gn) is step 3b.
+    # "SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2",
   ]
 
   deps = [ "//third_party/wuffs" ]
