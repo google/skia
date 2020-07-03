@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d91ca6f1_c0fe5eed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-03T17:58:27Z",
+      "side": 1,
+      "message": "Pathops mostly works, but it yields some occasional glitches.  Hopefully we can replace with the stroker variant we talked about.",
+      "revId": "70a53c57d855b97bb97c45d6b0cf96eee9a57848",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
