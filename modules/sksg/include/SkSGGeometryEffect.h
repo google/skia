@@ -10,6 +10,7 @@
 
 #include "modules/sksg/include/SkSGGeometryNode.h"
 
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/effects/SkTrimPathEffect.h"
 #include "modules/sksg/include/SkSGTransform.h"
@@ -135,6 +136,31 @@ private:
     SkPath onRevalidateEffect(const sk_sp<GeometryNode>&) override;
 
     SkScalar fRadius = 0;
+
+    using INHERITED = GeometryEffect;
+};
+
+/**
+ * Apply an offset effect to the child geometry.
+ */
+class OffsetEffect final : public GeometryEffect {
+public:
+    static sk_sp<OffsetEffect> Make(sk_sp<GeometryNode> child) {
+        return child ? sk_sp<OffsetEffect>(new OffsetEffect(std::move(child))) : nullptr;
+    }
+
+    SG_ATTRIBUTE(Offset     , SkScalar     , fOffset    )
+    SG_ATTRIBUTE(MiterLimit , SkScalar     , fMiterLimit)
+    SG_ATTRIBUTE(Join       , SkPaint::Join, fJoin      )
+
+private:
+    explicit OffsetEffect(sk_sp<GeometryNode> child) : INHERITED(std::move(child)) {}
+
+    SkPath onRevalidateEffect(const sk_sp<GeometryNode>&) override;
+
+    SkScalar fOffset     = 0,
+             fMiterLimit = 4;
+    SkPaint::Join  fJoin = SkPaint::kMiter_Join;
 
     using INHERITED = GeometryEffect;
 };
