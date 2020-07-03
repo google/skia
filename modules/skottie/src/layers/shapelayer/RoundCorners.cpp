@@ -10,7 +10,7 @@
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
-#include "modules/sksg/include/SkSGRoundEffect.h"
+#include "modules/sksg/include/SkSGGeometryEffect.h"
 
 namespace skottie {
 namespace internal {
