@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4367989_74526d0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-07-04T01:10:13Z",
+      "side": 1,
+      "message": "Reverting is clearly the right thing to do.\n\nNonetheless, the original https://skia-review.googlesource.com/c/skia/+/298616 was green on the two Flutter trybots:\n\nBuild-Debian9-Clang-arm-Release-Flutter_Android_Docker\nBuildStats-Debian9-Clang-arm-Release-Flutter_Android_Docker\n\nDo those Flutter trybot configurations need tweaking to pick up building the flow_unittests somehow?",
+      "revId": "313869939d9dc99071558c5d8fadd4f33650240b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
