@@ -72,12 +72,12 @@ SkScalerContextRec SkScalerContext::PreprocessRec(const SkTypeface& typeface,
     return rec;
 }
 
-SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
+SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkScalerContextEffects& effects,
                                  const SkDescriptor* desc)
     : fRec(PreprocessRec(*typeface, effects, *desc))
-    , fTypeface(std::move(typeface))
     , fPathEffect(sk_ref_sp(effects.fPathEffect))
     , fMaskFilter(sk_ref_sp(effects.fMaskFilter))
+    , fTypefaceID(typeface->uniqueID())
       // Initialize based on our settings. Subclasses can also force this.
     , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != nullptr)
 
@@ -177,8 +177,8 @@ bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, Sk
     return true;
 }
 
-void SkScalerContext::getAdvance(SkGlyph* glyph) {
-    if (generateAdvance(glyph)) {
+void SkScalerContext::getAdvance(SkTypeface* typeface, SkGlyph* glyph) {
+    if (generateAdvance(typeface, glyph)) {
         glyph->fMaskFormat = MASK_FORMAT_JUST_ADVANCE;
     } else {
         this->getMetrics(glyph);
@@ -186,21 +186,21 @@ void SkScalerContext::getAdvance(SkGlyph* glyph) {
     }
 }
 
-void SkScalerContext::getMetrics(SkGlyph* glyph) {
+void SkScalerContext::getMetrics(SkTypeface* typeface, SkGlyph* glyph) {
     bool generatingImageFromPath = fGenerateImageFromPath;
     if (!generatingImageFromPath) {
-        generateMetrics(glyph);
+        generateMetrics(typeface, glyph);
         SkASSERT(glyph->fMaskFormat != MASK_FORMAT_UNKNOWN);
     } else {
         SkPath devPath;
         generatingImageFromPath = this->internalGetPath(glyph->getPackedID(), &devPath);
         if (!generatingImageFromPath) {
-            generateMetrics(glyph);
+            generateMetrics(typeface, glyph);
             SkASSERT(glyph->fMaskFormat != MASK_FORMAT_UNKNOWN);
         } else {
             uint8_t originMaskFormat = glyph->fMaskFormat;
-            if (!generateAdvance(glyph)) {
-                generateMetrics(glyph);
+            if (!generateAdvance(typeface, glyph)) {
+                generateMetrics(typeface, glyph);
             }
 
             if (originMaskFormat != MASK_FORMAT_UNKNOWN) {

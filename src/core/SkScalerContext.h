@@ -263,10 +263,8 @@ public:
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
     };
 
-    SkScalerContext(sk_sp<SkTypeface>, const SkScalerContextEffects&, const SkDescriptor*);
+    SkScalerContext(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*);
     virtual ~SkScalerContext();
-
-    SkTypeface* getTypeface() const { return fTypeface.get(); }
 
     SkMask::Format getMaskFormat() const {
         return (SkMask::Format)fRec.fMaskFormat;
@@ -284,11 +282,11 @@ public:
     bool isVertical() const { return false; }
 
     unsigned    getGlyphCount() { return this->generateGlyphCount(); }
-    void        getAdvance(SkGlyph*);
-    void        getMetrics(SkGlyph*);
-    void        getImage(const SkGlyph&);
-    bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
-    void        getFontMetrics(SkFontMetrics*);
+    void        getAdvance(SkTypeface* typeface, SkGlyph*);
+    void        getMetrics(SkTypeface* typeface, SkGlyph*);
+    void        getImage(SkTypeface* typeface, const SkGlyph&);
+    bool SK_WARN_UNUSED_RESULT getPath(SkTypeface* typeface, SkPackedGlyphID, SkPath*);
+    void        getFontMetrics(SkTypeface* typeface, SkFontMetrics*);
 
     /** Return the size in bytes of the associated gamma lookup table
      */
@@ -367,14 +365,14 @@ protected:
     /** Generates the contents of glyph.fAdvanceX and glyph.fAdvanceY if it can do so quickly.
      *  Returns true if it could, false otherwise.
      */
-    virtual bool generateAdvance(SkGlyph* glyph) = 0;
+    virtual bool generateAdvance(SkTypeface*, SkGlyph* glyph) = 0;
 
     /** Generates the contents of glyph.fWidth, fHeight, fTop, fLeft,
      *  as well as fAdvanceX and fAdvanceY if not already set.
      *
      *  TODO: fMaskFormat is set by getMetrics later; cannot be set here.
      */
-    virtual void generateMetrics(SkGlyph* glyph) = 0;
+    virtual void generateMetrics(SkTypeface*, SkGlyph* glyph) = 0;
 
     /** Generates the contents of glyph.fImage.
      *  When called, glyph.fImage will be pointing to a pre-allocated,
@@ -385,16 +383,16 @@ protected:
      *  Because glyph.imageSize() will determine the size of fImage,
      *  generateMetrics will be called before generateImage.
      */
-    virtual void generateImage(const SkGlyph& glyph) = 0;
+    virtual void generateImage(SkTypeface*, const SkGlyph& glyph) = 0;
 
     /** Sets the passed path to the glyph outline.
      *  If this cannot be done the path is set to empty;
      *  @return false if this glyph does not have any path.
      */
-    virtual bool SK_WARN_UNUSED_RESULT generatePath(SkGlyphID glyphId, SkPath* path) = 0;
+    virtual bool SK_WARN_UNUSED_RESULT generatePath(SkTypeface*, SkGlyphID glyphId, SkPath* path) = 0;
 
     /** Retrieves font metrics. */
-    virtual void generateFontMetrics(SkFontMetrics*) = 0;
+    virtual void generateFontMetrics(SkTypeface*, SkFontMetrics*) = 0;
 
     /** Returns the number of glyphs in the font. */
     virtual unsigned generateGlyphCount() = 0;
@@ -409,12 +407,11 @@ private:
                                             const SkScalerContextEffects& effects,
                                             const SkDescriptor& desc);
 
-    // never null
-    sk_sp<SkTypeface> fTypeface;
-
     // optional objects, which may be null
     sk_sp<SkPathEffect> fPathEffect;
     sk_sp<SkMaskFilter> fMaskFilter;
+
+    uint32_t fTypefaceID;
 
     // if this is set, we draw the image from a path, rather than
     // calling generateImage.

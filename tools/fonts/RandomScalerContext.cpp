@@ -13,6 +13,7 @@
 #include "src/core/SkRectPriv.h"
 #include "tools/fonts/RandomScalerContext.h"
 
+#if 0
 class SkDescriptor;
 
 class RandomScalerContext : public SkScalerContext {
@@ -222,3 +223,5 @@ size_t SkRandomTypeface::onGetTableData(SkFontTableTag tag,
                                         void*          data) const {
     return fProxy->getTableData(tag, offset, length, data);
 }
+#endif
+

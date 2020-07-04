@@ -41,15 +41,15 @@ typedef uint32_t CGRGBPixel;
 
 class SkScalerContext_Mac : public SkScalerContext {
 public:
-    SkScalerContext_Mac(sk_sp<SkTypeface_Mac>, const SkScalerContextEffects&, const SkDescriptor*);
+    SkScalerContext_Mac(SkTypeface_Mac*, const SkScalerContextEffects&, const SkDescriptor*);
 
 protected:
     unsigned generateGlyphCount(void) override;
-    bool generateAdvance(SkGlyph* glyph) override;
-    void generateMetrics(SkGlyph* glyph) override;
-    void generateImage(const SkGlyph& glyph) override;
-    bool generatePath(SkGlyphID glyph, SkPath* path) override;
-    void generateFontMetrics(SkFontMetrics*) override;
+    bool generateAdvance(SkTypeface*, SkGlyph* glyph) override;
+    void generateMetrics(SkTypeface*, SkGlyph* glyph) override;
+    void generateImage(SkTypeface*, const SkGlyph& glyph) override;
+    bool generatePath(SkTypeface*, SkGlyphID glyph, SkPath* path) override;
+    void generateFontMetrics(SkTypeface*, SkFontMetrics*) override;
 
 private:
     class Offscreen {

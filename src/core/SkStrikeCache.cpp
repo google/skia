@@ -93,11 +93,9 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
     }
 
     auto visitor = [&dump](const Strike& strike) {
-        const SkTypeface* face = strike.fScalerCache.getScalerContext()->getTypeface();
         const SkScalerContextRec& rec = strike.fScalerCache.getScalerContext()->getRec();
 
-        SkString fontName;
-        face->getFamilyName(&fontName);
+        SkString fontName("typeface missing");
         // Replace all special characters with '_'.
         for (size_t index = 0; index < fontName.size(); ++index) {
             if (!std::isalnum(fontName[index])) {

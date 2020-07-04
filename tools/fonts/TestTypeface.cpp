@@ -26,6 +26,8 @@
 #include "src/sfnt/SkOTUtils.h"
 #include "tools/fonts/TestTypeface.h"
 
+#if 0
+
 #include <utility>
 
 class SkDescriptor;
@@ -200,3 +202,4 @@ SkScalerContext* TestTypeface::onCreateScalerContext(const SkScalerContextEffect
                                                      const SkDescriptor*           desc) const {
     return new SkTestScalerContext(sk_ref_sp(const_cast<TestTypeface*>(this)), effects, desc);
 }
+#endif

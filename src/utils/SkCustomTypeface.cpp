@@ -177,6 +177,7 @@ SkTypeface::LocalizedStrings* SkUserTypeface::onCreateFamilyNameIterator() const
 
 #include "src/core/SkScalerContext.h"
 
+#if 0
 class SkUserScalerContext : public SkScalerContext {
 public:
     SkUserScalerContext(sk_sp<SkUserTypeface>           face,
@@ -231,6 +232,7 @@ SkScalerContext* SkUserTypeface::onCreateScalerContext(const SkScalerContextEffe
                                                        const SkDescriptor*           desc) const {
     return new SkUserScalerContext(sk_ref_sp(const_cast<SkUserTypeface*>(this)), effects, desc);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

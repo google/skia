@@ -243,18 +243,13 @@ void SkScalerCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkS
 
 void SkScalerCache::dump() const {
     SkAutoMutexExclusive lock{fMu};
-    const SkTypeface* face = fScalerContext->getTypeface();
     const SkScalerContextRec& rec = fScalerContext->getRec();
     SkMatrix matrix;
     rec.getSingleMatrix(&matrix);
     matrix.preScale(SkScalarInvert(rec.fTextSize), SkScalarInvert(rec.fTextSize));
-    SkString name;
-    face->getFamilyName(&name);
 
     SkString msg;
-    SkFontStyle style = face->fontStyle();
-    msg.printf("cache typeface:%x %25s:(%d,%d,%d)\n %s glyphs:%3d",
-               face->uniqueID(), name.c_str(), style.weight(), style.width(), style.slant(),
+    msg.printf("cache %s glyphs:%3d",
                rec.dump().c_str(), fGlyphMap.count());
     SkDebugf("%s\n", msg.c_str());
 }

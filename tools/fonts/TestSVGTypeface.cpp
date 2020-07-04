@@ -46,6 +46,8 @@
 
 #include <utility>
 
+#if 0
+
 class SkDescriptor;
 
 TestSVGTypeface::TestSVGTypeface(const char*                              name,
@@ -1433,3 +1435,5 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("</ttFont>\n");
 }
 #endif  // SK_XML
+
+#endif

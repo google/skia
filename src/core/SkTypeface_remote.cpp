@@ -12,6 +12,8 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkTypeface_remote.h"
 
+#if 0
+
 SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
                                            const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc,
@@ -75,3 +77,5 @@ void SkScalerContextProxy::generateFontMetrics(SkFontMetrics* metrics) {
 SkTypefaceProxy* SkScalerContextProxy::getProxyTypeface() const {
     return (SkTypefaceProxy*)this->getTypeface();
 }
+#endif
+

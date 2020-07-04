@@ -114,14 +114,14 @@ static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix) {
                                   SkScalarToCGFloat(matrix[SkMatrix::kMTransY]));
 }
 
-SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
+SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
                                          const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
-        : INHERITED(std::move(typeface), effects, desc)
+        : INHERITED(typeface, effects, desc)
         , fDoSubPosition(SkToBool(fRec.fFlags & kSubpixelPositioning_Flag))
 
 {
-    CTFontRef ctFont = (CTFontRef)this->getTypeface()->internal_private_getCTFontRef();
+    CTFontRef ctFont = (CTFontRef)typeface->internal_private_getCTFontRef();
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
@@ -144,8 +144,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
     // The transform contains everything except the requested text size.
     // Some properties, like 'trak', are based on the optical text size.
     CGFloat textSize = SkScalarToCGFloat(scale.y());
-    fCTFont = SkCTFontCreateExactCopy(ctFont, textSize,
-                                      ((SkTypeface_Mac*)this->getTypeface())->fOpszVariation);
+    fCTFont = SkCTFontCreateExactCopy(ctFont, textSize, typeface->fOpszVariation);
     fCGFont.reset(CTFontCopyGraphicsFont(fCTFont.get(), nullptr));
 }
 
@@ -272,11 +271,11 @@ unsigned SkScalerContext_Mac::generateGlyphCount(void) {
     return fGlyphCount;
 }
 
-bool SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
+bool SkScalerContext_Mac::generateAdvance(SkTypeface*, SkGlyph* glyph) {
     return false;
 }
 
-void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
+void SkScalerContext_Mac::generateMetrics(SkTypeface*, SkGlyph* glyph) {
     glyph->fMaskFormat = fRec.fMaskFormat;
 
     const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID();
@@ -451,7 +450,7 @@ static SkPMColor cgpixels_to_pmcolor(CGRGBPixel rgb) {
     return SkPackARGB32(a, r, g, b);
 }
 
-void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
+void SkScalerContext_Mac::generateImage(SkTypeface*, const SkGlyph& glyph) {
     CGGlyph cgGlyph = SkTo<CGGlyph>(glyph.getGlyphID());
 
     // FIXME: lcd smoothed un-hinted rasterization unsupported.
@@ -613,7 +612,7 @@ public:
  */
 #define kScaleForSubPixelPositionHinting (4.0f)
 
-bool SkScalerContext_Mac::generatePath(SkGlyphID glyph, SkPath* path) {
+bool SkScalerContext_Mac::generatePath(SkTypeface*, SkGlyphID glyph, SkPath* path) {
     SkScalar scaleX = SK_Scalar1;
     SkScalar scaleY = SK_Scalar1;
 
@@ -665,7 +664,7 @@ bool SkScalerContext_Mac::generatePath(SkGlyphID glyph, SkPath* path) {
     return true;
 }
 
-void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
+void SkScalerContext_Mac::generateFontMetrics(SkTypeface* typeface, SkFontMetrics* metrics) {
     if (nullptr == metrics) {
         return;
     }
@@ -699,7 +698,7 @@ void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
         SK_OT_SHORT sxHeight;
         SK_OT_SHORT sCapHeight;
     } heights;
-    size_t bytesRead = this->getTypeface()->getTableData(
+    size_t bytesRead = typeface->getTableData(
             SkTEndian_SwapBE32(SkOTTableOS2::TAG), offsetof(SkOTTableOS2, version.v2.sxHeight),
             sizeof(heights), &heights);
     if (bytesRead == sizeof(heights)) {

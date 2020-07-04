@@ -29,11 +29,11 @@ public:
 
 protected:
     unsigned generateGlyphCount() override;
-    bool generateAdvance(SkGlyph* glyph) override;
-    void generateMetrics(SkGlyph* glyph) override;
-    void generateImage(const SkGlyph& glyph) override;
-    bool generatePath(SkGlyphID glyphID, SkPath* path) override;
-    void generateFontMetrics(SkFontMetrics* metrics) override;
+    bool generateAdvance(SkTypeface*, SkGlyph* glyph) override;
+    void generateMetrics(SkTypeface*, SkGlyph* glyph) override;
+    void generateImage(SkTypeface*, const SkGlyph& glyph) override;
+    bool generatePath(SkTypeface*, SkGlyphID glyphID, SkPath* path) override;
+    void generateFontMetrics(SkTypeface*, SkFontMetrics* metrics) override;
     SkTypefaceProxy* getProxyTypeface() const;
 
 private:
