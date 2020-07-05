@@ -1027,36 +1027,6 @@ component("skia") {
   }
 }
 
-config("SkiaSharp_public") {
-  include_dirs = [ ]
-  defines = [ "SKIA_C_DLL" ]
-}
-
-skiasharp_build("SkiaSharp") {
-  public_configs = [ ":skia_public", ":SkiaSharp_public" ]
-  configs += skia_library_configs + [ ":SkiaSharp_public" ]
-
-  deps = [
-    ":skia",
-  ]
-
-  # clear the sources and add explicitly
-  set_sources_assignment_filter([])
-  sources = [
-    "src/xamarin/sk_compatpaint.cpp",
-    "src/xamarin/sk_manageddrawable.cpp",
-    "src/xamarin/sk_managedstream.cpp",
-    "src/xamarin/sk_xamarin.cpp",
-    "src/xamarin/SkiaKeeper.c",
-    "src/xamarin/SkCompatPaint.cpp",
-    "src/xamarin/SkManagedDrawable.cpp",
-    "src/xamarin/SkManagedStream.cpp",
-    "src/xamarin/WinRTCompat.cpp",
-  ]
-
-  libs = []
-}
-
 # DebugCanvas used in experimental/wasm-skp-debugger
 if (target_cpu == "wasm") {
   static_library("debugcanvas") {
@@ -2539,4 +2509,109 @@ if (is_ios && skia_use_metal && !skia_enable_flutter_defines) {
       "experimental/skottie_ios",
     ]
   }
+}
+
+# SkiaSharp + HarfBuzzSharp
+
+skiasharp_build("SkiaSharp") {
+  public_configs = [ ":skia_public" ]
+  configs += skia_library_configs
+
+  defines = [ "SKIA_C_DLL" ]
+
+  deps = [
+    ":skia",
+  ]
+
+  # clear the sources and add explicitly
+  set_sources_assignment_filter([])
+  sources = [
+    "src/xamarin/sk_compatpaint.cpp",
+    "src/xamarin/sk_manageddrawable.cpp",
+    "src/xamarin/sk_managedstream.cpp",
+    "src/xamarin/sk_xamarin.cpp",
+    "src/xamarin/SkiaKeeper.c",
+    "src/xamarin/SkCompatPaint.cpp",
+    "src/xamarin/SkManagedDrawable.cpp",
+    "src/xamarin/SkManagedStream.cpp",
+    "src/xamarin/WinRTCompat.cpp",
+  ]
+
+  libs = []
+}
+
+skiasharp_build("HarfBuzzSharp") {
+  cflags = [
+    "-fno-threadsafe-statics",
+  ]
+
+  defines = [
+    "HAVE_FT_GET_VAR_BLEND_COORDINATES",
+    "HAVE_FT_SET_VAR_BLEND_COORDINATES",
+    "HAVE_GETPAGESIZE",
+    "HAVE_INTEL_ATOMIC_PRIMITIVES",
+    "HAVE_MMAP",
+    "HAVE_MPROTECT",
+    "HAVE_NEWLOCALE",
+    "HAVE_PTHREAD",
+    "HAVE_STRTOD_L",
+    "HAVE_SYSCONF",
+    "HAVE_SYS_MMAN_H",
+    "HAVE_UNISTD_H",
+  ]
+
+  _src = "third_party/externals/harfbuzz/src"
+  sources = [
+    "$_src/hb-aat-layout.cc",
+    "$_src/hb-aat-map.cc",
+    "$_src/hb-blob.cc",
+    "$_src/hb-buffer-serialize.cc",
+    "$_src/hb-buffer.cc",
+    "$_src/hb-common.cc",
+    "$_src/hb-face.cc",
+    "$_src/hb-fallback-shape.cc",
+    "$_src/hb-font.cc",
+    "$_src/hb-map.cc",
+    "$_src/hb-ot-cff1-table.cc",
+    "$_src/hb-ot-cff2-table.cc",
+    "$_src/hb-ot-color.cc",
+    "$_src/hb-ot-face.cc",
+    "$_src/hb-ot-font.cc",
+    "$_src/hb-ot-layout.cc",
+    "$_src/hb-ot-map.cc",
+    "$_src/hb-ot-math.cc",
+    "$_src/hb-ot-meta.cc",
+    "$_src/hb-ot-metrics.cc",
+    "$_src/hb-ot-name.cc",
+    "$_src/hb-ot-shape-complex-arabic.cc",
+    "$_src/hb-ot-shape-complex-default.cc",
+    "$_src/hb-ot-shape-complex-hangul.cc",
+    "$_src/hb-ot-shape-complex-hebrew.cc",
+    "$_src/hb-ot-shape-complex-indic-table.cc",
+    "$_src/hb-ot-shape-complex-indic.cc",
+    "$_src/hb-ot-shape-complex-khmer.cc",
+    "$_src/hb-ot-shape-complex-myanmar.cc",
+    "$_src/hb-ot-shape-complex-thai.cc",
+    "$_src/hb-ot-shape-complex-use-table.cc",
+    "$_src/hb-ot-shape-complex-use.cc",
+    "$_src/hb-ot-shape-complex-vowel-constraints.cc",
+    "$_src/hb-ot-shape-fallback.cc",
+    "$_src/hb-ot-shape-normalize.cc",
+    "$_src/hb-ot-shape.cc",
+    "$_src/hb-ot-tag.cc",
+    "$_src/hb-ot-var.cc",
+    "$_src/hb-set.cc",
+    "$_src/hb-shape-plan.cc",
+    "$_src/hb-shape.cc",
+    "$_src/hb-shaper.cc",
+    "$_src/hb-static.cc",
+    "$_src/hb-subset-cff-common.cc",
+    "$_src/hb-subset-cff1.cc",
+    "$_src/hb-subset-cff2.cc",
+    "$_src/hb-subset-input.cc",
+    "$_src/hb-subset-plan.cc",
+    "$_src/hb-subset.cc",
+    "$_src/hb-ucd.cc",
+    "$_src/hb-unicode.cc",
+  ]
 }
