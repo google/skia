@@ -788,8 +788,8 @@ public:
         return this->makeShader(tmx, tmy, &localMatrix);
     }
 
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
-                               SkFilterQuality) const;
+    sk_sp<SkShader> private_makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
+                                       SkFilterQuality) const;
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkShader::kClamp_TileMode to fill drawn area outside SkImage. localMatrix permits

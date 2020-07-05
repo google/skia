@@ -127,7 +127,7 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                SkImageShader::kInheritFromPaint);
 }
 
-sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
+sk_sp<SkShader> SkImage::private_makeShader(SkTileMode tmx, SkTileMode tmy,
                                     const SkMatrix* localMatrix, SkFilterQuality filtering) const {
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy, localMatrix,
                                SkImageShader::FilterEnum(filtering));
