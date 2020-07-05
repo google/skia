@@ -24,6 +24,8 @@ public:
         kHigh,
         // this is the special value for backward compatibility
         kInheritFromPaint,
+        // this signals we should use the new SkFilterOptions
+        kUseFilterOptions,
     };
 
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
@@ -65,15 +67,18 @@ private:
 
     bool doStages(const SkStageRec&, SkImageStageUpdater* = nullptr) const;
 
-    SkFilterQuality resolveFiltering(SkFilterQuality paintQuality) const {
-        return fFiltering == kInheritFromPaint ? paintQuality : (SkFilterQuality)fFiltering;
+    FilterEnum resolveFilterEnum(SkFilterQuality paintQuality) const {
+        return fFilterEnum == kInheritFromPaint ? (FilterEnum)paintQuality : fFilterEnum;
     }
 
     sk_sp<SkImage>   fImage;
     const SkTileMode fTileModeX;
     const SkTileMode fTileModeY;
-    const FilterEnum fFiltering;
+    const FilterEnum fFilterEnum;
     const bool       fClampAsIfUnpremul;
+
+    // only use this if fFilterEnum == kUseFilterOptions
+    SkFilterOptions  fFilterOptions;
 
     friend class SkShaderBase;
     typedef SkShaderBase INHERITED;
