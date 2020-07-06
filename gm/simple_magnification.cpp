@@ -26,9 +26,7 @@
 
 #include <utility>
 
-class GrContext;
-
-static sk_sp<SkImage> make_image(GrContext* context, int size, GrSurfaceOrigin origin) {
+static sk_sp<SkImage> make_image(GrRecordingContext* context, int size, GrSurfaceOrigin origin) {
     if (context) {
         SkImageInfo ii = SkImageInfo::Make(size, size, kN32_SkColorType, kPremul_SkAlphaType);
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, 0,
@@ -114,7 +112,7 @@ protected:
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->recordingContext();
 
         sk_sp<SkImage> bottomLImg = make_image(context, kImgSize, kBottomLeft_GrSurfaceOrigin);
         sk_sp<SkImage> topLImg = make_image(context, kImgSize, kTopLeft_GrSurfaceOrigin);
