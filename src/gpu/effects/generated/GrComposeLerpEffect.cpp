@@ -27,24 +27,25 @@ public:
         (void)weight;
         weightVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                      kFloat_GrSLType, "weight");
-        SkString _sample290;
+        SkString _input273(args.fInputColor);
+        SkString _sample273;
         if (_outer.child1_index >= 0) {
-            _sample290 = this->invokeChild(_outer.child1_index, args);
+            _sample273 = this->invokeChild(_outer.child1_index, _input273.c_str(), args);
         } else {
-            _sample290 = "half4(1)";
+            _sample273.swap(_input273);
         }
-        SkString _sample358;
+        SkString _input323(args.fInputColor);
+        SkString _sample323;
         if (_outer.child2_index >= 0) {
-            _sample358 = this->invokeChild(_outer.child2_index, args);
+            _sample323 = this->invokeChild(_outer.child2_index, _input323.c_str(), args);
         } else {
-            _sample358 = "half4(1)";
+            _sample323.swap(_input323);
         }
         fragBuilder->codeAppendf(
-                R"SkSL(%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));
+                R"SkSL(%s = mix(%s, %s, half(%s));
 )SkSL",
-                args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false", _sample290.c_str(),
-                args.fInputColor, _outer.child2_index >= 0 ? "true" : "false", _sample358.c_str(),
-                args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
+                args.fOutputColor, _sample273.c_str(), _sample323.c_str(),
+                args.fUniformHandler->getUniformCStr(weightVar));
     }
 
 private:
