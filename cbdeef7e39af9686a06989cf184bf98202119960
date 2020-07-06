@@ -16,6 +16,29 @@
       "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f07b34d3_75de32b7",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-06T20:27:55Z",
+      "side": 1,
+      "message": "Further simplification: I realize that the only FPs that the handler iterates over are those that referenceSampleCoords, and are not sampled with explicit coords, so both of these checks are redundant?",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 51
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
