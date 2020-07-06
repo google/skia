@@ -104,3 +104,74 @@ SkBitmapController::State::State(const SkImage_Base* image,
     // and will destroy us if it is nullptr.
     fPixmap.reset(fResultBitmap.info(), fResultBitmap.getPixels(), fResultBitmap.rowBytes());
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkMipmapAccessor::SkMipmapAccessor(const SkImage_Base* image, const SkMatrix& inv,
+                                   SkMipmapMode requestedMode) {
+    fResolvedMode = requestedMode;
+    fUpperWeight = 1;
+
+    auto load_upper_from_base = [&]() {
+        // only do this once
+        if (fBaseStorage.getPixels() == nullptr) {
+            (void)image->getROPixels(&fBaseStorage);
+            fUpper.reset(fBaseStorage.info(), fBaseStorage.getPixels(), fBaseStorage.rowBytes());
+        }
+    };
+
+    float  level = 0;
+    if (requestedMode != SkMipmapMode::kNone) {
+        SkSize scale;
+        if (!inv.decomposeScale(&scale, nullptr)) {
+            fResolvedMode = SkMipmapMode::kNone;
+        } else {
+            level = SkMipMap::ComputeLevel({1/scale.width(), 1/scale.height()});
+            if (level <= 0) {
+                fResolvedMode = SkMipmapMode::kNone;
+                level = 0;
+            }
+        }
+    }
+
+    int levelNum = sk_float_floor2int(level);
+    SkASSERT(levelNum >= 0);
+
+    if (levelNum == 0) {
+        load_upper_from_base();
+    }
+    // load fCurrMip if needed
+    if (levelNum > 0 || (fResolvedMode == SkMipmapMode::kLinear)) {
+        // try to load from the cache
+        fCurrMip.reset(SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(image)));
+        if (!fCurrMip) {
+            fCurrMip.reset(SkMipMapCache::AddAndRef(image));
+            if (!fCurrMip) {
+                load_upper_from_base();
+                fResolvedMode = SkMipmapMode::kNone;
+            }
+        }
+        if (fCurrMip) {
+            SkMipMap::Level levelRec;
+
+            SkASSERT(fResolvedMode != SkMipmapMode::kNone);
+            if (levelNum > 0) {
+                if (fCurrMip->getLevel(levelNum - 1, &levelRec)) {
+                    fUpper = levelRec.fPixmap;
+                } else {
+                    load_upper_from_base();
+                    fResolvedMode = SkMipmapMode::kNone;
+                }
+            }
+
+            if (fResolvedMode == SkMipmapMode::kLinear) {
+                if (fCurrMip->getLevel(levelNum, &levelRec)) {
+                    fLower = levelRec.fPixmap;
+                    fUpperWeight = sk_float_ceil(level) - level;
+                } else {
+                    fResolvedMode = SkMipmapMode::kNearest;
+                }
+            }
+        }
+    }
+}
