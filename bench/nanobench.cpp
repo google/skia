@@ -476,7 +476,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         }
 
         GrContextFactory factory(grContextOpts);
-        if (const GrContext* ctx = factory.get(ctxType, ctxOverrides)) {
+        if (const auto ctx = factory.get(ctxType, ctxOverrides)) {
             GrBackendFormat format = ctx->defaultBackendFormat(colorType, GrRenderable::kYes);
             int supportedSampleCount =
                     ctx->priv().caps()->getRenderTargetSampleCount(sampleCount, format);
