@@ -48,9 +48,9 @@ def RunSteps(api):
 
   docker_args = [
       '--mount',
-      'type=bind,source=%s:target=/LOTTIE_BUILD' % lottie_build,
+      'type=bind,source=%s,target=/LOTTIE_BUILD' % lottie_build,
       '--mount',
-      'type=bind,source=%s:target=/LOTTIE_FILES' % lottie_files_dir
+      'type=bind,source=%s,target=/LOTTIE_FILES' % lottie_files_dir
   ]
 
   args = [
