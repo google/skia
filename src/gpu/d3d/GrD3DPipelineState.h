@@ -30,6 +30,8 @@ public:
                        const UniformInfoArray& uniforms,
                        uint32_t uniformSize,
                        uint32_t numSamplers,
+                       int primitiveProcessorSamplerCnt,
+                       int textureEffectSamplerCnt,
                        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragProcessors,
@@ -65,6 +67,12 @@ public:
     // next frame will get a completely different uniform buffer and/or offset into the buffer. Thus
     // we need a way to mark them all as dirty during submit.
     void markUniformsDirty() { fDataManager.markDirty(); }
+
+    int numFragmentProcessorTextures() const { return fDataManager.numTextureEffectSamplers(); }
+
+    GrD3DTexture* fragmentProcessorTexture(int index) const {
+        return fDataManager.textureEffectSamplerBinding(index).fTexture;
+    }
 
 private:
     /**

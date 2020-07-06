@@ -15,8 +15,11 @@
 #endif
 
 GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                             uint32_t uniformSize)
-        : fUniformSize(uniformSize)
+                                                             uint32_t uniformSize,
+                                                             int primitiveProcessorSamplerCnt,
+                                                             int textureEffectSamplerCnt)
+        : fTextureBindings(primitiveProcessorSamplerCnt, textureEffectSamplerCnt)
+        , fUniformSize(uniformSize)
         , fUniformsDirty(false) {
     fUniformData.reset(uniformSize);
     fUniforms.push_back_n(uniforms.count());

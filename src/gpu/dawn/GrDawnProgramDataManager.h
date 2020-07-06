@@ -12,6 +12,7 @@
 
 #include "src/gpu/GrSPIRVUniformHandler.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
+#include "src/gpu/dawn/GrDawnTexture.h"
 #include "dawn/webgpu_cpp.h"
 
 #include "src/core/SkAutoMalloc.h"
@@ -21,13 +22,30 @@ class GrDawnUniformBuffer;
 
 class GrDawnProgramDataManager : public GrUniformDataManager {
 public:
-    typedef GrSPIRVUniformHandler::UniformInfoArray UniformInfoArray;
+    using UniformInfoArray = GrSPIRVUniformHandler::UniformInfoArray;
+    using SamplerBinding   = GrTextureBindingRecorder<GrDawnTexture>::SamplerBinding;
 
-    GrDawnProgramDataManager(const UniformInfoArray&, uint32_t uniformBufferSize);
+    GrDawnProgramDataManager(const UniformInfoArray&,
+                             uint32_t uniformBufferSize,
+                             int primitiveProcessorSamplerCnt,
+                             int textureEffectSamplerCnt);
+    void bindTextureEffectSampler(const GrTextureEffect& effect,
+                                  SamplerHandle sampler) const override {
+        fTextureBindings.bindTextureEffectSampler(effect, sampler);
+    }
+
+    int numTextureEffectSamplers() const { return fTextureBindings.numTextureEffectSamplers(); }
+
+    SamplerBinding textureEffectSamplerBinding(int index) const {
+        return fTextureBindings.textureEffectSamplerBinding(index);
+    }
 
     uint32_t uniformBufferSize() const { return fUniformSize; }
 
     void uploadUniformBuffers(void* dest) const;
+
+private:
+    GrTextureBindingRecorder<GrDawnTexture> fTextureBindings;
 };
 
 #endif

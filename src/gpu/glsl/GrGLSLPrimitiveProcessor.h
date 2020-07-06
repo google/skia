@@ -16,7 +16,6 @@
 class GrPrimitiveProcessor;
 class GrGLSLFPFragmentBuilder;
 class GrGLSLGeometryBuilder;
-class GrGLSLGPBuilder;
 class GrGLSLVaryingHandler;
 class GrGLSLVertexBuilder;
 class GrShaderCaps;
@@ -24,7 +23,7 @@ class GrShaderCaps;
 class GrGLSLPrimitiveProcessor {
 public:
     using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
-    using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
+    using SamplerHandle         = GrGLSLProgramDataManager::SamplerHandle;
 
     struct TransformVar {
         // The transform as a variable. This may be a kFloat3x3 matrix or a kFloat4 representing
@@ -35,7 +34,6 @@ public:
         // shader. Only valid for non-explicitly sampled FPs.
         GrShaderVar fVaryingPoint;
     };
-
 
     virtual ~GrGLSLPrimitiveProcessor() {}
 

@@ -31,7 +31,6 @@ public:
     }
 
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
 
 private:
     /**
@@ -73,9 +72,6 @@ private:
 public:
     using TransformedCoordVars = BuilderInputProvider<GrGLSLPrimitiveProcessor::TransformVar,
                                                       &GrFragmentProcessor::numCoordTransforms>;
-    using TextureSamplers =
-            BuilderInputProvider<SamplerHandle, &GrFragmentProcessor::numTextureSamplers>;
-
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
         stages.
@@ -96,9 +92,6 @@ public:
         @param localCoord        The name of a local coord reference to a float2 variable.
         @param transformedCoords Fragment shader variables containing the coords computed using
                                  each of the GrFragmentProcessor's GrCoordTransforms.
-        @param texSamplers       Contains one entry for each TextureSampler  of the GrProcessor.
-                                 These can be passed to the builder to emit texture reads in the
-                                 generated code.
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -108,8 +101,7 @@ public:
                  const char* outputColor,
                  const char* inputColor,
                  const char* sampleCoord,
-                 const TransformedCoordVars& transformedCoordVars,
-                 const TextureSamplers& textureSamplers)
+                 const TransformedCoordVars& transformedCoordVars)
                 : fFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
@@ -117,8 +109,7 @@ public:
                 , fOutputColor(outputColor)
                 , fInputColor(inputColor ? inputColor : "half4(1.0)")
                 , fSampleCoord(sampleCoord)
-                , fTransformedCoords(transformedCoordVars)
-                , fTexSamplers(textureSamplers) {}
+                , fTransformedCoords(transformedCoordVars) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -127,7 +118,6 @@ public:
         const char* fInputColor;
         const char* fSampleCoord;
         const TransformedCoordVars& fTransformedCoords;
-        const TextureSamplers& fTexSamplers;
     };
 
     virtual void emitCode(EmitArgs&) = 0;

@@ -48,7 +48,9 @@ public:
             std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
             std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
-            int fFragmentProcessorCnt);
+            int fFragmentProcessorCnt,
+            int primitiveProcessorSamplerCnt,
+            int textureEffectSamplerCnt);
 
     ~GrVkPipelineState();
 

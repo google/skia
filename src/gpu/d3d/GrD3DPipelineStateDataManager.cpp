@@ -11,8 +11,11 @@
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 
 GrD3DPipelineStateDataManager::GrD3DPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                             uint32_t uniformSize)
-    : INHERITED(uniforms.count(), uniformSize) {
+                                                             uint32_t uniformSize,
+                                                             int primitiveProcessorSamplerCnt,
+                                                             int textureEffectSamplerCnt)
+    : INHERITED(uniforms.count(), uniformSize)
+    , fTextureBindings(primitiveProcessorSamplerCnt, textureEffectSamplerCnt) {
     // We must add uniforms in same order as the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
     int i = 0;

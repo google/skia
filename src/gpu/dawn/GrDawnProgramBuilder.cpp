@@ -322,7 +322,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                &fragInputs);
     GrSPIRVUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
     uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
-    sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize));
+    sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize, programInfo.primProc().numTextureSamplers(), builder.textureEffectSamplerCnt()));
     result->fGeometryProcessor = std::move(builder.fGeometryProcessor);
     result->fXferProcessor = std::move(builder.fXferProcessor);
     result->fFragmentProcessors = std::move(builder.fFragmentProcessors);
@@ -563,14 +563,11 @@ wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
                         &binding);
         }
     }
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            auto& s = fpIter->textureSampler(i);
-            set_texture(gpu, s.samplerState(), s.peekTexture(), &bindings, &binding);
-        }
+    for (int i = 0; i < fDataManager.numTextureEffectSamplers(); ++i) {
+        auto [texture, sampler] = fDataManager.textureEffectSamplerBinding(i);
+        set_texture(gpu, sampler, texture, &bindings, &binding);
     }
+
     SkIPoint offset;
     if (GrTexture* dstTexture = pipeline.peekDstTexture(&offset)) {
         set_texture(gpu, GrSamplerState::Filter::kNearest, dstTexture, &bindings, &binding);

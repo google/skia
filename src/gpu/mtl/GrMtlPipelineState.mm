@@ -38,6 +38,8 @@ GrMtlPipelineState::GrMtlPipelineState(
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
         uint32_t uniformBufferSize,
+        int primitiveProcessorSamplerCnt,
+        int textureEffectSamplerCnt,
         uint32_t numSamplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -52,7 +54,7 @@ GrMtlPipelineState::GrMtlPipelineState(
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
-        , fDataManager(uniforms, uniformBufferSize) {
+        , fDataManager(uniforms, uniformBufferSize, primitiveProcessorSamplerCnt, textureEffectSamplerCnt) {
     (void) fPixelFormat; // Suppress unused-var warning.
 }
 
@@ -98,12 +100,9 @@ void GrMtlPipelineState::setTextures(const GrPrimitiveProcessor& primProc,
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    for (; fpIter; ++fpIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            const auto& sampler = fpIter->textureSampler(i);
-            fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(), fGpu);
-        }
+    for (int i = 0; i < fDataManager.numTextureEffectSamplers(); ++i) {
+        auto [texture, samplerState] = fDataManager.textureEffectSamplerBinding(i);
+        fSamplerBindings.emplace_back(samplerState, texture, fGpu);
     }
 
     if (GrTextureProxy* dstTextureProxy = pipeline.dstProxyView().asTextureProxy()) {

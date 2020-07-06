@@ -314,12 +314,14 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
         UniformHandle fClampUni;
         UniformHandle fNormUni;
         UniformHandle fBorderUni;
+        GrGLSLProgramDataManager::SamplerHandle  fSamplerHandle;
 
     public:
         void emitCode(EmitArgs& args) override {
             auto& te = args.fFp.cast<GrTextureEffect>();
             auto* fb = args.fFragBuilder;
 
+            fSamplerHandle = fb->addSamplerForTextureEffect(te);
             if (te.fShaderModes[0] == ShaderMode::kNone &&
                 te.fShaderModes[1] == ShaderMode::kNone) {
                 fb->codeAppendf("%s = ", args.fOutputColor);
@@ -328,12 +330,12 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                     fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
                                                                 kFloat4_GrSLType, "norm", &norm);
                     fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                                    args.fTexSamplers[0],
+                                                    fSamplerHandle,
                                                     SkStringPrintf("%s * %s.zw", args.fSampleCoord,
                                                                    norm).c_str());
                 } else {
                     fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                                    args.fTexSamplers[0], args.fSampleCoord);
+                                                    fSamplerHandle, args.fSampleCoord);
                 }
                 fb->codeAppendf(";");
             } else {
@@ -364,7 +366,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                 fb->codeAppendf("float2 inCoord = %s;", args.fSampleCoord);
 
                 const auto& m = te.fShaderModes;
-                GrTextureType textureType = te.fSampler.proxy()->backendFormat().textureType();
+                GrTextureType textureType = te.view().proxy()->backendFormat().textureType();
                 bool normCoords = textureType != GrTextureType::kRectangle;
 
                 const char* borderName = nullptr;
@@ -453,7 +455,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                     } else {
                         normCoord = coord;
                     }
-                    fb->appendTextureLookup(&result, args.fTexSamplers[0], normCoord.c_str());
+                    fb->appendTextureLookup(&result, fSamplerHandle, normCoord.c_str());
                     return result;
                 };
 
@@ -698,13 +700,14 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
         void onSetData(const GrGLSLProgramDataManager& pdm,
                        const GrFragmentProcessor& fp) override {
             const auto& te = fp.cast<GrTextureEffect>();
+            pdm.bindTextureEffectSampler(te, fSamplerHandle);
 
-            const float w = te.fSampler.peekTexture()->width();
-            const float h = te.fSampler.peekTexture()->height();
+            const float w = te.texture()->width();
+            const float h = te.texture()->height();
             const auto& s = te.fSubset;
             const auto& c = te.fClamp;
 
-            auto type = te.fSampler.peekTexture()->texturePriv().textureType();
+            auto type = te.texture()->texturePriv().textureType();
 
             float norm[4] = {w, h, 1.f/w, 1.f/h};
 
@@ -714,7 +717,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
             }
 
             auto pushRect = [&](float rect[4], UniformHandle uni) {
-                if (te.fSampler.view().origin() == kBottomLeft_GrSurfaceOrigin) {
+                if (te.view().origin() == kBottomLeft_GrSurfaceOrigin) {
                     rect[1] = h - rect[1];
                     rect[3] = h - rect[3];
                     std::swap(rect[1], rect[3]);
@@ -752,6 +755,12 @@ void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyB
 
 bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     auto& that = other.cast<GrTextureEffect>();
+    if (fView != that.fView) {
+        return false;
+    }
+    if (fSamplerState != that.fSamplerState) {
+        return false;
+    }
     if (fShaderModes[0] != that.fShaderModes[0] || fShaderModes[1] != that.fShaderModes[1]) {
         return false;
     }
@@ -768,7 +777,8 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
                                  const Sampling& sampling, bool lazyProxyNormalization)
         : GrFragmentProcessor(kGrTextureEffect_ClassID,
                               ModulateForSamplerOptFlags(alphaType, sampling.hasBorderAlpha()))
-        , fSampler(std::move(view), sampling.fHWSampler)
+        , fView(std::move(view))
+        , fSamplerState(sampling.fHWSampler)
         , fSubset(sampling.fShaderSubset)
         , fClamp(sampling.fShaderClamp)
         , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]}
@@ -777,29 +787,24 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
     // values.
     SkASSERT(fShaderModes[0] != ShaderMode::kNone || (fSubset.fLeft == 0 && fSubset.fRight == 0));
     SkASSERT(fShaderModes[1] != ShaderMode::kNone || (fSubset.fTop == 0 && fSubset.fBottom == 0));
-    this->setTextureSamplerCnt(1);
     this->setUsesSampleCoordsDirectly();
     std::copy_n(sampling.fBorder, 4, fBorder);
 }
 
 GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)
         : INHERITED(kGrTextureEffect_ClassID, src.optimizationFlags())
-        , fSampler(src.fSampler)
+        , fView(src.fView)
+        , fSamplerState(src.fSamplerState)
         , fSubset(src.fSubset)
         , fClamp(src.fClamp)
         , fShaderModes{src.fShaderModes[0], src.fShaderModes[1]}
         , fLazyProxyNormalization(src.fLazyProxyNormalization) {
     std::copy_n(src.fBorder, 4, fBorder);
-    this->setTextureSamplerCnt(1);
     this->setUsesSampleCoordsDirectly();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTextureEffect(*this));
-}
-
-const GrFragmentProcessor::TextureSampler& GrTextureEffect::onTextureSampler(int) const {
-    return fSampler;
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureEffect);

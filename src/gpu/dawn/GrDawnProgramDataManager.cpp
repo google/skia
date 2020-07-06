@@ -10,8 +10,11 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 
 GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& uniforms,
-                                                   uint32_t uniformBufferSize)
-    : GrUniformDataManager(uniforms.count(), uniformBufferSize) {
+                                                   uint32_t uniformBufferSize,
+                                                   int primitiveProcessorSamplerCnt,
+                                                   int textureEffectSamplerCnt)
+    : GrUniformDataManager(uniforms.count(), uniformBufferSize)
+    , fTextureBindings(primitiveProcessorSamplerCnt, textureEffectSamplerCnt) {
     memset(fUniformData.get(), 0, uniformBufferSize);
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.

@@ -234,7 +234,7 @@ GrGLSLUniformHandler::UniformHandle GrSPIRVUniformHandler::internalAddUniformArr
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrSPIRVUniformHandler::addSampler(const GrBackendFormat&,
+GrGLSLUniformHandler::SamplerUniformHandle GrSPIRVUniformHandler::addSampler(const GrBackendFormat&,
                                                                      GrSamplerState,
                                                                      const GrSwizzle& swizzle,
                                                                      const char* name,
@@ -276,15 +276,14 @@ GrGLSLUniformHandler::SamplerHandle GrSPIRVUniformHandler::addSampler(const GrBa
     reference.printf("makeSampler2D(%s, %s)", texInfo.fVariable.getName().c_str(),
                                               info.fVariable.getName().c_str());
     fSamplerReferences.emplace_back(std::move(reference));
-    return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
+    return SamplerUniformHandle(fSamplers.count() - 1);
 }
 
-const char* GrSPIRVUniformHandler::samplerVariable(
-        GrGLSLUniformHandler::SamplerHandle handle) const {
+const char* GrSPIRVUniformHandler::samplerVariable(SamplerUniformHandle handle) const {
     return fSamplerReferences[handle.toIndex()].c_str();
 }
 
-GrSwizzle GrSPIRVUniformHandler::samplerSwizzle(GrGLSLUniformHandler::SamplerHandle handle) const {
+GrSwizzle GrSPIRVUniformHandler::samplerSwizzle(SamplerUniformHandle handle) const {
     return fSamplerSwizzles[handle.toIndex()];
 }
 

@@ -342,5 +342,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),
                                  std::move(fFragmentProcessors),
-                                 fFragmentProcessorCnt);
+                                 fFragmentProcessorCnt,
+                                 fProgramInfo.primProc().numTextureSamplers(),
+                                 this->textureEffectSamplerCnt());
 }

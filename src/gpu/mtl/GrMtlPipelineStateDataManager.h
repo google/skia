@@ -11,6 +11,7 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/mtl/GrMtlUniformHandler.h"
+#include "src/gpu/mtl/GrMtlTexture.h"
 
 #import <Metal/Metal.h>
 
@@ -19,10 +20,13 @@ class GrMtlGpu;
 
 class GrMtlPipelineStateDataManager : public GrGLSLProgramDataManager {
 public:
-    typedef GrMtlUniformHandler::UniformInfoArray UniformInfoArray;
+    using UniformInfoArray = GrMtlUniformHandler::UniformInfoArray;
+    using SamplerBinding   = GrTextureBindingRecorder<GrMtlTexture>::SamplerBinding;
 
     GrMtlPipelineStateDataManager(const UniformInfoArray&,
-                                  uint32_t uniformSize);
+                                  uint32_t uniformSize,
+                                  int primitiveProcessorSamplerCnt,
+                                  int textureEffectSamplerCnt);
 
     void set1i(UniformHandle, int32_t) const override;
     void set1iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
@@ -55,6 +59,17 @@ public:
         SK_ABORT("Only supported in NVPR, which is not in Metal");
     }
 
+    void bindTextureEffectSampler(const GrTextureEffect& effect,
+                                  SamplerHandle sampler) const override {
+        fTextureBindings.bindTextureEffectSampler(effect, sampler);
+    }
+
+    int numTextureEffectSamplers() const { return fTextureBindings.numTextureEffectSamplers(); }
+
+    SamplerBinding textureEffectSamplerBinding(int index) const {
+        return fTextureBindings.textureEffectSamplerBinding(index);
+    }
+
     void uploadAndBindUniformBuffers(GrMtlGpu* gpu,
                                      id<MTLRenderCommandEncoder> renderCmdEncoder) const;
     void resetDirtyBits();
@@ -72,6 +87,8 @@ private:
                                             const float matrices[]) const;
 
     void* getBufferPtrAndMarkDirty(const Uniform& uni) const;
+
+    GrTextureBindingRecorder<GrMtlTexture> fTextureBindings;
 
     uint32_t fUniformSize;
 

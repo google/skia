@@ -63,7 +63,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
+GrGLSLUniformHandler::SamplerUniformHandle GrGLUniformHandler::addSampler(
         const GrBackendFormat& backendFormat, GrSamplerState, const GrSwizzle& swizzle,
         const char* name, const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
@@ -87,7 +87,7 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
         fSamplerSwizzles.push_back(swizzle);
         SkASSERT(fSamplers.count() == fSamplerSwizzles.count());
     }
-    return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
+    return SamplerUniformHandle(fSamplers.count() - 1);
 }
 
 void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {

@@ -31,23 +31,27 @@ void GrProgramInfo::validate(bool flushTime) const {
 }
 
 void GrProgramInfo::checkAllInstantiated() const {
-    for (auto [sampler, fp] : GrFragmentProcessor::PipelineTextureSamplerRange(this->pipeline())) {
-        SkASSERT(sampler.proxy()->isInstantiated());
+    for (const auto& fp : GrFragmentProcessor::CIterRange<GrPipeline>(this->pipeline())) {
+        if (auto te = fp.asTextureEffect()) {
+            SkASSERT(te->isInstantiated());
+        }
     }
 }
 
 void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
-    for (auto [sampler, fp] : GrFragmentProcessor::PipelineTextureSamplerRange(this->pipeline())) {
-        GrTexture* tex = sampler.peekTexture();
-        SkASSERT(tex);
+    for (const auto& fp : GrFragmentProcessor::CIterRange<GrPipeline>(this->pipeline())) {
+        if (auto te = fp.asTextureEffect()) {
+            GrTexture* tex = te->texture();
+            SkASSERT(tex);
 
-        // Ensure mipmaps were all resolved ahead of time by the DAG.
-        if (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter() &&
-            (tex->width() != 1 || tex->height() != 1)) {
-            // There are some cases where we might be given a non-mipmapped texture with a mipmap
-            // filter. See skbug.com/7094.
-            SkASSERT(tex->texturePriv().mipMapped() != GrMipMapped::kYes ||
-                     !tex->texturePriv().mipMapsAreDirty());
+            // Ensure mipmaps were all resolved ahead of time by the DAG.
+            if (GrSamplerState::Filter::kMipMap == te->samplerState().filter() &&
+                (tex->width() != 1 || tex->height() != 1)) {
+                // There are some cases where we might be given a non-mipmapped texture with a mipmap
+                // filter. See skbug.com/7094.
+                SkASSERT(tex->texturePriv().mipMapped() != GrMipMapped::kYes ||
+                         !tex->texturePriv().mipMapsAreDirty());
+            }
         }
     }
 }

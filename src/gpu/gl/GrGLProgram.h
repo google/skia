@@ -58,6 +58,7 @@ public:
                                    std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                                    std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fps,
                                    int fragmentProcessorCnt,
+                                   int textureEffectSamplerCnt,
                                    std::unique_ptr<Attribute[]>,
                                    int vertexAttributeCnt,
                                    int instanceAttributeCnt,
@@ -151,6 +152,7 @@ private:
                 std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                 std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fps,
                 int fragmentProcessorCnt,
+                int textureEffectSamplerCnt,
                 std::unique_ptr<Attribute[]>,
                 int vertexAttributeCnt,
                 int instanceAttributeCnt,
@@ -170,6 +172,8 @@ private:
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
+    int fTextureEffectSamplerCnt; // Temporary. Needed to know how many samplers exist before the XP's
+                           // sampler (if it has one) which is always last.
 
     std::unique_ptr<Attribute[]> fAttributes;
     int fVertexAttributeCnt;

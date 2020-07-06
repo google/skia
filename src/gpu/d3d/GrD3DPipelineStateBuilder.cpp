@@ -651,6 +651,8 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
                                                             fUniformHandles,
                                                             fUniformHandler.fUniforms,
                                                             fUniformHandler.fCurrentUBOOffset,
+                                                            fProgramInfo.primProc().numTextureSamplers(),
+                                                            this->textureEffectSamplerCnt(),
                                                             fUniformHandler.fSamplers.count(),
                                                             std::move(fGeometryProcessor),
                                                             std::move(fXferProcessor),

@@ -9,10 +9,14 @@
 
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkUniformBuffer.h"
+#include "src/gpu/vk/GrVkTexture.h"
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                           uint32_t uniformSize)
-    : INHERITED(uniforms.count(), uniformSize) {
+                                                           uint32_t uniformSize,
+                                                           int primitiveProcessorSamplerCnt,
+                                                           int textureEffectSamplerCnt)
+    : INHERITED(uniforms.count(), uniformSize)
+    , fTextureBindings(primitiveProcessorSamplerCnt, textureEffectSamplerCnt) {
     // We must add uniforms in same order as the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
     int i = 0;

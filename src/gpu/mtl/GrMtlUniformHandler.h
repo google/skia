@@ -69,20 +69,20 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle addSampler(const GrBackendFormat&,
-                             GrSamplerState,
-                             const GrSwizzle&,
-                             const char* name,
-                             const GrShaderCaps*) override;
+    SamplerUniformHandle addSampler(const GrBackendFormat&,
+                                    GrSamplerState,
+                                    const GrSwizzle&,
+                                    const char* name,
+                                    const GrShaderCaps*) override;
 
     int numSamplers() const { return fSamplers.count(); }
-    const char* samplerVariable(SamplerHandle handle) const override {
+    const char* samplerVariable(SamplerUniformHandle handle) const override {
         return fSamplers.item(handle.toIndex()).fVariable.c_str();
     }
-    GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
+    GrSwizzle samplerSwizzle(SamplerUniformHandle handle) const override {
         return fSamplerSwizzles[handle.toIndex()];
     }
-    uint32_t samplerVisibility(SamplerHandle handle) const {
+    uint32_t samplerVisibility(SamplerUniformHandle handle) const {
         return fSamplers.item(handle.toIndex()).fVisibility;
     }
 

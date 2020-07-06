@@ -74,6 +74,8 @@ public:
 
     virtual void forceHighPrecision() = 0;
 
+    using GrGLSLShaderBuilder::addSamplerForTextureEffect;
+
 private:
     /**
      * These are called before/after calling emitCode on a child proc to update mangling.

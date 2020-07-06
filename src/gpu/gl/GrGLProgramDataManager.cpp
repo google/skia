@@ -314,3 +314,8 @@ void GrGLProgramDataManager::setPathFragmentInputTransform(VaryingHandle u,
                                                                   components,
                                                                   matrix);
 }
+
+void GrGLProgramDataManager::bindTextureEffectSampler(const GrTextureEffect& te, SamplerHandle samplerHandle) const {
+    auto texture = static_cast<GrGLTexture*>(te.texture());
+    fGpu->bindTexture(samplerHandle.toIndex(), te.samplerState(), te.view().swizzle(), texture);
+}

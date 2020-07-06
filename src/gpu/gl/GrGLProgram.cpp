@@ -36,6 +36,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fps,
         int fragmentProcessorCnt,
+        int textureEffectSamplerCnt,
         std::unique_ptr<Attribute[]> attributes,
         int vertexAttributeCnt,
         int instanceAttributeCnt,
@@ -51,6 +52,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
                                                std::move(xferProcessor),
                                                std::move(fps),
                                                fragmentProcessorCnt,
+                                               textureEffectSamplerCnt,
                                                std::move(attributes),
                                                vertexAttributeCnt,
                                                instanceAttributeCnt,
@@ -73,6 +75,7 @@ GrGLProgram::GrGLProgram(
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fps,
         int fragmentProcessorCnt,
+        int textureEffectSamplerCnt,
         std::unique_ptr<Attribute[]> attributes,
         int vertexAttributeCnt,
         int instanceAttributeCnt,
@@ -84,6 +87,7 @@ GrGLProgram::GrGLProgram(
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fps))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
+        , fTextureEffectSamplerCnt(textureEffectSamplerCnt)
         , fAttributes(std::move(attributes))
         , fVertexAttributeCnt(vertexAttributeCnt)
         , fInstanceAttributeCnt(instanceAttributeCnt)
@@ -141,16 +145,9 @@ void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc,
         fGpu->bindTexture(i, primProc.textureSampler(i).samplerState(),
                           primProc.textureSampler(i).swizzle(), overrideTexture);
     }
-    int nextTexSamplerIdx = primProc.numTextureSamplers();
 
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    for (; fpIter; ++fpIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            const GrFragmentProcessor::TextureSampler& sampler = fpIter->textureSampler(i);
-            fGpu->bindTexture(nextTexSamplerIdx++, sampler.samplerState(), sampler.view().swizzle(),
-                              static_cast<GrGLTexture*>(sampler.peekTexture()));
-        }
-    }
+    // No GrFragmentProcessors but GrTextureEffect may bind a texture and those bind 1 each.
+    int nextTexSamplerIdx = primProc.numTextureSamplers() + fTextureEffectSamplerCnt;
 
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.peekDstTexture(&offset);

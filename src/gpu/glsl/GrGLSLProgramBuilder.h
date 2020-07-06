@@ -30,7 +30,7 @@ class GrShaderCaps;
 class GrGLSLProgramBuilder {
 public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using SamplerHandle      = GrGLSLProgramDataManager::SamplerHandle;
 
     virtual ~GrGLSLProgramBuilder() {}
 
@@ -57,18 +57,24 @@ public:
         SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
         return fRenderTarget->renderTargetPriv().getSampleLocations();
     }
-
+    int textureEffectSamplerCnt() const { return fTextureEffectSamplerCnt; }
     const GrProgramDesc& desc() const { return fDesc; }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
+    SamplerHandle addSamplerForTextureEffect(const GrTextureEffect& effect);
+
+    GrGLSLUniformHandler::SamplerUniformHandle samplerUniformHandle(SamplerHandle h) const {
+        return fSamplerUniforms[h.toIndex()];
+    }
+
     const char* samplerVariable(SamplerHandle handle) const {
-        return this->uniformHandler()->samplerVariable(handle);
+        return this->uniformHandler()->samplerVariable(this->samplerUniformHandle(handle));
     }
 
     GrSwizzle samplerSwizzle(SamplerHandle handle) const {
         if (this->caps()->shaderCaps()->textureSwizzleAppliedInShader()) {
-            return this->uniformHandler()->samplerSwizzle(handle);
+            return this->uniformHandler()->samplerSwizzle(this->samplerUniformHandle(handle));
         }
         return GrSwizzle::RGBA();
     }
@@ -171,8 +177,9 @@ private:
     void verify(const GrXferProcessor&);
 #endif
 
+    int fTextureEffectSamplerCnt = 0;
+    std::vector<GrGLSLUniformHandler::SamplerUniformHandle> fSamplerUniforms;
     // These are used to check that we don't excede the allowable number of resources in a shader.
-    int fNumFragmentSamplers;
     SkSTArray<4, GrGLSLPrimitiveProcessor::TransformVar> fTransformedCoordVars;
 };
 

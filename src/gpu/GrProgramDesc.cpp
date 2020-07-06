@@ -58,20 +58,14 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
 
 static void add_fp_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
                                 const GrCaps& caps) {
-    int numTextureSamplers = fp.numTextureSamplers();
-    if (!numTextureSamplers) {
+    const auto* te = fp.asTextureEffect();
+    if (!te) {
         return;
     }
-    for (int i = 0; i < numTextureSamplers; ++i) {
-        const GrFragmentProcessor::TextureSampler& sampler = fp.textureSampler(i);
-        const GrBackendFormat& backendFormat = sampler.view().proxy()->backendFormat();
-
-        uint32_t samplerKey = sampler_key(backendFormat.textureType(), sampler.view().swizzle(),
-                                          caps);
-        b->add32(samplerKey);
-
-        caps.addExtraSamplerKey(b, sampler.samplerState(), backendFormat);
-    }
+    const GrBackendFormat& backendFormat = te->view().proxy()->backendFormat();
+    uint32_t samplerKey = sampler_key(backendFormat.textureType(), te->view().swizzle(), caps);
+    b->add32(samplerKey);
+    caps.addExtraSamplerKey(b, te->samplerState(), backendFormat);
 }
 
 static void add_pp_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcessor& pp,

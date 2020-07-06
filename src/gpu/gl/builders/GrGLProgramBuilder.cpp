@@ -560,6 +560,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
                              std::move(fXferProcessor),
                              std::move(fFragmentProcessors),
                              fFragmentProcessorCnt,
+                             this->textureEffectSamplerCnt(),
                              std::move(fAttributes),
                              fVertexAttributeCnt,
                              fInstanceAttributeCnt,

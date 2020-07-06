@@ -50,8 +50,10 @@ struct GrDawnProgram : public SkRefCnt {
     };
     typedef GrGLSLBuiltinUniformHandles BuiltinUniformHandles;
     GrDawnProgram(const GrSPIRVUniformHandler::UniformInfoArray& uniforms,
-                  uint32_t uniformBufferSize)
-      : fDataManager(uniforms, uniformBufferSize) {
+                  uint32_t uniformBufferSize,
+                  int primitiveProcessorSamplerCnt,
+                  int textureEffectSamplerCnt)
+      : fDataManager(uniforms, uniformBufferSize, primitiveProcessorSamplerCnt, textureEffectSamplerCnt) {
     }
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;

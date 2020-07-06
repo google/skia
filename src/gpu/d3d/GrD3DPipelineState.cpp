@@ -24,6 +24,8 @@ GrD3DPipelineState::GrD3DPipelineState(
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms, uint32_t uniformSize,
         uint32_t numSamplers,
+        int primitiveProcessorSamplerCnt,
+        int textureEffectSamplerCnt,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
@@ -37,7 +39,7 @@ GrD3DPipelineState::GrD3DPipelineState(
     , fXferProcessor(std::move(xferProcessor))
     , fFragmentProcessors(std::move(fragmentProcessors))
     , fFragmentProcessorCnt(fragmentProcessorCnt)
-    , fDataManager(uniforms, uniformSize)
+    , fDataManager(uniforms, uniformSize, primitiveProcessorSamplerCnt, textureEffectSamplerCnt)
     , fNumSamplers(numSamplers)
     , fVertexStride(vertexStride)
     , fInstanceStride(instanceStride) {}
@@ -111,20 +113,14 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProc
         rangeSizes[currTextureBinding++] = 1;
     }
 
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            const auto& sampler = fpIter->textureSampler(i);
-            auto texture = static_cast<GrD3DTexture*>(sampler.peekTexture());
-            shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
-            samplers[currTextureBinding] =
-                    gpu->resourceProvider().findOrCreateCompatibleSampler(sampler.samplerState());
-            gpu->currentCommandList()->addSampledTextureRef(texture);
-            rangeSizes[currTextureBinding++] = 1;
-        }
+    for (int i = 0; i < fDataManager.numTextureEffectSamplers(); ++i) {
+        auto [texture, samplerState] = fDataManager.textureEffectSamplerBinding(i);
+        shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
+        samplers[currTextureBinding] =
+                gpu->resourceProvider().findOrCreateCompatibleSampler(samplerState);
+        gpu->currentCommandList()->addSampledTextureRef(texture);
+        rangeSizes[currTextureBinding++] = 1;
     }
-    SkASSERT(!fpIter && !glslIter);
 
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
         auto texture = static_cast<GrD3DTexture*>(dstTexture);

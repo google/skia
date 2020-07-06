@@ -17,6 +17,7 @@
 #include <stdarg.h>
 
 class GrGLSLColorSpaceXformHelper;
+class GrTextureEffect;
 
 /**
   base class for all shaders builders
@@ -26,7 +27,7 @@ public:
     GrGLSLShaderBuilder(GrGLSLProgramBuilder* program);
     virtual ~GrGLSLShaderBuilder() {}
 
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using SamplerHandle      = GrGLSLProgramDataManager::SamplerHandle;
 
     /** Appends a 2D texture sample with projection if necessary. The vec length and swizzle
         order of the result depends on the GrProcessor::TextureSampler associated with the
@@ -153,6 +154,8 @@ public:
     };
 
 protected:
+    SamplerHandle addSamplerForTextureEffect(const GrTextureEffect& effect);
+
     typedef GrTAllocator<GrShaderVar> VarArray;
     void appendDecls(const VarArray& vars, SkString* out) const;
 

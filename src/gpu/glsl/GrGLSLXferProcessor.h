@@ -23,7 +23,7 @@ public:
     GrGLSLXferProcessor() {}
     virtual ~GrGLSLXferProcessor() {}
 
-    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
+    using SamplerHandle = GrGLSLProgramDataManager::SamplerHandle;
 
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,

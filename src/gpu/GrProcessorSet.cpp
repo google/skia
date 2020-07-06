@@ -12,6 +12,7 @@
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 const GrProcessorSet& GrProcessorSet::EmptySet() {
     static GrProcessorSet gEmpty(GrProcessorSet::Empty::kEmpty);
@@ -253,8 +254,10 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
 }
 
 void GrProcessorSet::visitProxies(const GrOp::VisitProxyFunc& func) const {
-    for (auto [sampler, fp] : GrFragmentProcessor::ProcessorSetTextureSamplerRange(*this)) {
-        bool mipped = (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter());
-        func(sampler.view().proxy(), GrMipMapped(mipped));
+    for (const auto& fp : GrFragmentProcessor::CIterRange<GrProcessorSet>(*this)) {
+        if (auto te = fp.asTextureEffect()) {
+            bool mipped = (GrSamplerState::Filter::kMipMap == te->samplerState().filter());
+            func(te->view().proxy(), GrMipMapped(mipped));
+        }
     }
 }

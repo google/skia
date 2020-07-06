@@ -241,6 +241,10 @@ bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionN
     return true;
 }
 
+GrGLSLShaderBuilder::SamplerHandle GrGLSLShaderBuilder::addSamplerForTextureEffect(const GrTextureEffect& effect) {
+    return fProgramBuilder->addSamplerForTextureEffect(effect);
+}
+
 void GrGLSLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
     for (const auto& v : vars.items()) {
         v.appendDecl(fProgramBuilder->shaderCaps(), out);

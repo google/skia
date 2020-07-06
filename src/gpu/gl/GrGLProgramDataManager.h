@@ -78,6 +78,8 @@ public:
     void setPathFragmentInputTransform(VaryingHandle u, int components,
                                        const SkMatrix& matrix) const override;
 
+    void bindTextureEffectSampler(const GrTextureEffect&, SamplerHandle samplerHandle) const override;
+
 private:
     enum {
         kUnusedUniform = -1,

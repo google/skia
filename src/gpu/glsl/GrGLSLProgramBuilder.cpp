@@ -31,8 +31,7 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget,
         , fDesc(desc)
         , fProgramInfo(programInfo)
         , fGeometryProcessor(nullptr)
-        , fXferProcessor(nullptr)
-        , fNumFragmentSamplers(0) {}
+        , fXferProcessor(nullptr) {}
 
 void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
                                       uint32_t featureBit,
@@ -172,23 +171,9 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
 
     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
 
-    SkSTArray<4, SamplerHandle> texSamplers;
-    int samplerIdx = 0;
-    for (const auto& subFP : GrFragmentProcessor::FPCRange(fp)) {
-        for (int i = 0; i < subFP.numTextureSamplers(); ++i) {
-            SkString name;
-            name.printf("TextureSampler_%d", samplerIdx++);
-            const auto& sampler = subFP.textureSampler(i);
-            texSamplers.emplace_back(this->emitSampler(sampler.view().proxy()->backendFormat(),
-                                                       sampler.samplerState(),
-                                                       sampler.view().swizzle(),
-                                                       name.c_str()));
-        }
-    }
     const GrGLSLPrimitiveProcessor::TransformVar* coordVars = fTransformedCoordVars.begin() +
                                                               transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
-    GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, texSamplers.begin());
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
                                            this->shaderCaps(),
@@ -196,8 +181,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            output.c_str(),
                                            input.c_str(),
                                            "_coords",
-                                           coords,
-                                           textureSamplers);
+                                           coords);
 
     if (fp.referencesSampleCoords()) {
         // The fp's generated code expects a _coords variable, but we're a the root so _coords
@@ -293,14 +277,16 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(
         const GrBackendFormat& backendFormat, GrSamplerState state, const GrSwizzle& swizzle,
         const char* name) {
-    ++fNumFragmentSamplers;
-    return this->uniformHandler()->addSampler(backendFormat, state, swizzle, name,
+    GrGLSLUniformHandler::SamplerUniformHandle uniformHandle =
+            this->uniformHandler()->addSampler(backendFormat, state, swizzle, name,
                                               this->shaderCaps());
+    fSamplerUniforms.push_back(uniformHandle);
+    return SamplerHandle(fSamplerUniforms.size() - 1);
 }
 
 bool GrGLSLProgramBuilder::checkSamplerCounts() {
     const GrShaderCaps& shaderCaps = *this->shaderCaps();
-    if (fNumFragmentSamplers > shaderCaps.maxFragmentSamplers()) {
+    if (fSamplerUniforms.size() > static_cast<size_t>(shaderCaps.maxFragmentSamplers())) {
         GrCapsDebugf(this->caps(), "Program would use too many fragment samplers\n");
         return false;
     }
@@ -351,6 +337,11 @@ void GrGLSLProgramBuilder::nameExpression(SkString* output, const char* baseName
     }
     fFS.codeAppendf("half4 %s;", outName.c_str());
     *output = outName;
+}
+
+GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::addSamplerForTextureEffect(const GrTextureEffect& effect) {
+    ++fTextureEffectSamplerCnt;
+    return this->emitSampler(effect.texture()->backendFormat(), effect.samplerState(), effect.view().swizzle(), "sampler");
 }
 
 void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
