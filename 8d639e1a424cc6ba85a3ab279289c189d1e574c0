@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af36d0f0_24037483",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T19:27:00Z",
+      "side": 1,
+      "message": "Looks like some things are missing import/export tags like SK_API/SK_SPI?\nPlease revert if you don\u0027t have a quick fix?\n\nFAILED: skparagraph.dll skparagraph.dll.lib skparagraph.dll.pdb \n\"c:\\b\\s\\w\\ir\\win_toolchain/VC/Tools/MSVC/14.24.28314/bin/HostX64/x64/link.exe\" /nologo /IMPLIB:./skparagraph.dll.lib /DLL /OUT:./skparagraph.dll /PDB:./skparagraph.dll.pdb @./skparagraph.dll.rsp\n\nskparagraph.ParagraphImpl.obj : error LNK2019: unresolved external symbol \"class std::unique_ptr\u003cclass skia::SkUnicode,struct std::default_delete\u003cclass skia::SkUnicode\u003e \u003e __cdecl skia::SkUnicode_Make(void)\" (?SkUnicode_Make@skia@@YA?AV?$unique_ptr@VSkUnicode@skia@@U?$default_delete@VSkUnicode@skia@@@std@@@std@@XZ) referenced in function \"public: __cdecl skia::textlayout::ParagraphImpl::ParagraphImpl(class SkString const \u0026,struct skia::textlayout::ParagraphStyle,class SkTArray\u003cstruct skia::textlayout::Block,1\u003e,class SkTArray\u003cstruct skia::textlayout::Placeholder,1\u003e,class sk_sp\u003cclass skia::textlayout::FontCollection\u003e)\" (??0ParagraphImpl@textlayout@skia@@QEAA@AEBVSkString@@UParagraphStyle@12@V?$SkTArray@UBlock@textlayout@skia@@$00@@V?$SkTArray@UPlaceholder@textlayout@skia@@$00@@V?$sk_sp@VFontCollection@textlayout@skia@@@@@Z)\n\nskparagraph.TextLine.obj : error LNK2019: unresolved external symbol \"public: static void __cdecl skia::SkUnicode::ReorderVisual(unsigned char const * const,int,int * const)\" (?ReorderVisual@SkUnicode@skia@@SAXQEBEHQEAH@Z) referenced in function \"public: __cdecl skia::textlayout::TextLine::TextLine(class skia::textlayout::ParagraphImpl *,struct SkPoint,struct SkPoint,struct skia::textlayout::SkRange\u003cunsigned __int64\u003e,struct skia::textlayout::SkRange\u003cunsigned __int64\u003e,struct skia::textlayout::SkRange\u003cunsigned __int64\u003e,struct skia::textlayout::SkRange\u003cunsigned __int64\u003e,struct skia::textlayout::SkRange\u003cunsigned __int64\u003e,float,class skia::textlayout::InternalLineMetrics)\" (??0TextLine@textlayout@skia@@QEAA@PEAVParagraphImpl@12@USkPoint@@1U?$SkRange@_K@12@2222MVInternalLineMetrics@12@@Z)\n.\\skparagraph.dll : fatal error LNK1120: 2 unresolved externals\n",
+      "revId": "8d639e1a424cc6ba85a3ab279289c189d1e574c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
