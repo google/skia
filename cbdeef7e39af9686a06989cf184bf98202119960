@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f1efe66_b9e24098",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-06T20:12:19Z",
+      "side": 1,
+      "message": "This gets rid of GrCoordTransform as a type, though the iteration logic hasn\u0027t changed that much. There are also still a lot of types and comments that mention coord transform in some fashion. I\u0027ve switched some things to talk about \"primitive coords\", but I\u0027m open to suggestions - the set of flag-checking functions on FP is making it hard to disambiguate what we\u0027re describing.",
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
