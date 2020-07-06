@@ -283,10 +283,17 @@ func processSkottieFramesData(ctx context.Context, perf perfJSONFormat, benchmar
 }
 
 type skottieFramesJSONFormat struct {
-	FramesMS   []float32 `json:"frames_ms"`
-	SeeksMS    []float32 `json:"seeks_ms"`
-	JSONLoadMS float32   `json:"json_load_ms"`
+	// FramesMS   []float32 `json:"frames_ms"`
+	// SeeksMS    []float32 `json:"seeks_ms"`
+	// JSONLoadMS float32   `json:"json_load_ms"`
+
+	WithoutFlushMS []float32 `json:"without_flush_ms"`
+	WithFlushMS    []float32 `json:"with_flush_ms"`
+	TotalFrameMS   []float32 `json:"total_frame_ms"`
+	JSONLoadMS      float32   `json:"json_load_ms"`
 }
+
+
 
 func parseSkottieFramesMetrics(b []byte) (map[string]float32, error) {
 	var metrics skottieFramesJSONFormat
@@ -295,22 +302,22 @@ func parseSkottieFramesMetrics(b []byte) (map[string]float32, error) {
 	}
 
 	getNthFrame := func(n int) float32 {
-		if n >= len(metrics.FramesMS) {
+		if n >= len(metrics.TotalFrameMS) {
 			return 0
 		}
-		return metrics.FramesMS[n]
+		return metrics.TotalFrameMS[n]
 	}
 
 	avgFirstFive := float32(0)
-	if len(metrics.FramesMS) >= 5 {
-		avgFirstFive = computeAverage(metrics.FramesMS[:5])
+	if len(metrics.TotalFrameMS) >= 5 {
+		avgFirstFive = computeAverage(metrics.TotalFrameMS[:5])
 	}
 
-	avgFrame, medFrame, stdFrame, p90Frame, p95Frame, p99Frame := summarize(metrics.FramesMS)
-	avgSeek, medSeek, stdSeek, _, _, _ := summarize(metrics.SeeksMS)
+	avgFrame, medFrame, stdFrame, p90Frame, p95Frame, p99Frame := summarize(metrics.TotalFrameMS)
 
 	rv := map[string]float32{
 		"json_load_ms":             metrics.JSONLoadMS,
+
 		"1st_frame_to_flush_ms":    getNthFrame(0),
 		"2nd_frame_to_flush_ms":    getNthFrame(1),
 		"3rd_frame_to_flush_ms":    getNthFrame(2),
@@ -325,9 +332,7 @@ func parseSkottieFramesMetrics(b []byte) (map[string]float32, error) {
 		"95th_percentile_frame_to_flush_ms": p95Frame,
 		"99th_percentile_frame_to_flush_ms": p99Frame,
 
-		"avg_seek_ms":    avgSeek,
-		"median_seek_ms": medSeek,
-		"stddev_seek_ms": stdSeek,
+		// TODO: nifong, do we want to see the with and without flush numbers?
 	}
 	return rv, nil
 }

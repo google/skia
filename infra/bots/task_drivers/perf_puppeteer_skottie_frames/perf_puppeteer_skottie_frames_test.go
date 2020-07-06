@@ -195,12 +195,9 @@ func TestProcessSkottieFramesData_CPUTwoInputsGetSummarizedAndCombined(t *testin
         "99th_percentile_frame_to_flush_ms": 87.795,
         "avg_first_five_frames_ms": 25.047,
         "avg_frame_to_flush_ms": 5.662692,
-        "avg_seek_ms": 0.740625,
         "json_load_ms": 16.05,
         "median_frame_to_flush_ms": 0.795,
-        "median_seek_ms": 0.155,
-        "stddev_frame_to_flush_ms": 17.463467,
-        "stddev_seek_ms": 2.2108452
+        "stddev_frame_to_flush_ms": 17.463467
       }
     },
     "second_animation": {
@@ -215,12 +212,9 @@ func TestProcessSkottieFramesData_CPUTwoInputsGetSummarizedAndCombined(t *testin
         "99th_percentile_frame_to_flush_ms": 770.795,
         "avg_first_five_frames_ms": 205.44699,
         "avg_frame_to_flush_ms": 55.58577,
-        "avg_seek_ms": 0.740625,
         "json_load_ms": 28.15,
         "median_frame_to_flush_ms": 0.8,
-        "median_seek_ms": 0.155,
-        "stddev_frame_to_flush_ms": 166.36926,
-        "stddev_seek_ms": 2.2108452
+        "stddev_frame_to_flush_ms": 166.36926
       }
     }
   }
@@ -288,12 +282,9 @@ func TestProcessSkottieFramesData_GPUTwoInputsGetSummarizedAndCombined(t *testin
         "99th_percentile_frame_to_flush_ms": 87.795,
         "avg_first_five_frames_ms": 25.047,
         "avg_frame_to_flush_ms": 5.662692,
-        "avg_seek_ms": 0.740625,
         "json_load_ms": 16.05,
         "median_frame_to_flush_ms": 0.795,
-        "median_seek_ms": 0.155,
-        "stddev_frame_to_flush_ms": 17.463467,
-        "stddev_seek_ms": 2.2108452
+        "stddev_frame_to_flush_ms": 17.463467
       }
     },
     "second_animation": {
@@ -308,12 +299,9 @@ func TestProcessSkottieFramesData_GPUTwoInputsGetSummarizedAndCombined(t *testin
         "99th_percentile_frame_to_flush_ms": 770.795,
         "avg_first_five_frames_ms": 205.44699,
         "avg_frame_to_flush_ms": 55.58577,
-        "avg_seek_ms": 0.740625,
         "json_load_ms": 28.15,
         "median_frame_to_flush_ms": 0.8,
-        "median_seek_ms": 0.155,
-        "stddev_frame_to_flush_ms": 166.36926,
-        "stddev_seek_ms": 2.2108452
+        "stddev_frame_to_flush_ms": 166.36926
       }
     }
   }
@@ -340,7 +328,7 @@ const (
 
 const skottieFramesSampleOne = `
 {
-  "frames_ms": [
+  "total_frame_ms": [
     31.555,
     87.795,
     0.430,
@@ -368,30 +356,12 @@ const skottieFramesSampleOne = `
     0.72,
     0.80
   ],
-  "seeks_ms": [
-    0.5,
-    0.08,
-    0.07,
-    0.155,
-    0.29,
-    0.32,
-    0.185,
-    0.32,
-    9.29,
-    0.18,
-    0.075,
-    0.07,
-    0.06,
-    0.08,
-    0.065,
-    0.11
-  ],
   "json_load_ms": 16.05
 }`
 
 const skottieFramesSampleTwo = `
 {
-  "frames_ms": [
+  "total_frame_ms": [
     210.555,
     770.795,
     10.430,
@@ -418,24 +388,6 @@ const skottieFramesSampleTwo = `
     0.795,
     0.72,
     0.80
-  ],
-  "seeks_ms": [
-    0.5,
-    0.08,
-    0.07,
-    0.155,
-    0.29,
-    0.32,
-    0.185,
-    0.32,
-    9.29,
-    0.18,
-    0.075,
-    0.07,
-    0.06,
-    0.08,
-    0.065,
-    0.11
   ],
   "json_load_ms": 28.15
 }`
