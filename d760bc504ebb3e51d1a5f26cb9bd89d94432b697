@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30f52038_ac670912",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T13:09:04Z",
+      "side": 1,
+      "message": "Ah, first time contributing?\n\n** Presubmit ERRORS **\nThe email stha09@googlemail.com is not in Skia\u0027s AUTHORS file.\nIssue owner, this CL must include an addition to the Skia AUTHORS file.\n",
+      "revId": "d760bc504ebb3e51d1a5f26cb9bd89d94432b697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
