@@ -81,7 +81,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                             SkSL::Program::Settings());
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
-    #define RETURN_FAILURE(...) return std::make_pair(nullptr, SkStringPrintf(__VA_ARGS__))
+    #define RETURN_FAILURE(...) return std::make_tuple(nullptr, SkStringPrintf(__VA_ARGS__))
 
     if (!program) {
         RETURN_FAILURE("%s", compiler->errorText().c_str());
@@ -267,7 +267,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(varyings),
                                                       uniformSize,
                                                       mainHasSampleCoords));
-    return std::make_pair(std::move(effect), SkString());
+    return std::make_tuple(std::move(effect), SkString());
 }
 
 size_t SkRuntimeEffect::Variable::sizeInBytes() const {
