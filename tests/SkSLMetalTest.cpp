@@ -9,7 +9,7 @@
 
 #include "tests/Test.h"
 
-static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Settings& settings,
+static void test(skiatest::Reporter* r, const SkSL::Program::Settings& settings, const char* src,
                  const char* expected, SkSL::Program::Inputs* inputs,
                  SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Compiler compiler;
@@ -32,18 +32,17 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
     }
 }
 
-static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
+static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src,
                  const char* expected, SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Program::Settings settings;
     settings.fCaps = &caps;
     SkSL::Program::Inputs inputs;
-    test(r, src, settings, expected, &inputs, kind);
+    test(r, settings, src, expected, &inputs, kind);
 }
 
 DEF_TEST(SkSLMetalHelloWorld, r) {
-    test(r,
+    test(r, *SkSL::ShaderCapsFactory::Default(),
          "void main() { sk_FragColor = half4(0.75); }",
-         *SkSL::ShaderCapsFactory::Default(),
          "#include <metal_stdlib>\n"
          "#include <simd/simd.h>\n"
          "using namespace metal;\n"
@@ -61,15 +60,15 @@ DEF_TEST(SkSLMetalHelloWorld, r) {
 }
 
 DEF_TEST(SkSLMetal2x2MatrixCopyFromFloat2x2, r) {
-    test(r, R"__SkSL__(
+    test(r, *SkSL::ShaderCapsFactory::Default(),
+R"__SkSL__(
 void main() {
   float2x2 m1 = float2x2(float2(1, 2), float2(3, 4));
   float2x2 m2 = m1;
   float2x2 m3 = float2x2(m1);
   sk_FragColor = half4(half(m1[0][0] + m2[0][0] + m3[0][0]));
 })__SkSL__",
-             *SkSL::ShaderCapsFactory::Default(),
-    R"__MSL__(#include <metal_stdlib>
+R"__MSL__(#include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
 struct Inputs {
@@ -87,14 +86,14 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 }
 
 DEF_TEST(SkSLMetal2x2MatrixCopyFromConstantPropagatedFloat4, r) {
-    test(r, R"__SkSL__(
+    test(r, *SkSL::ShaderCapsFactory::Default(),
+R"__SkSL__(
 void main() {
   float2x2 m1 = float2x2(float4(1, 2, 3, 4));
   float2x2 m2 = m1;
   float2x2 m3 = float2x2(m1);
   sk_FragColor = half4(half(m1[0][0] + m2[0][0] + m3[0][0]));
 })__SkSL__",
-             *SkSL::ShaderCapsFactory::Default(),
 R"__MSL__(#include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
@@ -116,7 +115,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 }
 
 DEF_TEST(SkSLMetalMatrices, r) {
-    test(r, R"__SkSL__(
+    test(r, *SkSL::ShaderCapsFactory::Default(),
+R"__SkSL__(
 void main() {
   float2x2 m1 = float2x2(float4(1, 2, 3, 4));
   float2x2 m2 = float2x2(float4(0));
@@ -132,7 +132,6 @@ void main() {
   sk_FragColor = half4(half(m1[0][0] + m2[0][0] + m3[0][0] + m4[0][0] + m5[0][0] +
                             m6[0][0] + m7[0][0] + m8[0][0] + m9[0][0] + m10[0][0] + m11[0][0]));
 })__SkSL__",
-         *SkSL::ShaderCapsFactory::Default(),
 R"__MSL__(#include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
@@ -161,11 +160,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 }
 
 DEF_TEST(SkSLMetalConstantSwizzle, r) {
-    test(r,
+    test(r, *SkSL::ShaderCapsFactory::Default(),
          "void main() {"
          "sk_FragColor = half4(0.5).rgb1;"
          "}",
-         *SkSL::ShaderCapsFactory::Default(),
          "#include <metal_stdlib>\n"
          "#include <simd/simd.h>\n"
          "using namespace metal;\n"
@@ -180,4 +178,82 @@ DEF_TEST(SkSLMetalConstantSwizzle, r) {
          "    _out->sk_FragColor = float4(float4(0.5).xyz, 1);\n"
          "    return *_out;\n"
          "}\n");
+}
+
+DEF_TEST(SkSLMetalNumericGlobals, r) {
+    test(r, *SkSL::ShaderCapsFactory::Default(),
+R"__SkSL__(
+half attr1;
+int attr2 = 123;
+float attr3;
+half4 attr4 = half4(4, 5, 6, 7);
+void main()
+{
+    sk_FragColor = half4(attr1, attr2, half(attr3), attr4.x);
+}
+)__SkSL__",
+R"__MSL__(#include <metal_stdlib>
+#include <simd/simd.h>
+using namespace metal;
+struct Inputs {
+};
+struct Outputs {
+    float4 sk_FragColor [[color(0)]];
+};
+struct Globals {
+    float attr1;
+    int attr2;
+    float attr3;
+    float4 attr4;
+};
+
+
+
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+    Globals globalStruct{{}, 123, {}, float4(4.0, 5.0, 6.0, 7.0)};
+    thread Globals* _globals = &globalStruct;
+    (void)_globals;
+    Outputs _outputStruct;
+    thread Outputs* _out = &_outputStruct;
+    _out->sk_FragColor = float4(_globals->attr1, float(_globals->attr2), _globals->attr3, _globals->attr4.x);
+    return *_out;
+}
+)__MSL__");
+}
+
+DEF_TEST(SkSLMetalSamplerGlobals, r) {
+    test(r, *SkSL::ShaderCapsFactory::Default(),
+R"__SkSL__(
+layout(binding=1) uniform sampler2D texA;
+layout(binding=0) uniform sampler2D texB;
+void main()
+{
+    sk_FragColor = sample(texA, half2(0)) * sample(texB, half2(0));
+}
+)__SkSL__",
+R"__MSL__(#include <metal_stdlib>
+#include <simd/simd.h>
+using namespace metal;
+struct Inputs {
+};
+struct Outputs {
+    float4 sk_FragColor [[color(0)]];
+};
+struct Globals {
+    texture2d<float> texA;
+    sampler texASmplr;
+    texture2d<float> texB;
+    sampler texBSmplr;
+};
+
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> texA[[texture(1)]], sampler texASmplr[[sampler(1)]], texture2d<float> texB[[texture(0)]], sampler texBSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+    Globals globalStruct{texA, texASmplr, texB, texBSmplr};
+    thread Globals* _globals = &globalStruct;
+    (void)_globals;
+    Outputs _outputStruct;
+    thread Outputs* _out = &_outputStruct;
+    _out->sk_FragColor = _globals->texA.sample(_globals->texASmplr, float2(0.0)) * _globals->texB.sample(_globals->texBSmplr, float2(0.0));
+    return *_out;
+}
+)__MSL__");
 }
