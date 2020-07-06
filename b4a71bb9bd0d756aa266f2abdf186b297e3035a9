@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57adf0d0_a60b58e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-06T15:01:53Z",
+      "side": 1,
+      "message": "I suppose I\u0027ll just have to trust you that this seems to do the same thing that AE does.",
+      "revId": "b4a71bb9bd0d756aa266f2abdf186b297e3035a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
