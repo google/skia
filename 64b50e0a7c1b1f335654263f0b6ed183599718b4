@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b42df48b_8e9bf543",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:34:16Z",
+      "side": 1,
+      "message": "Sorry. Forgot to push the changes. PTAL.",
+      "revId": "64b50e0a7c1b1f335654263f0b6ed183599718b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
