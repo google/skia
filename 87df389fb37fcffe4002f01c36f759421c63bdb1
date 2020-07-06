@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2a26bd7_0384a125",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-06T22:54:13Z",
+      "side": 1,
+      "message": "The other discrepancies in the GM slide are more complicated. With the raster backend the result and outline based on getFillPath() don\u0027t always agree. There\u0027s no obvious reason the stroked-and-filled line-degenerate rect shouldn\u0027t match the stroked version. Beveled degenerate rects aren\u0027t continuous with their epsilon counterparts, but this may be intentional.\n\nI looked briefly for the reason the lower-right epsilon beveled rects aren\u0027t being rendered correctly in OpenGL but didn\u0027t track it down. NVPR appears to get it right but that may be due to different fallbacks.\n\nStill, it\u0027s best if the different backends agree and this change increases agreement.",
+      "revId": "87df389fb37fcffe4002f01c36f759421c63bdb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
