@@ -18,8 +18,8 @@
 
 #include "include/core/SkImage.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -32,7 +32,7 @@
 #include "src/image/SkSurface_Gpu.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     GrBackendTexture backendTex;
     CreateBackendTexture(context, &backendTex, 1, 1, kRGBA_8888_SkColorType, SkColors::kTransparent,

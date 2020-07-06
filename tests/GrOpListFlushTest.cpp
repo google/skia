@@ -7,7 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "tests/Test.h"
@@ -26,7 +26,7 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& bitmap) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrOpsTaskFlushCount, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrGpu* gpu = context->priv().getGpu();
 
     SkImageInfo imageInfo = SkImageInfo::Make(1000, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
