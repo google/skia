@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6261e0e_56483dd1",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-06T17:52:13Z",
+      "side": 1,
+      "message": "s/Bit/Bits/ ?",
+      "revId": "54de860231d0c9a3b4057ceb3e6e2a0e332cee2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a552ff55_3ee55b01",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-06T17:52:13Z",
+      "side": 1,
+      "message": "We should probably get rid of this | CopyDst here, now that the function adds them.",
+      "revId": "54de860231d0c9a3b4057ceb3e6e2a0e332cee2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
