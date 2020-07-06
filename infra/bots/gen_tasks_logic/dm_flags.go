@@ -598,6 +598,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// These two rely on munging the resource limits
 		blacklist("_ gm _ bitmaptiled_fractional_horizontal")
 		blacklist("_ gm _ bitmaptiled_fractional_vertical")
+		// These two require a direct context
+		blacklist("_ gm _ new_texture_image ")
+		blacklist("_ gm _ fontregen ")
+		// This family of gms can be re-enabled once MakeRenderTarget can take a GrRecordingContext
+		blacklist("_ gm _ gpu_blur_utils")
+		blacklist("_ gm _ gpu_blur_utils_subset_rect")
+		blacklist("_ gm _ gpu_blur_utils_subset_ref")
+		blacklist("_ gm _ gpu_blur_utils_ref")
 	}
 
 	if b.model("TecnoSpark3Pro") {
