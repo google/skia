@@ -33,6 +33,8 @@ static GrSurfaceProxyView blur(GrRecordingContext* ctx,
 };
 
 static void run(GrRecordingContext* ctx, GrRenderTargetContext* rtc, bool subsetSrc, bool ref) {
+    // TODO: once MakeRenderTarget can take a GrRecordingContext this family of tests no
+    // longer needs to be blacklisted for the OOPR configs
     auto direct = ctx->asDirectContext();
     if (!direct) {
         return;
