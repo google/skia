@@ -12,7 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkYUVAIndex.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
@@ -292,9 +292,12 @@ DEF_SIMPLE_GM_CAN_FAIL(async_yuv_no_scale, canvas, errorMsg, 400, 300) {
     SkPaint paint;
     canvas->drawImage(image.get(), 0, 0);
 
+    auto direct = surface->recordingContext() ? surface->recordingContext()->asDirectContext()
+                                              : nullptr;
+
     SkScopeExit scopeExit;
     auto yuvImage = do_read_and_scale_yuv(
-            surface, surface->getContext(), kRec601_SkYUVColorSpace, SkIRect::MakeWH(400, 300),
+            surface, direct, kRec601_SkYUVColorSpace, SkIRect::MakeWH(400, 300),
             {400, 300}, SkImage::RescaleGamma::kSrc, kNone_SkFilterQuality, &scopeExit);
 
     canvas->clear(SK_ColorWHITE);

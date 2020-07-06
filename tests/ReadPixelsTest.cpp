@@ -954,15 +954,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
     auto reader = std::function<GpuReadSrcFn<Surface>>([](const Surface& surface,
                                                           const SkIVector& offset,
                                                           const SkPixmap& pixels) {
+        auto direct = surface->recordingContext()->asDirectContext();
+        SkASSERT(direct);
+
         AsyncContext context;
         auto rect = SkIRect::MakeSize(pixels.dimensions()).makeOffset(offset);
 
         // Rescale quality and linearity don't matter since we're doing a non-scaling readback.
         surface->asyncRescaleAndReadPixels(pixels.info(), rect, SkImage::RescaleGamma::kSrc,
                                            kNone_SkFilterQuality, async_callback, &context);
-        surface->getContext()->submit();
+        direct->submit();
         while (!context.fCalled) {
-            surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
+            direct->checkAsyncWorkCompletion();
         }
         if (!context.fResult) {
             return GpuReadResult::kFail;
@@ -1111,16 +1114,16 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
             }
             for (bool yuv : {false, true}) {
                 sk_gpu_test::GrContextFactory factory(options);
-                auto context = factory.get(type);
-                if (!context) {
+                auto direct = factory.get(type);
+                if (!direct) {
                     continue;
                 }
                 // This test is only meaningful for contexts that support transfer buffers for
                 // reads.
-                if (!context->priv().caps()->transferFromSurfaceToBufferSupport()) {
+                if (!direct->priv().caps()->transferFromSurfaceToBufferSupport()) {
                     continue;
                 }
-                auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, 1, nullptr);
+                auto surf = SkSurface::MakeRenderTarget(direct, SkBudgeted::kYes, ii, 1, nullptr);
                 if (!surf) {
                     continue;
                 }
@@ -1135,9 +1138,9 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
                                                     kNone_SkFilterQuality, &async_callback,
                                                     &cbContext);
                 }
-                surf->getContext()->submit();
+                direct->submit();
                 while (!cbContext.fCalled) {
-                    context->checkAsyncWorkCompletion();
+                    direct->checkAsyncWorkCompletion();
                 }
                 if (!cbContext.fResult) {
                     ERRORF(reporter, "Callback failed on %s. is YUV: %d",

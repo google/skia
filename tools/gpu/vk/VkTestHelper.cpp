@@ -10,7 +10,7 @@
 #ifdef SK_VULKAN
 
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 #define ACQUIRE_INST_VK_PROC(name)                                                           \
@@ -77,8 +77,12 @@ bool VkTestHelper::init() {
     ACQUIRE_DEVICE_VK_PROC(FlushMappedMemoryRanges)
     ACQUIRE_DEVICE_VK_PROC(GetImageSubresourceLayout)
 
-    fGrContext = GrContext::MakeVulkan(fBackendContext);
-    if (!fGrContext) {
+    // CONTEXT TODO: MakeVulkan should return an sk_sp<GrDirectContext>
+    auto tmp = GrContext::MakeVulkan(fBackendContext);
+    if (tmp) {
+        fDirectContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+    }
+    if (!fDirectContext) {
         return false;
     }
 
@@ -86,7 +90,7 @@ bool VkTestHelper::init() {
 }
 
 void VkTestHelper::cleanup() {
-    fGrContext.reset();
+    fDirectContext.reset();
 
     fBackendContext.fMemoryAllocator.reset();
     if (fDevice != VK_NULL_HANDLE) {

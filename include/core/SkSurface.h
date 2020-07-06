@@ -525,14 +525,18 @@ public:
     */
     void notifyContentWillChange(ContentChangeMode mode);
 
-    /** Returns the GPU context of the GPU surface.
-
-        @return  GPU context, if available; nullptr otherwise
+    /** Deprecated.
+        This functionality is now achieved via:
+           GrRecordingContext* recordingContext = surface->recordingContext();
+           GrDirectContext* directContext = recordingContext->asDirectContext();
+        Where 'recordingContext' could be null if 'surface' is not GPU backed and
+        'directContext' could be null if the calling code is in the midst of DDL recording.
     */
     GrContext* getContext();
 
-    /**
-     * Experimental. SkSurfaces can actually only guarantee a GrRecordingContext.
+    /** Returns the recording context being used by the SkSurface.
+
+        @return the recording context, if available; nullptr otherwise
      */
     GrRecordingContext* recordingContext();
 
