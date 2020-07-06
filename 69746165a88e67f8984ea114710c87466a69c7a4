@@ -16,6 +16,24 @@
       "revId": "69746165a88e67f8984ea114710c87466a69c7a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e24fba2_1b5761bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-06T20:51:04Z",
+      "side": 1,
+      "message": "Right--we need to avoid cloning and double-evaluating in order to maintain the same performance. We don\u0027t have a way to represent a diamond in our FP hierarchy (which is probably for the best)",
+      "parentUuid": "a0b0b64a_65efcb5a",
+      "revId": "69746165a88e67f8984ea114710c87466a69c7a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
