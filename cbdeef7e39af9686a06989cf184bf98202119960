@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "19816744_3f0d9fad",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-06T21:03:46Z",
+      "side": 1,
+      "message": "The similarities between this and sampleCoordsDependOnLocalCoords() makes me feel uncomfortable, but I don\u0027t know yet how we can resolve it. They are effectively the same property except one reflects the state of the tree up to this FP, and this function reflects just itself.\n\nMaybe this becomes sampleCoordsDependsOnLocalCoords, and the old function by that name is renamed to requiresPrimitiveProcessorToProduceLocalCoords?",
+      "range": {
+        "startLine": 165,
+        "startChar": 9,
+        "endLine": 165,
+        "endChar": 32
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f07b34d3_75de32b7",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 4
@@ -35,6 +58,53 @@
         "startChar": 0,
         "endLine": 106,
         "endChar": 51
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dddada9_121a6c34",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-06T21:03:46Z",
+      "side": 1,
+      "message": "I believe this is true; I had to have these checks before when we could have an actual GrCoordTransform and be sampled explicitly. I bet I could have cleaned this up in my follow up CL that removed the ability to add non-identity coord transforms to an FP, but I missed it then.",
+      "parentUuid": "f07b34d3_75de32b7",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 51
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a5e2d26_ea4ca6fc",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-06T21:03:46Z",
+      "side": 1,
+      "message": "Would things get easier down the road if this was specifySampleCoordForFP(FP, GrShaderVar)? Then it could potentially just use an std::unordered_map under the hood instead of the parallel array that must match the FPIter.",
+      "range": {
+        "startLine": 168,
+        "startChar": 12,
+        "endLine": 168,
+        "endChar": 68
       },
       "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
