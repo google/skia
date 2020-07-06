@@ -97,11 +97,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTestingBackendTextureUploadTest, reporter, 
     for (auto colorType: { kRGBA_8888_SkColorType, kBGRA_8888_SkColorType }) {
         for (auto renderable: { GrRenderable::kYes, GrRenderable::kNo }) {
             for (bool doDataUpload: {true, false}) {
-                testing_only_texture_test(reporter, ctxInfo.grContext(), colorType,
+                testing_only_texture_test(reporter, ctxInfo.directContext(), colorType,
                                           renderable, doDataUpload, GrMipMapped::kNo);
 
                 if (!doDataUpload) {
-                    testing_only_texture_test(reporter, ctxInfo.grContext(), colorType,
+                    testing_only_texture_test(reporter, ctxInfo.directContext(), colorType,
                                               renderable, doDataUpload, GrMipMapped::kYes);
                 }
             }

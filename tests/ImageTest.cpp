@@ -21,6 +21,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
@@ -182,7 +183,7 @@ DEF_TEST(ImageEncode, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
-    test_encode(reporter, create_gpu_image(ctxInfo.grContext()).get());
+    test_encode(reporter, create_gpu_image(ctxInfo.directContext()).get());
 }
 
 DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
@@ -338,7 +339,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
  */
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
     const auto desc = SkBitmapCacheDesc::Make(image.get());
 
     auto surface(SkSurface::MakeRaster(info));
@@ -371,7 +372,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextInfo) {
-    GrContext* context = contextInfo.grContext();
+    auto context = contextInfo.directContext();
     sk_gpu_test::TestContext* testContext = contextInfo.testContext();
     GrContextFactory otherFactory;
     ContextInfo otherContextInfo = otherFactory.getContextInfo(contextInfo.type());
@@ -387,8 +388,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
             // Create a texture image in a another GrContext.
             [otherContextInfo] {
                 auto restore = otherContextInfo.testContext()->makeCurrentAndAutoRestore();
-                sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
-                otherContextInfo.grContext()->flushAndSubmit();
+                auto otherContextImage = create_gpu_image(otherContextInfo.directContext());
+                otherContextInfo.directContext()->flushAndSubmit();
                 return otherContextImage;
             }};
     for (auto mipMapped : {GrMipMapped::kNo, GrMipMapped::kYes}) {
@@ -448,7 +449,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contextInfo) {
-    GrContext* context = contextInfo.grContext();
+    auto context = contextInfo.directContext();
 
     std::function<sk_sp<SkImage>()> imageFactories[] = {
         create_image,
@@ -475,7 +476,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contex
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     static constexpr int kSize = 10;
 
@@ -509,7 +510,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
                     SkColorSetARGB((U8CPU)y, 255 - (U8CPU)y, (U8CPU)x, 255 - (U8CPU)x);
         }
     }
-    auto texImage = SkImage::MakeFromBitmap(bmp)->makeTextureImage(ctxInfo.grContext());
+    auto texImage = SkImage::MakeFromBitmap(bmp)->makeTextureImage(ctxInfo.directContext());
     if (!texImage || texImage->alphaType() != kUnpremul_SkAlphaType) {
         ERRORF(reporter, "Failed to make unpremul texture image.");
         return;
@@ -705,7 +706,7 @@ DEF_TEST(ImageReadPixels, reporter) {
     image_test_read_pixels(reporter, image.get());
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
-    image_test_read_pixels(reporter, create_gpu_image(ctxInfo.grContext()).get());
+    image_test_read_pixels(reporter, create_gpu_image(ctxInfo.directContext()).get());
 }
 
 static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image,
@@ -761,7 +762,7 @@ DEF_TEST(ImageLegacyBitmap, reporter) {
     test_legacy_bitmap(reporter, image.get());
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
-    sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
     test_legacy_bitmap(reporter, image.get());
 }
 
@@ -801,7 +802,7 @@ DEF_TEST(ImagePeek, reporter) {
     test_peek(reporter, image.get(), false);
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImagePeek_Gpu, reporter, ctxInfo) {
-    sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
     test_peek(reporter, image.get(), false);
 }
 
@@ -817,7 +818,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     const int kWidth = 10;
     const int kHeight = 10;
 
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
@@ -919,7 +920,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
 
         ContextInfo otherContextInfo = testFactory.getSharedContextInfo(ctx);
-        GrContext* otherCtx = otherContextInfo.grContext();
+        auto otherCtx = otherContextInfo.directContext();
         sk_gpu_test::TestContext* otherTestContext = otherContextInfo.testContext();
 
         // Creating a context in a share group may fail
@@ -1032,7 +1033,7 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             GrContextFactory testFactory(options);
             GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
             ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
-            GrContext* ctx = ctxInfo.grContext();
+            auto ctx = ctxInfo.directContext();
             if (!ctx || !ctx->priv().caps()->crossContextTextureSupport()) {
                 continue;
             }
@@ -1051,7 +1052,7 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
     sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
 
@@ -1076,8 +1077,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
         // Create a texture image in a another GrContext.
         { [otherContextInfo] {
             auto restore = otherContextInfo.testContext()->makeCurrentAndAutoRestore();
-            sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
-            otherContextInfo.grContext()->flushAndSubmit();
+            sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.directContext());
+            otherContextInfo.directContext()->flushAndSubmit();
             return otherContextImage;
           }, false, false },
         // Create an image that is too large to be texture backed.
@@ -1315,8 +1316,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu, reporter, ctxInfo) {
     const SkColor red = SK_ColorRED;
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(16, 16);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo,
-                                                           info);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctxInfo.directContext(),
+                                                           SkBudgeted::kNo, info);
     surface->getCanvas()->clear(red);
     sk_sp<SkImage> gpuImage = surface->makeImageSnapshot();
     test_scale_pixels(reporter, gpuImage.get(), pmRed);
@@ -1364,9 +1365,9 @@ static sk_sp<SkImage> make_yuva_image(GrContext* c) {
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
-    auto c = ctxInfo.grContext();
+    auto direct = ctxInfo.directContext();
     auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto s = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kYes, ii, 1, nullptr);
+    auto s = SkSurface::MakeRenderTarget(direct, SkBudgeted::kYes, ii, 1, nullptr);
 
     s->getCanvas()->clear(SK_ColorRED);
     auto i0 = s->makeImageSnapshot();
@@ -1374,57 +1375,58 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     auto i1 = s->makeImageSnapshot();
     s->getCanvas()->clear(SK_ColorGREEN);
     // Make a YUVA image.
-    auto i2 = make_yuva_image(c);
+    auto i2 = make_yuva_image(direct);
 
     // Flush all the setup work we did above and then make little lambda that reports the flush
     // count delta since the last time it was called.
-    c->flushAndSubmit();
-    auto numSubmits = [c, submitCnt = c->priv().getGpu()->stats()->numSubmitToGpus()]() mutable {
-        int curr = c->priv().getGpu()->stats()->numSubmitToGpus();
+    direct->flushAndSubmit();
+    auto numSubmits = [direct,
+                       submitCnt = direct->priv().getGpu()->stats()->numSubmitToGpus()]() mutable {
+        int curr = direct->priv().getGpu()->stats()->numSubmitToGpus();
         int n = curr - submitCnt;
         submitCnt = curr;
         return n;
     };
 
     // Images aren't used therefore flush is ignored, but submit is still called.
-    i0->flushAndSubmit(c);
-    i1->flushAndSubmit(c);
-    i2->flushAndSubmit(c);
+    i0->flushAndSubmit(direct);
+    i1->flushAndSubmit(direct);
+    i2->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 3);
 
     // Syncing forces the flush to happen even if the images aren't used.
-    i0->flush(c);
-    c->submit(true);
+    i0->flush(direct);
+    direct->submit(true);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
-    i1->flush(c);
-    c->submit(true);
+    i1->flush(direct);
+    direct->submit(true);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
-    i2->flush(c);
-    c->submit(true);
+    i2->flush(direct);
+    direct->submit(true);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 
     // Use image 1
     s->getCanvas()->drawImage(i1, 0, 0);
     // Flushing image 0 should do nothing, but submit is still called.
-    i0->flushAndSubmit(c);
+    i0->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 1 should flush.
-    i1->flushAndSubmit(c);
+    i1->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 2 should do nothing, but submit is still called.
-    i2->flushAndSubmit(c);
+    i2->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 
     // Use image 2
     s->getCanvas()->drawImage(i2, 0, 0);
     // Flushing image 0 should do nothing, but submit is still called.
-    i0->flushAndSubmit(c);
+    i0->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 1 do nothing, but submit is still called.
-    i1->flushAndSubmit(c);
+    i1->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 2 should flush.
-    i2->flushAndSubmit(c);
+    i2->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Since we just did a simple image draw it should not have been flattened.
     REPORTER_ASSERT(reporter,
@@ -1432,40 +1434,40 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
 
     // Flatten it and repeat.
-    as_IB(i2.get())->view(c);
+    as_IB(i2.get())->view(direct);
     REPORTER_ASSERT(reporter,
                     static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
     s->getCanvas()->drawImage(i2, 0, 0);
     // Flushing image 0 should do nothing, but submit is still called.
-    i0->flushAndSubmit(c);
+    i0->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 1 do nothing, but submit is still called.
-    i1->flushAndSubmit(c);
+    i1->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 2 should flush.
-    i2->flushAndSubmit(c);
+    i2->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 
     // Test case where flatten happens before the first flush.
-    i2 = make_yuva_image(c);
+    i2 = make_yuva_image(direct);
     // On some systems where preferVRAMUseOverFlushes is false (ANGLE on Windows) the above may
     // actually flush in order to make textures for the YUV planes. TODO: Remove this when we
     // make the YUVA planes from backend textures rather than pixmaps that GrContext must upload.
     // Calling numSubmits rebases the flush count from here.
     numSubmits();
-    as_IB(i2.get())->view(c);
+    as_IB(i2.get())->view(direct);
     REPORTER_ASSERT(reporter,
                     static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
     s->getCanvas()->drawImage(i2, 0, 0);
     // Flushing image 0 should do nothing, but submit is still called.
-    i0->flushAndSubmit(c);
+    i0->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 1 do nothing, but submit is still called.
-    i1->flushAndSubmit(c);
+    i1->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 2 should flush, but submit is still called.
-    i2->flushAndSubmit(c);
+    i2->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 }

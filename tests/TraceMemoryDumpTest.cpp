@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "tests/Test.h"
 
@@ -75,7 +76,7 @@ void ValidateMemoryDumps(skiatest::Reporter* reporter, GrContext* context, size_
 
 #ifdef SK_GL
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLBuffer, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
     const size_t kMemorySize = 1024;
     sk_sp<GrGLBuffer> buffer =
@@ -85,7 +86,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLBuffer, reporter,
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     GrGLTexture::Desc desc;
@@ -102,7 +103,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture, reporter
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     GrGLTexture::Desc desc;
@@ -122,7 +123,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture, report
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     static constexpr auto kSize = SkISize::Make(64, 64);
@@ -140,7 +141,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     static constexpr auto kSize = SkISize::Make(64, 64);

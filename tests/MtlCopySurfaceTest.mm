@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
@@ -22,7 +22,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
     static const int kWidth = 1024;
     static const int kHeight = 768;
 
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     // This is a bit weird, but it's the only way to get a framebufferOnly surface
     GrMtlGpu* gpu = (GrMtlGpu*) context->priv().getGpu();

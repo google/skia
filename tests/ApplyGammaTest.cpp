@@ -17,7 +17,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkUtils.h"
@@ -94,7 +94,7 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     static constexpr SkISize kBaseSize{256, 256};
     static const size_t kRowBytes = sizeof(uint32_t) * kBaseSize.fWidth;
 

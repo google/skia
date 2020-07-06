@@ -10,6 +10,7 @@
 #include "tests/Test.h"
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -56,8 +57,9 @@ static sk_sp<GrSurfaceProxy> make_texture(GrProxyProvider* provider,
 
 // Test converting between RenderTargetProxies and TextureProxies for preinstantiated Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PreinstantiatedProxyConversionTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
-    GrGpu* gpu = ctxInfo.grContext()->priv().getGpu();
+    auto context = ctxInfo.directContext();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrGpu* gpu = context->priv().getGpu();
 
     static constexpr auto kSize = SkISize::Make(64, 64);
     static constexpr auto kColorType = GrColorType::kRGBA_8888;
@@ -122,7 +124,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PreinstantiatedProxyConversionTest, reporter,
 // Test converting between RenderTargetProxies and TextureProxies for deferred
 // Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();
 

@@ -172,10 +172,7 @@ public:
     GrContextFactory::ContextType type() const { return fType; }
     GrBackendApi backend() const { return GrContextFactory::ContextTypeBackend(fType); }
 
-    // TODO: remove 'grContext' - replacing all instances w/ 'directContext'
-    GrContext* grContext() const { return fContext; }
     GrDirectContext* directContext() const { return fContext; }
-
     TestContext* testContext() const { return fTestContext; }
 
 #ifdef SK_GL
