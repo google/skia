@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15948984_dfb0e5ec",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T18:48:20Z",
+      "side": 1,
+      "message": "Go through GrRenderTargetContextPriv to get this?",
+      "range": {
+        "startLine": 94,
+        "startChar": 34,
+        "endLine": 94,
+        "endChar": 47
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c37c2d9_43cee89a",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T18:48:20Z",
+      "side": 1,
+      "message": "This won\u0027t fit up one line ?",
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f2d4a1b_e5dbbbf3",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T18:48:20Z",
+      "side": 1,
+      "message": "same here ?",
+      "range": {
+        "startLine": 140,
+        "startChar": 39,
+        "endLine": 140,
+        "endChar": 47
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80f74704_c0e37099",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T18:48:20Z",
+      "side": 1,
+      "message": "surfaceProps() ?",
+      "range": {
+        "startLine": 147,
+        "startChar": 39,
+        "endLine": 147,
+        "endChar": 52
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abc13e40_9af360ca",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T18:48:20Z",
+      "side": 1,
+      "message": "colorInfo ?",
+      "range": {
+        "startLine": 157,
+        "startChar": 40,
+        "endLine": 157,
+        "endChar": 56
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23d39913_5e901b76",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T18:48:20Z",
+      "side": 1,
+      "message": "We should probably keep the \u0027drawOrigin\u0027 name here.",
+      "range": {
+        "startLine": 52,
+        "startChar": 19,
+        "endLine": 52,
+        "endChar": 20
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9bec14a_5ac60ec7",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T18:48:20Z",
+      "side": 1,
+      "message": "same here for \u0027clipRect\u0027",
+      "range": {
+        "startLine": 53,
+        "startChar": 26,
+        "endLine": 53,
+        "endChar": 27
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41c287f0_ebce39af",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T18:48:20Z",
+      "side": 1,
+      "message": "Do we need this anymore ?",
+      "range": {
+        "startLine": 482,
+        "startChar": 30,
+        "endLine": 482,
+        "endChar": 35
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
