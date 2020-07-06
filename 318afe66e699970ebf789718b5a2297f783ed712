@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85494fd3_891f73c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T12:57:09Z",
+      "side": 1,
+      "message": "Are these diffs expected?\n\nhttps://gold.skia.org/search?blame\u003d318afe66e699970ebf789718b5a2297f783ed712\u0026fdiffmax\u003d-1\u0026fref\u003dfalse\u0026frgbamax\u003d255\u0026frgbamin\u003d0\u0026head\u003dtrue\u0026include\u003dfalse\u0026limit\u003d50\u0026master\u003dfalse\u0026match\u003dname\u0026metric\u003dcombined\u0026neg\u003dfalse\u0026offset\u003d0\u0026pos\u003dfalse\u0026query\u003dsource_type%3Dgm\u0026sort\u003ddesc\u0026unt\u003dtrue",
+      "revId": "318afe66e699970ebf789718b5a2297f783ed712",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
