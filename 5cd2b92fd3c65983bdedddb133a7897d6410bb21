@@ -16,6 +16,24 @@
       "revId": "5cd2b92fd3c65983bdedddb133a7897d6410bb21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d5b4854_675dbef7",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T16:38:27Z",
+      "side": 1,
+      "message": "No, this is just a start. I can simplify both the op creation calls with this plumbing. Please see https://skia-review.googlesource.com/c/skia/+/295378 for the final result.",
+      "parentUuid": "ef7f83d0_14f013c8",
+      "revId": "5cd2b92fd3c65983bdedddb133a7897d6410bb21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
