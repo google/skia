@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0b0b64a_65efcb5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-06T20:48:42Z",
+      "side": 1,
+      "message": "Initially, I thought that this was weird for adding a 3rd optional FP to the mixer color filter. I was thinking we should just be able to pass the inputFP to the first child FP and pass a clone to the second.\n\nThis would produce very inefficient shaders, however, so I think your update is the right approach. It does require that FPs will continue to have an input color as part of its function signature. Since this is part of a color filter, that makes some sense, but I\u0027m CCing Brian Osman to weigh in since he has thoughts on what the FP/effect signatures will look like.",
+      "revId": "69746165a88e67f8984ea114710c87466a69c7a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
