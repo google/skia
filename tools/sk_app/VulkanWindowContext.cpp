@@ -11,7 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoMalloc.h"
 
 #include "include/gpu/vk/GrVkExtensions.h"
@@ -530,7 +530,7 @@ void VulkanWindowContext::swapBuffers() {
     info.fSignalSemaphores = &beSemaphore;
     GrBackendSurfaceMutableState presentState(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, fPresentQueueIndex);
     surface->flush(info, &presentState);
-    surface->getContext()->submit();
+    surface->recordingContext()->asDirectContext()->submit();
 
     // Submit present operation to present queue
     const VkPresentInfoKHR presentInfo =

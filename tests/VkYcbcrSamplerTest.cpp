@@ -34,7 +34,7 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
         return;
     }
 
-    VkYcbcrSamplerHelper ycbcrHelper(testHelper.grContext());
+    VkYcbcrSamplerHelper ycbcrHelper(testHelper.directContext());
     if (!ycbcrHelper.isYCbCrSupported()) {
         return;
     }
@@ -44,7 +44,7 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
         return;
     }
 
-    sk_sp<SkImage> srcImage = SkImage::MakeFromTexture(testHelper.grContext(),
+    sk_sp<SkImage> srcImage = SkImage::MakeFromTexture(testHelper.directContext(),
                                                        ycbcrHelper.backendTexture(),
                                                        kTopLeft_GrSurfaceOrigin,
                                                        kRGB_888x_SkColorType,
@@ -56,7 +56,7 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
     }
 
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(
-            testHelper.grContext(), SkBudgeted::kNo,
+            testHelper.directContext(), SkBudgeted::kNo,
             SkImageInfo::Make(kImageWidth, kImageHeight, kN32_SkColorType, kPremul_SkAlphaType));
     if (!surface) {
         ERRORF(reporter, "Failed to create target SkSurface");
@@ -123,12 +123,12 @@ DEF_GPUTEST(VkYCbcrSampler_NoYcbcrSurface, reporter, options) {
         return;
     }
 
-    VkYcbcrSamplerHelper ycbcrHelper(testHelper.grContext());
+    VkYcbcrSamplerHelper ycbcrHelper(testHelper.directContext());
     if (!ycbcrHelper.isYCbCrSupported()) {
         return;
     }
 
-    GrBackendTexture texture = testHelper.grContext()->createBackendTexture(
+    GrBackendTexture texture = testHelper.directContext()->createBackendTexture(
             kImageWidth, kImageHeight, GrBackendFormat::MakeVk(VK_FORMAT_G8_B8R8_2PLANE_420_UNORM),
             GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     if (texture.isValid()) {
