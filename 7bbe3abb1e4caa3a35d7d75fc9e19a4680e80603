@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99af982d_ea44c33c",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T16:58:40Z",
+      "side": 1,
+      "message": "Change the \u0027direct\u0027 to emphasize it is a direct context ?",
+      "range": {
+        "startLine": 144,
+        "startChar": 59,
+        "endLine": 144,
+        "endChar": 67
+      },
+      "revId": "7bbe3abb1e4caa3a35d7d75fc9e19a4680e80603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1032b729_a7239d42",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T16:58:40Z",
+      "side": 1,
+      "message": "Just \"!direct\" ?",
+      "range": {
+        "startLine": 151,
+        "startChar": 12,
+        "endLine": 151,
+        "endChar": 89
+      },
+      "revId": "7bbe3abb1e4caa3a35d7d75fc9e19a4680e80603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26851ea1_80f9cfe2",
+        "filename": "gm/crosscontextimage.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T16:58:40Z",
+      "side": 1,
+      "message": "direct ?",
+      "range": {
+        "startLine": 60,
+        "startChar": 48,
+        "endLine": 60,
+        "endChar": 55
+      },
+      "revId": "7bbe3abb1e4caa3a35d7d75fc9e19a4680e80603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b65e710d_09ecefd0",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 1179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T16:58:40Z",
+      "side": 1,
+      "message": "GrDirectContext ?",
+      "range": {
+        "startLine": 1179,
+        "startChar": 30,
+        "endLine": 1179,
+        "endChar": 48
+      },
+      "revId": "7bbe3abb1e4caa3a35d7d75fc9e19a4680e80603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97e75672_adfb8b87",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 1259,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T16:58:40Z",
+      "side": 1,
+      "message": "ditto ?",
+      "range": {
+        "startLine": 1259,
+        "startChar": 34,
+        "endLine": 1259,
+        "endChar": 52
+      },
+      "revId": "7bbe3abb1e4caa3a35d7d75fc9e19a4680e80603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de759c0a_3b3bd7f6",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 1343,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T16:58:40Z",
+      "side": 1,
+      "message": "ditto ?",
+      "range": {
+        "startLine": 1343,
+        "startChar": 34,
+        "endLine": 1343,
+        "endChar": 52
+      },
+      "revId": "7bbe3abb1e4caa3a35d7d75fc9e19a4680e80603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5645608d_2915f49b",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 1360,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T16:58:40Z",
+      "side": 1,
+      "message": "ditto ?",
+      "range": {
+        "startLine": 1360,
+        "startChar": 46,
+        "endLine": 1360,
+        "endChar": 64
+      },
+      "revId": "7bbe3abb1e4caa3a35d7d75fc9e19a4680e80603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
