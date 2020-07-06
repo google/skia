@@ -30,7 +30,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkReadBuffer.h"
@@ -431,7 +430,7 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
     }
 
     canvas->drawImage(img, 10, 10, nullptr);
-    auto sub = img->makeSubset({100, 100, 200, 200});
+    auto sub = img->makeSubset(nullptr, {100, 100, 200, 200});
     canvas->drawImage(sub, 220, 10);
     sub = serial_deserial(sub.get());
     canvas->drawImage(sub, 220+110, 10);

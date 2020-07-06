@@ -349,7 +349,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
     }
     if (image) {
         if (bounds.x() || bounds.y() || width < image->width() || height < image->height()) {
-            image = image->makeSubset(bounds);
+            image = image->makeSubset(nullptr, bounds);
         }
     }
     // Question: are we correct to return an "empty" image instead of nullptr, if the decoder

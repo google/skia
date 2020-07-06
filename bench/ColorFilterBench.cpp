@@ -199,7 +199,7 @@ DEF_BENCH( return new ColorFilterBench("gaussian", []() {
     return SkColorFilterPriv::MakeGaussian();
 }); )
 
-#ifdef SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
 DEF_BENCH( return new ColorFilterBench("src_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
                 SkRuntimeEffect::Make(SkString(RuntimeNone_GPU_SRC)));
