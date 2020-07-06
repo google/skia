@@ -60,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "557cd87c_5445873c",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-06T22:17:55Z",
+      "side": 1,
+      "message": "\"usesImplicitSampleCoords\" or \"referencesImplicitSampleCoords\"?",
+      "parentUuid": "19816744_3f0d9fad",
+      "range": {
+        "startLine": 165,
+        "startChar": 9,
+        "endLine": 165,
+        "endChar": 32
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f07b34d3_75de32b7",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 4
