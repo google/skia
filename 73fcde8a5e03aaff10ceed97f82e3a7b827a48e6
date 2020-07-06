@@ -16,6 +16,24 @@
       "revId": "73fcde8a5e03aaff10ceed97f82e3a7b827a48e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "10dd04d8_df3dd84c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12704
+      },
+      "writtenOn": "2020-07-06T12:52:35Z",
+      "side": 1,
+      "message": "Thanks for review. Adjusted to use SK_ATTRIBUTE.",
+      "parentUuid": "49b5b890_76d09c0f",
+      "revId": "73fcde8a5e03aaff10ceed97f82e3a7b827a48e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
