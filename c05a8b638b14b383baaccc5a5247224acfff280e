@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa1d5440_506df329",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-06T19:57:14Z",
+      "side": 1,
+      "message": "is there any risk that we are building on widows but we\u0027ll be targeting gl or vulkan via dawn?",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 23
+      },
+      "revId": "c05a8b638b14b383baaccc5a5247224acfff280e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
