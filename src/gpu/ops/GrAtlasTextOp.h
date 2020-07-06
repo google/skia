@@ -37,25 +37,20 @@ public:
         void fillVertexData(void* dst, int offset, int count) const;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRenderTargetContext* rtc,
-                                                     GrPaint&& paint,
-                                                     GrTextBlob::SubRun* subrun,
-                                                     const SkMatrix& drawMatrix,
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRenderTargetContext*,
+                                                     const SkPaint&,
+                                                     GrTextBlob::SubRun*,
+                                                     const SkMatrixProvider&,
                                                      SkPoint drawOrigin,
-                                                     const SkIRect& clipRect,
-                                                     const SkPMColor4f& filteredColor);
+                                                     const SkIRect& clipRect);
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
             GrRenderTargetContext*,
-            GrPaint&&,
+            const SkPaint&,
             GrTextBlob::SubRun*,
-            const SkMatrix& drawMatrix,
+            const SkMatrixProvider&,
             SkPoint drawOrigin,
-            const SkIRect& clipRect,
-            const SkPMColor4f& filteredColor,
-            bool useGammaCorrectDistanceTable,
-            SkColor luminanceColor,
-            const SkSurfaceProps&);
+            const SkIRect& clipRect);
 
     const char* name() const override { return "AtlasTextOp"; }
 
