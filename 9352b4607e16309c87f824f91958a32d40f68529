@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "8bc5761a_1a813a70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-06T15:39:07Z",
+      "side": 1,
+      "message": "tasks.json *was* regenerated, but there was no",
+      "revId": "9352b4607e16309c87f824f91958a32d40f68529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0a9866d1_2075b8ec",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 3
@@ -30,6 +47,30 @@
       "writtenOn": "2020-07-06T15:27:19Z",
       "side": 1,
       "message": "What is the reason for this distinction?  Typically Test/Perf tasks named the same way should use the same configurations.",
+      "range": {
+        "startLine": 1307,
+        "startChar": 66,
+        "endLine": 1309,
+        "endChar": 54
+      },
+      "revId": "9352b4607e16309c87f824f91958a32d40f68529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a444329_26c2c808",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-06T15:39:07Z",
+      "side": 1,
+      "message": "I agree. It should probably be the same, but I would guess this was a shortcut we took to get data to feed into Perf quickly.",
+      "parentUuid": "0a9866d1_2075b8ec",
       "range": {
         "startLine": 1307,
         "startChar": 66,
@@ -62,6 +103,30 @@
       "revId": "9352b4607e16309c87f824f91958a32d40f68529",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89bac2a4_c55fbca7",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-06T15:39:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fae40cf8_199e5c65",
+      "range": {
+        "startLine": 1310,
+        "startChar": 0,
+        "endLine": 1310,
+        "endChar": 32
+      },
+      "revId": "9352b4607e16309c87f824f91958a32d40f68529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
