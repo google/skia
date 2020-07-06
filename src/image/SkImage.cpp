@@ -163,7 +163,7 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
+sk_sp<SkImage> SkImage::makeSubset(GrDirectContext* direct, const SkIRect& subset) const {
     if (subset.isEmpty()) {
         return nullptr;
     }
@@ -178,11 +178,14 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    // CONTEXT TODO: propagate the context parameter to the top-level API
+    return as_IB(this)->onMakeSubset(direct, subset);
+}
+
+sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
 #if SK_SUPPORT_GPU
-    return as_IB(this)->onMakeSubset(as_IB(this)->context(), subset);
+    return this->makeSubset(as_IB(this)->context()->asDirectContext(), subset);
 #else
-    return as_IB(this)->onMakeSubset(nullptr, subset);
+    return this->makeSubset(nullptr, subset);
 #endif
 }
 
