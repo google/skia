@@ -10,7 +10,8 @@
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurfaceCharacterization.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/GrContextPriv.h"
@@ -76,9 +77,13 @@ void GrVkSecondaryCBDrawContext::releaseResources() {
 
 bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
 
-    size_t maxResourceBytes = ctx->getResourceCacheLimit();
+    auto direct = fDevice->recordingContext()->asDirectContext();
+    if (!direct) {
+        return false;
+    }
+
+    size_t maxResourceBytes = direct->getResourceCacheLimit();
 
     // We current don't support textured GrVkSecondaryCBDrawContexts.
     SkASSERT(!rtc->asTextureProxy());
@@ -93,7 +98,7 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
 
     GrBackendFormat format = rtc->asRenderTargetProxy()->backendFormat();
 
-    characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, format,
+    characterization->set(direct->threadSafeProxy(), maxResourceBytes, ii, format,
                           rtc->origin(), rtc->numSamples(),
                           SkSurfaceCharacterization::Textureable(false),
                           SkSurfaceCharacterization::MipMapped(false),
@@ -108,7 +113,11 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
 bool GrVkSecondaryCBDrawContext::isCompatible(
         const SkSurfaceCharacterization& characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
+
+    auto direct = fDevice->recordingContext()->asDirectContext();
+    if (!direct) {
+        return false;
+    }
 
     if (!characterization.isValid()) {
         return false;
@@ -121,7 +130,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
     // As long as the current state in the context allows for greater or equal resources,
     // we allow the DDL to be replayed.
     // DDL TODO: should we just remove the resource check and ignore the cache limits on playback?
-    size_t maxResourceBytes = ctx->getResourceCacheLimit();
+    size_t maxResourceBytes = direct->getResourceCacheLimit();
 
     if (characterization.isTextureable()) {
         // We don't support textureable DDL when rendering to a GrVkSecondaryCBDrawContext.
@@ -140,7 +149,8 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
     GrBackendFormat rtcFormat = rtc->asRenderTargetProxy()->backendFormat();
     GrProtected isProtected = rtc->asRenderTargetProxy()->isProtected();
 
-    return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
+    return characterization.contextInfo() &&
+           characterization.contextInfo()->priv().matches(direct) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
            characterization.backendFormat() == rtcFormat &&
@@ -163,9 +173,13 @@ bool GrVkSecondaryCBDrawContext::draw(const SkDeferredDisplayList* ddl) {
     }
 
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    GrContext* ctx = fDevice->context();
 
-    ctx->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
+    auto direct = fDevice->recordingContext()->asDirectContext();
+    if (!direct) {
+        return false;
+    }
+
+    direct->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
     return true;
 }
 
