@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d44c74df_be734118",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:08:14Z",
+      "side": 1,
+      "message": "I don\u0027t see how to do this. There is no method on GrRenderTargetContextPriv that returns a subclass of GrRecordingContext.",
+      "parentUuid": "15948984_dfb0e5ec",
+      "range": {
+        "startLine": 94,
+        "startChar": 34,
+        "endLine": 94,
+        "endChar": 47
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c37c2d9_43cee89a",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 1
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "6a90aab7_860f11fb",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c37c2d9_43cee89a",
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f2d4a1b_e5dbbbf3",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 1
@@ -53,6 +95,30 @@
       "writtenOn": "2020-07-06T18:48:20Z",
       "side": 1,
       "message": "same here ?",
+      "range": {
+        "startLine": 140,
+        "startChar": 39,
+        "endLine": 140,
+        "endChar": 47
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94d5cba2_92ca0de6",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:08:14Z",
+      "side": 1,
+      "message": "See above.",
+      "parentUuid": "5f2d4a1b_e5dbbbf3",
       "range": {
         "startLine": 140,
         "startChar": 39,
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "c180bcbb_50e72aa5",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80f74704_c0e37099",
+      "range": {
+        "startLine": 147,
+        "startChar": 39,
+        "endLine": 147,
+        "endChar": 52
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abc13e40_9af360ca",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 1
@@ -108,6 +198,30 @@
       "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81b797e7_92c9ecb8",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abc13e40_9af360ca",
+      "range": {
+        "startLine": 157,
+        "startChar": 40,
+        "endLine": 157,
+        "endChar": 56
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "f3399956_9881ca53",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23d39913_5e901b76",
+      "range": {
+        "startLine": 52,
+        "startChar": 19,
+        "endLine": 52,
+        "endChar": 20
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d9bec14a_5ac60ec7",
         "filename": "src/gpu/ops/GrAtlasTextOp.h",
         "patchSetId": 1
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "b2478122_1c5b82a7",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9bec14a_5ac60ec7",
+      "range": {
+        "startLine": 53,
+        "startChar": 26,
+        "endLine": 53,
+        "endChar": 27
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41c287f0_ebce39af",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 1
@@ -177,6 +339,30 @@
       "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04290d42_8b931399",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-06T19:08:14Z",
+      "side": 1,
+      "message": "Next CL.",
+      "parentUuid": "41c287f0_ebce39af",
+      "range": {
+        "startLine": 482,
+        "startChar": 30,
+        "endLine": 482,
+        "endChar": 35
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
