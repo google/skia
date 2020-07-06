@@ -16,6 +16,24 @@
       "revId": "9cbd008cc398a9808c39fe9186d349d0efa82eca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f83eb92_e4adc8e7",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-06T13:52:22Z",
+      "side": 1,
+      "message": "SG, done.",
+      "parentUuid": "a20b38d7_579e3999",
+      "revId": "9cbd008cc398a9808c39fe9186d349d0efa82eca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
