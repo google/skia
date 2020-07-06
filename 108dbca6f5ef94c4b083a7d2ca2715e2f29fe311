@@ -167,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "875af91c_ac304eb0",
+        "filename": "tools/perf-canvaskit-puppeteer/skottie-frames.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-06T19:30:43Z",
+      "side": 1,
+      "message": "Done, and the initial frame times are reaching perf correctly.",
+      "parentUuid": "a200c509_7ccdfb5a",
+      "range": {
+        "startLine": 31,
+        "startChar": 10,
+        "endLine": 31,
+        "endChar": 24
+      },
+      "revId": "108dbca6f5ef94c4b083a7d2ca2715e2f29fe311",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e50df757_2e68b763",
         "filename": "tools/perf-canvaskit-puppeteer/skottie-frames.html",
         "patchSetId": 1
