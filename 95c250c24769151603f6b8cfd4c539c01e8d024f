@@ -16,6 +16,24 @@
       "revId": "95c250c24769151603f6b8cfd4c539c01e8d024f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ccf8a0c_4deaccc8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T14:59:39Z",
+      "side": 1,
+      "message": "They are being blacklisted in:\nhttps://skia-review.googlesource.com/c/skia/+/300638/ (Blacklist more GMs for the *ooprddl configs).\n\nThey shouldn\u0027t draw anything in the OOPR configs.",
+      "parentUuid": "6e1f1aa6_787eae73",
+      "revId": "95c250c24769151603f6b8cfd4c539c01e8d024f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
