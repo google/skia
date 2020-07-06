@@ -16,7 +16,7 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
 
-class GrContext;
+class GrDirectContext;
 class SkSurface;
 
 #define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
@@ -31,7 +31,7 @@ public:
 
     bool init();
 
-    GrContext* grContext() { return fGrContext.get(); }
+    GrDirectContext* directContext() { return fDirectContext.get(); }
 
 private:
     void cleanup();
@@ -62,7 +62,7 @@ private:
     VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
     PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;
     GrVkBackendContext fBackendContext;
-    sk_sp<GrContext> fGrContext;
+    sk_sp<GrDirectContext> fDirectContext;
 };
 
 #undef DECLARE_VK_PROC
