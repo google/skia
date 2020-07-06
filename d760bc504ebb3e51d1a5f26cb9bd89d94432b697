@@ -16,6 +16,24 @@
       "revId": "d760bc504ebb3e51d1a5f26cb9bd89d94432b697",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "523dd61b_467b3967",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12704
+      },
+      "writtenOn": "2020-07-06T13:24:43Z",
+      "side": 1,
+      "message": "Yep. Added myself to AUTHORS now.",
+      "parentUuid": "30f52038_ac670912",
+      "revId": "d760bc504ebb3e51d1a5f26cb9bd89d94432b697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
