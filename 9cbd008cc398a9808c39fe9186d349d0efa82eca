@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a20b38d7_579e3999",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-06T13:39:41Z",
+      "side": 1,
+      "message": "This is the one you are using and it makes sense (vector/scalar).\n\nBut the other ones (scalar/vector or a vector/vector) aren\u0027t super well defined. I think you\u0027re just adding them here for completeness or to match operator*, but I\u0027m not sure how much logical sense they make. At the very least, we should probably avoid adding any of these which aren\u0027t vector/scalar at least for now, at least until they\u0027re really needed and we can justify what they do.",
+      "revId": "9cbd008cc398a9808c39fe9186d349d0efa82eca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
