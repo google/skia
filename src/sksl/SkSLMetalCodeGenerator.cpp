@@ -892,6 +892,10 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 for (const auto& stmt: decls.fVars) {
                     VarDeclaration& var = (VarDeclaration&) *stmt;
                     if (var.fVar->fType.kind() == Type::kSampler_Kind) {
+                        if (var.fVar->fModifiers.fLayout.fBinding < 0) {
+                            fErrors.error(decls.fOffset,
+                                          "Metal samplers must have 'layout(binding=...)'");
+                        }
                         this->write(", texture2d<float> "); // FIXME - support other texture types
                         this->writeName(var.fVar->fName);
                         this->write("[[texture(");
