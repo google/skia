@@ -22,6 +22,30 @@
       "revId": "c05a8b638b14b383baaccc5a5247224acfff280e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1798fb90_ca30afa6",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-06T20:09:06Z",
+      "side": 1,
+      "message": "Right now, Skia (and Chrome) build only D3D12 on Windows by default. I would rather check the backend, TBH, but I\u0027m not sure how to do it here.",
+      "parentUuid": "fa1d5440_506df329",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 23
+      },
+      "revId": "c05a8b638b14b383baaccc5a5247224acfff280e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
