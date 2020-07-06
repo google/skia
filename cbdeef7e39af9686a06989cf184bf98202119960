@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "3dd54685_8cc6e0ca",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-06T23:03:22Z",
+      "side": 1,
+      "message": "Implicit because calling sample() with this FP does not actually have a sample coord argument in its generated function?\n\nWhat about [requires|uses]PerVertexSampleCoords?\n\nBut from earlier discussions, I thought we had a good convention between sample coords (the things FPs see) and local coords (the geometry pre-CTM). We don\u0027t have a good convention for naming properties specific to the FP vs. properties aggregated up/down the FP tree.",
+      "parentUuid": "557cd87c_5445873c",
+      "range": {
+        "startLine": 165,
+        "startChar": 9,
+        "endLine": 165,
+        "endChar": 32
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f07b34d3_75de32b7",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 4
