@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49b5b890_76d09c0f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T12:30:27Z",
+      "side": 1,
+      "message": "Oh, hmm.  This was intended to enable the attribute only for Clang, with other compilers ignoring unknown attributes.  If we\u0027re going to enable it for both Clang and GCC, let\u0027s use SK_ATTRIBUTE(no_sanitize(...)).  That\u0027s defined in SkTypes.h as\n\n#if !defined(SK_ATTRIBUTE)\n#  if defined(__clang__) || defined(__GNUC__)\n#    define SK_ATTRIBUTE(attr) __attribute__((attr))\n#  else\n#    define SK_ATTRIBUTE(attr)\n#  endif\n#endif",
+      "revId": "73fcde8a5e03aaff10ceed97f82e3a7b827a48e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
