@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e52d6d54_2aa21e53",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-06T15:09:33Z",
+      "side": 1,
+      "message": "Can we just make Src::asyncRescaleAndReadPixels always take a context? Maybe in a separate CL?",
+      "range": {
+        "startLine": 53,
+        "startChar": 13,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "5078f4b71dfd85aebee268e63d13d020d258b7a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
