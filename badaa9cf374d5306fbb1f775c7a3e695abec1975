@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06e19414_5211a07a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-06T20:43:47Z",
+      "side": 1,
+      "message": "Current status:\n\n- does no harm (afaik) -- gms are unaffected\n- can (nearly) simulate old behaviors (still don\u0027t try to snap to integers)\n- only implemented for skvm (just to keep the CL smallish), don\u0027t expect RP to be trickier, but not needed for now as I just try it out.\n\nNext steps:\n\n- write explicit gm/samples, esp. to exercise trilerp option\n- plumb-through bicubic option\n\nHappy to take feedback now, at least for what *is* plumbed. Not trying to land this yet.\n",
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
