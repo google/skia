@@ -46,6 +46,30 @@
       "revId": "c05a8b638b14b383baaccc5a5247224acfff280e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "840a7e32_f143e8c1",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-06T20:31:19Z",
+      "side": 1,
+      "message": "Well in the spirit of dawn you shouldn\u0027t be able to check the backend since it shouldn\u0027t matter. Fine with this for now, but we should definitely make that bug a priority as we close to shipping skia dawn somewhere.",
+      "parentUuid": "1798fb90_ca30afa6",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 23
+      },
+      "revId": "c05a8b638b14b383baaccc5a5247224acfff280e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
