@@ -9,6 +9,7 @@
 #define GrContextPriv_DEFINED
 
 #include "include/gpu/GrContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 
 class GrAtlasManager;
 class GrBackendFormat;
