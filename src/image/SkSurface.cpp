@@ -332,7 +332,7 @@ void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
     }
 }
 
-GrContext* SkSurface::getContext() {
+GrContext* SkSurface::getContext1() {
     return asSB(this)->onGetContext();
 }
 

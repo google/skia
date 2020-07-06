@@ -525,14 +525,13 @@ public:
     */
     void notifyContentWillChange(ContentChangeMode mode);
 
-    /** Returns the GPU context of the GPU surface.
-
-        @return  GPU context, if available; nullptr otherwise
+    /** Deprecated.
     */
-    GrContext* getContext();
+    GrContext* getContext1();
 
-    /**
-     * Experimental. SkSurfaces can actually only guarantee a GrRecordingContext.
+    /** Returns the recording context being used by the SkSurface.
+
+        @return the recording context, if available; nullptr otherwise
      */
     GrRecordingContext* recordingContext();
 
