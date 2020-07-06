@@ -16,6 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
@@ -151,7 +152,7 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrDirectContext* context,
                                                     const SkIRect& subset,
                                                     sk_sp<SkImage> image,
                                                     const SkSurfaceProps* props) {
@@ -389,7 +390,11 @@ public:
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
-        return SkSpecialImage::MakeDeferredFromGpu(fContext,
+        GrDirectContext* direct = nullptr;
+#if SK_SUPPORT_GPU
+        direct = fContext->asDirectContext();
+#endif
+        return SkSpecialImage::MakeDeferredFromGpu(direct,
                                                    subset,
                                                    this->uniqueID(),
                                                    fView,
@@ -450,7 +455,7 @@ private:
     typedef SkSpecialImage_Base INHERITED;
 };
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* context,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrDirectContext* context,
                                                           const SkIRect& subset,
                                                           uint32_t uniqueID,
                                                           GrSurfaceProxyView view,

@@ -16,6 +16,10 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
 
+#if SK_SUPPORT_GPU
+#include "include/gpu/GrRecordingContext.h"
+#endif
+
 namespace {
 
 class SkImageSourceImpl final : public SkImageFilter_Base {
@@ -115,7 +119,11 @@ sk_sp<SkSpecialImage> SkImageSourceImpl::onFilterImage(const Context& ctx,
             offset->fX = iLeft;
             offset->fY = iTop;
 
-            return SkSpecialImage::MakeFromImage(ctx.getContext(),
+            GrDirectContext* direct = nullptr;
+#if SK_SUPPORT_GPU
+            direct = ctx.getContext() ? ctx.getContext()->asDirectContext() : nullptr;
+#endif
+            return SkSpecialImage::MakeFromImage(direct,
                                                  SkIRect::MakeWH(fImage->width(), fImage->height()),
                                                  fImage, ctx.surfaceProps());
         }

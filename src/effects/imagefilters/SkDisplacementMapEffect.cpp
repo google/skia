@@ -369,7 +369,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
         return SkSpecialImage::MakeDeferredFromGpu(
-                context,
+                context->asDirectContext(),
                 SkIRect::MakeWH(bounds.width(), bounds.height()),
                 kNeedNewImageUniqueID_SpecialImage,
                 renderTargetContext->readSurfaceView(),

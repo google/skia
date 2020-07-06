@@ -434,8 +434,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
         // Must also map the dstBounds since it is used as the src rect in DrawWithFP when
         // evaluating the FP, and the dst rect just uses the size of dstBounds.
         dstBounds.offset(input->subset().x(), input->subset().y());
-        return DrawWithFP(context, std::move(fp), dstBounds, ctx.colorType(), ctx.colorSpace(),
-                          isProtected);
+        return DrawWithFP(context->asDirectContext(), std::move(fp), dstBounds, ctx.colorType(),
+                          ctx.colorSpace(), isProtected);
     }
 #endif
 

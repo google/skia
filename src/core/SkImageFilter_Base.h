@@ -15,8 +15,8 @@
 
 #include "src/core/SkImageFilterTypes.h"
 
+class GrDirectContext;
 class GrFragmentProcessor;
-class GrRecordingContext;
 
 // True base class that all SkImageFilter implementations need to extend from. This provides the
 // actual API surface that Skia will use to compute the filtered images.
@@ -280,7 +280,7 @@ protected:
     Context mapContext(const Context& ctx) const;
 
 #if SK_SUPPORT_GPU
-    static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,
+    static sk_sp<SkSpecialImage> DrawWithFP(GrDirectContext*,
                                             std::unique_ptr<GrFragmentProcessor> fp,
                                             const SkIRect& bounds,
                                             SkColorType colorType,

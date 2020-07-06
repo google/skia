@@ -32,6 +32,7 @@ class SkSurface;
 class GrBackendTexture;
 class GrContext;
 class GrContextThreadSafeProxy;
+class GrDirectContext;
 
 struct SkYUVAIndex;
 
@@ -1217,7 +1218,7 @@ public:
         of GPU texture returned. offset translates the returned SkImage to keep subsequent
         animation frames aligned with respect to each other.
 
-        @param context     the GrContext in play - if it exists
+        @param context     the GrDirectContext in play - if it exists
         @param filter      how SkImage is sampled when transformed
         @param subset      bounds of SkImage processed by filter
         @param clipBounds  expected bounds of filtered SkImage
@@ -1225,7 +1226,7 @@ public:
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
     */
-    sk_sp<SkImage> makeWithFilter(GrContext* context,
+    sk_sp<SkImage> makeWithFilter(GrDirectContext* context,
                                   const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
