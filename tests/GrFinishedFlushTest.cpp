@@ -10,7 +10,7 @@
 #include <chrono>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 
@@ -37,7 +37,7 @@ static void busy_wait_for_callback(int* count, int expectedValue, GrContext* ctx
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     SkImageInfo info =
             SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
