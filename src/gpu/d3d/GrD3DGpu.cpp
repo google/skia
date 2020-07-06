@@ -78,7 +78,7 @@ void GrD3DGpu::destroyResources() {
     }
 
     // We need to make sure everything has finished on the queue.
-    this->waitFence(fCurrentFenceValue);
+    this->waitForQueueCompletion();
 
     SkDEBUGCODE(uint64_t fenceValue = fFence->GetCompletedValue();)
 
@@ -121,7 +121,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
         return false;
     } else if (result == GrD3DDirectCommandList::SubmitResult::kNoWork) {
         if (sync == SyncQueue::kForce) {
-            this->waitFence(fCurrentFenceValue);
+            this->waitForQueueCompletion();
             this->checkForFinishedCommandLists();
         }
         return true;
@@ -136,7 +136,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
             std::move(fCurrentDirectCommandList), fence);
 
     if (sync == SyncQueue::kForce) {
-        this->waitFence(fence);
+        this->waitForQueueCompletion();
     }
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
@@ -166,6 +166,17 @@ void GrD3DGpu::checkForFinishedCommandLists() {
         fOutstandingCommandLists.pop_front();
         fResourceProvider.recycleDirectCommandList(std::move(currList));
         front = (OutstandingCommandList*)fOutstandingCommandLists.front();
+    }
+}
+
+void GrD3DGpu::waitForQueueCompletion() {
+    if (fFence->GetCompletedValue() < fCurrentFenceValue) {
+        HANDLE fenceEvent;
+        fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        SkASSERT(fenceEvent);
+        GR_D3D_CALL_ERRCHECK(fFence->SetEventOnCompletion(fCurrentFenceValue, fenceEvent));
+        WaitForSingleObject(fenceEvent, INFINITE);
+        CloseHandle(fenceEvent);
     }
 }
 
@@ -1207,14 +1218,5 @@ GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
 }
 
 bool GrD3DGpu::waitFence(GrFence fence) {
-    if (fFence->GetCompletedValue() < fence) {
-        HANDLE fenceEvent;
-        fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        SkASSERT(fenceEvent);
-        GR_D3D_CALL_ERRCHECK(fFence->SetEventOnCompletion(fence, fenceEvent));
-        WaitForSingleObject(fenceEvent, INFINITE);
-        CloseHandle(fenceEvent);
-    }
-
-    return true;
+    return (fFence->GetCompletedValue() >= fence);
 }
