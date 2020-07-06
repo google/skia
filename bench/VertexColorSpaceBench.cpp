@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 
 #include "include/core/SkString.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkHalf.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/GrContextPriv.h"
@@ -288,7 +288,7 @@ public:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->recordingContext()->asDirectContext();
         SkASSERT(context);
 
         if (kHalf_Mode == fMode &&

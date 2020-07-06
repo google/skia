@@ -7,7 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 class CreateBackendTextureBench : public Benchmark {
 private:
@@ -26,7 +26,7 @@ private:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->recordingContext()->asDirectContext();
 
         fBackendTextures.reserve(loops);
 
@@ -39,7 +39,7 @@ private:
     }
 
     void onPerCanvasPostDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->recordingContext()->asDirectContext();
 
         context->flush();
         context->submit(true);

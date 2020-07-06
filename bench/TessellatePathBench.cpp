@@ -6,7 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -47,9 +47,11 @@ public:
         GrContextOptions ctxOptions;
         ctxOptions.fGpuPathRenderers = GpuPathRenderers::kTessellation;
 
-        fMockContext = GrContext::MakeMock(&mockOptions, ctxOptions);
+        // CONTEXT TODO: MakeMock should return an sk_sp<GrDirectContext>
+        auto tmp = GrContext::MakeMock(&mockOptions, ctxOptions);
+        fMockContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
     }
-    const GrContext* mockContext() const { return fMockContext.get(); }
+    const GrDirectContext* mockContext() const { return fMockContext.get(); }
     const GrCaps& caps() const override { return *fMockContext->priv().caps(); }
     GrResourceProvider* resourceProvider() const override {
         return fMockContext->priv().resourceProvider();
@@ -98,7 +100,7 @@ public:
 #undef UNIMPL
 
 private:
-    sk_sp<GrContext> fMockContext;
+    sk_sp<GrDirectContext> fMockContext;
     SkPoint fStaticVertexData[(kNumCubicsInChalkboard + 2) * 8];
     GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
     SkSTArenaAlloc<1024 * 1024> fAllocator;
