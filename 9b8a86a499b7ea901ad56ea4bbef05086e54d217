@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54fd7750_2213fc09",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-06T21:03:48Z",
+      "side": 1,
+      "message": "When we figure out what we want to call these coords, should probably rename this function to reflect it.",
+      "range": {
+        "startLine": 19,
+        "startChar": 12,
+        "endLine": 19,
+        "endChar": 32
+      },
+      "revId": "9b8a86a499b7ea901ad56ea4bbef05086e54d217",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

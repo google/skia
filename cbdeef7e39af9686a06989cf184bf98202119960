@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1e6533e5_46f18b89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-06T21:03:48Z",
+      "side": 1,
+      "message": "Is it not \"local coords\" that are either needed or not? For a draw vertices, it\u0027s going to be the explicit local coords array (if present), right?\n\nI guess if we\u0027re referring to sample coords that are a matrix transformation of local coords, we don\u0027t have a good term for that.",
+      "parentUuid": "9f1efe66_b9e24098",
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19816744_3f0d9fad",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 4
@@ -76,6 +94,30 @@
       "writtenOn": "2020-07-06T21:03:46Z",
       "side": 1,
       "message": "I believe this is true; I had to have these checks before when we could have an actual GrCoordTransform and be sampled explicitly. I bet I could have cleaned this up in my follow up CL that removed the ability to add non-identity coord transforms to an FP, but I missed it then.",
+      "parentUuid": "f07b34d3_75de32b7",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 51
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf34bba8_1a3b4451",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-06T21:03:48Z",
+      "side": 1,
+      "message": "Seems like it. Assert?",
       "parentUuid": "f07b34d3_75de32b7",
       "range": {
         "startLine": 105,
