@@ -22,7 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrConfig.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
@@ -1555,7 +1555,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::testingOnly_createClipMask(GrContext* con
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
     // This test uses resource key tags which only function in debug builds.
 #ifdef SK_DEBUG
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     SkClipStack stack;
 
     SkPath path;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -47,7 +47,7 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
-    GrContext* context0 = ctxInfo.grContext();
+    auto context0 = ctxInfo.directContext();
     sk_gpu_test::GLTestContext* glCtx0 = ctxInfo.glContext();
 
     // Try to create a second GL context and then check if the contexts have necessary

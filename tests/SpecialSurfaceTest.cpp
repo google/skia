@@ -7,14 +7,13 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
-#include "tests/Test.h"
-
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "tests/Test.h"
 
 class TestingSpecialSurfaceAccess {
 public:
@@ -78,13 +77,14 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
+    auto direct = ctxInfo.directContext();
+
     for (auto colorType : {GrColorType::kRGBA_8888, GrColorType::kRGBA_1010102}) {
-        if (!ctxInfo.grContext()->colorTypeSupportedAsSurface(
-                    GrColorTypeToSkColorType(colorType))) {
+        if (!direct->colorTypeSupportedAsSurface(GrColorTypeToSkColorType(colorType))) {
             continue;
         }
         sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(
-                ctxInfo.grContext(), kSmallerSize, kSmallerSize, colorType, nullptr));
+                direct, kSmallerSize, kSmallerSize, colorType, nullptr));
         test_surface(surf, reporter, 0);
     }
 }
