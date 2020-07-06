@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -215,9 +217,9 @@ static void run_test(GrContext* context, skiatest::Reporter* reporter, BulkRectT
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BulkFillRectTest, reporter, ctxInfo) {
-    run_test(ctxInfo.grContext(), reporter, bulk_fill_rect_create_test);
+    run_test(ctxInfo.directContext(), reporter, bulk_fill_rect_create_test);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BulkTextureRectTest, reporter, ctxInfo) {
-    run_test(ctxInfo.grContext(), reporter, bulk_texture_rect_create_test);
+    run_test(ctxInfo.directContext(), reporter, bulk_texture_rect_create_test);
 }
