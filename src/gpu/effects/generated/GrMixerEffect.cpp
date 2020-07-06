@@ -27,20 +27,30 @@ public:
         (void)weight;
         weightVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                      kHalf_GrSLType, "weight");
-        SkString _input1284(args.fInputColor);
-        SkString _sample1284;
-        _sample1284 = this->invokeChild(_outer.fp0_index, _input1284.c_str(), args);
-        SkString _input1309(args.fInputColor);
-        SkString _sample1309;
-        if (_outer.fp1_index >= 0) {
-            _sample1309 = this->invokeChild(_outer.fp1_index, _input1309.c_str(), args);
+        SkString _input1295(args.fInputColor);
+        SkString _sample1295;
+        if (_outer.inputFP_index >= 0) {
+            _sample1295 = this->invokeChild(_outer.inputFP_index, _input1295.c_str(), args);
         } else {
-            _sample1309.swap(_input1309);
+            _sample1295.swap(_input1295);
         }
         fragBuilder->codeAppendf(
-                R"SkSL(%s = mix(%s, %s, %s);
+                R"SkSL(half4 inColor = %s;)SkSL", _sample1295.c_str());
+        SkString _input1346("inColor");
+        SkString _sample1346;
+        _sample1346 = this->invokeChild(_outer.fp0_index, _input1346.c_str(), args);
+        SkString _input1368("inColor");
+        SkString _sample1368;
+        if (_outer.fp1_index >= 0) {
+            _sample1368 = this->invokeChild(_outer.fp1_index, _input1368.c_str(), args);
+        } else {
+            _sample1368.swap(_input1368);
+        }
+        fragBuilder->codeAppendf(
+                R"SkSL(
+%s = mix(%s, %s, %s);
 )SkSL",
-                args.fOutputColor, _sample1284.c_str(), _sample1309.c_str(),
+                args.fOutputColor, _sample1346.c_str(), _sample1368.c_str(),
                 args.fUniformHandler->getUniformCStr(weightVar));
     }
 
@@ -65,6 +75,9 @@ bool GrMixerEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
         : INHERITED(kGrMixerEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
+    if (src.inputFP_index >= 0) {
+        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    }
     { fp0_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp0_index)); }
     if (src.fp1_index >= 0) {
         fp1_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp1_index));

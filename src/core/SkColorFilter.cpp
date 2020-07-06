@@ -385,12 +385,29 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorInfo& dstColorInfo) const override {
-        return GrMixerEffect::Make(
-                fCF0->asFragmentProcessor(context, dstColorInfo),
-                fCF1 ? fCF1->asFragmentProcessor(context, dstColorInfo) : nullptr,
-                fWeight);
+    bool colorFilterAcceptsInputFP() const override { return true; }
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext* context,
+                                   const GrColorInfo& dstColorInfo) const override {
+        bool success;
+        std::unique_ptr<GrFragmentProcessor> fp0, fp1;
+
+        std::tie(success, fp0) = fCF0->asFragmentProcessor(/*inputFP=*/nullptr,
+                                                           context, dstColorInfo);
+        if (!success) {
+            return GrFPFailure(std::move(inputFP));
+        }
+
+        if (fCF1) {
+            std::tie(success, fp1) = fCF1->asFragmentProcessor(/*inputFP=*/nullptr,
+                                                               context, dstColorInfo);
+            if (!success) {
+                return GrFPFailure(std::move(inputFP));
+            }
+        }
+
+        return GrFPSuccess(GrMixerEffect::Make(std::move(inputFP), std::move(fp0),
+                                               std::move(fp1), fWeight));
     }
 #endif
 
