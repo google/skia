@@ -474,17 +474,6 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
     }
 }
 
-SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
-    SkColor4f c = paint.getColor4f();
-    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
-        c = xform->apply(c);
-    }
-    if (auto* cf = paint.getColorFilter()) {
-        c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
-    }
-    return c.premul();
-}
-
 std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
         const SkMatrixProvider& matrixProvider,
         SkPoint drawOrigin,
@@ -492,32 +481,22 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
         const SkPaint& paint,
         const SkSurfaceProps& props,
         GrTextTarget* target) {
-    GrPaint grPaint;
-    target->makeGrPaint(this->maskFormat(), paint, matrixProvider, &grPaint);
-    const GrColorInfo& colorInfo = target->colorInfo();
-    // This is the color the op will use to draw.
-    SkPMColor4f drawingColor = generate_filtered_color(paint, colorInfo);
 
     if (this->drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
         return GrAtlasTextOp::MakeDistanceField(target->renderTargetContext(),
-                                                std::move(grPaint),
+                                                paint,
                                                 this,
-                                                matrixProvider.localToDevice(),
+                                                matrixProvider,
                                                 drawOrigin,
-                                                clipRect,
-                                                drawingColor,
-                                                target->colorInfo().isLinearlyBlended(),
-                                                SkPaintPriv::ComputeLuminanceColor(paint),
-                                                props);
+                                                clipRect);
     } else {
         return GrAtlasTextOp::MakeBitmap(target->renderTargetContext(),
-                                         std::move(grPaint),
+                                         paint,
                                          this,
-                                         matrixProvider.localToDevice(),
+                                         matrixProvider,
                                          drawOrigin,
-                                         clipRect,
-                                         drawingColor);
+                                         clipRect);
     }
 }
 

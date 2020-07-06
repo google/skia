@@ -11,6 +11,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -18,6 +19,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
@@ -72,13 +74,36 @@ void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) c
                                fDrawMatrix, fDrawOrigin, fClipRect);
 }
 
+SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
+    SkColor4f c = paint.getColor4f();
+    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
+        c = xform->apply(c);
+    }
+    if (auto* cf = paint.getColorFilter()) {
+        c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
+    }
+    return c.premul();
+}
+
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRenderTargetContext* rtc,
-                                                         GrPaint&& paint,
+                                                         const SkPaint& paint,
                                                          GrTextBlob::SubRun* subrun,
-                                                         const SkMatrix& drawMatrix,
+                                                         const SkMatrixProvider& matrixProvider,
                                                          SkPoint drawOrigin,
-                                                         const SkIRect& clipRect,
-                                                         const SkPMColor4f& filteredColor) {
+                                                         const SkIRect& clipRect) {
+    GrPaint grPaint;
+    GrRecordingContext* context = rtc->fContext;
+    const GrColorInfo& colorInfo = rtc->colorInfo();
+    if (kARGB_GrMaskFormat == subrun->maskFormat()) {
+        SkPaintToGrPaintWithPrimitiveColor(
+                context, colorInfo, paint, matrixProvider, &grPaint);
+    } else {
+        SkPaintToGrPaint(context, colorInfo, paint, matrixProvider, &grPaint);
+    }
+
+    // This is the color the op will use to draw.
+    SkPMColor4f drawingColor = generate_filtered_color(paint, colorInfo);
+
     GrOpMemoryPool* pool = rtc->fContext->priv().opMemoryPool();
 
     MaskType maskType = [&]() {
@@ -92,29 +117,36 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRenderTargetContext* 
     }();
 
     return pool->allocate<GrAtlasTextOp>(maskType,
-                                         std::move(paint),
+                                         std::move(grPaint),
                                          subrun,
-                                         drawMatrix,
+                                         matrixProvider.localToDevice(),
                                          drawOrigin,
                                          clipRect,
-                                         filteredColor,
+                                         drawingColor,
                                          0,
                                          false,
                                          0);
 }
 
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
-        GrRenderTargetContext* rtc,
-        GrPaint&& paint,
-        GrTextBlob::SubRun* subrun,
-        const SkMatrix& drawMatrix,
-        SkPoint drawOrigin,
-        const SkIRect& clipRect,
-        const SkPMColor4f& filteredColor,
-        bool useGammaCorrectDistanceTable,
-        SkColor luminanceColor,
-        const SkSurfaceProps& props) {
-    GrOpMemoryPool* pool = rtc->fContext->priv().opMemoryPool();
+                                            GrRenderTargetContext* rtc,
+                                            const SkPaint& paint,
+                                            GrTextBlob::SubRun* subrun,
+                                            const SkMatrixProvider& matrixProvider,
+                                            SkPoint drawOrigin,
+                                            const SkIRect& clipRect) {
+
+
+    GrPaint grPaint;
+    GrRecordingContext* context = rtc->fContext;
+    SkPaintToGrPaint(context, rtc->colorInfo(), paint, matrixProvider, &grPaint);
+
+    const GrColorInfo& colorInfo = rtc->colorInfo();
+    // This is the color the op will use to draw.
+    SkPMColor4f drawingColor = generate_filtered_color(paint, colorInfo);
+
+    const SkSurfaceProps& props = rtc->fSurfaceProps;
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
     bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
     bool isLCD = subrun->hasUseLCDText() && SkPixelGeometryIsH(props.pixelGeometry());
     MaskType maskType = !subrun->isAntiAliased() ? kAliasedDistanceField_MaskType
@@ -122,6 +154,8 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                                                   : kLCDDistanceField_MaskType)
                                                          : kGrayscaleDistanceField_MaskType;
 
+    const SkMatrix& drawMatrix = matrixProvider.localToDevice();
+    bool useGammaCorrectDistanceTable = rtc->colorInfo().isLinearlyBlended();
     uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
@@ -134,13 +168,13 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
     }
 
     return pool->allocate<GrAtlasTextOp>(maskType,
-                                         std::move(paint),
+                                         std::move(grPaint),
                                          subrun,
                                          drawMatrix,
                                          drawOrigin,
                                          clipRect,
-                                         filteredColor,
-                                         luminanceColor,
+                                         drawingColor,
+                                         SkPaintPriv::ComputeLuminanceColor(paint),
                                          useGammaCorrectDistanceTable,
                                          DFGPFlags);
 }
