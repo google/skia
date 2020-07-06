@@ -21,6 +21,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkSpan.h"
 
+#include <unicode/ubidi.h>
 #include <algorithm>
 #include <iterator>
 #include <limits>
@@ -130,20 +131,21 @@ TextLine::TextLine(ParagraphImpl* master,
 
     // This is just chosen to catch the common/fast cases. Feel free to tweak.
     constexpr int kPreallocCount = 4;
-    SkAutoSTArray<kPreallocCount, BidiLevel> runLevels(numRuns);
+
+    SkAutoSTArray<kPreallocCount, UBiDiLevel> runLevels(numRuns);
+
     size_t runLevelsIndex = 0;
     for (auto runIndex = start.runIndex(); runIndex <= end.runIndex(); ++runIndex) {
         auto& run = fMaster->run(runIndex);
         runLevels[runLevelsIndex++] = run.fBidiLevel;
-        fMaxRunMetrics.add(
-            InternalLineMetrics(run.fFontMetrics.fAscent, run.fFontMetrics.fDescent, run.fFontMetrics.fLeading));
+        fMaxRunMetrics.add(InternalLineMetrics(run.fFontMetrics.fAscent, run.fFontMetrics.fDescent,
+                                               run.fFontMetrics.fLeading));
     }
     SkASSERT(runLevelsIndex == numRuns);
 
     SkAutoSTArray<kPreallocCount, int32_t> logicalOrder(numRuns);
 
-    // TODO: hide all these logic in SkUnicode?
-    SkUnicode::ReorderVisual(runLevels.data(), numRuns, logicalOrder.data());
+    ubidi_reorderVisual(runLevels.data(), SkToU32(numRuns), logicalOrder.data());
     auto firstRunIndex = start.runIndex();
     for (auto index : logicalOrder) {
         fRunsInVisualOrder.push_back(firstRunIndex + index);

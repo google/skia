@@ -50,7 +50,7 @@ public:
     // ICU results
     SkTArray<CodeUnitFlags> fCodeUnitProperties;
     std::vector<size_t> fWords;
-    std::vector<BidiRegion> fBidiRegions;
+    SkTArray<BidiRegion> fBidiRegions;
     SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;
     SkTArray<size_t, true> fUTF16IndexForUTF8Index;
 };

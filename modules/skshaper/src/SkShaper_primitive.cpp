@@ -10,7 +10,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "modules/skshaper/src/SkUnicode.h"
 #include "src/utils/SkUTF.h"
 
 class SkShaperPrimitive : public SkShaper {
