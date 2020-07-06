@@ -28,11 +28,13 @@ struct SkV2 {
     SkV2 operator*(SkV2 v) const { return {x*v.x, y*v.y}; }
     friend SkV2 operator*(SkV2 v, SkScalar s) { return {v.x*s, v.y*s}; }
     friend SkV2 operator*(SkScalar s, SkV2 v) { return {v.x*s, v.y*s}; }
+    friend SkV2 operator/(SkV2 v, SkScalar s) { return {v.x/s, v.y/s}; }
 
     void operator+=(SkV2 v) { *this = *this + v; }
     void operator-=(SkV2 v) { *this = *this - v; }
     void operator*=(SkV2 v) { *this = *this * v; }
     void operator*=(SkScalar s) { *this = *this * s; }
+    void operator/=(SkScalar s) { *this = *this / s; }
 
     SkScalar lengthSquared() const { return Dot(*this, *this); }
     SkScalar length() const { return SkScalarSqrt(this->lengthSquared()); }
