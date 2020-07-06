@@ -10,20 +10,18 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
-#include "tests/Test.h"
-
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
-
+#include "tests/Test.h"
 
 // This test creates backing resources exactly sized to [kFullSize x kFullSize].
 // It then wraps them in an SkSpecialImage with only the center (red) region being active.
@@ -186,7 +184,7 @@ DEF_TEST(SpecialImage_Image_Legacy, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     SkBitmap bm = create_bm();
     GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
     auto view = maker.view(GrMipMapped::kNo);

@@ -9,7 +9,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkImageInfoPriv.h"
@@ -422,19 +422,20 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto direct = ctxInfo.directContext();
+
     SkBitmap bmp = make_src_bitmap();
 
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             sk_sp<GrTextureProxy> proxy = sk_gpu_test::MakeTextureProxyFromData(
-                    context, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
+                    direct, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
             GrColorType grColorType = SkColorTypeToGrColorType(bmp.colorType());
-            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+            GrSwizzle swizzle = direct->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                        grColorType);
             GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-            auto sContext = GrSurfaceContext::Make(context, std::move(view),
+            auto sContext = GrSurfaceContext::Make(direct, std::move(view),
                     grColorType, kPremul_SkAlphaType, nullptr);
             auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);
             test_readpixels_texture(reporter, std::move(sContext), info);
@@ -977,7 +978,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
 
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         auto factory = std::function<GpuSrcFactory<Surface>>(
-                [context = ctxInfo.grContext(), origin](const SkPixmap& src) {
+                [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
                     if (src.colorType() == kRGB_888x_SkColorType) {
                         return Surface();
                     }
@@ -994,7 +995,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
     using Image = sk_sp<SkImage>;
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Image>>([context](const Image& image,
                                                                const SkIVector& offset,
                                                                const SkPixmap& pixels) {
@@ -1037,8 +1038,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
                 if (src.colorType() == kRGB_888x_SkColorType) {
                     return Image();
                 }
-                return sk_gpu_test::MakeBackendTextureImage(ctxInfo.grContext(), src, renderable,
-                                                            origin);
+                return sk_gpu_test::MakeBackendTextureImage(ctxInfo.directContext(), src,
+                                                            renderable, origin);
             });
             gpu_read_pixels_test_driver(reporter, rules, factory, reader);
         }
@@ -1059,7 +1060,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
 
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         auto factory = std::function<GpuSrcFactory<Surface>>(
-                [context = ctxInfo.grContext(), origin](const SkPixmap& src) {
+                [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
                     if (src.colorType() == kRGB_888x_SkColorType) {
                         return Surface();
                     }

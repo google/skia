@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "tests/Test.h"
 
@@ -34,7 +34,7 @@ static void mark_signaled(void* context) {
 }
 
 DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     const GrMtlCaps* mtlCaps = static_cast<const GrMtlCaps*>(context->priv().caps());
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };

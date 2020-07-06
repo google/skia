@@ -8,7 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
@@ -575,7 +575,7 @@ void check_vk_layout(const GrBackendTexture& backendTex, VkLayout layout) {
 // SkSurface we can create in Ganesh, we can also create a backend texture that is compatible with
 // its characterization and then create a new surface that wraps that backend texture.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CharacterizationBackendAllocationTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
         SkColorType colorType = static_cast<SkColorType>(ct);
@@ -662,7 +662,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CharacterizationBackendAllocationTest, report
 
 ///////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     const GrCaps* caps = context->priv().caps();
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
@@ -828,7 +828,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
     sk_gpu_test::GLTestContext* glCtx = ctxInfo.glContext();
     GrGLStandard standard = glCtx->gl()->fStandard;
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(context->priv().caps());
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
@@ -985,7 +985,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
 #include "src/gpu/vk/GrVkCaps.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     const GrVkCaps* vkCaps = static_cast<const GrVkCaps*>(context->priv().caps());
 
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };

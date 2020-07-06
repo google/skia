@@ -10,9 +10,8 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tests/Test.h"
-
-#include "include/gpu/GrContext.h"
 
 static void test_bitmap_equality(skiatest::Reporter* reporter, SkBitmap& bm1, SkBitmap& bm2) {
     REPORTER_ASSERT(reporter, bm1.computeByteSize() == bm2.computeByteSize());
@@ -132,12 +131,14 @@ static void raster_to_gpu(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU, reporter, ctxInfo) {
+    auto context = ctxInfo.directContext();
+
     //  GPU -> GPU
-    gpu_to_gpu(reporter, ctxInfo.grContext());
+    gpu_to_gpu(reporter, context);
 
     //  GPU -> RASTER
-    gpu_to_raster(reporter, ctxInfo.grContext());
+    gpu_to_raster(reporter, context);
 
     //  RASTER -> GPU
-    raster_to_gpu(reporter, ctxInfo.grContext());
+    raster_to_gpu(reporter, context);
 }
