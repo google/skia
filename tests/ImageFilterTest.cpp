@@ -504,7 +504,7 @@ static bool special_image_to_bitmap(const SkSpecialImage* src, SkBitmap* dst) {
     return img->readPixels(dst->pixmap(), src->subset().fLeft, src->subset().fTop);
 }
 
-static void test_negative_blur_sigma(skiatest::Reporter* reporter, GrContext* context) {
+static void test_negative_blur_sigma(skiatest::Reporter* reporter, GrDirectContext* context) {
     // Check that SkBlurImageFilter will accept a negative sigma, either in
     // the given arguments or after CTM application.
     static const int kWidth = 32, kHeight = 32;
@@ -584,7 +584,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, c
     test_negative_blur_sigma(reporter, ctxInfo.directContext());
 }
 
-static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter, GrContext* context) {
+static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
+                                                   GrDirectContext* context) {
     // Check that SkMorphologyImageFilter maps the radius correctly when the
     // CTM contains a mirroring transform.
     static const int kWidth = 32, kHeight = 32;

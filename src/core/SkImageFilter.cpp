@@ -23,6 +23,7 @@
 #include "src/core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextPriv.h"
@@ -559,7 +560,7 @@ SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) c
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context,
+sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrDirectContext* direct,
                                                      std::unique_ptr<GrFragmentProcessor> fp,
                                                      const SkIRect& bounds,
                                                      SkColorType colorType,
@@ -570,7 +571,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto renderTargetContext = GrRenderTargetContext::Make(
-            context, SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace),
+            direct, SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace),
             SkBackingFit::kApprox, bounds.size(), 1, GrMipMapped::kNo, isProtected,
             kBottomLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
@@ -584,7 +585,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
                                         dstRect, srcRect);
 
     return SkSpecialImage::MakeDeferredFromGpu(
-            context, dstIRect, kNeedNewImageUniqueID_SpecialImage,
+            direct, dstIRect, kNeedNewImageUniqueID_SpecialImage,
             renderTargetContext->readSurfaceView(), renderTargetContext->colorInfo().colorType(),
             renderTargetContext->colorInfo().refColorSpace());
 }

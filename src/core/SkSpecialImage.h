@@ -18,6 +18,7 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #endif
 
+class GrDirectContext;
 class GrRecordingContext;
 class GrTextureProxy;
 class SkBitmap;
@@ -66,7 +67,7 @@ public:
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
-    static sk_sp<SkSpecialImage> MakeFromImage(GrRecordingContext*,
+    static sk_sp<SkSpecialImage> MakeFromImage(GrDirectContext*,
                                                const SkIRect& subset,
                                                sk_sp<SkImage>,
                                                const SkSurfaceProps* = nullptr);
@@ -77,7 +78,7 @@ public:
                                                 const SkBitmap&,
                                                 const SkSurfaceProps* = nullptr);
 #if SK_SUPPORT_GPU
-    static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
+    static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrDirectContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
                                                      GrSurfaceProxyView,

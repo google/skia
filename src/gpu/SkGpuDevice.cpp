@@ -703,7 +703,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 
     // GrMakeCachedBitmapProxyView creates a tight copy of 'bitmap' so we don't have to subset
     // the special image
-    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+    return SkSpecialImage::MakeDeferredFromGpu(fContext.get()->asDirectContext(),
                                                rect,
                                                bitmap.getGenerationID(),
                                                std::move(view),
@@ -718,7 +718,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
         const GrSurfaceProxyView* view = as_IB(image)->view(this->recordingContext());
         SkASSERT(view);
 
-        return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+        return SkSpecialImage::MakeDeferredFromGpu(fContext.get()->asDirectContext(),
                                                    SkIRect::MakeWH(image->width(), image->height()),
                                                    image->uniqueID(),
                                                    *view,
@@ -768,8 +768,9 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
     }
 
     GrColorType ct = SkColorTypeToGrColorType(this->imageInfo().colorType());
-
-    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+    auto direct = fContext->asDirectContext();
+    SkASSERT(direct);
+    return SkSpecialImage::MakeDeferredFromGpu(direct,
                                                finalSubset,
                                                kNeedNewImageUniqueID_SpecialImage,
                                                std::move(view),

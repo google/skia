@@ -16,6 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
@@ -181,8 +182,8 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(thresholdFP), bounds, ctx.colorType(),
-                          ctx.colorSpace(), isProtected);
+        return DrawWithFP(context->asDirectContext(), std::move(thresholdFP), bounds,
+                          ctx.colorType(), ctx.colorSpace(), isProtected);
     }
 #endif
 

@@ -150,7 +150,8 @@ public:
 
         // Note: SkSpecialImages can only be snapShotted once, so this call is destructive and we
         // move fReadMove.
-        return SkSpecialImage::MakeDeferredFromGpu(fCanvas->getGrContext(),
+        auto direct = fCanvas->recordingContext()->asDirectContext();
+        return SkSpecialImage::MakeDeferredFromGpu(direct,
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
                                                    std::move(fReadView), ct,

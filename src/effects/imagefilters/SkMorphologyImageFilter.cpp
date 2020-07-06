@@ -515,7 +515,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcView = dstRTContext->readSurfaceView();
     }
 
-    return SkSpecialImage::MakeDeferredFromGpu(context,
+    return SkSpecialImage::MakeDeferredFromGpu(context->asDirectContext(),
                                                SkIRect::MakeWH(rect.width(), rect.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
                                                std::move(srcView), colorType,
