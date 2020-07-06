@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c7ce377_871c2d3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-06T16:57:15Z",
+      "side": 1,
+      "message": "I think I\u0027d like to land this chunk separate from the final step - this one is largely mechanical, the next piece involves more structural changes to iteration and (possibly) naming.",
+      "revId": "7f23a20f4d767d7cd758b9268382cc23f118d2c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
