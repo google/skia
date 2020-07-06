@@ -10,7 +10,6 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkSpan.h"
 #include <vector>
-#include <unicode/utf.h>
 
 namespace skia {
 
