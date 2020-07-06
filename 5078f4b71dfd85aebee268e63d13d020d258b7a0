@@ -22,6 +22,30 @@
       "revId": "5078f4b71dfd85aebee268e63d13d020d258b7a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1968f266_48e658c2",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-06T15:39:58Z",
+      "side": 1,
+      "message": "Discussed offline",
+      "parentUuid": "e52d6d54_2aa21e53",
+      "range": {
+        "startLine": 53,
+        "startChar": 13,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "5078f4b71dfd85aebee268e63d13d020d258b7a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
