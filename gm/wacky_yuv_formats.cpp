@@ -1399,6 +1399,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        auto context = canvas->recordingContext();
         float cellWidth = kTileWidthHeight, cellHeight = kTileWidthHeight;
         if (fUseDomain) {
             cellWidth *= 1.5f;
@@ -1456,7 +1457,7 @@ protected:
                         // doesn't make a whole lot of sense. The colorSpace conversion will
                         // operate on the YUV components rather than the RGB components.
                         sk_sp<SkImage> csImage =
-                            fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace);
+                            fImages[opaque][cs][format]->makeColorSpace(context, fTargetColorSpace);
                         canvas->drawImageRect(csImage, srcRect, dstRect, &paint, constraint);
                     } else {
                         canvas->drawImageRect(fImages[opaque][cs][format], srcRect, dstRect,
@@ -1624,18 +1625,18 @@ protected:
                 int y = kPad;
 
                 auto raster = SkImage::MakeFromBitmap(fOriginalBMs[opaque])
-                    ->makeColorSpace(fTargetColorSpace);
+                    ->makeColorSpace(context, fTargetColorSpace);
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 
                 if (fImages[opaque][tagged]) {
-                    auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace);
+                    auto yuv = fImages[opaque][tagged]->makeColorSpace(context, fTargetColorSpace);
                     SkASSERT(SkColorSpace::Equals(yuv->colorSpace(), fTargetColorSpace.get()));
                     canvas->drawImage(yuv, x, y);
                     y += kTileWidthHeight + kPad;
 
-                    auto subset = yuv->makeSubset(SkIRect::MakeWH(kTileWidthHeight / 2,
-                                                                  kTileWidthHeight / 2));
+                    auto subset = yuv->makeSubset(context, SkIRect::MakeWH(kTileWidthHeight / 2,
+                                                                           kTileWidthHeight / 2));
                     canvas->drawImage(subset, x, y);
                     y += kTileWidthHeight + kPad;
 

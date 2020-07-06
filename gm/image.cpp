@@ -431,7 +431,7 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
     }
 
     canvas->drawImage(img, 10, 10, nullptr);
-    auto sub = img->makeSubset({100, 100, 200, 200});
+    auto sub = img->makeSubset(canvas->recordingContext(), {100, 100, 200, 200});
     canvas->drawImage(sub, 220, 10);
     sub = serial_deserial(sub.get());
     canvas->drawImage(sub, 220+110, 10);

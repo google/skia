@@ -82,7 +82,7 @@ DEF_SIMPLE_GM(imagemasksubset, canvas, 480, 480) {
         sk_sp<SkImage> image = makers[i](canvas, info);
         if (image) {
             canvas->drawImageRect(image, SkRect::Make(kSubset), kDest, &paint);
-            sk_sp<SkImage> subset = image->makeSubset(kSubset);
+            sk_sp<SkImage> subset = image->makeSubset(canvas->recordingContext(), kSubset);
             canvas->drawImageRect(subset, kDest.makeOffset(kSize.width() * 1.5f, 0), &paint);
         }
         canvas->translate(0, kSize.height() * 1.5f);

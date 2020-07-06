@@ -24,7 +24,7 @@ class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
     friend class GrYUVAImageTextureMaker;
 
-    SkImage_GpuYUVA(sk_sp<GrContext>,
+    SkImage_GpuYUVA(sk_sp<GrImageContext>,
                     SkISize size,
                     uint32_t uniqueID,
                     SkYUVColorSpace,
@@ -47,8 +47,8 @@ public:
         return true;
     }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
-                                                SkColorType, sk_sp<SkColorSpace>) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*, SkColorType,
+                                                sk_sp<SkColorSpace>) const final;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 

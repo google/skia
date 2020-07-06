@@ -17,6 +17,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrPathRendererChain.h"
 #include "src/gpu/GrProxyProvider.h"
