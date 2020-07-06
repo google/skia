@@ -322,9 +322,10 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
     [super updateTrackingAreas];
 }
 
-- (void)updateModifierKeys:(skui::ModifierKey) modifiers {
+- (skui::ModifierKey) updateModifierKeys:(NSEvent*) event {
     using sknonstd::Any;
 
+    skui::ModifierKey modifiers = get_modifiers(event);
     skui::ModifierKey changed = modifiers ^ fLastModifiers;
     fLastModifiers = modifiers;
 
@@ -344,20 +345,24 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
             (void) fWindow->onKey(cur.key, state, modifiers);
         }
     }
+
+    return modifiers;
 }
 
 - (BOOL)performKeyEquivalent:(NSEvent *)event {
-    // By default, key equivalents send -keyDown events without a matching -keyUp. Let's synthesize
-    // a matching -keyUp on a later frame. We only read the modifiers and key code from the event,
-    // so we can get away with reusing a "key down" event as a "key up".
-    [self keyDown:event];
+    [self updateModifierKeys:event];
+
+    // By default, unhandled key equivalents send -keyDown events; unfortunately, they do not send
+    // a matching -keyUp. In other words, we can claim that we didn't handle the event and OS X will
+    // turn this event into a -keyDown automatically, but we need to synthesize a matching -keyUp on
+    // a later frame. Since we only read the modifiers and key code from the event, we can reuse
+    // this "key-equivalent" event as a "key up".
     [self performSelector:@selector(keyUp:) withObject:event afterDelay:0.1];
-    return YES;
+    return NO;
 }
 
 - (void)keyDown:(NSEvent *)event {
-    skui::ModifierKey modifiers = get_modifiers(event);
-    [self updateModifierKeys:modifiers];
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     skui::Key key = get_key([event keyCode]);
     if (key != skui::Key::kNONE) {
@@ -381,8 +386,7 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)keyUp:(NSEvent *)event {
-    skui::ModifierKey modifiers = get_modifiers(event);
-    [self updateModifierKeys:modifiers];
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     skui::Key key = get_key([event keyCode]);
     if (key != skui::Key::kNONE) {
@@ -391,13 +395,11 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 -(void)flagsChanged:(NSEvent *)event {
-    skui::ModifierKey modifiers = get_modifiers(event);
-    [self updateModifierKeys:modifiers];
+    [self updateModifierKeys:event];
 }
 
 - (void)mouseDown:(NSEvent *)event {
-    skui::ModifierKey modifiers = get_modifiers(event);
-    [self updateModifierKeys:modifiers];
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
@@ -405,8 +407,7 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)mouseUp:(NSEvent *)event {
-    skui::ModifierKey modifiers = get_modifiers(event);
-    [self updateModifierKeys:modifiers];
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
@@ -414,12 +415,12 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)mouseDragged:(NSEvent *)event {
+    [self updateModifierKeys:event];
     [self mouseMoved:event];
 }
 
 - (void)mouseMoved:(NSEvent *)event {
-    skui::ModifierKey modifiers = get_modifiers(event);
-    [self updateModifierKeys:modifiers];
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
@@ -427,8 +428,7 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)scrollWheel:(NSEvent *)event {
-    skui::ModifierKey modifiers = get_modifiers(event);
-    [self updateModifierKeys:modifiers];
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     // TODO: support hasPreciseScrollingDeltas?
     fWindow->onMouseWheel([event scrollingDeltaY], modifiers);
