@@ -214,6 +214,7 @@ private:
     bool submitDirectCommandList(SyncQueue sync);
 
     void checkForFinishedCommandLists();
+    void waitForQueueCompletion();
 
     void copySurfaceAsCopyTexture(GrSurface* dst, GrSurface* src, GrD3DTextureResource* dstResource,
                                   GrD3DTextureResource* srcResource, const SkIRect& srcRect,
