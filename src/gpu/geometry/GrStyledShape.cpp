@@ -699,6 +699,10 @@ bool GrStyledShape::simplifyStroke(bool originallyClosed) {
             // turn. With round joins, this would make a semi-circle at each end, which is visually
             // identical to a round cap on the reduced line geometry.
             cap = SkPaint::kRound_Cap;
+        } else if (fShape.isLine() && fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
+                   !strokeAndFilled) {
+            // The on-edge profile of a miter-join on a rect is equivalent to a square cap.
+            cap = SkPaint::kSquare_Cap;
         } else if (fShape.isPoint() && fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
                    !strokeAndFilled) {
             // Use a square cap for miter join + stroked points, which matches raster's behavior and
