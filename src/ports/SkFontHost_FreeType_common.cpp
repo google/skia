@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPath.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkFDot6.h"
@@ -372,7 +373,8 @@ inline SkColorType SkColorType_for_SkMaskFormat(SkMask::Format format) {
 void SkScalerContext_FreeType_Base::generateGlyphImage(
     FT_Face face,
     const SkGlyph& glyph,
-    const SkMatrix& bitmapTransform)
+    const SkMatrix& bitmapTransform,
+    const SkVector& scale)
 {
     const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
     const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
@@ -428,21 +430,121 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 layerIterator.p  = NULL;
                 FT_Bool haveLayers = false;
                 FT_UInt layerGlyphIndex;
-                FT_UInt layerColorIndex;
+                FT_COLR_Paint layerPaint;
 
-                while (FT_Get_Color_Glyph_Layer(face, glyph.getGlyphID(), &layerGlyphIndex,
-                                                &layerColorIndex,
-                                                &layerIterator)) {
+                // FT_UInt layerColorIndex;
+                // while (FT_Get_Color_Glyph_Layer(face, glyph.getGlyphID(), &layerGlyphIndex,
+                //                                 &layerColorIndex,
+                //                                 &layerIterator)) {
+                //     haveLayers = true;
+                //     if (layerColorIndex == 0xFFFF) {
+                //         paint.setColor(SK_ColorBLACK);
+                //     } else {
+                //         SkColor color = SkColorSetARGB(palette[layerColorIndex].alpha,
+                //                                        palette[layerColorIndex].red,
+                //                                        palette[layerColorIndex].green,
+                //                                        palette[layerColorIndex].blue);
+                //         paint.setColor(color);
+                //     }
+                //     SkPath path;
+                //     if (this->generateFacePath(face, layerGlyphIndex, &path)) {
+                //         canvas.drawPath(path, paint);
+                //     }
+                // }
+
+                SkScalar upem = SkIntToScalar(SkTypeface_FreeType::GetUnitsPerEm(face));
+
+                while (FT_Get_Color_Glyph_Layer_Gradients(
+                        face, glyph.getGlyphID(), &layerGlyphIndex, &layerPaint, &layerIterator)) {
                     haveLayers = true;
-                    if (layerColorIndex == 0xFFFF) {
-                        paint.setColor(SK_ColorBLACK);
-                    } else {
-                        SkColor color = SkColorSetARGB(palette[layerColorIndex].alpha,
-                                                       palette[layerColorIndex].red,
-                                                       palette[layerColorIndex].green,
-                                                       palette[layerColorIndex].blue);
-                        paint.setColor(color);
+
+                    switch (layerPaint.format) {
+                      case COLR_PAINTFORMAT_SOLID: {
+                          SkColor color = SkColorSetARGB(
+                                  palette[layerPaint.u.solid.color.palette_index]
+                                          .alpha /* todo solid.color.alpha to be multiplied in */,
+                                  palette[layerPaint.u.solid.color.palette_index].red,
+                                  palette[layerPaint.u.solid.color.palette_index].green,
+                                  palette[layerPaint.u.solid.color.palette_index].blue);
+                          paint.setColor(color);
+                          break;
+                      }
+                      case COLR_PAINTFORMAT_LINEAR_GRADIENT: {
+
+                        /* retrieve color stop */
+
+                        const FT_UInt num_color_stops =
+                                layerPaint.u.linear_gradient.colorline.color_stop_iterator
+                                        .num_color_stops;
+                        /* TODO: Calculate the tranformation for p2? */
+                        SkPoint line_positions[2];
+                        line_positions[0].fX = layerPaint.u.linear_gradient.p0.x / upem * scale.x();
+                        line_positions[0].fY = layerPaint.u.linear_gradient.p0.y / upem * scale.y();
+                        line_positions[1].fX = layerPaint.u.linear_gradient.p1.x / upem * scale.x();
+                        line_positions[1].fY = layerPaint.u.linear_gradient.p1.y / upem * scale.y();
+
+                        /* populate points */
+                        SkScalar stops[num_color_stops];
+                        SkColor colors[num_color_stops];
+
+                        FT_ColorStop color_stop;
+                        while (FT_Get_Colorline_Stops(
+                                face, &color_stop,
+                                &layerPaint.u.linear_gradient.colorline.color_stop_iterator)) {
+                            FT_UInt index = layerPaint.u.linear_gradient.colorline
+                                                    .color_stop_iterator.current_color_stop -
+                                            1;
+                            stops[index]= color_stop.stop_offset / float(1 << 14);
+                            FT_UInt16& palette_index = color_stop.color.palette_index;
+                            /* TODO: extra alpha from font table */
+                            colors[index] = SkColorSetARGB(
+                                    palette[palette_index].alpha, palette[palette_index].red,
+                                    palette[palette_index].green, palette[palette_index].blue);
+                        }
+                        /* TODO: extend mode */
+                        paint.setShader(SkGradientShader::MakeLinear(line_positions, colors, stops,
+                                                                     num_color_stops,
+                                                                     SkTileMode::kClamp));
+                        break;
+                      }
+                      case COLR_PAINTFORMAT_RADIAL_GRADIENT: {
+                          const FT_UInt num_color_stops =
+                                  layerPaint.u.radial_gradient.colorline.color_stop_iterator
+                                          .num_color_stops;
+                          SkPoint start = SkPoint::Make(layerPaint.u.radial_gradient.c0.x / upem * scale.x(), layerPaint.u.radial_gradient.c0.y / upem * scale.y());
+                          /* move scale to matrix? */
+                          SkScalar radius = layerPaint.u.radial_gradient.r0 / upem * scale.y();
+                          SkPoint end = SkPoint::Make(layerPaint.u.radial_gradient.c1.x / upem * scale.x(), layerPaint.u.radial_gradient.c1.y / upem * scale.y());
+                          SkScalar end_radius = layerPaint.u.radial_gradient.r1 / upem * scale.y();
+
+                        /* populate points */
+                        SkScalar stops[num_color_stops];
+                        SkColor colors[num_color_stops];
+
+                        FT_ColorStop color_stop;
+                        while (FT_Get_Colorline_Stops(
+                                face, &color_stop,
+                                &layerPaint.u.radial_gradient.colorline.color_stop_iterator)) {
+                            FT_UInt index = layerPaint.u.linear_gradient.colorline
+                                                    .color_stop_iterator.current_color_stop -
+                                            1;
+                            stops[index]= color_stop.stop_offset / float(1 << 14);
+                            printf("Stop position: %f\n", stops[index]);
+                            FT_UInt16& palette_index = color_stop.color.palette_index;
+                            /* TODO: extra alpha from font table */
+                            colors[index] = SkColorSetARGB(
+                                    palette[palette_index].alpha, palette[palette_index].red,
+                                    palette[palette_index].green, palette[palette_index].blue);
+                        }
+                        /* TODO: Extend mode */
+                        paint.setShader(SkGradientShader::MakeTwoPointConical(start, radius, end, end_radius, colors, stops, num_color_stops, SkTileMode::kClamp));
+                        break;
+                      }
+                      default:
+                        paint.setColor(SK_ColorCYAN);
+                      break;
                     }
+
                     SkPath path;
                     if (this->generateFacePath(face, layerGlyphIndex, &path)) {
                         canvas.drawPath(path, paint);

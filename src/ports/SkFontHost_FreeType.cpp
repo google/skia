@@ -1219,6 +1219,32 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
             }
         }
 
+        FT_COLR_Paint layerPaint;
+        while (FT_Get_Color_Glyph_Layer_Gradients(fFace, glyph->getGlyphID(),
+                                        &layerGlyphIndex, &layerPaint, &layerIterator))
+        {
+            // TODO: Avoid this code duplication for v1 bbox extension.
+            haveLayers = true;
+            err = FT_Load_Glyph(fFace, layerGlyphIndex,
+                                fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
+            if (err != 0) {
+                glyph->zeroMetrics();
+                return;
+            }
+            emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
+
+            if (0 < fFace->glyph->outline.n_contours) {
+                FT_BBox bbox;
+                getBBoxForCurrentGlyph(glyph, &bbox, true);
+
+                // Union
+                bounds.xMin = std::min(bbox.xMin, bounds.xMin);
+                bounds.yMin = std::min(bbox.yMin, bounds.yMin);
+                bounds.xMax = std::max(bbox.xMax, bounds.xMax);
+                bounds.yMax = std::max(bbox.yMax, bounds.yMax);
+            }
+        }
+
         if (haveLayers) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
             if (!(bounds.xMin < bounds.xMax && bounds.yMin < bounds.yMax)) {
@@ -1346,7 +1372,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                                            SkFixedToScalar(glyph.getSubYFixed()));
         bitmapMatrix = &subpixelBitmapMatrix;
     }
-    generateGlyphImage(fFace, glyph, *bitmapMatrix);
+    generateGlyphImage(fFace, glyph, *bitmapMatrix, fScale);
 }
 
 
