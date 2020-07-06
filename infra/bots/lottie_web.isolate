@@ -7,6 +7,7 @@
       '../../tools/lottie-web-perf',
       '../../tools/lottiecap',
       '../lottiecap',
+      '../../../lottie',
     ],
   },
 }
