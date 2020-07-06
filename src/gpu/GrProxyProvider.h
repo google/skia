@@ -117,9 +117,10 @@ public:
                                              GrIOType,
                                              sk_sp<GrRefCntedCallback> = nullptr);
 
-    sk_sp<GrTextureProxy> wrapCompressedBackendTexture(const GrBackendTexture&, GrWrapOwnership,
-                                                       GrWrapCacheable, ReleaseProc = nullptr,
-                                                       ReleaseContext = nullptr);
+    sk_sp<GrTextureProxy> wrapCompressedBackendTexture(const GrBackendTexture&,
+                                                       GrWrapOwnership,
+                                                       GrWrapCacheable,
+                                                       sk_sp<GrRefCntedCallback> releaseHelper);
 
     /*
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
@@ -128,15 +129,13 @@ public:
                                                        int sampleCnt,
                                                        GrWrapOwnership,
                                                        GrWrapCacheable,
-                                                       ReleaseProc = nullptr,
-                                                       ReleaseContext = nullptr);
+                                                       sk_sp<GrRefCntedCallback> releaseHelper);
 
     /*
      * Create a render target proxy that wraps a backend render target
      */
     sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                  ReleaseProc = nullptr,
-                                                  ReleaseContext = nullptr);
+                                                  sk_sp<GrRefCntedCallback> releaseHelper);
 
     /*
      * Create a render target proxy that wraps a backend texture
