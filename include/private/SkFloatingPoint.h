@@ -156,10 +156,17 @@ static inline int64_t sk_float_saturate2int64(float x) {
 #define sk_double_round2int(x)      (int)floor((x) + 0.5)
 #define sk_double_ceil2int(x)       (int)ceil(x)
 
+// attribute no_sanitize is specified differently for GCC and Clang
+#if defined(__GNUC__)
+#define SK_NO_SANITIZE(x) __attribute__ ((no_sanitize(x)))
+#else
+#define SK_NO_SANITIZE(x) [[clang::no_sanitize(x)]]
+#endif
+
 // Cast double to float, ignoring any warning about too-large finite values being cast to float.
 // Clang thinks this is undefined, but it's actually implementation defined to return either
 // the largest float or infinity (one of the two bracketing representable floats).  Good enough!
-[[clang::no_sanitize("float-cast-overflow")]]
+SK_NO_SANITIZE("float-cast-overflow")
 static inline float sk_double_to_float(double x) {
     return static_cast<float>(x);
 }
@@ -226,15 +233,17 @@ static inline float sk_float_rsqrt(float x) {
 // IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not
 // so we have a helper that suppresses the possible undefined-behavior warnings.
 
-[[clang::no_sanitize("float-divide-by-zero")]]
+SK_NO_SANITIZE("float-divide-by-zero")
 static inline float sk_ieee_float_divide(float numer, float denom) {
     return numer / denom;
 }
 
-[[clang::no_sanitize("float-divide-by-zero")]]
+SK_NO_SANITIZE("float-divide-by-zero")
 static inline double sk_ieee_double_divide(double numer, double denom) {
     return numer / denom;
 }
+
+#undef SK_NO_SANITIZE
 
 // While we clean up divide by zero, we'll replace places that do divide by zero with this TODO.
 static inline float sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(float n, float d) {
