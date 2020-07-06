@@ -7,7 +7,7 @@
 
 #include "include/core/SkImage.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrTexture.h"
@@ -20,7 +20,7 @@
 #include "src/gpu/vk/GrVkTexture.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     GrBackendFormat format = GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
     GrBackendTexture backendTex = context->createBackendTexture(

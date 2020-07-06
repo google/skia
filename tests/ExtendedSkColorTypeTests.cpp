@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 
 #include "tests/Test.h"
@@ -302,7 +303,7 @@ DEF_TEST(ExtendedSkColorTypeTests_raster, reporter) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ExtendedSkColorTypeTests_gpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {
         gpu_tests(context, reporter, gTests[i]);
