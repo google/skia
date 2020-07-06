@@ -434,6 +434,40 @@ CanvasKit.onRuntimeInitialized = function() {
     ];
   }
 
+  // Return the inverse of an SkM44. throw an error if it's not invertible
+  CanvasKit.SkM44.mustInvert = function(m) {
+    var m2 = CanvasKit.SkM44.invert(m);
+    if (m2 === null) {
+      throw "Matrix not invertible";
+    }
+    return m2;
+  }
+
+  // returns a matrix that sets up a 3D perspective view from a given camera.
+  //
+  // area - a rect describing the viewport. (0, 0, canvas_width, canvas_height) suggested
+  // zscale - a scalar describing the scale of the z axis. min(width, height)/2 suggested
+  // cam - an object with the following attributes
+  // const cam = {
+  //   'eye'  : [0, 0, 1 / Math.tan(Math.PI / 24) - 1], // a 3D point locating the camera
+  //   'coa'  : [0, 0, 0], // center of attention - the 3D point the camera is looking at.
+  //   'up'   : [0, 1, 0], // a unit vector pointing in the camera's up direction, because eye and coa alone leave roll unspecified.
+  //   'near' : 0.02,      // near clipping plane
+  //   'far'  : 4,         // far clipping plane
+  //   'angle': Math.PI / 12, // field of view in radians
+  // };
+  CanvasKit.SkM44.setupCamera = function(area, zscale, cam) {
+    var camera = CanvasKit.SkM44.lookat(cam['eye'], cam['coa'], cam['up']);
+    var perspective = CanvasKit.SkM44.perspective(cam['near'], cam['far'], cam['angle']);
+    var center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
+    var viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
+    var viewport = CanvasKit.SkM44.multiply(
+      CanvasKit.SkM44.translated(center),
+      CanvasKit.SkM44.scaled(viewScale));
+    return CanvasKit.SkM44.multiply(
+      viewport, perspective, camera, CanvasKit.SkM44.mustInvert(viewport));
+  }
+
   // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
   //  with a 1x4 matrix that post-translates those 4 channels.
   // For example, the following is the layout with the scale (S) and post-transform
