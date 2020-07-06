@@ -1303,7 +1303,11 @@ func (b *jobBuilder) dm() {
 			isolate = "canvaskit.isolate"
 			recipe = "test_canvaskit"
 		} else if b.extraConfig("LottieWeb") {
-			isolate = "lottie_web.isolate"
+			// lottie_ci.isolate differs from lottie_web.isolate in that it includes more of the files,
+			// especially those brought in via DEPS in the lottie-ci repo. The main difference between
+			// Perf.+LottieWeb and Test.+LottieWeb is that the former pulls in the lottie build via
+			// npm and the latter always tests at lottie's ToT.
+			isolate = "lottie_ci.isolate"
 			recipe = "test_lottie_web"
 		}
 		b.recipeProp("gold_hashes_url", b.cfg.GoldHashesURL)
