@@ -327,7 +327,9 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
 
 bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    SkASSERT(this->currentCommandBuffer());
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
     SkASSERT(!fCachedOpsRenderPass || !fCachedOpsRenderPass->isActive());
 
     if (!this->currentCommandBuffer()->hasWork() && kForce_SyncQueue != sync &&
@@ -478,6 +480,9 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                                  GrColorType surfaceColorType, GrColorType bufferColorType,
                                  GrGpuBuffer* transferBuffer, size_t bufferOffset,
                                  size_t rowBytes) {
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
     if (surfaceColorType != bufferColorType) {
         return false;
     }
@@ -542,6 +547,9 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
 bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                                    GrColorType surfaceColorType, GrColorType bufferColorType,
                                    GrGpuBuffer* transferBuffer, size_t offset) {
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
     SkASSERT(surface);
     SkASSERT(transferBuffer);
     if (fProtectedContext == GrProtected::kYes) {
@@ -603,6 +611,10 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
 
 void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint) {
+    if (!this->currentCommandBuffer()) {
+        return;
+    }
+
     SkASSERT(dst);
     SkASSERT(src && src->numSamples() > 1 && src->msaaImage());
 
@@ -755,6 +767,10 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, SkTArray<VkBufferImageCopy>* reg
 bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int width, int height,
                                    GrColorType dataColorType, const GrMipLevel texels[],
                                    int mipLevelCount) {
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
+
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(1 == mipLevelCount ||
@@ -943,6 +959,9 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
                                       SkImage::CompressionType compression, VkFormat vkFormat,
                                       SkISize dimensions, GrMipMapped mipMapped,
                                       const void* data, size_t dataSize) {
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
     SkASSERT(data);
     SkASSERT(!uploadTexture->isLinearTiled());
     // For now the assumption is that our rect is the entire texture.
@@ -1058,6 +1077,9 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
     }
 
     if (levelClearMask) {
+        if (!this->currentCommandBuffer()) {
+            return nullptr;
+        }
         SkSTArray<1, VkImageSubresourceRange> ranges;
         bool inRange = false;
         for (uint32_t i = 0; i < tex->mipLevels(); ++i) {
@@ -1146,6 +1168,9 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
 
 void GrVkGpu::copyBuffer(GrVkBuffer* srcBuffer, GrVkBuffer* dstBuffer, VkDeviceSize srcOffset,
                          VkDeviceSize dstOffset, VkDeviceSize size) {
+    if (!this->currentCommandBuffer()) {
+        return;
+    }
     VkBufferCopy copyRegion;
     copyRegion.srcOffset = srcOffset;
     copyRegion.dstOffset = dstOffset;
@@ -1155,6 +1180,9 @@ void GrVkGpu::copyBuffer(GrVkBuffer* srcBuffer, GrVkBuffer* dstBuffer, VkDeviceS
 
 bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
                            VkDeviceSize offset, VkDeviceSize size) {
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
     // Update the buffer
     this->currentCommandBuffer()->updateBuffer(this, buffer, offset, size, src);
 
@@ -1409,6 +1437,9 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
 }
 
 bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
     auto* vkTex = static_cast<GrVkTexture*>(tex);
     // don't do anything for linearly tiled textures (can't have mipmaps)
     if (vkTex->isLinearTiled()) {
@@ -1965,7 +1996,9 @@ void GrVkGpu::addBufferMemoryBarrier(const GrManagedResource* resource,
                                      VkPipelineStageFlags dstStageMask,
                                      bool byRegion,
                                      VkBufferMemoryBarrier* barrier) const {
-    SkASSERT(this->currentCommandBuffer());
+    if (!this->currentCommandBuffer()) {
+        return;
+    }
     SkASSERT(resource);
     this->currentCommandBuffer()->pipelineBarrier(this,
                                                   resource,
@@ -2058,6 +2091,10 @@ static int get_surface_sample_cnt(GrSurface* surf) {
 void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
                                      GrVkImage* srcImage, const SkIRect& srcRect,
                                      const SkIPoint& dstPoint) {
+    if (!this->currentCommandBuffer()) {
+        return;
+    }
+
 #ifdef SK_DEBUG
     int dstSampleCnt = get_surface_sample_cnt(dst);
     int srcSampleCnt = get_surface_sample_cnt(src);
@@ -2113,6 +2150,10 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
 void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
                                 GrVkImage* srcImage, const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) {
+    if (!this->currentCommandBuffer()) {
+        return;
+    }
+
 #ifdef SK_DEBUG
     int dstSampleCnt = get_surface_sample_cnt(dst);
     int srcSampleCnt = get_surface_sample_cnt(src);
@@ -2257,6 +2298,10 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     }
 
     if (surfaceColorType != dstColorType) {
+        return false;
+    }
+
+    if (!this->currentCommandBuffer()) {
         return false;
     }
 
@@ -2448,6 +2493,9 @@ bool GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
                               const VkClearValue* colorClear,
                               GrVkRenderTarget* target, GrSurfaceOrigin origin,
                               const SkIRect& bounds, bool forSecondaryCB) {
+    if (!this->currentCommandBuffer()) {
+        return false;
+    }
     SkASSERT (!target->wrapsSecondaryCommandBuffer());
     auto nativeBounds = GrNativeRect::MakeRelativeTo(origin, target->height(), bounds);
 
@@ -2483,11 +2531,16 @@ bool GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
 
 void GrVkGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
                             const SkIRect& bounds) {
+    // We had a command buffer when we started the render pass, we should have one now as well.
+    SkASSERT(this->currentCommandBuffer());
     this->currentCommandBuffer()->endRenderPass(this);
     this->didWriteToSurface(target, origin, &bounds);
 }
 
 void GrVkGpu::submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> buffer) {
+    if (!this->currentCommandBuffer()) {
+        return;
+    }
     this->currentCommandBuffer()->executeCommands(this, std::move(buffer));
 }
 
