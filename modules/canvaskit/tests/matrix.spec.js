@@ -4,10 +4,11 @@ describe('CanvasKit\'s Matrix Helpers', () => {
     await LoadCanvasKit;
   });
 
-  const expectArrayCloseTo = (a, b) => {
+  const expectArrayCloseTo = (a, b, precision) => {
+    precision = precision || 14 // digits of precision in base 10
     expect(a.length).toEqual(b.length);
     for (let i=0; i<a.length; i++) {
-      expect(a[i]).toBeCloseTo(b[i], 14); // 14 digits of precision in base 10
+      expect(a[i]).toBeCloseTo(b[i], precision);
     }
   };
 
@@ -184,6 +185,26 @@ describe('CanvasKit\'s Matrix Helpers', () => {
       expectArrayCloseTo(
         CanvasKit.SkM44.multiply(a, b),
         CanvasKit.SkM44.identity());
+    });
+
+    it('can create a camera setup matrix', () => {
+      const camAngle = Math.PI / 12;
+      const cam = {
+        'eye'  : [0, 0, 1 / Math.tan(camAngle/2) - 1],
+        'coa'  : [0, 0, 0],
+        'up'   : [0, 1, 0],
+        'near' : 0.02,
+        'far'  : 4,
+        'angle': camAngle,
+      };
+      const mat = CanvasKit.SkM44.setupCamera(CanvasKit.LTRBRect(0, 0, 200, 200), 200, cam);
+      // these values came from an invocation of setupCamera visually inspected.
+      const expected = [
+          7.595754, 0, -0.5, 0,
+          0, 7.595754, -0.5, 0,
+          0, 0, 1.010050, -1324.368418,
+          0, 0, -0.005, 7.595754];
+      expectArrayCloseTo(mat, expected, 5);
     });
   }); // describe 4x4
 });
