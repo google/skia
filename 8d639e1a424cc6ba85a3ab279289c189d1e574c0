@@ -16,6 +16,24 @@
       "revId": "8d639e1a424cc6ba85a3ab279289c189d1e574c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2df8da41_e1a8402d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T20:00:26Z",
+      "side": 1,
+      "message": "Looks like maybe two types of issues here?  Some of the other failures like Build-Debian10-Clang-x86_64-Release-NoDEPS were failed compiles due to missing includes.",
+      "parentUuid": "af36d0f0_24037483",
+      "revId": "8d639e1a424cc6ba85a3ab279289c189d1e574c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
