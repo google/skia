@@ -16,6 +16,218 @@
       "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6654b808_99be34d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "very cool.  everything here is just style ideas for clarity.. the approach looks great to me.",
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03adf603_775f48fb",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "I think this one would probably read more clearly as filtering?",
+      "range": {
+        "startLine": 706,
+        "startChar": 17,
+        "endLine": 706,
+        "endChar": 19
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6f9ecd8_8c061801",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "even just mips might be clearer?",
+      "range": {
+        "startLine": 707,
+        "startChar": 17,
+        "endLine": 707,
+        "endChar": 19
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41025171_79cc2bd1",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "To do this complete we need to know if we\u0027re scaling up or down,  right?",
+      "range": {
+        "startLine": 708,
+        "startChar": 6,
+        "endLine": 708,
+        "endChar": 47
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7e9f96f_bd80b5f8",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "Maybe have this take an SkISize and pass upper-\u003edimensions(), lower-\u003edimensions()?  Once you get down to the call sites it\u0027s easy to forget that post_scale() only really cares about the dimensions.",
+      "range": {
+        "startLine": 732,
+        "startChar": 26,
+        "endLine": 732,
+        "endChar": 47
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9140954_0e23f641",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "we\u0027re hoping this chunk eventually goes away right?",
+      "range": {
+        "startLine": 747,
+        "startChar": 0,
+        "endLine": 768,
+        "endChar": 7
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdf76f82_a6fd7146",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "Do you think this can get confused now with its caller?  Maybe rename it like sample_point / point_sample?",
+      "range": {
+        "startLine": 802,
+        "startChar": 8,
+        "endLine": 802,
+        "endChar": 15
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e53303e_e4850713",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "This sounds like a thing, but it\u0027s more like a verb right?  sample_layer()?  What noun do we give upper and lower?",
+      "range": {
+        "startLine": 898,
+        "startChar": 9,
+        "endLine": 898,
+        "endChar": 23
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40b8cacf_90989e44",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "The simpler cases here would probably all read more clearly returning directly, without the named Color c?",
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "446639f9_0057dbc9",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 968,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 1,
+      "message": "Might help to move that comment // lower * weight + upper * (1-weight) here?",
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

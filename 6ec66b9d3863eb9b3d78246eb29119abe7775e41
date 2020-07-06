@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6183f391_59bc605c",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-06T21:07:41Z",
+      "side": 0,
+      "message": "Kind of liked filtering... doesn\u0027t the enum part of this feel mostly irrelevant?",
+      "range": {
+        "startLine": 48,
+        "startChar": 6,
+        "endLine": 48,
+        "endChar": 16
+      },
+      "revId": "6ec66b9d3863eb9b3d78246eb29119abe7775e41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
