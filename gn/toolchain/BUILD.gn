@@ -20,12 +20,12 @@ declare_args() {
   } else if (is_tizen) {
     if (host_os == "win") {
       target_ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar.exe"
-      target_cc = "$ncli/tools/llvm-4.0.0/bin/clang.exe"
-      target_cxx = "$ncli/tools/llvm-4.0.0/bin/clang++.exe"
+      target_cc = "$ncli/tools/llvm-${ncli_llvm_version}/bin/clang.exe"
+      target_cxx = "$ncli/tools/llvm-${ncli_llvm_version}/bin/clang++.exe"
     } else {
       target_ar = "$ncli/tools/$ncli_gccdir/$ncli_target/bin/ar"
-      target_cc = "$ncli/tools/llvm-4.0.0/bin/clang"
-      target_cxx = "$ncli/tools/llvm-4.0.0/bin/clang++"
+      target_cc = "$ncli/tools/llvm-${ncli_llvm_version}/bin/clang"
+      target_cxx = "$ncli/tools/llvm-${ncli_llvm_version}/bin/clang++"
     }
   } else if (is_fuchsia && using_fuchsia_sdk) {
     target_ar = rebase_path("$fuchsia_toolchain_path/bin/llvm-ar")

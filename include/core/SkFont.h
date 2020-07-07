@@ -65,9 +65,6 @@ public:
     SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX);
 
 
-    SkFont(const SkFont& font);
-
-
     /** Compares SkFont and font, and returns true if they are equivalent.
         May return false if SkTypeface has identical contents but different pointers.
 

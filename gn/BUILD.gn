@@ -235,8 +235,8 @@ config("default") {
       "-B$ncli/tools/$ncli_gccdir/$ncli_target/bin",
     ]
     cflags_cc += [
-      "-isystem$ncli/tools/$ncli_gccdir/$ncli_target/include/c++/6.2.1",
-      "-isystem$ncli/tools/$ncli_gccdir/$ncli_target/include/c++/6.2.1/$ncli_target",
+      "-isystem$ncli/tools/$ncli_gccdir/$ncli_target/include/c++/${ncli_gcc_version}",
+      "-isystem$ncli/tools/$ncli_gccdir/$ncli_target/include/c++/${ncli_gcc_version}/$ncli_target",
     ]
     ldflags += [
       "--sysroot=$ncli/platforms/$ncli_platform",

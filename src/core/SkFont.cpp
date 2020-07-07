@@ -46,8 +46,6 @@ SkFont::SkFont(sk_sp<SkTypeface> face) : SkFont(std::move(face), kDefault_Size, 
 
 SkFont::SkFont() : SkFont(nullptr, kDefault_Size) {}
 
-SkFont::SkFont(const SkFont& src) = default;
-
 bool SkFont::operator==(const SkFont& b) const {
     return  fTypeface.get() == b.fTypeface.get() &&
             fSize           == b.fSize &&

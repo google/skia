@@ -23,7 +23,7 @@ declare_args() {
   cc = "cc"
   cxx = "c++"
 
-  win_sdk = "C:/Program Files (x86)/Windows Kits/10"
+  win_sdk = ""
   min_win_sdk_version = "10.0.16299.0"
   win_sdk_version = ""
 
@@ -36,6 +36,9 @@ declare_args() {
 
   ncli = ""
   ncli_version = "4.0"
+  ncli_gcc_version = "9.2.0"
+  ncli_gcc_version_short = "9.2"
+  ncli_llvm_version = "10"
 
   werror = false
 }
@@ -149,26 +152,14 @@ if (is_win) {
   if (win_vc == "") {
     win_vc = exec_script("//gn/find_msvc.py", [], "trim string")
   }
-  assert(win_vc != "")  # Could not find VC installation. Set win_vc to your VC directory.
-}
-
-if (is_win) {
-  if (win_toolchain_version == "") {
-    win_toolchain_version = exec_script("//gn/highest_version_dir.py",
-                                        [
-                                          "$win_vc/Tools/MSVC",
-                                          "[0-9]{2}\.[0-9]{2}\.[0-9]{5}",
-                                        ],
-                                        "trim string")
+  if (win_vc != "" && win_toolchain_version == "") {
+    win_toolchain_version = exec_script("//gn/highest_version_dir.py", [ "$win_vc/Tools/MSVC", "[0-9]{2}\.[0-9]{2}\.[0-9]{5}" ], "trim string")
   }
-  if (win_sdk_version == "") {
-    win_sdk_version = exec_script("//gn/lowest_version_dir.py",
-                                  [
-                                    "$win_sdk/Include",
-                                    "[0-9]{2}\.[0-9]\.[0-9]{5}\.[0-9]",
-                                    min_win_sdk_version
-                                  ],
-                                  "trim string")
+  if (win_sdk == "") {
+    win_sdk = exec_script("//gn/find_winsdk.py", [], "trim string")
+  }
+  if (win_sdk != "" && win_sdk_version == "") {
+    win_sdk_version = exec_script("//gn/lowest_version_dir.py", [ "$win_sdk/Include", "[0-9]{2}\.[0-9]\.[0-9]{5}\.[0-9]", min_win_sdk_version ], "trim string")
   }
 }
 
@@ -180,11 +171,11 @@ if (is_tizen) {
   if (target_cpu == "arm") {
     ncli_target = "arm-tizen-linux-gnueabi"
     ncli_platform = "tizen-${ncli_version}/mobile/rootstraps/mobile-${ncli_version}-device.core"
-    ncli_gccdir = "arm-linux-gnueabi-gcc-6.2"
+    ncli_gccdir = "arm-linux-gnueabi-gcc-${ncli_gcc_version_short}"
   } else if (target_cpu == "x86") {
     ncli_target = "i586-tizen-linux-gnueabi"
     ncli_platform = "tizen-${ncli_version}/mobile/rootstraps/mobile-${ncli_version}-emulator.core"
-    ncli_gccdir = "i586-linux-gnueabi-gcc-6.2"
+    ncli_gccdir = "i586-linux-gnueabi-gcc-${ncli_gcc_version_short}"
   }
 }
 
