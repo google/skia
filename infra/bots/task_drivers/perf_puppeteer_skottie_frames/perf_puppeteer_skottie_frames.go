@@ -283,9 +283,10 @@ func processSkottieFramesData(ctx context.Context, perf perfJSONFormat, benchmar
 }
 
 type skottieFramesJSONFormat struct {
-	FramesMS   []float32 `json:"frames_ms"`
-	SeeksMS    []float32 `json:"seeks_ms"`
-	JSONLoadMS float32   `json:"json_load_ms"`
+	WithoutFlushMS []float32 `json:"without_flush_ms"`
+	WithFlushMS    []float32 `json:"with_flush_ms"`
+	TotalFrameMS   []float32 `json:"total_frame_ms"`
+	JSONLoadMS     float32   `json:"json_load_ms"`
 }
 
 func parseSkottieFramesMetrics(b []byte) (map[string]float32, error) {
@@ -295,39 +296,46 @@ func parseSkottieFramesMetrics(b []byte) (map[string]float32, error) {
 	}
 
 	getNthFrame := func(n int) float32 {
-		if n >= len(metrics.FramesMS) {
+		if n >= len(metrics.TotalFrameMS) {
 			return 0
 		}
-		return metrics.FramesMS[n]
+		return metrics.TotalFrameMS[n]
 	}
 
 	avgFirstFive := float32(0)
-	if len(metrics.FramesMS) >= 5 {
-		avgFirstFive = computeAverage(metrics.FramesMS[:5])
+	if len(metrics.TotalFrameMS) >= 5 {
+		avgFirstFive = computeAverage(metrics.TotalFrameMS[:5])
 	}
 
-	avgFrame, medFrame, stdFrame, p90Frame, p95Frame, p99Frame := summarize(metrics.FramesMS)
-	avgSeek, medSeek, stdSeek, _, _, _ := summarize(metrics.SeeksMS)
+	avgWithoutFlushMS, medianWithoutFlushMS, stddevWithoutFlushMS, _, _, _ := summarize(metrics.WithoutFlushMS)
+	avgWithFlushMS, medianWithFlushMS, stddevWithFlushMS, _, _, _ := summarize(metrics.WithFlushMS)
+	avgFrame, medFrame, stdFrame, p90Frame, p95Frame, p99Frame := summarize(metrics.TotalFrameMS)
 
 	rv := map[string]float32{
-		"json_load_ms":             metrics.JSONLoadMS,
-		"1st_frame_to_flush_ms":    getNthFrame(0),
-		"2nd_frame_to_flush_ms":    getNthFrame(1),
-		"3rd_frame_to_flush_ms":    getNthFrame(2),
-		"4th_frame_to_flush_ms":    getNthFrame(3),
-		"5th_frame_to_flush_ms":    getNthFrame(4),
+		"json_load_ms": metrics.JSONLoadMS,
+
+		"avg_render_without_flush_ms":    avgWithoutFlushMS,
+		"median_render_without_flush_ms": medianWithoutFlushMS,
+		"stddev_render_without_flush_ms": stddevWithoutFlushMS,
+
+		"avg_render_with_flush_ms":    avgWithFlushMS,
+		"median_render_with_flush_ms": medianWithFlushMS,
+		"stddev_render_with_flush_ms": stddevWithFlushMS,
+
+		"avg_render_frame_ms":    avgFrame,
+		"median_render_frame_ms": medFrame,
+		"stddev_render_frame_ms": stdFrame,
+
+		// more detailed statistics on total frame times
+		"1st_frame_ms":             getNthFrame(0),
+		"2nd_frame_ms":             getNthFrame(1),
+		"3rd_frame_ms":             getNthFrame(2),
+		"4th_frame_ms":             getNthFrame(3),
+		"5th_frame_ms":             getNthFrame(4),
 		"avg_first_five_frames_ms": avgFirstFive,
-
-		"avg_frame_to_flush_ms":             avgFrame,
-		"median_frame_to_flush_ms":          medFrame,
-		"stddev_frame_to_flush_ms":          stdFrame,
-		"90th_percentile_frame_to_flush_ms": p90Frame,
-		"95th_percentile_frame_to_flush_ms": p95Frame,
-		"99th_percentile_frame_to_flush_ms": p99Frame,
-
-		"avg_seek_ms":    avgSeek,
-		"median_seek_ms": medSeek,
-		"stddev_seek_ms": stdSeek,
+		"90th_percentile_frame_ms": p90Frame,
+		"95th_percentile_frame_ms": p95Frame,
+		"99th_percentile_frame_ms": p99Frame,
 	}
 	return rv, nil
 }
