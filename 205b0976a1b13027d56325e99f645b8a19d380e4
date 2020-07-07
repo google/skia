@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "9decf726_afac7a4e",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-07T19:38:34Z",
+      "side": 1,
+      "message": "I\u0027d prefer to leave it if that\u0027s all right.",
+      "parentUuid": "34267386_ae573214",
+      "range": {
+        "startLine": 408,
+        "startChar": 4,
+        "endLine": 408,
+        "endChar": 50
+      },
+      "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e66052ab_09aa393d",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 2
@@ -89,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "629a10fd_87ab1634",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-07T19:38:34Z",
+      "side": 1,
+      "message": "Sounds good to me too -- I can put that in a separate CL.",
+      "parentUuid": "6ded68d3_7a326648",
+      "range": {
+        "startLine": 431,
+        "startChar": 4,
+        "endLine": 436,
+        "endChar": 5
+      },
+      "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf5edee6_fbc0f4ad",
         "filename": "src/gpu/d3d/GrD3DGpu.h",
         "patchSetId": 2
@@ -106,6 +154,24 @@
     },
     {
       "key": {
+        "uuid": "42d2ec7c_2494a2a1",
+        "filename": "src/gpu/d3d/GrD3DGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-07T19:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf5edee6_fbc0f4ad",
+      "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cdd5c573_d623ac38",
         "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
         "patchSetId": 2
@@ -117,6 +183,30 @@
       "writtenOn": "2020-07-07T19:10:12Z",
       "side": 1,
       "message": "just to confirm, like vulkan does d3d only give you non multisampled swaphchain surfaces? Which is why we do all this stuff here.",
+      "range": {
+        "startLine": 151,
+        "startChar": 59,
+        "endLine": 151,
+        "endChar": 63
+      },
+      "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20851190_0d4bfdfb",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-07T19:38:34Z",
+      "side": 1,
+      "message": "Correct, D3D12 doesn\u0027t support them. But I initially did it because I wanted to test our resolve code in Viewer.",
+      "parentUuid": "cdd5c573_d623ac38",
       "range": {
         "startLine": 151,
         "startChar": 59,
