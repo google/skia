@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "3ebc4875_e9675776",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T20:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "266b474d_2d564e4e",
+      "range": {
+        "startLine": 1145,
+        "startChar": 47,
+        "endLine": 1145,
+        "endChar": 48
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ebda2bb_cdbea631",
         "filename": "include/core/SkImage.h",
         "patchSetId": 7
@@ -194,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "8e706f8f_6b492e98",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T20:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51812908_48530337",
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11870af9_6a8b3bbe",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 7
@@ -214,6 +256,30 @@
       "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e092f361_774ebd91",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T20:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11870af9_6a8b3bbe",
+      "range": {
+        "startLine": 790,
+        "startChar": 47,
+        "endLine": 790,
+        "endChar": 50
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -240,6 +306,30 @@
     },
     {
       "key": {
+        "uuid": "2fc38a35_7cdf49cd",
+        "filename": "tests/GrDDLImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T20:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47c70129_d4b502f5",
+      "range": {
+        "startLine": 24,
+        "startChar": 34,
+        "endLine": 24,
+        "endChar": 42
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ea7c81d_0ad5182d",
         "filename": "tests/GrDDLImageTest.cpp",
         "patchSetId": 7
@@ -254,6 +344,24 @@
       "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "601a989c_5b54f55f",
+        "filename": "tests/GrDDLImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T20:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ea7c81d_0ad5182d",
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -280,6 +388,30 @@
     },
     {
       "key": {
+        "uuid": "8c0d183f_98833cd7",
+        "filename": "tests/GrDDLImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T20:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e51f8e2_c7758ec0",
+      "range": {
+        "startLine": 48,
+        "startChar": 11,
+        "endLine": 48,
+        "endChar": 13
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c33f737e_adf896e0",
         "filename": "tests/GrDDLImageTest.cpp",
         "patchSetId": 7
@@ -291,6 +423,30 @@
       "writtenOn": "2020-07-07T19:37:35Z",
       "side": 1,
       "message": "Won\u0027t this always fail? How can the recording+direct case (#3) work?",
+      "range": {
+        "startLine": 63,
+        "startChar": 64,
+        "endLine": 63,
+        "endChar": 83
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8637772b_4f358a50",
+        "filename": "tests/GrDDLImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T20:02:16Z",
+      "side": 1,
+      "message": "Yes but at the moment the image is never realized because it\u0027s never drawn. Leaving this comment unresolved until I actually draw.",
+      "parentUuid": "c33f737e_adf896e0",
       "range": {
         "startLine": 63,
         "startChar": 64,
