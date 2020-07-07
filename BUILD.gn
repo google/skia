@@ -1260,6 +1260,10 @@ group("modules") {
   ]
 }
 
+config("our_vulkan_headers") {
+  include_dirs = [ "include/third_party/vulkan" ]
+}
+
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
   skia_public_includes = [
@@ -1327,10 +1331,6 @@ if (skia_enable_tools) {
         "modules/skshaper",
       ]
     }
-  }
-
-  config("our_vulkan_headers") {
-    include_dirs = [ "include/third_party/vulkan" ]
   }
 
   config("cpp14") {
