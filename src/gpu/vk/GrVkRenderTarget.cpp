@@ -214,15 +214,6 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
 
 sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
         GrVkGpu* gpu, SkISize dimensions, const GrVkDrawableInfo& vkInfo) {
-    // We only set the few properties of the GrVkImageInfo that we know like layout and format. The
-    // others we keep at the default "null" values.
-    GrVkImageInfo info;
-    info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    info.fFormat = vkInfo.fFormat;
-
-    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
-            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_QUEUE_FAMILY_IGNORED));
-
     const GrVkRenderPass* rp =
             gpu->resourceProvider().findCompatibleExternalRenderPass(vkInfo.fCompatibleRenderPass,
                                                                      vkInfo.fColorAttachmentIndex);
@@ -233,6 +224,15 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
     if (vkInfo.fSecondaryCommandBuffer == VK_NULL_HANDLE) {
         return nullptr;
     }
+
+    // We only set the few properties of the GrVkImageInfo that we know like layout and format. The
+    // others we keep at the default "null" values.
+    GrVkImageInfo info;
+    info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    info.fFormat = vkInfo.fFormat;
+
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_QUEUE_FAMILY_IGNORED));
 
     GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, dimensions, info, std::move(mutableState),
                                                   rp, vkInfo.fSecondaryCommandBuffer);
@@ -343,6 +343,36 @@ void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescr
     desc->fAttachmentCount = attachmentCount;
 }
 
+void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
+                                                        const GrProgramInfo& programInfo,
+                                                        GrVkRenderPass::AttachmentsDescriptor* desc,
+                                                        GrVkRenderPass::AttachmentFlags* flags) {
+    VkFormat format;
+    SkAssertResult(programInfo.backendFormat().asVkFormat(&format));
+
+    desc->fColor.fFormat = format;
+    desc->fColor.fSamples = programInfo.numSamples();
+    *flags = GrVkRenderPass::kColor_AttachmentFlag;
+    uint32_t attachmentCount = 1;
+
+    SkASSERT(!programInfo.isStencilEnabled() || programInfo.numStencilSamples());
+    if (programInfo.numStencilSamples()) {
+        const GrVkCaps::StencilFormat& stencilFormat = vkCaps.preferredStencilFormat();
+        desc->fStencil.fFormat = stencilFormat.fInternalFormat;
+        desc->fStencil.fSamples = programInfo.numStencilSamples();
+#ifdef SK_DEBUG
+        if (vkCaps.mixedSamplesSupport()) {
+            SkASSERT(desc->fStencil.fSamples >= desc->fColor.fSamples);
+        } else {
+            SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
+        }
+#endif
+        *flags |= GrVkRenderPass::kStencil_AttachmentFlag;
+        ++attachmentCount;
+    }
+    desc->fAttachmentCount = attachmentCount;
+}
+
 GrVkRenderTarget::~GrVkRenderTarget() {
     // either release or abandon should have been called by the owner of this object.
     SkASSERT(!fMSAAImage);
@@ -366,10 +396,8 @@ void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer, bool withS
 }
 
 void GrVkRenderTarget::releaseInternalObjects() {
-    GrVkGpu* gpu = this->getVkGpu();
-
     if (fMSAAImage) {
-        fMSAAImage->releaseImage(gpu);
+        fMSAAImage->releaseImage();
         fMSAAImage.reset();
     }
 
@@ -406,13 +434,13 @@ void GrVkRenderTarget::releaseInternalObjects() {
 
 void GrVkRenderTarget::onRelease() {
     this->releaseInternalObjects();
-    this->releaseImage(this->getVkGpu());
+    this->releaseImage();
     GrRenderTarget::onRelease();
 }
 
 void GrVkRenderTarget::onAbandon() {
     this->releaseInternalObjects();
-    this->releaseImage(this->getVkGpu());
+    this->releaseImage();
     GrRenderTarget::onAbandon();
 }
 

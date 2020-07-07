@@ -11,7 +11,7 @@
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkScopeExit.h"
 #include "src/gpu/GrAHardwareBufferUtils.h"
@@ -43,6 +43,10 @@ GrContext* SkSurface_Gpu::onGetContext() {
     return fDevice->context();
 }
 
+GrRecordingContext* SkSurface_Gpu::onGetRecordingContext() {
+    return fDevice->recordingContext();
+}
+
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
                                                       SkSurface::BackendHandleAccess access) {
     switch (access) {
@@ -56,7 +60,7 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     }
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
-    surface->getDevice()->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+    surface->getDevice()->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
     GrRenderTargetContext* rtc = surface->getDevice()->accessRenderTargetContext();
     return rtc->accessRenderTarget();
 }
@@ -187,9 +191,9 @@ void SkSurface_Gpu::onDiscard() {
     fDevice->accessRenderTargetContext()->discard();
 }
 
-GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access,
-                                             const GrFlushInfo& info) {
-    return fDevice->flush(access, info);
+GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
+                                             const GrBackendSurfaceMutableState* newState) {
+    return fDevice->flush(access, info, newState);
 }
 
 bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
@@ -235,13 +239,12 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
     // If the dst is also GPU we try to not force a new image snapshot (by calling the base class
     // onDraw) since that may not always perform the copy-on-write optimization.
     auto tryDraw = [&] {
-        SkASSERT(fDevice->context()->priv().asDirectContext());
         GrContext* context = fDevice->context();
         GrContext* canvasContext = canvas->getGrContext();
         if (!canvasContext) {
             return false;
         }
-        if (!canvasContext->priv().asDirectContext() ||
+        if (!canvasContext->asDirectContext() ||
             canvasContext->priv().contextID() != context->priv().contextID()) {
             return false;
         }
@@ -330,7 +333,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
-bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
+bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl) {
     if (!ddl || !this->isCompatible(ddl->characterization())) {
         return false;
     }
@@ -338,10 +341,9 @@ bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
-    ctx->priv().copyRenderTasksFromDDL(ddl, rtc->asRenderTargetProxy());
+    ctx->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
     return true;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -420,11 +422,10 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
                                                    const GrBackendTexture& backendTexture,
                                                    TextureReleaseProc textureReleaseProc,
                                                    ReleaseContext releaseContext) {
-    SkScopeExit callProc([&] {
-        if (textureReleaseProc) {
-            textureReleaseProc(releaseContext);
-        }
-    });
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (textureReleaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
+    }
 
     if (!context || !c.isValid()) {
         return nullptr;
@@ -452,11 +453,10 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
 
     auto rtc = GrRenderTargetContext::MakeFromBackendTexture(
             context, grCT, c.refColorSpace(), backendTexture, c.sampleCount(), c.origin(),
-            &c.surfaceProps(), textureReleaseProc, releaseContext);
+            &c.surfaceProps(), std::move(releaseHelper));
     if (!rtc) {
         return nullptr;
     }
-    callProc.clear();
 
     auto device = SkGpuDevice::Make(context, std::move(rtc), SkGpuDevice::kUninit_InitContents);
     if (!device) {
@@ -517,11 +517,10 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
                                                    const SkSurfaceProps* props,
                                                    SkSurface::TextureReleaseProc textureReleaseProc,
                                                    SkSurface::ReleaseContext releaseContext) {
-    SkScopeExit callProc([&] {
-        if (textureReleaseProc) {
-            textureReleaseProc(releaseContext);
-        }
-    });
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (textureReleaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
+    }
 
     if (!context) {
         return nullptr;
@@ -540,11 +539,10 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
 
     auto rtc = GrRenderTargetContext::MakeFromBackendTexture(
             context, grColorType, std::move(colorSpace), tex, sampleCnt, origin, props,
-            textureReleaseProc, releaseContext);
+            std::move(releaseHelper));
     if (!rtc) {
         return nullptr;
     }
-    callProc.clear();
 
     auto device = SkGpuDevice::Make(context, std::move(rtc), SkGpuDevice::kUninit_InitContents);
     if (!device) {
@@ -558,11 +556,10 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
                                             ContentChangeMode mode,
                                             TextureReleaseProc releaseProc,
                                             ReleaseContext releaseContext) {
-    SkScopeExit callProc([&] {
-        if (releaseProc) {
-            releaseProc(releaseContext);
-        }
-    });
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (releaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(releaseProc, releaseContext));
+    }
 
     auto context = this->fDevice->context();
     if (context->abandoned()) {
@@ -602,11 +599,10 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     }
     auto rtc = GrRenderTargetContext::MakeFromBackendTexture(
             context, oldRTC->colorInfo().colorType(), std::move(colorSpace), backendTexture,
-            sampleCnt, origin, &this->props(), releaseProc, releaseContext);
+            sampleCnt, origin, &this->props(), std::move(releaseHelper));
     if (!rtc) {
         return false;
     }
-    callProc.clear();
     fDevice->replaceRenderTargetContext(std::move(rtc), mode);
     return true;
 }

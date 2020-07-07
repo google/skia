@@ -11,11 +11,12 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SrcSrcOverBatchTest, reporter, ctxInfo) {
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     static const int kSize = 8;
     const SkImageInfo ii = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,

@@ -48,7 +48,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 
     fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 
-    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+    auto ddl = recorder.detach();
     if (ddl->priv().numRenderTasks()) {
         // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
         // reinflation of the SKPs contains opsTasks that means some image subset operation
@@ -109,6 +109,7 @@ void DDLTileHelper::createComposeDDL() {
     }
 
     fComposeDDL = recorder.detach();
+    SkASSERT(fComposeDDL);
 }
 
 void DDLTileHelper::TileData::precompile(GrContext* context) {
@@ -166,7 +167,7 @@ void DDLTileHelper::TileData::draw(GrContext* context) {
     // (maybe in GrDrawingManager::addDDLTarget).
     fTileSurface = this->makeWrappedTileDest(context);
     if (fTileSurface) {
-        fTileSurface->draw(fDisplayList.get());
+        fTileSurface->draw(fDisplayList);
 
         // We can't snap an image here bc, since we're using wrapped backend textures for the
         // surfaces, that would incur a copy.
@@ -204,7 +205,7 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImage(SkDeferredDisplayListRe
 }
 
 void DDLTileHelper::TileData::CreateBackendTexture(GrContext* context, TileData* tile) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
     SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
 
     GrBackendTexture beTex = context->createBackendTexture(tile->fCharacterization);
@@ -212,7 +213,7 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrContext* context, TileData*
 }
 
 void DDLTileHelper::TileData::DeleteBackendTexture(GrContext* context, TileData* tile) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
     SkASSERT(tile->fCallbackContext);
 
     // TODO: it seems that, on the Linux bots, backend texture creation is failing
@@ -288,9 +289,6 @@ static void do_gpu_stuff(GrContext* context, DDLTileHelper::TileData* tile) {
 
     tile->draw(context);
 
-    // TODO: remove this flush once DDLs are reffed by the drawing manager
-    context->flushAndSubmit();
-
     tile->dropDDL();
 }
 
@@ -357,7 +355,7 @@ void DDLTileHelper::resetAllTiles() {
 }
 
 void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 
     if (taskGroup) {
         for (int i = 0; i < this->numTiles(); ++i) {
@@ -373,7 +371,7 @@ void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrContext* con
 }
 
 void DDLTileHelper::deleteBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 
     if (taskGroup) {
         for (int i = 0; i < this->numTiles(); ++i) {

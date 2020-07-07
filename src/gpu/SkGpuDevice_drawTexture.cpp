@@ -130,7 +130,7 @@ static SkIRect determine_clipped_src_rect(int width, int height,
                                           const SkMatrix& srcToDstRect,
                                           const SkISize& imageDimensions,
                                           const SkRect* srcRectPtr) {
-    SkIRect clippedSrcIRect = clip ? clip->getConservativeBounds(width, height)
+    SkIRect clippedSrcIRect = clip ? clip->getConservativeBounds()
                                    : SkIRect::MakeWH(width, height);
     SkMatrix inv = SkMatrix::Concat(viewMatrix, srcToDstRect);
     if (!inv.invert(&inv)) {
@@ -185,7 +185,7 @@ static bool should_tile_image_id(GrContext* context,
     // and theoretically, the resource cache's limits could be being changed on another thread, so
     // even having access to just the limit wouldn't be a reliable test during recording here.
     // Instead, we will just upload the entire image to be on the safe side and not tile.
-    if (!context->priv().asDirectContext()) {
+    if (!context->asDirectContext()) {
         return false;
     }
 
@@ -462,8 +462,9 @@ static void draw_texture_producer(GrContext* context,
     }
     auto fp = producer->createFragmentProcessor(textureMatrix, src, constraintMode,
                                                 coordsAllInsideSrcRect, wm, wm, filterMode);
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), producer->colorSpace(), producer->alphaType(),
-                                       rtc->colorInfo().colorSpace());
+    fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                       producer->colorSpace(), producer->alphaType(),
+                                       rtc->colorInfo().colorSpace(), kPremul_SkAlphaType);
     if (!fp) {
         return;
     }
@@ -661,7 +662,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Pinned texture proxies can be rendered directly as textures, or with relatively simple
     // adjustments applied to the image content (scaling, mipmaps, color space, etc.)
     uint32_t pinnedUniqueID;
-    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->context(), &pinnedUniqueID)) {
+    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->recordingContext(),
+                                                              &pinnedUniqueID)) {
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
@@ -815,9 +817,9 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
             uint32_t uniqueID;
-            view = image->refPinnedView(this->context(), &uniqueID);
+            view = image->refPinnedView(this->recordingContext(), &uniqueID);
             if (!view) {
-                view = image->refView(this->context(), GrMipMapped::kNo);
+                view = image->refView(this->recordingContext(), GrMipMapped::kNo);
             }
         }
 

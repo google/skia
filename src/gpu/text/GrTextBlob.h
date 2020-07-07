@@ -27,7 +27,7 @@ class GrAtlasTextOp;
 class GrDeferredUploadTarget;
 class GrGlyph;
 class GrStrikeCache;
-class GrTextContext;
+class GrTextTarget;
 
 class SkMatrixProvider;
 class SkSurfaceProps;
@@ -98,9 +98,7 @@ public:
     // Make an empty GrTextBlob, with all the invariants set to make the right decisions when
     // adding SubRuns.
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
-                                  const SkMatrix& drawMatrix,
-                                  GrColor color,
-                                  bool forceWForDistanceFields);
+                                  const SkMatrix& drawMatrix);
 
     // Key manipulation functions
     void setupKey(const GrTextBlob::Key& key,
@@ -117,45 +115,15 @@ public:
     void setHasBitmap();
     void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax);
 
-    bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
-                        const SkMatrix& drawMatrix, SkPoint drawOrigin);
+    bool canReuse(const SkPaint& paint, const SkMaskFilterBase::BlurRec& blurRec,
+                  const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
     void insertOpsIntoTarget(GrTextTarget* target,
                              const SkSurfaceProps& props,
                              const SkPaint& paint,
-                             const SkPMColor4f& filteredColor,
                              const GrClip* clip,
                              const SkMatrixProvider& deviceMatrix,
                              SkPoint drawOrigin);
-
-    struct AtlasPt {
-        uint16_t u;
-        uint16_t v;
-    };
-
-    // Normal text mask, SDFT, or color.
-    struct Mask2DVertex {
-        SkPoint devicePos;
-        GrColor color;
-        AtlasPt atlasPos;
-    };
-    struct ARGB2DVertex {
-        ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
-        SkPoint devicePos;
-        AtlasPt atlasPos;
-    };
-
-    // Perspective SDFT or SDFT forced to 3D or perspective color.
-    struct Mask3DVertex {
-        SkPoint3 devicePos;
-        GrColor color;
-        AtlasPt atlasPos;
-    };
-    struct ARGB3DVertex {
-        ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
-        SkPoint3 devicePos;
-        AtlasPt atlasPos;
-    };
 
     static const int kVerticesPerGlyph = 4;
 
@@ -187,9 +155,7 @@ private:
     GrTextBlob(size_t allocSize,
                const SkMatrix& drawMatrix,
                SkPoint origin,
-               GrColor color,
-               SkColor initialLuminance,
-               bool forceWForDistanceFields);
+               SkColor initialLuminance);
 
     void insertSubRun(SubRun* subRun);
 
@@ -220,11 +186,6 @@ private:
     // blob.
     const SkPoint fInitialOrigin;
 
-    // From the distance field options to force distance fields to have a W coordinate.
-    const bool fForceWForDistanceFields;
-
-    // The color of the text to draw for solid colors.
-    const GrColor fColor;
     const SkColor fInitialLuminance;
 
     SkMaskFilterBase::BlurRec fBlurRec;
@@ -268,8 +229,6 @@ public:
 private:
     // Return {success, number of glyphs regenerated}
     std::tuple<bool, int> updateTextureCoordinates(int begin, int end);
-
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph& skGlyph, GrGlyph* grGlyph, int padding);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
@@ -325,13 +284,6 @@ public:
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
             SkIRect clip) const;
 
-    void fillTextTargetVertexData(
-            Mask3DVertex vertexDst[][4],
-            int offset,
-            int count,
-            GrColor color,
-            SkPoint origin) const;
-
     int glyphCount() const;
 
     bool drawAsDistanceFields() const;
@@ -381,7 +333,6 @@ public:
     void insertSubRunOpsIntoTarget(GrTextTarget* target,
                                    const SkSurfaceProps& props,
                                    const SkPaint& paint,
-                                   const SkPMColor4f& filteredColor,
                                    const GrClip* clip,
                                    const SkMatrixProvider& deviceMatrix,
                                    SkPoint drawOrigin);
@@ -390,7 +341,6 @@ public:
                                           SkPoint drawOrigin,
                                           const SkIRect& clipRect,
                                           const SkPaint& paint,
-                                          const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&,
                                           GrTextTarget*);
 
@@ -399,6 +349,35 @@ public:
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
 
 private:
+    struct AtlasPt {
+        uint16_t u;
+        uint16_t v;
+    };
+
+    // Normal text mask, SDFT, or color.
+    struct Mask2DVertex {
+        SkPoint devicePos;
+        GrColor color;
+        AtlasPt atlasPos;
+    };
+    struct ARGB2DVertex {
+        ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+        SkPoint devicePos;
+        AtlasPt atlasPos;
+    };
+
+    // Perspective SDFT or SDFT forced to 3D or perspective color.
+    struct Mask3DVertex {
+        SkPoint3 devicePos;
+        GrColor color;
+        AtlasPt atlasPos;
+    };
+    struct ARGB3DVertex {
+        ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+        SkPoint3 devicePos;
+        AtlasPt atlasPos;
+    };
+
     static SubRun* InitForAtlas(SubRunType type,
                                 const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                 const SkStrikeSpec& strikeSpec,

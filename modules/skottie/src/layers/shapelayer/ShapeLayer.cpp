@@ -12,16 +12,14 @@
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGDraw.h"
-#include "modules/sksg/include/SkSGGeometryTransform.h"
+#include "modules/sksg/include/SkSGGeometryEffect.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGMerge.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGRect.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
-#include "modules/sksg/include/SkSGRoundEffect.h"
 #include "modules/sksg/include/SkSGTransform.h"
-#include "modules/sksg/include/SkSGTrimEffect.h"
 #include "src/utils/SkJSON.h"
 
 #include <algorithm>
@@ -49,6 +47,7 @@ static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
     ShapeBuilder::AttachMergeGeometryEffect,
     ShapeBuilder::AttachTrimGeometryEffect,
     ShapeBuilder::AttachRoundGeometryEffect,
+    ShapeBuilder::AttachOffsetGeometryEffect,
 };
 
 using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const skjson::ObjectValue&,
@@ -101,6 +100,7 @@ const ShapeInfo* FindShapeInfo(const skjson::ObjectValue& jshape) {
         { "gr", ShapeType::kGroup         , 0 }, // group     -> Inline handler
         { "gs", ShapeType::kPaint         , 3 }, // gstroke   -> AttachGradientStroke
         { "mm", ShapeType::kGeometryEffect, 0 }, // merge     -> AttachMergeGeometryEffect
+        { "op", ShapeType::kGeometryEffect, 3 }, // offset    -> AttachOffsetGeometryEffect
         { "rc", ShapeType::kGeometry      , 1 }, // rrect     -> AttachRRectGeometry
         { "rd", ShapeType::kGeometryEffect, 2 }, // round     -> AttachRoundGeometryEffect
         { "rp", ShapeType::kDrawEffect    , 0 }, // repeater  -> AttachRepeaterDrawEffect

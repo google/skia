@@ -66,6 +66,25 @@ describe('Core canvas behavior', () => {
         expect(out.spot[3]).toBeCloseTo(expectedSpot[3], 3);
     });
 
+    it('can compute tonal colors with malloced values', () => {
+        const ambientColor = CanvasKit.Malloc(Float32Array, 4);
+        ambientColor.toTypedArray().set(CanvasKit.BLUE);
+        const spotColor = CanvasKit.Malloc(Float32Array, 4);
+        spotColor.toTypedArray().set(CanvasKit.RED);
+        const input = {
+            ambient: ambientColor,
+            spot: spotColor,
+        };
+        const out = CanvasKit.computeTonalColors(input);
+        expect(new Float32Array(out.ambient)).toEqual(CanvasKit.BLACK);
+        const expectedSpot = [0.173, 0, 0, 0.969];
+        expect(out.spot.length).toEqual(4);
+        expect(out.spot[0]).toBeCloseTo(expectedSpot[0], 3);
+        expect(out.spot[1]).toBeCloseTo(expectedSpot[1], 3);
+        expect(out.spot[2]).toBeCloseTo(expectedSpot[2], 3);
+        expect(out.spot[3]).toBeCloseTo(expectedSpot[3], 3);
+    });
+
     // This helper is used for all the MakeImageFromEncoded tests.
     // TODO(kjlubick): rewrite this and callers to use gm
     function decodeAndDrawSingleFrameImage(imgName, goldName, done) {
@@ -184,6 +203,150 @@ describe('Core canvas behavior', () => {
             CanvasKit.SkColorSpace.SRGB);
         canvas.drawImage(img, 1, 1, paint);
         img.delete();
+        paint.delete();
+    });
+
+    gm('draw_atlas_with_builders', (canvas, fetchedByteBuffers) => {
+        const atlas = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(atlas).toBeTruthy();
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.SkPaint();
+        paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
+
+        const srcs = new CanvasKit.SkRectBuilder();
+        // left top right bottom
+        srcs.push(  0,   0, 256, 256);
+        srcs.push(256,   0, 512, 256);
+        srcs.push(  0, 256, 256, 512);
+        srcs.push(256, 256, 512, 512);
+
+        const dsts = new CanvasKit.RSXFormBuilder();
+        // scos, ssin, tx, ty
+        dsts.push(0.5, 0,  20,  20);
+        dsts.push(0.5, 0, 300,  20);
+        dsts.push(0.5, 0,  20, 300);
+        dsts.push(0.5, 0, 300, 300);
+
+        const colors = new CanvasKit.SkColorBuilder();
+        // note that the SkColorBuilder expects int colors to be pushed.
+        // pushing float colors to it only causes weird problems way downstream.
+        // It does no type checking.
+        colors.push(CanvasKit.ColorAsInt( 85, 170,  10, 128)); // light green
+        colors.push(CanvasKit.ColorAsInt( 51,  51, 191, 128)); // light blue
+        colors.push(CanvasKit.ColorAsInt(  0,   0,   0, 128));
+        colors.push(CanvasKit.ColorAsInt(256, 256, 256, 128));
+
+        canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
+
+        atlas.delete();
+        paint.delete();
+    }, '/assets/mandrill_512.png')
+
+    gm('draw_atlas_with_arrays', (canvas, fetchedByteBuffers) => {
+        const atlas = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(atlas).toBeTruthy();
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.SkPaint();
+        paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
+
+        const srcs = [
+              0,   0, 256, 256,
+            256,   0, 512, 256,
+              0, 256, 256, 512,
+            256, 256, 512, 512,
+        ];
+
+        const dsts = [
+            0.5, 0,  20,  20,
+            0.5, 0, 300,  20,
+            0.5, 0,  20, 300,
+            0.5, 0, 300, 300,
+        ];
+
+        const colors = Uint32Array.of(
+            CanvasKit.ColorAsInt( 85, 170,  10, 128), // light green
+            CanvasKit.ColorAsInt( 51,  51, 191, 128), // light blue
+            CanvasKit.ColorAsInt(  0,   0,   0, 128),
+            CanvasKit.ColorAsInt(256, 256, 256, 128),
+        );
+
+        canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
+
+        atlas.delete();
+        paint.delete();
+    }, '/assets/mandrill_512.png');
+
+    gm('image_decoding_methods', async (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const IMAGE_FILE_PATHS = [
+            '/assets/brickwork-texture.jpg',
+            '/assets/mandrill_512.png',
+            '/assets/color_wheel.gif'
+        ];
+
+        let row = 1;
+        // Test 4 different methods of decoding an image for each of the three images in
+        // IMAGE_FILE_PATHS.
+        // Resulting SkImages are drawn to visually show that all methods decode correctly.
+        for (const imageFilePath of IMAGE_FILE_PATHS) {
+            const response = await fetch(imageFilePath);
+            const arrayBuffer = await response.arrayBuffer();
+            // response.blob() is preferable when you don't need both a Blob *and* an ArrayBuffer.
+            const blob = new Blob([ arrayBuffer ]);
+
+            // Method 1 - decode TypedArray using wasm codecs:
+            const skImage1 = CanvasKit.MakeImageFromEncoded(arrayBuffer);
+
+            // Method 2 (slower and does not work in Safari) decode using ImageBitmap:
+            const imageBitmap = await createImageBitmap(blob);
+            // Testing showed that transferring an ImageBitmap to a canvas using the 'bitmaprenderer'
+            // context and passing that canvas to CanvasKit.MakeImageFromCanvasImageSource() is
+            // marginally faster than passing ImageBitmap to
+            // CanvasKit.MakeImageFromCanvasImageSource() directly.
+            const canvasBitmapElement = document.createElement('canvas');
+            canvasBitmapElement.width = imageBitmap.width;
+            canvasBitmapElement.height = imageBitmap.height;
+            const ctxBitmap = canvasBitmapElement.getContext('bitmaprenderer');
+            ctxBitmap.transferFromImageBitmap(imageBitmap);
+            const skImage2 = CanvasKit.MakeImageFromCanvasImageSource(canvasBitmapElement);
+
+            // Method 3 (slowest) decode using HTMLImageElement directly:
+            const image = new Image();
+            // Testing showed that waiting for a load event is faster than waiting on image.decode()
+            // HTMLImageElement.decode() reference: https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode
+            const promise1 = new Promise((resolve) => image.addEventListener('load', resolve));
+            image.src = imageFilePath;
+            await promise1;
+            const skImage3 = CanvasKit.MakeImageFromCanvasImageSource(image);
+
+            // Method 4 (roundabout, but works if all you have is a Blob) decode from Blob using
+            // HTMLImageElement:
+            const imageObjectUrl = URL.createObjectURL( blob );
+            const image2 = new Image();
+            const promise2 = new Promise((resolve) => image2.addEventListener('load', resolve));
+            image2.src = imageObjectUrl;
+            await promise2;
+            const skImage4 = CanvasKit.MakeImageFromCanvasImageSource(image2);
+
+            // Draw decoded images
+            const sourceRect = CanvasKit.XYWHRect(0,0, 150, 150);
+            canvas.drawImageRect(skImage1, sourceRect, CanvasKit.XYWHRect(0,row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage2, sourceRect, CanvasKit.XYWHRect(100,row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage3, sourceRect, CanvasKit.XYWHRect(200,row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage4, sourceRect, CanvasKit.XYWHRect(300,row * 100, 90, 90), null, false);
+
+            row++;
+        }
+        //Label images with the method used to decode them
+        const paint = new CanvasKit.SkPaint();
+        const textFont = new CanvasKit.SkFont(null, 7);
+        canvas.drawText('WASM Decoding', 0, 90, paint, textFont);
+        canvas.drawText('ImageBitmap Decoding', 100, 90, paint, textFont);
+        canvas.drawText('HTMLImageEl Decoding', 200, 90, paint, textFont);
+        canvas.drawText('Blob Decoding', 300, 90, paint, textFont);
     });
 
     gm('sweep_gradient', (canvas) => {
@@ -230,7 +393,10 @@ describe('Core canvas behavior', () => {
 
         const lgsPremul = CanvasKit.SkShader.MakeLinearGradient(
             [100, 0], [150, 100], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            Uint32Array.of(
+                CanvasKit.ColorAsInt(0, 255, 255, 0),
+                CanvasKit.ColorAsInt(0, 0, 255, 255),
+                CanvasKit.ColorAsInt(255, 0, 0, 255)),
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             null, // no local matrix
@@ -243,7 +409,7 @@ describe('Core canvas behavior', () => {
 
         const lgs45 = CanvasKit.SkShader.MakeLinearGradient(
             [0, 100], [50, 200], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            Float32Array.of(...transparentGreen, ...CanvasKit.BLUE, ...CanvasKit.RED),
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
@@ -253,14 +419,21 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
+        // malloc'd color array
+        const colors = CanvasKit.Malloc(Float32Array, 12);
+        const typedColorsArray = colors.toTypedArray();
+        typedColorsArray.set(transparentGreen, 0);
+        typedColorsArray.set(CanvasKit.BLUE, 4);
+        typedColorsArray.set(CanvasKit.RED, 8);
         const lgs45Premul = CanvasKit.SkShader.MakeLinearGradient(
             [100, 100], [150, 200], // start and stop points
-            [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
+            typedColorsArray,
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
             CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
             1 // interpolate colors in premul
         );
+        CanvasKit.Free(colors);
         paint.setShader(lgs45Premul);
         r = CanvasKit.LTRBRect(100, 100, 200, 200);
         canvas.drawRect(r, paint);
@@ -632,23 +805,26 @@ describe('Core canvas behavior', () => {
         expect(paint.getColor()).toEqual(Float32Array.of(0.5, 0.6, 0.7, 0.8));
 
         paint.setColorInt(CanvasKit.ColorAsInt(50, 100, 150, 200));
-        const color = paint.getColor();
+        let color = paint.getColor();
         expect(color.length).toEqual(4);
-        expect(color[0]).toBeCloseTo(50/255, 5);
-        expect(color[1]).toBeCloseTo(100/255, 5);
-        expect(color[2]).toBeCloseTo(150/255, 5);
-        expect(color[3]).toBeCloseTo(200/255, 5);
+        expect(color[0]).toBeCloseTo(50/255, 5);  // Red
+        expect(color[1]).toBeCloseTo(100/255, 5); // Green
+        expect(color[2]).toBeCloseTo(150/255, 5); // Blue
+        expect(color[3]).toBeCloseTo(200/255, 5); // Alpha
+
+        paint.setColorInt(0xFF000000);
+        expect(paint.getColor()).toEqual(Float32Array.of(0, 0, 0, 1.0));
     });
 
     gm('draw shadow', (canvas) => {
-        const lightRadius = 30;
+        const lightRadius = 20;
         const flags = 0;
-        const lightPos = [250,150,300];
+        const lightPos = [500,500,20];
         const zPlaneParams = [0,0,1];
         const path = starPath(CanvasKit);
 
         canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
-                              CanvasKit.RED, CanvasKit.MAGENTA, flags);
+                              CanvasKit.BLACK, CanvasKit.MAGENTA, flags);
     })
 
     describe('ColorSpace Support', () => {
@@ -787,4 +963,27 @@ describe('Core canvas behavior', () => {
         });
     }); // end describe('DOMMatrix support')
 
+    it('can call subarray on a Malloced object', () => {
+        const mThings = CanvasKit.Malloc(Float32Array, 6);
+        mThings.toTypedArray().set([4, 5, 6, 7, 8, 9]);
+        expectTypedArraysToEqual(Float32Array.of(4, 5, 6, 7, 8, 9), mThings.toTypedArray());
+        expectTypedArraysToEqual(Float32Array.of(4, 5, 6, 7, 8, 9), mThings.subarray(0));
+        expectTypedArraysToEqual(Float32Array.of(7, 8, 9), mThings.subarray(3));
+        expectTypedArraysToEqual(Float32Array.of(7), mThings.subarray(3, 4));
+        expectTypedArraysToEqual(Float32Array.of(7, 8), mThings.subarray(3, 5));
+
+        // mutations on the subarray affect the entire array (because they are backed by the
+        // same memory)
+        mThings.subarray(3)[0] = 100.5;
+        expectTypedArraysToEqual(Float32Array.of(4, 5, 6, 100.5, 8, 9), mThings.toTypedArray());
+        CanvasKit.Free(mThings);
+    });
+
+    function expectTypedArraysToEqual(expected, actual) {
+        expect(expected.constructor.name).toEqual(actual.constructor.name);
+        expect(expected.length).toEqual(actual.length);
+        for (let i = 0; i < expected.length; i++) {
+            expect(expected[i]).toBeCloseTo(actual[i], 5, `element ${i}`);
+        }
+    }
 });

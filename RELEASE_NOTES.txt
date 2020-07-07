@@ -4,13 +4,44 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 86
+------------
+
+  * Remove obsolete GrFlushFlags.
+    https://review.skia.org/298818
+
+  * Adds default flush() calls to SkSurface, SkImage, and GrContext. These calls do
+    a basic flush without a submit. If you haven't updated Skia in a couple releases
+    and still have flush() calls in your code that you expect to do a flush and
+    submit, you should update all those to the previously added flushAndSubmit() calls
+    instead.
+    https://review.skia.org/299141
+
+  * Enable BackendSemaphores for the Direct3D backend.
+    https://review.skia.org/298752
+
+  * Added SkImage:asyncRescaleAndReadPixels and SkImage::asyncRescaleAndReadPixelsYUV420
+    https://review.skia.org/299281
+
+* * *
+
 Milestone 85
 ------------
 
-  * <insert new release notes here>
-  
+  * Added GrContext::oomed() which reports whether Skia has seen a GL_OUT_OF_MEMORY
+    error from Open GL [ES] or VK_ERROR_OUT_OF_*_MEMORY from Vulkan.
+    https://review.skia.org/298216
+
+  * Add option on SkSurface::flush to pass in a GrBackendSurfaceMutableState which
+    we will set the gpu backend surface to be at the end of the flush.
+    https://review.skia.org/295567
+
+  * Add GrContext function to set mutable state on a backend surface. Currently this
+    is only used for setting vulkan VkImage layout and queue family.
+    https://review.skia.org/293844
+
   * SkSurface factores that take GrBackendTexture or GrBackendRenderTarget now always
-    call the release proc (if provided) on failure. SkSurface::replaceBackendTexture 
+    call the release proc (if provided) on failure. SkSurface::replaceBackendTexture
     also calls the release proc on failure.
     https://review.skia.org/293762
 

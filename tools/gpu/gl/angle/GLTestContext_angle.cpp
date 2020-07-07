@@ -25,6 +25,8 @@
 #define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE     0x3208
 #define EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE    0x320D
 
+#define EGL_CONTEXT_OPENGL_BACKWARDS_COMPATIBLE_ANGLE 0x3483
+
 using sk_gpu_test::ANGLEBackend;
 using sk_gpu_test::ANGLEContextVersion;
 
@@ -281,12 +283,20 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     }
 
     int versionNum = ANGLEContextVersion::kES2 == version ? 2 : 3;
-    const EGLint contextAttribs[] = {
+    std::vector<EGLint> contextAttribs = {
         EGL_CONTEXT_CLIENT_VERSION, versionNum,
-        EGL_NONE
     };
+
+    const char* extensions = eglQueryString(fDisplay, EGL_EXTENSIONS);
+    if (strstr(extensions, "EGL_ANGLE_create_context_backwards_compatible")) {
+        contextAttribs.push_back(EGL_CONTEXT_OPENGL_BACKWARDS_COMPATIBLE_ANGLE);
+        contextAttribs.push_back(EGL_FALSE);
+    }
+
+    contextAttribs.push_back(EGL_NONE);
+
     EGLContext eglShareContext = shareContext ? shareContext->fContext : nullptr;
-    fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext, contextAttribs);
+    fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext, contextAttribs.data());
     if (EGL_NO_CONTEXT == fContext) {
         SkDebugf("Could not create context!");
         this->destroyGLContext();
@@ -337,7 +347,6 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         break;
     }
 #endif
-    const char* extensions = eglQueryString(fDisplay, EGL_EXTENSIONS);
     if (strstr(extensions, "EGL_KHR_image")) {
         fCreateImage = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
         fDestroyImage = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
@@ -366,7 +375,7 @@ GrEGLImage ANGLEGLContext::texture2DToEGLImage(GrGLuint texID) const {
 void ANGLEGLContext::destroyEGLImage(GrEGLImage image) const { fDestroyImage(fDisplay, image); }
 
 GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
-    GrGLClearErr(this->gl());
+    while (this->gl()->fFunctions.fGetError() != GR_GL_NO_ERROR) {}
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
     }
@@ -382,12 +391,12 @@ GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
         return 0;
     }
     GR_GL_CALL(this->gl(), BindTexture(GR_GL_TEXTURE_EXTERNAL, texID));
-    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
+    if (this->gl()->fFunctions.fGetError() != GR_GL_NO_ERROR) {
         GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }
     glEGLImageTargetTexture2D(GR_GL_TEXTURE_EXTERNAL, image);
-    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
+    if (this->gl()->fFunctions.fGetError() != GR_GL_NO_ERROR) {
         GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }

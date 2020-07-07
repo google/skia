@@ -11,7 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrTracing.h"

@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrSoftwarePathRenderer.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkSemaphore.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
@@ -75,8 +76,7 @@ bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* render
                                                    SkIRect* clippedDevShapeBounds,
                                                    SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
-    *devClipBounds = clip ? clip->getConservativeBounds(renderTargetContext->width(),
-                                                        renderTargetContext->height())
+    *devClipBounds = clip ? clip->getConservativeBounds()
                           : SkIRect::MakeWH(renderTargetContext->width(),
                                             renderTargetContext->height());
 
@@ -328,7 +328,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         GrAA aa = GrAA(GrAAType::kCoverage == args.fAAType);
 
         SkTaskGroup* taskGroup = nullptr;
-        if (auto direct = args.fContext->priv().asDirectContext()) {
+        if (auto direct = args.fContext->asDirectContext()) {
             taskGroup = direct->priv().getTaskGroup();
         }
 

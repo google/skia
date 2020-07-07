@@ -3,7 +3,7 @@ module go.skia.org/skia
 go 1.12
 
 require (
-	cloud.google.com/go/storage v1.9.0
+	cloud.google.com/go/storage v1.10.0
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
 	github.com/VividCortex/godaemon v0.0.0-20150910212227-3d9f6e0b234f // indirect
@@ -16,21 +16,22 @@ require (
 	github.com/huin/goserial v0.0.0-20121012073615-7b90efdb22b1 // indirect
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgx v3.2.0+incompatible // indirect
+	github.com/kisielk/errcheck v1.3.0 // indirect
 	github.com/luci/gtreap v0.0.0-20161228054646-35df89791e8f // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/common v0.10.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
-	github.com/stretchr/testify v1.6.0
+	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
-	go.chromium.org/luci v0.0.0-20200604042319-a5a7ce1799fa // indirect
-	go.skia.org/infra v0.0.0-20200603202721-a6e610f118bb
+	go.chromium.org/luci v0.0.0-20200707033358-8fb6a0ac9ee5 // indirect
+	go.skia.org/infra v0.0.0-20200706211051-88e733d409bf
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200604042327-9b20fe4cabe8 // indirect
+	golang.org/x/tools v0.0.0-20200706234117-b22de6825cf7 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
-	google.golang.org/api v0.26.0
-	gopkg.in/yaml.v3 v3.0.0-20200603094226-e3079894b1e8 // indirect
+	google.golang.org/api v0.28.0
+	google.golang.org/genproto v0.0.0-20200707001353-8e8330bf89df // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )

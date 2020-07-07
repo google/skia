@@ -23,10 +23,20 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrLumaColorFilterEffect& _outer = args.fFp.cast<GrLumaColorFilterEffect>();
         (void)_outer;
+        SkString _input953(args.fInputColor);
+        SkString _sample953;
+        if (_outer.inputFP_index >= 0) {
+            _sample953 = this->invokeChild(_outer.inputFP_index, _input953.c_str(), args);
+        } else {
+            _sample953.swap(_input953);
+        }
         fragBuilder->codeAppendf(
-                "\nhalf luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, "
-                "0.072200000286102295), %s.xyz), 0.0, 1.0);\n%s = half4(0.0, 0.0, 0.0, luma);\n",
-                args.fInputColor, args.fOutputColor);
+                R"SkSL(half4 inputColor = %s;
+
+half luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, 0.072200000286102295), inputColor.xyz), 0.0, 1.0);
+%s = half4(0.0, 0.0, 0.0, luma);
+)SkSL",
+                _sample953.c_str(), args.fOutputColor);
     }
 
 private:
@@ -44,7 +54,11 @@ bool GrLumaColorFilterEffect::onIsEqual(const GrFragmentProcessor& other) const 
     return true;
 }
 GrLumaColorFilterEffect::GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src)
-        : INHERITED(kGrLumaColorFilterEffect_ClassID, src.optimizationFlags()) {}
+        : INHERITED(kGrLumaColorFilterEffect_ClassID, src.optimizationFlags()) {
+    if (src.inputFP_index >= 0) {
+        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    }
+}
 std::unique_ptr<GrFragmentProcessor> GrLumaColorFilterEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrLumaColorFilterEffect(*this));
 }

@@ -10,26 +10,35 @@
  **************************************************************************************************/
 #ifndef GrBlurredEdgeFragmentProcessor_DEFINED
 #define GrBlurredEdgeFragmentProcessor_DEFINED
-#include "include/core/SkTypes.h"
-#include "include/core/SkM44.h"
 
-#include "src/gpu/GrCoordTransform.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
+
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
     enum class Mode { kGaussian = 0, kSmoothStep = 1 };
-    static std::unique_ptr<GrFragmentProcessor> Make(Mode mode) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     Mode mode) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrBlurredEdgeFragmentProcessor(std::move(inputFP), mode));
     }
     GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
+    int inputFP_index = -1;
     Mode mode;
 
 private:
-    GrBlurredEdgeFragmentProcessor(Mode mode)
+    GrBlurredEdgeFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, Mode mode)
             : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
-            , mode(mode) {}
+            , mode(mode) {
+        if (inputFP) {
+            inputFP_index =
+                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        }
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

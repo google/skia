@@ -222,7 +222,6 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
                 piece->fBounds[index] = run->fBounds[i];
             }
             piece->fClusterIndexes[index] = run->fClusterIndexes[i];
-            piece->fOffsets[index] = run->fOffsets[i];
             piece->fPositions[index] = run->fPositions[i] - zero;
             piece->addX(index, advanceX);
         }
@@ -473,8 +472,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
 
 bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
-    SkTArray<BidiRegion> bidiRegions;
-    if (!fParagraph->calculateBidiRegions(&bidiRegions)) {
+    if (!fParagraph->getBidiRegions()) {
         return false;
     }
 
@@ -485,8 +483,8 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
         if (placeholder.fTextBefore.width() > 0) {
             // Shape the text by bidi regions
-            while (bidiIndex < bidiRegions.size()) {
-                BidiRegion& bidiRegion = bidiRegions[bidiIndex];
+            while (bidiIndex < fParagraph->fBidiRegions.size()) {
+                BidiRegion& bidiRegion = fParagraph->fBidiRegions[bidiIndex];
                 auto start = std::max(bidiRegion.text.start, placeholder.fTextBefore.start);
                 auto end = std::min(bidiRegion.text.end, placeholder.fTextBefore.end);
 
@@ -535,7 +533,6 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                                        advanceX);
 
         run.fPositions[0] = { advanceX, 0 };
-        run.fOffsets[0] = {0, 0};
         run.fClusterIndexes[0] = 0;
         run.fPlaceholderIndex = &placeholder - fParagraph->fPlaceholders.begin();
         advanceX += placeholder.fStyle.fWidth;
@@ -597,6 +594,11 @@ bool OneLineShaper::shape() {
                 auto unresolvedCount = fUnresolvedBlocks.size();
                 while (unresolvedCount-- > 0) {
                     auto unresolvedRange = fUnresolvedBlocks.front().fText;
+                    if (unresolvedRange == EMPTY_TEXT) {
+                        // Duplicate blocks should be ignored
+                        fUnresolvedBlocks.pop_front();
+                        continue;
+                    }
                     auto unresolvedText = fParagraph->text(unresolvedRange);
 
                     SkShaper::TrivialFontRunIterator fontIter(font, unresolvedText.size());
@@ -645,15 +647,17 @@ TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
 
         if (dir == Dir::right) {
             while (index < fCurrentRun->fTextRange.end) {
-                if (this->fParagraph->fGraphemes.contains(index)) {
+                if (this->fParagraph->codeUnitHasProperty(index,
+                                                          CodeUnitFlags::kGraphemeStart)) {
                     return index;
                 }
                 ++index;
             }
             return fCurrentRun->fTextRange.end;
         } else {
-            while (index >= fCurrentRun->fTextRange.start) {
-                if (this->fParagraph->fGraphemes.contains(index)) {
+            while (index > fCurrentRun->fTextRange.start) {
+                if (this->fParagraph->codeUnitHasProperty(index,
+                                                          CodeUnitFlags::kGraphemeStart)) {
                     return index;
                 }
                 --index;

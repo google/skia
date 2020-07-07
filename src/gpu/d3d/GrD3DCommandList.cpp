@@ -12,6 +12,8 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
+#include "src/gpu/d3d/GrD3DStencilAttachment.h"
+#include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
@@ -31,6 +33,7 @@ bool GrD3DCommandList::close() {
 GrD3DCommandList::SubmitResult GrD3DCommandList::submit(ID3D12CommandQueue* queue) {
     SkASSERT(fIsActive);
     if (!this->hasWork()) {
+        this->callFinishedCallbacks();
         return SubmitResult::kNoWork;
     }
 
@@ -75,6 +78,12 @@ void GrD3DCommandList::releaseResources() {
 
     fTrackedResources.reset();
     fTrackedRecycledResources.reset();
+
+    this->callFinishedCallbacks();
+}
+
+void GrD3DCommandList::addFinishedCallback(sk_sp<GrRefCntedCallback> callback) {
+    fFinishedCallbacks.push_back(std::move(callback));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +92,7 @@ void GrD3DCommandList::releaseResources() {
 
 void GrD3DCommandList::resourceBarrier(sk_sp<GrManagedResource> resource,
                                        int numBarriers,
-                                       D3D12_RESOURCE_TRANSITION_BARRIER* barriers) {
+                                       const D3D12_RESOURCE_TRANSITION_BARRIER* barriers) {
     SkASSERT(fIsActive);
     SkASSERT(barriers);
     for (int i = 0; i < numBarriers; ++i) {
@@ -110,8 +119,8 @@ void GrD3DCommandList::submitResourceBarriers() {
     SkASSERT(!fResourceBarriers.count());
 }
 
-void GrD3DCommandList::copyBufferToTexture(GrD3DBuffer* srcBuffer,
-                                           GrD3DTextureResource* dstTexture,
+void GrD3DCommandList::copyBufferToTexture(const GrD3DBuffer* srcBuffer,
+                                           const GrD3DTextureResource* dstTexture,
                                            uint32_t subresourceCount,
                                            D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
                                            int left, int top) {
@@ -151,9 +160,9 @@ void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
 }
 
 void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrManagedResource> dst,
-                                          ID3D12Resource * dstBuffer, uint64_t dstOffset,
+                                          ID3D12Resource* dstBuffer, uint64_t dstOffset,
                                           sk_sp<GrManagedResource> src,
-                                          ID3D12Resource * srcBuffer, uint64_t srcOffset,
+                                          ID3D12Resource* srcBuffer, uint64_t srcOffset,
                                           uint64_t numBytes) {
     SkASSERT(fIsActive);
 
@@ -201,7 +210,9 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
     , fCurrentInstanceBuffer(nullptr)
     , fCurrentInstanceStride(0)
     , fCurrentIndexBuffer(nullptr)
-    , fCurrentConstantRingBuffer(nullptr) {
+    , fCurrentConstantRingBuffer(nullptr)
+    , fCurrentSRVCRVDescriptorHeap(nullptr)
+    , fCurrentSamplerDescriptorHeap(nullptr) {
 }
 
 void GrD3DDirectCommandList::onReset() {
@@ -215,6 +226,8 @@ void GrD3DDirectCommandList::onReset() {
         fCurrentConstantRingBuffer->finishSubmit(fConstantRingBufferSubmitData);
         fCurrentConstantRingBuffer = nullptr;
     }
+    fCurrentSRVCRVDescriptorHeap = nullptr;
+    fCurrentSamplerDescriptorHeap = nullptr;
 }
 
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
@@ -275,7 +288,6 @@ void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
                                               size_t instanceStride) {
     if (fCurrentVertexBuffer != vertexBuffer || fCurrentVertexStride != vertexStride ||
         fCurrentInstanceBuffer != instanceBuffer || fCurrentInstanceStride != instanceStride) {
-        this->addingWork();
         this->addResource(vertexBuffer->resource());
 
         D3D12_VERTEX_BUFFER_VIEW views[2];
@@ -300,7 +312,6 @@ void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
 
 void GrD3DDirectCommandList::setIndexBuffer(const GrD3DBuffer* indexBuffer) {
     if (fCurrentIndexBuffer != indexBuffer) {
-        this->addingWork();
         this->addResource(indexBuffer->resource());
 
         D3D12_INDEX_BUFFER_VIEW view = {};
@@ -329,27 +340,80 @@ void GrD3DDirectCommandList::drawIndexedInstanced(unsigned int indexCount,
                                        startInstance);
 }
 
-void GrD3DDirectCommandList::clearRenderTargetView(GrD3DRenderTarget* renderTarget,
+void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* renderTarget,
                                                    const SkPMColor4f& color,
-                                                   const GrScissorState& scissor) {
-    SkASSERT(!scissor.enabled()); // no cliprects for now
+                                                   const D3D12_RECT* rect) {
     this->addingWork();
     this->addResource(renderTarget->resource());
+    if (renderTarget->numSamples() > 1) {
+        this->addResource(renderTarget->msaaTextureResource()->resource());
+    }
+    unsigned int numRects = rect ? 1 : 0;
     fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
-                                        color.vec(),
-                                        0, NULL);
+                                        color.vec(), numRects, rect);
 }
 
-void GrD3DDirectCommandList::setRenderTarget(GrD3DRenderTarget * renderTarget) {
+void GrD3DDirectCommandList::clearDepthStencilView(const GrD3DStencilAttachment* stencil,
+                                                   uint8_t stencilClearValue,
+                                                   const D3D12_RECT* rect) {
+    this->addingWork();
+    this->addResource(stencil->resource());
+    unsigned int numRects = rect ? 1 : 0;
+    fCommandList->ClearDepthStencilView(stencil->view(), D3D12_CLEAR_FLAG_STENCIL, 0,
+                                        stencilClearValue, numRects, rect);
+}
+
+void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarget) {
     this->addingWork();
     this->addResource(renderTarget->resource());
+    if (renderTarget->numSamples() > 1) {
+        this->addResource(renderTarget->msaaTextureResource()->resource());
+    }
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = renderTarget->colorRenderTargetView();
-    fCommandList->OMSetRenderTargets(1, &rtvDescriptor, false, nullptr);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE dsDescriptor;
+    D3D12_CPU_DESCRIPTOR_HANDLE* dsDescriptorPtr = nullptr;
+    if (auto stencil = renderTarget->renderTargetPriv().getStencilAttachment()) {
+        GrD3DStencilAttachment* d3dStencil = static_cast<GrD3DStencilAttachment*>(stencil);
+        this->addResource(d3dStencil->resource());
+        dsDescriptor = d3dStencil->view();
+        dsDescriptorPtr = &dsDescriptor;
+    }
+
+    fCommandList->OMSetRenderTargets(1, &rtvDescriptor, false, dsDescriptorPtr);
 }
 
 void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
         unsigned int rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
     fCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, bufferLocation);
+}
+
+void GrD3DDirectCommandList::setGraphicsRootDescriptorTable(
+        unsigned int rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor) {
+    fCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, baseDescriptor);
+}
+
+void GrD3DDirectCommandList::setDescriptorHeaps(sk_sp<GrRecycledResource> srvCrvHeapResource,
+                                                ID3D12DescriptorHeap* srvCrvDescriptorHeap,
+                                                sk_sp<GrRecycledResource> samplerHeapResource,
+                                                ID3D12DescriptorHeap* samplerDescriptorHeap) {
+    if (srvCrvDescriptorHeap != fCurrentSRVCRVDescriptorHeap ||
+        samplerDescriptorHeap != fCurrentSamplerDescriptorHeap) {
+        ID3D12DescriptorHeap* heaps[2] = {
+            srvCrvDescriptorHeap,
+            samplerDescriptorHeap
+        };
+
+        fCommandList->SetDescriptorHeaps(2, heaps);
+        this->addRecycledResource(std::move(srvCrvHeapResource));
+        this->addRecycledResource(std::move(samplerHeapResource));
+        fCurrentSRVCRVDescriptorHeap = srvCrvDescriptorHeap;
+        fCurrentSamplerDescriptorHeap = samplerDescriptorHeap;
+    }
+}
+
+void GrD3DDirectCommandList::addSampledTextureRef(GrD3DTexture* texture) {
+    this->addResource(texture->resource());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

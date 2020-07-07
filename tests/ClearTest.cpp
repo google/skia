@@ -15,13 +15,12 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrColor.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "tests/Test.h"
@@ -228,7 +227,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrContext* context) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
     // Regular clear
-    clear_op_test(reporter, ctxInfo.grContext());
+    clear_op_test(reporter, ctxInfo.directContext());
 
     // Force drawing for clears
     GrContextOptions options(ctxInfo.options());
@@ -294,7 +293,7 @@ void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* c
 // From crbug.com/768134
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo) {
     // Regular clear
-    fullscreen_clear_with_layer_test(reporter, ctxInfo.grContext());
+    fullscreen_clear_with_layer_test(reporter, ctxInfo.directContext());
 
     // Use draws for clears
     GrContextOptions options(ctxInfo.options());

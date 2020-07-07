@@ -133,6 +133,7 @@ bool CreateBackendTexture(GrContext* context,
                                                 color, mipMapped, renderable, isProtected,
                                                 markFinished, &finishedBECreate);
     if (backendTex->isValid()) {
+        context->submit();
         while (!finishedBECreate) {
             context->checkAsyncWorkCompletion();
         }
@@ -141,9 +142,7 @@ bool CreateBackendTexture(GrContext* context,
 }
 
 void DeleteBackendTexture(GrContext* context, const GrBackendTexture& backendTex) {
-    GrFlushInfo flushInfo;
-    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-    context->flush(flushInfo);
+    context->flush();
     context->submit(true);
     context->deleteBackendTexture(backendTex);
 }

@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkPointPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
@@ -84,7 +85,7 @@ public:
         GrProcessorAnalysisColor gpColor;
         gpColor.setToUnknown();
         // We ignore the clip so pass this rather than the GrAppliedClip param.
-        static GrAppliedClip kNoClip;
+        static GrAppliedClip kNoClip = GrAppliedClip::Disabled();
         return fHelper.finalizeProcessors(caps, &kNoClip, hasMixedSampledCoverage, clampType,
                                           GrProcessorAnalysisCoverage::kNone, &gpColor);
     }
@@ -561,7 +562,7 @@ static void test_color(skiatest::Reporter* reporter, const SkBitmap& bm, int x, 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kNumViews = 3;
 
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     auto proxyProvider = context->priv().proxyProvider();
 
     AtlasObject object(reporter);
@@ -598,7 +599,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), r);
     }
 
-    rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+    rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
 
     SkBitmap readBack;
     readBack.allocN32Pixels(kFinalWidth, kFinalHeight);

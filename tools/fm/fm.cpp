@@ -11,6 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
@@ -131,7 +132,16 @@ static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
     source->size  = gm->getISize();
     source->tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); };
     source->draw  = [gm](SkCanvas* canvas) {
+        auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
+                                                 : nullptr;
+
         SkString err;
+        switch (gm->gpuSetup(direct, canvas, &err)) {
+            case skiagm::DrawResult::kOk  : break;
+            case skiagm::DrawResult::kSkip: return skip;
+            case skiagm::DrawResult::kFail: return fail(err.c_str());
+        }
+
         switch (gm->draw(canvas, &err)) {
             case skiagm::DrawResult::kOk:   break;
             case skiagm::DrawResult::kSkip: return skip;
@@ -292,8 +302,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
     auto overrides = GrContextFactory::ContextOverrides::kNone;
     if (!FLAGS_stencils) { overrides |= GrContextFactory::ContextOverrides::kAvoidStencilBuffers; }
 
-    GrContext* context = factory->getContextInfo(api, overrides)
-                                 .grContext();
+    auto context = factory->getContextInfo(api, overrides).directContext();
 
     uint32_t flags = FLAGS_dit ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag
                                : 0;
@@ -573,7 +582,7 @@ int main(int argc, char** argv) {
                 case Result::Ok:   break;
                 case Result::Skip: return false;
                 case Result::Fail:
-                    SK_ABORT(result.failure.c_str());
+                    SK_ABORT("%s", result.failure.c_str());
             }
             return true;
         };

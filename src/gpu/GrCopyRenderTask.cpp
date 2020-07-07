@@ -11,7 +11,8 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
 
-sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrSurfaceProxyView srcView,
+sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
+                                           GrSurfaceProxyView srcView,
                                            const SkIRect& srcRect,
                                            GrSurfaceProxyView dstView,
                                            const SkIPoint& dstPoint,
@@ -41,34 +42,35 @@ sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrSurfaceProxyView srcView,
     }
 
     sk_sp<GrCopyRenderTask> task(new GrCopyRenderTask(
-            std::move(srcView), clippedSrcRect, std::move(dstView), clippedDstPoint));
+            drawingMgr, std::move(srcView), clippedSrcRect, std::move(dstView), clippedDstPoint));
     return std::move(task);
 }
 
-GrCopyRenderTask::GrCopyRenderTask(GrSurfaceProxyView srcView,
+GrCopyRenderTask::GrCopyRenderTask(GrDrawingManager* drawingMgr,
+                                   GrSurfaceProxyView srcView,
                                    const SkIRect& srcRect,
                                    GrSurfaceProxyView dstView,
                                    const SkIPoint& dstPoint)
-        : GrRenderTask(std::move(dstView))
+        : GrRenderTask()
         , fSrcView(std::move(srcView))
         , fSrcRect(srcRect)
         , fDstPoint(dstPoint) {
-    fTargetView.proxy()->setLastRenderTask(this);
+    this->addTarget(drawingMgr, dstView);
 }
 
 void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // This renderTask doesn't have "normal" ops. In this case we still need to add an interval (so
     // fEndOfOpsTaskOpIndices will remain in sync), so we create a fake op# to capture the fact that
-    // we read fSrcView and copy to fTargetView.
+    // we read fSrcView and copy to target view.
     alloc->addInterval(fSrcView.proxy(), alloc->curOp(), alloc->curOp(),
                        GrResourceAllocator::ActualUse::kYes);
-    alloc->addInterval(fTargetView.proxy(), alloc->curOp(), alloc->curOp(),
+    alloc->addInterval(this->target(0).proxy(), alloc->curOp(), alloc->curOp(),
                        GrResourceAllocator::ActualUse::kYes);
     alloc->incOps();
 }
 
 bool GrCopyRenderTask::onExecute(GrOpFlushState* flushState) {
-    GrSurfaceProxy* dstProxy = fTargetView.proxy();
+    GrSurfaceProxy* dstProxy = this->target(0).proxy();
     GrSurfaceProxy* srcProxy = fSrcView.proxy();
     if (!srcProxy->isInstantiated() || !dstProxy->isInstantiated()) {
         return false;

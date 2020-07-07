@@ -438,36 +438,6 @@
     surface.drawOnce(drawFrame);
   }
 
-  // Return the inverse of an SkM44. throw an error if it's not invertible
-  function mustInvert(m) {
-    const m2 = CanvasKit.SkM44.invert(m);
-    if (m2 === null) {
-      throw "Matrix not invertible";
-    }
-    return m2;
-  }
-
-  // TODO(nifong): This function is in desperate need of some explanation of what it does
-  // cam is a object having eye, coa, up, near, far, angle
-  function saveCamera(canvas, /* rect */ area, /* scalar */ zscale, cam) {
-    const camera = CanvasKit.SkM44.lookat(cam.eye, cam.coa, cam.up);
-    const perspective = CanvasKit.SkM44.perspective(cam.near, cam.far, cam.angle);
-    // Calculate viewport scale. Even through we know these values are all constants in this
-    // example it might be handy to change the size later.
-    const center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
-    const viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
-    const viewport = CanvasKit.SkM44.multiply(
-      CanvasKit.SkM44.translated(center),
-      CanvasKit.SkM44.scaled(viewScale));
-
-    // want "world" to be in our big coordinates (e.g. area), so apply this inverse
-    // as part of our "camera".
-    canvas.concat(CanvasKit.SkM44.multiply(viewport, perspective));
-    canvas.concat(CanvasKit.SkM44.multiply(camera, mustInvert(viewport)));
-    // Mark the matrix to make it available to the shader by this name.
-    canvas.markCTM('local_to_world');
-  }
-
   function Camera3D(canvas, textureImgData, normalImgData, robotoData) {
     const surface = CanvasKit.MakeCanvasSurface('camera3d');
     if (!surface) {
@@ -618,13 +588,13 @@
 
     function setClickToWorld(canvas, matrix) {
       const l2d = canvas.getLocalToDevice();
-      worldToClick = CanvasKit.SkM44.multiply(mustInvert(matrix), l2d);
-      clickToWorld = mustInvert(worldToClick);
+      worldToClick = CanvasKit.SkM44.multiply(CanvasKit.SkM44.mustInvert(matrix), l2d);
+      clickToWorld = CanvasKit.SkM44.mustInvert(worldToClick);
     }
 
     function drawCubeFace(canvas, m, color) {
       const trans = new CanvasKit.SkM44.translated([vSphereRadius/2, vSphereRadius/2, 0]);
-      canvas.concat(CanvasKit.SkM44.multiply(trans, m, mustInvert(trans)));
+      canvas.concat(CanvasKit.SkM44.multiply(trans, m, CanvasKit.SkM44.mustInvert(trans)));
       const znormal = front(canvas.getLocalToDevice());
       if (znormal < 0) {
         return; // skip faces facing backwards
@@ -645,7 +615,10 @@
       canvas.save();
       canvas.translate(vSphereCenter[0] - vSphereRadius/2, vSphereCenter[1] - vSphereRadius/2);
       // pass surface dimensions as viewport size.
-      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2, cam);
+      canvas.concat(CanvasKit.SkM44.setupCamera(
+        CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2, cam));
+      // Mark the matrix to make it available to the shader by this name.
+      canvas.markCTM('local_to_world');
       setClickToWorld(canvas, clickM);
       for (let f of faces) {
         const saveCount = canvas.getSaveCount();
@@ -863,7 +836,8 @@
       }
       canvas.save();
       // Set up 3D view enviroment
-      saveCamera(canvas, CanvasKit.LTRBRect(0, 0, sizeX, sizeY), halfDim, cam);
+      canvas.concat(CanvasKit.SkM44.setupCamera(
+        CanvasKit.LTRBRect(0, 0, sizeX, sizeY), halfDim, cam));
 
       // Rotate the whole paragraph as a unit.
       const paraRotPoint = [halfDim, halfDim, 1];

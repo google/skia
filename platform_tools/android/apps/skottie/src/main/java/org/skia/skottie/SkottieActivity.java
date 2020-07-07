@@ -33,8 +33,6 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
 
     private final static long TIME_OUT_MS = 10000;
 
-    private SkottieApplication mApplication;
-
     private CountDownLatch mEnterAnimationFence = new CountDownLatch(1);
 
     private GridLayout mGrid;
@@ -59,15 +57,14 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
 
         for (int resId : rawAssets) {
             SkottieView view = new SkottieView(this);
-            view.setSource(getResources().openRawResource(resId));
+            view.setSkottieResource(resId);
             mAnimations.add(view);
         }
 
         for (Uri uri : mAnimationFiles) {
             try {
-                InputStream inputStream = getContentResolver().openInputStream(uri);
                 SkottieView view = new SkottieView(this);
-                view.setSource(inputStream);
+                view.setSkottieURI(this, uri);
                 mAnimations.add(view);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -186,11 +183,10 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
     }
 
     private void addLottie(Uri uri) throws FileNotFoundException {
-        InputStream inputStream = getContentResolver().openInputStream(uri);
         int animations = mAnimations.size();
         if (animations < mRowCount * mColumnCount) {
             SkottieView view = new SkottieView(this);
-            view.setSource(inputStream);
+            view.setSkottieURI(this, uri);
             int row = animations / mColumnCount, column = animations % mColumnCount;
             mAnimations.add(view);
             mAnimationFiles.add(uri);

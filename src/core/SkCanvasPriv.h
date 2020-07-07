@@ -48,6 +48,11 @@ public:
         canvas->drawClippedToSaveBehind(paint);
     }
 
+    // Exposed for testing on non-Android framework builds
+    static void ReplaceClip(SkCanvas* canvas, const SkIRect& rect) {
+        canvas->androidFramework_replaceClip(rect);
+    }
+
     // The experimental_DrawEdgeAAImageSet API accepts separate dstClips and preViewMatrices arrays,
     // where entries refer into them, but no explicit size is provided. Given a set of entries,
     // computes the minimum length for these arrays that would provide index access errors.

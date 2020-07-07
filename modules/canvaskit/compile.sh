@@ -47,6 +47,12 @@ elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
   RELEASE_CONF+=" --profiling-funcs --closure 0"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
+elif [[ $@ == *simd* ]]; then
+  echo "Building a Debug build with SIMD operations"
+  EXTRA_CFLAGS="\"-DSK_DEBUG\""
+  RELEASE_CONF="-O0 -msimd128 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
+                --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
+  BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_experimental_simd"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
 fi
@@ -72,8 +78,6 @@ SKP_JS="--pre-js $BASE_DIR/skp.js"
 GN_SKP_FLAGS=""
 WASM_SKP="-DSK_SERIALIZE_SKP"
 if [[ $@ == *no_skp* ]]; then
-  GN_SKP_FLAGS="\"-DSK_DISABLE_READBUFFER\","
-  WASM_SKP="-DSK_DISABLE_READBUFFER"
   SKP_JS=""
 fi
 
@@ -158,20 +162,18 @@ if [[ $@ == *no_canvas* ]]; then
   HTML_CANVAS_API=""
 fi
 
-GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=false"
+GN_FONT="skia_enable_fontmgr_custom_directory=false "
 FONT_CFLAGS=""
-BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
+BUILTIN_FONT=""
 FONT_JS="--pre-js $BASE_DIR/font.js"
 if [[ $@ == *no_font* ]]; then
   echo "Omitting the built-in font(s), font manager and all code dealing with fonts"
-  BUILTIN_FONT=""
   FONT_CFLAGS="-DSK_NO_FONTS"
   FONT_JS=""
-  GN_FONT="skia_enable_fontmgr_empty=true skia_enable_fontmgr_custom_empty=false"
+  GN_FONT+="skia_enable_fontmgr_custom_embedded=false skia_enable_fontmgr_custom_empty=false"
 elif [[ $@ == *no_embedded_font* ]]; then
   echo "Omitting the built-in font(s)"
-  BUILTIN_FONT=""
-  GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=true"
+  GN_FONT+="skia_enable_fontmgr_custom_embedded=false skia_enable_fontmgr_custom_empty=true"
 else
   # Generate the font's binary file (which is covered by .gitignore)
   python tools/embed_resources.py \
@@ -179,6 +181,8 @@ else
       --input $BASE_DIR/fonts/NotoMono-Regular.ttf \
       --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
       --align 4
+  BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
+  GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_empty=false"
 fi
 
 if [[ $@ == *no_alias_font* ]]; then

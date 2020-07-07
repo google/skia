@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkBlendMode.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrBlend.h"
@@ -26,7 +26,7 @@
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
     static constexpr auto opaque = GrProcessorAnalysisColor::Opaque::kYes;
     static constexpr auto coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    const GrCaps& caps = *ctxInfo.grContext()->priv().caps();
+    const GrCaps& caps = *ctxInfo.directContext()->priv().caps();
 
     for (int mode = (int)SkBlendMode::kLastMode; mode > (int)SkBlendMode::kLastCoeffMode; --mode) {
         const SkBlendMode blendMode = (SkBlendMode)mode;

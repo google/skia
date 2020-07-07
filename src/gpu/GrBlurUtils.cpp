@@ -7,7 +7,7 @@
 
 #include "src/gpu/GrBlurUtils.h"
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFixedClip.h"
@@ -200,8 +200,7 @@ static std::unique_ptr<GrRenderTargetContext> create_mask_GPU(GrRecordingContext
     maskPaint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
 
     // setup new clip
-    const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
-    GrFixedClip clip(clipRect);
+    GrFixedClip clip(rtContext->dimensions(), SkIRect::MakeWH(maskRect.width(), maskRect.height()));
 
     // Draw the mask into maskTexture with the path's integerized top-left at the origin using
     // maskPaint.
@@ -245,8 +244,7 @@ static bool get_shape_and_clip_bounds(GrRenderTargetContext* renderTargetContext
                                       SkIRect* unclippedDevShapeBounds,
                                       SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
-    *devClipBounds = clip ? clip->getConservativeBounds(renderTargetContext->width(),
-                                                        renderTargetContext->height())
+    *devClipBounds = clip ? clip->getConservativeBounds()
                           : SkIRect::MakeWH(renderTargetContext->width(),
                                             renderTargetContext->height());
 
@@ -451,7 +449,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                           const SkPaint& paint,
                                           const SkMatrixProvider& matrixProvider,
                                           const GrStyledShape& shape) {
-    if (context->priv().abandoned()) {
+    if (context->abandoned()) {
         return;
     }
 

@@ -33,6 +33,11 @@ const opts = [
     description: 'The Lottie JSON file to process.'
   },
   {
+    name: 'input_skp',
+    typeLabel: '{underline file}',
+    description: 'The SKP file to process.'
+  },
+  {
     name: 'assets',
     typeLabel: '{underline file}',
     description: 'A directory containing any assets needed by the lottie file (e.g. images/fonts).'
@@ -137,6 +142,12 @@ if (options.input_lottie) {
   const lottieJSON = fs.readFileSync(options.input_lottie, 'utf8');
   app.get('/static/lottie.json', (req, res) => res.send(lottieJSON));
 }
+if (options.input_skp) {
+  const skpBytes = fs.readFileSync(options.input_skp, 'binary');
+  app.get('/static/test.skp', (req, res) => {
+    res.send(new Buffer(skpBytes, 'binary'));
+  });
+}
 if (options.assets) {
   app.use('/static/assets/', express.static(options.assets));
   console.log('assets served from', options.assets);
@@ -167,6 +178,11 @@ async function driveBrowser() {
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--window-size=' + viewPort.width + ',' + viewPort.height,
+      // The following two params allow Chrome to run at an unlimited fps. Note, if there is
+      // already a chrome instance running, these arguments will have NO EFFECT, as the existing
+      // Chrome instance will be used instead of puppeteer spinning up a new one.
+      '--disable-frame-rate-limit',
+      '--disable-gpu-vsync',
   ];
   if (options.use_gpu) {
     browser_args.push('--ignore-gpu-blacklist');

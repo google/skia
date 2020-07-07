@@ -14,13 +14,152 @@ if (skia_use_system_zlib) {
     libs = [ "z" ]
   }
 } else {
+  # ARM optimizations disabled for Windows on Arm MSVC builds, see http://crbug.com/v8/10012.
+  use_arm_neon_optimizations =
+      (current_cpu == "arm" || current_cpu == "arm64") && !(is_win && !is_clang)
+  use_x86_x64_optimizations =
+      (current_cpu == "x86" || current_cpu == "x64") && !is_ios
+
+  config("zlib_simd_config") {
+    defines = []
+    if (use_x86_x64_optimizations) {
+      if (is_win) {
+        defines += [ "X86_WINDOWS" ]
+      } else {
+        defines += [ "X86_NOT_WINDOWS" ]
+      }
+      defines += [ "ADLER32_SIMD_SSSE3" ]  # Strangely this is needed for
+                                           # cpu_features.c
+    }
+    if (use_arm_neon_optimizations) {
+      if (is_android) {
+        defines += [ "ARMV8_OS_ANDROID" ]  # also compatible with v7
+      } else if (is_linux || is_chromeos) {
+        defines += [ "ARMV8_OS_LINUX" ]
+      } else if (is_fuchsia) {
+        defines += [ "ARMV8_OS_FUCHSIA" ]
+      } else if (is_win) {
+        defines += [ "ARMV8_OS_WINDOWS" ]
+      } else if (is_ios) {
+        # iOS@ARM is a special case where we always have NEON but don't check
+        # for crypto extensions.
+        defines += [ "ARM_OS_IOS" ]
+      } else {
+        assert(false, "Unsupported ARM OS")
+      }
+    }
+
+    # Warnings are just noise if we're not maintaining the code.
+    if (is_win) {
+      cflags = [ "/w" ]
+    } else {
+      cflags = [ "-w" ]
+    }
+  }
+
+  source_set("zlib_adler32_simd") {
+    visibility = [ ":*" ]
+    configs += [ ":zlib_simd_config" ]
+    if (use_x86_x64_optimizations) {
+      defines = [ "ADLER32_SIMD_SSSE3" ]
+      if (!is_win || is_clang) {
+        cflags = [ "-mssse3" ]
+      }
+    }
+    if (use_arm_neon_optimizations) {
+      defines = [ "ADLER32_SIMD_NEON" ]
+    }
+    sources = [ "../externals/zlib/adler32_simd.c" ]
+  }
+
+  source_set("zlib_crc32_simd") {
+    visibility = [ ":*" ]
+    configs += [ ":zlib_simd_config" ]
+
+    # Disabled for iPhone, as described in DDI0487C_a_armv8_arm:
+    #  "All implementations of the ARMv8.1 architecture are required to
+    #   implement the CRC32* instructions. These are optional in ARMv8.0."
+    if (!is_ios && use_arm_neon_optimizations) {
+      defines = [ "CRC32_ARMV8_CRC32" ]
+
+      # An ARMv7 GCC build will fail to compile without building this target
+      # for ARMv8-a+crc and letting runtime cpu detection select the correct
+      # function.
+      if (!is_win && !is_clang) {
+        cflags_c = [ "-march=armv8-a+crc" ]
+      }
+    }
+
+    if (use_x86_x64_optimizations) {
+      defines = [ "CRC32_SIMD_SSE42_PCLMUL" ]
+      if (!is_win || is_clang) {
+        cflags = [
+          "-msse4.2",
+          "-mpclmul",
+        ]
+      }
+    }
+
+    sources = [ "../externals/zlib/crc32_simd.c" ]
+  }
+
+  source_set("zlib_inflate_chunk_simd") {
+    visibility = [ ":*" ]
+    configs += [ ":zlib_simd_config" ]
+    if (use_x86_x64_optimizations) {
+      defines = [ "INFLATE_CHUNK_SIMD_SSE2" ]
+      if (current_cpu == "x64") {
+        defines += [ "INFLATE_CHUNK_READ_64LE" ]
+      }
+    }
+    if (use_arm_neon_optimizations) {
+      defines = [ "INFLATE_CHUNK_SIMD_NEON" ]
+      if (current_cpu == "arm64") {
+        defines += [ "INFLATE_CHUNK_READ_64LE" ]
+      }
+    }
+    if (use_x86_x64_optimizations || use_arm_neon_optimizations) {
+      include_dirs = [
+        "../externals/zlib/",
+        "../externals/zlib/contrib/optimizations/",
+      ]
+      sources = [
+        "../externals/zlib/contrib/optimizations/inffast_chunk.c",
+        "../externals/zlib/contrib/optimizations/inflate.c",
+      ]
+    }
+  }
+
+  source_set("zlib_x86_x64_simd") {
+    visibility = [ ":*" ]
+    configs += [ ":zlib_simd_config" ]
+    if (use_x86_x64_optimizations) {
+      defines = [
+        "CRC32_SIMD_SSE42_PCLMUL",
+        "DEFLATE_FILL_WINDOW_SSE2",
+      ]
+      if (!is_win || is_clang) {
+        cflags = [
+          "-msse4.2",
+          "-mpclmul",
+        ]
+      }
+      sources = [
+        "../externals/zlib/crc_folding.c",
+        "../externals/zlib/fill_window_sse.c",
+      ]
+    }
+  }
+
   third_party("zlib") {
     public_include_dirs = [ "../externals/zlib" ]
+    defines = [ "ZLIB_IMPLEMENTATION" ]
+    deps = []
 
-    deps = [ ":zlib_x86" ]
     sources = [
       "../externals/zlib/adler32.c",
       "../externals/zlib/compress.c",
+      "../externals/zlib/cpu_features.c",
       "../externals/zlib/crc32.c",
       "../externals/zlib/deflate.c",
       "../externals/zlib/gzclose.c",
@@ -29,30 +168,37 @@ if (skia_use_system_zlib) {
       "../externals/zlib/gzwrite.c",
       "../externals/zlib/infback.c",
       "../externals/zlib/inffast.c",
-      "../externals/zlib/inflate.c",
       "../externals/zlib/inftrees.c",
       "../externals/zlib/trees.c",
       "../externals/zlib/uncompr.c",
       "../externals/zlib/zutil.c",
     ]
+
+    if (is_android) {
+      deps += [ "//third_party/cpu-features" ]
+    }
+
+    if (!use_x86_x64_optimizations && !use_arm_neon_optimizations) {
+      defines += [ "CPU_NO_SIMD" ]
+      sources += [ "../externals/zlib/inflate.c" ]
+    } else {
+      configs += [ ":zlib_simd_config" ]
+      deps += [
+        ":zlib_adler32_simd",
+        ":zlib_crc32_simd",
+        ":zlib_inflate_chunk_simd",
+        ":zlib_x86_x64_simd",
+      ]
+    }
   }
 }
 
-third_party("zlib_x86") {
-  public_include_dirs = []
-  if (target_cpu == "x86" || target_cpu == "x64") {
-    sources = [
-      "../externals/zlib/crc_folding.c",
-      "../externals/zlib/fill_window_sse.c",
-      "../externals/zlib/x86.c",
-    ]
-    if (!is_win || is_clang) {
-      cflags_c = [
-        "-msse4.2",
-        "-mpclmul",
-      ]
-    }
-  } else {
-    sources = [ "../externals/zlib/simd_stub.c" ]
-  }
+third_party("compression_utils_portable") {
+  visibility = [ "//third_party/angle2:*" ]
+  public_include_dirs = [ "../externals/zlib/google" ]
+  sources = [
+    "../externals/zlib/google/compression_utils_portable.cc",
+    "../externals/zlib/google/compression_utils_portable.h",
+  ]
+  public_deps = [ ":zlib" ]  # either system or from source
 }

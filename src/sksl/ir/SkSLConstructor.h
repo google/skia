@@ -87,9 +87,9 @@ struct Constructor : public Expression {
         return result;
     }
 
-    bool isConstant() const override {
+    bool isCompileTimeConstant() const override {
         for (size_t i = 0; i < fArguments.size(); i++) {
-            if (!fArguments[i]->isConstant()) {
+            if (!fArguments[i]->isCompileTimeConstant()) {
                 return false;
             }
         }
@@ -192,7 +192,7 @@ struct Constructor : public Expression {
     }
 
     SKSL_FLOAT getMatComponent(int col, int row) const override {
-        SkASSERT(this->isConstant());
+        SkASSERT(this->isCompileTimeConstant());
         SkASSERT(fType.kind() == Type::kMatrix_Kind);
         SkASSERT(col < fType.columns() && row < fType.rows());
         if (fArguments.size() == 1) {

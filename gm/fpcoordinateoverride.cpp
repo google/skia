@@ -21,7 +21,6 @@
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -38,8 +37,7 @@ public:
 
     SampleCoordEffect(std::unique_ptr<GrFragmentProcessor> child)
         : INHERITED(CLASS_ID, kNone_OptimizationFlags) {
-        child->setSampledWithExplicitCoords();
-        this->registerChildProcessor(std::move(child));
+        this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
     }
 
     const char* name() const override { return "SampleCoordEffect"; }

@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-
-#include "include/gpu/GrContext.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "tests/Test.h"
 
@@ -97,7 +95,7 @@ static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter, const ch
 // Tests that readPixels returns up-to-date results. This has failed on several GPUs,
 // from multiple vendors, in MSAA mode.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
     test_bug_6653(ctx, reporter, "Default");
 }
 

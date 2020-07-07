@@ -74,7 +74,6 @@ func main() {
 	lottiesAbsPath := getAbsoluteOfRequiredFlag(ctx, *lottiesPath, "lotties_path")
 	outputAbsPath := getAbsoluteOfRequiredFlag(ctx, *outputPath, "output_path")
 
-	// Run the infra tests.
 	if err := setup(ctx, benchmarkAbsPath, nodeBinAbsPath); err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}

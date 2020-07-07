@@ -35,7 +35,7 @@ public:
         fShaderCaps->fShaderDerivativeSupport = options.fShaderDerivativeSupport;
         fShaderCaps->fDualSourceBlendingSupport = options.fDualSourceBlendingSupport;
         fShaderCaps->fSampleMaskSupport = true;
-        fShaderCaps->fTessellationSupport = options.fTessellationSupport;
+        fShaderCaps->fMaxTessellationSegments = options.fMaxTessellationSegments;
 
         this->finishInitialization(contextOptions);
     }
@@ -48,10 +48,6 @@ public:
 
         auto ct = format.asMockColorType();
         return GrGetColorTypeDesc(ct).encoding() == GrColorTypeEncoding::kSRGBUnorm;
-    }
-
-    SkImage::CompressionType compressionType(const GrBackendFormat& format) const override {
-        return format.asMockCompressionType();
     }
 
     bool isFormatTexturable(const GrBackendFormat& format) const override {
@@ -155,10 +151,6 @@ public:
         return {};
     }
 
-    GrSwizzle getReadSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
-        SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
-        return GrSwizzle("rgba");
-    }
     GrSwizzle getWriteSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
         SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
         return GrSwizzle("rgba");
@@ -203,6 +195,11 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType, const GrBackendFormat&,
                                                  GrColorType) const override {
         return SupportedRead{srcColorType, 1};
+    }
+
+    GrSwizzle onGetReadSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
+        SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
+        return GrSwizzle("rgba");
     }
 
     static const int kMaxSampleCnt = 16;

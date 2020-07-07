@@ -33,6 +33,7 @@
 #include <vector>
 
 class GrContext;
+class GrRecordingContext;
 class GrRenderTargetContext;
 class SkBaseDevice;
 class SkBitmap;
@@ -288,6 +289,11 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_getGrContext
     */
     virtual GrContext* getGrContext();
+
+    /**
+     * Experimental. SkCanvases can actually only guarantee a GrRecordingContext.
+     */
+    virtual GrRecordingContext* recordingContext();
 
     /** Sometimes a canvas is owned by a surface. If it is, getSurface() will return a bare
      *  pointer to that surface, else this will return nullptr.
@@ -684,37 +690,6 @@ public:
             , fSaveLayerFlags(saveLayerFlags)
         {}
 
-#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
-        /** Experimental. Not ready for general use.
-            Sets fBounds, fPaint, fBackdrop, fClipMask, fClipMatrix, and fSaveLayerFlags.
-            clipMatrix uses alpha channel of image, transformed by clipMatrix, to clip
-            layer when drawn to SkCanvas.
-
-            @param bounds          layer dimensions; may be nullptr
-            @param paint           graphics state applied to layer when overlaying prior
-                                   layer; may be nullptr
-            @param backdrop        If not null, this causes the current layer to be filtered by
-                                   backdrop, and then drawn into the new layer
-                                   (respecting the current clip).
-                                   If null, the new layer is initialized with transparent-black.
-            @param clipMask        clip applied to layer; may be nullptr
-            @param clipMatrix      matrix applied to clipMask; may be nullptr to use
-                                   identity matrix
-            @param saveLayerFlags  SaveLayerRec options to modify layer
-            @return                SaveLayerRec fully specified
-        */
-        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
-                     const SkImage* clipMask, const SkMatrix* clipMatrix,
-                     SaveLayerFlags saveLayerFlags)
-            : fBounds(bounds)
-            , fPaint(paint)
-            , fBackdrop(backdrop)
-            , fClipMask(clipMask)
-            , fClipMatrix(clipMatrix)
-            , fSaveLayerFlags(saveLayerFlags)
-        {}
-#endif
-
         /** hints at layer size limit */
         const SkRect*        fBounds         = nullptr;
 
@@ -729,13 +704,6 @@ public:
          */
         const SkImageFilter* fBackdrop       = nullptr;
 
-#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
-        /** clips layer with mask alpha */
-        const SkImage*       fClipMask       = nullptr;
-
-        /** transforms mask alpha used to clip */
-        const SkMatrix*      fClipMatrix     = nullptr;
-#endif
         /** preserves LCD text, creates with prior layer contents */
         SaveLayerFlags       fSaveLayerFlags = 0;
     };
@@ -955,6 +923,8 @@ public:
 
         Pass an empty rect to disable maximum clip.
         This private API is for use by Android framework only.
+
+        DEPRECATED: Replace usage with SkAndroidFrameworkUtils::replaceClip()
 
         @param rect  maximum allowed clip in device coordinates
     */
@@ -2759,8 +2729,7 @@ private:
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
-    void internalDrawDevice(SkBaseDevice*, const SkPaint*, SkImage* clipImage,
-                            const SkMatrix& clipMatrix);
+    void internalDrawDevice(SkBaseDevice*, const SkPaint*);
 
     void internalConcat44(const SkM44&);
 
@@ -2785,6 +2754,13 @@ private:
      *  If the clip is empty, this will return false.
      */
     bool androidFramework_isClipAA() const;
+
+    /**
+     * Reset the clip to be just the intersection with the global-space 'rect'. This operates within
+     * the save/restore stack of the canvas, so restore() will bring back any saved clip. However,
+     * since 'rect' is already in global space, it is not modified by the canvas matrix.
+     */
+    void androidFramework_replaceClip(const SkIRect& rect);
 
     virtual SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const { return nullptr; }
 

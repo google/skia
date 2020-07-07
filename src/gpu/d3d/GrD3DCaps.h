@@ -29,7 +29,6 @@ public:
     GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1*, ID3D12Device*);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
-    SkImage::CompressionType compressionType(const GrBackendFormat&) const override;
 
     bool isFormatTexturable(const GrBackendFormat&) const override;
     bool isFormatTexturable(DXGI_FORMAT) const;
@@ -49,6 +48,8 @@ public:
 
     size_t bytesPerPixel(const GrBackendFormat&) const override;
     size_t bytesPerPixel(DXGI_FORMAT) const;
+
+    GrColorType getFormatColorType(DXGI_FORMAT) const;
 
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,
@@ -93,7 +94,6 @@ public:
         return fColorTypeToFormatTable[idx];
     }
 
-    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
@@ -139,6 +139,8 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
 
+    GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
+
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {
         GrColorType fColorType = GrColorType::kUnknown;
@@ -183,6 +185,11 @@ private:
         SkTDArray<int> fColorSampleCounts;
         // This value is only valid for regular formats. Compressed formats will be 0.
         size_t fBytesPerPixel = 0;
+
+        // This GrColorType represents how the actually GPU format lays out its memory. This is used
+        // for uploading data to backend textures to make sure we've arranged the memory in the
+        // correct order.
+        GrColorType fFormatColorType = GrColorType::kUnknown;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;

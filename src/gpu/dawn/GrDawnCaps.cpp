@@ -38,10 +38,6 @@ bool GrDawnCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return false;
 }
 
-SkImage::CompressionType GrDawnCaps::compressionType(const GrBackendFormat& format) const {
-    return SkImage::CompressionType::kNone;
-}
-
 bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
     // Currently, all the formats in GrDawnFormatToPixelConfig are texturable.
     wgpu::TextureFormat dawnFormat;
@@ -67,6 +63,7 @@ static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorTyp
             if (!forOutput) {
                 return GrSwizzle::RGB1();
             }
+            break;
         default:
             return GrSwizzle::RGBA();
     }
@@ -93,6 +90,11 @@ GrCaps::SurfaceReadPixelsSupport GrDawnCaps::surfaceSupportsReadPixels(
     // We currently support readbacks only from Textures and TextureRenderTargets.
     return surface->asTexture() ? SurfaceReadPixelsSupport::kSupported
                                 : SurfaceReadPixelsSupport::kUnsupported;
+}
+
+bool GrDawnCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
+    // We currently support writePixels only to Textures and TextureRenderTargets.
+    return surface->asTexture() != nullptr;
 }
 
 size_t GrDawnCaps::bytesPerPixel(const GrBackendFormat& backendFormat) const {
@@ -129,7 +131,7 @@ GrBackendFormat GrDawnCaps::getBackendFormatFromCompressionType(SkImage::Compres
     return GrBackendFormat();
 }
 
-GrSwizzle GrDawnCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const
+GrSwizzle GrDawnCaps::onGetReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const
 {
     return get_swizzle(format, colorType, false);
 }

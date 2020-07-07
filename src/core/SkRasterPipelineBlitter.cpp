@@ -6,13 +6,13 @@
  */
 
 #include "include/core/SkColor.h"
-#include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlitter.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMatrixProvider.h"
@@ -90,13 +90,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkMatrixProvider& matrixProvider,
                                          SkArenaAlloc* alloc,
                                          sk_sp<SkShader> clipShader) {
-    // For legacy to keep working, we need to sometimes still distinguish null dstCS from sRGB.
-#if 0
-    SkColorSpace* dstCS = dst.colorSpace() ? dst.colorSpace()
-                                           : sk_srgb_singleton();
-#else
     SkColorSpace* dstCS = dst.colorSpace();
-#endif
     SkColorType dstCT = dst.colorType();
     SkColor4f paintColor = paint.getColor4f();
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
@@ -129,8 +123,8 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                                std::move(clipShader));
     }
 
-    // The shader has opted out of drawing anything.
-    return alloc->make<SkNullBlitter>();
+    // The shader can't draw with SkRasterPipeline.
+    return nullptr;
 }
 
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
@@ -190,8 +184,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         SkStageRec rec = {
             colorPipeline, alloc, dst.colorType(), dst.colorSpace(), paint, nullptr, matrixProvider
         };
-        colorFilter->appendStages(rec, is_opaque);
-        is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+        as_CFB(colorFilter)->appendStages(rec, is_opaque);
+        is_opaque = is_opaque && as_CFB(colorFilter)->isAlphaUnchanged();
     }
 
 #if defined(SK_LATE_DITHER)

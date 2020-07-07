@@ -346,16 +346,16 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			blacklist("_ test _ Programs")
 		}
 
+		if b.extraConfig("CommandBuffer") {
+			// skbug.com/10412
+			blacklist("_ test _ GLBackendAllocationTest")
+		}
+
 		// skbug.com/9033 - these devices run out of memory on this test
 		// when opList splitting reduction is enabled
 		if b.gpu() && (b.model("Nexus7", "NVIDIA_Shield", "Nexus5x") ||
 			(b.os("Win10") && b.gpu("GTX660") && b.extraConfig("Vulkan"))) {
 			blacklist("_", "gm", "_", "savelayer_clipmask")
-		}
-
-		// skbug.com/9123
-		if b.extraConfig("CommandBuffer") && b.gpu("IntelIris5100") {
-			blacklist("_", "test", "_", "AsyncReadPixels")
 		}
 
 		// skbug.com/9043 - these devices render this test incorrectly
@@ -384,6 +384,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					configs = append(configs, "mtlmsaa8")
 				}
 			}
+		}
+		if b.extraConfig("Direct3D") {
+		        configs = []string{"d3d"}
 		}
 
 		// Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
@@ -467,6 +470,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			ddlConfigs := suffix(filter(configs, "gl", "vk", "mtl"), "ddl")
 			ddl2Configs := prefix(filter(configs, "gl", "vk", "mtl"), "ddl2-")
 			configs = append(ddlConfigs, ddl2Configs...)
+			args = append(args, "--skpViewportSize", "2048")
+			args = append(args, "--gpuThreads", "0")
+		}
+		if b.extraConfig("OOPRDDL") {
+			// This bot generates the real oopr/DDL images for the large skps and the GMs
+			configs = suffix(filter(configs, "gl", "vk", "mtl"), "ooprddl")
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
 		}
@@ -557,6 +566,46 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		blacklist("_ svg _ _")
 		// skbug.com/9171 and 8847
 		blacklist("_ test _ InitialTextureClear")
+	}
+
+	if b.extraConfig("OOPRDDL") {
+		// This batch all call readpixels
+		blacklist("_ gm _ async_rescale_and_read_dog_down")
+		blacklist("_ gm _ async_rescale_and_read_dog_up")
+		blacklist("_ gm _ async_rescale_and_read_no_bleed")
+		blacklist("_ gm _ async_rescale_and_read_rose")
+		blacklist("_ gm _ async_rescale_and_read_text_down")
+		blacklist("_ gm _ async_rescale_and_read_text_up")
+		blacklist("_ gm _ async_rescale_and_read_text_up_large")
+		blacklist("_ gm _ async_rescale_and_read_yuv420_rose")
+		blacklist("_ gm _ async_yuv_no_scale")
+		blacklist("_ gm _ drawbitmaprect-subset")
+		blacklist("_ gm _ drawbitmaprect")
+		blacklist("_ gm _ image_subset")
+		blacklist("_ gm _ p3")
+		blacklist("_ gm _ p3_ovals")
+		blacklist("_ gm _ readpixels")
+		blacklist("_ gm _ scale-pixels ")
+		blacklist("_ gm _ zero_length_paths_aa")
+		blacklist("_ gm _ zero_length_paths_bw")
+		blacklist("_ gm _ zero_length_paths_dbl_aa")
+		blacklist("_ gm _ zero_length_paths_dbl_bw")
+		// This one explicitly rejects DDL recording
+		blacklist("_ gm _ blurrect_compare")
+		// These two trip up on CCPR behavior
+		blacklist("_ gm _ preservefillrule_big")
+		blacklist("_ gm _ preservefillrule_little")
+		// These two rely on munging the resource limits
+		blacklist("_ gm _ bitmaptiled_fractional_horizontal")
+		blacklist("_ gm _ bitmaptiled_fractional_vertical")
+		// These two require a direct context
+		blacklist("_ gm _ new_texture_image ")
+		blacklist("_ gm _ fontregen ")
+		// This family of gms can be re-enabled once MakeRenderTarget can take a GrRecordingContext
+		blacklist("_ gm _ gpu_blur_utils")
+		blacklist("_ gm _ gpu_blur_utils_subset_rect")
+		blacklist("_ gm _ gpu_blur_utils_subset_ref")
+		blacklist("_ gm _ gpu_blur_utils_ref")
 	}
 
 	if b.model("TecnoSpark3Pro") {
@@ -832,6 +881,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~WritePixels")                       // skia:4711
 		match = append(match, "~PremulAlphaRoundTrip_Gpu")          // skia:7501
 		match = append(match, "~ReimportImageTextureWithMipLevels") // skia:8090
+		match = append(match, "~MorphologyFilterRadiusWithMirrorCTM_Gpu") // skia:10383
 	}
 
 	if b.model("GalaxyS6") {
@@ -912,6 +962,33 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("Metal") && b.gpu("RadeonHD8870M") && b.matchOs("Mac") {
 		// skia:9255
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
+	}
+
+	if b.extraConfig("Direct3D") {
+		// skia:9935
+		match = append(match, "~^ColorTypeBackendAllocationTest$")
+		match = append(match, "~^CompressedBackendAllocationTest$")
+		match = append(match, "~^DDLSkSurfaceFlush$")
+		match = append(match, "~^GrBackendTextureImageMipMappedTest$")
+		match = append(match, "~^GrMeshTest$")
+		match = append(match, "~^GrSurfaceRenderability$")
+		match = append(match, "~^GrTextureMipMapInvalidationTest$")
+		match = append(match, "~^PremulAlphaRoundTrip_Gpu$")
+		match = append(match, "~^ReplaceSurfaceBackendTexture$")
+		match = append(match, "~^SkImage_makeTextureImage$")
+		match = append(match, "~^TextureIdleStateTest$")
+		match = append(match, "~^TextureProxyTest$")
+	}
+	if b.extraConfig("Direct3D") && b.matchOs("Win") {
+		// skia:9935
+		match = append(match, "~^ImageAsyncReadPixels$")
+	}
+	if b.extraConfig("Direct3D") && b.gpu("RadeonHD7770") && b.matchOs("Win") {
+		// skia:9935
+		match = append(match, "~^SurfaceAsyncReadPixels$")
+		match = append(match, "~^MorphologyFilterRadiusWithMirrorCTM_Gpu$")
+		match = append(match, "~^ReadPixels_Gpu$")
+		match = append(match, "~^ReadPixels_Texture$")
 	}
 
 	if b.extraConfig("ANGLE") {

@@ -46,11 +46,11 @@ public:
 
     const SkIRect& bounds() const { return fBounds; }
     SkISize kernelSize() const { return fKernel.size(); }
-    const SkV2 kernelOffset() const { return fKernelOffset; }
+    const SkVector kernelOffset() const { return fKernelOffset; }
     bool kernelIsSampled() const { return fKernel.isSampled(); }
     const float *kernel() const { return fKernel.array().data(); }
-    float kernelSampleGain() const { return fKernel.scalableSampler().fGain; }
-    float kernelSampleBias() const { return fKernel.scalableSampler().fBias; }
+    float kernelSampleGain() const { return fKernel.biasAndGain().fGain; }
+    float kernelSampleBias() const { return fKernel.biasAndGain().fBias; }
     float gain() const { return fGain; }
     float bias() const { return fBias; }
     bool convolveAlpha() const { return fConvolveAlpha; }
@@ -67,34 +67,22 @@ private:
      */
     class KernelWrapper {
     public:
-        struct ScalableSampler {
-            TextureSampler fSampler;
+        struct BiasAndGain {
             // Only used in A8 mode. Applied before any other math.
-            float fBias = 0.0f;
+            float fBias;
             // Only used in A8 mode. Premultiplied in with user gain to save time.
-            float fGain = 1.0f;
-            bool operator==(const ScalableSampler&) const;
+            float fGain;
+            bool operator==(const BiasAndGain&) const;
         };
-        static KernelWrapper Make(GrRecordingContext*, SkISize,
-                                  const GrCaps&, const float* values);
+        using MakeResult = std::tuple<KernelWrapper, std::unique_ptr<GrFragmentProcessor>>;
+        static MakeResult Make(GrRecordingContext*, SkISize, const GrCaps&, const float* values);
 
-        KernelWrapper(KernelWrapper&& that) : fSize(that.fSize) {
-            if (that.isSampled()) {
-                new (&fScalableSampler) ScalableSampler(std::move(that.fScalableSampler));
-            } else {
-                new (&fArray) std::array<float, kMaxUniformSize>(std::move(that.fArray));
-            }
-        }
+        KernelWrapper() = default;
         KernelWrapper(const KernelWrapper& that) : fSize(that.fSize) {
             if (that.isSampled()) {
-                new (&fScalableSampler) ScalableSampler(that.fScalableSampler);
+                fBiasAndGain = that.fBiasAndGain;
             } else {
                 new (&fArray) std::array<float, kMaxUniformSize>(that.fArray);
-            }
-        }
-        ~KernelWrapper() {
-            if (this->isSampled()) {
-                fScalableSampler.~ScalableSampler();
             }
         }
 
@@ -105,29 +93,29 @@ private:
             SkASSERT(!this->isSampled());
             return fArray;
         }
-        const ScalableSampler& scalableSampler() const {
+        const BiasAndGain& biasAndGain() const {
             SkASSERT(this->isSampled());
-            return fScalableSampler;
+            return fBiasAndGain;
         }
         bool operator==(const KernelWrapper&) const;
 
     private:
-        KernelWrapper() : fSize({}) {}
         KernelWrapper(SkISize size) : fSize(size) {
             if (this->isSampled()) {
-                new (&fScalableSampler) ScalableSampler;
+                fBiasAndGain = {0.f , 1.f};
             }
         }
 
-        SkISize fSize;
+        SkISize fSize = {};
         union {
             std::array<float, kMaxUniformSize> fArray;
-            ScalableSampler fScalableSampler;
+            BiasAndGain fBiasAndGain;
         };
     };
 
     GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentProcessor> child,
-                              KernelWrapper kernel,
+                              const KernelWrapper& kernel,
+                              std::unique_ptr<GrFragmentProcessor> kernelFP,
                               SkScalar gain,
                               SkScalar bias,
                               const SkIPoint& kernelOffset,
@@ -141,16 +129,11 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    const GrFragmentProcessor::TextureSampler& onTextureSampler(int index) const override;
-
-    // We really just want the unaltered local coords, but the only way to get that right now is
-    // an identity coord transform.
-    GrCoordTransform fCoordTransform = {};
     SkIRect          fBounds;
     KernelWrapper    fKernel;
     float            fGain;
     float            fBias;
-    SkV2             fKernelOffset;
+    SkVector         fKernelOffset;
     bool             fConvolveAlpha;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST

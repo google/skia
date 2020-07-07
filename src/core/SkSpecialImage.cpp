@@ -10,20 +10,17 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
-#include "src/core/SkBitmapCache.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/image/SkImage_Base.h"
-#include <atomic>
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
@@ -86,52 +83,6 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     : fProps(SkSurfacePropsCopyOrDefault(props))
     , fSubset(subset)
     , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID() : uniqueID) {
-}
-
-sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* context) const {
-#if SK_SUPPORT_GPU
-    if (!context) {
-        return nullptr;
-    }
-    if (GrRecordingContext* curContext = as_SIB(this)->onGetContext()) {
-        return curContext->priv().matches(context) ? sk_ref_sp(this) : nullptr;
-    }
-
-    SkBitmap bmp;
-    // At this point, we are definitely not texture-backed, so we must be raster or generator
-    // backed. If we remove the special-wrapping-an-image subclass, we may be able to assert that
-    // we are strictly raster-backed (i.e. generator images become raster when they are specialized)
-    // in which case getROPixels could turn into peekPixels...
-    if (!this->getROPixels(&bmp)) {
-        return nullptr;
-    }
-
-    if (bmp.empty()) {
-        return SkSpecialImage::MakeFromRaster(SkIRect::MakeEmpty(), bmp, &this->props());
-    }
-
-    // TODO: this is a tight copy of 'bmp' but it doesn't have to be (given SkSpecialImage's
-    // semantics). Since this is cached though we would have to bake the fit into the cache key.
-    auto view = GrMakeCachedBitmapProxyView(context, bmp);
-    if (!view.proxy()) {
-        return nullptr;
-    }
-
-    const SkIRect rect = SkIRect::MakeSize(view.proxy()->dimensions());
-
-    // GrMakeCachedBitmapProxyView has uploaded only the specified subset of 'bmp' so we need not
-    // bother with SkBitmap::getSubset
-    return SkSpecialImage::MakeDeferredFromGpu(context,
-                                               rect,
-                                               this->uniqueID(),
-                                               std::move(view),
-                                               SkColorTypeToGrColorType(bmp.colorType()),
-                                               sk_ref_sp(this->getColorSpace()),
-                                               &this->props(),
-                                               this->alphaType());
-#else
-    return nullptr;
-#endif
 }
 
 void SkSpecialImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
@@ -207,21 +158,17 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
 #if SK_SUPPORT_GPU
-    if (const GrSurfaceProxyView* view = as_IB(image)->view(context)) {
-        if (!as_IB(image)->context()->priv().matches(context)) {
-            return nullptr;
-        }
-
-        return MakeDeferredFromGpu(context, subset, image->uniqueID(), *view,
+    if (context) {
+        GrSurfaceProxyView view = as_IB(image)->refView(context, GrMipMapped::kNo);
+        return MakeDeferredFromGpu(context, subset, image->uniqueID(), view,
                                    SkColorTypeToGrColorType(image->colorType()),
                                    image->refColorSpace(), props);
-    } else
+    }
 #endif
-    {
-        SkBitmap bm;
-        if (as_IB(image)->getROPixels(&bm)) {
-            return MakeFromRaster(subset, bm, props);
-        }
+
+    SkBitmap bm;
+    if (as_IB(image)->getROPixels(&bm)) {
+        return MakeFromRaster(subset, bm, props);
     }
     return nullptr;
 }
@@ -385,14 +332,7 @@ public:
         , fView(std::move(view))
         , fColorType(ct)
         , fAlphaType(at)
-        , fColorSpace(std::move(colorSpace))
-        , fAddedRasterVersionToCache(false) {
-    }
-
-    ~SkSpecialImage_Gpu() override {
-        if (fAddedRasterVersionToCache.load()) {
-            SkNotifyBitmapGenIDIsStale(this->uniqueID());
-        }
+        , fColorSpace(std::move(colorSpace)) {
     }
 
     SkAlphaType alphaType() const override { return fAlphaType; }
@@ -426,35 +366,10 @@ public:
     GrSurfaceProxyView onView(GrRecordingContext* context) const override { return fView; }
 
     bool onGetROPixels(SkBitmap* dst) const override {
-        const auto desc = SkBitmapCacheDesc::Make(this->uniqueID(), this->subset());
-        if (SkBitmapCache::Find(desc, dst)) {
-            SkASSERT(dst->getGenerationID() == this->uniqueID());
-            SkASSERT(dst->isImmutable());
-            SkASSERT(dst->getPixels());
-            return true;
-        }
-
-        SkPixmap pmap;
-        SkImageInfo info = SkImageInfo::MakeN32(this->width(), this->height(),
-                                                this->alphaType(), fColorSpace);
-        auto rec = SkBitmapCache::Alloc(desc, info, &pmap);
-        if (!rec) {
-            return false;
-        }
-        auto sContext = GrSurfaceContext::Make(fContext, fView, fColorType, this->alphaType(),
-                                               fColorSpace);
-        if (!sContext) {
-            return false;
-        }
-
-        if (!sContext->readPixels(info, pmap.writable_addr(), pmap.rowBytes(),
-                                  {this->subset().left(), this->subset().top()})) {
-            return false;
-        }
-
-        SkBitmapCache::Add(std::move(rec), dst);
-        fAddedRasterVersionToCache.store(true);
-        return true;
+        // This should never be called: All GPU image filters are implemented entirely on the GPU,
+        // so we never perform read-back.
+        SkASSERT(false);
+        return false;
     }
 
     SkColorSpace* onGetColorSpace() const override {
@@ -531,7 +446,6 @@ private:
     const GrColorType         fColorType;
     const SkAlphaType         fAlphaType;
     sk_sp<SkColorSpace>       fColorSpace;
-    mutable std::atomic<bool> fAddedRasterVersionToCache;
 
     typedef SkSpecialImage_Base INHERITED;
 };
@@ -544,7 +458,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* co
                                                           sk_sp<SkColorSpace> colorSpace,
                                                           const SkSurfaceProps* props,
                                                           SkAlphaType at) {
-    if (!context || context->priv().abandoned() || !view.asTextureProxy()) {
+    if (!context || context->abandoned() || !view.asTextureProxy()) {
         return nullptr;
     }
     SkASSERT_RELEASE(rect_fits(subset, view.proxy()->width(), view.proxy()->height()));

@@ -10,8 +10,9 @@
  **************************************************************************************************/
 #ifndef GrConfigConversionEffect_DEFINED
 #define GrConfigConversionEffect_DEFINED
-#include "include/core/SkTypes.h"
+
 #include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
 
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
@@ -19,8 +20,8 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
 
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
     static bool TestForPreservingPMConversions(GrContext* context) {

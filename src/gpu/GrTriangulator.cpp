@@ -2400,13 +2400,13 @@ int get_contour_count(const SkPath& path, SkScalar tolerance) {
                 if (!first) {
                     ++contourCnt;
                 }
-                // fallthru.
+                [[fallthrough]];
             case SkPath::kLine_Verb:
             case SkPath::kConic_Verb:
             case SkPath::kQuad_Verb:
             case SkPath::kCubic_Verb:
                 hasPoints = true;
-                // fallthru to break.
+                break;
             default:
                 break;
         }

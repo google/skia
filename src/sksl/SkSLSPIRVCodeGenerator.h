@@ -177,7 +177,7 @@ private:
 
     void writeProgramElement(const ProgramElement& pe, OutputStream& out);
 
-    SpvId writeInterfaceBlock(const InterfaceBlock& intf);
+    SpvId writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight = true);
 
     SpvId writeFunctionStart(const FunctionDeclaration& f, OutputStream& out);
 

@@ -706,7 +706,13 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
 #endif
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D:
-            return false; //TODO
+            return fD3DInfo.snapTextureResourceInfo().fResource ==
+                    that.fD3DInfo.snapTextureResourceInfo().fResource;
+#endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn: {
+            return this->fDawnInfo.fTexture.Get() == that.fDawnInfo.fTexture.Get();
+        }
 #endif
         case GrBackendApi::kMock:
             return fMockInfo.id() == that.fMockInfo.id();
@@ -769,6 +775,12 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
         t0.fHeight != t1.fHeight ||
         t0.fMipMapped != t1.fMipMapped ||
         t0.fBackend != t1.fBackend) {
+        return false;
+    }
+
+    // For our tests when checking equality we are assuming the both backendTexture objects will
+    // be using the same mutable state object.
+    if (t0.fMutableState != t1.fMutableState) {
         return false;
     }
 

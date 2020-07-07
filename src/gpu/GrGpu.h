@@ -367,8 +367,9 @@ public:
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
     void executeFlushInfo(GrSurfaceProxy*[], int numProxies,
-                          SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
-                          const GrPrepareForExternalIORequests&);
+                          SkSurface::BackendSurfaceAccess access,
+                          const GrFlushInfo&,
+                          const GrBackendSurfaceMutableState* newState);
 
     bool submitToGpu(bool syncCpu);
 
@@ -386,6 +387,12 @@ public:
     virtual void waitSemaphore(GrSemaphore* semaphore) = 0;
 
     virtual void checkFinishProcs() = 0;
+
+    /**
+     * Checks if we detected an OOM from the underlying 3D API and if so returns true and resets
+     * the internal OOM state to false. Otherwise, returns false.
+     */
+    bool checkAndResetOOMed();
 
     /**
      *  Put this texture in a safe and known state for use across multiple GrContexts. Depending on
@@ -606,8 +613,7 @@ public:
                                           GrProtected);
 
     bool updateBackendTexture(const GrBackendTexture&,
-                              GrGpuFinishedProc finishedProc,
-                              GrGpuFinishedContext finishedContext,
+                              sk_sp<GrRefCntedCallback> finishedCallback,
                               const BackendTextureData*);
 
     /**
@@ -618,9 +624,20 @@ public:
                                                     const GrBackendFormat&,
                                                     GrMipMapped,
                                                     GrProtected,
-                                                    GrGpuFinishedProc finishedProc,
-                                                    GrGpuFinishedContext finishedContext,
+                                                    sk_sp<GrRefCntedCallback> finishedCallback,
                                                     const BackendTextureData*);
+
+    virtual bool setBackendTextureState(const GrBackendTexture&,
+                                        const GrBackendSurfaceMutableState&,
+                                        sk_sp<GrRefCntedCallback> finishedCallback) {
+        return false;
+    }
+
+    virtual bool setBackendRenderTargetState(const GrBackendRenderTarget&,
+                                             const GrBackendSurfaceMutableState&,
+                                             sk_sp<GrRefCntedCallback> finishedCallback) {
+        return false;
+    }
 
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
@@ -709,6 +726,8 @@ protected:
     // Handles cases where a surface will be updated without a call to flushRenderTarget.
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
                            uint32_t mipLevels = 1) const;
+
+    void setOOMed() { fOOMed = true; }
 
     typedef SkTInternalLList<GrStagingBuffer> StagingBufferList;
     const StagingBufferList& availableStagingBuffers() { return fAvailableStagingBuffers; }
@@ -821,9 +840,11 @@ private:
     virtual void addFinishedProc(GrGpuFinishedProc finishedProc,
                                  GrGpuFinishedContext finishedContext) = 0;
 
-    virtual void prepareSurfacesForBackendAccessAndExternalIO(
-            GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
-            const GrPrepareForExternalIORequests& externalRequests) {}
+    virtual void prepareSurfacesForBackendAccessAndStateUpdates(
+            GrSurfaceProxy* proxies[],
+            int numProxies,
+            SkSurface::BackendSurfaceAccess access,
+            const GrBackendSurfaceMutableState* newState) {}
 
     virtual bool onSubmitToGpu(bool syncCpu) = 0;
 
@@ -870,6 +891,8 @@ private:
         GrGpuSubmittedContext fContext;
     };
     SkSTArray<4, SubmittedProc> fSubmittedProcs;
+
+    bool fOOMed = false;
 
     friend class GrPathRendering;
     typedef SkRefCnt INHERITED;

@@ -15,6 +15,7 @@ declare_args() {
   extra_ldflags = []
 
   malloc = ""
+  werror = false
   xcode_sysroot = ""
 }
 
@@ -478,9 +479,6 @@ config("warnings") {
       "-Wdeprecated-volatile",
       "-Wdeprecated-writable-str",
     ]
-  }
-  if (!is_win || is_clang) {
-    cflags += [ "-Wno-implicit-fallthrough" ]
   }
 }
 config("warnings_except_public_headers") {

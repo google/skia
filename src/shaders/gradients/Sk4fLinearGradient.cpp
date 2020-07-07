@@ -190,17 +190,17 @@ LinearGradient4fContext::shadePremulSpan(int x, int y, SkPMColor dst[], int coun
     const SkLinearGradient& shader = static_cast<const SkLinearGradient&>(fShader);
     switch (shader.fTileMode) {
         case SkTileMode::kDecal:
-        SkASSERT(false);    // decal only supported via stages
-        // fall-through
+            SkASSERT(false);    // decal only supported via stages
+            [[fallthrough]];
         case SkTileMode::kClamp:
             this->shadeSpanInternal<premul, SkTileMode::kClamp >(x, y, dst, count, bias0, bias1);
-        break;
+            break;
         case SkTileMode::kRepeat:
             this->shadeSpanInternal<premul, SkTileMode::kRepeat>(x, y, dst, count, bias0, bias1);
-        break;
+            break;
         case SkTileMode::kMirror:
             this->shadeSpanInternal<premul, SkTileMode::kMirror>(x, y, dst, count, bias0, bias1);
-        break;
+            break;
     }
 }
 

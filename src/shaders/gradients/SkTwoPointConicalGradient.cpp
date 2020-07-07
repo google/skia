@@ -234,11 +234,13 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
 }
 
 skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
-                                                skvm::F32 x, skvm::F32 y, skvm::I32* mask) const {
+                                                skvm::Coord coord, skvm::I32* mask) const {
     // See https://skia.org/dev/design/conical, and onAppendStages() above.
     // There's a lot going on here, and I'm not really sure what's independent
     // or disjoint, what can be reordered, simplified, etc.  Tweak carefully.
 
+    const skvm::F32 x = coord.x,
+                    y = coord.y;
     if (fType == Type::kRadial) {
         float denom = 1.0f / (fRadius2 - fRadius1),
               scale = std::max(fRadius1, fRadius2) * denom,

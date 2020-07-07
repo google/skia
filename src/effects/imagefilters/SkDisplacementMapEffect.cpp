@@ -15,10 +15,9 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
@@ -230,9 +229,6 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    // We really just want the unaltered local coords, but the only way to get that right now is
-    // an identity coord transform.
-    GrCoordTransform fCoordTransform = {};
     SkColorChannel fXChannelSelector;
     SkColorChannel fYChannelSelector;
     SkVector fScale;
@@ -350,8 +346,9 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
                                               std::move(colorView),
                                               color->subset(),
                                               *context->priv().caps());
-        fp = GrColorSpaceXformEffect::Make(std::move(fp), color->getColorSpace(),
-                                           color->alphaType(), ctx.colorSpace());
+        fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                           color->getColorSpace(), color->alphaType(),
+                                           ctx.colorSpace(), kPremul_SkAlphaType);
 
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
@@ -508,10 +505,9 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(SkColorChannel xChannelSelector
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)
         , fScale(scale) {
-    this->registerChildProcessor(std::move(displacement));
-    color->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(color));
-    this->addCoordTransform(&fCoordTransform);
+    this->registerChild(std::move(displacement));
+    this->registerChild(std::move(color), SkSL::SampleUsage::Explicit());
+    this->setUsesSampleCoordsDirectly();
 }
 
 GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& that)
@@ -519,16 +515,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& 
         , fXChannelSelector(that.fXChannelSelector)
         , fYChannelSelector(that.fYChannelSelector)
         , fScale(that.fScale) {
-    auto displacement = that.childProcessor(0).clone();
-    if (that.childProcessor(0).isSampledWithExplicitCoords()) {
-        displacement->setSampledWithExplicitCoords();
-    }
-    this->registerChildProcessor(std::move(displacement));
-
-    auto color = that.childProcessor(1).clone();
-    color->setSampledWithExplicitCoords();
-    this->registerChildProcessor(std::move(color));
-    this->addCoordTransform(&fCoordTransform);
+    this->cloneAndRegisterAllChildProcessors(that);
+    this->setUsesSampleCoordsDirectly();
 }
 
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {}
@@ -599,8 +587,6 @@ void GrDisplacementMapEffect::Impl::emitCode(EmitArgs& args) {
     // Unpremultiply the displacement
     fragBuilder->codeAppendf("%s.rgb = (%s.a < %s) ? half3(0.0) : saturate(%s.rgb / %s.a);",
                              dColor, dColor, nearZero, dColor, dColor);
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint,
-                                                    args.fFp.sampleMatrix());
     auto chanChar = [](SkColorChannel c) {
         switch(c) {
             case SkColorChannel::kR: return 'r';
@@ -611,7 +597,7 @@ void GrDisplacementMapEffect::Impl::emitCode(EmitArgs& args) {
         }
     };
     fragBuilder->codeAppendf("float2 %s = %s + %s*(%s.%c%c - half2(0.5));",
-                             cCoords, coords2D.c_str(), scaleUni, dColor,
+                             cCoords, args.fSampleCoord, scaleUni, dColor,
                              chanChar(displacementMap.xChannelSelector()),
                              chanChar(displacementMap.yChannelSelector()));
 

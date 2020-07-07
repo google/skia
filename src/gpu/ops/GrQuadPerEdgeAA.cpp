@@ -568,10 +568,9 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
         class GLSLProcessor : public GrGLSLGeometryProcessor {
         public:
-            void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                         const CoordTransformRange& transformRange) override {
+            void setData(const GrGLSLProgramDataManager& pdman,
+                         const GrPrimitiveProcessor& proc) override {
                 const auto& gp = proc.cast<QuadPerEdgeAAGeometryProcessor>();
-                this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
                 fTextureColorSpaceXformHelper.setData(pdman, gp.fTextureColorSpaceXform.get());
             }
 
@@ -604,18 +603,10 @@ public:
                     gpArgs->fPositionVar = gp.fPosition.asShaderVar();
                 }
 
-                // Handle local coordinates if they exist. This is required even when the op
-                // isn't providing local coords but there are FPs called with explicit coords.
-                // It installs the uniforms that transform their coordinates in the fragment
-                // shader.
-                // NOTE: If the only usage of local coordinates is for the inline texture fetch
-                // before FPs, then there are no registered FPCoordTransforms and this ends up
-                // emitting nothing, so there isn't a duplication of local coordinates
-                this->emitTransforms(args.fVertBuilder,
-                                     args.fVaryingHandler,
-                                     args.fUniformHandler,
-                                     gp.fLocalCoord.asShaderVar(),
-                                     args.fFPCoordTransformHandler);
+                // This attribute will be uninitialized if earlier FP analysis determined no
+                // local coordinates are needed (and this will not include the inline texture
+                // fetch this GP does before invoking FPs).
+                gpArgs->fLocalCoordVar = gp.fLocalCoord.asShaderVar();
 
                 // Solid color before any texturing gets modulated in
                 if (gp.fColor.isInitialized()) {

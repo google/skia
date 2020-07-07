@@ -11,10 +11,10 @@
 #include "src/gpu/GrStencilAttachment.h"
 
 #include "include/gpu/d3d/GrD3DTypes.h"
+#include "src/gpu/d3d/GrD3DDescriptorHeap.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 
 class GrD3DGpu;
-
 
 class GrD3DStencilAttachment : public GrStencilAttachment, public GrD3DTextureResource {
 public:
@@ -28,6 +28,10 @@ public:
 
     ~GrD3DStencilAttachment() override {}
 
+    D3D12_CPU_DESCRIPTOR_HANDLE view() const {
+        return fView.fHandle;
+    }
+
 protected:
     void onRelease() override;
     void onAbandon() override;
@@ -39,9 +43,12 @@ private:
                            const Format& format,
                            const D3D12_RESOURCE_DESC&,
                            const GrD3DTextureResourceInfo&,
-                           sk_sp<GrD3DResourceState>);
+                           sk_sp<GrD3DResourceState>,
+                           const GrD3DDescriptorHeap::CPUHandle& view);
 
     GrD3DGpu* getD3DGpu() const;
+
+    GrD3DDescriptorHeap::CPUHandle fView;
 };
 
 #endif

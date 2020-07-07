@@ -257,6 +257,7 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_polyutils", "PolyUtils"},
     {"api_raster_n32_canvas", "RasterN32Canvas"},
     {"api_skdescriptor", "SkDescriptor"},
+    {"api_svg_canvas", "SVGCanvas"},
     {"jpeg_encoder", "JPEGEncoder"},
     {"png_encoder", "PNGEncoder"},
     {"skia_pathop_fuzzer", "LegacyChromiumPathop"},
@@ -477,6 +478,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                     SkDebugf("Incompatible colortype conversion\n");
                     // Crash to allow afl-fuzz to know this was a bug.
                     raise(SIGSEGV);
+                    break;
                 default:
                     SkDebugf("[terminated] Couldn't getPixels.\n");
                     return;
@@ -607,7 +609,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                                 return;
                             }
                             // If the first subset succeeded, a later one should not fail.
-                            // fall through to failure
+                            [[fallthrough]];
                         case SkCodec::kUnimplemented:
                             if (0 == (x|y)) {
                                 // First subset is okay to return unimplemented.
@@ -615,7 +617,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                                 return;
                             }
                             // If the first subset succeeded, why would a later one fail?
-                            // fall through to failure
+                            [[fallthrough]];
                         default:
                             SkDebugf("[terminated] subset codec failed to decode (%d, %d, %d, %d) "
                                                   "with dimensions (%d x %d)\t error %d\n",

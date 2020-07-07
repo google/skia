@@ -39,11 +39,12 @@ public:
         } else {
             _sample358 = "half4(1)";
         }
-        fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));\n",
-                                 args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false",
-                                 _sample290.c_str(), args.fInputColor,
-                                 _outer.child2_index >= 0 ? "true" : "false", _sample358.c_str(),
-                                 args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
+        fragBuilder->codeAppendf(
+                R"SkSL(%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));
+)SkSL",
+                args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false", _sample290.c_str(),
+                args.fInputColor, _outer.child2_index >= 0 ? "true" : "false", _sample358.c_str(),
+                args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
     }
 
 private:
@@ -66,23 +67,12 @@ bool GrComposeLerpEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
-        : INHERITED(kGrComposeLerpEffect_ClassID, src.optimizationFlags())
-        , child1_index(src.child1_index)
-        , child2_index(src.child2_index)
-        , weight(src.weight) {
-    if (child1_index >= 0) {
-        auto clone = src.childProcessor(child1_index).clone();
-        if (src.childProcessor(child1_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
-        }
-        this->registerChildProcessor(std::move(clone));
+        : INHERITED(kGrComposeLerpEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
+    if (src.child1_index >= 0) {
+        child1_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child1_index));
     }
-    if (child2_index >= 0) {
-        auto clone = src.childProcessor(child2_index).clone();
-        if (src.childProcessor(child2_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
-        }
-        this->registerChildProcessor(std::move(clone));
+    if (src.child2_index >= 0) {
+        child2_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child2_index));
     }
 }
 std::unique_ptr<GrFragmentProcessor> GrComposeLerpEffect::clone() const {

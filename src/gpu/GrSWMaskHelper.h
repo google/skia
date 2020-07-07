@@ -15,6 +15,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 
 class GrShape;
 class GrStyledShape;

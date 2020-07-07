@@ -34,29 +34,10 @@ String PipelineStageCodeGenerator::getTypeName(const Type& type) {
     return type.name();
 }
 
-void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
-                                                       Precedence parentPrecedence) {
-    if (b.fOperator == Token::Kind::TK_PERCENT) {
-        // need to use "%%" instead of "%" b/c the code will be inside of a printf
-        Precedence precedence = GetBinaryPrecedence(b.fOperator);
-        if (precedence >= parentPrecedence) {
-            this->write("(");
-        }
-        this->writeExpression(*b.fLeft, precedence);
-        this->write(" %% ");
-        this->writeExpression(*b.fRight, precedence);
-        if (precedence >= parentPrecedence) {
-            this->write(")");
-        }
-    } else {
-        INHERITED::writeBinaryExpression(b, parentPrecedence);
-    }
-}
-
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
         c.fArguments[0]->fType.kind() != Type::Kind::kSampler_Kind) {
-        SkASSERT(c.fArguments.size() == 2);
+        SkASSERT(c.fArguments.size() <= 2);
         SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
                  "fragmentProcessor?" == c.fArguments[0]->fType.name());
         SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
@@ -79,22 +60,27 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
         }
         SkASSERT(found);
-        this->write("%s");
         size_t childCallIndex = fArgs->fFormatArgs.size();
-        fArgs->fFormatArgs.push_back(
-                Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor, index));
-        OutputStream* oldOut = fOut;
-        StringStream buffer;
-        fOut = &buffer;
-        this->writeExpression(*c.fArguments[1], kSequence_Precedence);
-        fOut = oldOut;
-        fArgs->fFormatArgs[childCallIndex].fCoords = buffer.str();
+        this->write(Compiler::kFormatArgPlaceholderStr);
+        bool matrixCall =
+                c.fArguments.size() == 2 && c.fArguments[1]->fType.kind() == Type::kMatrix_Kind;
+        fArgs->fFormatArgs.push_back(Compiler::FormatArg(
+                matrixCall ? Compiler::FormatArg::Kind::kChildProcessorWithMatrix
+                           : Compiler::FormatArg::Kind::kChildProcessor,
+                index));
+        if (c.fArguments.size() > 1) {
+            OutputStream* oldOut = fOut;
+            StringStream buffer;
+            fOut = &buffer;
+            this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+            fOut = oldOut;
+            fArgs->fFormatArgs[childCallIndex].fCoords = buffer.str();
+        }
         return;
     }
     if (c.fFunction.fBuiltin) {
         INHERITED::writeFunctionCall(c);
     } else {
-        this->write("%s");
         int index = 0;
         for (const auto& e : fProgram) {
             if (e.fKind == ProgramElement::kFunction_Kind) {
@@ -104,6 +90,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 ++index;
             }
         }
+        this->write(Compiler::kFormatArgPlaceholderStr);
         fArgs->fFormatArgs.push_back(
                 Compiler::FormatArg(Compiler::FormatArg::Kind::kFunctionName, index));
         this->write("(");
@@ -124,15 +111,15 @@ void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
-            this->write("%s");
+            this->write(Compiler::kFormatArgPlaceholderStr);
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
             break;
         case SK_OUTCOLOR_BUILTIN:
-            this->write("%s");
+            this->write(Compiler::kFormatArgPlaceholderStr);
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
             break;
         case SK_MAIN_COORDS_BUILTIN:
-            this->write("%s");
+            this->write(Compiler::kFormatArgPlaceholderStr);
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoords));
             break;
         default: {
@@ -162,7 +149,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
             };
 
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
-                this->write("%s");
+                this->write(Compiler::kFormatArgPlaceholderStr);
                 fArgs->fFormatArgs.push_back(
                         Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
                                             varIndexByFlag(Modifiers::kUniform_Flag)));
@@ -225,7 +212,10 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     StringStream buffer;
     fOut = &buffer;
     if (f.fDeclaration.fName == "main") {
-        this->write("%s = %s;\n");
+        this->write(Compiler::kFormatArgPlaceholderStr);
+        this->write(" = ");
+        this->write(Compiler::kFormatArgPlaceholderStr);
+        this->write(";\n");
         fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
         fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
         for (const auto& s : ((Block&) *f.fBody).fStatements) {

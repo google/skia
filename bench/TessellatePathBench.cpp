@@ -37,7 +37,7 @@ public:
     BenchmarkTarget() {
         GrMockOptions mockOptions;
         mockOptions.fDrawInstancedSupport = true;
-        mockOptions.fTessellationSupport = true;
+        mockOptions.fMaxTessellationSegments = 64;
         mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
         mockOptions.fConfigOptions[(int)GrColorType::kAlpha_8].fRenderability =
                 GrMockOptions::ConfigOptions::Renderability::kMSAA;
@@ -61,9 +61,8 @@ public:
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) override {
         if (vertexSize * vertexCount > sizeof(fStaticVertexData)) {
-            SK_ABORT(SkStringPrintf(
-                    "FATAL: wanted %zu bytes of static vertex data; only have %zu.\n",
-                    vertexSize * vertexCount, SK_ARRAY_COUNT(fStaticVertexData)).c_str());
+            SK_ABORT("FATAL: wanted %zu bytes of static vertex data; only have %zu.\n",
+                     vertexSize * vertexCount, SK_ARRAY_COUNT(fStaticVertexData));
         }
         *startVertex = 0;
         return fStaticVertexData;
@@ -73,9 +72,8 @@ public:
             int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offsetInBytes) override {
         int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndexedIndirectData);
         if (drawCount > staticBufferCount) {
-            SK_ABORT(SkStringPrintf(
-                    "FATAL: wanted %i static drawIndexedIndirect elements; only have %i.\n",
-                    drawCount, staticBufferCount).c_str());
+            SK_ABORT("FATAL: wanted %i static drawIndexedIndirect elements; only have %i.\n",
+                     drawCount, staticBufferCount);
         }
         return fStaticDrawIndexedIndirectData;
     }
@@ -110,7 +108,7 @@ private:
 class GrTessellatePathOp::TestingOnly_Benchmark : public Benchmark {
 public:
     TestingOnly_Benchmark(const char* subName, SkPath path, const SkMatrix& m)
-            : fOp(m, path, GrPaint(), GrAAType::kMSAA) {
+            : fOp(m, path, GrPaint(), GrAAType::kMSAA, GrTessellationPathRenderer::OpFlags::kNone) {
         fName.printf("tessellate_%s", subName);
     }
 

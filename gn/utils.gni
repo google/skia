@@ -78,9 +78,12 @@ skia_utils_sources = [
   "$_src/utils/SkThreadUtils_win.cpp",
   "$_src/utils/SkUTF.cpp",
   "$_src/utils/SkUTF.h",
-  "$_src/utils/SkWhitelistTypefaces.cpp",
 
   #mac
+  "$_src/utils/mac/SkCGBase.h",
+  "$_src/utils/mac/SkCGGeometry.h",
+  "$_src/utils/mac/SkCTFontSmoothBehavior.cpp",
+  "$_src/utils/mac/SkCTFontSmoothBehavior.h",
   "$_src/utils/mac/SkCreateCGImageRef.cpp",
   "$_src/utils/mac/SkUniqueCFRef.h",
 

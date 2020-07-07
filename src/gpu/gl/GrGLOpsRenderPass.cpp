@@ -8,7 +8,6 @@
 #include "src/gpu/gl/GrGLOpsRenderPass.h"
 
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 

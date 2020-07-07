@@ -5,11 +5,15 @@
 
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
+_include = get_path_info("../include", "abspath")
 
 skia_sksl_sources = [
+  "$_include/private/SkSLSampleUsage.h",
   "$_src/sksl/SkSLASTFile.h",
   "$_src/sksl/SkSLASTNode.cpp",
   "$_src/sksl/SkSLASTNode.h",
+  "$_src/sksl/SkSLAnalysis.cpp",
+  "$_src/sksl/SkSLAnalysis.h",
   "$_src/sksl/SkSLByteCode.cpp",
   "$_src/sksl/SkSLByteCode.h",
   "$_src/sksl/SkSLByteCodeGenerator.cpp",
@@ -32,8 +36,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLParser.cpp",
   "$_src/sksl/SkSLParser.h",
   "$_src/sksl/SkSLPosition.h",
-  "$_src/sksl/SkSLSampleMatrix.cpp",
-  "$_src/sksl/SkSLSampleMatrix.h",
+  "$_src/sksl/SkSLSampleUsage.cpp",
   "$_src/sksl/SkSLSectionAndParameterHelper.cpp",
   "$_src/sksl/SkSLSectionAndParameterHelper.h",
   "$_src/sksl/SkSLString.cpp",
@@ -91,7 +94,6 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrMagnifierEffect.fp",
   "$_src/gpu/effects/GrMixerEffect.fp",
   "$_src/gpu/effects/GrOverrideInputFragmentProcessor.fp",
-  "$_src/gpu/effects/GrPremulInputFragmentProcessor.fp",
   "$_src/gpu/effects/GrRGBToHSLFilterEffect.fp",
   "$_src/gpu/effects/GrRRectBlurEffect.fp",
   "$_src/gpu/effects/GrRectBlurEffect.fp",

@@ -17,7 +17,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrContext.h"
 #include "include/private/GrSharedEnums.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrCaps.h"
@@ -82,7 +81,7 @@ protected:
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->recordingContext();
         if (kEffect_Type == fType && (!renderTargetContext || !context)) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;
@@ -120,8 +119,9 @@ protected:
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrClipEdgeType edgeType = (GrClipEdgeType) et;
                         const auto& caps = *renderTargetContext->caps()->shaderCaps();
-                        auto fp = GrRRectEffect::Make(edgeType, rrect, caps);
-                        if (fp) {
+                        auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr,
+                                                                 edgeType, rrect, caps);
+                        if (success) {
                             GrPaint grPaint;
                             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                             grPaint.addCoverageFragmentProcessor(std::move(fp));

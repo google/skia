@@ -27,7 +27,6 @@ public:
 
     GrImageContext* asImageContext() { return fContext->asImageContext(); }
     GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
-    GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
     // from GrImageContext
     GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }

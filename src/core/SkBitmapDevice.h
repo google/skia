@@ -101,8 +101,7 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                     SkImage*, const SkMatrix&) override;
+    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool = false) override;
@@ -122,6 +121,7 @@ protected:
     void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
     void onClipShader(sk_sp<SkShader>) override;
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
+    void onReplaceClip(const SkIRect& rect) override;
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
     bool onClipIsAA() const override;
     bool onClipIsWideOpen() const override;

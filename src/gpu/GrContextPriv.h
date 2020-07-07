@@ -40,13 +40,10 @@ public:
 
     GrImageContext* asImageContext() { return fContext->asImageContext(); }
     GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
-    GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
     // from GrImageContext
     GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
     const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
-
-    bool abandoned() const { return fContext->abandoned(); }
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
@@ -121,7 +118,7 @@ public:
     }
 
     void moveRenderTasksToDDL(SkDeferredDisplayList*);
-    void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
+    void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&);
 
@@ -153,10 +150,6 @@ public:
     void dumpContextStats(SkString*) const;
     void dumpContextStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
     void printContextStats() const;
-
-    /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.
-        this is for testing only */
-    void testingOnly_setTextBlobCacheLimit(size_t bytes);
 
     /** Get pointer to atlas texture for given mask format. Note that this wraps an
         actively mutating texture in an SkImage. This could yield unexpected results

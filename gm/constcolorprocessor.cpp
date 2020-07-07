@@ -69,7 +69,7 @@ protected:
                                                SkTileMode::kClamp);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
         constexpr GrColor kColors[] = {
             0xFFFFFFFF,
@@ -119,7 +119,7 @@ protected:
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
                     SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(kColors[procColor]);
-                    auto fp = GrConstColorProcessor::Make(color, mode);
+                    auto fp = GrConstColorProcessor::Make(/*inputFP=*/nullptr, color, mode);
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
                     renderTargetContext->priv().testingOnly_addDrawOp(

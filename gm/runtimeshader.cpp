@@ -115,10 +115,10 @@ class ThresholdRT : public skiagm::GM {
             }
 
             void main(float2 xy, inout half4 color) {
-                half4 before = sample(before_map, xy);
-                half4 after = sample(after_map, xy);
+                half4 before = sample(before_map);
+                half4 after = sample(after_map);
 
-                float m = smooth_cutoff(sample(threshold_map, xy).r);
+                float m = smooth_cutoff(sample(threshold_map).a);
                 color = mix(before, after, half(m));
             }
         )";
@@ -135,12 +135,7 @@ class ThresholdRT : public skiagm::GM {
 
     SkISize onISize() override { return {256, 256}; }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (canvas->getGrContext() == nullptr) {
-            // until SkSL can handle child processors on the raster backend
-            return DrawResult::kSkip;
-        }
-
+    void onDraw(SkCanvas* canvas) override {
         struct {
             float cutoff, slope;
         } uni = {
@@ -164,8 +159,6 @@ class ThresholdRT : public skiagm::GM {
         draw(256,   0, fThreshold);
         draw(  0, 256, fBefore);
         draw(256, 256, fAfter);
-
-        return DrawResult::kOk;
     }
 
     bool onAnimate(double nanos) override {
@@ -258,7 +251,7 @@ class ColorCubeRT : public skiagm::GM {
             uniform float inv_size;
 
             void main(float2 xy, inout half4 color) {
-                float4 c = float4(unpremul(sample(input, xy)));
+                float4 c = float4(unpremul(sample(input)));
 
                 // Map to cube coords:
                 float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
@@ -286,12 +279,7 @@ class ColorCubeRT : public skiagm::GM {
 
     SkISize onISize() override { return {512, 512}; }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (canvas->getGrContext() == nullptr) {
-            // until SkSL can handle child processors on the raster backend
-            return DrawResult::kSkip;
-        }
-
+    void onDraw(SkCanvas* canvas) override {
         // First we draw the unmodified image, and a copy that was sepia-toned in Photoshop:
         canvas->drawImage(fMandrill,      0,   0);
         canvas->drawImage(fMandrillSepia, 0, 256);
@@ -326,8 +314,6 @@ class ColorCubeRT : public skiagm::GM {
         paint.setShader(builder.makeShader(nullptr, true));
         canvas->translate(0, 256);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
-
-        return DrawResult::kOk;
     }
 };
 DEF_GM(return new ColorCubeRT;)

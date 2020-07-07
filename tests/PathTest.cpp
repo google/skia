@@ -22,8 +22,8 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkReader32.h"
-#include "src/core/SkWriter32.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
 
 #include <cmath>
@@ -2588,12 +2588,12 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
 
 static void write_and_read_back(skiatest::Reporter* reporter,
                                 const SkPath& p) {
-    SkWriter32 writer;
+    SkBinaryWriteBuffer writer;
     writer.writePath(p);
     size_t size = writer.bytesWritten();
     SkAutoMalloc storage(size);
-    writer.flatten(storage.get());
-    SkReader32 reader(storage.get(), size);
+    writer.writeToMemory(storage.get());
+    SkReadBuffer reader(storage.get(), size);
 
     SkPath readBack;
     REPORTER_ASSERT(reporter, readBack != p);

@@ -69,8 +69,9 @@ GrProcessorSet::GrProcessorSet(GrProcessorSet&& that)
         fFragmentProcessors[i] =
                 std::move(that.fFragmentProcessors[i + that.fFragmentProcessorOffset]);
     }
-    that.fColorFragmentProcessorCnt = 0;
     that.fFragmentProcessors.reset(0);
+    that.fColorFragmentProcessorCnt = 0;
+    that.fFragmentProcessorOffset = 0;
 }
 
 GrProcessorSet::~GrProcessorSet() {
@@ -182,14 +183,14 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
         if (!fps[i]->compatibleWithCoverageAsAlpha()) {
             analysis.fCompatibleWithCoverageAsAlpha = false;
         }
-        coverageUsesLocalCoords |= fps[i]->usesLocalCoords();
+        coverageUsesLocalCoords |= fps[i]->sampleCoordsDependOnLocalCoords();
     }
     if (clip) {
         hasCoverageFP = hasCoverageFP || clip->numClipCoverageFragmentProcessors();
         for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
             const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
             analysis.fCompatibleWithCoverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
-            coverageUsesLocalCoords |= clipFP->usesLocalCoords();
+            coverageUsesLocalCoords |= clipFP->sampleCoordsDependOnLocalCoords();
         }
     }
     int colorFPsToEliminate = colorAnalysis.initialProcessorsToEliminate(overrideInputColor);

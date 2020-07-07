@@ -9,6 +9,7 @@
 #define SkSurface_Base_DEFINED
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSurfacePriv.h"
@@ -20,6 +21,7 @@ public:
     virtual ~SkSurface_Base();
 
     virtual GrContext* onGetContext();
+    virtual GrRecordingContext* onGetRecordingContext();
 
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
     virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);
@@ -107,7 +109,8 @@ public:
      * Inserts the requested number of semaphores for the gpu to signal when work is complete on the
      * gpu and inits the array of GrBackendSemaphores with the signaled semaphores.
      */
-    virtual GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo&) {
+    virtual GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo&,
+                                          const GrBackendSurfaceMutableState*) {
         return GrSemaphoresSubmitted::kNo;
     }
 
@@ -122,7 +125,7 @@ public:
 
     virtual bool onCharacterize(SkSurfaceCharacterization*) const { return false; }
     virtual bool onIsCompatible(const SkSurfaceCharacterization&) const { return false; }
-    virtual bool onDraw(const SkDeferredDisplayList*) { return false; }
+    virtual bool onDraw(sk_sp<const SkDeferredDisplayList>) { return false; }
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();

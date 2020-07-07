@@ -28,11 +28,11 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMask.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/timer/TimeUtils.h"
 
 #define STROKE_WIDTH    SkIntToScalar(10)
@@ -254,11 +254,12 @@ protected:
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (canvas->imageInfo().colorType() == kUnknown_SkColorType ||
-            (canvas->getGrContext() && !canvas->getGrContext()->priv().asDirectContext())) {
+            (canvas->recordingContext() && !canvas->recordingContext()->asDirectContext())) {
             *errorMsg = "Not supported when recording, relies on canvas->makeSurface()";
             return DrawResult::kSkip;
         }
-        int32_t ctxID = canvas->getGrContext() ? canvas->getGrContext()->priv().contextID() : 0;
+        int32_t ctxID = canvas->recordingContext() ? canvas->recordingContext()->priv().contextID()
+                                                   : 0;
         if (fRecalcMasksForAnimation || !fActualMasks[0][0][0] || ctxID != fLastContextUniqueID) {
             if (fRecalcMasksForAnimation) {
                 // Sigma is changing so references must also be recalculated.

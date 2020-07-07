@@ -39,6 +39,10 @@ void SkClipStackDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
     fClipStack.clipPath(path, this->localToDevice(), op, aa);
 }
 
+void SkClipStackDevice::onClipShader(sk_sp<SkShader> shader) {
+    fClipStack.clipShader(std::move(shader));
+}
+
 void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     SkIPoint origin = this->getOrigin();
     SkRegion tmp;
@@ -46,6 +50,12 @@ void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     rgn.getBoundaryPath(&path);
     path.transform(SkMatrix::Translate(-origin));
     fClipStack.clipPath(path, SkMatrix::I(), op, false);
+}
+
+void SkClipStackDevice::onReplaceClip(const SkIRect& rect) {
+    // FIXME When the deprecated clip ops are completely removed, SkClipStack will need to be
+    // updated to have a better way of tracking replacement.
+    fClipStack.clipRect(SkRect::Make(rect), this->globalToDevice(), kReplace_SkClipOp, false);
 }
 
 void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {

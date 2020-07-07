@@ -10,11 +10,12 @@
  **************************************************************************************************/
 #ifndef GrSingleIntervalGradientColorizer_DEFINED
 #define GrSingleIntervalGradientColorizer_DEFINED
-#include "include/core/SkTypes.h"
-#include "include/core/SkM44.h"
 
-#include "src/gpu/GrCoordTransform.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
+
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrSingleIntervalGradientColorizer : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f start, SkPMColor4f end) {

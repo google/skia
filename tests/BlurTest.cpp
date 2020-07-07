@@ -30,6 +30,7 @@
 #include "include/effects/SkBlurDrawLooper.h"
 #include "include/effects/SkLayerDrawLooper.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkFloatBits.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkBlurPriv.h"
@@ -45,8 +46,6 @@
 #include <string.h>
 #include <initializer_list>
 #include <utility>
-
-class GrContext;
 
 #define WRITE_CSV 0
 
@@ -504,7 +503,7 @@ DEF_TEST(BlurAsABlur, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo) {
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
 
     SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);
@@ -706,7 +705,7 @@ DEF_TEST(BlurZeroSigma, reporter) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 

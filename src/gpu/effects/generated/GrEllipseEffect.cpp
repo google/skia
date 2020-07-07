@@ -38,26 +38,61 @@ public:
                                                         kFloat2_GrSLType, "scale");
         }
         fragBuilder->codeAppendf(
-                "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool medPrecision = "
-                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (medPrecision) {\n    d *= "
-                "%s.y;\n}\nfloat2 Z = d * %s.zw;\nfloat implicit = dot(Z, d) - 1.0;\nfloat "
-                "grad_dot = 4.0 * dot(Z, Z);\n@if (medPrecision) {\n    grad_dot = max(grad_dot, "
-                "6.1036000261083245e-05);\n} else {\n    grad_dot = max(grad_dot, "
-                "1.1754999560161448e-38);\n}\nfloat approx_dist = implicit * "
-                "inversesqrt(grad_dot);\n@if (medPrecision) {\n    approx_dist *= %s.x;\n}\nhalf "
-                "alph",
+                R"SkSL(float2 prevCenter;
+float2 prevRadii = float2(%f, %f);
+bool medPrecision = %s;
+float2 d = sk_FragCoord.xy - %s.xy;
+@if (medPrecision) {
+    d *= %s.y;
+}
+float2 Z = d * %s.zw;
+float implicit = dot(Z, d) - 1.0;
+float grad_dot = 4.0 * dot(Z, Z);
+@if (medPrecision) {
+    grad_dot = max(grad_dot, 6.1036000261083245e-05);
+} else {
+    grad_dot = max(grad_dot, 1.1754999560161448e-38);
+}
+float approx_dist = implicit * inversesqrt(grad_dot);
+@if (medPrecision) {
+    approx_dist *= %s.x;
+}
+half alpha;
+@switch (%d) {
+    case 0:
+        alpha = approx_dist > 0.0 ? 0.0 : 1.0;
+        break;
+    case 1:
+        alpha = clamp(0.5 - half(approx_dist), 0.0, 1.0);
+        break;
+    case 2:
+        alpha = approx_dist > 0.0 ? 1.0 : 0.0;
+        break;
+    case 3:
+        alpha = clamp(0.5 + half(approx_dist), 0.0, 1.0);
+        break;
+    default:
+        discard;
+})SkSL",
                 prevRadii.fX, prevRadii.fY, (medPrecision ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(ellipseVar),
                 scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
                 args.fUniformHandler->getUniformCStr(ellipseVar),
-                scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)");
+                scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
+                (int)_outer.edgeType);
+        SkString _input4481(args.fInputColor);
+        SkString _sample4481;
+        if (_outer.inputFP_index >= 0) {
+            _sample4481 = this->invokeChild(_outer.inputFP_index, _input4481.c_str(), args);
+        } else {
+            _sample4481.swap(_input4481);
+        }
         fragBuilder->codeAppendf(
-                "a;\n@switch (%d) {\n    case 0:\n        alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n "
-                "       break;\n    case 1:\n        alpha = clamp(0.5 - half(approx_dist), 0.0, "
-                "1.0);\n        break;\n    case 2:\n        alpha = approx_dist > 0.0 ? 1.0 : "
-                "0.0;\n        break;\n    case 3:\n        alpha = clamp(0.5 + half(approx_dist), "
-                "0.0, 1.0);\n        break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
-                (int)_outer.edgeType, args.fOutputColor, args.fInputColor);
+                R"SkSL(
+half4 inputColor = %s;
+%s = inputColor * alpha;
+)SkSL",
+                _sample4481.c_str(), args.fOutputColor);
     }
 
 private:
@@ -125,7 +160,11 @@ GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
         : INHERITED(kGrEllipseEffect_ClassID, src.optimizationFlags())
         , edgeType(src.edgeType)
         , center(src.center)
-        , radii(src.radii) {}
+        , radii(src.radii) {
+    if (src.inputFP_index >= 0) {
+        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    }
+}
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(*this));
 }
@@ -137,11 +176,14 @@ std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTest
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar rx = testData->fRandom->nextRangeF(0.f, 1000.f);
     SkScalar ry = testData->fRandom->nextRangeF(0.f, 1000.f);
-    GrClipEdgeType et;
+    bool success;
+    std::unique_ptr<GrFragmentProcessor> fp;
     do {
-        et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-    } while (GrClipEdgeType::kHairlineAA == et);
-    return GrEllipseEffect::Make(et, center, SkPoint::Make(rx, ry),
-                                 *testData->caps()->shaderCaps());
+        GrClipEdgeType et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
+        std::tie(success, fp) =
+                GrEllipseEffect::Make(/*inputFP=*/nullptr, et, center, SkPoint::Make(rx, ry),
+                                      *testData->caps()->shaderCaps());
+    } while (!success);
+    return fp;
 }
 #endif

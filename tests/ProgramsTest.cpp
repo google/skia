@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkChecksum.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
@@ -43,7 +44,7 @@ class GLBigKeyProcessor : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
         // pass through
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         if (args.fInputColor) {
             fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         } else {
@@ -126,7 +127,7 @@ private:
 
     BlockInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(kBlockInputFragmentProcessor_ClassID, kNone_OptimizationFlags) {
-        this->registerChildProcessor(std::move(child));
+        this->registerChild(std::move(child));
     }
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
@@ -208,12 +209,12 @@ static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorT
                                                                (int)SkBlendMode::kLastMode));
     std::unique_ptr<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
-        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(minLevelsChild),
-                                                                std::move(otherChild), mode);
+        fp = GrXfermodeFragmentProcessor::Make(std::move(minLevelsChild),
+                                               std::move(otherChild), mode);
         SkASSERT(fp);
     } else {
-        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(otherChild),
-                                                                std::move(minLevelsChild), mode);
+        fp = GrXfermodeFragmentProcessor::Make(std::move(otherChild),
+                                               std::move(minLevelsChild), mode);
         SkASSERT(fp);
     }
     return fp;
@@ -310,8 +311,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
-    if (drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(),
-                              GrPrepareForExternalIORequests())) {
+    if (drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
+                              GrFlushInfo(), nullptr)) {
         drawingManager->submitToGpu(false);
     }
 
@@ -337,7 +338,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             paint.addColorFragmentProcessor(std::move(blockFP));
             GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
             if (drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                      GrFlushInfo(), GrPrepareForExternalIORequests())) {
+                                      GrFlushInfo(), nullptr)) {
                 drawingManager->submitToGpu(false);
             }
         }
@@ -350,7 +351,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
 static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
     int maxStages = 6;
 #ifdef SK_GL
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     if (skiatest::IsGLContextType(ctxInfo.type())) {
         GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
         if (kGLES_GrGLStandard == gpu->glStandard()) {
@@ -390,7 +391,7 @@ static int get_programs_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
         maxTreeLevels = 2;
 #endif
 #ifdef SK_BUILD_FOR_ANDROID
-        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctxInfo.grContext()->priv().getGpu());
+        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctxInfo.directContext()->priv().getGpu());
         // Tecno Spark 3 Pro with Power VR Rogue GE8300 will fail shader compiles with
         // no message if the shader is particularly long.
         if (gpu->ctxInfo().vendor() == kImagination_GrGLVendor) {
@@ -416,7 +417,7 @@ static void test_programs(skiatest::Reporter* reporter, const sk_gpu_test::Conte
         return;
     }
 
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages,
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.directContext(), maxStages,
                                                                 maxLevels));
 }
 

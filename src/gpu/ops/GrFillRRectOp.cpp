@@ -7,7 +7,7 @@
 
 #include "src/gpu/ops/GrFillRRectOp.h"
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -680,15 +680,13 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         v->codeAppend("float2 aa_outset = aa_bloat_direction.xy * aa_bloatradius;");
         v->codeAppend("float2 vertexpos = corner + radius_outset * radii + aa_outset;");
 
-        // Emit transforms.
+        // Write positions
         GrShaderVar localCoord("", kFloat2_GrSLType);
         if (proc.fFlags & ProcessorFlags::kHasLocalCoords) {
             v->codeAppend("float2 localcoord = (local_rect.xy * (1 - vertexpos) + "
                                                "local_rect.zw * (1 + vertexpos)) * .5;");
-            localCoord.set(kFloat2_GrSLType, "localcoord");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
         }
-        this->emitTransforms(v, varyings, args.fUniformHandler, localCoord,
-                             args.fFPCoordTransformHandler);
 
         // Transform to device space.
         SkASSERT(!(proc.fFlags & ProcessorFlags::kHasPerspective));
@@ -741,10 +739,7 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange& transformRange) override {
-        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
-    }
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
 };
 
 
@@ -781,15 +776,13 @@ class FillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
         // [-1,-1,+1,+1] space.
         v->codeAppend("float2 vertexpos = corner + radius_outset * radii;");
 
-        // Emit transforms.
+        // Write positions
         GrShaderVar localCoord("", kFloat2_GrSLType);
         if (hasLocalCoords) {
             v->codeAppend("float2 localcoord = (local_rect.xy * (1 - vertexpos) + "
                                                "local_rect.zw * (1 + vertexpos)) * .5;");
-            localCoord.set(kFloat2_GrSLType, "localcoord");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
         }
-        this->emitTransforms(v, varyings, args.fUniformHandler, localCoord,
-                             args.fFPCoordTransformHandler);
 
         // Transform to device space.
         if (!hasPerspective) {
@@ -847,10 +840,7 @@ class FillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
         f->codeAppendf("}");
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange& transformRange) override {
-        this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
-    }
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
 };
 
 GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(

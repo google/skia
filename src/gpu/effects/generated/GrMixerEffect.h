@@ -10,11 +10,12 @@
  **************************************************************************************************/
 #ifndef GrMixerEffect_DEFINED
 #define GrMixerEffect_DEFINED
-#include "include/core/SkTypes.h"
-#include "include/core/SkM44.h"
 
-#include "src/gpu/GrCoordTransform.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
+
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrMixerEffect : public GrFragmentProcessor {
 public:
     static OptimizationFlags OptFlags(const std::unique_ptr<GrFragmentProcessor>& fp0,
@@ -54,11 +55,9 @@ private:
             : INHERITED(kGrMixerEffect_ClassID, (OptimizationFlags)OptFlags(fp0, fp1))
             , weight(weight) {
         SkASSERT(fp0);
-        fp0_index = this->numChildProcessors();
-        this->registerChildProcessor(std::move(fp0));
+        fp0_index = this->registerChild(std::move(fp0), SkSL::SampleUsage::PassThrough());
         if (fp1) {
-            fp1_index = this->numChildProcessors();
-            this->registerChildProcessor(std::move(fp1));
+            fp1_index = this->registerChild(std::move(fp1), SkSL::SampleUsage::PassThrough());
         }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

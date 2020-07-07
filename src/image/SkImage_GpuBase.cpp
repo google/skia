@@ -10,13 +10,13 @@
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureAdjuster.h"
@@ -86,7 +86,7 @@ bool SkImage_GpuBase::ValidateCompressedBackendTexture(const GrCaps* caps,
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
@@ -157,7 +157,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
 
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                    int srcX, int srcY, CachingHint) const {
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
@@ -195,7 +195,7 @@ GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
 
 GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,
                                                       GrSurfaceOrigin* origin) const {
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         // This image was created with a DDL context and cannot be instantiated.
         return GrBackendTexture();  // invalid
@@ -232,7 +232,7 @@ GrTexture* SkImage_GpuBase::getTexture() const {
         return proxy->peekTexture();
     }
 
-    auto direct = fContext->priv().asDirectContext();
+    auto direct = fContext->asDirectContext();
     if (!direct) {
         // This image was created with a DDL context and cannot be instantiated.
         return nullptr;
@@ -250,7 +250,7 @@ GrTexture* SkImage_GpuBase::getTexture() const {
 
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {
     // The base class has already checked that context isn't abandoned (if it's not nullptr)
-    if (fContext->priv().abandoned()) {
+    if (fContext->abandoned()) {
         return false;
     }
 
@@ -261,10 +261,13 @@ bool SkImage_GpuBase::onIsValid(GrContext* context) const {
     return true;
 }
 
-bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
-                                             int numTextures, const SkYUVAIndex yuvaIndices[4],
+bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx,
+                                             const GrBackendTexture yuvaTextures[],
+                                             int numTextures,
+                                             const SkYUVAIndex yuvaIndices[4],
                                              GrSurfaceOrigin imageOrigin,
-                                             GrSurfaceProxyView tempViews[4]) {
+                                             GrSurfaceProxyView tempViews[4],
+                                             sk_sp<GrRefCntedCallback> releaseHelper) {
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     for (int textureIndex = 0; textureIndex < numTextures; ++textureIndex) {
         const GrBackendFormat& backendFormat = yuvaTextures[textureIndex].getBackendFormat();
@@ -276,7 +279,8 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
 
         auto proxy = proxyProvider->wrapBackendTexture(yuvaTextures[textureIndex],
                                                        kBorrow_GrWrapOwnership,
-                                                       GrWrapCacheable::kNo, kRead_GrIOType);
+                                                       GrWrapCacheable::kNo, kRead_GrIOType,
+                                                       releaseHelper);
         if (!proxy) {
             return false;
         }

@@ -63,33 +63,34 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
         }
     }
 
-    // Skia resizing extension "sk_rs":
     static constexpr Shaper::ResizePolicy gResizeMap[] = {
-        Shaper::ResizePolicy::kNone,           // 'sk_rs': 0
-        Shaper::ResizePolicy::kScaleToFit,     // 'sk_rs': 1
-        Shaper::ResizePolicy::kDownscaleToFit, // 'sk_rs': 2
+        Shaper::ResizePolicy::kNone,           // 'rs': 0
+        Shaper::ResizePolicy::kScaleToFit,     // 'rs': 1
+        Shaper::ResizePolicy::kDownscaleToFit, // 'rs': 2
     };
-    v->fResize = gResizeMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["sk_rs"], 0),
-                                           SK_ARRAY_COUNT(gResizeMap))];
+    // TODO: remove "sk_rs" support after migrating clients.
+    v->fResize = gResizeMap[std::min(std::max(ParseDefault<size_t>((*jtxt)[   "rs"], 0),
+                                              ParseDefault<size_t>((*jtxt)["sk_rs"], 0)),
+                                     SK_ARRAY_COUNT(gResizeMap))];
 
     // In point mode, the text is baseline-aligned.
     v->fVAlign = v->fBox.isEmpty() ? Shaper::VAlign::kTopBaseline
                                    : Shaper::VAlign::kTop;
 
-    // Skia vertical alignment extension "sk_vj":
     static constexpr Shaper::VAlign gVAlignMap[] = {
-        Shaper::VAlign::kVisualTop,    // 'sk_vj': 0
-        Shaper::VAlign::kVisualCenter, // 'sk_vj': 1
-        Shaper::VAlign::kVisualBottom, // 'sk_vj': 2
+        Shaper::VAlign::kVisualTop,    // 'vj': 0
+        Shaper::VAlign::kVisualCenter, // 'vj': 1
+        Shaper::VAlign::kVisualBottom, // 'vj': 2
     };
-    size_t sk_vj;
-    if (skottie::Parse((*jtxt)["sk_vj"], &sk_vj)) {
-        if (sk_vj < SK_ARRAY_COUNT(gVAlignMap)) {
-            v->fVAlign = gVAlignMap[sk_vj];
+    size_t vj;
+    if (skottie::Parse((*jtxt)[   "vj"], &vj) ||
+        skottie::Parse((*jtxt)["sk_vj"], &vj)) { // TODO: remove after migrating clients.
+        if (vj < SK_ARRAY_COUNT(gVAlignMap)) {
+            v->fVAlign = gVAlignMap[vj];
         } else {
             // Legacy sk_vj values.
             // TODO: remove after clients update.
-            switch (sk_vj) {
+            switch (vj) {
             case 3:
                 // 'sk_vj': 3 -> kVisualCenter/kScaleToFit
                 v->fVAlign = Shaper::VAlign::kVisualCenter;
@@ -102,7 +103,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
                 break;
             default:
                 abuilder.log(Logger::Level::kWarning, nullptr,
-                              "Ignoring unknown 'sk_vj' value: %zu", sk_vj);
+                             "Ignoring unknown 'vj' value: %zu", vj);
                 break;
             }
         }

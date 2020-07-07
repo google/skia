@@ -23,12 +23,11 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrRadialGradientLayout& _outer = args.fFp.cast<GrRadialGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix;
-        (void)gradientMatrix;
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
-        fragBuilder->codeAppendf("half t = half(length(%s));\n%s = half4(t, 1.0, 0.0, 0.0);\n",
-                                 sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
+        fragBuilder->codeAppendf(
+                R"SkSL(half t = half(length(%s));
+%s = half4(t, 1.0, 0.0, 0.0);
+)SkSL",
+                args.fSampleCoord, args.fOutputColor);
     }
 
 private:
@@ -43,14 +42,11 @@ void GrRadialGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrRadialGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRadialGradientLayout& that = other.cast<GrRadialGradientLayout>();
     (void)that;
-    if (gradientMatrix != that.gradientMatrix) return false;
     return true;
 }
 GrRadialGradientLayout::GrRadialGradientLayout(const GrRadialGradientLayout& src)
-        : INHERITED(kGrRadialGradientLayout_ClassID, src.optimizationFlags())
-        , fCoordTransform0(src.fCoordTransform0)
-        , gradientMatrix(src.gradientMatrix) {
-    this->addCoordTransform(&fCoordTransform0);
+        : INHERITED(kGrRadialGradientLayout_ClassID, src.optimizationFlags()) {
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout(*this));
@@ -88,5 +84,6 @@ std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::Make(const SkRadial
         return nullptr;
     }
     matrix.postConcat(grad.getGradientMatrix());
-    return std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout(matrix));
+    return GrMatrixEffect::Make(matrix,
+                                std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout()));
 }

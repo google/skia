@@ -146,9 +146,9 @@ public:
                     },
                     format, GrRenderable::kYes, 1, GrProtected::kNo, *proxyProvider->caps(),
                     GrSurfaceProxy::UseAllocator::kYes);
-            fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, readSwizzle),
-                        GrSamplerState::Filter::kNearest);
-            this->setTextureSamplerCnt(1);
+            auto atlasEffect = GrTextureEffect::Make({fLazyProxy, kOrigin, readSwizzle},
+                                                     kPremul_SkAlphaType);
+            this->registerChild(std::move(atlasEffect));
         }
 
     private:
@@ -159,14 +159,12 @@ public:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return nullptr; }
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
         bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
-        const TextureSampler& onTextureSampler(int) const override { return fAccess; }
 
         GrRecordingContext* const fContext;
         GrProxyProvider* const fProxyProvider;
         LazyProxyTest* const fTest;
         GrTextureProxy* const fAtlas;
         sk_sp<GrTextureProxy> fLazyProxy;
-        TextureSampler fAccess;
     };
 
 
@@ -177,14 +175,16 @@ public:
                 , fAtlas(atlas) {}
 
     private:
-        bool apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
-                   bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
+        SkIRect getConservativeBounds() const final {
+            return SkIRect::MakeSize(fAtlas->dimensions());
+        }
+        Effect apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
+                         bool hasUserStencilSettings, GrAppliedClip* out,
+                         SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
             out->addCoverageFP(std::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
-            return true;
+            return Effect::kClipped;
         }
-        bool quickContains(const SkRect&) const final { return false; }
-        bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const final { return false; }
 
         LazyProxyTest* const fTest;
         GrTextureProxy* fAtlas;

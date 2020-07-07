@@ -67,7 +67,7 @@ protected:
         fTypefaces[5] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
-    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
         this->drawText(canvas);
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;

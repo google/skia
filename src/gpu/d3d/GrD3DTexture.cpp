@@ -19,10 +19,12 @@ GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
                            SkISize dimensions,
                            const GrD3DTextureResourceInfo& info,
                            sk_sp<GrD3DResourceState> state,
+                           const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
-        , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus) {
+        , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
+        , fShaderResourceView(shaderResourceView) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     this->registerWithCache(budgeted);
     if (GrDxgiFormatIsCompressed(info.fFormat)) {
@@ -31,11 +33,14 @@ GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
 }
 
 GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu, SkISize dimensions, const GrD3DTextureResourceInfo& info,
-                           sk_sp<GrD3DResourceState> state, GrMipMapsStatus mipMapsStatus,
-                           GrWrapCacheable cacheable, GrIOType ioType)
+                           sk_sp<GrD3DResourceState> state,
+                           const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
+                           GrMipMapsStatus mipMapsStatus, GrWrapCacheable cacheable,
+                           GrIOType ioType)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
-        , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus) {
+        , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
+        , fShaderResourceView(shaderResourceView) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     if (ioType == kRead_GrIOType) {
         this->setReadOnly();
@@ -48,10 +53,12 @@ GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
                            SkISize dimensions,
                            const GrD3DTextureResourceInfo& info,
                            sk_sp<GrD3DResourceState> state,
+                           const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, state)
-        , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus) {
+        , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
+        , fShaderResourceView(shaderResourceView) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
 }
 
@@ -70,8 +77,11 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeNewTexture(GrD3DGpu* gpu, SkBudgeted budge
     sk_sp<GrD3DResourceState> state(
             new GrD3DResourceState(static_cast<D3D12_RESOURCE_STATES>(info.fResourceState)));
 
+    GrD3DDescriptorHeap::CPUHandle shaderResourceView =
+            gpu->resourceProvider().createShaderResourceView(info.fResource.get());
+
     GrD3DTexture* tex = new GrD3DTexture(gpu, budgeted, dimensions, info, std::move(state),
-                                         mipMapsStatus);
+                                         shaderResourceView, mipMapsStatus);
 
     return sk_sp<GrD3DTexture>(tex);
 }
@@ -90,8 +100,12 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeWrappedTexture(GrD3DGpu* gpu,
     GrMipMapsStatus mipMapsStatus = info.fLevelCount > 1 ? GrMipMapsStatus::kValid
                                                          : GrMipMapsStatus::kNotAllocated;
 
+    GrD3DDescriptorHeap::CPUHandle shaderResourceView =
+            gpu->resourceProvider().createShaderResourceView(info.fResource.get());
+
     return sk_sp<GrD3DTexture>(new GrD3DTexture(gpu, dimensions, info, std::move(state),
-                                                mipMapsStatus, cacheable, ioType));
+                                                shaderResourceView, mipMapsStatus, cacheable,
+                                                ioType));
 }
 
 void GrD3DTexture::onRelease() {
@@ -103,7 +117,9 @@ void GrD3DTexture::onRelease() {
         this->removeFinishIdleProcs();
     }
 
-    this->releaseResource(this->getD3DGpu());
+    GrD3DGpu* gpu = this->getD3DGpu();
+    gpu->resourceProvider().recycleConstantOrShaderView(fShaderResourceView);
+    this->releaseResource(gpu);
 
     INHERITED::onRelease();
 }
@@ -117,7 +133,9 @@ void GrD3DTexture::onAbandon() {
         this->removeFinishIdleProcs();
     }
 
-    this->releaseResource(this->getD3DGpu());
+    GrD3DGpu* gpu = this->getD3DGpu();
+    gpu->resourceProvider().recycleConstantOrShaderView(fShaderResourceView);
+    this->releaseResource(gpu);
     INHERITED::onAbandon();
 }
 

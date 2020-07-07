@@ -40,6 +40,7 @@
 <canvas id=ink width=300 height=300></canvas>
 <canvas id=surfaces width=300 height=300></canvas>
 <canvas id=atlas width=300 height=300></canvas>
+<canvas id=decode width=300 height=300></canvas>
 
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
@@ -86,6 +87,7 @@
     TextShapingAPI2(...results);
   });
   Promise.all([ckLoaded, loadTestImage]).then((results) => {AtlasAPI1(...results)});
+  Promise.all([ckLoaded, loadTestImage]).then((results) => {DecodeAPI(...results)});
 
   function DrawingExample(CanvasKit, robotoData) {
     if (!robotoData || !CanvasKit) {
@@ -1180,8 +1182,8 @@
     dsts.push(0, .8, 200, 100);
 
     const colors = new CanvasKit.SkColorBuilder();
-    colors.push(CanvasKit.Color(85, 170, 10, 0.5)); // light green
-    colors.push(CanvasKit.Color(51, 51, 191, 0.5)); // light blue
+    colors.push(CanvasKit.ColorAsInt(85, 170, 10, 128)); // light green
+    colors.push(CanvasKit.ColorAsInt(51, 51, 191, 128)); // light blue
 
     let i = 0;
 
@@ -1212,5 +1214,24 @@
     }
     surface.requestAnimationFrame(drawFrame);
 
+  }
+
+  async function DecodeAPI(CanvasKit, imgData) {
+    if (!CanvasKit || !imgData) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('decode');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const blob = new Blob([ imgData ]);
+    // ImageBitmap is not supported in Safari
+    const imageBitmap = await createImageBitmap(blob);
+    const img = await CanvasKit.MakeImageFromCanvasImageSource(imageBitmap);
+
+    surface.drawOnce((canvas) => {
+      canvas.drawImage(img, 0, 0, null);
+    });
   }
 </script>

@@ -365,12 +365,11 @@ void GrVkResourceProvider::checkCommandBuffers() {
 }
 
 void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
-        GrGpuFinishedProc finishedProc, GrGpuFinishedContext finishedContext) {
-    sk_sp<GrRefCntedCallback> procRef(new GrRefCntedCallback(finishedProc, finishedContext));
+        sk_sp<GrRefCntedCallback> finishedCallback) {
     for (int i = 0; i < fActiveCommandPools.count(); ++i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
-        buffer->addFinishedProc(procRef);
+        buffer->addFinishedProc(finishedCallback);
     }
 }
 

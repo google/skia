@@ -148,6 +148,15 @@ SkPath::SkPath()
     fIsVolatile = false;
 }
 
+SkPath::SkPath(sk_sp<SkPathRef> pr, SkPathFillType ft, bool isVolatile)
+    : fPathRef(std::move(pr))
+    , fLastMoveToIndex(INITIAL_LASTMOVETOINDEX_VALUE)
+    , fConvexity((uint8_t)SkPathConvexityType::kUnknown)
+    , fFirstDirection(SkPathPriv::kUnknown_FirstDirection)
+    , fFillType((unsigned)ft)
+    , fIsVolatile(isVolatile)
+{}
+
 void SkPath::resetFields() {
     //fPathRef is assumed to have been emptied by the caller.
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
@@ -1815,7 +1824,7 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
             break;
         case kConic_Verb:
             fConicWeights += 1;
-            // fall-through
+            [[fallthrough]];
         case kQuad_Verb:
             pts[0] = this->cons_moveTo();
             memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
@@ -2351,7 +2360,7 @@ void ContourIter::next() {
                 break;
             case SkPath::kConic_Verb:
                 fCurrConicWeight += 1;
-                // fall-through
+                [[fallthrough]];
             case SkPath::kQuad_Verb:
                 ptCount += 2;
                 break;
@@ -3323,6 +3332,80 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct PathInfo {
+    bool     valid;
+    int      points, weights;
+    unsigned segmentMask;
+};
+
+static PathInfo validate_verbs(const uint8_t vbs[], int verbCount) {
+    PathInfo info = {false, 0, 0, 0};
+
+    bool needMove = true;
+    bool invalid = false;
+    for (int i = 0; i < verbCount; ++i) {
+        switch ((SkPathVerb)vbs[i]) {
+            case SkPathVerb::kMove:
+                needMove = false;
+                info.points += 1;
+                break;
+            case SkPathVerb::kLine:
+                invalid |= needMove;
+                info.segmentMask |= kLine_SkPathSegmentMask;
+                info.points += 1;
+                break;
+            case SkPathVerb::kQuad:
+                invalid |= needMove;
+                info.segmentMask |= kQuad_SkPathSegmentMask;
+                info.points += 2;
+                break;
+            case SkPathVerb::kConic:
+                invalid |= needMove;
+                info.segmentMask |= kConic_SkPathSegmentMask;
+                info.points += 2;
+                info.weights += 1;
+                break;
+            case SkPathVerb::kCubic:
+                invalid |= needMove;
+                info.segmentMask |= kCubic_SkPathSegmentMask;
+                info.points += 3;
+                break;
+            case SkPathVerb::kClose:
+                invalid |= needMove;
+                needMove = true;
+                break;
+            default:
+                invalid = true;
+                break;
+        }
+    }
+    info.valid = !invalid;
+    return info;
+}
+
+SkPath SkPath::Make(const SkPoint pts[], int pointCount,
+                    const uint8_t vbs[], int verbCount,
+                    const SkScalar ws[], int wCount,
+                    SkPathFillType ft, bool isVolatile) {
+    if (verbCount <= 0) {
+        return SkPath();
+    }
+
+    const auto info = validate_verbs(vbs, verbCount);
+    if (!info.valid || info.points > pointCount || info.weights > wCount) {
+        SkDEBUGFAIL("invalid verbs and number of points/weights");
+        return SkPath();
+    }
+
+    return SkPath(sk_sp<SkPathRef>(new SkPathRef(SkTDArray<SkPoint>(pts, info.points),
+                                                 SkTDArray<uint8_t>(vbs, verbCount),
+                                                 SkTDArray<SkScalar>(ws, info.weights),
+                                                 info.segmentMask)),
+                  ft, isVolatile);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currVerb,
                                const SkPoint** ptsPtr, bool* isClosed, SkPathDirection* direction,
                                SkRect* rect) {
@@ -3348,6 +3431,7 @@ bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currV
                 savePts = pts;
                 autoClose = true;
                 insertClose = false;
+                [[fallthrough]];
             case SkPath::kLine_Verb: {
                 if (SkPath::kClose_Verb != verb) {
                     lastPt = pts;

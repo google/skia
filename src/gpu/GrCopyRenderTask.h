@@ -12,21 +12,21 @@
 
 class GrCopyRenderTask final : public GrRenderTask {
 public:
-    static sk_sp<GrRenderTask> Make(GrSurfaceProxyView srcView,
+    static sk_sp<GrRenderTask> Make(GrDrawingManager*,
+                                    GrSurfaceProxyView srcView,
                                     const SkIRect& srcRect,
                                     GrSurfaceProxyView dstView,
                                     const SkIPoint& dstPoint,
                                     const GrCaps*);
 
 private:
-    GrCopyRenderTask(GrSurfaceProxyView srcView,
+    GrCopyRenderTask(GrDrawingManager*,
+                     GrSurfaceProxyView srcView,
                      const SkIRect& srcRect,
                      GrSurfaceProxyView dstView,
                      const SkIPoint& dstPoint);
 
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
-        // This case should be handled by GrRenderTask.
-        SkASSERT(proxy != fTargetView.proxy());
         return proxy == fSrcView.proxy();
     }
     // If instantiation failed, at flush time we simply will skip doing the copy.

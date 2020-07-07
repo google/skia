@@ -9,6 +9,7 @@
 
 #include "tests/Test.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -40,12 +41,13 @@ static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
+    auto direct = ctxInfo.directContext();
+    GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
     for (auto make : { make_deferred, make_wrapped }) {
         // An extra ref
         {
-            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
+            sk_sp<GrTextureProxy> proxy((*make)(direct));
             if (proxy) {
                 sk_sp<GrTextureProxy> extraRef(proxy);
 
@@ -62,7 +64,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
         // Multiple normal refs
         {
-            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
+            sk_sp<GrTextureProxy> proxy((*make)(direct));
             if (proxy.get()) {
                 proxy->ref();
                 proxy->ref();
@@ -83,7 +85,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
         // Continue using (reffing) proxy after instantiation
         {
-            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
+            sk_sp<GrTextureProxy> proxy((*make)(direct));
             if (proxy) {
                 sk_sp<GrTextureProxy> firstExtraRef(proxy);
 

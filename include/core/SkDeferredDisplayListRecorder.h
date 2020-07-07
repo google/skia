@@ -50,7 +50,7 @@ public:
     // Note: ownership of the SkCanvas is not transferred via this call.
     SkCanvas* getCanvas();
 
-    std::unique_ptr<SkDeferredDisplayList> detach();
+    sk_sp<SkDeferredDisplayList> detach();
 
     using PromiseImageTextureContext = void*;
     using PromiseImageTextureFulfillProc =
@@ -158,6 +158,7 @@ private:
 
 #if SK_SUPPORT_GPU
     sk_sp<GrContext>                            fContext;
+    sk_sp<GrRenderTargetProxy>                  fTargetProxy;
     sk_sp<SkDeferredDisplayList::LazyProxyData> fLazyProxyData;
     sk_sp<SkSurface>                            fSurface;
 #endif

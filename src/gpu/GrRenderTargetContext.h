@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkGlyphRunPainter.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -28,7 +29,6 @@ class GrClip;
 class GrColorSpaceXform;
 class GrCoverageCountingPathRenderer;
 class GrDrawOp;
-class GrFixedClip;
 class GrOp;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
@@ -118,8 +118,8 @@ public:
     // Creates a GrRenderTargetContext that wraps the passed in GrBackendTexture.
     static std::unique_ptr<GrRenderTargetContext> MakeFromBackendTexture(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
-            int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*, ReleaseProc releaseProc,
-            ReleaseContext releaseCtx);
+            int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*,
+            sk_sp<GrRefCntedCallback> releaseHelper);
 
     static std::unique_ptr<GrRenderTargetContext> MakeFromBackendTextureAsRenderTarget(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
@@ -524,30 +524,6 @@ public:
      */
     void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
-    using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
-    using ReadPixelsContext = SkSurface::ReadPixelsContext;
-    using RescaleGamma = SkSurface::RescaleGamma;
-
-    // GPU implementation for SkSurface::asyncRescaleAndReadPixels.
-    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
-                                   ReadPixelsCallback callback, ReadPixelsContext context);
-    // GPU implementation for SkSurface::asyncRescaleAndReadPixelsYUV420.
-    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace,
-                                         const SkIRect& srcRect,
-                                         SkISize dstSize,
-                                         RescaleGamma rescaleGamma,
-                                         SkFilterQuality rescaleQuality,
-                                         ReadPixelsCallback callback,
-                                         ReadPixelsContext context);
-
-    /**
-     * After this returns any pending surface IO will be issued to the backend 3D API and
-     * if the surface has MSAA it will be resolved.
-     */
-    GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access, const GrFlushInfo&);
-
     /**
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in
      *  semaphores before executing any commands.
@@ -589,13 +565,12 @@ private:
 
     GrAAType chooseAAType(GrAA);
 
-    friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
     friend class GrClipStackClip;               // for access to getOpsTask
     friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
     friend class GrRenderTargetContextPriv;
 
-    // All the path renderers currently make their own ops
+    // All the path and text renderers/ops currently make their own ops
     friend class GrSoftwarePathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrAAConvexPathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrDashLinePathRenderer;             // for access to add[Mesh]DrawOp
@@ -610,6 +585,7 @@ private:
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrTessellationPathRenderer;         // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
+    friend class GrAtlasTextOp;                      // for access to addDrawOp
 
     SkDEBUGCODE(void onValidate() const override;)
 
@@ -688,16 +664,14 @@ private:
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
     // value is false then a texture copy could not be made.
-    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrClip*, const GrOp& op,
+    //
+    // The op should have already had setClippedBounds called on it.
+    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op,
                                                  GrXferProcessor::DstProxyView* result);
 
-    class AsyncReadResult;
-
-    // The async read step of asyncRescaleAndReadPixels()
-    void asyncReadPixels(const SkIRect& rect, SkColorType colorType, ReadPixelsCallback callback,
-                         ReadPixelsContext context);
-
     GrOpsTask* getOpsTask();
+
+    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
     std::unique_ptr<GrTextTarget> fTextTarget;
 
@@ -714,7 +688,7 @@ private:
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
-
+    SkGlyphRunListPainter fGlyphPainter;
     typedef GrSurfaceContext INHERITED;
 };
 

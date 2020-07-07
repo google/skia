@@ -22,7 +22,7 @@ public:
 
     ~GrD3DOpsRenderPass() override;
 
-    void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {}
+    void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override {}
 
@@ -37,7 +37,7 @@ private:
     void onBegin() override;
 
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
-    void onSetScissorRect(const SkIRect&) override {}
+    void onSetScissorRect(const SkIRect&) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
                         const GrPipeline&) override;
     void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
@@ -58,7 +58,7 @@ private:
 
     void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
 
-    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override {}
+    void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
     GrD3DGpu* fGpu;
 
@@ -69,6 +69,7 @@ private:
 
     GrLoadOp fColorLoadOp;
     SkPMColor4f fClearColor;
+    GrLoadOp fStencilLoadOp;
 
     typedef GrOpsRenderPass INHERITED;
 };

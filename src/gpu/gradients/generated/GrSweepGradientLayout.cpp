@@ -23,8 +23,6 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrSweepGradientLayout& _outer = args.fFp.cast<GrSweepGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix;
-        (void)gradientMatrix;
         auto bias = _outer.bias;
         (void)bias;
         auto scale = _outer.scale;
@@ -33,16 +31,18 @@ public:
                                                    "bias");
         scaleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "scale");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
         fragBuilder->codeAppendf(
-                "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * "
-                "atan(-%s.y, length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, "
-                "-%s.x));\n}\nhalf t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;\n%s = "
-                "half4(t, 1.0, 0.0, 0.0);\n",
-                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
-                sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
-                sk_TransformedCoords2D_0.c_str(), args.fUniformHandler->getUniformCStr(biasVar),
+                R"SkSL(half angle;
+if (sk_Caps.atan2ImplementedAsAtanYOverX) {
+    angle = half(2.0 * atan(-%s.y, length(%s) - %s.x));
+} else {
+    angle = half(atan(-%s.y, -%s.x));
+}
+half t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;
+%s = half4(t, 1.0, 0.0, 0.0);
+)SkSL",
+                args.fSampleCoord, args.fSampleCoord, args.fSampleCoord, args.fSampleCoord,
+                args.fSampleCoord, args.fUniformHandler->getUniformCStr(biasVar),
                 args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor);
     }
 
@@ -76,18 +76,15 @@ void GrSweepGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrSweepGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSweepGradientLayout& that = other.cast<GrSweepGradientLayout>();
     (void)that;
-    if (gradientMatrix != that.gradientMatrix) return false;
     if (bias != that.bias) return false;
     if (scale != that.scale) return false;
     return true;
 }
 GrSweepGradientLayout::GrSweepGradientLayout(const GrSweepGradientLayout& src)
         : INHERITED(kGrSweepGradientLayout_ClassID, src.optimizationFlags())
-        , fCoordTransform0(src.fCoordTransform0)
-        , gradientMatrix(src.gradientMatrix)
         , bias(src.bias)
         , scale(src.scale) {
-    this->addCoordTransform(&fCoordTransform0);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrSweepGradientLayout(*this));
@@ -120,6 +117,7 @@ std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::Make(const SkSweepGr
         return nullptr;
     }
     matrix.postConcat(grad.getGradientMatrix());
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrSweepGradientLayout(matrix, grad.getTBias(), grad.getTScale()));
+    return GrMatrixEffect::Make(
+            matrix, std::unique_ptr<GrFragmentProcessor>(
+                            new GrSweepGradientLayout(grad.getTBias(), grad.getTScale())));
 }

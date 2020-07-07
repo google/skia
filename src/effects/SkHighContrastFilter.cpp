@@ -9,6 +9,7 @@
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
@@ -25,7 +26,7 @@
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;
 
-class SkHighContrast_Filter : public SkColorFilter {
+class SkHighContrast_Filter : public SkColorFilterBase {
 public:
     SkHighContrast_Filter(const SkHighContrastConfig& config) {
         fConfig = config;

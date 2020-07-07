@@ -434,6 +434,40 @@ CanvasKit.onRuntimeInitialized = function() {
     ];
   }
 
+  // Return the inverse of an SkM44. throw an error if it's not invertible
+  CanvasKit.SkM44.mustInvert = function(m) {
+    var m2 = CanvasKit.SkM44.invert(m);
+    if (m2 === null) {
+      throw "Matrix not invertible";
+    }
+    return m2;
+  }
+
+  // returns a matrix that sets up a 3D perspective view from a given camera.
+  //
+  // area - a rect describing the viewport. (0, 0, canvas_width, canvas_height) suggested
+  // zscale - a scalar describing the scale of the z axis. min(width, height)/2 suggested
+  // cam - an object with the following attributes
+  // const cam = {
+  //   'eye'  : [0, 0, 1 / Math.tan(Math.PI / 24) - 1], // a 3D point locating the camera
+  //   'coa'  : [0, 0, 0], // center of attention - the 3D point the camera is looking at.
+  //   'up'   : [0, 1, 0], // a unit vector pointing in the camera's up direction, because eye and coa alone leave roll unspecified.
+  //   'near' : 0.02,      // near clipping plane
+  //   'far'  : 4,         // far clipping plane
+  //   'angle': Math.PI / 12, // field of view in radians
+  // };
+  CanvasKit.SkM44.setupCamera = function(area, zscale, cam) {
+    var camera = CanvasKit.SkM44.lookat(cam['eye'], cam['coa'], cam['up']);
+    var perspective = CanvasKit.SkM44.perspective(cam['near'], cam['far'], cam['angle']);
+    var center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
+    var viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
+    var viewport = CanvasKit.SkM44.multiply(
+      CanvasKit.SkM44.translated(center),
+      CanvasKit.SkM44.scaled(viewScale));
+    return CanvasKit.SkM44.multiply(
+      viewport, perspective, camera, CanvasKit.SkM44.mustInvert(viewport));
+  }
+
   // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
   //  with a 1x4 matrix that post-translates those 4 channels.
   // For example, the following is the layout with the scale (S) and post-transform
@@ -520,7 +554,31 @@ CanvasKit.onRuntimeInitialized = function() {
     }
 
     return m;
-  }
+  };
+
+  CanvasKit.SkPath.MakeFromCmds = function(cmds) {
+    var ptrLen = loadCmdsTypedArray(cmds);
+    var path = CanvasKit.SkPath._MakeFromCmds(ptrLen[0], ptrLen[1]);
+    CanvasKit._free(ptrLen[0]);
+    return path;
+  };
+
+  // Deprecated
+  CanvasKit.MakePathFromCmds = CanvasKit.SkPath.MakeFromCmds;
+
+  // The weights array is optional (only used for conics).
+  CanvasKit.SkPath.MakeFromVerbsPointsWeights = function(verbs, pts, weights) {
+    var verbsPtr = copy1dArray(verbs, "HEAPU8");
+    var pointsPtr = copy1dArray(pts, "HEAPF32");
+    var weightsPtr = copy1dArray(weights, "HEAPF32");
+    var numWeights = (weights && weights.length) || 0;
+    var path = CanvasKit.SkPath._MakeFromVerbsPointsWeights(
+        verbsPtr, verbs.length, pointsPtr, pts.length, weightsPtr, numWeights);
+    freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+    freeArraysThatAreNotMallocedByUsers(pointsPtr, pts);
+    freeArraysThatAreNotMallocedByUsers(weightsPtr, weights);
+    return path;
+  };
 
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
     // see arc() for the HTMLCanvas version
@@ -591,7 +649,7 @@ CanvasKit.onRuntimeInitialized = function() {
       ptr = points.byteOffset;
       n = points.length/2;
     } else {
-      ptr = copy2dArray(points, CanvasKit.HEAPF32);
+      ptr = copy2dArray(points, "HEAPF32");
       n = points.length;
     }
     this._addPoly(ptr, n, close);
@@ -641,7 +699,7 @@ CanvasKit.onRuntimeInitialized = function() {
       SkDebug('addRoundRect needs 8 radii provided. Got ' + radii.length);
       return null;
     }
-    var rptr = copy1dArray(radii, CanvasKit.HEAPF32);
+    var rptr = copy1dArray(radii, "HEAPF32");
     if (args.length === 3 || args.length === 4) {
       var r = args[0];
       var ccw = args[args.length - 1];
@@ -652,6 +710,19 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     freeArraysThatAreNotMallocedByUsers(rptr, radii);
     return this;
+  };
+
+  // The weights array is optional (only used for conics).
+  CanvasKit.SkPath.prototype.addVerbsPointsWeights = function(verbs, points, weights) {
+    var verbsPtr = copy1dArray(verbs, "HEAPU8");
+    var pointsPtr = copy1dArray(points, "HEAPF32");
+    var weightsPtr = copy1dArray(weights, "HEAPF32");
+    var numWeights = (weights && weights.length) || 0;
+    this._addVerbsPointsWeights(verbsPtr, verbs.length, pointsPtr, points.length,
+                                weightsPtr, numWeights);
+    freeArraysThatAreNotMallocedByUsers(verbsPtr, verbs);
+    freeArraysThatAreNotMallocedByUsers(pointsPtr, points);
+    freeArraysThatAreNotMallocedByUsers(weightsPtr, weights);
   };
 
   CanvasKit.SkPath.prototype.arc = function(x, y, radius, startAngle, endAngle, ccw) {
@@ -877,16 +948,24 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkCanvas.prototype.concat44 = CanvasKit.SkCanvas.prototype.concat;
 
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
-  // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
-  // or just arrays of floats in groups of 4.
-  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of float colors (arrays of 4 floats)
+  // srcRects, dstXforms, and colors should be CanvasKit.SkRectBuilder, CanvasKit.RSXFormBuilder,
+  // and CanvasKit.SkColorBuilder (fastest)
+  // Or they can be an array of floats of length 4*number of destinations.
+  // colors are optional and used to tint the drawn images using the optional blend mode
+  // Colors may be an SkColorBuilder, a Uint32Array of int colors,
+  // a Flat Float32Array of float colors or a 2d Array of Float32Array(4) (deprecated)
   CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
                                        /*optional*/ blendMode, colors) {
     if (!atlas || !paint || !srcRects || !dstXforms) {
       SkDebug('Doing nothing since missing a required input');
       return;
     }
-    if (srcRects.length !== dstXforms.length || (colors && colors.length !== dstXforms.length)) {
+
+    // builder arguments report the length as the number of rects, but when passed as arrays
+    // their.length attribute is 4x higher because it's the number of total components of all rects.
+    // colors is always going to report the same length, at least until floats colors are supported
+    // by this function.
+    if (srcRects.length !== dstXforms.length) {
       SkDebug('Doing nothing since input arrays length mismatches');
       return;
     }
@@ -898,14 +977,17 @@ CanvasKit.onRuntimeInitialized = function() {
     if (srcRects.build) {
       srcRectPtr = srcRects.build();
     } else {
-      srcRectPtr = copy1dArray(srcRects, CanvasKit.HEAPF32);
+      srcRectPtr = copy1dArray(srcRects, "HEAPF32");
     }
 
+    var count = 1;
     var dstXformPtr;
     if (dstXforms.build) {
       dstXformPtr = dstXforms.build();
+      count = dstXforms.length;
     } else {
-      dstXformPtr = copy1dArray(dstXforms, CanvasKit.HEAPF32);
+      dstXformPtr = copy1dArray(dstXforms, "HEAPF32");
+      count = dstXforms.length / 4;
     }
 
     var colorPtr = nullptr;
@@ -913,19 +995,11 @@ CanvasKit.onRuntimeInitialized = function() {
       if (colors.build) {
         colorPtr = colors.build();
       } else {
-        if (!isCanvasKitColor(colors[0])) {
-          SkDebug('DrawAtlas color argument expected to be CanvasKit.SkRectBuilder or array of ' +
-            'float arrays, but got '+colors);
-          return;
-        }
-        // convert here
-        colors = colors.map(toUint32Color);
-        colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+        colorPtr = copy1dArray(assureIntColors(colors), "HEAPU32");
       }
     }
 
-    this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, dstXforms.length,
-                    blendMode, paint);
+    this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, count, blendMode, paint);
 
     if (srcRectPtr && !srcRects.build) {
       freeArraysThatAreNotMallocedByUsers(srcRectPtr, srcRects);
@@ -968,7 +1042,7 @@ CanvasKit.onRuntimeInitialized = function() {
       ptr = points.byteOffset;
       n = points.length/2;
     } else {
-      ptr = copy2dArray(points, CanvasKit.HEAPF32);
+      ptr = copy2dArray(points, "HEAPF32");
       n = points.length;
     }
     this._drawPoints(mode, ptr, n, paint);
@@ -1061,7 +1135,7 @@ CanvasKit.onRuntimeInitialized = function() {
     colorSpace = colorSpace || CanvasKit.SkColorSpace.SRGB;
     var srcRowBytes = bytesPerPixel * srcWidth;
 
-    var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
+    var pptr = copy1dArray(pixels, "HEAPU8");
     var ok = this._writePixels({
       'width': srcWidth,
       'height': srcHeight,
@@ -1085,7 +1159,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (!colorMatrix || colorMatrix.length !== 20) {
       throw 'invalid color matrix';
     }
-    var fptr = copy1dArray(colorMatrix, CanvasKit.HEAPF32);
+    var fptr = copy1dArray(colorMatrix, "HEAPF32");
     // We know skia memcopies the floats, so we can free our memory after the call returns.
     var m = CanvasKit.SkColorFilter._makeMatrix(fptr);
     freeArraysThatAreNotMallocedByUsers(fptr, colorMatrix);
@@ -1174,7 +1248,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (!intervals.length || intervals.length % 2 === 1) {
       throw 'Intervals array must have even length';
     }
-    var ptr = copy1dArray(intervals, CanvasKit.HEAPF32);
+    var ptr = copy1dArray(intervals, "HEAPF32");
     var dpe = CanvasKit.SkPathEffect._MakeDash(ptr, intervals.length, phase);
     freeArraysThatAreNotMallocedByUsers(ptr, intervals);
     return dpe;
@@ -1189,67 +1263,67 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.SkShader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
-    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    var cPtrInfo = copyFlexibleColorArray(colors);
+    var posPtr =   copy1dArray(pos, "HEAPF32");
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var lgs = CanvasKit._MakeLinearGradientShader(start, end, colorPtr, posPtr,
-                                                  colors.length, mode, flags, localMatrixPtr, colorSpace);
+    var lgs = CanvasKit._MakeLinearGradientShader(start, end, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
+                                                  cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
-    CanvasKit._free(colorPtr);
-    freeArraysThatAreNotMallocedByUsers(posPtr, pos);
+    freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
+    pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return lgs;
   }
 
   CanvasKit.SkShader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
-    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    var cPtrInfo = copyFlexibleColorArray(colors);
+    var posPtr =   copy1dArray(pos,    "HEAPF32");
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
-                                                  colors.length, mode, flags, localMatrixPtr, colorSpace);
+    var rgs = CanvasKit._MakeRadialGradientShader(center, radius, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
+                                                  cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
-    CanvasKit._free(colorPtr);
-    freeArraysThatAreNotMallocedByUsers(posPtr, pos);
+    freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
+    pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return rgs;
   }
 
   CanvasKit.SkShader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
-    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    var cPtrInfo = copyFlexibleColorArray(colors);
+    var posPtr =   copy1dArray(pos,    "HEAPF32");
     flags = flags || 0;
     startAngle = startAngle || 0;
     endAngle = endAngle || 360;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, colorPtr, posPtr,
-                                                 colors.length, mode,
+    var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
+                                                 cPtrInfo.count, mode,
                                                  startAngle, endAngle, flags,
                                                  localMatrixPtr, colorSpace);
 
-    CanvasKit._free(colorPtr);
-    freeArraysThatAreNotMallocedByUsers(posPtr, pos);
+    freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
+    pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return sgs;
   }
 
   CanvasKit.SkShader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
                                                             colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
-    var colorPtr = copy2dArray(colors, CanvasKit.HEAPF32);
-    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    var cPtrInfo = copyFlexibleColorArray(colors);
+    var posPtr =   copy1dArray(pos,    "HEAPF32");
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
     var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
-                          start, startRadius, end, endRadius,
-                          colorPtr, posPtr, colors.length, mode, flags, localMatrixPtr, colorSpace);
+                          start, startRadius, end, endRadius, cPtrInfo.colorPtr, cPtrInfo.colorType,
+                          posPtr, cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
-    CanvasKit._free(colorPtr);
-    freeArraysThatAreNotMallocedByUsers(posPtr, pos);
+    freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
+    pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return rgs;
   }
 
@@ -1272,19 +1346,25 @@ CanvasKit.onRuntimeInitialized = function() {
 //    ambient: {r, g, b, a},
 //    spot: {r, g, b, a},
 // }
-// Returns the same format
+// Returns the same format. Note, if malloced colors are passed in, the memory
+// housing the passed in colors passed in will be overwritten with the computed
+// tonal colors.
 CanvasKit.computeTonalColors = function(tonalColors) {
+    // copy the colors into WASM
     var cPtrAmbi = copyColorToWasmNoScratch(tonalColors['ambient']);
     var cPtrSpot = copyColorToWasmNoScratch(tonalColors['spot']);
+    // The output of this function will be the same pointers we passed in.
     this._computeTonalColors(cPtrAmbi, cPtrSpot);
+    // Read the results out.
     var result =  {
       'ambient': copyColorFromWasm(cPtrAmbi),
       'spot': copyColorFromWasm(cPtrSpot),
-    }
-    freeArraysThatAreNotMallocedByUsers(cPtrAmbi);
-    freeArraysThatAreNotMallocedByUsers(cPtrSpot);
+    };
+    // If the user passed us malloced colors in here, we don't want to clean them up.
+    freeArraysThatAreNotMallocedByUsers(cPtrAmbi, tonalColors['ambient']);
+    freeArraysThatAreNotMallocedByUsers(cPtrSpot, tonalColors['spot']);
     return result;
-}
+};
 
 CanvasKit.LTRBRect = function(l, t, r, b) {
   return {
@@ -1293,7 +1373,7 @@ CanvasKit.LTRBRect = function(l, t, r, b) {
     fRight: r,
     fBottom: b,
   };
-}
+};
 
 CanvasKit.XYWHRect = function(x, y, w, h) {
   return {
@@ -1302,7 +1382,7 @@ CanvasKit.XYWHRect = function(x, y, w, h) {
     fRight: x+w,
     fBottom: y+h,
   };
-}
+};
 
 // RRectXY returns an RRect with the given rect and a radiusX and radiusY for
 // all 4 corners.
@@ -1318,14 +1398,7 @@ CanvasKit.RRectXY = function(rect, rx, ry) {
     rx4: rx,
     ry4: ry,
   };
-}
-
-CanvasKit.MakePathFromCmds = function(cmds) {
-  var ptrLen = loadCmdsTypedArray(cmds);
-  var path = CanvasKit._MakePathFromCmds(ptrLen[0], ptrLen[1]);
-  CanvasKit._free(ptrLen[0]);
-  return path;
-}
+};
 
 // data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
 CanvasKit.MakeAnimatedImageFromEncoded = function(data) {
@@ -1355,7 +1428,40 @@ CanvasKit.MakeImageFromEncoded = function(data) {
   return img;
 }
 
-// pixels must be a Uint8Array with bytes representing the pixel values
+// A variable to hold a canvasElement which can be reused once created the first time.
+var memoizedCanvas2dElement = null;
+
+// Alternative to CanvasKit.MakeImageFromEncoded. Allows for CanvasKit users to take advantage of
+// browser APIs to decode images instead of using codecs included in the CanvasKit wasm binary.
+// Expects that the canvasImageSource has already loaded/decoded.
+// CanvasImageSource reference: https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource
+CanvasKit.MakeImageFromCanvasImageSource = function(canvasImageSource) {
+  var width = canvasImageSource.width;
+  var height = canvasImageSource.height;
+
+  if (!memoizedCanvas2dElement) {
+    memoizedCanvas2dElement = document.createElement('canvas');
+  }
+  memoizedCanvas2dElement.width = width;
+  memoizedCanvas2dElement.height = height;
+
+  var ctx2d = memoizedCanvas2dElement.getContext('2d');
+  ctx2d.drawImage(canvasImageSource, 0, 0);
+
+  var imageData = ctx2d.getImageData(0, 0, width, height);
+
+  return CanvasKit.MakeImage(
+    imageData.data,
+    width,
+    height,
+    CanvasKit.AlphaType.Unpremul,
+    CanvasKit.ColorType.RGBA_8888,
+    CanvasKit.SkColorSpace.SRGB
+  );
+}
+
+// pixels may be any Typed Array, but Uint8Array or Uint8ClampedArray is recommended,
+// with bytes representing the pixel values.
 // (e.g. each set of 4 bytes could represent RGBA values for a single pixel).
 CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType, colorSpace) {
   var bytesPerPixel = pixels.length / (width * height);
@@ -1366,13 +1472,17 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType, colo
     'colorType': colorType,
     'colorSpace': colorSpace,
   };
-  var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
+  var pptr = copy1dArray(pixels, "HEAPU8");
   // No need to _free pptr, Image takes it with SkData::MakeFromMalloc
 
   return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
 }
 
-// colors is an array of float color arrays
+// Colors may be a Uint32Array of int colors, a Flat Float32Array of float colors
+// or a 2d Array of Float32Array(4) (deprecated)
+// the underlying skia function accepts only int colors so it is recommended
+// to pass an array of int colors to avoid an extra conversion.
+// SkColorBuilder is not accepted.
 CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     indices, isVolatile) {
   // Default isVolitile to true if not set
@@ -1391,21 +1501,23 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
     flags |= (1 << 2);
   }
 
-  var builder = new CanvasKit._SkVerticesBuilder(mode,  positions.length, idxCount, flags);
+  var builder = new CanvasKit._SkVerticesBuilder(mode, positions.length, idxCount, flags);
 
-  copy2dArray(positions,            CanvasKit.HEAPF32, builder.positions());
+  copy2dArray(positions,            "HEAPF32", builder.positions());
   if (builder.texCoords()) {
-    copy2dArray(textureCoordinates, CanvasKit.HEAPF32, builder.texCoords());
+    copy2dArray(textureCoordinates, "HEAPF32", builder.texCoords());
   }
   if (builder.colors()) {
-    // Convert from canvaskit 4f colors to 32 bit uint colors which builder supports.
-    copy1dArray(colors.map(toUint32Color), CanvasKit.HEAPU32, builder.colors());
+    if (colors.build) {
+      throw('Color builder not accepted by MakeSkVertices, use array of ints');
+    } else {
+      copy1dArray(assureIntColors(colors), "HEAPU32", builder.colors());
+    }
   }
   if (builder.indices()) {
-    copy1dArray(indices,            CanvasKit.HEAPU16, builder.indices());
+    copy1dArray(indices, "HEAPU16", builder.indices());
   }
 
-  var idxCount = (indices && indices.length) || 0;
   // Create the vertices, which owns the memory that the builder had allocated.
   return builder.detach();
 };

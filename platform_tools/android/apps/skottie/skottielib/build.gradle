@@ -1,0 +1,36 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 29
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildToolsVersion "29.0.3"
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+    }
+
+    //    When building from Android Studio, ensure that local variables are set:
+    //    sdk.dir=[sdk file path]
+    //    depot_tools.dir=[depot tools file path]
+    //    x86.out.dir=[out file for x86]
+    //    x64.out.dir=[out file for x64]
+    //    arm64.out.dir=[out file for xarm64]
+    //    arm.out.dir=[out file for arm]
+
+    sourceSets.main.jniLibs.srcDir "src/main/libs"
+    flavorDimensions "base"
+    productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
+    setupSkiaLibraryBuild(project, libraryVariants, "libskottie_android")
+
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+
+}

@@ -14,7 +14,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrAHardwareBufferImageGenerator.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -102,7 +102,7 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
                                    const sk_gpu_test::ContextInfo& info,
                                    GrSurfaceOrigin surfaceOrigin) {
 
-    GrContext* context = info.grContext();
+    auto context = info.directContext();
     if (!context->priv().caps()->supportsAHardwareBufferImages()) {
         return;
     }
@@ -212,7 +212,7 @@ static void surface_draw_test_helper(skiatest::Reporter* reporter,
                                      const sk_gpu_test::ContextInfo& info,
                                      GrSurfaceOrigin surfaceOrigin) {
 
-    GrContext* context = info.grContext();
+    auto context = info.directContext();
     if (!context->priv().caps()->supportsAHardwareBufferImages()) {
         return;
     }

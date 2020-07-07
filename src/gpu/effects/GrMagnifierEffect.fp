@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in uniform sampler2D src;
+in fragmentProcessor src;
 layout(ctype=SkIRect) in int4 bounds;
 uniform float4 boundsUniform;
 layout(ctype=SkRect) in float4 srcRect;
@@ -16,12 +16,7 @@ in uniform float yInvInset;
 
 uniform half2 offset;
 
-@coordTransform(src) {
-    SkMatrix::I()
-}
-
-void main() {
-    float2 coord = sk_TransformedCoords2D[0];
+void main(float2 coord) {
     float2 zoom_coord = offset + coord * float2(xInvZoom, yInvZoom);
     float2 delta = (coord - boundsUniform.xy) * boundsUniform.zw;
     delta = min(delta, half2(1.0, 1.0) - delta);
@@ -42,36 +37,11 @@ void main() {
 }
 
 @setData(pdman) {
-    SkScalar invW = 1.0f / src.width();
-    SkScalar invH = 1.0f / src.height();
-
-    {
-        SkScalar y = srcRect.y() * invH;
-        if (srcView.origin() != kTopLeft_GrSurfaceOrigin) {
-            y = 1.0f - (srcRect.height() / bounds.height()) - y;
-        }
-
-        pdman.set2f(offset, srcRect.x() * invW, y);
-    }
-
-    {
-        SkScalar y = bounds.y() * invH;
-        SkScalar hSign = 1.f;
-        if (srcView.origin() != kTopLeft_GrSurfaceOrigin) {
-            y = 1.0f - bounds.y() * invH;
-            hSign = -1.f;
-        }
-
-        pdman.set4f(boundsUniform,
-                    bounds.x() * invW,
-                    y,
-                    SkIntToScalar(src.width()) / bounds.width(),
-                    hSign * SkIntToScalar(src.height()) / bounds.height());
-    }
+    pdman.set2f(offset, srcRect.x(), srcRect.y());
+    pdman.set4f(boundsUniform, bounds.x(), bounds.y(), 1.f/ bounds.width(), 1.f / bounds.height());
 }
 
 @test(d) {
-    auto [view, ct, at] = d->randomView();
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
     const SkScalar kMaxInset = 20.0f;
@@ -82,7 +52,8 @@ void main() {
     SkIRect bounds = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
     SkRect srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    auto effect = GrMagnifierEffect::Make(std::move(view),
+    auto src = GrProcessorUnitTest::MakeChildFP(d);
+    auto effect = GrMagnifierEffect::Make(std::move(src),
                                           bounds,
                                           srcRect,
                                           srcRect.width() / bounds.width(),

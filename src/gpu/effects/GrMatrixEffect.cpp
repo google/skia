@@ -21,7 +21,7 @@ public:
     void emitCode(EmitArgs& args) override {
         fMatrixVar = args.fUniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
                                                       kFloat3x3_GrSLType, "matrix");
-        SkString child = this->invokeChild(0, args.fInputColor, args);
+        SkString child = this->invokeChildWithMatrix(0, args.fInputColor, args);
         args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, child.c_str());
     }
 
@@ -51,11 +51,7 @@ bool GrMatrixEffect::onIsEqual(const GrFragmentProcessor& other) const {
 GrMatrixEffect::GrMatrixEffect(const GrMatrixEffect& src)
         : INHERITED(kGrMatrixEffect_ClassID, src.optimizationFlags())
         , fMatrix(src.fMatrix) {
-    auto child = src.childProcessor(0).clone();
-    if (src.childProcessor(0).isSampledWithExplicitCoords()) {
-        child->setSampledWithExplicitCoords();
-    }
-    this->registerChildProcessor(std::move(child));
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrMatrixEffect::clone() const {

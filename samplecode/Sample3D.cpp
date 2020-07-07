@@ -356,7 +356,7 @@ class SampleBump3D : public SampleCubeBase {
     SkRRect                fRR;
 
 public:
-    SampleBump3D() : SampleCubeBase(kShowLightDome) {}
+    SampleBump3D() : SampleCubeBase(Flags(kCanRunOnCPU | kShowLightDome)) {}
 
     SkString name() override { return SkString("bump3d"); }
 

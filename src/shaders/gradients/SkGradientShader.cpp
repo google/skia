@@ -299,7 +299,8 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
             decal_ctx->limit_x = SkBits2Float(SkFloat2Bits(1.0f) + 1);
             // reuse mask + limit_x stage, or create a custom decal_1 that just stores the mask
             p->append(SkRasterPipeline::decal_x, decal_ctx);
-            // fall-through to clamp
+            [[fallthrough]];
+
         case SkTileMode::kClamp:
             if (!fOrigPos) {
                 // We clamp only when the stops are evenly spaced.
@@ -419,21 +420,22 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
-                                            skvm::F32 x, skvm::F32 y, skvm::Color /*paint*/,
-                                            const SkMatrix& ctm, const SkMatrix* localM,
+                                            skvm::Coord device, skvm::Coord local,
+                                            skvm::Color /*paint*/,
+                                            const SkMatrixProvider& mats, const SkMatrix* localM,
                                             SkFilterQuality quality, const SkColorInfo& dstInfo,
                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     SkMatrix inv;
-    if (!this->computeTotalInverse(ctm, localM, &inv)) {
+    if (!this->computeTotalInverse(mats.localToDevice(), localM, &inv)) {
         return {};
     }
     inv.postConcat(fPtsToUnit);
     inv.normalizePerspective();
 
-    SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
+    local = SkShaderBase::ApplyMatrix(p, inv, local, uniforms);
 
     skvm::I32 mask = p->splat(~0);
-    skvm::F32 t = this->transformT(p,uniforms, x,y, &mask);
+    skvm::F32 t = this->transformT(p,uniforms, local, &mask);
 
     // Perhaps unexpectedly, clamping is handled naturally by our search, so we
     // don't explicitly clamp t to [0,1].  That clamp would break hard stops

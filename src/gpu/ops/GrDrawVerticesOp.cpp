@@ -9,6 +9,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDevice.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -185,12 +186,7 @@ public:
             // emit transforms using either explicit local coords or positions
             const auto& coordsAttr = gp.localCoordsAttr().isInitialized() ? gp.localCoordsAttr()
                                                                           : gp.positionAttr();
-            this->emitTransforms(vertBuilder,
-                                 varyingHandler,
-                                 uniformHandler,
-                                 coordsAttr.asShaderVar(),
-                                 SkMatrix::I(),
-                                 args.fFPCoordTransformHandler);
+            gpArgs->fLocalCoordVar = coordsAttr.asShaderVar();
 
             // Add varyings and globals for all custom attributes
             using Usage = SkVertices::Attribute::Usage;
@@ -306,7 +302,7 @@ public:
             const VerticesGP& vgp = gp.cast<VerticesGP>();
             uint32_t key = 0;
             key |= (vgp.fColorArrayType == ColorArrayType::kSkColor) ? 0x1 : 0;
-            key |= ComputePosKey(vgp.viewMatrix()) << 20;
+            key |= ComputeMatrixKey(vgp.viewMatrix()) << 20;
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(vgp.fColorSpaceXform.get()));
 
@@ -319,22 +315,15 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp,
-                     const CoordTransformRange& transformRange) override {
+                     const GrPrimitiveProcessor& gp) override {
             const VerticesGP& vgp = gp.cast<VerticesGP>();
 
-            if (!vgp.viewMatrix().isIdentity() &&
-                !SkMatrixPriv::CheapEqual(fViewMatrix, vgp.viewMatrix())) {
-                fViewMatrix = vgp.viewMatrix();
-                pdman.setSkMatrix(fViewMatrixUniform, fViewMatrix);
-            }
+            this->setTransform(pdman, fViewMatrixUniform, vgp.viewMatrix(), &fViewMatrix);
 
             if (!vgp.colorAttr().isInitialized() && vgp.color() != fColor) {
                 pdman.set4fv(fColorUniform, 1, vgp.color().vec());
                 fColor = vgp.color();
             }
-
-            this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
 
             fColorSpaceHelper.setData(pdman, vgp.fColorSpaceXform.get());
 

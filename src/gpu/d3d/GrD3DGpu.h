@@ -64,6 +64,10 @@ public:
 
     void testingOnly_startCapture() override;
     void testingOnly_endCapture() override;
+
+    void resetShaderCacheForTesting() const override {
+        fResourceProvider.resetShaderCacheForTesting();
+    }
 #endif
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
@@ -80,30 +84,24 @@ public:
                              int numBarriers,
                              D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
-    bool waitFence(GrFence) override { return true; }
+    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    bool waitFence(GrFence) override;
     void deleteFence(GrFence) const override {}
 
-    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
-        return nullptr;
-    }
+    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(
             const GrBackendSemaphore& semaphore,
             GrResourceProvider::SemaphoreWrapType wrapType,
-            GrWrapOwnership ownership) override {
-        return nullptr;
-    }
-    void insertSemaphore(GrSemaphore* semaphore) override {}
-    void waitSemaphore(GrSemaphore* semaphore) override {}
+            GrWrapOwnership ownership) override;
+    void insertSemaphore(GrSemaphore* semaphore) override;
+    void waitSemaphore(GrSemaphore* semaphore) override;
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override {
         return nullptr;
     }
 
-    void clear(const GrScissorState& scissor, const SkPMColor4f& color, GrRenderTarget*);
-
     void submit(GrOpsRenderPass* renderPass) override;
 
-    void checkFinishProcs() override {}
+    void checkFinishProcs() override { this->checkForFinishedCommandLists(); }
 
     SkSL::Compiler* shaderCompiler() const {
         return fCompiler.get();
@@ -185,15 +183,14 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, ForExternalIO) override {}
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
-                         GrGpuFinishedContext finishedContext) override {
-        // TODO: have this actually wait before calling the proc
-        SkASSERT(finishedProc);
-        finishedProc(finishedContext);
-    }
+                         GrGpuFinishedContext finishedContext) override;
+    void addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback);
 
-    void prepareSurfacesForBackendAccessAndExternalIO(
-        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
-        const GrPrepareForExternalIORequests& externalRequests) override;
+    void prepareSurfacesForBackendAccessAndStateUpdates(
+            GrSurfaceProxy* proxies[],
+            int numProxies,
+            SkSurface::BackendSurfaceAccess access,
+            const GrBackendSurfaceMutableState* newState) override;
 
     bool onSubmitToGpu(bool syncCpu) override;
 

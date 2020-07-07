@@ -40,6 +40,14 @@ debug_cpu:
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
 
+experimental_simd:
+	# Does an incremental build where possible.
+	./compile.sh simd
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm ./canvaskit/bin
+	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm.map ./canvaskit/bin
+
 debug_viewer:
 	# Does an incremental build where possible.
 	./compile.sh debug viewer

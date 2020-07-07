@@ -98,8 +98,8 @@ GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
     fAllocator = VK_NULL_HANDLE;
 }
 
-bool GrVkAMDMemoryAllocator::allocateMemoryForImage(VkImage image, AllocationPropertyFlags flags,
-                                                    GrVkBackendMemory* backendMemory) {
+VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
+                                                     GrVkBackendMemory* backendMemory) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     VmaAllocationCreateInfo info;
     info.flags = 0;
@@ -124,16 +124,15 @@ bool GrVkAMDMemoryAllocator::allocateMemoryForImage(VkImage image, AllocationPro
 
     VmaAllocation allocation;
     VkResult result = vmaAllocateMemoryForImage(fAllocator, image, &info, &allocation, nullptr);
-    if (VK_SUCCESS != result) {
-        return false;
+    if (VK_SUCCESS == result) {
+        *backendMemory = (GrVkBackendMemory)allocation;
     }
-    *backendMemory = (GrVkBackendMemory)allocation;
-    return true;
+    return result;
 }
 
-bool GrVkAMDMemoryAllocator::allocateMemoryForBuffer(VkBuffer buffer, BufferUsage usage,
-                                                     AllocationPropertyFlags flags,
-                                                     GrVkBackendMemory* backendMemory) {
+VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsage usage,
+                                                      AllocationPropertyFlags flags,
+                                                      GrVkBackendMemory* backendMemory) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     VmaAllocationCreateInfo info;
     info.flags = 0;
@@ -187,12 +186,11 @@ bool GrVkAMDMemoryAllocator::allocateMemoryForBuffer(VkBuffer buffer, BufferUsag
             result = vmaAllocateMemoryForBuffer(fAllocator, buffer, &info, &allocation, nullptr);
         }
     }
-    if (VK_SUCCESS != result) {
-        return false;
+    if (VK_SUCCESS == result) {
+        *backendMemory = (GrVkBackendMemory)allocation;
     }
 
-    *backendMemory = (GrVkBackendMemory)allocation;
-    return true;
+    return result;
 }
 
 void GrVkAMDMemoryAllocator::freeMemory(const GrVkBackendMemory& memoryHandle) {
@@ -225,12 +223,10 @@ void GrVkAMDMemoryAllocator::getAllocInfo(const GrVkBackendMemory& memoryHandle,
     alloc->fBackendMemory = memoryHandle;
 }
 
-void* GrVkAMDMemoryAllocator::mapMemory(const GrVkBackendMemory& memoryHandle) {
+VkResult GrVkAMDMemoryAllocator::mapMemory(const GrVkBackendMemory& memoryHandle, void** data) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
-    void* mapPtr;
-    vmaMapMemory(fAllocator, allocation, &mapPtr);
-    return mapPtr;
+    return vmaMapMemory(fAllocator, allocation, data);
 }
 
 void GrVkAMDMemoryAllocator::unmapMemory(const GrVkBackendMemory& memoryHandle) {
@@ -239,18 +235,18 @@ void GrVkAMDMemoryAllocator::unmapMemory(const GrVkBackendMemory& memoryHandle) 
     vmaUnmapMemory(fAllocator, allocation);
 }
 
-void GrVkAMDMemoryAllocator::flushMappedMemory(const GrVkBackendMemory& memoryHandle,
-                                               VkDeviceSize offset, VkDeviceSize size) {
+VkResult GrVkAMDMemoryAllocator::flushMemory(const GrVkBackendMemory& memoryHandle,
+                                             VkDeviceSize offset, VkDeviceSize size) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
-    vmaFlushAllocation(fAllocator, allocation, offset, size);
+    return vmaFlushAllocation(fAllocator, allocation, offset, size);
 }
 
-void GrVkAMDMemoryAllocator::invalidateMappedMemory(const GrVkBackendMemory& memoryHandle,
-                                                    VkDeviceSize offset, VkDeviceSize size) {
+VkResult GrVkAMDMemoryAllocator::invalidateMemory(const GrVkBackendMemory& memoryHandle,
+                                                  VkDeviceSize offset, VkDeviceSize size) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
-    vmaFlushAllocation(fAllocator, allocation, offset, size);
+    return vmaFlushAllocation(fAllocator, allocation, offset, size);
 }
 
 uint64_t GrVkAMDMemoryAllocator::totalUsedMemory() const {

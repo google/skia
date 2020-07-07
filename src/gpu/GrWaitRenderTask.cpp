@@ -14,15 +14,22 @@
 void GrWaitRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // This renderTask doesn't have "normal" ops. In this case we still need to add an interval (so
     // fEndOfOpsTaskOpIndices will remain in sync), so we create a fake op# to capture the fact that
-    // we manipulate fTargetView's proxy.
-    alloc->addInterval(fTargetView.proxy(), alloc->curOp(), alloc->curOp(),
+    // we manipulate our target's proxy.
+    SkASSERT(0 == this->numTargets());
+    auto fakeOp = alloc->curOp();
+    alloc->addInterval(fWaitedOn.proxy(), fakeOp, fakeOp,
                        GrResourceAllocator::ActualUse::kYes);
     alloc->incOps();
 }
 
 bool GrWaitRenderTask::onExecute(GrOpFlushState* flushState) {
     for (int i = 0; i < fNumSemaphores; ++i) {
-        flushState->gpu()->waitSemaphore(fSemaphores[i].get());
+        // If we don't have a semaphore here it means we failed to wrap it. That happens if the
+        // client didn't give us a valid semaphore to begin with. Therefore, it is fine to not wait
+        // on it.
+        if (fSemaphores[i].get()) {
+            flushState->gpu()->waitSemaphore(fSemaphores[i].get());
+        }
     }
     return true;
 }

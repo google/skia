@@ -185,7 +185,7 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialPro
             }
             return procs.fPictureProc(data->data(), size, procs.fPictureCtx);
         }
-        default:    // fall through to error return
+        default:    // fall out to error return
             break;
     }
     return nullptr;

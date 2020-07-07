@@ -14,7 +14,7 @@
 
 #include "tests/Test.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkHalf.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
@@ -28,7 +28,8 @@
 static const int DEV_W = 100, DEV_H = 100;
 
 template <typename T>
-void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T epsilon, T maxInt,
+void runFPTest(skiatest::Reporter* reporter, GrDirectContext* context,
+               T min, T max, T epsilon, T maxInt,
                int arraySize, GrColorType colorType) {
     if (0 != arraySize % 4) {
         REPORT_FAILURE(reporter, "(0 != arraySize % 4)",
@@ -76,7 +77,9 @@ static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*
 static const SkHalf kMaxIntegerRepresentableInHalfFloatingPoint = 0x6800;  // 2 ^ 11
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo) {
-    runFPTest<SkHalf>(reporter, ctxInfo.grContext(), SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
+    auto direct = ctxInfo.directContext();
+
+    runFPTest<SkHalf>(reporter, direct, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
                       kMaxIntegerRepresentableInHalfFloatingPoint, HALF_ALPHA_CONTROL_ARRAY_SIZE,
                       GrColorType::kAlpha_F16);
 }
@@ -84,7 +87,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo)
 static const int HALF_RGBA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4 /*RGBA*/;
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) {
-    runFPTest<SkHalf>(reporter, ctxInfo.grContext(), SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
+    auto direct = ctxInfo.directContext();
+
+    runFPTest<SkHalf>(reporter, direct, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
                       kMaxIntegerRepresentableInHalfFloatingPoint, HALF_RGBA_CONTROL_ARRAY_SIZE,
                       GrColorType::kRGBA_F16);
 }

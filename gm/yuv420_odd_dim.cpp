@@ -15,7 +15,7 @@
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"
@@ -77,7 +77,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim, canvas, errMsg,
                        kScale* kImageDim.width(), kScale* kImageDim.height()) {
     auto image = make_image(canvas->getGrContext());
     if (!image) {
-        if (canvas->getGrContext() && canvas->getGrContext()->abandoned()) {
+        if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
             return skiagm::DrawResult::kOk;
         }
         return skiagm::DrawResult::kFail;

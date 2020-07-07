@@ -195,8 +195,9 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     return false;
 }
 
-skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                  const SkMatrix& ctm, const SkMatrix* localM,
+skvm::Color SkShaderBase::program(skvm::Builder* p,
+                                  skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                  const SkMatrixProvider& matrices, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     // Force opaque alpha for all opaque shaders.
@@ -211,7 +212,8 @@ skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, sk
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (auto color = this->onProgram(p, x,y, paint, ctm,localM, quality,dst, uniforms,alloc)) {
+    if (auto color = this->onProgram(p, device,local, paint, matrices,localM, quality,dst,
+                                     uniforms,alloc)) {
         if (this->isOpaque()) {
             color.a = p->splat(1.0f);
         }
@@ -220,11 +222,12 @@ skvm::Color SkShaderBase::program(skvm::Builder* p, skvm::F32 x, skvm::F32 y, sk
     return {};
 }
 
-skvm::Color SkShaderBase::onProgram(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                    const SkMatrix& ctm, const SkMatrix* localM,
+skvm::Color SkShaderBase::onProgram(skvm::Builder*,
+                                    skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                    const SkMatrixProvider&, const SkMatrix* localM,
                                     SkFilterQuality quality, const SkColorInfo& dst,
                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    //SkDebugf("cannot onProgram %s\n", this->getTypeName());
+    // SkDebugf("cannot onProgram %s\n", this->getTypeName());
     return {};
 }
 
@@ -234,36 +237,40 @@ sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {
 }
 
 
-void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
-                               skvm::F32* x, skvm::F32* y, skvm::Uniforms* uniforms) {
+skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
+                                      skvm::Coord coord, skvm::Uniforms* uniforms) {
+    skvm::F32 x = coord.x,
+              y = coord.y;
     if (m.isIdentity()) {
         // That was easy.
     } else if (m.isTranslate()) {
-        *x = p->add(*x, p->uniformF(uniforms->pushF(m[2])));
-        *y = p->add(*y, p->uniformF(uniforms->pushF(m[5])));
+        x = p->add(x, p->uniformF(uniforms->pushF(m[2])));
+        y = p->add(y, p->uniformF(uniforms->pushF(m[5])));
     } else if (m.isScaleTranslate()) {
-        *x = p->mad(*x, p->uniformF(uniforms->pushF(m[0])), p->uniformF(uniforms->pushF(m[2])));
-        *y = p->mad(*y, p->uniformF(uniforms->pushF(m[4])), p->uniformF(uniforms->pushF(m[5])));
+        x = p->mad(x, p->uniformF(uniforms->pushF(m[0])), p->uniformF(uniforms->pushF(m[2])));
+        y = p->mad(y, p->uniformF(uniforms->pushF(m[4])), p->uniformF(uniforms->pushF(m[5])));
     } else {  // Affine or perspective.
-        auto dot = [&,X=*x,Y=*y](int row) {
-            return p->mad(X, p->uniformF(uniforms->pushF(m[3*row+0])),
-                   p->mad(Y, p->uniformF(uniforms->pushF(m[3*row+1])),
+        auto dot = [&,x,y](int row) {
+            return p->mad(x, p->uniformF(uniforms->pushF(m[3*row+0])),
+                   p->mad(y, p->uniformF(uniforms->pushF(m[3*row+1])),
                              p->uniformF(uniforms->pushF(m[3*row+2]))));
         };
-        *x = dot(0);
-        *y = dot(1);
+        x = dot(0);
+        y = dot(1);
         if (m.hasPerspective()) {
-            *x = p->div(*x, dot(2));
-            *y = p->div(*y, dot(2));
+            x = x * (1.0f / dot(2));
+            y = y * (1.0f / dot(2));
         }
     }
+    return {x,y};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::F32, skvm::F32, skvm::Color,
-                                     const SkMatrix&, const SkMatrix*, SkFilterQuality,
-                                     const SkColorInfo&, skvm::Uniforms*, SkArenaAlloc*) const {
+skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color,
+                                     const SkMatrixProvider&, const SkMatrix*,
+                                     SkFilterQuality, const SkColorInfo&,
+                                     skvm::Uniforms*, SkArenaAlloc*) const {
     return {};  // signal failure
 }
 

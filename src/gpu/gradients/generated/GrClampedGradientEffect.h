@@ -10,11 +10,12 @@
  **************************************************************************************************/
 #ifndef GrClampedGradientEffect_DEFINED
 #define GrClampedGradientEffect_DEFINED
-#include "include/core/SkTypes.h"
-#include "include/core/SkM44.h"
 
-#include "src/gpu/GrCoordTransform.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
+
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrClampedGradientEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(
@@ -55,11 +56,11 @@ private:
             , makePremul(makePremul)
             , colorsAreOpaque(colorsAreOpaque) {
         SkASSERT(colorizer);
-        colorizer_index = this->numChildProcessors();
-        this->registerChildProcessor(std::move(colorizer));
+        colorizer_index =
+                this->registerChild(std::move(colorizer), SkSL::SampleUsage::PassThrough());
         SkASSERT(gradLayout);
-        gradLayout_index = this->numChildProcessors();
-        this->registerChildProcessor(std::move(gradLayout));
+        gradLayout_index =
+                this->registerChild(std::move(gradLayout), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

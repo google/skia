@@ -8,7 +8,7 @@
 #include "src/gpu/ops/GrAtlasTextOp.h"
 
 #include "include/core/SkPoint3.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkStrikeCache.h"
@@ -16,12 +16,17 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrDistanceFieldAdjustTable.h"
+
+#if GR_TEST_UTILS
+#include "src/gpu/GrDrawOpTest.h"
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -62,30 +67,19 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
     this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
 }
 
-// Entry point just for the SkAtlasTextTarget
-std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> GrAtlasTextOp::Geometry::textTargetCreateVertexData(
-        int offset, int count) const {
-    std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> data{new GrTextBlob::Mask3DVertex[count][4]};
-
-    fSubRunPtr->fillTextTargetVertexData(data.get(), offset, count, fColor.toBytes_RGBA(),
-                                         fDrawOrigin);
-
-    return data;
-}
-
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
     fSubRunPtr->fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
                                fDrawMatrix, fDrawOrigin, fClipRect);
 }
 
-std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* context,
+std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRenderTargetContext* rtc,
                                                          GrPaint&& paint,
                                                          GrTextBlob::SubRun* subrun,
                                                          const SkMatrix& drawMatrix,
                                                          SkPoint drawOrigin,
                                                          const SkIRect& clipRect,
                                                          const SkPMColor4f& filteredColor) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    GrOpMemoryPool* pool = rtc->fContext->priv().opMemoryPool();
 
     MaskType maskType = [&]() {
         switch (subrun->maskFormat()) {
@@ -110,17 +104,17 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* con
 }
 
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
-                                            GrRecordingContext* context,
-                                            GrPaint&& paint,
-                                            GrTextBlob::SubRun* subrun,
-                                            const SkMatrix& drawMatrix,
-                                            SkPoint drawOrigin,
-                                            const SkIRect& clipRect,
-                                            const SkPMColor4f& filteredColor,
-                                            bool useGammaCorrectDistanceTable,
-                                            SkColor luminanceColor,
-                                            const SkSurfaceProps& props) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+        GrRenderTargetContext* rtc,
+        GrPaint&& paint,
+        GrTextBlob::SubRun* subrun,
+        const SkMatrix& drawMatrix,
+        SkPoint drawOrigin,
+        const SkIRect& clipRect,
+        const SkPMColor4f& filteredColor,
+        bool useGammaCorrectDistanceTable,
+        SkColor luminanceColor,
+        const SkSurfaceProps& props) {
+    GrOpMemoryPool* pool = rtc->fContext->priv().opMemoryPool();
     bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
     bool isLCD = subrun->hasUseLCDText() && SkPixelGeometryIsH(props.pixelGeometry());
     MaskType maskType = !subrun->isAntiAliased() ? kAliasedDistanceField_MaskType
@@ -497,7 +491,6 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingConte
 static const int kDistanceAdjustLumShift = 5;
 
 // TODO trying to figure out why lcd is so whack
-// (see comments in GrTextContext::ComputeCanonicalColor)
 GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                      const GrShaderCaps& caps,
                                                      const GrSurfaceProxyView* views,
@@ -549,4 +542,79 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 #endif
     }
 }
+
+#if GR_TEST_UTILS
+std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
+                                                             const SkPaint& skPaint,
+                                                             const SkFont& font,
+                                                             const SkMatrixProvider& mtxProvider,
+                                                             const char* text,
+                                                             int x,
+                                                             int y) {
+    static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+
+    size_t textLen = (int)strlen(text);
+
+    const SkMatrix& drawMatrix(mtxProvider.localToDevice());
+
+    auto drawOrigin = SkPoint::Make(x, y);
+    SkGlyphRunBuilder builder;
+    builder.drawTextUTF8(skPaint, font, text, textLen, drawOrigin);
+
+    auto glyphRunList = builder.useGlyphRunList();
+
+    const GrRecordingContextPriv& contextPriv = rtc->fContext->priv();
+    GrSDFTOptions SDFOptions = rtc->fContext->priv().SDFTOptions();
+
+    if (glyphRunList.empty()) {
+        return nullptr;
+    }
+    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+    SkGlyphRunListPainter* painter = &rtc->fGlyphPainter;
+    painter->processGlyphRunList(
+            glyphRunList, drawMatrix, surfaceProps,
+            contextPriv.caps()->shaderCaps()->supportsDistanceFieldText(),
+            SDFOptions, blob.get());
+
+    return blob->firstSubRun()->makeOp(mtxProvider,
+                                       drawOrigin,
+                                       SkIRect::MakeEmpty(),
+                                       skPaint,
+                                       surfaceProps,
+                                       rtc->textTarget());
+}
+
+GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
+    // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
+    auto rtc = GrRenderTargetContext::Make(
+            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1024, 1024});
+
+    SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
+
+    SkPaint skPaint;
+    skPaint.setColor(random->nextU());
+
+    SkFont font;
+    if (random->nextBool()) {
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+    } else {
+        font.setEdging(random->nextBool() ? SkFont::Edging::kAntiAlias : SkFont::Edging::kAlias);
+    }
+    font.setSubpixel(random->nextBool());
+
+    const char* text = "The quick brown fox jumps over the lazy dog.";
+
+    // create some random x/y offsets, including negative offsets
+    static const int kMaxTrans = 1024;
+    int xPos = (random->nextU() % 2) * 2 - 1;
+    int yPos = (random->nextU() % 2) * 2 - 1;
+    int xInt = (random->nextU() % kMaxTrans) * xPos;
+    int yInt = (random->nextU() % kMaxTrans) * yPos;
+
+    return GrAtlasTextOp::CreateOpTestingOnly(
+            rtc.get(), skPaint, font, matrixProvider, text, xInt, yInt);
+}
+
+#endif
+
 

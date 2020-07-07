@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/shaders/SkImageShader.h"
+
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -13,12 +15,12 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkEmptyShader.h"
-#include "src/shaders/SkImageShader.h"
 
 /**
  *  We are faster in clamp, so always use that tiling when we can.
@@ -37,11 +39,13 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
                              SkTileMode tmx, SkTileMode tmy,
                              const SkMatrix* localMatrix,
+                             FilterEnum filtering,
                              bool clampAsIfUnpremul)
     : INHERITED(localMatrix)
     , fImage(std::move(img))
     , fTileModeX(optimize(tmx, fImage->width()))
     , fTileModeY(optimize(tmy, fImage->height()))
+    , fFiltering(filtering)
     , fClampAsIfUnpremul(clampAsIfUnpremul)
 {}
 
@@ -51,18 +55,26 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
 sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
     auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
+
+    FilterEnum filtering = kInheritFromPaint;
+    if (!buffer.isVersionLT(SkPicturePriv::kFilteringInImageShader_Version)) {
+        filtering = buffer.read32LE<FilterEnum>(kInheritFromPaint);
+    }
+
     SkMatrix localMatrix;
     buffer.readMatrix(&localMatrix);
     sk_sp<SkImage> img = buffer.readImage();
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix);
+
+    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix, filtering);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt((unsigned)fTileModeX);
     buffer.writeUInt((unsigned)fTileModeY);
+    buffer.writeUInt((unsigned)fFiltering);
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
@@ -75,9 +87,7 @@ bool SkImageShader::isOpaque() const {
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
-    if (inv.hasPerspective()) {
-        return false;
-    }
+    SkASSERT(!inv.hasPerspective());
 
     // Scale+translate methods are always present, but affine might not be.
     if (!SkOpts::S32_alpha_D32_filter_DXDY && !inv.isScaleTranslate()) {
@@ -102,6 +112,11 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
+    SkFilterQuality quality = this->resolveFiltering(rec.fPaint->getFilterQuality());
+
+    if (quality == kHigh_SkFilterQuality) {
+        return nullptr;
+    }
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
@@ -140,8 +155,16 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
+    // Send in a modified paint with different filter-quality if we don't agree with the paint
+    SkPaint modifiedPaint;
+    ContextRec modifiedRec = rec;
+    if (quality != rec.fPaint->getFilterQuality()) {
+        modifiedPaint = *rec.fPaint;
+        modifiedPaint.setFilterQuality(quality);
+        modifiedRec.fPaint = &modifiedPaint;
+    }
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 as_IB(fImage.get()), rec, alloc);
+                                                 as_IB(fImage.get()), modifiedRec, alloc);
 }
 #endif
 
@@ -159,21 +182,27 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, SkTileMode xy[]) const {
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
                                     SkTileMode tmx, SkTileMode tmy,
                                     const SkMatrix* localMatrix,
+                                    FilterEnum filtering,
                                     bool clampAsIfUnpremul) {
     if (!image) {
         return sk_make_sp<SkEmptyShader>();
     }
-    return sk_sp<SkShader>{ new SkImageShader(image, tmx, tmy, localMatrix, clampAsIfUnpremul) };
+    return sk_sp<SkShader>{
+        new SkImageShader(image, tmx, tmy, localMatrix, filtering, clampAsIfUnpremul)
+    };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorInfo.h"
+#include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
@@ -186,50 +215,72 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    GrSamplerState::WrapMode wmX = SkTileModeToWrapMode(fTileModeX),
-                             wmY = SkTileModeToWrapMode(fTileModeY);
+    // This would all be much nicer with std::variant.
+    static constexpr size_t kSize = std::max({sizeof(GrYUVAImageTextureMaker),
+                                              sizeof(GrTextureAdjuster      ),
+                                              sizeof(GrImageTextureMaker    ),
+                                              sizeof(GrBitmapTextureMaker   )});
+    static constexpr size_t kAlign = std::max({alignof(GrYUVAImageTextureMaker),
+                                               alignof(GrTextureAdjuster      ),
+                                               alignof(GrImageTextureMaker    ),
+                                               alignof(GrBitmapTextureMaker   )});
+    std::aligned_storage_t<kSize, kAlign> storage;
+    GrTextureProducer* producer = nullptr;
+    SkScopeExit destroyProducer([&producer]{ if (producer) { producer->~GrTextureProducer(); } });
 
-    // Must set wrap and filter on the sampler before requesting a texture. In two places below
-    // we check the matrix scale factors to determine how to interpret the filter quality setting.
-    // This completely ignores the complexity of the drawVertices case where explicit local coords
-    // are provided by the caller.
-    bool doBicubic;
-    GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            fImage->width(), fImage->height(), args.fFilterQuality,
-            args.fMatrixProvider.localToDevice(), *lm,
-            args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
-    GrMipMapped mipMapped = GrMipMapped::kNo;
-    if (textureFilterMode == GrSamplerState::Filter::kMipMap) {
-        mipMapped = GrMipMapped::kYes;
-    }
-    GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, mipMapped);
-    if (!view) {
+    uint32_t pinnedUniqueID;
+    SkBitmap bm;
+    if (as_IB(fImage)->isYUVA()) {
+        producer = new (&storage) GrYUVAImageTextureMaker(args.fContext, fImage.get());
+    } else if (GrSurfaceProxyView view =
+                       as_IB(fImage)->refPinnedView(args.fContext, &pinnedUniqueID)) {
+        GrColorInfo colorInfo;
+        if (args.fContext->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
+            SkASSERT(fImage->colorType() == kRGBA_8888_SkColorType);
+            colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, fImage->alphaType(),
+                                    fImage->refColorSpace());
+        } else {
+            colorInfo = fImage->imageInfo().colorInfo();
+        }
+        producer = new (&storage)
+                GrTextureAdjuster(args.fContext, std::move(view), colorInfo, pinnedUniqueID);
+    } else if (fImage->isLazyGenerated()) {
+        producer = new (&storage)
+                GrImageTextureMaker(args.fContext, fImage.get(), GrImageTexGenPolicy::kDraw);
+    } else if (as_IB(fImage)->getROPixels(&bm)) {
+        producer =
+                new (&storage) GrBitmapTextureMaker(args.fContext, bm, GrImageTexGenPolicy::kDraw);
+    } else {
         return nullptr;
     }
+    GrSamplerState::WrapMode wmX = SkTileModeToWrapMode(fTileModeX),
+                             wmY = SkTileModeToWrapMode(fTileModeY);
+    // Must set wrap and filter on the sampler before requesting a texture. In two places
+    // below we check the matrix scale factors to determine how to interpret the filter
+    // quality setting. This completely ignores the complexity of the drawVertices case
+    // where explicit local coords are provided by the caller.
+    bool doBicubic;
+    GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
+            fImage->width(), fImage->height(), this->resolveFiltering(args.fFilterQuality),
+            args.fMatrixProvider.localToDevice(), *lm,
+            args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
+    const GrSamplerState::Filter* filterOrNull = doBicubic ? nullptr : &textureFilterMode;
+    auto fp = producer->createFragmentProcessor(lmInverse, SkRect::Make(fImage->dimensions()),
+                                                GrTextureProducer::kNo_FilterConstraint, false, wmX,
+                                                wmY, filterOrNull);
 
-    SkAlphaType srcAlphaType = fImage->alphaType();
-
-    const auto& caps = *args.fContext->priv().caps();
-
-    std::unique_ptr<GrFragmentProcessor> inner;
-    if (doBicubic) {
-        static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        inner = GrBicubicEffect::Make(std::move(view), srcAlphaType, lmInverse, wmX, wmY, kDir,
-                                      caps);
-    } else {
-        GrSamplerState samplerState(wmX, wmY, textureFilterMode);
-        inner = GrTextureEffect::Make(std::move(view), srcAlphaType, lmInverse, samplerState, caps);
+    if (!fp) {
+        return nullptr;
     }
-    inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(), srcAlphaType,
-                                          args.fDstColorInfo->colorSpace());
-
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->colorSpace(), producer->alphaType(),
+                                       args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
     bool isAlphaOnly = SkColorTypeIsAlphaOnly(fImage->colorType());
     if (isAlphaOnly) {
-        return inner;
+        return fp;
     } else if (args.fInputColorIsOpaque) {
-        return GrFragmentProcessor::OverrideInput(std::move(inner), SK_PMColor4fWHITE, false);
+        return GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
     }
-    return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
+    return GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
 }
 
 #endif
@@ -240,7 +291,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                    const SkMatrix* localMatrix, SkCopyPixelsMode cpm) {
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm),
-                               tmx, tmy, localMatrix);
+                               tmx, tmy, localMatrix, SkImageShader::kInheritFromPaint);
 }
 
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
@@ -336,14 +387,15 @@ static void tweak_quality_and_inv_matrix(SkFilterQuality* quality, SkMatrix* mat
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
-    if (updater && rec.fPaint.getFilterQuality() == kMedium_SkFilterQuality) {
+    auto quality = this->resolveFiltering(rec.fPaint.getFilterQuality());
+
+    if (updater && quality == kMedium_SkFilterQuality) {
         // TODO: medium: recall RequestBitmap and update width/height accordingly
         return false;
     }
 
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
-    auto quality = rec.fPaint.getFilterQuality();
 
     SkMatrix matrix;
     if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM, &matrix)) {
@@ -614,12 +666,15 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
-skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                     const SkMatrix& ctm, const SkMatrix* localM,
+skvm::Color SkImageShader::onProgram(skvm::Builder* p,
+                                     skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                     const SkMatrixProvider& matrices, const SkMatrix* localM,
                                      SkFilterQuality quality, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    quality = this->resolveFiltering(quality);
+
     SkMatrix inv;
-    if (!this->computeTotalInverse(ctm, localM, &inv)) {
+    if (!this->computeTotalInverse(matrices.localToDevice(), localM, &inv)) {
         return {};
     }
 
@@ -636,7 +691,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
     inv.normalizePerspective();
 
     // Apply matrix to convert dst coords to sample center coords.
-    SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
+    local = SkShaderBase::ApplyMatrix(p, inv, local, uniforms);
 
     // Bail out if sample() can't yet handle our image's color type.
     switch (pm.colorType()) {
@@ -761,14 +816,14 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
     skvm::Color c;
 
     if (quality == kNone_SkFilterQuality) {
-        c = sample(x,y);
+        c = sample(local.x,local.y);
     } else if (quality == kLow_SkFilterQuality) {
         // Our four sample points are the corners of a logical 1x1 pixel
         // box surrounding (x,y) at (0.5,0.5) off-center.
-        skvm::F32 left   = x - 0.5f,
-                  top    = y - 0.5f,
-                  right  = x + 0.5f,
-                  bottom = y + 0.5f;
+        skvm::F32 left   = local.x - 0.5f,
+                  top    = local.y - 0.5f,
+                  right  = local.x + 0.5f,
+                  bottom = local.y + 0.5f;
 
         // The fractional parts of right and bottom are our lerp factors in x and y respectively.
         skvm::F32 fx = fract(right ),
@@ -781,8 +836,8 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
 
         // All bicubic samples have the same fractional offset (fx,fy) from the center.
         // They're either the 16 corners of a 3x3 grid/ surrounding (x,y) at (0.5,0.5) off-center.
-        skvm::F32 fx = fract(x + 0.5f),
-                  fy = fract(y + 0.5f);
+        skvm::F32 fx = fract(local.x + 0.5f),
+                  fy = fract(local.y + 0.5f);
 
         // See GrCubicEffect for details of these weights.
         // TODO: these maybe don't seem right looking at gm/bicubic and GrBicubicEffect.
@@ -809,9 +864,9 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
 
         c.r = c.g = c.b = c.a = p->splat(0.0f);
 
-        skvm::F32 sy = y - 1.5f;
+        skvm::F32 sy = local.y - 1.5f;
         for (int j = 0; j < 4; j++, sy += 1.0f) {
-            skvm::F32 sx = x - 1.5f;
+            skvm::F32 sx = local.x - 1.5f;
             for (int i = 0; i < 4; i++, sx += 1.0f) {
                 skvm::Color s = sample(sx,sy);
                 skvm::F32   w = wx[i] * wy[j];
@@ -859,4 +914,3 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
     SkColorSpaceXformSteps steps{cs,at, dst.colorSpace(),kPremul_SkAlphaType};
     return steps.program(p, uniforms, c);
 }
-

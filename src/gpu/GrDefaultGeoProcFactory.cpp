@@ -57,6 +57,7 @@ public:
     public:
         GLSLProcessor()
             : fViewMatrix(SkMatrix::InvalidMatrix())
+            , fLocalMatrix(SkMatrix::InvalidMatrix())
             , fColor(SK_PMColor4fILLEGAL)
             , fCoverage(0xff) {}
 
@@ -111,14 +112,14 @@ public:
                                       &fViewMatrixUniform);
 
             // emit transforms using either explicit local coords or positions
-            const auto& coordsAttr = gp.fInLocalCoords.isInitialized() ? gp.fInLocalCoords
-                                                                       : gp.fInPosition;
-            this->emitTransforms(vertBuilder,
-                                 varyingHandler,
-                                 uniformHandler,
-                                 coordsAttr.asShaderVar(),
-                                 gp.localMatrix(),
-                                 args.fFPCoordTransformHandler);
+            if (gp.fInLocalCoords.isInitialized()) {
+                SkASSERT(gp.localMatrix().isIdentity());
+                gpArgs->fLocalCoordVar = gp.fInLocalCoords.asShaderVar();
+            } else if (gp.fLocalCoordsWillBeRead) {
+                this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
+                                      gp.fInPosition.asShaderVar(), gp.localMatrix(),
+                                      &fLocalMatrixUniform);
+            }
 
             // Setup coverage as pass through
             if (gp.hasVertexCoverage() && !tweakAlpha) {
@@ -144,22 +145,21 @@ public:
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
             key |= (def.coverage() == 0xff) ? 0x80 : 0;
-            key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? 0x100 : 0;
-            key |= ComputePosKey(def.viewMatrix()) << 20;
+            key |= def.localCoordsWillBeRead() ? 0x100 : 0;
+
+            bool usesLocalMatrix = def.localCoordsWillBeRead() &&
+                                   !def.fInLocalCoords.isInitialized();
+            key = AddMatrixKeys(key, def.viewMatrix(),
+                                usesLocalMatrix ? def.localMatrix() : SkMatrix::I());
             b->add32(key);
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp,
-                     const CoordTransformRange& transformRange) override {
+                     const GrPrimitiveProcessor& gp) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
-            if (!dgp.viewMatrix().isIdentity() &&
-                !SkMatrixPriv::CheapEqual(fViewMatrix, dgp.viewMatrix()))
-            {
-                fViewMatrix = dgp.viewMatrix();
-                pdman.setSkMatrix(fViewMatrixUniform, fViewMatrix);
-            }
+            this->setTransform(pdman, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrix);
+            this->setTransform(pdman, fLocalMatrixUniform, dgp.localMatrix(), &fLocalMatrix);
 
             if (!dgp.hasVertexColor() && dgp.color() != fColor) {
                 pdman.set4fv(fColorUniform, 1, dgp.color().vec());
@@ -170,14 +170,15 @@ public:
                 pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(dgp.coverage()));
                 fCoverage = dgp.coverage();
             }
-            this->setTransformDataHelper(dgp.fLocalMatrix, pdman, transformRange);
         }
 
     private:
         SkMatrix fViewMatrix;
+        SkMatrix fLocalMatrix;
         SkPMColor4f fColor;
         uint8_t fCoverage;
         UniformHandle fViewMatrixUniform;
+        UniformHandle fLocalMatrixUniform;
         UniformHandle fColorUniform;
         UniformHandle fCoverageUniform;
 

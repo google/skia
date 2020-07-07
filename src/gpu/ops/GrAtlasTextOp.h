@@ -12,7 +12,6 @@
 #include "src/gpu/text/GrTextBlob.h"
 
 class GrRecordingContext;
-class SkAtlasTextTarget;
 
 class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
@@ -34,12 +33,11 @@ public:
         SkPoint     fDrawOrigin;
         GrTextBlob::SubRun* fSubRunPtr;
         SkPMColor4f fColor;
-        std::unique_ptr<GrTextBlob::Mask3DVertex[][4]> textTargetCreateVertexData(
-                int offset, int count) const;
+
         void fillVertexData(void* dst, int offset, int count) const;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRecordingContext* context,
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRenderTargetContext* rtc,
                                                      GrPaint&& paint,
                                                      GrTextBlob::SubRun* subrun,
                                                      const SkMatrix& drawMatrix,
@@ -48,7 +46,7 @@ public:
                                                      const SkPMColor4f& filteredColor);
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrRecordingContext*,
+            GrRenderTargetContext*,
             GrPaint&&,
             GrTextBlob::SubRun*,
             const SkMatrix& drawMatrix,
@@ -84,8 +82,15 @@ public:
 
     MaskType maskType() const { return fMaskType; }
 
-    void finalizeForTextTarget(uint32_t color, const GrCaps&);
-    void executeForTextTarget(SkAtlasTextTarget*);
+#if GR_TEST_UTILS
+    static std::unique_ptr<GrDrawOp> CreateOpTestingOnly(GrRenderTargetContext* rtc,
+                                                         const SkPaint& skPaint,
+                                                         const SkFont& font,
+                                                         const SkMatrixProvider& mtxProvider,
+                                                         const char* text,
+                                                         int x,
+                                                         int y);
+#endif
 
 private:
     friend class GrOpMemoryPool; // for ctor

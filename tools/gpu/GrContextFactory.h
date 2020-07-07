@@ -8,8 +8,8 @@
 #ifndef GrContextFactory_DEFINED
 #define GrContextFactory_DEFINED
 
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "include/private/SkTArray.h"
 #include "tools/gpu/gl/GLTestContext.h"
@@ -135,17 +135,17 @@ public:
      * overrides. To get multiple contexts in a single share group, pass the same shareContext,
      * with different values for shareIndex.
      */
-    ContextInfo getSharedContextInfo(GrContext* shareContext, uint32_t shareIndex = 0);
+    ContextInfo getSharedContextInfo(GrDirectContext* shareContext, uint32_t shareIndex = 0);
 
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone);
+    GrDirectContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone);
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
     ContextInfo getContextInfoInternal(ContextType type, ContextOverrides overrides,
-                                       GrContext* shareContext, uint32_t shareIndex);
+                                       GrDirectContext* shareContext, uint32_t shareIndex);
 
     struct Context {
         ContextType       fType;
@@ -153,8 +153,8 @@ private:
         GrContextOptions  fOptions;
         GrBackendApi      fBackend;
         TestContext*      fTestContext;
-        GrContext*        fGrContext;
-        GrContext*        fShareContext;
+        GrDirectContext*  fGrContext;
+        GrDirectContext*  fShareContext;
         uint32_t          fShareIndex;
 
         bool              fAbandoned;
@@ -172,8 +172,7 @@ public:
     GrContextFactory::ContextType type() const { return fType; }
     GrBackendApi backend() const { return GrContextFactory::ContextTypeBackend(fType); }
 
-    GrContext* grContext() const { return fGrContext; }
-
+    GrDirectContext* directContext() const { return fContext; }
     TestContext* testContext() const { return fTestContext; }
 
 #ifdef SK_GL
@@ -186,14 +185,16 @@ public:
     const GrContextOptions& options() const { return fOptions; }
 
 private:
-    ContextInfo(GrContextFactory::ContextType type, TestContext* testContext, GrContext* grContext,
+    ContextInfo(GrContextFactory::ContextType type,
+                TestContext* testContext,
+                GrDirectContext* context,
                 const GrContextOptions& options)
-            : fType(type), fTestContext(testContext), fGrContext(grContext), fOptions(options) {}
+            : fType(type), fTestContext(testContext), fContext(context), fOptions(options) {}
 
     GrContextFactory::ContextType fType = GrContextFactory::kGL_ContextType;
     // Valid until the factory destroys it via abandonContexts() or destroyContexts().
     TestContext* fTestContext = nullptr;
-    GrContext* fGrContext = nullptr;
+    GrDirectContext* fContext = nullptr;
     GrContextOptions fOptions;
 
     friend class GrContextFactory;

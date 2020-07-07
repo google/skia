@@ -18,8 +18,8 @@
 
 #include "include/core/SkImage.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -32,7 +32,7 @@
 #include "src/image/SkSurface_Gpu.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
 
     GrBackendTexture backendTex;
     CreateBackendTexture(context, &backendTex, 1, 1, kRGBA_8888_SkColorType, SkColors::kTransparent,
@@ -121,220 +121,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, invalidTexture));
 
     context->deleteBackendTexture(backendTex);
-}
-
-static void testing_release_proc(void* ctx) {
-    int* count = (int*)ctx;
-    *count += 1;
-}
-
-// Test to make sure we don't call our release proc on an image until we've transferred it back to
-// its original queue family.
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->priv().getGpu();
-    GrVkGpu* vkGpu = static_cast<GrVkGpu*>(gpu);
-    if (!vkGpu->vkCaps().supportsExternalMemory()) {
-        return;
-    }
-
-    for (bool useExternal : {false, true}) {
-        GrBackendTexture backendTex = context->createBackendTexture(1, 1,
-                                                                    kRGBA_8888_SkColorType,
-                                                                    SkColors::kTransparent,
-                                                                    GrMipMapped::kNo,
-                                                                    GrRenderable::kNo,
-                                                                    GrProtected::kNo);
-        sk_sp<SkImage> image;
-        int count = 0;
-        if (useExternal) {
-            // Make a backend texture with an external queue family;
-            GrVkImageInfo vkInfo;
-            if (!backendTex.getVkImageInfo(&vkInfo)) {
-                return;
-            }
-            vkInfo.fCurrentQueueFamily = VK_QUEUE_FAMILY_EXTERNAL;
-
-            GrBackendTexture vkExtTex(1, 1, vkInfo);
-            REPORTER_ASSERT(reporter, vkExtTex.isValid());
-            image = SkImage::MakeFromTexture(context, vkExtTex,
-                                             kTopLeft_GrSurfaceOrigin,
-                                             kRGBA_8888_SkColorType,
-                                             kPremul_SkAlphaType,
-                                             nullptr, testing_release_proc,
-                                             (void*)&count);
-
-        } else {
-            image = SkImage::MakeFromTexture(context, backendTex,
-                                             kTopLeft_GrSurfaceOrigin,
-                                             kRGBA_8888_SkColorType,
-                                             kPremul_SkAlphaType,
-                                             nullptr, testing_release_proc,
-                                             (void*)&count);
-        }
-
-        if (!image) {
-            continue;
-        }
-
-        REPORTER_ASSERT(reporter, !count);
-
-        SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image));
-        GrTexture* texture = gpuImage->getTexture();
-        REPORTER_ASSERT(reporter, texture);
-        GrVkTexture* vkTex = static_cast<GrVkTexture*>(texture);
-
-        if (useExternal) {
-            // Testing helper so we claim that we don't need to transition from our fake external
-            // queue first.
-            vkTex->setCurrentQueueFamilyToGraphicsQueue(vkGpu);
-        }
-
-        image.reset();
-
-        // Resetting the image should only trigger the release proc if we are not using an external
-        // queue. When using an external queue when we free the SkImage and the underlying
-        // GrTexture, we submit a queue transition on the command buffer.
-        if (useExternal) {
-            REPORTER_ASSERT(reporter, !count);
-        } else {
-            REPORTER_ASSERT(reporter, count == 1);
-        }
-
-        gpu->testingOnly_flushGpuAndSync();
-
-        // Now that we flushed and waited the release proc should have be triggered.
-        REPORTER_ASSERT(reporter, count == 1);
-
-        context->deleteBackendTexture(backendTex);
-    }
-}
-
-// Test to make sure we transition to the original queue when requests for prepareforexternalio are
-// in flush calls
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkPrepareForExternalIOQueueTransitionTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-
-    GrVkGpu* vkGpu = static_cast<GrVkGpu*>(context->priv().getGpu());
-    if (!vkGpu->vkCaps().supportsExternalMemory()) {
-        return;
-    }
-
-    for (bool useSurface : {false, true}) {
-        for (bool preparePresent : {false, true}) {
-            if (!useSurface && preparePresent) {
-                // We don't set textures to present
-                continue;
-            }
-            GrBackendTexture backendTex = context->createBackendTexture(
-                    4, 4, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, GrMipMapped::kNo,
-                    useSurface ? GrRenderable::kYes : GrRenderable::kNo,
-                    GrProtected::kNo);
-
-            // Make a backend texture with an external queue family and general layout.
-            GrVkImageInfo vkInfo;
-            if (!backendTex.getVkImageInfo(&vkInfo)) {
-                return;
-            }
-
-            // We can't actually make an external texture in our test. However, we lie and say it is
-            // and then will manually go and swap the queue to the graphics queue once we wrap it.
-            if (preparePresent) {
-                // We don't transition to present to things that are going to external for foreign
-                // queues.
-                vkInfo.fCurrentQueueFamily = vkGpu->queueIndex();
-            } else {
-                vkInfo.fCurrentQueueFamily = VK_QUEUE_FAMILY_EXTERNAL;
-            }
-
-            GrBackendTexture vkExtTex(1, 1, vkInfo);
-
-            sk_sp<SkImage> image;
-            sk_sp<SkSurface> surface;
-            GrTexture* texture;
-            if (useSurface) {
-                surface = SkSurface::MakeFromBackendTexture(context, vkExtTex,
-                        kTopLeft_GrSurfaceOrigin, 0, kRGBA_8888_SkColorType, nullptr, nullptr);
-                REPORTER_ASSERT(reporter, surface.get());
-                if (!surface) {
-                    continue;
-                }
-                SkSurface_Gpu* gpuSurface = static_cast<SkSurface_Gpu*>(surface.get());
-                auto* rtc = gpuSurface->getDevice()->accessRenderTargetContext();
-                texture = rtc->asTextureProxy()->peekTexture();
-            } else {
-                image = SkImage::MakeFromTexture(context, vkExtTex, kTopLeft_GrSurfaceOrigin,
-                        kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, nullptr, nullptr);
-
-                REPORTER_ASSERT(reporter, image.get());
-                if (!image) {
-                    continue;
-                }
-
-                SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image));
-                texture = gpuImage->getTexture();
-            }
-
-            REPORTER_ASSERT(reporter, texture);
-            GrVkTexture* vkTex = static_cast<GrVkTexture*>(texture);
-
-            // Testing helper so we claim that we don't need to transition from our fake external
-            // queue first.
-            vkTex->setCurrentQueueFamilyToGraphicsQueue(vkGpu);
-
-            GrBackendTexture newBackendTexture;
-            if (useSurface) {
-                newBackendTexture = surface->getBackendTexture(
-                        SkSurface::kFlushRead_TextureHandleAccess);
-            } else {
-                newBackendTexture = image->getBackendTexture(false);
-            }
-            GrVkImageInfo newVkInfo;
-            REPORTER_ASSERT(reporter, newBackendTexture.getVkImageInfo(&newVkInfo));
-            REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == vkGpu->queueIndex());
-            VkImageLayout oldLayout = newVkInfo.fImageLayout;
-
-            GrPrepareForExternalIORequests externalRequests;
-            SkImage* imagePtr;
-            SkSurface* surfacePtr;
-            if (useSurface) {
-                externalRequests.fNumSurfaces = 1;
-                surfacePtr = surface.get();
-                externalRequests.fSurfaces = &surfacePtr;
-                externalRequests.fPrepareSurfaceForPresent = &preparePresent;
-            } else {
-                externalRequests.fNumImages = 1;
-                imagePtr = image.get();
-                externalRequests.fImages = &imagePtr;
-
-            }
-            context->flush(GrFlushInfo(), externalRequests);
-            context->submit();
-
-            if (useSurface) {
-                newBackendTexture = surface->getBackendTexture(
-                        SkSurface::kFlushRead_TextureHandleAccess);
-            } else {
-                newBackendTexture = image->getBackendTexture(false);
-            }
-            REPORTER_ASSERT(reporter, newBackendTexture.getVkImageInfo(&newVkInfo));
-            if (preparePresent) {
-                REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == vkGpu->queueIndex());
-                REPORTER_ASSERT(reporter,
-                                newVkInfo.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-            } else {
-                REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == VK_QUEUE_FAMILY_EXTERNAL);
-                REPORTER_ASSERT(reporter, newVkInfo.fImageLayout == oldLayout);
-            }
-
-            GrFlushInfo flushInfo;
-            flushInfo.fFlags = kSyncCpu_GrFlushFlag;
-            context->flush(flushInfo);
-            context->submit(true);
-            context->deleteBackendTexture(backendTex);
-        }
-    }
 }
 
 // This test is disabled because it executes illegal vulkan calls which cause the validations layers

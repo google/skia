@@ -12,46 +12,6 @@
 #include "src/gpu/gl/GrGLUtil.h"
 #include <stdio.h>
 
-void GrGLClearErr(const GrGLInterface* gl) {
-    while (GR_GL_NO_ERROR != gl->fFunctions.fGetError()) {}
-}
-
-namespace {
-const char *get_error_string(uint32_t err) {
-    switch (err) {
-    case GR_GL_NO_ERROR:
-        return "";
-    case GR_GL_INVALID_ENUM:
-        return "Invalid Enum";
-    case GR_GL_INVALID_VALUE:
-        return "Invalid Value";
-    case GR_GL_INVALID_OPERATION:
-        return "Invalid Operation";
-    case GR_GL_OUT_OF_MEMORY:
-        return "Out of Memory";
-    case GR_GL_CONTEXT_LOST:
-        return "Context Lost";
-    }
-    return "Unknown";
-}
-}
-
-void GrGLCheckErr(const GrGLInterface* gl,
-                  const char* location,
-                  const char* call) {
-    uint32_t err = GR_GL_GET_ERROR(gl);
-    if (GR_GL_NO_ERROR != err) {
-        SkDebugf("---- glGetError 0x%x(%s)", err, get_error_string(err));
-        if (location) {
-            SkDebugf(" at\n\t%s", location);
-        }
-        if (call) {
-            SkDebugf("\n\t\t%s", call);
-        }
-        SkDebugf("\n");
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_GL_LOG_CALLS
@@ -584,6 +544,8 @@ std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer> GrGLGetANGLEInf
         }
     } else if (strstr(rendererString, "NVIDIA")) {
         vendor = GrGLANGLEVendor::kNVIDIA;
+    } else if (strstr(rendererString, "Radeon")) {
+        vendor = GrGLANGLEVendor::kAMD;
     }
     if (strstr(rendererString, "Direct3D11")) {
         backend = GrGLANGLEBackend::kD3D11;
@@ -679,40 +641,6 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
         case GrGLFormat::kRG16F:
         case GrGLFormat::kUnknown:
             return false;
-    }
-    SkUNREACHABLE;
-}
-
-SkImage::CompressionType GrGLFormatToCompressionType(GrGLFormat format) {
-    switch (format) {
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-            return SkImage::CompressionType::kETC2_RGB8_UNORM;
-        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
-            return SkImage::CompressionType::kBC1_RGB8_UNORM;
-        case GrGLFormat::kCOMPRESSED_RGBA8_BC1:
-            return SkImage::CompressionType::kBC1_RGBA8_UNORM;
-
-        case GrGLFormat::kRGBA8:
-        case GrGLFormat::kR8:
-        case GrGLFormat::kALPHA8:
-        case GrGLFormat::kLUMINANCE8:
-        case GrGLFormat::kBGRA8:
-        case GrGLFormat::kRGB565:
-        case GrGLFormat::kRGBA16F:
-        case GrGLFormat::kR16F:
-        case GrGLFormat::kLUMINANCE16F:
-        case GrGLFormat::kRGB8:
-        case GrGLFormat::kRG8:
-        case GrGLFormat::kRGB10_A2:
-        case GrGLFormat::kRGBA4:
-        case GrGLFormat::kSRGB8_ALPHA8:
-        case GrGLFormat::kR16:
-        case GrGLFormat::kRG16:
-        case GrGLFormat::kRGBA16:
-        case GrGLFormat::kRG16F:
-        case GrGLFormat::kUnknown:
-            return SkImage::CompressionType::kNone;
     }
     SkUNREACHABLE;
 }

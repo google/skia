@@ -17,8 +17,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
@@ -92,13 +92,14 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
         GrPaint paint;
 
         const SkPMColor4f color = { 1.0f, 0.0f, 0.0f, 1.0f };
-        auto fp = GrConstColorProcessor::Make(color, GrConstColorProcessor::InputMode::kIgnore);
+        auto fp = GrConstColorProcessor::Make(/*inputFP=*/nullptr, color,
+                                              GrConstColorProcessor::InputMode::kIgnore);
         paint.addColorFragmentProcessor(std::move(fp));
 
         rtc->drawPath(nullptr, std::move(paint), GrAA::kNo,
                       SkMatrix::I(), invPath, style);
 
-        rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+        rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
     }
 
     {
@@ -110,7 +111,8 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
         GrPaint paint;
 
         const SkPMColor4f color = { 0.0f, 1.0f, 0.0f, 1.0f };
-        auto fp = GrConstColorProcessor::Make(color, GrConstColorProcessor::InputMode::kIgnore);
+        auto fp = GrConstColorProcessor::Make(/*inputFP=*/nullptr, color,
+                                              GrConstColorProcessor::InputMode::kIgnore);
         paint.addColorFragmentProcessor(std::move(fp));
 
         rtc->drawPath(nullptr, std::move(paint), GrAA::kNo,
@@ -126,13 +128,12 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
             }
         }
     }
-
 }
 
 DEF_GPUTEST_FOR_CONTEXTS(GrDefaultPathRendererTest,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
                          reporter, ctxInfo, only_allow_default) {
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     run_test(ctx, reporter);
 }

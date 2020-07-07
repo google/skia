@@ -52,7 +52,7 @@ GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], in
         ASSERT_OWNED_PROXY(proxies[i]);
     }
     return fContext->drawingManager()->flushSurfaces(
-            proxies, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info);
+            proxies, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
 }
 
 void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
@@ -63,9 +63,9 @@ void GrContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     fContext->drawingManager()->moveRenderTasksToDDL(ddl);
 }
 
-void GrContextPriv::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
+void GrContextPriv::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
                                            GrRenderTargetProxy* newDest) {
-    fContext->drawingManager()->copyRenderTasksFromDDL(ddl, newDest);
+    fContext->drawingManager()->copyRenderTasksFromDDL(std::move(ddl), newDest);
 }
 
 bool GrContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
@@ -153,10 +153,6 @@ void GrContextPriv::printContextStats() const {
 }
 
 /////////////////////////////////////////////////
-void GrContextPriv::testingOnly_setTextBlobCacheLimit(size_t bytes) {
-    fContext->priv().getTextBlobCache()->setBudget(bytes);
-}
-
 sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format, unsigned int index) {
     auto atlasManager = this->getAtlasManager();
     if (!atlasManager) {

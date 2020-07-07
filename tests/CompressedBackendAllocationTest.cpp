@@ -6,10 +6,11 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipMap.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
@@ -35,9 +36,8 @@ static void check_solid_pixmap(skiatest::Reporter* reporter,
 
 // Create an SkImage to wrap 'backendTex'
 sk_sp<SkImage> create_image(GrContext* context, const GrBackendTexture& backendTex) {
-    const GrCaps* caps = context->priv().caps();
-
-    SkImage::CompressionType compression = caps->compressionType(backendTex.getBackendFormat());
+    SkImage::CompressionType compression =
+            GrBackendFormatToCompressionType(backendTex.getBackendFormat());
 
     SkAlphaType at = SkCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
@@ -236,7 +236,7 @@ static void test_compressed_data_init(GrContext* context,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     const GrCaps* caps = context->priv().caps();
 
     struct {

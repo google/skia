@@ -169,6 +169,11 @@ public:
 
     void checkFinishProcs() override;
 
+    // Calls glGetError() until no errors are reported. Also looks for OOMs.
+    void clearErrorsAndCheckForOOM();
+    // Calls glGetError() once and returns the result. Also looks for an OOM.
+    GrGLenum getErrorAndCheckForOOM();
+
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     void deleteSync(GrGLsync) const;
@@ -255,13 +260,15 @@ private:
     // returned. On failure, zero is returned.
     // The texture is populated with |texels|, if it is non-null.
     // The texture parameters are cached in |initialTexParams|.
-    GrGLuint createTexture2D(SkISize dimensions,
-                             GrGLFormat,
-                             GrRenderable,
-                             GrGLTextureParameters::SamplerOverriddenState*,
-                             int mipLevelCount);
+    GrGLuint createTexture(SkISize dimensions,
+                           GrGLFormat,
+                           GrGLenum target,
+                           GrRenderable,
+                           GrGLTextureParameters::SamplerOverriddenState*,
+                           int mipLevelCount);
 
     GrGLuint createCompressedTexture2D(SkISize dimensions,
+                                       SkImage::CompressionType compression,
                                        GrGLFormat,
                                        GrMipMapped,
                                        GrGLTextureParameters::SamplerOverriddenState*,
@@ -445,7 +452,8 @@ private:
 
     // Helper for onCreateCompressedTexture. Compressed textures are read-only so we only use this
     // to populate a new texture. Returns false if we failed to create and upload the texture.
-    bool uploadCompressedTexData(GrGLFormat,
+    bool uploadCompressedTexData(SkImage::CompressionType compressionType,
+                                 GrGLFormat,
                                  SkISize dimensions,
                                  GrMipMapped,
                                  GrGLenum target,

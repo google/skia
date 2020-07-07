@@ -11,6 +11,7 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -886,17 +887,21 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     }
 
+    bool hasTessellationSupport = false;
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fTessellationSupport =
-                version >= GR_GL_VER(4,0) ||
-                ctxInfo.hasExtension("GL_ARB_tessellation_shader");
-    } else {
-        if (version >= GR_GL_VER(3,2)) {
-            shaderCaps->fTessellationSupport = true;
-        } else if (ctxInfo.hasExtension("GL_OES_tessellation_shader")) {
-            shaderCaps->fTessellationSupport = true;
-            shaderCaps->fTessellationExtensionString = "GL_OES_tessellation_shader";
-        }
+        hasTessellationSupport = version >= GR_GL_VER(4,0) ||
+                                 ctxInfo.hasExtension("GL_ARB_tessellation_shader");
+    } else if (version >= GR_GL_VER(3,2)) {
+        hasTessellationSupport = true;
+    } else if (ctxInfo.hasExtension("GL_OES_tessellation_shader")) {
+        hasTessellationSupport = true;
+        shaderCaps->fTessellationExtensionString = "GL_OES_tessellation_shader";
+    }
+    if (hasTessellationSupport) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_TESS_GEN_LEVEL_OES,
+                          &shaderCaps->fMaxTessellationSegments);
+        // Just in case a driver returns a negative number?
+        shaderCaps->fMaxTessellationSegments = std::max(0, shaderCaps->fMaxTessellationSegments);
     }
 
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
@@ -3850,14 +3855,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
             if (ctxInfo.version() >= GR_GL_VER(4,2)) {
                 fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
             } else {
-                shaderCaps->fTessellationSupport = false;
+                shaderCaps->fMaxTessellationSegments = 0;
             }
         } else {
             // glMemoryBarrier wasn't around until es version 3.1.
             if (ctxInfo.version() >= GR_GL_VER(3,1)) {
                 fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
             } else {
-                shaderCaps->fTessellationSupport = false;
+                shaderCaps->fMaxTessellationSegments = 0;
             }
         }
     }
@@ -3865,7 +3870,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kQualcomm_GrGLDriver == ctxInfo.driver()) {
         // Qualcomm fails to link programs with tessellation and does not give an error message.
         // http://skbug.com/9740
-        shaderCaps->fTessellationSupport = false;
+        shaderCaps->fMaxTessellationSegments = 0;
     }
 
 #ifdef SK_BUILD_FOR_WIN
@@ -4002,6 +4007,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kANGLE_GrGLDriver == ctxInfo.driver()) {
         shaderCaps->fCanUseDoLoops = false;
     }
+
+    // ANGLE's D3D9 backend + AMD GPUs are flaky with program binary caching (skbug.com/10395)
+    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 &&
+        ctxInfo.angleVendor() == GrGLANGLEVendor::kAMD) {
+        fProgramBinarySupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
@@ -4110,7 +4121,7 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
 
-    SkImage::CompressionType compression = this->compressionType(srcBackendFormat);
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(srcBackendFormat);
     if (compression != SkImage::CompressionType::kNone) {
         return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888,
@@ -4190,25 +4201,10 @@ bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format.asGLFormat() == GrGLFormat::kSRGB8_ALPHA8;
 }
 
-SkImage::CompressionType GrGLCaps::compressionType(const GrBackendFormat& format) const {
-    auto fmt = format.asGLFormat();
-
-    switch (fmt) {
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: // same compression layout as ETC2_RGB8_UNORM
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-            return SkImage::CompressionType::kETC2_RGB8_UNORM;
-        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
-            return SkImage::CompressionType::kBC1_RGB8_UNORM;
-        case GrGLFormat::kCOMPRESSED_RGBA8_BC1:
-            return SkImage::CompressionType::kBC1_RGBA8_UNORM;
-        default:
-            return SkImage::CompressionType::kNone;
-    }
-
-    SkUNREACHABLE;
-}
-
 bool GrGLCaps::isFormatTexturable(const GrBackendFormat& format) const {
+    if (format.textureType() == GrTextureType::kRectangle && !this->rectangleTextureSupport()) {
+        return false;
+    }
     return this->isFormatTexturable(format.asGLFormat());
 }
 
@@ -4219,6 +4215,12 @@ bool GrGLCaps::isFormatTexturable(GrGLFormat format) const {
 
 bool GrGLCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                              int sampleCount) const {
+    if (format.textureType() == GrTextureType::kRectangle && !this->rectangleTextureSupport()) {
+        return false;
+    }
+    if (format.textureType() == GrTextureType::kExternal) {
+        return false;
+    }
     auto f = format.asGLFormat();
     const FormatInfo& info = this->getFormatInfo(f);
     if (!SkToBool(info.colorTypeFlags(ct) & ColorTypeInfo::kRenderable_Flag)) {
@@ -4229,6 +4231,12 @@ bool GrGLCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendForm
 }
 
 bool GrGLCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount) const {
+    if (format.textureType() == GrTextureType::kRectangle && !this->rectangleTextureSupport()) {
+        return false;
+    }
+    if (format.textureType() == GrTextureType::kExternal) {
+        return false;
+    }
     return this->isFormatRenderable(format.asGLFormat(), sampleCount);
 }
 
@@ -4340,13 +4348,6 @@ void GrGLCaps::didQueryImplementationReadSupport(GrGLFormat format,
 bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                  const GrBackendFormat& format) const {
     GrGLFormat glFormat = format.asGLFormat();
-
-    SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
-    if (compression != SkImage::CompressionType::kNone) {
-        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
-                                                             : GrColorType::kRGBA_8888);
-    }
-
     const auto& info = this->getFormatInfo(glFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -4395,8 +4396,9 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
     SkUNREACHABLE;
 }
 
-GrSwizzle GrGLCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
-    const auto& info = this->getFormatInfo(format.asGLFormat());
+GrSwizzle GrGLCaps::onGetReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+    GrGLFormat glFormat = format.asGLFormat();
+    const auto& info = this->getFormatInfo(glFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == colorType) {
@@ -4404,7 +4406,7 @@ GrSwizzle GrGLCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
         }
     }
     SkDEBUGFAILF("Illegal color type (%d) and format (%d) combination.", colorType,
-                 format.asGLFormat());
+                 glFormat);
     return {};
 }
 
@@ -4497,7 +4499,15 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinat
         combos.push_back({ GrColorType::kBGRA_8888,
                            GrBackendFormat::MakeGL(GR_GL_BGRA8, GR_GL_TEXTURE_2D) });
     }
-
+    if (this->rectangleTextureSupport()) {
+        size_t count2D = combos.size();
+        for (size_t i = 0; i < count2D; ++i) {
+            auto combo2D = combos[i];
+            GrGLenum formatEnum = GrGLFormatToEnum(combo2D.fFormat.asGLFormat());
+            combos.push_back({combo2D.fColorType,
+                              GrBackendFormat::MakeGL(formatEnum, GR_GL_TEXTURE_RECTANGLE)});
+        }
+    }
     return combos;
 }
 #endif

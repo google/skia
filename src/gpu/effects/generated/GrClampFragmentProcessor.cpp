@@ -25,11 +25,24 @@ public:
         (void)_outer;
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
+        SkString _input464(args.fInputColor);
+        SkString _sample464;
+        if (_outer.inputFP_index >= 0) {
+            _sample464 = this->invokeChild(_outer.inputFP_index, _input464.c_str(), args);
+        } else {
+            _sample464.swap(_input464);
+        }
         fragBuilder->codeAppendf(
-                "@if (%s) {\n    half alpha = clamp(%s.w, 0.0, 1.0);\n    %s = half4(clamp(%s.xyz, "
-                "0.0, alpha), alpha);\n} else {\n    %s = clamp(%s, 0.0, 1.0);\n}\n",
-                (_outer.clampToPremul ? "true" : "false"), args.fInputColor, args.fOutputColor,
-                args.fInputColor, args.fOutputColor, args.fInputColor);
+                R"SkSL(half4 inputColor = %s;
+@if (%s) {
+    half alpha = clamp(inputColor.w, 0.0, 1.0);
+    %s = half4(clamp(inputColor.xyz, 0.0, alpha), alpha);
+} else {
+    %s = clamp(inputColor, 0.0, 1.0);
+}
+)SkSL",
+                _sample464.c_str(), (_outer.clampToPremul ? "true" : "false"), args.fOutputColor,
+                args.fOutputColor);
     }
 
 private:
@@ -51,13 +64,17 @@ bool GrClampFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const
 }
 GrClampFragmentProcessor::GrClampFragmentProcessor(const GrClampFragmentProcessor& src)
         : INHERITED(kGrClampFragmentProcessor_ClassID, src.optimizationFlags())
-        , clampToPremul(src.clampToPremul) {}
+        , clampToPremul(src.clampToPremul) {
+    if (src.inputFP_index >= 0) {
+        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    }
+}
 std::unique_ptr<GrFragmentProcessor> GrClampFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrClampFragmentProcessor(*this));
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrClampFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrClampFragmentProcessor::TestCreate(GrProcessorTestData* d) {
-    return GrClampFragmentProcessor::Make(d->fRandom->nextBool());
+    return GrClampFragmentProcessor::Make(/*inputFP=*/nullptr, d->fRandom->nextBool());
 }
 #endif

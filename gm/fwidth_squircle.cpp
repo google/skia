@@ -15,7 +15,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
@@ -129,8 +129,8 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 const CoordTransformRange&) override {
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrPrimitiveProcessor& primProc) override {
         const auto& proc = primProc.cast<FwidthSquircleTestProcessor>();
         pdman.setSkMatrix(fViewMatrixHandle, proc.fViewMatrix);
     }
@@ -197,7 +197,7 @@ private:
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
         fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, writeView,
                                                std::move(appliedClip), dstProxyView);

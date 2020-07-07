@@ -10,6 +10,7 @@
 #include "tests/Test.h"
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceCache.h"
@@ -287,7 +288,7 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceCache* cache = context->priv().getResourceCache();
 

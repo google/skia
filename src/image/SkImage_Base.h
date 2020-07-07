@@ -46,6 +46,27 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
+    /**
+     * Default implementation does a rescale/read and then calls the callback.
+     */
+    virtual void onAsyncRescaleAndReadPixels(const SkImageInfo&,
+                                             const SkIRect& srcRect,
+                                             RescaleGamma,
+                                             SkFilterQuality,
+                                             ReadPixelsCallback,
+                                             ReadPixelsContext);
+    /**
+     * Default implementation does a rescale/read/yuv conversion and then calls the callback.
+     */
+    virtual void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+                                                   sk_sp<SkColorSpace> dstColorSpace,
+                                                   const SkIRect& srcRect,
+                                                   const SkISize& dstSize,
+                                                   RescaleGamma,
+                                                   SkFilterQuality,
+                                                   ReadPixelsCallback,
+                                                   ReadPixelsContext);
+
     virtual GrContext* context() const { return nullptr; }
 
 #if SK_SUPPORT_GPU

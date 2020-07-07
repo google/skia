@@ -51,7 +51,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override { return SkISize::Make(970, 780); }
+    SkISize onISize() override { return SkISize::Make(388, 780); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPath path;
@@ -92,9 +92,6 @@ protected:
         } gOps[] = { //extra spaces in names for measureText
             {kIntersect_SkClipOp,         "Isect "},
             {kDifference_SkClipOp,        "Diff " },
-            {kUnion_SkClipOp,             "Union "},
-            {kXOR_SkClipOp,               "Xor "  },
-            {kReverseDifference_SkClipOp, "RDiff "}
         };
 
         canvas->translate(20, 20);

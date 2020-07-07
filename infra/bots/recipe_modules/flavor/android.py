@@ -42,7 +42,7 @@ class AndroidFlavor(default.DefaultFlavor):
     # on the list, we fail the task to avoid perf inconsistencies.
     self.rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930FD', 'GalaxyS9',
                                'GalaxyS20', 'MotoG4', 'NVIDIA_Shield',
-                               'P30', 'TecnoSpark3Pro']
+                               'P30', 'Pixel4XL', 'TecnoSpark3Pro']
 
     # Maps device type -> CPU ids that should be scaled for nanobench.
     # Many devices have two (or more) different CPUs (e.g. big.LITTLE
@@ -350,7 +350,7 @@ if actual_freq != str(freq):
   def _asan_setup_path(self):
     return self.m.vars.slave_dir.join(
         'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt', 'linux-x86_64',
-        'lib64', 'clang', '8.0.7', 'bin', 'asan_device_setup')
+        'lib64', 'clang', '9.0.8', 'bin', 'asan_device_setup')
 
 
   def install(self):

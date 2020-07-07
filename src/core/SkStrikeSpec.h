@@ -13,7 +13,7 @@
 #include "src/core/SkStrikeForGPU.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 class GrStrikeCache;
 class GrTextStrike;
 #endif
@@ -67,7 +67,7 @@ public:
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
             const SkMatrix& deviceMatrix,
-            const GrTextContext::Options& options);
+            const GrSDFTOptions& options);
 
     sk_sp<GrTextStrike> findOrCreateGrStrike(GrStrikeCache* cache) const;
 #endif

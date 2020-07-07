@@ -13,12 +13,12 @@ namespace textlayout {
 
 enum InternalState {
   kUnknown = 0,
-  kShaped = 1,
-  kClusterized = 2,
-  kMarked = 3,
-  kLineBroken = 4,
-  kFormatted = 5,
-  kDrawn = 6
+  kShaped = 2,
+  kClusterized = 3,
+  kMarked = 4,
+  kLineBroken = 5,
+  kFormatted = 6,
+  kDrawn = 7
 };
 
 class ParagraphImpl;

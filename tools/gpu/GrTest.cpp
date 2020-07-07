@@ -8,7 +8,7 @@
 #include "include/core/SkString.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrClip.h"
@@ -69,7 +69,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(
         std::unique_ptr<GrDrawOp> op,
         const std::function<GrRenderTargetContext::WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
-    if (fRenderTargetContext->fContext->priv().abandoned()) {
+    if (fRenderTargetContext->fContext->abandoned()) {
         fRenderTargetContext->fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }

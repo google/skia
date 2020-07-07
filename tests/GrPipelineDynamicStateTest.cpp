@@ -8,8 +8,8 @@
 #include "include/core/SkTypes.h"
 #include "tests/Test.h"
 
-#include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -91,8 +91,7 @@ private:
 constexpr GrPrimitiveProcessor::Attribute GrPipelineDynamicStateTestProcessor::kAttributes[];
 
 class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange&) final {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrPipelineDynamicStateTestProcessor& mp =
@@ -185,7 +184,7 @@ private:
 };
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrResourceProvider* rp = context->priv().resourceProvider();
 
     auto rtc = GrRenderTargetContext::Make(

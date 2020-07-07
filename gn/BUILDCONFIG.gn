@@ -29,8 +29,6 @@ declare_args() {
 
   clang_win = ""
   clang_win_version = ""
-
-  werror = false
 }
 declare_args() {
   is_debug = !is_official_build

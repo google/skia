@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkStrokeRec.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawOpTest.h"
@@ -155,14 +156,9 @@ private:
 
             // Setup position
             this->writeOutputPosition(vertBuilder, gpArgs, cgp.fInPosition.name());
-
-            // emit transforms
-            this->emitTransforms(vertBuilder,
-                                 varyingHandler,
-                                 uniformHandler,
-                                 cgp.fInPosition.asShaderVar(),
-                                 cgp.fLocalMatrix,
-                                 args.fFPCoordTransformHandler);
+            this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
+                                  cgp.fInPosition.asShaderVar(), cgp.fLocalMatrix,
+                                  &fLocalMatrixUniform);
 
             fragBuilder->codeAppend("float d = length(circleEdge.xy);");
             fragBuilder->codeAppend("half distanceToOuterEdge = half(circleEdge.z * (1.0 - d));");
@@ -210,24 +206,28 @@ private:
                            const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             const CircleGeometryProcessor& cgp = gp.cast<CircleGeometryProcessor>();
-            uint16_t key;
+            uint32_t key;
             key = cgp.fStroke ? 0x01 : 0x0;
-            key |= cgp.fLocalMatrix.hasPerspective() ? 0x02 : 0x0;
-            key |= cgp.fInClipPlane.isInitialized() ? 0x04 : 0x0;
-            key |= cgp.fInIsectPlane.isInitialized() ? 0x08 : 0x0;
-            key |= cgp.fInUnionPlane.isInitialized() ? 0x10 : 0x0;
-            key |= cgp.fInRoundCapCenters.isInitialized() ? 0x20 : 0x0;
+            key |= cgp.fInClipPlane.isInitialized() ? 0x02 : 0x0;
+            key |= cgp.fInIsectPlane.isInitialized() ? 0x04 : 0x0;
+            key |= cgp.fInUnionPlane.isInitialized() ? 0x08 : 0x0;
+            key |= cgp.fInRoundCapCenters.isInitialized() ? 0x10 : 0x0;
+            key |= (ComputeMatrixKey(cgp.fLocalMatrix) << 16);
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     const CoordTransformRange& transformRange) override {
-            this->setTransformDataHelper(primProc.cast<CircleGeometryProcessor>().fLocalMatrix,
-                                         pdman, transformRange);
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& primProc) override {
+            this->setTransform(pdman, fLocalMatrixUniform,
+                               primProc.cast<CircleGeometryProcessor>().fLocalMatrix,
+                               &fLocalMatrix);
         }
 
     private:
         typedef GrGLSLGeometryProcessor INHERITED;
+
+        SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
+        UniformHandle fLocalMatrixUniform;
     };
 
     SkMatrix fLocalMatrix;
@@ -389,14 +389,10 @@ private:
 
             // Setup position
             this->writeOutputPosition(vertBuilder, gpArgs, bcscgp.fInPosition.name());
+            this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
+                                  bcscgp.fInPosition.asShaderVar(), bcscgp.fLocalMatrix,
+                                  &fLocalMatrixUniform);
 
-            // emit transforms
-            this->emitTransforms(vertBuilder,
-                                 varyingHandler,
-                                 uniformHandler,
-                                 bcscgp.fInPosition.asShaderVar(),
-                                 bcscgp.fLocalMatrix,
-                                 args.fFPCoordTransformHandler);
             GrShaderVar fnArgs[] = {
                     GrShaderVar("angleToEdge", kFloat_GrSLType),
                     GrShaderVar("diameter", kFloat_GrSLType),
@@ -477,18 +473,21 @@ private:
                            GrProcessorKeyBuilder* b) {
             const ButtCapDashedCircleGeometryProcessor& bcscgp =
                     gp.cast<ButtCapDashedCircleGeometryProcessor>();
-            b->add32(bcscgp.fLocalMatrix.hasPerspective());
+            b->add32(ComputeMatrixKey(bcscgp.fLocalMatrix));
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     const CoordTransformRange& transformRange) override {
-            this->setTransformDataHelper(
-                    primProc.cast<ButtCapDashedCircleGeometryProcessor>().fLocalMatrix, pdman,
-                    transformRange);
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& primProc) override {
+            this->setTransform(pdman, fLocalMatrixUniform,
+                               primProc.cast<ButtCapDashedCircleGeometryProcessor>().fLocalMatrix,
+                               &fLocalMatrix);
         }
 
     private:
         typedef GrGLSLGeometryProcessor INHERITED;
+
+        SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
+        UniformHandle fLocalMatrixUniform;
     };
 
     SkMatrix fLocalMatrix;
@@ -588,14 +587,10 @@ private:
 
             // Setup position
             this->writeOutputPosition(vertBuilder, gpArgs, egp.fInPosition.name());
+            this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
+                                  egp.fInPosition.asShaderVar(), egp.fLocalMatrix,
+                                  &fLocalMatrixUniform);
 
-            // emit transforms
-            this->emitTransforms(vertBuilder,
-                                 varyingHandler,
-                                 uniformHandler,
-                                 egp.fInPosition.asShaderVar(),
-                                 egp.fLocalMatrix,
-                                 args.fFPCoordTransformHandler);
             // For stroked ellipses, we use the full ellipse equation (x^2/a^2 + y^2/b^2 = 1)
             // to compute both the edges because we need two separate test equations for
             // the single offset.
@@ -666,19 +661,22 @@ private:
                            const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             const EllipseGeometryProcessor& egp = gp.cast<EllipseGeometryProcessor>();
-            uint16_t key = egp.fStroke ? 0x1 : 0x0;
-            key |= egp.fLocalMatrix.hasPerspective() ? 0x2 : 0x0;
+            uint32_t key = egp.fStroke ? 0x1 : 0x0;
+            key |= ComputeMatrixKey(egp.fLocalMatrix) << 1;
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     const CoordTransformRange& transformRange) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& primProc) override {
             const EllipseGeometryProcessor& egp = primProc.cast<EllipseGeometryProcessor>();
-            this->setTransformDataHelper(egp.fLocalMatrix, pdman, transformRange);
+            this->setTransform(pdman, fLocalMatrixUniform, egp.fLocalMatrix, &fLocalMatrix);
         }
 
     private:
         typedef GrGLSLGeometryProcessor INHERITED;
+
+        SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
+        UniformHandle fLocalMatrixUniform;
     };
 
     Attribute fInPosition;
@@ -791,13 +789,7 @@ private:
                                       diegp.fInPosition.name(),
                                       diegp.fViewMatrix,
                                       &fViewMatrixUniform);
-
-            // emit transforms
-            this->emitTransforms(vertBuilder,
-                                 varyingHandler,
-                                 uniformHandler,
-                                 diegp.fInPosition.asShaderVar(),
-                                 args.fFPCoordTransformHandler);
+            gpArgs->fLocalCoordVar = diegp.fInPosition.asShaderVar();
 
             // for outer curve
             fragBuilder->codeAppendf("float2 scaledOffset = %s.xy;", offsets0.fsIn());
@@ -862,26 +854,20 @@ private:
                            const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
-            uint16_t key = static_cast<uint16_t>(diegp.fStyle);
-            key |= ComputePosKey(diegp.fViewMatrix) << 10;
+            uint32_t key = static_cast<uint32_t>(diegp.fStyle);
+            key |= ComputeMatrixKey(diegp.fViewMatrix) << 10;
             b->add32(key);
         }
 
-        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
-                     const CoordTransformRange& transformRange) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& gp) override {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
 
-            if (!diegp.fViewMatrix.isIdentity() &&
-                !SkMatrixPriv::CheapEqual(fViewMatrix, diegp.fViewMatrix))
-            {
-                fViewMatrix = diegp.fViewMatrix;
-                pdman.setSkMatrix(fViewMatrixUniform, fViewMatrix);
-            }
-            this->setTransformDataHelper(SkMatrix::I(), pdman, transformRange);
+            this->setTransform(pdman, fViewMatrixUniform, diegp.fViewMatrix, &fViewMatrix);
         }
 
     private:
-        SkMatrix fViewMatrix;
+        SkMatrix      fViewMatrix;
         UniformHandle fViewMatrixUniform;
 
         typedef GrGLSLGeometryProcessor INHERITED;

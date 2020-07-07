@@ -108,7 +108,7 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
         SkScalar y = 0;
         static constexpr SkScalar kDX = 12.f;
@@ -126,8 +126,8 @@ protected:
                 path->transform(m, &p);
 
                 GrClipEdgeType edgeType = (GrClipEdgeType) et;
-                std::unique_ptr<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, p));
-                if (!fp) {
+                auto [success, fp] = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, edgeType, p);
+                if (!success) {
                     continue;
                 }
 
@@ -165,8 +165,8 @@ protected:
             for (int et = 0; et < kGrClipEdgeTypeCnt; ++et) {
                 SkRect rect = iter.get()->makeOffset(x, y);
                 GrClipEdgeType edgeType = (GrClipEdgeType) et;
-                std::unique_ptr<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, rect));
-                if (!fp) {
+                auto [success, fp] = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, edgeType, rect);
+                if (!success) {
                     continue;
                 }
 

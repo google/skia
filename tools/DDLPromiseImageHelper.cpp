@@ -128,6 +128,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
     auto beTex = context->createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo,
                                                markFinished, &finishedBECreate);
     if (beTex.isValid()) {
+        context->submit();
         while (!finishedBECreate) {
             context->checkAsyncWorkCompletion();
         }
@@ -142,7 +143,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
  */
 void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
                                                             PromiseImageInfo* info) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 
     if (info->isYUV()) {
         int numPixmaps;
@@ -175,6 +176,7 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
                                                         GrRenderable::kNo, GrProtected::kNo,
                                                         markFinished, &finishedBECreate);
         SkASSERT(backendTex.isValid());
+        context->submit();
         while (!finishedBECreate) {
             context->checkAsyncWorkCompletion();
         }
@@ -185,7 +187,7 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrContext* context,
 
 void DDLPromiseImageHelper::DeleteBETexturesForPromiseImage(GrContext* context,
                                                             PromiseImageInfo* info) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 
     if (info->isYUV()) {
         int numPixmaps;
@@ -255,7 +257,7 @@ void DDLPromiseImageHelper::createCallbackContexts(GrContext* context) {
 }
 
 void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* context) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 
     if (taskGroup) {
         for (int i = 0; i < fImageInfo.count(); ++i) {
@@ -271,7 +273,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrContext* co
 }
 
 void DDLPromiseImageHelper::deleteAllFromGPU(SkTaskGroup* taskGroup, GrContext* context) {
-    SkASSERT(context->priv().asDirectContext());
+    SkASSERT(context->asDirectContext());
 
     if (taskGroup) {
         for (int i = 0; i < fImageInfo.count(); ++i) {

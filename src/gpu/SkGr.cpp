@@ -13,13 +13,14 @@
 #include "include/core/SkPixelRef.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrRecordingContext.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlendModePriv.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
@@ -204,6 +205,8 @@ static inline float dither_range_for_config(GrColorType dstColorType) {
     switch (dstColorType) {
         // 4 bit
         case GrColorType::kABGR_4444:
+        case GrColorType::kARGB_4444:
+        case GrColorType::kBGRA_4444:
             return 1 / 15.f;
         // 6 bit
         case GrColorType::kBGR_565:
@@ -262,15 +265,17 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
-    std::unique_ptr<GrFragmentProcessor> shaderFP;
+    std::unique_ptr<GrFragmentProcessor> paintFP;
     if (!primColorMode || blend_requires_shader(*primColorMode)) {
         fpArgs.fInputColorIsOpaque = origColor.isOpaque();
         if (shaderProcessor) {
-            shaderFP = std::move(*shaderProcessor);
-        } else if (const auto* shader = as_SB(skPaint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(fpArgs);
-            if (!shaderFP) {
-                return false;
+            paintFP = std::move(*shaderProcessor);
+        } else {
+            if (const SkShaderBase* shader = as_SB(skPaint.getShader())) {
+                paintFP = shader->asFragmentProcessor(fpArgs);
+                if (paintFP == nullptr) {
+                    return false;
+                }
             }
         }
     }
@@ -279,7 +284,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     // a known constant value. In that case we can simply apply a color filter during this
     // conversion without converting the color filter to a GrFragmentProcessor.
     bool applyColorFilterToPaintColor = false;
-    if (shaderFP) {
+    if (paintFP) {
         if (primColorMode) {
             // There is a blend between the primitive color and the shader color. The shader sees
             // the opaque paint color. The shader's output is blended using the provided mode by
@@ -289,43 +294,33 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             // the GrPaint color will be ignored.
 
             SkPMColor4f shaderInput = origColor.makeOpaque().premul();
-            shaderFP = GrFragmentProcessor::OverrideInput(std::move(shaderFP), shaderInput);
-            shaderFP = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(shaderFP),
-                                                                         *primColorMode);
-
-            // The above may return null if compose results in a pass through of the prim color.
-            if (shaderFP) {
-                grPaint->addColorFragmentProcessor(std::move(shaderFP));
-            }
+            paintFP = GrFragmentProcessor::OverrideInput(std::move(paintFP), shaderInput);
+            paintFP = GrXfermodeFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
+                                                        *primColorMode);
 
             // We can ignore origColor here - alpha is unchanged by gamma
             float paintAlpha = skPaint.getColor4f().fA;
             if (1.0f != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
-                grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
-                    { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
-                    GrConstColorProcessor::InputMode::kModulateRGBA));
+                paintFP = GrConstColorProcessor::Make(
+                    std::move(paintFP), { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
+                    GrConstColorProcessor::InputMode::kModulateRGBA);
             }
         } else {
             // The shader's FP sees the paint *unpremul* color
             SkPMColor4f origColorAsPM = { origColor.fR, origColor.fG, origColor.fB, origColor.fA };
             grPaint->setColor4f(origColorAsPM);
-            grPaint->addColorFragmentProcessor(std::move(shaderFP));
         }
     } else {
         if (primColorMode) {
             // There is a blend between the primitive color and the paint color. The blend considers
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
             SkPMColor4f opaqueColor = origColor.makeOpaque().premul();
-            auto processor = GrConstColorProcessor::Make(opaqueColor,
-                                                         GrConstColorProcessor::InputMode::kIgnore);
-            processor = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(processor),
-                                                                          *primColorMode);
-            if (processor) {
-                grPaint->addColorFragmentProcessor(std::move(processor));
-            }
-
+            paintFP = GrConstColorProcessor::Make(/*inputFP=*/nullptr, opaqueColor,
+                                                  GrConstColorProcessor::InputMode::kIgnore);
+            paintFP = GrXfermodeFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
+                                                        *primColorMode);
             grPaint->setColor4f(opaqueColor);
 
             // We can ignore origColor here - alpha is unchanged by gamma
@@ -333,9 +328,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             if (1.0f != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
-                grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
-                    { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
-                    GrConstColorProcessor::InputMode::kModulateRGBA));
+                paintFP = GrConstColorProcessor::Make(
+                    std::move(paintFP), { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
+                    GrConstColorProcessor::InputMode::kModulateRGBA);
             }
         } else {
             // No shader, no primitive color.
@@ -350,13 +345,17 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             SkColorSpace* dstCS = dstColorInfo.colorSpace();
             grPaint->setColor4f(colorFilter->filterColor4f(origColor, dstCS, dstCS).premul());
         } else {
-            auto cfFP = colorFilter->asFragmentProcessor(context, dstColorInfo);
-            if (cfFP) {
-                grPaint->addColorFragmentProcessor(std::move(cfFP));
-            } else {
+            auto [success, fp] = as_CFB(colorFilter)->asFragmentProcessor(std::move(paintFP),
+                                                                          context, dstColorInfo);
+            if (!success) {
                 return false;
             }
+            paintFP = std::move(fp);
         }
+    }
+
+    if (paintFP) {
+        grPaint->addColorFragmentProcessor(std::move(paintFP));
     }
 
     SkMaskFilterBase* maskFilter = as_MFB(skPaint.getMaskFilter());
@@ -385,9 +384,6 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             auto ditherFP = GrSkSLFP::Make(context, effect, "Dither",
                                            SkData::MakeWithCopy(&ditherRange, sizeof(ditherRange)));
             if (ditherFP) {
-                // The dither shader doesn't actually use input coordinates, but if we don't set
-                // this flag, the generated shader includes an extra local coord varying.
-                ditherFP->setSampledWithExplicitCoords();
                 grPaint->addColorFragmentProcessor(std::move(ditherFP));
             }
         }
@@ -395,7 +391,8 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 #endif
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {
         if (grPaint->numColorFragmentProcessors()) {
-            grPaint->addColorFragmentProcessor(GrClampFragmentProcessor::Make(false));
+            grPaint->addColorFragmentProcessor(
+                GrClampFragmentProcessor::Make(/*inputFP=*/nullptr, /*clampToPremul=*/false));
         } else {
             auto color = grPaint->getColor4f();
             grPaint->setColor4f({SkTPin(color.fR, 0.f, 1.f),

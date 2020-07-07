@@ -37,14 +37,14 @@ public:
     }
 
     void freeGpuResources() override {
-        SkASSERT(0); // freeing resources in a DDL Recorder doesn't make a whole lot of sense
-        INHERITED::freeGpuResources();
+        // freeing resources in a DDL Recorder doesn't make a whole lot of sense but some of
+        // our tests do it anyways
     }
 
 private:
     // TODO: Here we're pretending this isn't derived from GrContext. Switch this to be derived from
     // GrRecordingContext!
-    GrContext* asDirectContext() override { return nullptr; }
+    GrDirectContext* asDirectContext() override { return nullptr; }
 
     bool init() override {
         if (!INHERITED::init()) {
@@ -71,10 +71,10 @@ private:
 
         const GrCaps* caps = this->caps();
 
-        if (this->backend() == GrBackendApi::kVulkan ||
-            this->backend() == GrBackendApi::kMetal ||
+        if (this->backend() == GrBackendApi::kMetal ||
+            this->backend() == GrBackendApi::kDirect3D ||
             this->backend() == GrBackendApi::kDawn) {
-            // Currently, Vulkan, Metal and Dawn require a live renderTarget to
+            // Currently Metal, Direct3D, and Dawn require a live renderTarget to
             // compute the key
             return;
         }

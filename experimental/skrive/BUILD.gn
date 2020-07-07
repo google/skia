@@ -1,0 +1,52 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+if (skia_enable_skrive) {
+  config("public_config") {
+    defines = [ "SK_ENABLE_SKRIVE" ]
+    include_dirs = [ "include" ]
+  }
+
+  component("skrive") {
+    check_includes = false
+    import("skrive.gni")
+    public_configs = [ ":public_config" ]
+    public = skia_skrive_public
+    sources = skia_skrive_sources
+    configs += [ "../../:skia_private" ]
+    deps = [ "../..:skia" ]
+  }
+
+  if (defined(is_skia_standalone)) {
+    if (skia_enable_tools) {
+      source_set("tests") {
+        testonly = true
+
+        configs += [
+          "../..:skia_private",
+          "../..:tests_config",
+        ]
+        sources = [
+          "tests/BinaryReader.cpp",
+          "tests/DomTypes.cpp",
+          "tests/JsonReader.cpp",
+        ]
+
+        deps = [
+          ":skrive",
+          "../..:gpu_tool_utils",
+          "../..:skia",
+        ]
+      }
+    }
+  }
+} else {
+  group("skrive") {
+  }
+  group("tests") {
+  }
+}

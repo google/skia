@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPath.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -33,7 +32,7 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
 }
 
 static bool has_matrix(const GrFragmentProcessor& fp) {
-    if (fp.sampleMatrix().fKind != SkSL::SampleMatrix::Kind::kNone) {
+    if (fp.sampleUsage().hasMatrix()) {
         return true;
     }
     for (int i = fp.numChildProcessors() - 1; i >= 0; --i) {
@@ -125,15 +124,16 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                            args.fRenderTargetContext->height()); // Inverse fill.
 
         // fake inverse with a stencil and cover
-        GrAppliedClip appliedClip;
-        if (args.fClip && !args.fClip->apply(
+        GrAppliedClip appliedClip(args.fRenderTargetContext->dimensions());
+        if (args.fClip && args.fClip->apply(
                 args.fContext, args.fRenderTargetContext, doStencilMSAA, true, &appliedClip,
-                &devBounds)) {
+                &devBounds) == GrClip::Effect::kClippedOut) {
             return true;
         }
-        GrStencilClip stencilClip(appliedClip.stencilStackID());
+        GrStencilClip stencilClip(args.fRenderTargetContext->dimensions(),
+                                  appliedClip.stencilStackID());
         if (appliedClip.scissorState().enabled()) {
-            stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect());
+            SkAssertResult(stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect()));
         }
         if (appliedClip.windowRectsState().enabled()) {
             stencilClip.fixedClip().setWindowRectangles(appliedClip.windowRectsState().windows(),

@@ -17,8 +17,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrBuffer.h"
@@ -71,7 +71,7 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
 class ClockwiseGM : public skiagm::GpuGM {
     SkString onShortName() override { return SkString("clockwise"); }
     SkISize onISize() override { return {300, 200}; }
-    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) override;
+    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas*) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,8 +108,7 @@ private:
 };
 
 class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 const CoordTransformRange&) override {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const ClockwiseTestProcessor& proc = args.fGP.cast<ClockwiseTestProcessor>();
@@ -188,7 +187,7 @@ private:
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
         fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, writeView,
                                                std::move(appliedClip), dstProxyView);
@@ -240,7 +239,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas) {
+void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas) {
     rtc->clear(SK_PMColor4fBLACK);
 
     // Draw the test directly to the frame buffer.

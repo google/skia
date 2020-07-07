@@ -11,6 +11,7 @@
 #include "gm/gm.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkFont.h"
+#include "include/gpu/GrContextOptions.h"
 #include "src/core/SkScan.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -44,6 +45,8 @@ public:
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
     bool onPinch(skui::InputState state, float scale, float x, float y) override;
     bool onFling(skui::InputState state) override;
+
+    static GrContextOptions::ShaderErrorHandler* ShaderErrorHandler();
 
     struct SkFontFields {
         bool fTypeface = false;
@@ -193,7 +196,7 @@ private:
     SkFontFields fFontOverrides;
     bool fPixelGeometryOverrides = false;
 
-    struct CachedGLSL {
+    struct CachedShader {
         bool                fHovered = false;
 
         sk_sp<const SkData> fKey;
@@ -205,7 +208,7 @@ private:
     };
 
     sk_gpu_test::MemoryCache fPersistentCache;
-    SkTArray<CachedGLSL>     fCachedGLSL;
+    SkTArray<CachedShader>   fCachedShaders;
 };
 
 #endif

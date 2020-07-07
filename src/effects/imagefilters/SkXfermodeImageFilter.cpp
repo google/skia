@@ -15,7 +15,7 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -268,11 +268,11 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
         bgFP = GrTextureEffect::MakeSubset(std::move(backgroundView), background->alphaType(),
                                            bgMatrix, sampler, bgSubset, caps);
-        bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
-                                             background->alphaType(),
-                                             ctx.colorSpace());
+        bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP),
+                                             background->getColorSpace(), background->alphaType(),
+                                             ctx.colorSpace(), kPremul_SkAlphaType);
     } else {
-        bgFP = GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
+        bgFP = GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fTRANSPARENT,
                                            GrConstColorProcessor::InputMode::kIgnore);
     }
 
@@ -284,9 +284,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
         auto fgFP = GrTextureEffect::MakeSubset(std::move(foregroundView), foreground->alphaType(),
                                                 fgMatrix, sampler, fgSubset, caps);
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP),
-                                             foreground->getColorSpace(),
-                                             foreground->alphaType(),
-                                             ctx.colorSpace());
+                                             foreground->getColorSpace(), foreground->alphaType(),
+                                             ctx.colorSpace(), kPremul_SkAlphaType);
         paint.addColorFragmentProcessor(std::move(fgFP));
 
         std::unique_ptr<GrFragmentProcessor> xferFP = this->makeFGFrag(std::move(bgFP));
@@ -322,7 +321,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
 
 std::unique_ptr<GrFragmentProcessor> SkXfermodeImageFilterImpl::makeFGFrag(
         std::unique_ptr<GrFragmentProcessor> bgFP) const {
-    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(bgFP), fMode);
+    return GrXfermodeFragmentProcessor::Make(/*src=*/nullptr, std::move(bgFP), fMode);
 }
 
 #endif

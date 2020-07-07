@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -43,29 +44,6 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy)
 
 GrRecordingContext::~GrRecordingContext() = default;
 
-bool GrRecordingContext::init() {
-
-    if (!INHERITED::init()) {
-        return false;
-    }
-
-    auto overBudget = [this]() {
-        if (GrContext* direct = this->priv().asDirectContext(); direct != nullptr) {
-
-            // TODO: move text blob draw calls below context
-            // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on
-            // GrRenderTargetContext to perform a necessary flush. The solution is to move drawText
-            // calls to below the GrContext level, but this is not trivial because they call
-            // drawPath on SkGpuDevice.
-            direct->flushAndSubmit();
-        }
-    };
-
-    fTextBlobCache.reset(new GrTextBlobCache(overBudget, this->contextID()));
-
-    return true;
-}
-
 void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
@@ -87,14 +65,8 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
 
-    GrTextContext::Options textContextOptions;
-    textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
-    textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
-    textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
-
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,
-                                               textContextOptions,
                                                sortOpsTasks,
                                                reduceOpsTaskSplitting));
 }
@@ -102,11 +74,15 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
 
-    fTextBlobCache->freeAll();
+    this->destroyDrawingManager();
 }
 
 GrDrawingManager* GrRecordingContext::drawingManager() {
     return fDrawingManager.get();
+}
+
+void GrRecordingContext::destroyDrawingManager() {
+    fDrawingManager.reset();
 }
 
 GrRecordingContext::Arenas::Arenas(GrOpMemoryPool* opMemoryPool, SkArenaAlloc* recordTimeAllocator)
@@ -149,11 +125,11 @@ GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {
 }
 
 GrTextBlobCache* GrRecordingContext::getTextBlobCache() {
-    return fTextBlobCache.get();
+    return fThreadSafeProxy->priv().getTextBlobCache();
 }
 
 const GrTextBlobCache* GrRecordingContext::getTextBlobCache() const {
-    return fTextBlobCache.get();
+    return fThreadSafeProxy->priv().getTextBlobCache();
 }
 
 void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {

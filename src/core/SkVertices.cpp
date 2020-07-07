@@ -174,7 +174,7 @@ struct SkVertices::Sizes {
 
     bool isValid() const { return fTotal != 0; }
 
-    size_t fTotal;  // size of entire SkVertices allocation (obj + arrays)
+    size_t fTotal = 0;  // size of entire SkVertices allocation (obj + arrays)
     size_t fAttrSize;  // size of attributes
     size_t fNameSize;  // size of attribute marker names
     size_t fArrays; // size of all the data arrays (V + D + T + C + I)

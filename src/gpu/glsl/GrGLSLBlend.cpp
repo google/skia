@@ -46,7 +46,7 @@ const char* BlendFuncName(SkBlendMode mode) {
     SkUNREACHABLE;
 }
 
-void AppendMode(GrGLSLFragmentBuilder* fsBuilder,
+void AppendMode(GrGLSLShaderBuilder* fsBuilder,
                 const char* srcColor,
                 const char* dstColor,
                 const char* outColor,

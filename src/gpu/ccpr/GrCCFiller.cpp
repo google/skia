@@ -433,7 +433,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
                     SkASSERT(!currFan.empty());
                     currFan.pop_back();
                 }
-            // fallthru.
+                [[fallthrough]];
             case Verb::kEndOpenContour:  // endPt != startPt.
                 SkASSERT(!currFanIsTessellated || currFan.empty());
                 if (!currFanIsTessellated && currFan.count() >= 3) {

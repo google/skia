@@ -9,7 +9,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAIndex.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkResourceCache.h"
@@ -172,18 +172,16 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
 
     GrPaint paint;
     const auto& caps = *ctx->priv().caps();
-    auto yuvToRgbProcessor = GrYUVtoRGBEffect::Make(yuvViews, yuvaIndices, yuvColorSpace,
-                                                    GrSamplerState::Filter::kNearest, caps);
-    paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
+    std::unique_ptr<GrFragmentProcessor> yuvToRgbProcessor = GrYUVtoRGBEffect::Make(
+            yuvViews, yuvaIndices, yuvColorSpace, GrSamplerState::Filter::kNearest, caps);
 
     // If the caller expects the pixels in a different color space than the one from the image,
     // apply a color conversion to do this.
     std::unique_ptr<GrFragmentProcessor> colorConversionProcessor =
-            GrColorSpaceXformEffect::Make(srcColorSpace, kOpaque_SkAlphaType,
+            GrColorSpaceXformEffect::Make(std::move(yuvToRgbProcessor),
+                                          srcColorSpace, kOpaque_SkAlphaType,
                                           dstColorSpace, kOpaque_SkAlphaType);
-    if (colorConversionProcessor) {
-        paint.addColorFragmentProcessor(std::move(colorConversionProcessor));
-    }
+    paint.addColorFragmentProcessor(std::move(colorConversionProcessor));
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     const SkRect r = SkRect::MakeIWH(yuvSizeInfo.fSizes[0].fWidth,

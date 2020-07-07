@@ -76,6 +76,7 @@ public:
     // V73: Use SkColor4f in per-edge AA quad API
     // V74: MorphologyImageFilter internal radius is SkScaler
     // V75: SkVertices switched from unsafe use of SkReader32 to SkReadBuffer (like everything else)
+    // V76: Add filtering enum to ImageShader
 
     enum Version {
         kTileModeInBlurImageFilter_Version  = 56,
@@ -98,10 +99,11 @@ public:
         kEdgeAAQuadColor4f_Version          = 73,
         kMorphologyTakesScalar_Version      = 74,
         kVerticesUseReadBuffer_Version      = 75,
+        kFilteringInImageShader_Version     = 76,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kTileModeInBlurImageFilter_Version,
-        kCurrent_Version = kVerticesUseReadBuffer_Version
+        kCurrent_Version = kFilteringInImageShader_Version
     };
 
     static_assert(kMin_Version <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");

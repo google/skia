@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 
 #include "include/core/SkYUVAIndex.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
@@ -32,8 +31,11 @@ public:
     const char* name() const override { return "YUVtoRGBEffect"; }
 
 private:
-    GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4], int numPlanes,
-                     const SkYUVAIndex yuvaIndices[4], SkYUVColorSpace yuvColorSpace);
+    GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4],
+                     int numPlanes,
+                     const SkYUVAIndex yuvaIndices[4],
+                     const bool snap[2],
+                     SkYUVColorSpace yuvColorSpace);
 
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);
 
@@ -47,5 +49,6 @@ private:
 
     SkYUVAIndex      fYUVAIndices[4];
     SkYUVColorSpace  fYUVColorSpace;
+    bool             fSnap[2];
 };
 #endif

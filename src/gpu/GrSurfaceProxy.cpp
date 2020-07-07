@@ -9,7 +9,7 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrCaps.h"
@@ -106,9 +106,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface,
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
-    // For this to be deleted the opsTask that held a ref on it (if there was one) must have been
-    // deleted. Which would have cleared out this back pointer.
-    SkASSERT(!fLastRenderTask);
 }
 
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
@@ -219,21 +216,6 @@ void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, GrScratchKey* key) co
                                      renderable, sampleCount, mipMapped, fIsProtected, key);
 }
 
-void GrSurfaceProxy::setLastRenderTask(GrRenderTask* renderTask) {
-#ifdef SK_DEBUG
-    if (fLastRenderTask) {
-        SkASSERT(fLastRenderTask->isClosed());
-    }
-#endif
-
-    // Un-reffed
-    fLastRenderTask = renderTask;
-}
-
-GrOpsTask* GrSurfaceProxy::getLastOpsTask() {
-    return fLastRenderTask ? fLastRenderTask->asOpsTask() : nullptr;
-}
-
 SkISize GrSurfaceProxy::backingStoreDimensions() const {
     SkASSERT(!this->isFullyLazy());
     if (fTarget) {
@@ -259,7 +241,7 @@ bool GrSurfaceProxy::isFormatCompressed(const GrCaps* caps) const {
 #ifdef SK_DEBUG
 void GrSurfaceProxy::validate(GrContext_Base* context) const {
     if (fTarget) {
-        SkASSERT(fTarget->getContext() == context);
+        SkASSERT(fTarget->getContext()->priv().matches(context));
     }
 }
 #endif

@@ -10,20 +10,18 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
-#include "tests/Test.h"
-
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
-
+#include "tests/Test.h"
 
 // This test creates backing resources exactly sized to [kFullSize x kFullSize].
 // It then wraps them in an SkSpecialImage with only the center (red) region being active.
@@ -78,11 +76,13 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     }
 
     //--------------
-    // Test getROPixels - this should always succeed regardless of backing store
-    SkBitmap bitmap;
-    REPORTER_ASSERT(reporter, img->getROPixels(&bitmap));
-    REPORTER_ASSERT(reporter, kSmallerSize == bitmap.width());
-    REPORTER_ASSERT(reporter, kSmallerSize == bitmap.height());
+    // Test getROPixels - this only works for raster-backed special images
+    if (!img->isTextureBacked()) {
+        SkBitmap bitmap;
+        REPORTER_ASSERT(reporter, img->getROPixels(&bitmap));
+        REPORTER_ASSERT(reporter, kSmallerSize == bitmap.width());
+        REPORTER_ASSERT(reporter, kSmallerSize == bitmap.height());
+    }
 
     //--------------
     // Test that draw restricts itself to the subset
@@ -183,76 +183,8 @@ DEF_TEST(SpecialImage_Image_Legacy, reporter) {
     test_specialimage_image(reporter);
 }
 
-static void test_texture_backed(skiatest::Reporter* reporter,
-                                const sk_sp<SkSpecialImage>& orig,
-                                const sk_sp<SkSpecialImage>& gpuBacked) {
-    REPORTER_ASSERT(reporter, gpuBacked);
-    REPORTER_ASSERT(reporter, gpuBacked->isTextureBacked());
-    REPORTER_ASSERT(reporter, gpuBacked->uniqueID() == orig->uniqueID());
-    REPORTER_ASSERT(reporter, gpuBacked->subset().width() == orig->subset().width() &&
-                              gpuBacked->subset().height() == orig->subset().height());
-    REPORTER_ASSERT(reporter, gpuBacked->getColorSpace() == orig->getColorSpace());
-}
-
-// Test out the SkSpecialImage::makeTextureImage entry point
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-    SkBitmap bm = create_bm();
-
-    const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
-
-    {
-        // raster
-        sk_sp<SkSpecialImage> rasterImage(SkSpecialImage::MakeFromRaster(
-                                                                        SkIRect::MakeWH(kFullSize,
-                                                                                        kFullSize),
-                                                                        bm));
-
-        {
-            sk_sp<SkSpecialImage> fromRaster(rasterImage->makeTextureImage(context));
-            test_texture_backed(reporter, rasterImage, fromRaster);
-        }
-
-        {
-            sk_sp<SkSpecialImage> subRasterImage(rasterImage->makeSubset(subset));
-
-            sk_sp<SkSpecialImage> fromSubRaster(subRasterImage->makeTextureImage(context));
-            test_texture_backed(reporter, subRasterImage, fromSubRaster);
-        }
-    }
-
-    {
-        // gpu
-        GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto view = maker.view(GrMipMapped::kNo);
-        if (!view) {
-            return;
-        }
-
-        sk_sp<SkSpecialImage> gpuImage(
-                SkSpecialImage::MakeDeferredFromGpu(context,
-                                                    SkIRect::MakeWH(kFullSize, kFullSize),
-                                                    kNeedNewImageUniqueID_SpecialImage,
-                                                    std::move(view),
-                                                    maker.colorType(),
-                                                    nullptr));
-
-        {
-            sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
-            test_texture_backed(reporter, gpuImage, fromGPU);
-        }
-
-        {
-            sk_sp<SkSpecialImage> subGPUImage(gpuImage->makeSubset(subset));
-
-            sk_sp<SkSpecialImage> fromSubGPU(subGPUImage->makeTextureImage(context));
-            test_texture_backed(reporter, subGPUImage, fromSubGPU);
-        }
-    }
-}
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     SkBitmap bm = create_bm();
     GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
     auto view = maker.view(GrMipMapped::kNo);
@@ -285,42 +217,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         sk_sp<SkSpecialImage> subSImg2(fullSImg->makeSubset(subset));
         test_image(subSImg2, reporter, context, true);
     }
-}
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_ReadbackAndCachingSubsets_Gpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-    SkImageInfo ii = SkImageInfo::Make(50, 50, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
-
-    // Fill out our surface:
-    // Green | Blue
-    //  Red  | Green
-    {
-        surface->getCanvas()->clear(SK_ColorGREEN);
-        SkPaint p;
-        p.setColor(SK_ColorRED);
-        surface->getCanvas()->drawRect(SkRect::MakeXYWH(0, 25, 25, 25), p);
-        p.setColor(SK_ColorBLUE);
-        surface->getCanvas()->drawRect(SkRect::MakeXYWH(25, 0, 25, 25), p);
-    }
-
-    auto image = surface->makeImageSnapshot();
-    auto redImg  = SkSpecialImage::MakeFromImage(context, SkIRect::MakeXYWH(10, 30, 10, 10), image);
-    auto blueImg = SkSpecialImage::MakeFromImage(context, SkIRect::MakeXYWH(30, 10, 10, 10), image);
-
-    // This isn't necessary, but if it ever becomes false, then the cache collision bug that we're
-    // checking below is irrelevant.
-    REPORTER_ASSERT(reporter, redImg->uniqueID() == blueImg->uniqueID());
-
-    SkBitmap redBM, blueBM;
-    SkAssertResult(redImg->getROPixels(&redBM));
-    SkAssertResult(blueImg->getROPixels(&blueBM));
-
-    // Each image should read from the correct sub-rect. Past bugs (skbug.com/8448) have included:
-    // - Always reading back from (0, 0), producing green
-    // - Incorrectly hitting the cache on the 2nd read-back, causing blueBM to be red
-    REPORTER_ASSERT(reporter, redBM.getColor(0, 0) == SK_ColorRED,
-                    "0x%08x != 0x%08x", redBM.getColor(0, 0), SK_ColorRED);
-    REPORTER_ASSERT(reporter, blueBM.getColor(0, 0) == SK_ColorBLUE,
-                    "0x%08x != 0x%08x", blueBM.getColor(0, 0), SK_ColorBLUE);
 }

@@ -91,8 +91,7 @@ public:
     // that the client cares about before they explicitly called flush and the GPU may reorder
     // command execution. So we make sure all previously submitted work finishes before we call the
     // finishedProc.
-    void addFinishedProcToActiveCommandBuffers(GrGpuFinishedProc finishedProc,
-                                               GrGpuFinishedContext finishedContext);
+    void addFinishedProcToActiveCommandBuffers(sk_sp<GrRefCntedCallback> finishedCallback);
 
     // Finds or creates a compatible GrVkDescriptorPool for the requested type and count.
     // The refcount is incremented and a pointer returned.

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -50,7 +50,7 @@ GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
 }
 
 GrSurfaceProxyView GrTextureAdjuster::onView(GrMipMapped mipMapped) {
-    if (this->context()->priv().abandoned()) {
+    if (this->context()->abandoned()) {
         // The texture was abandoned.
         return {};
     }

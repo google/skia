@@ -9,7 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkImage.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrImageContext.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/GrSingleOwner.h"
@@ -58,7 +58,7 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
 
 #ifdef SK_DEBUG
     {
-        GrContext* direct = fImageContext->priv().asDirectContext();
+        auto direct = fImageContext->asDirectContext();
         if (direct) {
             GrResourceCache* resourceCache = direct->priv().getResourceCache();
             // If there is already a GrResource with this key then the caller has violated the
@@ -127,7 +127,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
     if (this->isAbandoned()) {
         return nullptr;
     }
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -212,7 +212,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
         return result;
     }
 
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -296,7 +296,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         return nullptr;
     }
 
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (direct) {
         GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -474,7 +474,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
         return nullptr;
     }
 
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (direct) {
         GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
         // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
@@ -490,15 +490,15 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
                                                           GrWrapOwnership ownership,
                                                           GrWrapCacheable cacheable,
                                                           GrIOType ioType,
-                                                          ReleaseProc releaseProc,
-                                                          ReleaseContext releaseCtx) {
+                                                          sk_sp<GrRefCntedCallback> releaseHelper) {
     SkASSERT(ioType != kWrite_GrIOType);
+
     if (this->isAbandoned()) {
         return nullptr;
     }
 
     // This is only supported on a direct GrContext.
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -511,8 +511,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    if (releaseProc) {
-        tex->setRelease(releaseProc, releaseCtx);
+    if (releaseHelper) {
+        tex->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(!tex->asRenderTarget());  // Strictly a GrTexture
@@ -523,17 +523,17 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
                                                     this->isDDLProvider()));
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBackendTexture& beTex,
-                                                                    GrWrapOwnership ownership,
-                                                                    GrWrapCacheable cacheable,
-                                                                    ReleaseProc releaseProc,
-                                                                    ReleaseContext releaseCtx) {
+sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(
+        const GrBackendTexture& beTex,
+        GrWrapOwnership ownership,
+        GrWrapCacheable cacheable,
+        sk_sp<GrRefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }
 
     // This is only supported on a direct GrContext.
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -546,8 +546,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
         return nullptr;
     }
 
-    if (releaseProc) {
-        tex->setRelease(releaseProc, releaseCtx);
+    if (releaseHelper) {
+        tex->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(!tex->asRenderTarget());  // Strictly a GrTexture
@@ -563,14 +563,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         int sampleCnt,
         GrWrapOwnership ownership,
         GrWrapCacheable cacheable,
-        ReleaseProc releaseProc,
-        ReleaseContext releaseCtx) {
+        sk_sp<GrRefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }
 
     // This is only supported on a direct GrContext.
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -588,8 +587,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         return nullptr;
     }
 
-    if (releaseProc) {
-        tex->setRelease(releaseProc, releaseCtx);
+    if (releaseHelper) {
+        tex->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(tex->asRenderTarget());  // A GrTextureRenderTarget
@@ -602,14 +601,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         const GrBackendRenderTarget& backendRT,
-        ReleaseProc releaseProc,
-        ReleaseContext releaseCtx) {
+        sk_sp<GrRefCntedCallback> releaseHelper) {
     if (this->isAbandoned()) {
         return nullptr;
     }
 
     // This is only supported on a direct GrContext.
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -621,8 +619,8 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         return nullptr;
     }
 
-    if (releaseProc) {
-        rt->setRelease(releaseProc, releaseCtx);
+    if (releaseHelper) {
+        rt->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(!rt->asTexture());  // A GrRenderTarget that's not textureable
@@ -640,7 +638,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
     }
 
     // This is only supported on a direct GrContext.
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -667,7 +665,7 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
     }
 
     // This is only supported on a direct GrContext.
-    GrContext* direct = fImageContext->priv().asDirectContext();
+    auto direct = fImageContext->asDirectContext();
     if (!direct) {
         return nullptr;
     }
@@ -847,7 +845,7 @@ void GrProxyProvider::processInvalidUniqueKeyImpl(const GrUniqueKey& key, GrText
     // proxy's unique key. We must do it in this order because 'key' may alias the proxy's key.
     sk_sp<GrGpuResource> invalidGpuResource;
     if (InvalidateGPUResource::kYes == invalidateGPUResource) {
-        GrContext* direct = fImageContext->priv().asDirectContext();
+        auto direct = fImageContext->asDirectContext();
         if (direct) {
             GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
             invalidGpuResource = resourceProvider->findByUniqueKey<GrGpuResource>(key);
@@ -870,7 +868,7 @@ void GrProxyProvider::processInvalidUniqueKeyImpl(const GrUniqueKey& key, GrText
 }
 
 GrDDLProvider GrProxyProvider::isDDLProvider() const {
-    return fImageContext->priv().asDirectContext() ? GrDDLProvider::kNo : GrDDLProvider::kYes;
+    return fImageContext->asDirectContext() ? GrDDLProvider::kNo : GrDDLProvider::kYes;
 }
 
 uint32_t GrProxyProvider::contextID() const {
@@ -908,5 +906,5 @@ void GrProxyProvider::removeAllUniqueKeys() {
 }
 
 bool GrProxyProvider::renderingDirectly() const {
-    return fImageContext->priv().asDirectContext();
+    return fImageContext->asDirectContext();
 }

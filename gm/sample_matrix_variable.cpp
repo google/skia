@@ -25,8 +25,7 @@ public:
             : INHERITED(CLASS_ID, kNone_OptimizationFlags)
             , fXOffset(xOffset)
             , fYOffset(yOffset) {
-        child->setSampleMatrix(SkSL::SampleMatrix(SkSL::SampleMatrix::Kind::kVariable));
-        this->registerChildProcessor(std::move(child));
+        this->registerChild(std::move(child), SkSL::SampleUsage::VariableMatrix());
     }
 
     const char* name() const override { return "SampleMatrixVariableEffect"; }
@@ -101,6 +100,6 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
         GrColorInfo colorInfo;
         GrFPArgs args(ctx, matrixProvider, kHigh_SkFilterQuality, &colorInfo);
         std::unique_ptr<GrFragmentProcessor> gradientFP = as_SB(shader)->asFragmentProcessor(args);
-        draw(std::move(gradientFP), -0.5f, 1.0f, 256, 0);
+        draw(std::move(gradientFP), -128, 256, 256, 0);
     }
 }

@@ -106,7 +106,7 @@ struct Swizzle : public Expression {
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        if (fBase->fKind == Expression::kConstructor_Kind && fBase->isConstant()) {
+        if (fBase->fKind == Expression::kConstructor_Kind && fBase->isCompileTimeConstant()) {
             // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
             SkASSERT(fBase->fKind == Expression::kConstructor_Kind);
             if (fType.isInteger()) {

@@ -9,6 +9,7 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -516,14 +517,20 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     static const uint32_t kMaxVertexAttributes = 64;
     fMaxVertexAttributes = std::min(properties.limits.maxVertexInputAttributes, kMaxVertexAttributes);
 
+    // GrCaps::fSampleLocationsSupport refers to the ability to *query* the sample locations (not
+    // program them). For now we just set this to true if the device uses standard locations, and
+    // return the standard locations back when queried.
     if (properties.limits.standardSampleLocations) {
         fSampleLocationsSupport = true;
     }
 
+    // See skbug.com/10346
+#if 0
     if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
         // We "disable" multisample by colocating all samples at pixel center.
         fMultisampleDisableSupport = true;
     }
+#endif
 
     if (extensions.hasExtension(VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME, 1)) {
         fMixedSamplesSupport = true;
@@ -1318,22 +1325,6 @@ bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(vkFormat);
 }
 
-SkImage::CompressionType GrVkCaps::compressionType(const GrBackendFormat& format) const {
-    VkFormat vkFormat;
-    if (!format.asVkFormat(&vkFormat)) {
-        return SkImage::CompressionType::kNone;
-    }
-
-    switch (vkFormat) {
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK: return SkImage::CompressionType::kETC2_RGB8_UNORM;
-        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:     return SkImage::CompressionType::kBC1_RGB8_UNORM;
-        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:    return SkImage::CompressionType::kBC1_RGBA8_UNORM;
-        default:                                return SkImage::CompressionType::kNone;
-    }
-
-    SkUNREACHABLE;
-}
-
 bool GrVkCaps::isFormatTexturable(const GrBackendFormat& format) const {
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
@@ -1531,12 +1522,6 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
         return false;
     }
 
-    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
-    if (compression != SkImage::CompressionType::kNone) {
-        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
-                                                             : GrColorType::kRGBA_8888);
-    }
-
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -1579,7 +1564,7 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
     SkUNREACHABLE;
 }
 
-GrSwizzle GrVkCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+GrSwizzle GrVkCaps::onGetReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     VkFormat vkFormat;
     SkAssertResult(format.asVkFormat(&vkFormat));
     const auto* ycbcrInfo = format.getVkYcbcrConversionInfo();
@@ -1589,6 +1574,7 @@ GrSwizzle GrVkCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType co
         // onAreColorTypeAndFormatCompatible.
         return GrSwizzle{"rgba"};
     }
+
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
@@ -1641,7 +1627,7 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         return {GrColorType::kUnknown, 0};
     }
 
-    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(srcBackendFormat);
     if (compression != SkImage::CompressionType::kNone) {
         return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888, 0 };
@@ -1715,13 +1701,39 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
     // GrVkPipelineStateBuilder.cpp).
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
+    if (rt) {
+        GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
 
-    bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
-    // TODO: support failure in getSimpleRenderPass
-    const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsStencil);
-    SkASSERT(rp);
-    rp->genKey(&b);
+        bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
+        // TODO: support failure in getSimpleRenderPass
+        const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsStencil);
+        SkASSERT(rp);
+        rp->genKey(&b);
+
+#ifdef SK_DEBUG
+        if (!rp->isExternal()) {
+            // This is to ensure ReconstructAttachmentsDescriptor keeps matching
+            // getSimpleRenderPass' result
+            GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+            GrVkRenderPass::AttachmentFlags attachmentFlags;
+            GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,
+                                                               &attachmentsDescriptor,
+                                                               &attachmentFlags);
+            SkASSERT(rp->isCompatible(attachmentsDescriptor, attachmentFlags));
+        }
+#endif
+    } else {
+        GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
+        GrVkRenderPass::AttachmentFlags attachmentFlags;
+        GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,
+                                                           &attachmentsDescriptor,
+                                                           &attachmentFlags);
+
+        // kExternal_AttachmentFlag is only set for wrapped secondary command buffers - which
+        // will always go through the above 'rt' path (i.e., we can always pass 0 as the final
+        // parameter to GenKey).
+        GrVkRenderPass::GenKey(&b, attachmentFlags, attachmentsDescriptor, 0);
+    }
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
     stencil.genKey(&b, true);

@@ -7,7 +7,6 @@ package main
 import (
 	"context"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
@@ -15,12 +14,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.skia.org/infra/go/exec"
+	"go.skia.org/infra/go/testutils"
 	"go.skia.org/infra/task_driver/go/td"
 )
 
 func TestSetup_NPMInitializedBenchmarkOutCreated(t *testing.T) {
 	benchmarkPath, err := ioutil.TempDir("", "benchmark")
 	require.NoError(t, err)
+	defer testutils.RemoveAll(t, benchmarkPath)
 
 	const fakeNodeBinPath = "/fake/path/to/node/bin"
 
@@ -49,6 +50,7 @@ func TestSetup_NPMInitializedBenchmarkOutCreated(t *testing.T) {
 func TestBenchSkottieFrames_CPUHasNoUseGPUFlag(t *testing.T) {
 	lotties, err := ioutil.TempDir("", "lotties")
 	require.NoError(t, err)
+	defer testutils.RemoveAll(t, lotties)
 
 	require.NoError(t, os.MkdirAll(filepath.Join(lotties, "animation_1"), 0777))
 
@@ -89,6 +91,7 @@ func TestBenchSkottieFrames_CPUHasNoUseGPUFlag(t *testing.T) {
 func TestBenchSkottieFrames_GPUHasFlag(t *testing.T) {
 	lotties, err := ioutil.TempDir("", "lotties")
 	require.NoError(t, err)
+	defer testutils.RemoveAll(t, lotties)
 
 	require.NoError(t, os.MkdirAll(filepath.Join(lotties, "animation_1"), 0777))
 
@@ -134,6 +137,7 @@ func TestBenchSkottieFrames_GPUHasFlag(t *testing.T) {
 func TestProcessSkottieFramesData_CPUTwoInputsGetSummarizedAndCombined(t *testing.T) {
 	input, err := ioutil.TempDir("", "inputs")
 	require.NoError(t, err)
+	defer testutils.RemoveAll(t, input)
 	err = writeFilesToDisk(filepath.Join(input, "out"), map[string]string{
 		"first_animation.json":  skottieFramesSampleOne,
 		"second_animation.json": skottieFramesSampleTwo,
@@ -141,6 +145,7 @@ func TestProcessSkottieFramesData_CPUTwoInputsGetSummarizedAndCombined(t *testin
 	require.NoError(t, err)
 	output, err := ioutil.TempDir("", "perf")
 	require.NoError(t, err)
+	defer testutils.RemoveAll(t, output)
 
 	keys := map[string]string{
 		"os":               "Debian10",
@@ -225,6 +230,7 @@ func TestProcessSkottieFramesData_CPUTwoInputsGetSummarizedAndCombined(t *testin
 func TestProcessSkottieFramesData_GPUTwoInputsGetSummarizedAndCombined(t *testing.T) {
 	input, err := ioutil.TempDir("", "inputs")
 	require.NoError(t, err)
+	defer testutils.RemoveAll(t, input)
 	err = writeFilesToDisk(filepath.Join(input, "out"), map[string]string{
 		"first_animation.json":  skottieFramesSampleOne,
 		"second_animation.json": skottieFramesSampleTwo,
@@ -232,6 +238,7 @@ func TestProcessSkottieFramesData_GPUTwoInputsGetSummarizedAndCombined(t *testin
 	require.NoError(t, err)
 	output, err := ioutil.TempDir("", "perf")
 	require.NoError(t, err)
+	defer testutils.RemoveAll(t, output)
 
 	// These are based off of realistic values.
 	keys := map[string]string{
@@ -250,8 +257,6 @@ func TestProcessSkottieFramesData_GPUTwoInputsGetSummarizedAndCombined(t *testin
 	})
 	require.Empty(t, res.Errors)
 
-	// Re-seed the RNG, so we can get the filename the code wrote to.
-	rand.Seed(0)
 	b, err := ioutil.ReadFile(outputFile)
 	require.NoError(t, err)
 

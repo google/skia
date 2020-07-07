@@ -17,6 +17,7 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlurMask.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
@@ -40,13 +41,14 @@
 *                           Final result is black with alpha of Gaussian(B)*G.
 *                           The assumption is that the original color's alpha is 1.
 */
-class SkGaussianColorFilter : public SkColorFilter {
+class SkGaussianColorFilter : public SkColorFilterBase {
 public:
     SkGaussianColorFilter() : INHERITED() {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override;
+    bool colorFilterAcceptsInputFP() const override { return true; }
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext*, const GrColorInfo&) const override;
 #endif
 
 protected:
@@ -73,7 +75,7 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
 
-    typedef SkColorFilter INHERITED;
+    typedef SkColorFilterBase INHERITED;
 };
 
 sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
@@ -82,9 +84,11 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
 
 #if SK_SUPPORT_GPU
 
-std::unique_ptr<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorInfo&) const {
-    return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::Mode::kGaussian);
+GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                      GrRecordingContext*,
+                                                      const GrColorInfo&) const {
+    return GrFPSuccess(GrBlurredEdgeFragmentProcessor::Make(
+                std::move(inputFP), GrBlurredEdgeFragmentProcessor::Mode::kGaussian));
 }
 #endif
 

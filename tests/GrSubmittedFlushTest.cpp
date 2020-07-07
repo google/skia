@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 using namespace sk_gpu_test;
 
@@ -27,7 +27,7 @@ static void testing_submitted_proc(void* ctx, bool success) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushSubmittedProcTest, reporter, ctxInfo) {
-    GrContext* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
 
     SkImageInfo info = SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);

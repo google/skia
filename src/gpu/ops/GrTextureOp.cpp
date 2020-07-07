@@ -9,7 +9,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkMathPriv.h"
@@ -1058,21 +1058,20 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
             const auto& caps = *context->priv().caps();
             SkRect localRect;
             if (quad->fLocal.asRect(&localRect)) {
-                fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(), filter,
-                                                 *subset, localRect, caps);
+                fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(),
+                                                 filter, *subset, localRect, caps);
             } else {
-                fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(), filter,
-                                                 *subset, caps);
+                fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(),
+                                                 filter, *subset, caps);
             }
         } else {
             fp = GrTextureEffect::Make(std::move(proxyView), alphaType, SkMatrix::I(), filter);
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
-        paint.addColorFragmentProcessor(std::move(fp));
         if (saturate == GrTextureOp::Saturate::kYes) {
-            paint.addColorFragmentProcessor(GrClampFragmentProcessor::Make(false));
+            fp = GrClampFragmentProcessor::Make(std::move(fp), /*clampToPremul=*/false);
         }
-
+        paint.addColorFragmentProcessor(std::move(fp));
         return GrFillRectOp::Make(context, std::move(paint), aaType, quad);
     }
 }
@@ -1261,7 +1260,7 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
 }
 
 #if GR_TEST_UTILS
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 

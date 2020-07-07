@@ -68,20 +68,20 @@
     htmlCanvas.height = height;
     slide.load(width, height);
 
-    if (flags.msaa > 1) {
-        let ctx = CanvasKit.GetWebGLContext(htmlCanvas);
-        let grContext = CanvasKit.MakeGrContext(ctx);
-        let sampleCnt = parseInt(flags.msaa);
-        surface = CanvasKit.MakeOffscreenFramebuffer(grContext, width, height, sampleCnt);
-        if (!surface) {
-          throw 'Could not create offscreen msaa render target.';
-        }
-        surface.isMSAA = true;
-    } else {
-      surface = CanvasKit.MakeCanvasSurface(htmlCanvas);
-      if (!surface) {
-        throw 'Could not make canvas surface';
-      }
+    // For the msaa flag, only check if the key exists in flags. That way we don't need to assign it
+    // a value in the location hash. i.e.,:  http://.../viewer.html#msaa
+    const doMSAA = ('msaa' in flags);
+    // Create the WebGL context with our desired attribs before calling MakeWebGLCanvasSurface.
+    CanvasKit.GetWebGLContext(htmlCanvas, {antialias: doMSAA});
+    const surface = CanvasKit.MakeWebGLCanvasSurface(htmlCanvas, null);
+    if (!surface) {
+      throw 'Could not make canvas surface';
+    }
+    if (doMSAA && surface.sampleCnt() <= 1) {
+      // We requested antialias on the canvas but did not get MSAA. Since we don't know what type of
+      // AA is in use right now (if any), this surface is unusable.
+      throw 'MSAA rendering to the on-screen canvas is not supported. ' +
+            'Please try again without MSAA.';
     }
 
     window.onmousedown = (event) => (event.button === 0) && Mouse(CanvasKit.InputState.Down, event);
@@ -178,10 +178,6 @@
         canvas.scale(canvasScale, canvasScale);
         canvas.clear(CanvasKit.WHITE);
         slide.draw(canvas);
-        if (surface.isMSAA) {
-          let [w, h] = [surface.width(), surface.height()];
-          CanvasKit.BlitOffscreenFramebuffer(surface, 0,0,w,h, 0,0,w,h, CanvasKit.GLFilter.Nearest);
-        }
         canvas.restore();
 
         // HINT: Launch chrome with --disable-frame-rate-limit and --disable-gpu-vsync in order to

@@ -16,7 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -162,28 +162,27 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
         if (!maskView) {
             return nullptr;
         }
+        auto maskFP = GrTextureEffect::Make(std::move(maskView), kPremul_SkAlphaType,
+                                            SkMatrix::Translate(-bounds.x(), -bounds.y()));
 
         auto textureFP = GrTextureEffect::Make(
                 std::move(inputView), input->alphaType(),
                 SkMatrix::Translate(input->subset().x(), input->subset().y()));
-        textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP), input->getColorSpace(),
-                                                  input->alphaType(), ctx.colorSpace());
+        textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP),
+                                                  input->getColorSpace(), input->alphaType(),
+                                                  ctx.colorSpace(), kPremul_SkAlphaType);
         if (!textureFP) {
             return nullptr;
         }
 
         auto thresholdFP = GrAlphaThresholdFragmentProcessor::Make(
-                std::move(maskView), fInnerThreshold, fOuterThreshold, bounds);
+                std::move(textureFP), std::move(maskFP), fInnerThreshold, fOuterThreshold);
         if (!thresholdFP) {
             return nullptr;
         }
 
-        std::unique_ptr<GrFragmentProcessor> fpSeries[] = { std::move(textureFP),
-                                                            std::move(thresholdFP) };
-        auto fp = GrFragmentProcessor::RunInSeries(fpSeries, 2);
-
-        return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
-                          isProtected);
+        return DrawWithFP(context, std::move(thresholdFP), bounds, ctx.colorType(),
+                          ctx.colorSpace(), isProtected);
     }
 #endif
 

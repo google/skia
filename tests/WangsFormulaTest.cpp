@@ -274,5 +274,38 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
             check_quadratic_log2_with_transform(pts, m);
         });
     });
+}
 
+DEF_TEST(WangsFormula_worst_case_cubic, r) {
+    {
+        SkPoint worstP[] = {{0,0}, {100,100}, {0,0}, {0,0}};
+        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kIntolerance, 100, 100) ==
+                           GrWangsFormula::cubic(kIntolerance, worstP));
+        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kIntolerance, 100, 100) ==
+                           GrWangsFormula::cubic_log2(kIntolerance, worstP));
+    }
+    {
+        SkPoint worstP[] = {{100,100}, {100,100}, {200,200}, {100,100}};
+        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kIntolerance, 100, 100) ==
+                           GrWangsFormula::cubic(kIntolerance, worstP));
+        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kIntolerance, 100, 100) ==
+                           GrWangsFormula::cubic_log2(kIntolerance, worstP));
+    }
+    auto check_worst_case_cubic = [&](const SkPoint* pts) {
+        SkRect bbox;
+        bbox.setBoundsNoCheck(pts, 4);
+        float worst = GrWangsFormula::worst_case_cubic(kIntolerance, bbox.width(), bbox.height());
+        int worst_log2 = GrWangsFormula::worst_case_cubic_log2(kIntolerance, bbox.width(),
+                                                               bbox.height());
+        float actual = GrWangsFormula::cubic(kIntolerance, pts);
+        REPORTER_ASSERT(r, worst >= actual);
+        REPORTER_ASSERT(r, std::ceil(std::log2(std::max(1.f, worst))) == worst_log2);
+        SkASSERT(std::ceil(std::log2(std::max(1.f, worst))) == worst_log2);
+    };
+    SkRandom rand;
+    for (int i = 0; i < 100; ++i) {
+        for_random_beziers(4, &rand, [&](const SkPoint pts[]) {
+            check_worst_case_cubic(pts);
+        });
+    }
 }

@@ -11,7 +11,6 @@
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendDrawableInfo.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetPriv.h"
@@ -175,6 +174,9 @@ GrVkCommandBuffer* GrVkOpsRenderPass::currentCommandBuffer() {
     if (fCurrentSecondaryCommandBuffer) {
         return fCurrentSecondaryCommandBuffer.get();
     }
+    // We checked this when we setup the GrVkOpsRenderPass and it should not have changed while we
+    // are still using this object.
+    SkASSERT(fGpu->currentCommandBuffer());
     return fGpu->currentCommandBuffer();
 }
 
@@ -214,6 +216,13 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
 #ifdef SK_DEBUG
     fIsActive = true;
 #endif
+
+    // We check to make sure the GrVkGpu has a valid current command buffer instead of each time we
+    // access it. If the command buffer is valid here should be valid throughout the use of the
+    // render pass since nothing should trigger a submit while this render pass is active.
+    if (!fGpu->currentCommandBuffer()) {
+        return false;
+    }
 
     this->INHERITED::set(rt, origin);
 

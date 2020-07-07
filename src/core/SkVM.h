@@ -23,18 +23,6 @@ class SkWStream;
     #define SKVM_LLVM
 #endif
 
-// JIT code isn't MSAN-instrumented, so we won't see when it uses
-// uninitialized memory, and we'll not see the writes it makes as properly
-// initializing memory.  Instead force the interpreter, which should let
-// MSAN see everything our programs do properly.
-//
-// Similarly, we can't get ASAN's checks unless we let it instrument our interpreter.
-#if defined(__has_feature)
-    #if __has_feature(memory_sanitizer) || __has_feature(address_sanitizer)
-        #undef SKVM_JIT
-    #endif
-#endif
-
 namespace skvm {
 
     bool fma_supported();
@@ -47,9 +35,10 @@ namespace skvm {
 
         // Order matters... GP64, Xmm, Ymm values match 4-bit register encoding for each.
         enum GP64 {
-            rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi,
-            r8 , r9 , r10, r11, r12, r13, r14, r15,
+            rax, rcx, rdx, rbx, rsp,               rbp, rsi, rdi,
+            r8 , r9 , r10, r11, r12BROKENDONOTUSE, r13, r14, r15,
         };
+        // TODO: need to fix up assembler before r12 is safe to use
         enum Xmm {
             xmm0, xmm1, xmm2 , xmm3 , xmm4 , xmm5 , xmm6 , xmm7 ,
             xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15,
@@ -174,6 +163,7 @@ namespace skvm {
 
         void vmovdqa(Ymm dst, Operand x);
         void vmovups(Ymm dst, Operand x);
+        void vmovups(Xmm dst, Operand x);
         void vmovups(Operand dst, Ymm x);
         void vmovups(Operand dst, Xmm x);
 
@@ -387,7 +377,8 @@ namespace skvm {
         M(fma_f32) M(fms_f32) M(fnma_f32)     \
         M(sqrt_f32)                           \
         M(shl_i32) M(shr_i32) M(sra_i32)      \
-        M(floor) M(trunc) M(round) M(to_f32)  \
+        M(ceil) M(floor) M(trunc) M(round)    \
+        M(to_f32)                             \
         M( eq_f32) M( eq_i32)                 \
         M(neq_f32)                            \
         M( gt_f32) M( gt_i32)                 \
@@ -473,6 +464,12 @@ namespace skvm {
         skvm::F32 h,s,l,a;
         explicit operator bool() const { return h && s && l && a; }
         Builder* operator->()    const { return a.operator->(); }
+    };
+
+    struct Coord {
+        F32 x,y;
+        explicit operator bool() const { return x && y; }
+        Builder* operator->()    const { return x.operator->(); }
     };
 
     struct Uniform {
@@ -642,6 +639,7 @@ namespace skvm {
 
         F32    abs(F32 x) { return bit_cast(bit_and(bit_cast(x), 0x7fff'ffff)); }
         F32  fract(F32 x) { return sub(x, floor(x)); }
+        F32   ceil(F32);
         F32  floor(F32);
         I32 is_NaN(F32 x) { return neq(x,x); }
 
@@ -978,6 +976,7 @@ namespace skvm {
 
     static inline F32 clamp01(F32 x) { return x->clamp01(x); }
     static inline F32     abs(F32 x) { return x->    abs(x); }
+    static inline F32    ceil(F32 x) { return x->   ceil(x); }
     static inline F32   fract(F32 x) { return x->  fract(x); }
     static inline F32   floor(F32 x) { return x->  floor(x); }
     static inline I32  is_NaN(F32 x) { return x-> is_NaN(x); }

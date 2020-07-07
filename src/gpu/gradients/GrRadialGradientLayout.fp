@@ -5,20 +5,15 @@
  * found in the LICENSE file.
  */
 
-in half3x3 gradientMatrix;
-
-@coordTransform {
-    gradientMatrix
-}
-
-void main() {
-    half t = half(length(sk_TransformedCoords2D[0]));
+void main(float2 coord) {
+    half t = half(length(coord));
     sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 @header {
+    #include "src/gpu/effects/GrMatrixEffect.h"
     #include "src/gpu/gradients/GrGradientShader.h"
     #include "src/shaders/gradients/SkRadialGradient.h"
 }
@@ -41,7 +36,8 @@ void main() {
             return nullptr;
         }
         matrix.postConcat(grad.getGradientMatrix());
-        return std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout(matrix));
+        return GrMatrixEffect::Make(
+                matrix, std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout()));
     }
 }
 

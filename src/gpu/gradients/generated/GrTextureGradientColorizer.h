@@ -10,32 +10,33 @@
  **************************************************************************************************/
 #ifndef GrTextureGradientColorizer_DEFINED
 #define GrTextureGradientColorizer_DEFINED
-#include "include/core/SkTypes.h"
-#include "include/core/SkM44.h"
 
-#include "src/gpu/GrCoordTransform.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkTypes.h"
+
 #include "src/gpu/GrFragmentProcessor.h"
+
 class GrTextureGradientColorizer : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView gradient) {
+    static std::unique_ptr<GrFragmentProcessor> Make(
+            std::unique_ptr<GrFragmentProcessor> textureFP) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrTextureGradientColorizer(std::move(gradient)));
+                new GrTextureGradientColorizer(std::move(textureFP)));
     }
     GrTextureGradientColorizer(const GrTextureGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "TextureGradientColorizer"; }
-    TextureSampler gradient;
+    int textureFP_index = -1;
 
 private:
-    GrTextureGradientColorizer(GrSurfaceProxyView gradient)
-            : INHERITED(kGrTextureGradientColorizer_ClassID, kNone_OptimizationFlags)
-            , gradient(std::move(gradient), GrSamplerState::Filter::kBilerp) {
-        this->setTextureSamplerCnt(1);
+    GrTextureGradientColorizer(std::unique_ptr<GrFragmentProcessor> textureFP)
+            : INHERITED(kGrTextureGradientColorizer_ClassID, kNone_OptimizationFlags) {
+        SkASSERT(textureFP);
+        textureFP_index = this->registerChild(std::move(textureFP), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
-    const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     typedef GrFragmentProcessor INHERITED;
 };

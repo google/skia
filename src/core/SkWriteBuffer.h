@@ -122,6 +122,7 @@ public:
 
     bool writeToStream(SkWStream*) const;
     void writeToMemory(void* dst) const { fWriter.flatten(dst); }
+    sk_sp<SkData> snapshotAsData() const { return fWriter.snapshotAsData(); }
 
     void setFactoryRecorder(sk_sp<SkFactorySet>);
     void setTypefaceRecorder(sk_sp<SkRefCntSet>);
@@ -133,7 +134,7 @@ private:
     SkWriter32 fWriter;
 
     // Only used if we do not have an fFactorySet
-    SkTHashMap<SkFlattenable::Factory, uint32_t> fFlattenableDict;
+    SkTHashMap<const char*, uint32_t> fFlattenableDict;
 };
 
 #endif // SkWriteBuffer_DEFINED

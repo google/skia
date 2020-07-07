@@ -28,23 +28,22 @@ static constexpr size_t kRecAlign = alignof(Value);
 
 void Value::init_tagged(Tag t) {
     memset(fData8, 0, sizeof(fData8));
-    fData8[Value::kTagOffset] = SkTo<uint8_t>(t);
+    fData8[0] = SkTo<uint8_t>(t);
     SkASSERT(this->getTag() == t);
 }
 
-// Pointer values store a type (in the upper kTagBits bits) and a pointer.
+// Pointer values store a type (in the lower kTagBits bits) and a pointer.
 void Value::init_tagged_pointer(Tag t, void* p) {
-    *this->cast<uintptr_t>() = reinterpret_cast<uintptr_t>(p);
-
     if (sizeof(Value) == sizeof(uintptr_t)) {
-        // For 64-bit, we rely on the pointer upper bits being unused/zero.
-        SkASSERT(!(fData8[kTagOffset] & kTagMask));
-        fData8[kTagOffset] |= SkTo<uint8_t>(t);
+        *this->cast<uintptr_t>() = reinterpret_cast<uintptr_t>(p);
+        // For 64-bit, we rely on the pointer lower bits being zero.
+        SkASSERT(!(fData8[0] & kTagMask));
+        fData8[0] |= SkTo<uint8_t>(t);
     } else {
-        // For 32-bit, we need to zero-initialize the upper 32 bits
+        // For 32-bit, we store the pointer in the upper word
         SkASSERT(sizeof(Value) == sizeof(uintptr_t) * 2);
-        this->cast<uintptr_t>()[kTagOffset >> 2] = 0;
-        fData8[kTagOffset] = SkTo<uint8_t>(t);
+        this->init_tagged(t);
+        *this->cast<uintptr_t>() = reinterpret_cast<uintptr_t>(p);
     }
 
     SkASSERT(this->getTag()    == t);
@@ -126,11 +125,8 @@ public:
             return;
         }
 
-        static_assert(static_cast<uint8_t>(Tag::kShortString) == 0, "please don't break this");
-        static_assert(sizeof(Value) == 8, "");
-
-        // TODO: LIKELY
-        if (src && src + 7 <= eos) {
+        // initFastShortString is faster (doh), but requires access to 6 chars past src.
+        if (src && src + 6 <= eos) {
             this->initFastShortString(src, size);
         } else {
             this->initShortString(src, size);
@@ -140,7 +136,8 @@ public:
     }
 
 private:
-    static constexpr size_t kMaxInlineStringSize = sizeof(Value) - 1;
+    // first byte reserved for tagging, \0 terminator => 6 usable chars
+    static constexpr size_t kMaxInlineStringSize = sizeof(Value) - 2;
 
     void initLongString(const char* src, size_t size, SkArenaAlloc& alloc) {
         SkASSERT(size > kMaxInlineStringSize);
@@ -162,12 +159,23 @@ private:
     void initFastShortString(const char* src, size_t size) {
         SkASSERT(size <= kMaxInlineStringSize);
 
-        // Load 8 chars and mask out the tag and \0 terminator.
         uint64_t* s64 = this->cast<uint64_t>();
-        memcpy(s64, src, 8);
+
+        // Load 8 chars and mask out the tag and \0 terminator.
+        // Note: we picked kShortString == 0 to avoid setting explicitly below.
+        static_assert(SkToU8(Tag::kShortString) == 0, "please don't break this");
+
+        // Since the first byte is occupied by the tag, we want the string chars [0..5] to land
+        // on bytes [1..6] => the fastest way is to read8 @(src - 1) (always safe, because the
+        // string requires a " prefix at the very least).
+        memcpy(s64, src - 1, 8);
 
 #if defined(SK_CPU_LENDIAN)
-        *s64 &= 0x00ffffffffffffffULL >> ((kMaxInlineStringSize - size) * 8);
+        // The mask for a max-length string (6), with a leading tag and trailing \0 is
+        // 0x00ffffffffffff00.  Accounting for the final left-shift, this becomes
+        // 0x0000ffffffffffff.
+        *s64 &= (0x0000ffffffffffffULL >> ((kMaxInlineStringSize - size) * 8)) // trailing \0s
+                    << 8;                                                      // tag byte
 #else
         static_assert(false, "Big-endian builds are not supported at this time.");
 #endif

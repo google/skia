@@ -127,13 +127,23 @@ bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-skvm::Color SkShader_Blend::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                      const SkMatrix& ctm, const SkMatrix* localM,
+static skvm::Color program_or_paint(const sk_sp<SkShader>& sh, skvm::Builder* p,
+                                    skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                    const SkMatrixProvider& mats, const SkMatrix* localM,
+                                    SkFilterQuality q, const SkColorInfo& dst,
+                                    skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
+    return sh ? as_SB(sh)->program(p, device,local, paint, mats,localM, q,dst, uniforms,alloc)
+              : p->premul(paint);
+}
+
+skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
+                                      skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                      const SkMatrixProvider& mats, const SkMatrix* localM,
                                       SkFilterQuality q, const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = as_SB(fDst)->program(p, x,y, paint, ctm,localM, q, dst, uniforms, alloc)) &&
-        (s = as_SB(fSrc)->program(p, x,y, paint, ctm,localM, q, dst, uniforms, alloc)))
+    if ((d = program_or_paint(fDst, p, device,local, paint, mats,localM, q,dst, uniforms,alloc)) &&
+        (s = program_or_paint(fSrc, p, device,local, paint, mats,localM, q,dst, uniforms,alloc)))
     {
         return p->blend(fMode, s,d);
     }
@@ -167,13 +177,14 @@ bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::Color paint,
-                                     const SkMatrix& ctm, const SkMatrix* localM,
+skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
+                                     skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                     const SkMatrixProvider& mats, const SkMatrix* localM,
                                      SkFilterQuality q, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = as_SB(fDst)->program(p, x,y, paint, ctm,localM, q, dst, uniforms, alloc)) &&
-        (s = as_SB(fSrc)->program(p, x,y, paint, ctm,localM, q, dst, uniforms, alloc)))
+    if ((d = program_or_paint(fDst, p, device,local, paint, mats,localM, q,dst, uniforms,alloc)) &&
+        (s = program_or_paint(fSrc, p, device,local, paint, mats,localM, q,dst, uniforms,alloc)))
     {
         auto t = p->uniformF(uniforms->pushF(fWeight));
         return {
@@ -188,7 +199,7 @@ skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p, skvm::F32 x, skvm::F32 y,
 
 #if SK_SUPPORT_GPU
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrComposeLerpEffect.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
@@ -202,14 +213,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
     const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
-    if (!fpA) {
-        return GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(fpB), fMode);
-    }
-    if (!fpB) {
-        return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(fpA), fMode);
-    }
-    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB),
-                                                              std::move(fpA), fMode);
+    return GrXfermodeFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
 }
 
 std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(

@@ -85,4 +85,59 @@ bool LazyYUVImage::ensureYUVImage(GrContext* context) {
     return fYUVImage != nullptr;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void YUVABackendReleaseContext::Unwind(GrContext* context, YUVABackendReleaseContext* beContext,
+                                       bool fullFlush) {
+
+    // Some backends (e.g., Vulkan) require that all work associated w/ texture
+    // creation be completed before deleting the textures.
+    if (fullFlush) {
+        // If the release context client performed some operations other than backend texture
+        // creation then we may require a full flush to ensure that all the work is completed.
+        context->flush();
+        context->submit(true);
+    } else {
+        context->submit();
+
+        while (!beContext->creationCompleted()) {
+            context->checkAsyncWorkCompletion();
+        }
+    }
+
+    delete beContext;
+}
+
+YUVABackendReleaseContext::YUVABackendReleaseContext(GrContext* context) : fContext(context) {
+    SkASSERT(context->priv().getGpu());
+    SkASSERT(context->asDirectContext());
+}
+
+YUVABackendReleaseContext::~YUVABackendReleaseContext() {
+    for (int i = 0; i < 4; ++i) {
+        if (fBETextures[i].isValid()) {
+            SkASSERT(fCreationComplete[i]);
+            fContext->deleteBackendTexture(fBETextures[i]);
+        }
+    }
+}
+
+template<int I> static void CreationComplete(void* releaseContext) {
+    auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
+    beContext->setCreationComplete(I);
+}
+
+GrGpuFinishedProc YUVABackendReleaseContext::CreationCompleteProc(int index) {
+    SkASSERT(index >= 0 && index < 4);
+
+    switch (index) {
+        case 0: return CreationComplete<0>;
+        case 1: return CreationComplete<1>;
+        case 2: return CreationComplete<2>;
+        case 3: return CreationComplete<3>;
+    }
+
+    SK_ABORT("Invalid YUVA Index.");
+    return nullptr;
+}
+
 } // namespace sk_gpu_test

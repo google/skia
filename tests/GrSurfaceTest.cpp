@@ -7,9 +7,10 @@
 
 #include <set>
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -26,7 +27,7 @@
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
 // and render targets to GrSurface all work as expected.
 DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     auto resourceProvider = context->priv().resourceProvider();
 
     static constexpr SkISize kDesc = {256, 256};
@@ -74,7 +75,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
 // This test checks that the isFormatTexturable and isFormatRenderable are
 // consistent with createTexture's result.
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     const GrCaps* caps = context->priv().caps();
@@ -84,7 +85,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     auto createTexture = [](SkISize dimensions, GrColorType colorType,
                             const GrBackendFormat& format, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
-        SkImage::CompressionType compression = rp->caps()->compressionType(format);
+        SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
         if (compression != SkImage::CompressionType::kNone) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;
@@ -349,7 +350,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                     return (0xFFU << 24) | (x << 16) | (y << 8) | uint8_t((x * y) & 0xFF);
                });
 
-    GrContext* context = context_info.grContext();
+    auto context = context_info.directContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     // We test both kRW in addition to kRead mostly to ensure that the calls are structured such
@@ -602,10 +603,11 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // one where the the texture was drawn but the context is not flushed.
                 // In each scenario we test holding a ref beyond the context shutdown and not.
 
-                // These tests are difficult to get working with Vulkan and Direct3D.
-                // See http://skbug.com/8705 and http://skbug.com/8277
+                // These tests are difficult to get working with Vulkan, Direct3D, and Dawn.
+                // See http://skbug.com/8705, http://skbug.com/8277, and http://skbug.com/10326
                 GrBackendApi api = sk_gpu_test::GrContextFactory::ContextTypeBackend(contextType);
-                if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDirect3D) {
+                if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDirect3D ||
+                    api == GrBackendApi::kDawn) {
                     continue;
                 }
                 int id = 3;
@@ -691,7 +693,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
 
 // Tests an idle proc that unrefs another resource down to zero.
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcCacheManipulationTest, reporter, contextInfo) {
-    GrContext* context = contextInfo.grContext();
+    auto context = contextInfo.directContext();
 
     // idle proc that releases another texture.
     auto idleProc = [](void* texture) { reinterpret_cast<GrTexture*>(texture)->unref(); };
@@ -714,7 +716,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcCacheManipulationTest, reporter, con
 // Similar to above but more complicated. This flushes the context from the idle proc.
 // crbug.com/933526.
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
-    GrContext* context = contextInfo.grContext();
+    auto context = contextInfo.directContext();
 
     // idle proc that flushes the context.
     auto idleProc = [](void* context) { reinterpret_cast<GrContext*>(context)->flushAndSubmit(); };
@@ -750,7 +752,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcRerefTest, reporter, contextInfo) {
-    GrContext* context = contextInfo.grContext();
+    auto context = contextInfo.directContext();
     // idle proc that refs the texture
     auto idleProc = [](void* texture) { reinterpret_cast<GrTexture*>(texture)->ref(); };
     // release proc to check whether the texture was released or not.
@@ -773,7 +775,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcRerefTest, reporter, contextInfo) {
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleStateTest, reporter, contextInfo) {
-    GrContext* context = contextInfo.grContext();
+    auto context = contextInfo.directContext();
     for (const auto& idleMaker : {make_wrapped_texture, make_normal_texture}) {
         auto idleTexture = idleMaker(context, GrRenderable::kNo);
 

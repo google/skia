@@ -22,7 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrPaint.h"
@@ -50,7 +50,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
 
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
-    GrContext* context = canvas->getGrContext();
+    auto context = canvas->recordingContext();
 
     auto gradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
     SkPaint paint;

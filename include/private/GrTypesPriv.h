@@ -121,18 +121,16 @@ static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
 /**
  *  Return the number of bytes-per-pixel for the specified mask format.
  */
-static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
+inline constexpr int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
     SkASSERT(format < kMaskFormatCount);
     // kA8   (0) -> 1
     // kA565 (1) -> 2
     // kARGB (2) -> 4
-    static const int sBytesPerPixel[] = {1, 2, 4};
-    static_assert(SK_ARRAY_COUNT(sBytesPerPixel) == kMaskFormatCount, "array_size_mismatch");
     static_assert(kA8_GrMaskFormat == 0, "enum_order_dependency");
     static_assert(kA565_GrMaskFormat == 1, "enum_order_dependency");
     static_assert(kARGB_GrMaskFormat == 2, "enum_order_dependency");
 
-    return sBytesPerPixel[(int)format];
+    return SkTo<int>(1u << format);
 }
 
 /** Ownership rules for external GPU resources imported into Skia. */
@@ -657,10 +655,8 @@ static inline GrClipEdgeType GrInvertProcessorEdgeType(const GrClipEdgeType edge
             return GrClipEdgeType::kFillBW;
         case GrClipEdgeType::kInverseFillAA:
             return GrClipEdgeType::kFillAA;
-        case GrClipEdgeType::kHairlineAA:
-            SK_ABORT("Hairline fill isn't invertible.");
     }
-    return GrClipEdgeType::kFillAA;  // suppress warning.
+    SkUNREACHABLE;
 }
 
 /**
@@ -832,6 +828,8 @@ enum class GrColorType {
     kR_16,
     kR_F16,
     kGray_F16,
+    kBGRA_4444,
+    kARGB_4444,
 
     kLast = kGray_F16
 };
@@ -869,6 +867,8 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kR_16:             return kUnknown_SkColorType;
         case GrColorType::kR_F16:            return kUnknown_SkColorType;
         case GrColorType::kGray_F16:         return kUnknown_SkColorType;
+        case GrColorType::kARGB_4444:        return kUnknown_SkColorType;
+        case GrColorType::kBGRA_4444:        return kUnknown_SkColorType;
     }
     SkUNREACHABLE;
 }
@@ -936,6 +936,8 @@ static constexpr uint32_t GrColorTypeChannelFlags(GrColorType ct) {
         case GrColorType::kR_16:             return kRed_SkColorChannelFlag;
         case GrColorType::kR_F16:            return kRed_SkColorChannelFlag;
         case GrColorType::kGray_F16:         return kGray_SkColorChannelFlag;
+        case GrColorType::kARGB_4444:        return kRGBA_SkColorChannelFlags;
+        case GrColorType::kBGRA_4444:        return kRGBA_SkColorChannelFlags;
     }
     SkUNREACHABLE;
 }
@@ -1087,6 +1089,10 @@ static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
             return GrColorTypeDesc::MakeR(16, GrColorTypeEncoding::kFloat);
         case GrColorType::kGray_F16:
             return GrColorTypeDesc::MakeGray(16, GrColorTypeEncoding::kFloat);
+        case GrColorType::kARGB_4444:
+            return GrColorTypeDesc::MakeRGBA(4, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kBGRA_4444:
+            return GrColorTypeDesc::MakeRGBA(4, GrColorTypeEncoding::kUnorm);
     }
     SkUNREACHABLE;
 }
@@ -1149,6 +1155,8 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
         case GrColorType::kR_16:             return 2;
         case GrColorType::kR_F16:            return 2;
         case GrColorType::kGray_F16:         return 2;
+        case GrColorType::kARGB_4444:        return 2;
+        case GrColorType::kBGRA_4444:        return 2;
     }
     SkUNREACHABLE;
 }
@@ -1241,6 +1249,8 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kR_16:             return "kR_16";
         case GrColorType::kR_F16:            return "kR_F16";
         case GrColorType::kGray_F16:         return "kGray_F16";
+        case GrColorType::kARGB_4444:        return "kARGB_4444";
+        case GrColorType::kBGRA_4444:        return "kBGRA_4444";
     }
     SkUNREACHABLE;
 }

@@ -1011,7 +1011,6 @@ void AAHairlineOp::makeQuadProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
     GrGeometryProcessor* quadGP = GrQuadEffect::Make(arena,
                                                      this->color(),
                                                      *geometryProcessorViewM,
-                                                     GrClipEdgeType::kHairlineAA,
                                                      caps,
                                                      *geometryProcessorLocalM,
                                                      fHelper.usesLocalCoords(),
@@ -1034,7 +1033,6 @@ void AAHairlineOp::makeConicProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
     GrGeometryProcessor* conicGP = GrConicEffect::Make(arena,
                                                        this->color(),
                                                        *geometryProcessorViewM,
-                                                       GrClipEdgeType::kHairlineAA,
                                                        caps,
                                                        *geometryProcessorLocalM,
                                                        fHelper.usesLocalCoords(),
@@ -1117,7 +1115,7 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
     const GrCaps* caps = context->priv().caps();
 
     // This is equivalent to a GrOpFlushState::detachAppliedClip
-    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
     // Conservatively predict which programs will be required
     fCharacterization = this->predictPrograms(caps);

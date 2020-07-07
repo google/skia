@@ -23,7 +23,7 @@
 #include "src/core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -113,7 +113,7 @@ bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
     if (!this->isColorFilterNode(filterPtr)) {
         return false;
     }
-    if (nullptr != this->getInput(0) || (*filterPtr)->affectsTransparentBlack()) {
+    if (nullptr != this->getInput(0) || as_CFB(*filterPtr)->affectsTransparentBlack()) {
         (*filterPtr)->unref();
         return false;
     }
@@ -230,14 +230,9 @@ skif::FilterResult<For::kOutput> SkImageFilter_Base::filterImage(const skif::Con
 
     result = this->onFilterImage(context);
 
-#if SK_SUPPORT_GPU
-    if (context.gpuBacked() && result.image() && !result.image()->isTextureBacked()) {
-        // Keep the result on the GPU - this is still required for some
-        // image filters that don't support GPU in all cases
-        auto asTexture = result.image()->makeTextureImage(context.getContext());
-        result = skif::FilterResult<For::kOutput>(std::move(asTexture), result.layerOrigin());
+    if (context.gpuBacked()) {
+        SkASSERT(!result.image() || result.image()->isTextureBacked());
     }
-#endif
 
     if (context.cache()) {
         context.cache()->set(key, this, result);

@@ -669,6 +669,7 @@ protected:
 private:
     const sk_sp<SkFontMgr> fFontMgr;
     HBBuffer               fBuffer;
+    hb_language_t          fUndefinedLanguage;
 
     void shape(const char* utf8, size_t utf8Bytes,
                const SkFont&,
@@ -794,6 +795,7 @@ ShaperHarfBuzz::ShaperHarfBuzz(HBBuffer buffer, ICUBrk line, ICUBrk grapheme,
     , fGraphemeBreakIterator(std::move(grapheme))
     , fFontMgr(std::move(fontmgr))
     , fBuffer(std::move(buffer))
+    , fUndefinedLanguage(hb_language_from_string("und", -1))
 {}
 
 void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
@@ -1332,7 +1334,14 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     hb_direction_t direction = is_LTR(bidi.currentLevel()) ? HB_DIRECTION_LTR:HB_DIRECTION_RTL;
     hb_buffer_set_direction(buffer, direction);
     hb_buffer_set_script(buffer, hb_script_from_iso15924_tag((hb_tag_t)script.currentScript()));
-    hb_buffer_set_language(buffer, hb_language_from_string(language.currentLanguage(), -1));
+    // Buffers with HB_LANGUAGE_INVALID race since hb_language_get_default is not thread safe.
+    // The user must provide a language, but may provide data hb_language_from_string cannot use.
+    // Use "und" for the undefined language in this case (RFC5646 4.1 5).
+    hb_language_t hbLanguage = hb_language_from_string(language.currentLanguage(), -1);
+    if (hbLanguage == HB_LANGUAGE_INVALID) {
+        hbLanguage = fUndefinedLanguage;
+    }
+    hb_buffer_set_language(buffer, hbLanguage);
     hb_buffer_guess_segment_properties(buffer);
 
     // TODO: better cache HBFace (data) / hbfont (typeface)

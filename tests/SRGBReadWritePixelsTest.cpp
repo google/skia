@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
@@ -228,7 +229,7 @@ static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, En
 // Test all combinations of writePixels/readPixels where the surface context/write source/read dst
 // are sRGB, linear, or untagged RGBA_8888.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     if (!context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888_SRGB,
                                                          GrRenderable::kNo).isValid()) {
         return;

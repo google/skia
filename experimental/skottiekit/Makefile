@@ -24,6 +24,12 @@ release_cpu: clean_examples
 	cp ../../out/skottiekit/skottiekit.js       ./examples/bin
 	cp ../../out/skottiekit/skottiekit.wasm     ./examples/bin
 
+release_full: clean_examples
+	# Does an incremental build where possible.
+	./compile.sh full-build
+	cp ../../out/skottiekit/skottiekit.js       ./examples/bin
+	cp ../../out/skottiekit/skottiekit.wasm     ./examples/bin
+
 clean_examples:
 	rm -f ./examples/bin/*
 	mkdir -p ./examples/bin

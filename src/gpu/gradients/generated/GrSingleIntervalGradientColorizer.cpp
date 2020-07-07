@@ -32,10 +32,12 @@ public:
                                                     kHalf4_GrSLType, "start");
         endVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                   "end");
-        fragBuilder->codeAppendf("half t = %s.x;\n%s = (1.0 - t) * %s + t * %s;\n",
-                                 args.fInputColor, args.fOutputColor,
-                                 args.fUniformHandler->getUniformCStr(startVar),
-                                 args.fUniformHandler->getUniformCStr(endVar));
+        fragBuilder->codeAppendf(
+                R"SkSL(half t = %s.x;
+%s = (1.0 - t) * %s + t * %s;
+)SkSL",
+                args.fInputColor, args.fOutputColor, args.fUniformHandler->getUniformCStr(startVar),
+                args.fUniformHandler->getUniformCStr(endVar));
     }
 
 private:

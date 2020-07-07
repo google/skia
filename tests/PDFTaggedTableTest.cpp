@@ -81,15 +81,19 @@ DEF_TEST(SkPDF_tagged_table, r) {
                 cell->fTypeString = "TH";
             } else {
                 cell->fTypeString = "TD";
+                std::vector<int> headerIds;
+                headerIds.push_back(10 + rowIndex * kColCount);  // Row header
+                headerIds.push_back(10 + colIndex);  // Col header.
+                cell->fAttributes.appendNodeIdArray(
+                    "Table", "Headers", headerIds);
             }
-            cell->fChildCount = 0;
 
             if (cellIndex == 13) {
                 cell->fAttributes.appendInt("Table", "RowSpan", 2);
             } else if (cellIndex == 14 || cellIndex == 18) {
                 cell->fAttributes.appendInt("Table", "ColSpan", 2);
             } else if (rowIndex == 0 || colIndex == 0) {
-                cell->fAttributes.appendString(
+                cell->fAttributes.appendName(
                     "Table", "Scope", rowIndex == 0 ? "Column" : "Row");
             }
             cells.push_back(std::move(cell));

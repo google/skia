@@ -15,14 +15,19 @@
 
 class GrBaseContextPriv;
 class GrCaps;
-class GrContext;
 class GrContextThreadSafeProxy;
+class GrDirectContext;
 class GrImageContext;
 class GrRecordingContext;
 
 class GrContext_Base : public SkRefCnt {
 public:
     virtual ~GrContext_Base();
+
+    /*
+     * Safely downcast to a GrDirectContext.
+     */
+    virtual GrDirectContext* asDirectContext() { return nullptr; }
 
     /*
      * The 3D API backing this context
@@ -77,7 +82,6 @@ protected:
 
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
-    virtual GrContext* asDirectContext() { return nullptr; }
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 

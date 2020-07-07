@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
+#include "include/pathops/SkPathOps.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
@@ -18,6 +19,8 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrTessellatePathOp.h"
+#include "src/gpu/tessellate/GrTessellateStrokeOp.h"
+#include "src/gpu/tessellate/GrWangsFormula.h"
 
 constexpr static SkISize kAtlasInitialSize{512, 512};
 constexpr static int kMaxAtlasSize = 2048;
@@ -30,36 +33,119 @@ constexpr static auto kAtlasAlgorithm = GrDynamicAtlas::RectanizerAlgorithm::kPo
 // Ensure every path in the atlas falls in or below the 128px high rectanizer band.
 constexpr static int kMaxAtlasPathHeight = 128;
 
-GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps) : fAtlas(
-        GrColorType::kAlpha_8, GrDynamicAtlas::InternalMultisample::kYes, kAtlasInitialSize,
-        std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()), caps, kAtlasAlgorithm) {
+GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps)
+        : fAtlas(GrColorType::kAlpha_8, GrDynamicAtlas::InternalMultisample::kYes,
+                 kAtlasInitialSize, std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()),
+                 caps, kAtlasAlgorithm) {
+    this->initAtlasFlags(*caps.shaderCaps());
+}
+
+void GrTessellationPathRenderer::initAtlasFlags(const GrShaderCaps& shaderCaps) {
+    fStencilAtlasFlags = OpFlags::kStencilOnly | OpFlags::kDisableHWTessellation;
+    fMaxAtlasPathWidth = fAtlas.maxAtlasSize() / 2;
+    // The atlas usually does better with hardware tessellation. If hardware tessellation is
+    // supported, we choose a max atlas path width that is guaranteed to never require more
+    // tessellation segments than are supported by the hardware.
+    if (!shaderCaps.tessellationSupport()) {
+        return;
+    }
+    // Since we limit the area of paths in the atlas to kMaxAtlasPathHeight^2, taller paths can't
+    // get very wide anyway. Find the tallest path whose width is limited by
+    // GrWangsFormula::worst_case_cubic() rather than the max area constraint, and use that for our
+    // max atlas path width.
+    //
+    // Solve the following equation for w:
+    //
+    //     GrWangsFormula::worst_case_cubic(kLinearizationIntolerance, w, kMaxAtlasPathHeight^2 / w)
+    //              == maxTessellationSegments
+    //
+    float k = GrWangsFormula::cubic_k(kLinearizationIntolerance);
+    float h = kMaxAtlasPathHeight;
+    float s = shaderCaps.maxTessellationSegments();
+    // Quadratic formula from Numerical Recipes in C:
+    //
+    //     q = -1/2 [b + sign(b) sqrt(b*b - 4*a*c)]
+    //     x1 = q/a
+    //     x2 = c/q
+    //
+    // float a = 1;  // 'a' is always 1 in our specific equation.
+    float b = -s*s*s*s / (4*k*k);  // Always negative.
+    float c = h*h*h*h;  // Always positive.
+    float det = b*b - 4*1*c;
+    if (det <= 0) {
+        // maxTessellationSegments is too small for any path whose area == kMaxAtlasPathHeight^2.
+        // (This is unexpected because the GL spec mandates a minimum of 64 segments.)
+        SkDebugf("WARNING: maxTessellationSegments seems too low. (%i)\n",
+                 shaderCaps.maxTessellationSegments());
+        return;
+    }
+    float q = -.5f * (b - std::sqrt(det));  // Always positive.
+    // The two roots represent the width^2 and height^2 of the tallest rectangle that is limited by
+    // GrWangsFormula::worst_case_cubic().
+    float r0 = q;  // Always positive.
+    float r1 = c/q;  // Always positive.
+    float worstCaseWidth = std::sqrt(std::max(r0, r1));
+#ifdef SK_DEBUG
+    float worstCaseHeight = std::sqrt(std::min(r0, r1));
+    // Verify the above equation worked as expected. It should have found a width and height whose
+    // area == kMaxAtlasPathHeight^2.
+    SkASSERT(SkScalarNearlyEqual(worstCaseHeight * worstCaseWidth, h*h, 1));
+    // Verify GrWangsFormula::worst_case_cubic() still works as we expect. The worst case number of
+    // segments for this bounding box should be maxTessellationSegments.
+    SkASSERT(SkScalarNearlyEqual(GrWangsFormula::worst_case_cubic(
+            kLinearizationIntolerance, worstCaseWidth, worstCaseHeight), s, 1));
+#endif
+    fStencilAtlasFlags &= ~OpFlags::kDisableHWTessellation;
+    fMaxAtlasPathWidth = std::min(fMaxAtlasPathWidth, (int)worstCaseWidth);
 }
 
 GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
-    if (!args.fShape->style().isSimpleFill() || args.fShape->inverseFilled() ||
+    const GrStyledShape& shape = *args.fShape;
+    if (shape.inverseFilled() || shape.style().hasPathEffect() ||
         args.fViewMatrix->hasPerspective()) {
         return CanDrawPath::kNo;
     }
+
     if (GrAAType::kCoverage == args.fAAType) {
         SkASSERT(1 == args.fProxy->numSamples());
         if (!args.fProxy->canUseMixedSamples(*args.fCaps)) {
             return CanDrawPath::kNo;
         }
     }
+
     SkPath path;
-    args.fShape->asPath(&path);
+    shape.asPath(&path);
     if (SkPathPriv::ConicWeightCnt(path)) {
         return CanDrawPath::kNo;
     }
+
+    if (!shape.style().isSimpleFill()) {
+        SkPMColor4f constantColor;
+        // These are only temporary restrictions while we bootstrap tessellated stroking. Every one
+        // of them will eventually go away.
+        if (shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
+            !args.fCaps->shaderCaps()->tessellationSupport() ||
+            GrAAType::kCoverage == args.fAAType || !args.fViewMatrix->isSimilarity() ||
+            !args.fPaint->isConstantBlendedColor(&constantColor) ||
+            args.fPaint->numCoverageFragmentProcessors()) {
+            return CanDrawPath::kNo;
+        }
+    }
+
     return CanDrawPath::kYes;
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrRenderTargetContext* renderTargetContext = args.fRenderTargetContext;
     GrOpMemoryPool* pool = args.fContext->priv().opMemoryPool();
+    const GrShaderCaps& shaderCaps = *args.fContext->priv().caps()->shaderCaps();
+
     SkPath path;
     args.fShape->asPath(&path);
+
+    SkRect devBounds;
+    args.fViewMatrix->mapRect(&devBounds, path.getBounds());
 
     // See if the path is small and simple enough to atlas instead of drawing directly.
     //
@@ -69,8 +155,20 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkIRect devIBounds;
     SkIPoint16 locationInAtlas;
     bool transposedInAtlas;
-    if (this->tryAddPathToAtlas(*args.fContext->priv().caps(), *args.fViewMatrix, path,
+    if (args.fShape->style().isSimpleFill() &&
+        this->tryAddPathToAtlas(*args.fContext->priv().caps(), *args.fViewMatrix, path, devBounds,
                                 args.fAAType, &devIBounds, &locationInAtlas, &transposedInAtlas)) {
+#ifdef SK_DEBUG
+        // If using hardware tessellation in the atlas, make sure the max number of segments is
+        // sufficient for this path. fMaxAtlasPathWidth should have been tuned for this to always be
+        // the case.
+        if (!(fStencilAtlasFlags & OpFlags::kDisableHWTessellation)) {
+            int worstCaseNumSegments = GrWangsFormula::worst_case_cubic(kLinearizationIntolerance,
+                                                                        devIBounds.width(),
+                                                                        devIBounds.height());
+            SkASSERT(worstCaseNumSegments <= shaderCaps.maxTessellationSegments());
+        }
+#endif
         auto op = pool->allocate<GrDrawAtlasPathOp>(
                 renderTargetContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
                 devIBounds, locationInAtlas, transposedInAtlas, *args.fViewMatrix,
@@ -79,15 +177,78 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         return true;
     }
 
-    auto op = pool->allocate<GrTessellatePathOp>(
-            *args.fViewMatrix, path, std::move(args.fPaint), args.fAAType);
+    // Find the worst-case log2 number of line segments that a curve in this path might need to be
+    // divided into.
+    int worstCaseResolveLevel = GrWangsFormula::worst_case_cubic_log2(kLinearizationIntolerance,
+                                                                      devBounds.width(),
+                                                                      devBounds.height());
+    if (worstCaseResolveLevel > kMaxResolveLevel) {
+        // The path is too large for our internal indirect draw shaders. Crop it to the viewport.
+        auto viewport = SkRect::MakeIWH(renderTargetContext->width(),
+                                        renderTargetContext->height());
+        float inflationRadius = 1;
+        const SkStrokeRec& stroke = args.fShape->style().strokeRec();
+        if (stroke.getStyle() == SkStrokeRec::kHairline_Style) {
+            inflationRadius += SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
+                                                               stroke.getCap(), 1);
+        } else if (stroke.getStyle() != SkStrokeRec::kFill_Style) {
+            inflationRadius += stroke.getInflationRadius() * args.fViewMatrix->getMaxScale();
+        }
+        viewport.outset(inflationRadius, inflationRadius);
+
+        SkPath viewportPath;
+        viewportPath.addRect(viewport);
+        // Perform the crop in device space so it's a simple rect-path intersection.
+        path.transform(*args.fViewMatrix);
+        if (!Op(viewportPath, path, kIntersect_SkPathOp, &path)) {
+            // The crop can fail if the PathOps encounter NaN or infinities. Return true
+            // because drawing nothing is acceptable behavior for FP overflow.
+            return true;
+        }
+
+        // Transform the path back to its own local space.
+        SkMatrix inverse;
+        if (!args.fViewMatrix->invert(&inverse)) {
+            return true;  // Singular view matrix. Nothing would have drawn anyway. Return true.
+        }
+        path.transform(inverse);
+        path.setIsVolatile(true);
+        args.fViewMatrix->mapRect(&devBounds, path.getBounds());
+        worstCaseResolveLevel = GrWangsFormula::worst_case_cubic_log2(kLinearizationIntolerance,
+                                                                      devBounds.width(),
+                                                                      devBounds.height());
+        // kMaxResolveLevel should be large enough to tessellate paths the size of any screen we
+        // might encounter.
+        SkASSERT(worstCaseResolveLevel <= kMaxResolveLevel);
+    }
+
+    if (!args.fShape->style().isSimpleFill()) {
+        const SkStrokeRec& stroke = args.fShape->style().strokeRec();
+        SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
+        auto op = pool->allocate<GrTessellateStrokeOp>(*args.fViewMatrix, path, stroke,
+                                                       std::move(args.fPaint), args.fAAType);
+        renderTargetContext->addDrawOp(args.fClip, std::move(op));
+        return true;
+    }
+
+    auto drawPathFlags = OpFlags::kNone;
+    if ((1 << worstCaseResolveLevel) > shaderCaps.maxTessellationSegments()) {
+        // The path is too large for hardware tessellation; a curve in this bounding box could
+        // potentially require more segments than are supported by the hardware. Fall back on
+        // indirect draws.
+        drawPathFlags |= OpFlags::kDisableHWTessellation;
+    }
+
+    auto op = pool->allocate<GrTessellatePathOp>(*args.fViewMatrix, path, std::move(args.fPaint),
+                                                 args.fAAType, drawPathFlags);
     renderTargetContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 
 bool GrTessellationPathRenderer::tryAddPathToAtlas(
-        const GrCaps& caps, const SkMatrix& viewMatrix, const SkPath& path, GrAAType aaType,
-        SkIRect* devIBounds, SkIPoint16* locationInAtlas, bool* transposedInAtlas) {
+        const GrCaps& caps, const SkMatrix& viewMatrix, const SkPath& path, const SkRect& devBounds,
+        GrAAType aaType, SkIRect* devIBounds, SkIPoint16* locationInAtlas,
+        bool* transposedInAtlas) {
     if (!caps.multisampleDisableSupport() && GrAAType::kNone == aaType) {
         return false;
     }
@@ -98,13 +259,10 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
         return false;
     }
 
-    SkRect devBounds;
-    viewMatrix.mapRect(&devBounds, path.getBounds());
-    devBounds.roundOut(devIBounds);
-
     // Transpose tall paths in the atlas. Since we limit ourselves to small-area paths, this
     // guarantees that every atlas entry has a small height, which lends very well to efficient pow2
     // atlas packing.
+    devBounds.roundOut(devIBounds);
     int maxDimenstion = devIBounds->width();
     int minDimension = devIBounds->height();
     *transposedInAtlas = minDimension > maxDimenstion;
@@ -115,7 +273,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
     // Check if the path is too large for an atlas. Since we use "minDimension" for height in the
     // atlas, limiting to kMaxAtlasPathHeight^2 pixels guarantees height <= kMaxAtlasPathHeight.
     if (maxDimenstion * minDimension > kMaxAtlasPathHeight * kMaxAtlasPathHeight ||
-        maxDimenstion > kMaxAtlasSize / 2) {
+        maxDimenstion > fMaxAtlasPathWidth) {
         return false;
     }
 
@@ -149,7 +307,7 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
 
     auto op = args.fContext->priv().opMemoryPool()->allocate<GrTessellatePathOp>(
-            *args.fViewMatrix, path, GrPaint(), aaType, GrTessellatePathOp::Flags::kStencilOnly);
+            *args.fViewMatrix, path, GrPaint(), aaType, OpFlags::kStencilOnly);
     args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
 }
 
@@ -198,8 +356,7 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
             uberPath->setFillType(fillType);
             GrAAType aaType = (antialias) ? GrAAType::kMSAA : GrAAType::kNone;
             auto op = onFlushRP->opMemoryPool()->allocate<GrTessellatePathOp>(
-                    SkMatrix::I(), *uberPath, GrPaint(), aaType,
-                    GrTessellatePathOp::Flags::kStencilOnly);
+                    SkMatrix::I(), *uberPath, GrPaint(), aaType, fStencilAtlasFlags);
             rtc->addDrawOp(nullptr, std::move(op));
         }
     }

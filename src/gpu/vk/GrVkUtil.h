@@ -21,25 +21,31 @@ class GrVkGpu;
 // makes a Vk call on the interface
 #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X
 
-#define GR_VK_CALL_RESULT(GPU, RESULT, X)                             \
-    do {                                                              \
-    (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
-    SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
-    if (RESULT != VK_SUCCESS && !GPU->isDeviceLost()) {               \
-        SkDebugf("Failed vulkan call. Error: %d\n", RESULT);          \
-    }                                                                 \
-    if (VK_ERROR_DEVICE_LOST == RESULT) {                             \
-        GPU->setDeviceLost();                                         \
-    }                                                                 \
-    } while(false)
+#define GR_VK_CALL_RESULT(GPU, RESULT, X)                                 \
+    do {                                                                  \
+        (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
+        SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
+        if (RESULT != VK_SUCCESS && !GPU->isDeviceLost()) {               \
+            SkDebugf("Failed vulkan call. Error: %d," #X "\n", RESULT);   \
+        }                                                                 \
+        if (RESULT == VK_ERROR_DEVICE_LOST) {                             \
+            GPU->setDeviceLost();                                         \
+        } else if (RESULT == VK_ERROR_OUT_OF_HOST_MEMORY ||               \
+                   RESULT == VK_ERROR_OUT_OF_DEVICE_MEMORY) {             \
+            GPU->setOOMed();                                              \
+        }                                                                 \
+    } while (false)
 
-#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)                     \
-    do {                                                              \
-    (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
-    if (VK_ERROR_DEVICE_LOST == RESULT) {                             \
-        GPU->setDeviceLost();                                         \
-    }                                                                 \
-    } while(false)
+#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)             \
+    do {                                                      \
+        (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);         \
+        if (RESULT == VK_ERROR_DEVICE_LOST) {                 \
+            GPU->setDeviceLost();                             \
+        } else if (RESULT == VK_ERROR_OUT_OF_HOST_MEMORY ||   \
+                   RESULT == VK_ERROR_OUT_OF_DEVICE_MEMORY) { \
+            GPU->setOOMed();                                  \
+        }                                                     \
+    } while (false)
 
 // same as GR_VK_CALL but checks for success
 #define GR_VK_CALL_ERRCHECK(GPU, X)                                  \
@@ -100,11 +106,6 @@ bool GrInstallVkShaderModule(GrVkGpu* gpu,
  * Returns true if the format is compressed.
  */
 bool GrVkFormatIsCompressed(VkFormat);
-
-/**
- * Maps a vk format into the CompressionType enum if applicable.
- */
-SkImage::CompressionType GrVkFormatToCompressionType(VkFormat vkFormat);
 
 #if GR_TEST_UTILS
 static constexpr const char* GrVkFormatToStr(VkFormat vkFormat) {

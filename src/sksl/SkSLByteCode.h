@@ -19,67 +19,63 @@ namespace SkSL {
 class  ExternalValue;
 struct FunctionDeclaration;
 
-#define VECTOR(name) name ## 4, name ## 3, name ## 2, name
-#define VECTOR_MATRIX(name) name ## 4, name ## 3, name ## 2, name, name ## N
-
 enum class ByteCodeInstruction : uint16_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
-    VECTOR_MATRIX(kAddF),
-    VECTOR(kAddI),
-    kAndB,
-    VECTOR(kATan),
+
+    kAddF,  // N
+    kAddI,  // N
+    kAndB,  // N
+    kATan,  // N
     kBranch,
     // Followed by a byte indicating the index of the function to call
     kCall,
     // Followed by three bytes indicating: the number of argument slots, the number of return slots,
     // and the index of the external value to call
     kCallExternal,
+    kCeil,  // N
     // For dynamic array access: Followed by byte indicating length of array
     kClampIndex,
-    VECTOR(kCompareIEQ),
-    VECTOR(kCompareINEQ),
-    VECTOR_MATRIX(kCompareFEQ),
-    VECTOR_MATRIX(kCompareFNEQ),
-    VECTOR(kCompareFGT),
-    VECTOR(kCompareFGTEQ),
-    VECTOR(kCompareFLT),
-    VECTOR(kCompareFLTEQ),
-    VECTOR(kCompareSGT),
-    VECTOR(kCompareSGTEQ),
-    VECTOR(kCompareSLT),
-    VECTOR(kCompareSLTEQ),
-    VECTOR(kCompareUGT),
-    VECTOR(kCompareUGTEQ),
-    VECTOR(kCompareULT),
-    VECTOR(kCompareULTEQ),
-    VECTOR(kConvertFtoI),
-    VECTOR(kConvertStoF),
-    VECTOR(kConvertUtoF),
-    VECTOR(kCos),
-    VECTOR_MATRIX(kDivideF),
-    VECTOR(kDivideS),
-    VECTOR(kDivideU),
-    // Duplicates the top stack value
-    VECTOR_MATRIX(kDup),
-    VECTOR(kFract),
+    kCompareIEQ,    // N
+    kCompareINEQ,   // N
+    kCompareFEQ,    // N
+    kCompareFNEQ,   // N
+    kCompareFGT,    // N
+    kCompareFGTEQ,  // N
+    kCompareFLT,    // N
+    kCompareFLTEQ,  // N
+    kCompareSGT,    // N
+    kCompareSGTEQ,  // N
+    kCompareSLT,    // N
+    kCompareSLTEQ,  // N
+    kCompareUGT,    // N
+    kCompareUGTEQ,  // N
+    kCompareULT,    // N
+    kCompareULTEQ,  // N
+    kConvertFtoI,   // N
+    kConvertStoF,   // N
+    kConvertUtoF,   // N
+    kCos,           // N
+    kDivideF,       // N
+    kDivideS,       // N
+    kDivideU,       // N
+    // Duplicates the top N stack values
+    kDup,    // N
+    kFloor,  // N
+    kFract,  // N
     kInverse2x2,
     kInverse3x3,
     kInverse4x4,
     // A1, A2, .., B1, B2, .., T1, T2, .. -> lerp(A1, B1, T1), lerp(A2, B2, T2), ..
-    VECTOR(kLerp),
-    // kLoad/kLoadGlobal are followed by a byte indicating the local/global slot to load
-    VECTOR(kLoad),
-    VECTOR(kLoadGlobal),
-    VECTOR(kLoadUniform),
-    // As kLoad/kLoadGlobal, then a count byte (1-4), and then one byte per swizzle component (0-3).
-    kLoadSwizzle,
-    kLoadSwizzleGlobal,
-    kLoadSwizzleUniform,
-    // kLoadExtended* are fallback load ops when we lack a specialization. They are followed by a
-    // count byte, and get the slot to load from the top of the stack.
-    kLoadExtended,
-    kLoadExtendedGlobal,
-    kLoadExtendedUniform,
+    kLerp,  // N
+    kLoad,                 // N, slot
+    kLoadGlobal,           // N, slot
+    kLoadUniform,          // N, slot
+    // Indirect loads get the slot to load from the top of the stack
+    kLoadExtended,         // N
+    kLoadExtendedGlobal,   // N
+    kLoadExtendedUniform,  // N
+    // Loads "sk_FragCoord" [X, Y, Z, 1/W]
+    kLoadFragCoord,
     // Followed by four bytes: srcCols, srcRows, dstCols, dstRows. Consumes the src matrix from the
     // stack, and replaces it with the dst matrix. Per GLSL rules, there are no restrictions on
     // dimensions. Any overlapping values are copied, and any other values are filled in with the
@@ -87,32 +83,38 @@ enum class ByteCodeInstruction : uint16_t {
     kMatrixToMatrix,
     // Followed by three bytes: leftCols (== rightRows), leftRows, rightCols
     kMatrixMultiply,
-    VECTOR(kMaxF),
-    VECTOR(kMaxS),  // SkSL only declares signed versions of min/max
-    VECTOR(kMinF),
-    VECTOR(kMinS),
+    kMaxF,  // N
+    kMaxS,  // N  --  SkSL only declares signed versions of min/max
+    kMinF,  // N
+    kMinS,  // N
     // Masked selection: Stack is ... A1, A2, A3, B1, B2, B3, M1, M2, M3
     //                   Result:      M1 ? B1 : A1, M2 ? B2 : A2, M3 ? B3 : A3
-    VECTOR(kMix),
-    VECTOR_MATRIX(kNegateF),
-    VECTOR(kNegateI),
-    VECTOR_MATRIX(kMultiplyF),
-    VECTOR(kMultiplyI),
-    VECTOR(kNotB),
-    kOrB,
-    VECTOR_MATRIX(kPop),
-    VECTOR(kPow),
+    kMix,        // N
+    kNegateF,    // N
+    kNegateI,    // N
+    kMultiplyF,  // N
+    kMultiplyI,  // N
+    kNotB,       // N
+    kOrB,        // N
+    kPop,        // N
+    kPow,        // N
     // Followed by a 32 bit value containing the value to push
     kPushImmediate,
-    // Followed by a byte indicating external value to read
-    VECTOR(kReadExternal),
-    VECTOR(kRemainderF),
-    VECTOR(kRemainderS),
-    VECTOR(kRemainderU),
+    kReadExternal,  // N, slot
+    kRemainderF,    // N
+    kRemainderS,    // N
+    kRemainderU,    // N
     // Followed by a byte indicating the number of slots to reserve on the stack (for later return)
     kReserve,
     // Followed by a byte indicating the number of slots being returned
     kReturn,
+    // kSample* are followed by a byte indicating the FP slot to sample, and produce (R, G, B, A)
+    // Does "pass-through" sampling at the same coords as the parent
+    kSample,
+    // Expects stack to contain (X, Y)
+    kSampleExplicit,
+    // Expects stack to contain a 3x3 matrix (applied to parent's sample coords)
+    kSampleMatrix,
     // Followed by two bytes indicating columns and rows of matrix (2, 3, or 4 each).
     // Takes a single value from the top of the stack, and converts to a CxR matrix with that value
     // replicated along the diagonal (and zero elsewhere), per the GLSL matrix construction rules.
@@ -121,32 +123,22 @@ enum class ByteCodeInstruction : uint16_t {
     kShiftLeft,
     kShiftRightS,
     kShiftRightU,
-    VECTOR(kSin),
-    VECTOR(kSqrt),
-    // kStore/kStoreGlobal are followed by a byte indicating the local/global slot to store
-    VECTOR(kStore),
-    VECTOR(kStoreGlobal),
-    // Fallback stores. Followed by count byte, and get the slot to store from the top of the stack
-    kStoreExtended,
-    kStoreExtendedGlobal,
-    // As kStore/kStoreGlobal, then a count byte (1-4), then one byte per swizzle component (0-3).
-    // Expects the stack to look like: ... v1 v2 v3 v4, where the number of 'v's is equal to the
-    // number of swizzle components. After the store, all v's are popped from the stack.
-    kStoreSwizzle,
-    kStoreSwizzleGlobal,
-    // As above, but gets the store slot from the top of the stack (before values to be stored)
-    kStoreSwizzleIndirect,
-    kStoreSwizzleIndirectGlobal,
+    kSin,   // N
+    kSqrt,  // N
+    kStore,                // N, slot
+    kStoreGlobal,          // N, slot
+    // Indirect stores get the slot to store from the top of the stack
+    kStoreExtended,        // N
+    kStoreExtendedGlobal,  // N
     // Followed by two count bytes (1-4), and then one byte per swizzle component (0-3). The first
     // count byte provides the current vector size (the vector is the top n stack elements), and the
     // second count byte provides the swizzle component count.
     kSwizzle,
-    VECTOR_MATRIX(kSubtractF),
-    VECTOR(kSubtractI),
-    VECTOR(kTan),
-    // Followed by a byte indicating external value to write
-    VECTOR(kWriteExternal),
-    kXorB,
+    kSubtractF,  // N
+    kSubtractI,  // N
+    kTan,        // N
+    kWriteExternal,  // N, slot
+    kXorB,       // N
 
     kMaskPush,
     kMaskPop,
@@ -276,6 +268,12 @@ public:
     }
     const Uniform& getUniform(int i) const { return fUniforms[i]; }
 
+    /**
+     * Some byte code programs can't be executed by the interpreter, due to unsupported features.
+     * They may still be used to convert to other formats, or for reflection of uniforms.
+     */
+    bool canRun() const { return fChildFPCount == 0 && !fUsesFragCoord; }
+
 private:
     ByteCode(const ByteCode&) = delete;
     ByteCode& operator=(const ByteCode&) = delete;
@@ -285,6 +283,8 @@ private:
 
     int fGlobalSlotCount = 0;
     int fUniformSlotCount = 0;
+    int fChildFPCount = 0;
+    bool fUsesFragCoord = false;
     std::vector<Uniform> fUniforms;
 
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;

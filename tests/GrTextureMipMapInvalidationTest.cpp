@@ -7,7 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/image/SkImage_Base.h"
@@ -16,7 +16,7 @@
 
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+    auto context = ctxInfo.directContext();
     if (!context->priv().caps()->mipMapSupport()) {
         return;
     }
@@ -65,7 +65,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, ctxInfo) {
-    auto* ctx = ctxInfo.grContext();
+    auto ctx = ctxInfo.directContext();
     if (!ctx->priv().caps()->mipMapSupport()) {
         return;
     }

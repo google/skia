@@ -17,6 +17,7 @@
 #include "include/private/SkFixed.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAnnotationKeys.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkOSFile.h"
@@ -301,9 +302,9 @@ static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
     for (int i = 0; i < 256; ++i) {
         table[i] = (i * 41) % 256;
     }
-    auto colorFilter(SkTableColorFilter::Make(table));
+    auto filter = SkTableColorFilter::Make(table);
     sk_sp<SkColorFilter> copy(
-        TestFlattenableSerialization<SkColorFilter>(colorFilter.get(), true, reporter));
+        TestFlattenableSerialization(as_CFB(filter.get()), true, reporter));
 }
 
 static SkBitmap draw_picture(SkPicture& picture) {
@@ -334,9 +335,38 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
     }
     REPORTER_ASSERT(reporter, 0 == pixelErrors);
 }
-static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const char* text,
-                                           skiatest::Reporter* reporter)
-{
+
+static sk_sp<SkData> serialize_typeface_proc(SkTypeface* typeface, void* ctx) {
+    // Write out typeface ID followed by entire typeface.
+    SkDynamicMemoryWStream stream;
+    sk_sp<SkData> data(typeface->serialize(SkTypeface::SerializeBehavior::kDoIncludeData));
+    uint32_t typeface_id = typeface->uniqueID();
+    stream.write(&typeface_id, sizeof(typeface_id));
+    stream.write(data->data(), data->size());
+    return stream.detachAsData();
+}
+
+static sk_sp<SkTypeface> deserialize_typeface_proc(const void* data, size_t length, void* ctx) {
+    SkStream* stream;
+    if (length < sizeof(stream)) {
+        return nullptr;
+    }
+    memcpy(&stream, data, sizeof(stream));
+
+    SkFontID id;
+    if (!stream->read(&id, sizeof(id))) {
+        return nullptr;
+    }
+
+    sk_sp<SkTypeface> typeface = SkTypeface::MakeDeserialize(stream);
+    return typeface;
+}
+
+static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface,
+                                           const char* text,
+                                           const SkSerialProcs* serial_procs,
+                                           const SkDeserialProcs* deserial_procs,
+                                           skiatest::Reporter* reporter) {
     // Create a font with the typeface.
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
@@ -354,9 +384,9 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
 
     // Serlialize picture and create its clone from stream.
     SkDynamicMemoryWStream stream;
-    picture->serialize(&stream);
+    picture->serialize(&stream, serial_procs);
     std::unique_ptr<SkStream> inputStream(stream.detachAsStream());
-    sk_sp<SkPicture> loadedPicture(SkPicture::MakeFromStream(inputStream.get()));
+    sk_sp<SkPicture> loadedPicture(SkPicture::MakeFromStream(inputStream.get(), deserial_procs));
 
     // Draw both original and clone picture and compare bitmaps -- they should be identical.
     SkBitmap origBitmap = draw_picture(*picture);
@@ -364,14 +394,17 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
     compare_bitmaps(reporter, origBitmap, destBitmap);
 }
 
-static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
+static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
+                                             const SkDeserialProcs* deserial_procs,
+                                             skiatest::Reporter* reporter) {
     {
         // Load typeface from file to test CreateFromFile with index.
         auto typeface = MakeResourceAsTypeface("fonts/test.ttc", 1);
         if (!typeface) {
             INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
         } else {
-            serialize_and_compare_typeface(std::move(typeface), "A!", reporter);
+            serialize_and_compare_typeface(std::move(typeface), "A!", serial_procs, deserial_procs,
+                                           reporter);
         }
     }
 
@@ -387,7 +420,8 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
             if (!typeface) {
                 INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {
-                serialize_and_compare_typeface(std::move(typeface), "ab", reporter);
+                serialize_and_compare_typeface(std::move(typeface), "ab", serial_procs,
+                                               deserial_procs, reporter);
             }
         }
     }
@@ -543,6 +577,53 @@ DEF_TEST(Serialization, reporter) {
         TestArraySerialization(data, reporter);
     }
 
+    // Test skipByteArray
+    {
+        // Valid case with non-empty array:
+        {
+            unsigned char data[kArraySize] = { 1, 2, 3 };
+            SkBinaryWriteBuffer writer;
+            writer.writeByteArray(data, kArraySize);
+            SkAutoMalloc buf(writer.bytesWritten());
+            writer.writeToMemory(buf.get());
+
+            SkReadBuffer reader(buf.get(), writer.bytesWritten());
+            size_t len = ~0;
+            const void* arr = reader.skipByteArray(&len);
+            REPORTER_ASSERT(reporter, arr);
+            REPORTER_ASSERT(reporter, len == kArraySize);
+            REPORTER_ASSERT(reporter, memcmp(arr, data, len) == 0);
+        }
+
+        // Writing a zero length array (can be detected as valid by non-nullptr return):
+        {
+            SkBinaryWriteBuffer writer;
+            writer.writeByteArray(nullptr, 0);
+            SkAutoMalloc buf(writer.bytesWritten());
+            writer.writeToMemory(buf.get());
+
+            SkReadBuffer reader(buf.get(), writer.bytesWritten());
+            size_t len = ~0;
+            const void* arr = reader.skipByteArray(&len);
+            REPORTER_ASSERT(reporter, arr);
+            REPORTER_ASSERT(reporter, len == 0);
+        }
+
+        // If the array can't be safely read, should return nullptr:
+        {
+            SkBinaryWriteBuffer writer;
+            writer.writeUInt(kArraySize);
+            SkAutoMalloc buf(writer.bytesWritten());
+            writer.writeToMemory(buf.get());
+
+            SkReadBuffer reader(buf.get(), writer.bytesWritten());
+            size_t len = ~0;
+            const void* arr = reader.skipByteArray(&len);
+            REPORTER_ASSERT(reporter, !arr);
+            REPORTER_ASSERT(reporter, len == 0);
+        }
+    }
+
     // Test invalid deserializations
     {
         SkImageInfo info = SkImageInfo::MakeN32Premul(kBitmapSize, kBitmapSize);
@@ -586,7 +667,13 @@ DEF_TEST(Serialization, reporter) {
         }
     }
 
-    TestPictureTypefaceSerialization(reporter);
+    TestPictureTypefaceSerialization(nullptr, nullptr, reporter);
+
+    SkSerialProcs serial_procs;
+    serial_procs.fTypefaceProc = serialize_typeface_proc;
+    SkDeserialProcs deserial_procs;
+    deserial_procs.fTypefaceProc = deserialize_typeface_proc;
+    TestPictureTypefaceSerialization(&serial_procs, &deserial_procs, reporter);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -739,8 +826,6 @@ DEF_TEST(WriteBuffer_external_memory_flattenable, reporter) {
     storage.realloc(storage_size);
     REPORTER_ASSERT(reporter, path_effect->serialize(storage.get(), storage_size) != 0u);
 }
-
-#include "src/core/SkAutoMalloc.h"
 
 DEF_TEST(ReadBuffer_empty, reporter) {
     SkBinaryWriteBuffer writer;

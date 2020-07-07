@@ -81,8 +81,7 @@ size_t GrVkStencilAttachment::onGpuMemorySize() const {
 }
 
 void GrVkStencilAttachment::onRelease() {
-    GrVkGpu* gpu = this->getVkGpu();
-    this->releaseImage(gpu);
+    this->releaseImage();
     fStencilView->unref();
     fStencilView = nullptr;
 
@@ -90,8 +89,7 @@ void GrVkStencilAttachment::onRelease() {
 }
 
 void GrVkStencilAttachment::onAbandon() {
-    GrVkGpu* gpu = this->getVkGpu();
-    this->releaseImage(gpu);
+    this->releaseImage();
     fStencilView->unref();
     fStencilView = nullptr;
 

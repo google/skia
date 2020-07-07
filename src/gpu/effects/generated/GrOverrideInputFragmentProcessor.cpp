@@ -35,8 +35,12 @@ public:
                                                                kHalf4_GrSLType, "uniformColor");
         }
         fragBuilder->codeAppendf(
-                "half4 constColor;\n@if (%s) {\n    constColor = %s;\n} else {\n    constColor = "
-                "half4(%f, %f, %f, %f);\n}",
+                R"SkSL(half4 constColor;
+@if (%s) {
+    constColor = %s;
+} else {
+    constColor = half4(%f, %f, %f, %f);
+})SkSL",
                 (_outer.useUniform ? "true" : "false"),
                 uniformColorVar.isValid() ? args.fUniformHandler->getUniformCStr(uniformColorVar)
                                           : "half4(0)",
@@ -45,7 +49,11 @@ public:
         SkString _input1992("constColor");
         SkString _sample1992;
         _sample1992 = this->invokeChild(_outer.fp_index, _input1992.c_str(), args);
-        fragBuilder->codeAppendf("\n%s = %s;\n", args.fOutputColor, _sample1992.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(
+%s = %s;
+)SkSL",
+                args.fOutputColor, _sample1992.c_str());
     }
 
 private:
@@ -87,17 +95,10 @@ bool GrOverrideInputFragmentProcessor::onIsEqual(const GrFragmentProcessor& othe
 GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         const GrOverrideInputFragmentProcessor& src)
         : INHERITED(kGrOverrideInputFragmentProcessor_ClassID, src.optimizationFlags())
-        , fp_index(src.fp_index)
         , useUniform(src.useUniform)
         , uniformColor(src.uniformColor)
         , literalColor(src.literalColor) {
-    {
-        auto clone = src.childProcessor(fp_index).clone();
-        if (src.childProcessor(fp_index).isSampledWithExplicitCoords()) {
-            clone->setSampledWithExplicitCoords();
-        }
-        this->registerChildProcessor(std::move(clone));
-    }
+    { fp_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp_index)); }
 }
 std::unique_ptr<GrFragmentProcessor> GrOverrideInputFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrOverrideInputFragmentProcessor(*this));

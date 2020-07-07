@@ -171,6 +171,9 @@ public:
     void clipRegion(const SkRegion& region, SkClipOp op) {
         this->onClipRegion(region, op);
     }
+    void replaceClip(const SkIRect& rect) {
+        this->onReplaceClip(rect);
+    }
     void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
         this->onSetDeviceClipRestriction(mutableClipRestriction);
     }
@@ -204,6 +207,7 @@ protected:
     virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
     virtual void onClipShader(sk_sp<SkShader>) {}
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
+    virtual void onReplaceClip(const SkIRect& rect) {}
     virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
     virtual bool onClipIsAA() const = 0;
     virtual bool onClipIsWideOpen() const = 0;
@@ -295,8 +299,7 @@ protected:
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
-    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                             SkImage* clipImage, const SkMatrix& clipMatrix);
+    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     // Get a view of the entire device's current contents as an image.
@@ -314,6 +317,7 @@ protected:
     ///////////////////////////////////////////////////////////////////////////
 
     virtual GrContext* context() const { return nullptr; }
+    virtual GrRecordingContext* recordingContext() const { return nullptr; }
 
     virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
     virtual bool onPeekPixels(SkPixmap*) { return false; }

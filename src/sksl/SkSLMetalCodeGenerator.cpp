@@ -17,6 +17,15 @@
 
 namespace SkSL {
 
+class MetalCodeGenerator::GlobalStructVisitor {
+public:
+    virtual ~GlobalStructVisitor() = default;
+    virtual void VisitInterfaceBlock(const InterfaceBlock& block, const String& blockName) = 0;
+    virtual void VisitTexture(const Type& type, const String& name) = 0;
+    virtual void VisitSampler(const Type& type, const String& name) = 0;
+    virtual void VisitVariable(const Variable& var, const Expression* value) = 0;
+};
+
 void MetalCodeGenerator::setupIntrinsics() {
 #define METAL(x) std::make_pair(kMetal_IntrinsicKind, k ## x ## _MetalIntrinsic)
 #define SPECIAL(x) std::make_pair(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic)
@@ -892,6 +901,10 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 for (const auto& stmt: decls.fVars) {
                     VarDeclaration& var = (VarDeclaration&) *stmt;
                     if (var.fVar->fType.kind() == Type::kSampler_Kind) {
+                        if (var.fVar->fModifiers.fLayout.fBinding < 0) {
+                            fErrors.error(decls.fOffset,
+                                          "Metal samplers must have 'layout(binding=...)'");
+                        }
                         this->write(", texture2d<float> "); // FIXME - support other texture types
                         this->writeName(var.fVar->fName);
                         this->write("[[texture(");
@@ -990,39 +1003,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
 
     if ("main" == f.fDeclaration.fName) {
-        if (fNeedsGlobalStructInit) {
-            this->writeLine("    Globals globalStruct;");
-            for (const auto& [interfaceBlock, interfaceName] : fInterfaceBlockNameMap) {
-                this->write("    globalStruct.");
-                this->writeName(interfaceName);
-                this->write(" = &");
-                this->writeName(interfaceName);
-                this->writeLine(";");
-            }
-            for (const VarDeclaration* var : fInitNonConstGlobalVars) {
-                this->write("    globalStruct.");
-                this->writeName(var->fVar->fName);
-                this->write(" = ");
-                this->writeVarInitializer(*var->fVar, *var->fValue);
-                this->writeLine(";");
-            }
-            for (const Variable* texture : fTextures) {
-                this->write("    globalStruct.");
-                this->writeName(texture->fName);
-                this->write(" = ");
-                this->writeName(texture->fName);
-                this->writeLine(";");
-
-                String samplerName = String(texture->fName) + SAMPLER_SUFFIX;
-                this->write("    globalStruct.");
-                this->writeName(samplerName);
-                this->write(" = ");
-                this->writeName(samplerName);
-                this->writeLine(";");
-            }
-            this->writeLine("    thread Globals* _globals = &globalStruct;");
-            this->writeLine("    (void)_globals;");
-        }
+        this->writeGlobalInit();
         this->writeLine("    Outputs _outputStruct;");
         this->writeLine("    thread Outputs* _out = &_outputStruct;");
     }
@@ -1482,61 +1463,140 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
     }
 }
 
-void MetalCodeGenerator::writeGlobalStruct() {
-    bool wroteStructDecl = false;
-    auto WriteStructDecl = [&] {
-        if (!wroteStructDecl) {
-            this->write("struct Globals {\n");
-            wroteStructDecl = true;
+void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
+    // Visit the interface blocks.
+    for (const auto& [interfaceType, interfaceName] : fInterfaceBlockNameMap) {
+        visitor->VisitInterfaceBlock(*interfaceType, interfaceName);
+    }
+    for (const ProgramElement& element : fProgram) {
+        if (element.fKind != ProgramElement::kVar_Kind) {
+            continue;
         }
-    };
+        const VarDeclarations& decls = static_cast<const VarDeclarations&>(element);
+        if (decls.fVars.empty()) {
+            continue;
+        }
+        const Variable& first = *((VarDeclaration&) *decls.fVars[0]).fVar;
+        if ((!first.fModifiers.fFlags && -1 == first.fModifiers.fLayout.fBuiltin) ||
+            first.fType.kind() == Type::kSampler_Kind) {
+            for (const auto& stmt : decls.fVars) {
+                VarDeclaration& var = static_cast<VarDeclaration&>(*stmt);
 
-    for (const auto& intf : fInterfaceBlockNameMap) {
-        WriteStructDecl();
-        fNeedsGlobalStructInit = true;
-        const auto& intfType = intf.first;
-        const auto& intfName = intf.second;
-        this->write("    constant ");
-        this->write(intfType->fTypeName);
-        this->write("* ");
-        this->writeName(intfName);
-        this->write(";\n");
-    }
-    for (const auto& e : fProgram) {
-        if (ProgramElement::kVar_Kind == e.fKind) {
-            VarDeclarations& decls = (VarDeclarations&) e;
-            if (!decls.fVars.size()) {
-                continue;
-            }
-            const Variable& first = *((VarDeclaration&) *decls.fVars[0]).fVar;
-            if ((!first.fModifiers.fFlags && -1 == first.fModifiers.fLayout.fBuiltin) ||
-                first.fType.kind() == Type::kSampler_Kind) {
-                WriteStructDecl();
-                fNeedsGlobalStructInit = true;
-                this->write("    ");
-                this->writeType(first.fType);
-                this->write(" ");
-                for (const auto& stmt : decls.fVars) {
-                    VarDeclaration& var = (VarDeclaration&) *stmt;
-                    this->writeName(var.fVar->fName);
-                    if (var.fVar->fType.kind() == Type::kSampler_Kind) {
-                        fTextures.push_back(var.fVar);
-                        this->write(";\n");
-                        this->write("    sampler ");
-                        this->writeName(var.fVar->fName);
-                        this->write(SAMPLER_SUFFIX);
-                    }
-                    if (var.fValue) {
-                        fInitNonConstGlobalVars.push_back(&var);
-                    }
+                if (var.fVar->fType.kind() == Type::kSampler_Kind) {
+                    // Samplers are represented as a "texture/sampler" duo in the global struct.
+                    visitor->VisitTexture(first.fType, var.fVar->fName);
+                    visitor->VisitSampler(first.fType, String(var.fVar->fName) + SAMPLER_SUFFIX);
+                } else {
+                    // Visit a regular variable.
+                    visitor->VisitVariable(*var.fVar, var.fValue.get());
                 }
-                this->write(";\n");
             }
         }
     }
-    if (wroteStructDecl) {
-        this->write("};\n");
-    }
+}
+
+void MetalCodeGenerator::writeGlobalStruct() {
+    class : public GlobalStructVisitor {
+    public:
+        void VisitInterfaceBlock(const InterfaceBlock& block, const String& blockName) override {
+            this->AddElement();
+            fCodeGen->write("    constant ");
+            fCodeGen->write(block.fTypeName);
+            fCodeGen->write("* ");
+            fCodeGen->writeName(blockName);
+            fCodeGen->write(";\n");
+        }
+        void VisitTexture(const Type& type, const String& name) override {
+            this->AddElement();
+            fCodeGen->write("    ");
+            fCodeGen->writeType(type);
+            fCodeGen->write(" ");
+            fCodeGen->writeName(name);
+            fCodeGen->write(";\n");
+        }
+        void VisitSampler(const Type&, const String& name) override {
+            this->AddElement();
+            fCodeGen->write("    sampler ");
+            fCodeGen->writeName(name);
+            fCodeGen->write(";\n");
+        }
+        void VisitVariable(const Variable& var, const Expression* value) override {
+            this->AddElement();
+            fCodeGen->write("    ");
+            fCodeGen->writeType(var.fType);
+            fCodeGen->write(" ");
+            fCodeGen->writeName(var.fName);
+            fCodeGen->write(";\n");
+        }
+        void AddElement() {
+            if (fFirst) {
+                fCodeGen->write("struct Globals {\n");
+                fFirst = false;
+            }
+        }
+        void Finish() {
+            if (!fFirst) {
+                fCodeGen->write("};");
+                fFirst = true;
+            }
+        }
+
+        MetalCodeGenerator* fCodeGen = nullptr;
+        bool fFirst = true;
+    } visitor;
+
+    visitor.fCodeGen = this;
+    this->visitGlobalStruct(&visitor);
+    visitor.Finish();
+}
+
+void MetalCodeGenerator::writeGlobalInit() {
+    class : public GlobalStructVisitor {
+    public:
+        void VisitInterfaceBlock(const InterfaceBlock& blockType,
+                                 const String& blockName) override {
+            this->AddElement();
+            fCodeGen->write("&");
+            fCodeGen->writeName(blockName);
+        }
+        void VisitTexture(const Type&, const String& name) override {
+            this->AddElement();
+            fCodeGen->writeName(name);
+        }
+        void VisitSampler(const Type&, const String& name) override {
+            this->AddElement();
+            fCodeGen->writeName(name);
+        }
+        void VisitVariable(const Variable& var, const Expression* value) override {
+            this->AddElement();
+            if (value) {
+                fCodeGen->writeVarInitializer(var, *value);
+            } else {
+                fCodeGen->write("{}");
+            }
+        }
+        void AddElement() {
+            if (fFirst) {
+                fCodeGen->write("    Globals globalStruct{");
+                fFirst = false;
+            } else {
+                fCodeGen->write(", ");
+            }
+        }
+        void Finish() {
+            if (!fFirst) {
+                fCodeGen->writeLine("};");
+                fCodeGen->writeLine("    thread Globals* _globals = &globalStruct;");
+                fCodeGen->writeLine("    (void)_globals;");
+            }
+        }
+        MetalCodeGenerator* fCodeGen = nullptr;
+        bool fFirst = true;
+    } visitor;
+
+    visitor.fCodeGen = this;
+    this->visitGlobalStruct(&visitor);
+    visitor.Finish();
 }
 
 void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {

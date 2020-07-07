@@ -28,8 +28,9 @@
 #include "src/core/SkZip.h"
 
 #if SK_SUPPORT_GPU
+#include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 #endif
 
 static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
@@ -392,8 +393,9 @@ public:
 protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
         #if SK_SUPPORT_GPU
-        GrTextContext::Options options;
-        GrTextContext::SanitizeOptions(&options);
+        GrContextOptions ctxOptions;
+        GrSDFTOptions options =
+                {ctxOptions.fMinDistanceFieldFontSize, ctxOptions.fGlyphsAsPathsFontSize};
 
     #ifdef SK_CAPTURE_DRAW_TEXT_BLOB
         if (SkTextBlobTrace::Capture* capture = fStrikeServer->fCapture.get()) {

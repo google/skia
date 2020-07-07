@@ -59,8 +59,7 @@ static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi) {
         0, 0, 0, (a_hi - a_lo) / 255.0f, SkIntToScalar(a_lo) / 255.0f,
     };
 
-    return SkColorFilters::Matrix(tint_matrix)
-    ->makeComposed(SkLumaColorFilter::Make());
+    return SkColorFilters::Matrix(tint_matrix)->makeComposed(SkLumaColorFilter::Make());
 }
 
 namespace {

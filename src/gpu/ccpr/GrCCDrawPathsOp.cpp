@@ -7,7 +7,7 @@
 
 #include "src/gpu/ccpr/GrCCDrawPathsOp.h"
 
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -18,7 +18,7 @@
 
 static bool has_coord_transforms(const GrPaint& paint) {
     for (const auto& fp : GrFragmentProcessor::PaintCRange(paint)) {
-        if (!fp.coordTransforms().empty()) {
+        if (fp.numCoordTransforms() > 0) {
             return true;
         }
     }

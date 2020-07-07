@@ -11,7 +11,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLPipelineStageCodeGenerator.h"
@@ -97,8 +96,6 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
     sk_sp<SkData>          fInputs;
-
-    GrCoordTransform fCoordTransform;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

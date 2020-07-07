@@ -11,11 +11,13 @@
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
+#include "src/gpu/d3d/GrD3DSemaphore.h"
 #include "src/gpu/d3d/GrD3DStencilAttachment.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
@@ -54,9 +56,8 @@ GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
     SkASSERT(fCurrentDirectCommandList);
 
     SkASSERT(fCurrentFenceValue == 0);
-    SkDEBUGCODE(HRESULT hr = ) fDevice->CreateFence(fCurrentFenceValue, D3D12_FENCE_FLAG_NONE,
-                                                    IID_PPV_ARGS(&fFence));
-    SkASSERT(SUCCEEDED(hr));
+    GR_D3D_CALL_ERRCHECK(fDevice->CreateFence(fCurrentFenceValue, D3D12_FENCE_FLAG_NONE,
+                                              IID_PPV_ARGS(&fFence)));
 
 #if GR_TEST_UTILS
     HRESULT getAnalysis = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&fGraphicsAnalysis));
@@ -84,12 +85,14 @@ void GrD3DGpu::destroyResources() {
     // We used a placement new for each object in fOutstandingCommandLists, so we're responsible
     // for calling the destructor on each of them as well.
     while (!fOutstandingCommandLists.empty()) {
-        OutstandingCommandList* list = (OutstandingCommandList*)fOutstandingCommandLists.back();
+        OutstandingCommandList* list = (OutstandingCommandList*)fOutstandingCommandLists.front();
         SkASSERT(list->fFenceValue <= fenceValue);
         // No reason to recycle the command lists since we are destroying all resources anyways.
         list->~OutstandingCommandList();
-        fOutstandingCommandLists.pop_back();
+        fOutstandingCommandLists.pop_front();
     }
+
+    fResourceProvider.destroyResources();
 }
 
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
@@ -124,11 +127,13 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
         return true;
     }
 
-    new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
-            std::move(fCurrentDirectCommandList), ++fCurrentFenceValue);
+    // We just submitted the command list so make sure all GrD3DPipelineState's mark their cached
+    // uniform data as dirty.
+    fResourceProvider.markPipelineStateUniformsDirty();
 
-    SkDEBUGCODE(HRESULT hr = ) fQueue->Signal(fFence.get(), fCurrentFenceValue);
-    SkASSERT(SUCCEEDED(hr));
+    GrFence fence = this->insertFence();
+    new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
+            std::move(fCurrentDirectCommandList), fence);
 
     if (sync == SyncQueue::kForce) {
         this->waitForQueueCompletion();
@@ -153,15 +158,14 @@ void GrD3DGpu::checkForFinishedCommandLists() {
     // value is less than the last signaled value. If so we pop it off and move onto the next.
     // Repeat till we find a command list that has not finished yet (and all others afterwards are
     // also guaranteed to not have finished).
-    SkDeque::F2BIter iter(fOutstandingCommandLists);
-    const OutstandingCommandList* curList = (const OutstandingCommandList*)iter.next();
-    while (curList && curList->fFenceValue <= currentFenceValue) {
-        curList = (const OutstandingCommandList*)iter.next();
-        OutstandingCommandList* front = (OutstandingCommandList*)fOutstandingCommandLists.front();
-        fResourceProvider.recycleDirectCommandList(std::move(front->fCommandList));
+    OutstandingCommandList* front = (OutstandingCommandList*)fOutstandingCommandLists.front();
+    while (front && front->fFenceValue <= currentFenceValue) {
+        std::unique_ptr<GrD3DDirectCommandList> currList(std::move(front->fCommandList));
         // Since we used placement new we are responsible for calling the destructor manually.
         front->~OutstandingCommandList();
         fOutstandingCommandLists.pop_front();
+        fResourceProvider.recycleDirectCommandList(std::move(currList));
+        front = (OutstandingCommandList*)fOutstandingCommandLists.front();
     }
 }
 
@@ -170,8 +174,7 @@ void GrD3DGpu::waitForQueueCompletion() {
         HANDLE fenceEvent;
         fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         SkASSERT(fenceEvent);
-        SkDEBUGCODE(HRESULT hr = ) fFence->SetEventOnCompletion(fCurrentFenceValue, fenceEvent);
-        SkASSERT(SUCCEEDED(hr));
+        GR_D3D_CALL_ERRCHECK(fFence->SetEventOnCompletion(fCurrentFenceValue, fenceEvent));
         WaitForSingleObject(fenceEvent, INFINITE);
         CloseHandle(fenceEvent);
     }
@@ -182,6 +185,29 @@ void GrD3DGpu::submit(GrOpsRenderPass* renderPass) {
 
     // TODO: actually submit something here
     fCachedOpsRenderPass.reset();
+}
+
+void GrD3DGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
+                               GrGpuFinishedContext finishedContext) {
+    SkASSERT(finishedProc);
+    sk_sp<GrRefCntedCallback> finishedCallback(
+            new GrRefCntedCallback(finishedProc, finishedContext));
+    this->addFinishedCallback(std::move(finishedCallback));
+}
+
+void GrD3DGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
+    SkASSERT(finishedCallback);
+    // Besides the current command list, we also add the finishedCallback to the newest outstanding
+    // command list. Our contract for calling the proc is that all previous submitted command lists
+    // have finished when we call it. However, if our current command list has no work when it is
+    // flushed it will drop its ref to the callback immediately. But the previous work may not have
+    // finished. It is safe to only add the proc to the newest outstanding commandlist cause that
+    // must finish after all previously submitted command lists.
+    OutstandingCommandList* back = (OutstandingCommandList*)fOutstandingCommandLists.back();
+    if (back) {
+        back->fCommandList->addFinishedCallback(finishedCallback);
+    }
+    fCurrentDirectCommandList->addFinishedCallback(std::move(finishedCallback));
 }
 
 void GrD3DGpu::querySampleLocations(GrRenderTarget* rt, SkTArray<SkPoint>* sampleLocations) {
@@ -565,14 +591,6 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
     return true;
 }
 
-void GrD3DGpu::clear(const GrScissorState& scissor, const SkPMColor4f& color, GrRenderTarget* rt) {
-    GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(rt);
-
-    d3dRT->setResourceState(this, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-    fCurrentDirectCommandList->clearRenderTargetView(d3dRT, color, scissor);
-}
-
 static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
     if (!info.fResource.get()) {
         return false;
@@ -888,10 +906,132 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
 }
 
+bool copy_src_data(GrD3DGpu* gpu, char* mapPtr, DXGI_FORMAT dxgiFormat,
+                   D3D12_PLACED_SUBRESOURCE_FOOTPRINT* placedFootprints,
+                   const SkPixmap srcData[], int numMipLevels) {
+    SkASSERT(srcData && numMipLevels);
+    SkASSERT(!GrDxgiFormatIsCompressed(dxgiFormat));
+    SkASSERT(mapPtr);
+
+    size_t bytesPerPixel = gpu->d3dCaps().bytesPerPixel(dxgiFormat);
+
+    for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
+        const size_t trimRowBytes = srcData[currentMipLevel].width() * bytesPerPixel;
+
+        // copy data into the buffer, skipping any trailing bytes
+        char* dst = mapPtr + placedFootprints[currentMipLevel].Offset;
+        SkRectMemcpy(dst, placedFootprints[currentMipLevel].Footprint.RowPitch,
+                     srcData[currentMipLevel].addr(), srcData[currentMipLevel].rowBytes(),
+                     trimRowBytes, srcData[currentMipLevel].height());
+    }
+
+    return true;
+}
+
+bool copy_color_data(const GrD3DCaps& caps, char* mapPtr, DXGI_FORMAT dxgiFormat,
+                     SkISize dimensions, D3D12_PLACED_SUBRESOURCE_FOOTPRINT* placedFootprints,
+                     SkColor4f color) {
+    auto colorType = caps.getFormatColorType(dxgiFormat);
+    if (colorType == GrColorType::kUnknown) {
+        return false;
+    }
+    GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, dimensions);
+    if (!GrClearImage(ii, mapPtr, placedFootprints[0].Footprint.RowPitch, color)) {
+        return false;
+    }
+
+    return true;
+}
+
 bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                       sk_sp<GrRefCntedCallback> finishedCallback,
                                       const BackendTextureData* data) {
-    // TODO: handle finishedCallback and data upload
+    GrD3DTextureResourceInfo info;
+    SkAssertResult(backendTexture.getD3DTextureResourceInfo(&info));
+
+    sk_sp<GrD3DResourceState> state = backendTexture.getGrD3DResourceState();
+    SkASSERT(state);
+    sk_sp<GrD3DTexture> texture =
+            GrD3DTexture::MakeWrappedTexture(this, backendTexture.dimensions(),
+                                             GrWrapCacheable::kNo,
+                                             kRW_GrIOType, info, std::move(state));
+    if (!texture) {
+        return false;
+    }
+
+    GrD3DDirectCommandList* cmdList = this->currentCommandList();
+    if (!cmdList) {
+        return false;
+    }
+
+    texture->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+
+    ID3D12Resource* d3dResource = texture->d3dResource();
+    SkASSERT(d3dResource);
+    D3D12_RESOURCE_DESC desc = d3dResource->GetDesc();
+    unsigned int mipLevelCount = 1;
+    if (backendTexture.fMipMapped == GrMipMapped::kYes) {
+        mipLevelCount = SkMipMap::ComputeLevelCount(backendTexture.dimensions().width(),
+                                                    backendTexture.dimensions().height()) + 1;
+    }
+    SkASSERT(mipLevelCount == info.fLevelCount);
+    SkAutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
+    UINT64 combinedBufferSize;
+    fDevice->GetCopyableFootprints(&desc, 0, mipLevelCount, 0, placedFootprints.get(),
+                                   nullptr, nullptr, &combinedBufferSize);
+    SkASSERT(combinedBufferSize);
+    if (data->type() == BackendTextureData::Type::kColor &&
+        !GrDxgiFormatIsCompressed(info.fFormat) && mipLevelCount > 1) {
+        // For a single uncompressed color, we reuse the same top-level buffer area for all levels.
+        combinedBufferSize =
+                placedFootprints[0].Footprint.RowPitch * placedFootprints[0].Footprint.Height;
+        for (unsigned int i = 1; i < mipLevelCount; ++i) {
+            placedFootprints[i].Offset = 0;
+            placedFootprints[i].Footprint.RowPitch = placedFootprints[0].Footprint.RowPitch;
+        }
+    }
+
+    // TODO: do this until we have slices of buttery buffers
+    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(combinedBufferSize,
+                                                           GrGpuBufferType::kXferCpuToGpu,
+                                                           kDynamic_GrAccessPattern);
+    if (!transferBuffer) {
+        return false;
+    }
+    char* bufferData = (char*)transferBuffer->map();
+    SkASSERT(bufferData);
+
+    bool result;
+    if (data->type() == BackendTextureData::Type::kPixmaps) {
+        result = copy_src_data(this, bufferData, info.fFormat, placedFootprints.get(),
+                               data->pixmaps(), info.fLevelCount);
+    } else if (data->type() == BackendTextureData::Type::kCompressed) {
+        memcpy(bufferData, data->compressedData(), data->compressedSize());
+        result = true;
+    } else {
+        SkASSERT(data->type() == BackendTextureData::Type::kColor);
+        SkImage::CompressionType compression =
+                GrBackendFormatToCompressionType(backendTexture.getBackendFormat());
+        if (SkImage::CompressionType::kNone == compression) {
+            result = copy_color_data(this->d3dCaps(), bufferData, info.fFormat,
+                                     backendTexture.dimensions(),
+                                     placedFootprints, data->color());
+        } else {
+            GrFillInCompressedData(compression, backendTexture.dimensions(),
+                                   backendTexture.fMipMapped, bufferData, data->color());
+            result = true;
+        }
+    }
+    transferBuffer->unmap();
+
+    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(transferBuffer.get());
+    cmdList->copyBufferToTexture(d3dBuffer, texture.get(), mipLevelCount, placedFootprints.get(),
+                                 0, 0);
+
+    if (finishedCallback) {
+        this->addFinishedCallback(std::move(finishedCallback));
+    }
+
     return true;
 }
 
@@ -1010,9 +1150,11 @@ void GrD3DGpu::addResourceBarriers(sk_sp<GrManagedResource> resource,
     fCurrentDirectCommandList->resourceBarrier(std::move(resource), numBarriers, barriers);
 }
 
-void GrD3DGpu::prepareSurfacesForBackendAccessAndExternalIO(
-        GrSurfaceProxy* proxies[], int numProxies, SkSurface::BackendSurfaceAccess access,
-        const GrPrepareForExternalIORequests& externalRequests) {
+void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
+        GrSurfaceProxy* proxies[],
+        int numProxies,
+        SkSurface::BackendSurfaceAccess access,
+        const GrBackendSurfaceMutableState* newState) {
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
 
@@ -1039,4 +1181,42 @@ bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
     } else {
         return this->submitDirectCommandList(SyncQueue::kSkip);
     }
+}
+
+std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrD3DGpu::makeSemaphore(bool) {
+    return GrD3DSemaphore::Make(this);
+}
+std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(
+        const GrBackendSemaphore& semaphore,
+        GrResourceProvider::SemaphoreWrapType,
+        GrWrapOwnership) {
+    SkASSERT(this->caps()->semaphoreSupport());
+    GrD3DFenceInfo fenceInfo;
+    if (!semaphore.getD3DFenceInfo(&fenceInfo)) {
+        return nullptr;
+    }
+    return GrD3DSemaphore::MakeWrapped(fenceInfo);
+}
+
+void GrD3DGpu::insertSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
+    GrD3DSemaphore* d3dSem = static_cast<GrD3DSemaphore*>(semaphore);
+    // TODO: Do we need to track the lifetime of this? How do we know it's done?
+    fQueue->Signal(d3dSem->fence(), d3dSem->value());
+}
+
+void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
+    GrD3DSemaphore* d3dSem = static_cast<GrD3DSemaphore*>(semaphore);
+    // TODO: Do we need to track the lifetime of this?
+    fQueue->Wait(d3dSem->fence(), d3dSem->value());
+}
+
+GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
+    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), ++fCurrentFenceValue));
+    return fCurrentFenceValue;
+}
+
+bool GrD3DGpu::waitFence(GrFence fence) {
+    return (fFence->GetCompletedValue() >= fence);
 }

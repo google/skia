@@ -164,12 +164,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Neither of these ever returns nullptr, but this first factory may return a SkNullBlitter.
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
                                          const SkMatrixProvider& matrixProvider, SkArenaAlloc*,
                                          sk_sp<SkShader> clipShader);
 // Use this if you've pre-baked a shader pipeline, including modulating with paint alpha.
-// This factory never returns an SkNullBlitter.
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
                                          const SkRasterPipeline& shaderPipeline,
                                          bool shader_is_opaque,
@@ -177,7 +175,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
 
 SkBlitter* SkCreateSkVMBlitter(const SkPixmap&,
                                const SkPaint&,
-                               const SkMatrix& ctm,
+                               const SkMatrixProvider&,
                                SkArenaAlloc*,
                                sk_sp<SkShader> clipShader);
 

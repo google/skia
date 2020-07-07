@@ -91,7 +91,7 @@ void GrGLSLVaryingHandler::setNoPerspective() {
         return;
     }
     if (const char* extension = caps.noperspectiveInterpolationExtensionString()) {
-        int bit = 1 << GrGLSLFragmentBuilder::kNoPerspectiveInterpolation_GLSLPrivateFeature;
+        int bit = 1 << GrGLSLShaderBuilder::kNoPerspectiveInterpolation_GLSLPrivateFeature;
         fProgramBuilder->fVS.addFeature(bit, extension);
         if (fProgramBuilder->primitiveProcessor().willUseGeoShader()) {
             fProgramBuilder->fGS.addFeature(bit, extension);

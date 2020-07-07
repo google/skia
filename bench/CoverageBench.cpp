@@ -13,6 +13,7 @@
 #include "include/core/SkPath.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 
 class DrawPathBench : public Benchmark {

@@ -11,7 +11,7 @@
 
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkScopeExit.h"
@@ -235,7 +235,14 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
                                              const SkYUVAIndex yuvaIndices[4],
                                              SkISize imageSize,
                                              GrSurfaceOrigin imageOrigin,
-                                             sk_sp<SkColorSpace> imageColorSpace) {
+                                             sk_sp<SkColorSpace> imageColorSpace,
+                                             TextureReleaseProc textureReleaseProc,
+                                             ReleaseContext releaseContext) {
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (textureReleaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
+    }
+
     int numTextures;
     if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
         return nullptr;
@@ -243,7 +250,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
 
     GrSurfaceProxyView tempViews[4];
     if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, yuvaIndices,
-                                                 imageOrigin, tempViews)) {
+                                                 imageOrigin, tempViews,
+                                                 std::move(releaseHelper))) {
         return nullptr;
     }
 

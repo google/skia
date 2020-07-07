@@ -77,12 +77,21 @@ public:
 
     VkImageLayout currentLayout() const { return fMutableState->getImageLayout(); }
 
+    void setImageLayoutAndQueueIndex(const GrVkGpu* gpu,
+                                     VkImageLayout newLayout,
+                                     VkAccessFlags dstAccessMask,
+                                     VkPipelineStageFlags dstStageMask,
+                                     bool byRegion,
+                                     uint32_t newQueueFamilyIndex);
+
     void setImageLayout(const GrVkGpu* gpu,
                         VkImageLayout newLayout,
                         VkAccessFlags dstAccessMask,
                         VkPipelineStageFlags dstStageMask,
-                        bool byRegion,
-                        bool releaseFamilyQueue = false);
+                        bool byRegion) {
+        this->setImageLayoutAndQueueIndex(gpu, newLayout, dstAccessMask, dstStageMask, byRegion,
+                                          VK_QUEUE_FAMILY_IGNORED);
+    }
 
     uint32_t currentQueueFamilyIndex() const { return fMutableState->getQueueFamilyIndex(); }
 
@@ -151,7 +160,7 @@ public:
 #endif
 
 protected:
-    void releaseImage(GrVkGpu* gpu);
+    void releaseImage();
     bool hasResource() const { return fResource; }
 
     GrVkImageInfo                    fInfo;

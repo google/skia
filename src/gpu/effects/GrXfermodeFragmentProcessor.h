@@ -15,22 +15,29 @@ class GrFragmentProcessor;
 
 namespace GrXfermodeFragmentProcessor {
 
-/** The color input to the returned processor is treated as the src and the passed in processor is
-    the dst. */
-std::unique_ptr<GrFragmentProcessor> MakeFromDstProcessor(std::unique_ptr<GrFragmentProcessor> dst,
-                                                          SkBlendMode mode);
+enum class ComposeBehavior {
+    // Picks "ComposeOne" or "ComposeTwo" automatically depending on presence of src/dst FPs.
+    kDefault = 0,
 
-/** The color input to the returned processor is treated as the dst and the passed in processor is
-    the src. */
-std::unique_ptr<GrFragmentProcessor> MakeFromSrcProcessor(std::unique_ptr<GrFragmentProcessor> src,
-                                                          SkBlendMode mode);
+    // half(1) is passed as the input color to child FPs. No alpha channel trickery.
+    kComposeOneBehavior,
 
-/** Takes the input color, which is assumed to be unpremultiplied, passes it as an opaque color
-    to both src and dst. The outputs of a src and dst are blended using mode and the original
-    input's alpha is applied to the blended color to produce a premul output. */
-std::unique_ptr<GrFragmentProcessor> MakeFromTwoProcessors(std::unique_ptr<GrFragmentProcessor> src,
-                                                           std::unique_ptr<GrFragmentProcessor> dst,
-                                                           SkBlendMode mode);
+    // sk_InColor.rgb1 is passed as the input color to child FPs. Alpha is manually blended.
+    kComposeTwoBehavior,
+
+    // half(1) is passed to src; sk_InColor.rgba is passed to dst. No alpha channel trickery.
+    kSkModeBehavior,
+
+    kLastComposeBehavior = kSkModeBehavior,
+};
+
+/** Blends src and dst inputs according to the blend mode.
+ *  If either input is null, the input color (sk_InColor) is used instead.
+ */
+std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> src,
+                                          std::unique_ptr<GrFragmentProcessor> dst,
+                                          SkBlendMode mode,
+                                          ComposeBehavior behavior = ComposeBehavior::kDefault);
 
 };
 

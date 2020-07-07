@@ -35,44 +35,48 @@ public:
         (void)xInvInset;
         auto yInvInset = _outer.yInvInset;
         (void)yInvInset;
-        boundsUniformVar = args.fUniformHandler->addUniform(
-                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "boundsUniform");
-        xInvZoomVar = args.fUniformHandler->addUniform(
-                &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "xInvZoom");
-        yInvZoomVar = args.fUniformHandler->addUniform(
-                &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "yInvZoom");
-        xInvInsetVar = args.fUniformHandler->addUniform(
-                &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "xInvInset");
-        yInvInsetVar = args.fUniformHandler->addUniform(
-                &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "yInvInset");
-        offsetVar = args.fUniformHandler->addUniform(
-                &_outer, kFragment_GrShaderFlag, kHalf2_GrSLType, "offset");
-        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(
-                args.fTransformedCoords[0].fVaryingPoint, _outer.sampleMatrix());
+        boundsUniformVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                            kFloat4_GrSLType, "boundsUniform");
+        xInvZoomVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                       kFloat_GrSLType, "xInvZoom");
+        yInvZoomVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                       kFloat_GrSLType, "yInvZoom");
+        xInvInsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                        kFloat_GrSLType, "xInvInset");
+        yInvInsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                        kFloat_GrSLType, "yInvInset");
+        offsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
+                                                     kHalf2_GrSLType, "offset");
         fragBuilder->codeAppendf(
-                "float2 coord = %s;\nfloat2 zoom_coord = float2(%s) + coord * float2(%s, "
-                "%s);\nfloat2 delta = (coord - %s.xy) * %s.zw;\ndelta = min(delta, "
-                "float2(half2(1.0, 1.0)) - delta);\ndelta *= float2(%s, %s);\nfloat weight = "
-                "0.0;\nif (delta.x < 2.0 && delta.y < 2.0) {\n    delta = float2(half2(2.0, 2.0)) "
-                "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
-                "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
-                "delta;\n    weight = min(min(delta_squared.x, delta_square",
-                sk_TransformedCoords2D_0.c_str(),
-                args.fUniformHandler->getUniformCStr(offsetVar),
+                R"SkSL(float2 zoom_coord = float2(%s) + %s * float2(%s, %s);
+float2 delta = (%s - %s.xy) * %s.zw;
+delta = min(delta, float2(half2(1.0, 1.0)) - delta);
+delta *= float2(%s, %s);
+float weight = 0.0;
+if (delta.x < 2.0 && delta.y < 2.0) {
+    delta = float2(half2(2.0, 2.0)) - delta;
+    float dist = length(delta);
+    dist = max(2.0 - dist, 0.0);
+    weight = min(dist * dist, 1.0);
+} else {
+    float2 delta_squared = delta * delta;
+    weight = min(min(delta_squared.x, delta_squared.y), 1.0);
+})SkSL",
+                args.fUniformHandler->getUniformCStr(offsetVar), args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
-                args.fUniformHandler->getUniformCStr(yInvZoomVar),
+                args.fUniformHandler->getUniformCStr(yInvZoomVar), args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
+        SkString _coords1043 = SkStringPrintf("mix(%s, zoom_coord, weight)", args.fSampleCoord);
+        SkString _sample1043;
+        _sample1043 = this->invokeChild(_outer.src_index, args, _coords1043.c_str());
         fragBuilder->codeAppendf(
-                "d.y), 1.0);\n}\n%s = sample(%s, mix(coord, zoom_coord, weight)).%s;\n",
-                args.fOutputColor,
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()
-                        ->samplerSwizzle(args.fTexSamplers[0])
-                        .asString()
-                        .c_str());
+                R"SkSL(
+%s = %s;
+)SkSL",
+                args.fOutputColor, _sample1043.c_str());
     }
 
 private:
@@ -85,9 +89,6 @@ private:
             pdman.set1f(xInvInsetVar, (_outer.xInvInset));
             pdman.set1f(yInvInsetVar, (_outer.yInvInset));
         }
-        const GrSurfaceProxyView& srcView = _outer.textureSampler(0).view();
-        GrTexture& src = *srcView.proxy()->peekTexture();
-        (void)src;
         auto bounds = _outer.bounds;
         (void)bounds;
         UniformHandle& boundsUniform = boundsUniformVar;
@@ -105,32 +106,9 @@ private:
         UniformHandle& offset = offsetVar;
         (void)offset;
 
-        SkScalar invW = 1.0f / src.width();
-        SkScalar invH = 1.0f / src.height();
-
-        {
-            SkScalar y = srcRect.y() * invH;
-            if (srcView.origin() != kTopLeft_GrSurfaceOrigin) {
-                y = 1.0f - (srcRect.height() / bounds.height()) - y;
-            }
-
-            pdman.set2f(offset, srcRect.x() * invW, y);
-        }
-
-        {
-            SkScalar y = bounds.y() * invH;
-            SkScalar hSign = 1.f;
-            if (srcView.origin() != kTopLeft_GrSurfaceOrigin) {
-                y = 1.0f - bounds.y() * invH;
-                hSign = -1.f;
-            }
-
-            pdman.set4f(boundsUniform,
-                        bounds.x() * invW,
-                        y,
-                        SkIntToScalar(src.width()) / bounds.width(),
-                        hSign * SkIntToScalar(src.height()) / bounds.height());
-        }
+        pdman.set2f(offset, srcRect.x(), srcRect.y());
+        pdman.set4f(boundsUniform, bounds.x(), bounds.y(), 1.f / bounds.width(),
+                    1.f / bounds.height());
     }
     UniformHandle boundsUniformVar;
     UniformHandle offsetVar;
@@ -147,7 +125,6 @@ void GrMagnifierEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrMagnifierEffect& that = other.cast<GrMagnifierEffect>();
     (void)that;
-    if (src != that.src) return false;
     if (bounds != that.bounds) return false;
     if (srcRect != that.srcRect) return false;
     if (xInvZoom != that.xInvZoom) return false;
@@ -158,27 +135,21 @@ bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         : INHERITED(kGrMagnifierEffect_ClassID, src.optimizationFlags())
-        , srcCoordTransform(src.srcCoordTransform)
-        , src(src.src)
         , bounds(src.bounds)
         , srcRect(src.srcRect)
         , xInvZoom(src.xInvZoom)
         , yInvZoom(src.yInvZoom)
         , xInvInset(src.xInvInset)
         , yInvInset(src.yInvInset) {
-    this->setTextureSamplerCnt(1);
-    this->addCoordTransform(&srcCoordTransform);
+    { src_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.src_index)); }
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrMagnifierEffect(*this));
 }
-const GrFragmentProcessor::TextureSampler& GrMagnifierEffect::onTextureSampler(int index) const {
-    return IthTextureSampler(index, src);
-}
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
-    auto[view, ct, at] = d->randomView();
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
     const SkScalar kMaxInset = 20.0f;
@@ -189,7 +160,8 @@ std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTe
     SkIRect bounds = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
     SkRect srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    auto effect = GrMagnifierEffect::Make(std::move(view),
+    auto src = GrProcessorUnitTest::MakeChildFP(d);
+    auto effect = GrMagnifierEffect::Make(std::move(src),
                                           bounds,
                                           srcRect,
                                           srcRect.width() / bounds.width(),

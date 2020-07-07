@@ -10,12 +10,13 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MatrixColorFilter_TransparentBlack, reporter, info) {
-    auto* context = info.grContext();
+    auto context = info.directContext();
     // Make a transparent black image rather than use a paint color to avoid an optimization that
     // applies the color filter on the CPU to paint colors.
     auto imgSurf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,

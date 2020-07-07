@@ -35,13 +35,24 @@ class ParagraphCacheValue {
 public:
     ParagraphCacheValue(const ParagraphImpl* paragraph)
         : fKey(ParagraphCacheKey(paragraph))
-        , fRuns(paragraph->fRuns) { }
+        , fRuns(paragraph->fRuns)
+        , fCodeUnitProperties(paragraph->fCodeUnitProperties)
+        , fWords(paragraph->fWords)
+        , fBidiRegions(paragraph->fBidiRegions)
+        , fUTF8IndexForUTF16Index(paragraph->fUTF8IndexForUTF16Index)
+        , fUTF16IndexForUTF8Index(paragraph->fUTF16IndexForUTF8Index) { }
 
     // Input == key
     ParagraphCacheKey fKey;
 
     // Shaped results
     SkTArray<Run, false> fRuns;
+    // ICU results
+    SkTArray<CodeUnitFlags> fCodeUnitProperties;
+    std::vector<size_t> fWords;
+    SkTArray<BidiRegion> fBidiRegions;
+    SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;
+    SkTArray<size_t, true> fUTF16IndexForUTF8Index;
 };
 
 uint32_t ParagraphCache::KeyHash::mix(uint32_t hash, uint32_t data) const {
@@ -193,6 +204,11 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
 
     paragraph->fRuns.reset();
     paragraph->fRuns = entry->fValue->fRuns;
+    paragraph->fCodeUnitProperties = entry->fValue->fCodeUnitProperties;
+    paragraph->fWords = entry->fValue->fWords;
+    paragraph->fBidiRegions = entry->fValue->fBidiRegions;
+    paragraph->fUTF8IndexForUTF16Index = entry->fValue->fUTF8IndexForUTF16Index;
+    paragraph->fUTF16IndexForUTF8Index = entry->fValue->fUTF16IndexForUTF8Index;
     for (auto& run : paragraph->fRuns) {
         run.setMaster(paragraph);
     }

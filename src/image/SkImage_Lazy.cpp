@@ -16,7 +16,7 @@
 #include "src/core/SkNextID.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
@@ -128,7 +128,6 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
         , fSharedGenerator(std::move(validator->fSharedGenerator))
         , fOrigin(validator->fOrigin) {
     SkASSERT(fSharedGenerator);
-    fUniqueID = validator->fUniqueID;
 }
 
 

@@ -10,8 +10,10 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/mock/GrMockTypes.h"
-#include "include/private/GrRecordingContext.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
@@ -39,15 +41,16 @@ public:
     CCPRClip(GrCoverageCountingPathRenderer* ccpr, const SkPath& path) : fCCPR(ccpr), fPath(path) {}
 
 private:
-    bool apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
-               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
-        out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpsTaskID(), fPath,
+    SkIRect getConservativeBounds() const final { return fPath.getBounds().roundOut(); }
+    Effect apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
+                 bool hasUserStencilSettings, GrAppliedClip* out,
+                 SkRect* bounds) const override {
+        out->addCoverageFP(fCCPR->makeClipProcessor(/*inputFP=*/nullptr,
+                                                    rtc->priv().testingOnly_getOpsTaskID(), fPath,
                                                     SkIRect::MakeWH(rtc->width(), rtc->height()),
                                                     *context->priv().caps()));
-        return true;
+        return Effect::kClipped;
     }
-    bool quickContains(const SkRect&) const final { return false; }
-    bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const final { return false; }
 
     GrCoverageCountingPathRenderer* const fCCPR;
     const SkPath fPath;
@@ -882,8 +885,8 @@ protected:
 #define DEF_CCPR_RENDERING_TEST(name) \
     DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name, reporter, ctxInfo) { \
         name test; \
-        test.run(reporter, ctxInfo.grContext(), DoStroke::kNo); \
-        test.run(reporter, ctxInfo.grContext(), DoStroke::kYes); \
+        test.run(reporter, ctxInfo.directContext(), DoStroke::kNo); \
+        test.run(reporter, ctxInfo.directContext(), DoStroke::kYes); \
     }
 
 class CCPR_busyPath : public CCPRRenderingTest {

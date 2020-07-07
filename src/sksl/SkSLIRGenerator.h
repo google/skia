@@ -182,6 +182,7 @@ private:
     Variable* fRTAdjust;
     Variable* fRTAdjustInterfaceBlock;
     int fRTAdjustFieldIndex;
+    int fInlineVarCounter;
     bool fCanInline = true;
 
     friend class AutoSymbolTable;

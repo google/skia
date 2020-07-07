@@ -9,7 +9,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTLazy.h"
 #include "tests/Test.h"
 
@@ -76,7 +76,7 @@ public:
     }
 
     void test(skiatest::Reporter* r, sk_sp<SkSurface> surface,
-              uint32_t TL, uint32_t TR, uint32_t BL, uint32_t BR) {
+              uint32_t TL, uint32_t TR, uint32_t BL, uint32_t BR, SkScalar rotate = 0.0f) {
         auto shader = fBuilder->makeShader(nullptr, false);
         if (!shader) {
             REPORT_FAILURE(r, "shader", SkString("Effect didn't produce a shader"));
@@ -86,6 +86,7 @@ public:
         SkPaint paint;
         paint.setShader(std::move(shader));
         paint.setBlendMode(SkBlendMode::kSrc);
+        surface->getCanvas()->rotate(rotate);
         surface->getCanvas()->drawPaint(paint);
 
         uint32_t actual[4];
@@ -153,11 +154,8 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context
 
     // Test sk_FragCoord, which we output to color. Since the surface is 2x2, we should see
     // (0,0), (1,0), (0,1), (1,1), multiply by 0.498 to make sure we're not saturating unexpectedly.
-    // TODO: Remove this when sk_FragCoord is supported by interpreter.
-    if (context) {
-        TestEffect fragCoord(r, "", "color = half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1);");
-        fragCoord.test(r, surface, 0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F);
-    }
+    TestEffect fragCoord(r, "", "color = half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1);");
+    fragCoord.test(r, surface, 0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F, 45.0f);
 }
 
 DEF_TEST(SkRuntimeEffectSimple, r) {
@@ -165,5 +163,5 @@ DEF_TEST(SkRuntimeEffectSimple, r) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU, r, ctxInfo) {
-    test_RuntimeEffect_Shaders(r, ctxInfo.grContext());
+    test_RuntimeEffect_Shaders(r, ctxInfo.directContext());
 }

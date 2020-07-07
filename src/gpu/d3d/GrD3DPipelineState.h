@@ -54,12 +54,17 @@ public:
 
     void setAndBindConstants(GrD3DGpu*, const GrRenderTarget*, const GrProgramInfo&);
 
-    void setAndBindTextures(const GrPrimitiveProcessor& primProc,
+    void setAndBindTextures(GrD3DGpu*, const GrPrimitiveProcessor& primProc,
                             const GrSurfaceProxy* const primProcTextures[],
                             const GrPipeline& pipeline);
 
     void bindBuffers(GrD3DGpu*, const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
                      const GrBuffer* vertexBuffer, GrD3DDirectCommandList* commandList);
+
+    // We can only cache non dirty uniform values until we submit a command list. After that, the
+    // next frame will get a completely different uniform buffer and/or offset into the buffer. Thus
+    // we need a way to mark them all as dirty during submit.
+    void markUniformsDirty() { fDataManager.markDirty(); }
 
 private:
     /**
@@ -117,7 +122,7 @@ private:
 
     GrD3DPipelineStateDataManager fDataManager;
 
-    int fNumSamplers;
+    unsigned int fNumSamplers;
     size_t fVertexStride;
     size_t fInstanceStride;
 };

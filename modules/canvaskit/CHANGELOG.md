@@ -6,6 +6,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Added `CanvasKit.MakeImageFromCanvasImageSource` which takes either an HTMLImageElement,
+   SVGImageElement, HTMLVideoElement, HTMLCanvasElement, ImageBitmap, or OffscreenCanvas and returns
+   an SkImage. This function is an alternative to `CanvasKit.MakeImageFromEncoded` for creating
+   SkImages when loading and decoding images. In the future, codesize of CanvasKit may be able to be
+   reduced by removing image codecs in wasm, if browser APIs for decoding images are used along with
+   `CanvasKit.MakeImageFromCanvasImageSource` instead of `CanvasKit.MakeImageFromEncoded`.
+ - Three usage examples of `CanvasKit.MakeImageFromCanvasImageSource` in core.spec.ts.
+ - Added support for asynchronous callbacks in perfs and tests.
+ - `CanvasKit.SkPath.MakeFromVerbsPointsWeights` and `CanvasKit.SkPath.addVerbsPointsWeights` for
+  supplying many path operations (e.g. moveTo, cubicTo) at once.
+ - The object returned by `CanvasKit.malloc` now has a `subarray` method which works exactly like
+  the normal TypedArray version. The TypedArray which it returns is also backed by WASM memory
+  and when passed into CanvasKit will be used w/o copying the data (just like
+  `Malloc.toTypedArray`).
+ - `SkM44.setupCamera` to return a 4x4 matrix which sets up a perspective view from a camera.
+
+### Changed
+ - In all places where color arrays are accepted (gradient makers, drawAtlas, and MakeSkVertices),
+   You can now provide either flat Float32Arrays of float colors, Uint32Arrays of int colors, or 
+   2d Arrays of Float32Array(4) colors. The one thing you should not pass is an Array of numbers,
+   since canvaskit wouldn't be able to tell whether they're ints or floats without checking them all.
+   The fastest choice for gradients is the flat Float32Array, the fastest choice for drawAtlas and
+   MakeSkVertices is the flat Uint32Array.
+ - Color arrays may also be objects created with CanvasKit.Malloc
+
+### Fixed
+ - `TextStyle.color` can correctly be a Malloc'd Float32Array.
+ 
+### Deprecated
+ - `CanvasKit.MakePathFromCmds` has been renamed to `CanvasKit.SkPath.MakeFromCmds`. The alias
+   will be removed in an upcoming release.
+
+## [0.16.2] - 2020-06-05
+
+### Fixed
+ - A bug where loading fonts (and other memory intensive calls) would cause CanvasKit
+   to infrequently crash with
+   `TypeError: Cannot perform %TypedArray%.prototype.set on a neutered ArrayBuffer`.
+ - Incorrectly freeing Malloced colors passed into computeTonalColors.
+
+## [0.16.1] - 2020-06-04
+
+### Fixed
+ - Colors are unsigned to be compatible with Flutter Web and previous behavior, not
+   signed ints.
+
 ## [0.16.0] - 2020-06-03
 
 ### Added

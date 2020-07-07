@@ -119,7 +119,7 @@ void D3D12WindowContext::initializeContext() {
     this->setupSurfaces(width, height);
 
     for (int i = 0; i < kNumFrames; ++i) {
-        fFenceValues[i] = 1;
+        fFenceValues[i] = 10000;   // use a high value to make it easier to track these in PIX
     }
     GR_D3D_CALL_ERRCHECK(fDevice->CreateFence(fFenceValues[fBufferIndex], D3D12_FENCE_FLAG_NONE,
                                               IID_PPV_ARGS(&fFence)));
@@ -130,6 +130,7 @@ void D3D12WindowContext::initializeContext() {
     fWidth = width;
     fHeight = height;
 }
+
 
 void D3D12WindowContext::setupSurfaces(int width, int height) {
     // set up base resource info

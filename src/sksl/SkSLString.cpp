@@ -44,21 +44,16 @@ int String::findLastOf(const char c) const {
 }
 
 void String::vappendf(const char* fmt, va_list args) {
-#ifdef SKSL_BUILD_FOR_WIN
-    #define VSNPRINTF    _vsnprintf
-#else
-    #define VSNPRINTF    vsnprintf
-#endif
     #define BUFFER_SIZE 256
     char buffer[BUFFER_SIZE];
     va_list reuse;
     va_copy(reuse, args);
-    size_t size = VSNPRINTF(buffer, BUFFER_SIZE, fmt, args);
+    size_t size = vsnprintf(buffer, BUFFER_SIZE, fmt, args);
     if (BUFFER_SIZE >= size) {
         this->append(buffer, size);
     } else {
         auto newBuffer = std::unique_ptr<char[]>(new char[size + 1]);
-        VSNPRINTF(newBuffer.get(), size + 1, fmt, reuse);
+        vsnprintf(newBuffer.get(), size + 1, fmt, reuse);
         this->append(newBuffer.get(), size);
     }
     va_end(reuse);

@@ -156,6 +156,7 @@ void IRGenerator::start(const Program::Settings* settings,
     fSkPerVertex = nullptr;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
+    fInlineVarCounter = 0;
     if (inherited) {
         for (const auto& e : *inherited) {
             if (e->fKind == ProgramElement::kInterfaceBlock_Kind) {
@@ -616,7 +617,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
             if (!caseValue) {
                 return nullptr;
             }
-            if (!caseValue->isConstant()) {
+            if (!caseValue->isCompileTimeConstant()) {
                 fErrors.error(caseValue->fOffset, "case value must be a constant");
                 return nullptr;
             }
@@ -861,6 +862,19 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 }
                 break;
             }
+            case Program::kFragmentProcessor_Kind: {
+                bool valid = parameters.size() <= 1;
+                if (parameters.size() == 1) {
+                    valid = parameters[0]->fType == *fContext.fFloat2_Type &&
+                            parameters[0]->fModifiers.fFlags == 0;
+                }
+
+                if (!valid) {
+                    fErrors.error(f.fOffset, ".fp 'main' must be declared main() or main(float2)");
+                    return;
+                }
+                break;
+            }
             case Program::kGeneric_Kind:
                 break;
             default:
@@ -947,6 +961,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             } else {
                 SkASSERT(parameters.size() == 1);
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+            }
+        } else if (fd.fName == "main" && fKind == Program::kFragmentProcessor_Kind) {
+            if (parameters.size() == 1) {
+                parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
             }
         }
         for (size_t i = 0; i < parameters.size(); i++) {
@@ -1429,7 +1447,7 @@ static bool determine_binary_type(const Context& context,
                 *outResultType = &left;
                 return right.canCoerceTo(left);
             }
-            // fall through
+            [[fallthrough]];
         case Token::Kind::TK_STAR:
             if (is_matrix_multiply(left, right)) {
                 // determine final component type
@@ -1482,7 +1500,7 @@ static bool determine_binary_type(const Context& context,
                 *outResultType = &left;
                 return right.canCoerceTo(left);
             }
-            // fall through
+            [[fallthrough]];
         case Token::Kind::TK_PLUS:    // fall through
         case Token::Kind::TK_MINUS:   // fall through
         case Token::Kind::TK_SLASH:   // fall through
@@ -1575,16 +1593,16 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       const Expression& right) const {
     // If the left side is a constant boolean literal, the right side does not need to be constant
     // for short circuit optimizations to allow the constant to be folded.
-    if (left.fKind == Expression::kBoolLiteral_Kind && !right.isConstant()) {
+    if (left.fKind == Expression::kBoolLiteral_Kind && !right.isCompileTimeConstant()) {
         return short_circuit_boolean(fContext, left, op, right);
-    } else if (right.fKind == Expression::kBoolLiteral_Kind && !left.isConstant()) {
+    } else if (right.fKind == Expression::kBoolLiteral_Kind && !left.isCompileTimeConstant()) {
         // There aren't side effects in SKSL within expressions, so (left OP right) is equivalent to
         // (right OP left) for short-circuit optimizations
         return short_circuit_boolean(fContext, right, op, left);
     }
 
     // Other than the short-circuit cases above, constant folding requires both sides to be constant
-    if (!left.isConstant() || !right.isConstant()) {
+    if (!left.isCompileTimeConstant() || !right.isCompileTimeConstant()) {
         return nullptr;
     }
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum
@@ -2184,7 +2202,8 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     Variable* resultVar;
     if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
         std::unique_ptr<String> name(new String());
-        name->appendf("inlineResult%d", offset);
+        int varIndex = fInlineVarCounter++;
+        name->appendf("inlineResult%d", varIndex);
         String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
         resultVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
                                                      new Variable(-1, Modifiers(), namePtr->c_str(),
@@ -2203,9 +2222,10 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     }
     std::map<const Variable*, const Variable*> varMap;
     // create variables to hold the arguments and assign the arguments to them
+    int argIndex = fInlineVarCounter++;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         std::unique_ptr<String> argName(new String());
-        argName->appendf("inlineArg%d_%d", offset, i);
+        argName->appendf("inlineArg%d_%d", argIndex, i);
         String* argNamePtr = (String*) fSymbolTable->takeOwnership(std::move(argName));
         Variable* argVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
                                                       new Variable(-1, Modifiers(),
@@ -2726,7 +2746,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     swizzleComponents.push_back(1);
                     break;
                 }
-                // fall through
+                [[fallthrough]];
             case 'z':
             case 'b':
             case 'p':
@@ -2735,7 +2755,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     swizzleComponents.push_back(2);
                     break;
                 }
-                // fall through
+                [[fallthrough]];
             case 'w':
             case 'a':
             case 'q':
@@ -2744,7 +2764,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     swizzleComponents.push_back(3);
                     break;
                 }
-                // fall through
+                [[fallthrough]];
             default:
                 fErrors.error(base->fOffset, String::printf("invalid swizzle component '%c'",
                                                             fields[i]));

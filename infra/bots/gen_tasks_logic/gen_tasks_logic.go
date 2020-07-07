@@ -441,9 +441,10 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			ignore := []string{
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
 				"ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
-				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9",
-				"BonusConfigs", "SkottieTracing", "SkottieWASM", "GpuTess", "NonNVPR", "Mskp",
-				"Docker", "PDF", "SkVM", "Puppeteer", "SkottieFrames"}
+				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "OOPRDDL", "T8888",
+				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM",
+				"GpuTess", "NonNVPR", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
+				"SkottieFrames", "RenderSKP"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -589,6 +590,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"Pixel3":          {"blueline", "PQ1A.190105.004"},
 				"Pixel3a":         {"sargo", "QP1A.190711.020"},
 				"Pixel4":          {"flame", "QD1A.190821.011.C4"},
+				"Pixel4XL":        {"coral", "QD1A.190821.011.C4"},
 				"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 			}[b.parts["model"]]
 			if !ok {
@@ -1301,7 +1303,11 @@ func (b *jobBuilder) dm() {
 			isolate = "canvaskit.isolate"
 			recipe = "test_canvaskit"
 		} else if b.extraConfig("LottieWeb") {
-			isolate = "lottie_web.isolate"
+			// lottie_ci.isolate differs from lottie_web.isolate in that it includes more of the files,
+			// especially those brought in via DEPS in the lottie-ci repo. The main difference between
+			// Perf.+LottieWeb and Test.+LottieWeb is that the former pulls in the lottie build via
+			// npm and the latter always tests at lottie's ToT.
+			isolate = "lottie_ci.isolate"
 			recipe = "test_lottie_web"
 		}
 		b.recipeProp("gold_hashes_url", b.cfg.GoldHashesURL)
@@ -1400,41 +1406,64 @@ func (b *jobBuilder) puppeteer() {
 	compileTaskName := b.compile()
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.defaultSwarmDimensions()
-		b.isolate("perf_puppeteer.isolate")
-		b.cmd(
-			"./perf_puppeteer_skottie_frames",
-			"--project_id", "skia-swarming-bots",
-			"--git_hash", specs.PLACEHOLDER_REVISION,
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", b.Name,
-			"--canvaskit_bin_path", "./build",
-			"--lotties_path", "./lotties_with_assets",
-			"--node_bin_path", "./node/node/bin",
-			"--benchmark_path", "./tools/perf-canvaskit-puppeteer",
-			"--output_path", OUTPUT_PERF,
-			"--os_trace", b.parts["os"],
-			"--model_trace", b.parts["model"],
-			"--cpu_or_gpu_trace", b.parts["cpu_or_gpu"],
-			"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
-			"--alsologtostderr",
-		)
-		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		// This CIPD package was made by hand with the following invocation:
-		//   cipd create -name skia/internal/lotties_with_assets -in ./lotties/ -tag version:0
-		//   cipd acl-edit skia/internal/lotties_with_assets -reader group:project-skia-external-task-accounts
-		//   cipd acl-edit skia/internal/lotties_with_assets -reader user:pool-skia@chromium-swarm.iam.gserviceaccount.com
-		// Where lotties is a hand-selected set of lottie animations and (optionally) assets used in
-		// them (e.g. fonts, images).
-		b.cipd(&specs.CipdPackage{
-			Name:    "skia/internal/lotties_with_assets",
-			Path:    "lotties_with_assets",
-			Version: "version:0",
-		})
 		b.usesNode()
 		b.cipd(CIPD_PKG_LUCI_AUTH)
 		b.dep(b.buildTaskDrivers(), compileTaskName)
 		b.output(OUTPUT_PERF)
 		b.timeout(20 * time.Minute)
+		b.isolate("perf_puppeteer.isolate")
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+
+		if b.extraConfig("SkottieFrames") {
+			b.cmd(
+				"./perf_puppeteer_skottie_frames",
+				"--project_id", "skia-swarming-bots",
+				"--git_hash", specs.PLACEHOLDER_REVISION,
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--canvaskit_bin_path", "./build",
+				"--lotties_path", "./lotties_with_assets",
+				"--node_bin_path", "./node/node/bin",
+				"--benchmark_path", "./tools/perf-canvaskit-puppeteer",
+				"--output_path", OUTPUT_PERF,
+				"--os_trace", b.parts["os"],
+				"--model_trace", b.parts["model"],
+				"--cpu_or_gpu_trace", b.parts["cpu_or_gpu"],
+				"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
+				"--alsologtostderr",
+			)
+			// This CIPD package was made by hand with the following invocation:
+			//   cipd create -name skia/internal/lotties_with_assets -in ./lotties/ -tag version:0
+			//   cipd acl-edit skia/internal/lotties_with_assets -reader group:project-skia-external-task-accounts
+			//   cipd acl-edit skia/internal/lotties_with_assets -reader user:pool-skia@chromium-swarm.iam.gserviceaccount.com
+			// Where lotties is a hand-selected set of lottie animations and (optionally) assets used in
+			// them (e.g. fonts, images).
+			b.cipd(&specs.CipdPackage{
+				Name:    "skia/internal/lotties_with_assets",
+				Path:    "lotties_with_assets",
+				Version: "version:0",
+			})
+		} else if b.extraConfig("RenderSKP") {
+			b.cmd(
+				"./perf_puppeteer_render_skps",
+				"--project_id", "skia-swarming-bots",
+				"--git_hash", specs.PLACEHOLDER_REVISION,
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--canvaskit_bin_path", "./build",
+				"--skps_path", "./skp",
+				"--node_bin_path", "./node/node/bin",
+				"--benchmark_path", "./tools/perf-canvaskit-puppeteer",
+				"--output_path", OUTPUT_PERF,
+				"--os_trace", b.parts["os"],
+				"--model_trace", b.parts["model"],
+				"--cpu_or_gpu_trace", b.parts["cpu_or_gpu"],
+				"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
+				"--alsologtostderr",
+			)
+			b.asset("skp")
+		}
+
 	})
 
 	// Upload results to Perf after.

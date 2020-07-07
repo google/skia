@@ -8,6 +8,7 @@
 #ifndef DDLTileHelper_DEFINED
 #define DDLTileHelper_DEFINED
 
+#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceCharacterization.h"
@@ -16,7 +17,6 @@ class DDLPromiseImageHelper;
 class PromiseImageCallbackContext;
 class SkCanvas;
 class SkData;
-class SkDeferredDisplayList;
 class SkDeferredDisplayListRecorder;
 class SkPicture;
 class SkSurface;
@@ -87,12 +87,12 @@ public:
         // after 'fDisplayList' has been flushed (bc it owns the proxy the DDL's destination
         // trampoline points at).
         // TODO: fix the ref-order so we don't need 'fTileSurface' here
-        sk_sp<SkSurface>          fTileSurface;
+        sk_sp<SkSurface>              fTileSurface;
 
-        sk_sp<SkPicture>          fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>  fPromiseImages;    // All the promise images in the
+        sk_sp<SkPicture>              fReconstitutedPicture;
+        SkTArray<sk_sp<SkImage>>      fPromiseImages;    // All the promise images in the
                                                      // reconstituted picture
-        std::unique_ptr<SkDeferredDisplayList> fDisplayList;
+        sk_sp<SkDeferredDisplayList>  fDisplayList;
     };
 
     DDLTileHelper(GrContext* context,
@@ -100,17 +100,17 @@ public:
                   const SkIRect& viewport,
                   int numDivisions);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
+    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
 
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
-                             GrContext* gpuThreadContext);
+                             GrContext*);
 
     void createDDLsInParallel();
 
     // Create the DDL that will compose all the tile images into a final result.
     void createComposeDDL();
-    SkDeferredDisplayList* composeDDL() const { return fComposeDDL.get(); }
+    const sk_sp<SkDeferredDisplayList>& composeDDL() const { return fComposeDDL; }
 
     void precompileAndDrawAllTiles(GrContext*);
 
@@ -137,7 +137,7 @@ private:
     int                                    fNumDivisions; // number of tiles along a side
     SkAutoTArray<TileData>                 fTiles;        // 'fNumDivisions' x 'fNumDivisions'
 
-    std::unique_ptr<SkDeferredDisplayList> fComposeDDL;
+    sk_sp<SkDeferredDisplayList>           fComposeDDL;
 
     const SkSurfaceCharacterization        fDstCharacterization;
 };

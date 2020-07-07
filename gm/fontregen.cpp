@@ -30,6 +30,8 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTemplates.h"
 #include "src/gpu/GrContextPriv.h"
@@ -81,12 +83,17 @@ class FontRegenGM : public skiagm::GpuGM {
         fBlobs[2] = make_blob(kTexts[2], font);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+        auto direct = context->asDirectContext();
+        if (!direct) {
+            return;
+        }
+
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         canvas->drawTextBlob(fBlobs[0], 10, 80, paint);
         canvas->drawTextBlob(fBlobs[1], 10, 225, paint);
-        context->flushAndSubmit();
+        direct->flushAndSubmit();
 
         paint.setColor(0xFF010101);
         canvas->drawTextBlob(fBlobs[0], 10, 305, paint);
@@ -95,7 +102,7 @@ class FontRegenGM : public skiagm::GpuGM {
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
-            auto img = context->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
+            auto img = direct->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
             canvas->drawImage(img, 200, 0);
         }
     }
@@ -137,12 +144,11 @@ class BadAppleGM : public skiagm::GpuGM {
         fBlobs[1] = make_blob(kTexts[1], font);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(0xFF111111);
         canvas->drawTextBlob(fBlobs[0], 10, 260, paint);
         canvas->drawTextBlob(fBlobs[1], 10, 500, paint);
-        context->flushAndSubmit();
     }
 
 private:

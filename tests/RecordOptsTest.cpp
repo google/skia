@@ -193,18 +193,6 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_draw_restore(r, &record, 18, false);
-
-    // saveLayer w/ clip mask should also NOT go away
-#ifdef SK_SUPPORT_LEGACY_LAYERCLIPMASK
-    {
-        sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(10, 10));
-        recorder.saveLayer({ nullptr, nullptr, nullptr, surface->makeImageSnapshot().get(),
-                             nullptr, 0});
-            recorder.drawRect(draw, opaqueDrawPaint);
-        recorder.restore();
-        assert_savelayer_draw_restore(r, &record, 21, false);
-    }
-#endif
 }
 #endif
 

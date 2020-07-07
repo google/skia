@@ -38,9 +38,62 @@
 bool gSkVMJITViaDylib{false};
 
 #if defined(SKVM_JIT)
-    #include <dlfcn.h>      // dlopen, dlsym
-    #include <sys/mman.h>   // mmap, mprotect
+    #if defined(SK_BUILD_FOR_WIN)
+        #include "src/core/SkLeanWindows.h"
+        #include <memoryapi.h>
+
+        static void* alloc_jit_buffer(size_t* len) {
+            return VirtualAlloc(NULL, *len, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+        }
+        static void unmap_jit_buffer(void* ptr, size_t len) {
+            VirtualFree(ptr, 0, MEM_RELEASE);
+        }
+        static void remap_as_executable(void* ptr, size_t len) {
+            DWORD old;
+            VirtualProtect(ptr, len, PAGE_EXECUTE_READ, &old);
+            SkASSERT(old == PAGE_READWRITE);
+        }
+        static void close_dylib(void* dylib) {
+            SkASSERT(false);  // TODO?  For now just assert we never make one.
+        }
+    #else
+        #include <dlfcn.h>
+        #include <sys/mman.h>
+
+        static void* alloc_jit_buffer(size_t* len) {
+            // While mprotect and VirtualAlloc both work at page granularity,
+            // mprotect doesn't round up for you, and instead requires *len is at page granularity.
+            const size_t page = sysconf(_SC_PAGESIZE);
+            *len = ((*len + page - 1) / page) * page;
+            return mmap(nullptr,*len, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        }
+        static void unmap_jit_buffer(void* ptr, size_t len) {
+            munmap(ptr, len);
+        }
+        static void remap_as_executable(void* ptr, size_t len) {
+            mprotect(ptr, len, PROT_READ|PROT_EXEC);
+            __builtin___clear_cache((char*)ptr,
+                                    (char*)ptr + len);
+        }
+        static void close_dylib(void* dylib) {
+            dlclose(dylib);
+        }
+    #endif
 #endif
+
+// JIT code isn't MSAN-instrumented, so we won't see when it uses
+// uninitialized memory, and we'll not see the writes it makes as properly
+// initializing memory.  Instead force the interpreter, which should let
+// MSAN see everything our programs do properly.
+//
+// Similarly, we can't get ASAN's checks unless we let it instrument our interpreter.
+#if defined(__has_feature)
+    #if __has_feature(memory_sanitizer) || __has_feature(address_sanitizer)
+        #define SKVM_JIT_BUT_IGNORE_IT
+    #endif
+#endif
+
+
 
 namespace skvm {
 
@@ -250,6 +303,7 @@ namespace skvm {
             case Op::select:  write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
             case Op::pack:    write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}, fs(id)...); break;
 
+            case Op::ceil:   write(o, V{id}, "=", op, V{x}, fs(id)...); break;
             case Op::floor:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
             case Op::to_f32: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
             case Op::trunc:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
@@ -369,6 +423,7 @@ namespace skvm {
                 case Op::select:  write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
                 case Op::pack:    write(o, R{d}, "=", op,   R{x}, R{y}, Shift{immz}); break;
 
+                case Op::ceil:   write(o, R{d}, "=", op, R{x}); break;
                 case Op::floor:  write(o, R{d}, "=", op, R{x}); break;
                 case Op::to_f32: write(o, R{d}, "=", op, R{x}); break;
                 case Op::trunc:  write(o, R{d}, "=", op, R{x}); break;
@@ -1013,6 +1068,10 @@ namespace skvm {
         return {this, this->push(Op::pack, x.id,y.id,NA, 0,bits)};
     }
 
+    F32 Builder::ceil(F32 x) {
+        if (float X; this->allImm(x.id,&X)) { return splat(ceilf(X)); }
+        return {this, this->push(Op::ceil, x.id)};
+    }
     F32 Builder::floor(F32 x) {
         if (float X; this->allImm(x.id,&X)) { return splat(floorf(X)); }
         return {this, this->push(Op::floor, x.id)};
@@ -1234,32 +1293,35 @@ namespace skvm {
         };
 
         switch (mode) {
-            default: SkASSERT(false); /*but also, for safety, fallthrough*/
+            default:
+                SkASSERT(false);
+                [[fallthrough]]; /*but also, for safety, fallthrough*/
 
             case SkBlendMode::kClear: return { splat(0.0f), splat(0.0f), splat(0.0f), splat(0.0f) };
 
             case SkBlendMode::kSrc: return src;
             case SkBlendMode::kDst: return dst;
 
-            case SkBlendMode::kDstOver: std::swap(src, dst); // fall-through
+            case SkBlendMode::kDstOver: std::swap(src, dst); [[fallthrough]];
             case SkBlendMode::kSrcOver:
                 return apply_rgba([&](auto s, auto d) {
                     return mad(d,1-src.a, s);
                 });
 
-            case SkBlendMode::kDstIn: std::swap(src, dst); // fall-through
+            case SkBlendMode::kDstIn: std::swap(src, dst); [[fallthrough]];
             case SkBlendMode::kSrcIn:
                 return apply_rgba([&](auto s, auto d) {
                     return s * dst.a;
                 });
 
-            case SkBlendMode::kDstOut: std::swap(src, dst); // fall-through
+            case SkBlendMode::kDstOut: std::swap(src, dst); [[fallthrough]];
+
             case SkBlendMode::kSrcOut:
                 return apply_rgba([&](auto s, auto d) {
                     return s * (1-dst.a);
                 });
 
-            case SkBlendMode::kDstATop: std::swap(src, dst); // fall-through
+            case SkBlendMode::kDstATop: std::swap(src, dst); [[fallthrough]];
             case SkBlendMode::kSrcATop:
                 return apply_rgba([&](auto s, auto d) {
                     return mma(s, dst.a,  d, 1-src.a);
@@ -1792,6 +1854,7 @@ namespace skvm {
 
     void Assembler::vmovdqa(Ymm dst, Operand src) { this->op(0x66,0x0f,0x6f, dst,src); }
     void Assembler::vmovups(Ymm dst, Operand src) { this->op(   0,0x0f,0x10, dst,src); }
+    void Assembler::vmovups(Xmm dst, Operand src) { this->op(   0,0x0f,0x10, dst,src); }
     void Assembler::vmovups(Operand dst, Ymm src) { this->op(   0,0x0f,0x11, src,dst); }
     void Assembler::vmovups(Operand dst, Xmm src) { this->op(   0,0x0f,0x11, src,dst); }
 
@@ -2140,13 +2203,15 @@ namespace skvm {
             });
         }
     #endif
+
+    #if !defined(SKVM_JIT_BUT_IGNORE_IT)
         // This may fail either simply because we can't JIT, or when using LLVM,
         // because the work represented by fImpl->llvm_compiling hasn't finished yet.
         if (const void* b = fImpl->jit_entry.load()) {
-    #if SKVM_JIT_STATS
+        #if SKVM_JIT_STATS
             jits++;
             fast += n;
-    #endif
+        #endif
             void** a = args;
             switch (fImpl->strides.size()) {
                 case 0: return ((void(*)(int                        ))b)(n                    );
@@ -2159,6 +2224,7 @@ namespace skvm {
                 default: SkUNREACHABLE;  // TODO
             }
         }
+    #endif
 
         // So we'll sometimes use the interpreter here even if later calls will use the JIT.
         SkOpts::interpret_skvm(fImpl->instructions.data(), (int)fImpl->instructions.size(),
@@ -2349,6 +2415,9 @@ namespace skvm {
                                                     F(vals[z])}));
                     break;
 
+                case Op::ceil:
+                    vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::ceil, F(vals[x])));
+                    break;
                 case Op::floor:
                     vals[i] = I(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor, F(vals[x])));
                     break;
@@ -2584,9 +2653,9 @@ namespace skvm {
         fImpl->llvm_ctx.reset(nullptr);
     #elif defined(SKVM_JIT)
         if (fImpl->dylib) {
-            dlclose(fImpl->dylib);
+            close_dylib(fImpl->dylib);
         } else if (auto jit_entry = fImpl->jit_entry.load()) {
-            munmap(jit_entry, fImpl->jit_size);
+            unmap_jit_buffer(jit_entry, fImpl->jit_size);
         }
     #else
         SkASSERT(!this->hasJIT());
@@ -2755,15 +2824,67 @@ namespace skvm {
                                                   : stack_slot.size();
 
 
-    #if defined(__x86_64__)
+    #if defined(__x86_64__) || defined(_M_X64)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
         const int K = 8;
-        const A::GP64 N   = A::rdi,
-                      GP0 = A::rax,
-                      GP1 = A::r11,
-                      arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+        #if defined(_M_X64)  // Important to check this first; clang-cl defines both.
+            const A::GP64 N = A::rcx,
+                        GP0 = A::rax,
+                        GP1 = A::r11,
+                        arg[]    = { A::rdx, A::r8, A::r9, A::r10, A::rdi };
+            auto enter = [&]{
+                // Fun extra setup to work within the MS ABI:
+                // 0) rcx,rdx,r8,r9 are all already holding their correct values,
+                //    and rax,r10,r11 can be used freely.
+                // 1) Load r10 from rsp+40 if there's a fourth arg.
+                if (fImpl->strides.size() >= 4) {
+                    a->mov(A::r10, A::Mem{A::rsp, 40});
+                }
+                // 2) Load rdi from rsp+48 if there's a fifth arg,
+                //    first preserving its original callee-saved value at rsp+8,
+                //    which is an ABI reserved shadow area usually for spilling rcx.
+                if (fImpl->strides.size() >= 5) {
+                    a->mov(A::Mem{A::rsp, 8}, A::rdi);
+                    a->mov(A::rdi, A::Mem{A::rsp, 48});
+                }
+                // 3) Save xmm6-xmm15.
+                a->sub(A::rsp, 10*16);
+                for (int i = 0; i < 10; i++) {
+                    a->vmovups(A::Mem{A::rsp, i*16}, (A::Xmm)(i+6));
+                }
+
+                // Now our normal "make space for values".
+                if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); }
+            };
+            auto exit  = [&]{
+                if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
+                // Undo MS ABI setup in reverse.
+                // 3) restore xmm6-xmm15
+                for (int i = 0; i < 10; i++) {
+                    a->vmovups((A::Xmm)(i+6), A::Mem{A::rsp, i*16});
+                }
+                a->add(A::rsp, 10*16);
+                // 2) restore rdi if we used it
+                if (fImpl->strides.size() >= 5) {
+                    a->mov(A::rdi, A::Mem{A::rsp, 8});
+                }
+                // 1) no need to restore caller-saved r10
+                a->vzeroupper();
+                a->ret();
+            };
+        #elif defined(__x86_64__)
+            const A::GP64 N = A::rdi,
+                        GP0 = A::rax,
+                        GP1 = A::r11,
+                        arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+
+            auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
+            auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
+                              a->vzeroupper();
+                              a->ret(); };
+        #endif
 
         // All 16 ymm registers are available to use.
         using Reg = A::Ymm;
@@ -2777,7 +2898,7 @@ namespace skvm {
                 if (instructions[v].immy == 0) {
                     a->vpxor(r,r,r);
                 } else {
-                    a->vmovups(r, &constants[instructions[v].immy]);
+                    a->vmovups(r, constants.find(instructions[v].immy));
                 }
             } else {
                 SkASSERT(stack_slot[v] != NA);
@@ -2795,7 +2916,11 @@ namespace skvm {
                    GP0   = A::x8,
                    arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
 
-        // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15.
+        auto enter = [&]{ if (nstack_slots) { a->sub(A::sp, A::sp, nstack_slots*K*4); } };
+        auto exit  = [&]{ if (nstack_slots) { a->add(A::sp, A::sp, nstack_slots*K*4); }
+                          a->ret(A::x30); };
+
+        // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15 in enter/exit.
         using Reg = A::V;
         std::array<Val,32> regs = {
              NA, NA, NA, NA,  NA, NA, NA, NA,
@@ -2809,7 +2934,7 @@ namespace skvm {
                 if (instructions[v].immy == 0) {
                     a->eor16b(r,r,r);
                 } else {
-                    a->ldrq(r, &constants[instructions[v].immy]);
+                    a->ldrq(r, constants.find(instructions[v].immy));
                 }
             } else {
                 SkASSERT(stack_slot[v] != NA);
@@ -2876,7 +3001,7 @@ namespace skvm {
                 return r;
             };
 
-        #if defined(__x86_64__)  // Nothing special... just happens to not be used on ARM right now.
+        #if defined(__x86_64__) || defined(_M_X64)  // Nothing special... just unused on ARM.
             auto free_tmp = [&](Reg r) {
                 SkASSERT(regs[r] == TMP);
                 regs[r] = NA;
@@ -2960,7 +3085,7 @@ namespace skvm {
                 return r(id);
             };
 
-        #if defined(__x86_64__)
+        #if defined(__x86_64__) || defined(_M_X64)
             // On x86 we can work with many values directly from the stack or program constant pool.
             auto any = [&](Val v) -> A::Operand {
                 SkASSERT(v >= 0);
@@ -2970,7 +3095,7 @@ namespace skvm {
                     return (Reg)found;
                 }
                 if (instructions[v].op == Op::splat) {
-                    return &constants[instructions[v].immy];
+                    return constants.find(instructions[v].immy);
                 }
                 return A::Mem{A::rsp, stack_slot[v]*K*4};
             };
@@ -2983,10 +3108,12 @@ namespace skvm {
         #endif
 
             switch (op) {
-                // Splats are handled above.
-                case Op::splat: break;
+                case Op::splat:
+                    // Make sure splat constants can be found by load_from_memory() or any().
+                    (void)constants[immy];
+                    break;
 
-            #if defined(__x86_64__)
+            #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
                     a->vptest (r(x), &constants[0xffffffff]);
                     A::Label all_true;
@@ -3220,6 +3347,11 @@ namespace skvm {
                                a->vpor  (dst(), dst(), any(x));
                                break;
 
+                case Op::ceil:
+                    if (in_reg(x)) { a->vroundps(dst(x),  r(x), Assembler::CEIL); }
+                    else           { a->vroundps(dst(), any(x), Assembler::CEIL); }
+                                     break;
+
                 case Op::floor:
                     if (in_reg(x)) { a->vroundps(dst(x),  r(x), Assembler::FLOOR); }
                     else           { a->vroundps(dst(), any(x), Assembler::FLOOR); }
@@ -3363,27 +3495,18 @@ namespace skvm {
             return true;
         };
 
-        #if defined(__x86_64__)
+        #if defined(__x86_64__) || defined(_M_X64)
             auto jump_if_less = [&](A::Label* l) { a->jl (l); };
             auto jump         = [&](A::Label* l) { a->jmp(l); };
 
             auto add = [&](A::GP64 gp, int imm) { a->add(gp, imm); };
             auto sub = [&](A::GP64 gp, int imm) { a->sub(gp, imm); };
-
-            auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
-            auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
-                              a->vzeroupper();
-                              a->ret(); };
         #elif defined(__aarch64__)
             auto jump_if_less = [&](A::Label* l) { a->blt(l); };
             auto jump         = [&](A::Label* l) { a->b  (l); };
 
             auto add = [&](A::X gp, int imm) { a->add(gp, gp, imm); };
             auto sub = [&](A::X gp, int imm) { a->sub(gp, gp, imm); };
-
-            auto enter = [&]{ if (nstack_slots) { a->sub(A::sp, A::sp, nstack_slots*K*4); } };
-            auto exit  = [&]{ if (nstack_slots) { a->add(A::sp, A::sp, nstack_slots*K*4); }
-                              a->ret(A::x30); };
         #endif
 
         A::Label body,
@@ -3491,14 +3614,8 @@ namespace skvm {
             return;
         }
 
-        // Allocate space that we can remap as executable.
-        const size_t page = sysconf(_SC_PAGESIZE);
-
-        // mprotect works at page granularity.
-        fImpl->jit_size = ((a.size() + page - 1) / page) * page;
-
-        void* jit_entry
-             = mmap(nullptr,fImpl->jit_size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        fImpl->jit_size = a.size();
+        void* jit_entry = alloc_jit_buffer(&fImpl->jit_size);
         fImpl->jit_entry.store(jit_entry);
 
         // Assemble the program for real.
@@ -3507,10 +3624,9 @@ namespace skvm {
         SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.
-        mprotect(jit_entry, fImpl->jit_size, PROT_READ|PROT_EXEC);
-        __builtin___clear_cache((char*)jit_entry,
-                                (char*)jit_entry + fImpl->jit_size);
+        remap_as_executable(jit_entry, fImpl->jit_size);
 
+    #if !defined(SK_BUILD_FOR_WIN)
         // For profiling and debugging, it's helpful to have this code loaded
         // dynamically rather than just jumping info fImpl->jit_entry.
         if (gSkVMJITViaDylib) {
@@ -3537,6 +3653,7 @@ namespace skvm {
             }
             fImpl->jit_entry.store(sym);
         }
+    #endif
     }
 #endif
 

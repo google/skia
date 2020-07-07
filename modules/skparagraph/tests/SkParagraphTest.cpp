@@ -2267,19 +2267,19 @@ DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(301, 2.2f).position == 11);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(302, 2.6f).position == 11);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(301, 2.1f).position == 11);
-    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 20).position == 18);//
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 20).position == 18);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(450, 20).position == 16);
-    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 90).position == 36);//
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 90).position == 36);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(-100000, 90).position == 18);
     REPORTER_ASSERT(reporter,
                     paragraph->getGlyphPositionAtCoordinate(20, -80).position == 1);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 90).position == 18);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 170).position == 36);
-    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 180).position == 72);//
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 180).position == 72);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(70, 180).position == 56);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 270).position == 72);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(35, 90).position == 19);
-    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 10000).position == 77);//
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 10000).position == 77);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(85, 10000).position == 75);
 }
 
@@ -2388,7 +2388,13 @@ DEF_TEST(SkParagraph_GetRectsForRangeTight, reporter) {
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)";
     const size_t len = strlen(text);
+/*
+(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)
+    S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S   S    S     S   S
+ G  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GGG  G G  G  G  G  GG
+ W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W                  W
 
+ */
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
     paragraphStyle.setMaxLines(10);
@@ -5292,4 +5298,84 @@ DEF_TEST(SkParagraph_Infinity, reporter) {
     SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarInfinity) == false);
     SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNegativeInfinity) == false);
     SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNaN) == false);
+};
+
+DEF_TEST(SkParagraph_LineMetrics, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_LineMetrics.png");
+
+    const char* text = "One line of text\n";
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+
+    text_style.setFontSize(8);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    text_style.setFontSize(12);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    text_style.setFontSize(18);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    text_style.setFontSize(30);
+    builder.pushStyle(text_style);
+    builder.addText(text, len - 1); // Skip the last \n
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+
+    std::vector<LineMetrics> metrics;
+    paragraph->getLineMetrics(metrics);
+
+    SkDEBUGCODE(auto impl = static_cast<ParagraphImpl*>(paragraph.get());)
+    SkASSERT(metrics.size() == impl->lines().size());
+    for (size_t i = 0; i < metrics.size(); ++i) {
+        SkDEBUGCODE(auto& line = impl->lines()[i];)
+        SkDEBUGCODE(auto baseline = metrics[i].fBaseline;)
+        SkDEBUGCODE(auto top = line.offset().fY;)
+        SkDEBUGCODE(auto bottom = line.offset().fY + line.height();)
+        SkASSERT( baseline > top && baseline <= bottom);
+    }
+
+    paragraph->paint(canvas.get(), 0, 0);
+    auto rects = paragraph->getRectsForRange(0, len * 4, RectHeightStyle::kMax, RectWidthStyle::kTight);
+
+    SkPaint red;
+    red.setColor(SK_ColorRED);
+    red.setStyle(SkPaint::kStroke_Style);
+    red.setAntiAlias(true);
+    red.setStrokeWidth(1);
+
+    for (auto& rect : rects) {
+        canvas.get()->drawRect(rect.rect, red);
+    }
+
+    SkPaint green;
+    green.setColor(SK_ColorGREEN);
+    green.setStyle(SkPaint::kStroke_Style);
+    green.setAntiAlias(true);
+    green.setStrokeWidth(1);
+    for (auto& metric : metrics) {
+        auto x0 = 0.0;
+        auto x1 = metric.fWidth;
+        auto y = metric.fBaseline;
+        canvas.get()->drawLine(x0, y, x1, y, green);
+    }
 };

@@ -8,26 +8,30 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include <set>
 #include "include/core/SkSurface.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTHash.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
+#include "src/gpu/GrHashMapWithCache.h"
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrPathRendererChain.h"
 #include "src/gpu/GrResourceCache.h"
-#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/GrSurfaceProxy.h"
 
 // Enabling this will print out which path renderers are being chosen
 #define GR_PATH_RENDERER_SPEW 0
 
 class GrCoverageCountingPathRenderer;
+class GrGpuBuffer;
 class GrOnFlushCallbackObject;
 class GrOpFlushState;
 class GrOpsTask;
 class GrRecordingContext;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
+class GrRenderTask;
+class GrSemaphore;
 class GrSoftwarePathRenderer;
 class GrSurfaceContext;
 class GrSurfaceProxyView;
@@ -78,8 +82,6 @@ public:
 
     GrRecordingContext* getContext() { return fContext; }
 
-    GrTextContext* getTextContext();
-
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                     bool allowSW,
                                     GrPathRendererChain::DrawType drawType,
@@ -98,11 +100,13 @@ public:
     GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy* proxies[],
                                         int cnt,
                                         SkSurface::BackendSurfaceAccess access,
-                                        const GrFlushInfo& info);
+                                        const GrFlushInfo& info,
+                                        const GrBackendSurfaceMutableState* newState);
     GrSemaphoresSubmitted flushSurface(GrSurfaceProxy* proxy,
                                        SkSurface::BackendSurfaceAccess access,
-                                       const GrFlushInfo& info) {
-        return this->flushSurfaces(&proxy, 1, access, info);
+                                       const GrFlushInfo& info,
+                                       const GrBackendSurfaceMutableState* newState) {
+        return this->flushSurfaces(&proxy, 1, access, info, newState);
     }
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
@@ -111,8 +115,12 @@ public:
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 
+    GrRenderTask* getLastRenderTask(const GrSurfaceProxy*) const;
+    GrOpsTask* getLastOpsTask(const GrSurfaceProxy*) const;
+    void setLastRenderTask(const GrSurfaceProxy*, GrRenderTask*);
+
     void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
-    void copyRenderTasksFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
+    void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
 
 private:
     // This class encapsulates maintenance and manipulation of the drawing manager's DAG of
@@ -129,19 +137,15 @@ private:
 
         void closeAll(const GrCaps* caps);
 
-        // A yucky combination of closeAll and reset
-        void cleanup(const GrCaps* caps);
-
         void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const;
 
         void reset();
 
-        // These calls forceably remove a GrRenderTask from the DAG. They are problematic bc they
-        // just remove the GrRenderTask but don't cleanup any refering pointers (i.e., dependency
-        // pointers in the DAG). They work right now bc they are only called at flush time, after
-        // the topological sort is complete (so the dangling pointers aren't used).
-        void removeRenderTask(int index);
-        void removeRenderTasks(int startIndex, int stopIndex);
+        // This call forceably removes GrRenderTasks from the DAG. It is problematic bc it
+        // just removes the GrRenderTasks but doesn't cleanup any referring pointers (i.e.
+        // dependency pointers in the DAG). It works right now bc it is only called after the
+        // topological sort is complete (so the dangling pointers aren't used).
+        void rawRemoveRenderTasks(int startIndex, int stopIndex);
 
         bool empty() const { return fRenderTasks.empty(); }
         int numRenderTasks() const { return fRenderTasks.count(); }
@@ -167,14 +171,12 @@ private:
         bool                          fSortRenderTasks;
     };
 
-    GrDrawingManager(GrRecordingContext*, const GrPathRendererChain::Options&,
-                     const GrTextContext::Options&,
+    GrDrawingManager(GrRecordingContext*,
+                     const GrPathRendererChain::Options&,
                      bool sortRenderTasks,
                      bool reduceOpsTaskSplitting);
 
     bool wasAbandoned() const;
-
-    void cleanup();
 
     // Closes the target's dependent render tasks (or, if not in sorting/opsTask-splitting-reduction
     // mode, closes fActiveOpsTask) in preparation for us opening a new opsTask that will write to
@@ -185,11 +187,13 @@ private:
     bool executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState*,
                             int* numRenderTasksExecuted);
 
+    void removeRenderTasks(int startIndex, int stopIndex);
+
     bool flush(GrSurfaceProxy* proxies[],
                int numProxies,
                SkSurface::BackendSurfaceAccess access,
                const GrFlushInfo&,
-               const GrPrepareForExternalIORequests&);
+               const GrBackendSurfaceMutableState* newState);
 
     bool submitToGpu(bool syncToCpu);
 
@@ -206,7 +210,7 @@ private:
 
     GrRecordingContext*               fContext;
     GrPathRendererChain::Options      fOptionsForPathRendererChain;
-    GrTextContext::Options            fOptionsForTextContext;
+
     // This cache is used by both the vertex and index pools. It reuses memory across multiple
     // flushes.
     sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
@@ -218,8 +222,6 @@ private:
     // These are the new renderTasks generated by the onFlush CBs
     SkSTArray<4, sk_sp<GrRenderTask>> fOnFlushRenderTasks;
 
-    std::unique_ptr<GrTextContext>    fTextContext;
-
     std::unique_ptr<GrPathRendererChain> fPathRendererChain;
     sk_sp<GrSoftwarePathRenderer>     fSoftwarePathRenderer;
 
@@ -229,15 +231,31 @@ private:
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 
-    void addDDLTarget(GrSurfaceProxy* proxy) { fDDLTargets.insert(proxy); }
-    bool isDDLTarget(GrSurfaceProxy* proxy) { return fDDLTargets.find(proxy) != fDDLTargets.end(); }
-    void clearDDLTargets() { fDDLTargets.clear(); }
+    void addDDLTarget(GrSurfaceProxy* newTarget, GrRenderTargetProxy* ddlTarget) {
+        fDDLTargets.set(newTarget->uniqueID().asUInt(), ddlTarget);
+    }
+    bool isDDLTarget(GrSurfaceProxy* newTarget) {
+        return SkToBool(fDDLTargets.find(newTarget->uniqueID().asUInt()));
+    }
+    GrRenderTargetProxy* getDDLTarget(GrSurfaceProxy* newTarget) {
+        auto entry = fDDLTargets.find(newTarget->uniqueID().asUInt());
+        return entry ? *entry : nullptr;
+    }
+    void clearDDLTargets() { fDDLTargets.reset(); }
 
     // We play a trick with lazy proxies to retarget the base target of a DDL to the SkSurface
-    // it is replayed on. Because of this remapping we need to explicitly store the targets of
-    // DDL replaying.
+    // it is replayed on. 'fDDLTargets' stores this mapping from SkSurface unique proxy ID
+    // to the DDL's lazy proxy.
     // Note: we do not expect a whole lot of these per flush
-    std::set<GrSurfaceProxy*> fDDLTargets;
+    SkTHashMap<uint32_t, GrRenderTargetProxy*> fDDLTargets;
+
+    struct SurfaceIDKeyTraits {
+        static uint32_t GetInvalidKey() {
+            return GrSurfaceProxy::UniqueID::InvalidID().asUInt();
+        }
+    };
+
+    GrHashMapWithCache<uint32_t, GrRenderTask*, SurfaceIDKeyTraits, GrCheapHash> fLastRenderTasks;
 };
 
 #endif

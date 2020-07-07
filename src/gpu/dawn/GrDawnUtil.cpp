@@ -45,6 +45,22 @@ bool GrColorTypeToDawnFormat(GrColorType ct, wgpu::TextureFormat* format) {
     }
 }
 
+bool GrDawnFormatToGrColorType(wgpu::TextureFormat format, GrColorType* colorType) {
+    switch (format) {
+        case wgpu::TextureFormat::RGBA8Unorm:
+            *colorType = GrColorType::kRGBA_8888;
+            return true;
+        case wgpu::TextureFormat::BGRA8Unorm:
+            *colorType = GrColorType::kBGRA_8888;
+            return true;
+        case wgpu::TextureFormat::R8Unorm:
+            *colorType = GrColorType::kR_8;
+            return true;
+        default:
+            return false;
+    }
+}
+
 size_t GrDawnRoundRowBytes(size_t rowBytes) {
     // Dawn requires that rowBytes be a multiple of 256. (This is actually imposed by D3D12.)
     return (rowBytes + 0xFF) & ~0xFF;

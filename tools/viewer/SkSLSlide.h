@@ -11,7 +11,6 @@
 #include "tools/viewer/Slide.h"
 
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/gpu/GrContextOptions.h"
 
 class SkSLSlide : public Slide {
 public:
@@ -26,7 +25,7 @@ public:
     void unload() override;
 
 private:
-    bool rebuild(GrContextOptions::ShaderErrorHandler*);
+    bool rebuild();
 
     SkString fSkSL;
     bool fCodeIsDirty;

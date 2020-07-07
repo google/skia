@@ -75,7 +75,7 @@ protected:
         sk_sp<SkTypeface> typeface;
         const char* text;
     } emojiFont;
-    virtual void onOnceBeforeDraw() override {
+    void onOnceBeforeDraw() override {
         emojiFont.typeface = ToolUtils::emoji_typeface();
         emojiFont.text     = ToolUtils::emoji_sample_text();
     }

@@ -10,8 +10,6 @@ enum class Type {
     kRadial, kStrip, kFocal
 };
 
-in half3x3 gradientMatrix;
-
 layout(key) in Type type;
 layout(key) in bool isRadiusIncreasing;
 
@@ -27,18 +25,7 @@ layout(key) in bool isNativelyFocal;
 // each FP
 layout(tracked) in uniform half2 focalParams;
 
-@coordTransform {
-    gradientMatrix
-}
-
-void main() {
-    // p typed as a float2 is intentional; while a half2 is adequate for most normal cases in the
-    // two point conic gradient's coordinate system, when the gradient is composed with a local
-    // perspective matrix, certain out-of-bounds regions become ill behaved on mobile devices.
-    // On desktops, they are properly clamped after the fact, but on many Adreno GPUs the
-    // calculations of t and x_t below overflow and produce an incorrect interpolant (which then
-    // renders the wrong border color sporadically). Increasing precition alleviates that issue.
-    float2 p = sk_TransformedCoords2D[0];
+void main(float2 p) {
     float t = -1;
     half v = 1; // validation flag, set to negative to discard fragment later
 
@@ -125,6 +112,7 @@ void main() {
 //////////////////////////////////////////////////////////////////////////////
 
 @header {
+    #include "src/gpu/effects/GrMatrixEffect.h"
     #include "src/gpu/gradients/GrGradientShader.h"
     #include "src/shaders/gradients/SkTwoPointConicalGradient.h"
 }
@@ -216,9 +204,10 @@ void main() {
         }
 
 
-        return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
-                matrix, grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved,
-                isSwapped, isNativelyFocal, focalParams));
+        return GrMatrixEffect::Make(
+                matrix, std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
+                        grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved,
+                        isSwapped, isNativelyFocal, focalParams)));
     }
 }
 

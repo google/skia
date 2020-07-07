@@ -202,6 +202,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     SkRandom random;
     bool repeat = false;
     Combinable combinable;
+    GrDrawingManager* drawingMgr = context->priv().drawingManager();
     for (int p = 0; p < kNumPermutations; ++p) {
         for (int i = 0; i < kNumOps - 2 && !repeat; ++i) {
             // The current implementation of nextULessThan() is biased. :(
@@ -216,7 +217,8 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                 GrOpFlushState flushState(context->priv().getGpu(),
                                           context->priv().resourceProvider(),
                                           &tracker);
-                GrOpsTask opsTask(context->priv().arenas(),
+                GrOpsTask opsTask(drawingMgr,
+                                  context->priv().arenas(),
                                   GrSurfaceProxyView(proxy, kOrigin, writeSwizzle),
                                   context->priv().auditTrail());
                 // This assumes the particular values of kRanges.
@@ -232,14 +234,15 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                     range.fOffset += pos;
                     auto op = TestOp::Make(context.get(), value, range, result, &combinable);
                     op->writeResult(validResult);
-                    opsTask.addOp(std::move(op),
+                    opsTask.addOp(drawingMgr, std::move(op),
                                   GrTextureResolveManager(context->priv().drawingManager()),
                                   *context->priv().caps());
                 }
                 opsTask.makeClosed(*context->priv().caps());
                 opsTask.prepare(&flushState);
                 opsTask.execute(&flushState);
-                opsTask.endFlush();
+                opsTask.endFlush(drawingMgr);
+                opsTask.disown(drawingMgr);
 #if 0  // Useful to repeat a random configuration that fails the test while debugger attached.
                 if (!std::equal(result, result + result_width(), validResult)) {
                     repeat = true;

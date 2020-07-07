@@ -19,10 +19,10 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCpuBuffer.h"
 #include "src/gpu/GrDataUtils.h"
-#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -50,9 +50,9 @@
             GR_GL_CALL(this->glInterface(), call);            \
             return static_cast<GrGLenum>(GR_GL_NO_ERROR);     \
         } else {                                              \
-            GrGLClearErr(this->glInterface());                \
+            this->clearErrorsAndCheckForOOM();                \
             GR_GL_CALL_NOERRCHECK(this->glInterface(), call); \
-            return GR_GL_GET_ERROR(this->glInterface());      \
+            return this->getErrorAndCheckForOOM();            \
         }                                                     \
     }()
 
@@ -333,7 +333,11 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrContext* context)
         , fStencilClearFBOID(0)
         , fFinishCallbacks(this) {
     SkASSERT(fGLContext);
-    GrGLClearErr(this->glInterface());
+    // Clear errors so we don't get confused whether we caused an error.
+    this->clearErrorsAndCheckForOOM();
+    // Toss out any pre-existing OOM that was hanging around before we got started.
+    this->checkAndResetOOMed();
+
     fCaps = sk_ref_sp(fGLContext->caps());
 
     fHWTextureUnitBindings.reset(this->numTextureUnits());
@@ -1047,7 +1051,8 @@ void GrGLGpu::uploadTexData(SkISize texDims,
     }
 }
 
-bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
+bool GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionType,
+                                      GrGLFormat format,
                                       SkISize dimensions,
                                       GrMipMapped mipMapped,
                                       GrGLenum target,
@@ -1061,7 +1066,6 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
         return false;
     }
 
-    SkImage::CompressionType compressionType = GrGLFormatToCompressionType(format);
     SkASSERT(compressionType != SkImage::CompressionType::kNone);
 
     bool useTexStorage = caps.formatSupportsTexStorage(format);
@@ -1286,14 +1290,27 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc texDesc;
     texDesc.fSize = dimensions;
-    texDesc.fTarget = GR_GL_TEXTURE_2D;
+    switch (format.textureType()) {
+        case GrTextureType::kExternal:
+        case GrTextureType::kNone:
+            return nullptr;
+        case GrTextureType::k2D:
+            texDesc.fTarget = GR_GL_TEXTURE_2D;
+            break;
+        case GrTextureType::kRectangle:
+            if (mipLevelCount > 1 || !this->glCaps().rectangleTextureSupport()) {
+                return nullptr;
+            }
+            texDesc.fTarget = GR_GL_TEXTURE_RECTANGLE;
+            break;
+    }
     texDesc.fFormat = format.asGLFormat();
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     SkASSERT(texDesc.fFormat != GrGLFormat::kUnknown);
     SkASSERT(!GrGLFormatIsCompressed(texDesc.fFormat));
 
-    texDesc.fID = this->createTexture2D(dimensions, texDesc.fFormat, renderable, &initialState,
-                                        mipLevelCount);
+    texDesc.fID = this->createTexture(dimensions, texDesc.fFormat, texDesc.fTarget, renderable,
+                                      &initialState, mipLevelCount);
 
     if (!texDesc.fID) {
         return return_null_texture();
@@ -1346,9 +1363,9 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
             }
             fHWBoundRenderTargetUniqueID.makeInvalid();
         } else {
-            this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, tex->textureID());
+            this->bindTextureToScratchUnit(texDesc.fTarget, tex->textureID());
             static constexpr SkColor4f kZeroColor = {0, 0, 0, 0};
-            this->uploadColorToTex(texDesc.fFormat, texDesc.fSize, GR_GL_TEXTURE_2D, kZeroColor,
+            this->uploadColorToTex(texDesc.fFormat, texDesc.fSize, texDesc.fTarget, kZeroColor,
                                    levelClearMask);
         }
     }
@@ -1365,13 +1382,15 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     if (isProtected == GrProtected::kYes) {
         return nullptr;
     }
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc desc;
     desc.fSize = dimensions;
     desc.fTarget = GR_GL_TEXTURE_2D;
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
-    desc.fID = this->createCompressedTexture2D(desc.fSize, desc.fFormat,
+    desc.fID = this->createCompressedTexture2D(desc.fSize, compression, desc.fFormat,
                                                mipMapped, &initialState,
                                                data, dataSize);
     if (!desc.fID) {
@@ -1408,16 +1427,16 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
         return {};
     }
 
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+
     const char* rawData = nullptr;
     size_t rawDataSize = 0;
     SkAutoMalloc am;
-
     SkASSERT(!data || data->type() != BackendTextureData::Type::kPixmaps);
     if (data && data->type() == BackendTextureData::Type::kCompressed) {
         rawData = (const char*) data->compressedData();
         rawDataSize = data->compressedSize();
     } else if (data && data->type() == BackendTextureData::Type::kColor) {
-        SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
         SkASSERT(compression != SkImage::CompressionType::kNone);
 
         rawDataSize = SkCompressedDataSize(compression, dimensions, nullptr,
@@ -1435,7 +1454,7 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
 
     info.fTarget = GR_GL_TEXTURE_2D;
     info.fFormat = GrGLFormatToEnum(glFormat);
-    info.fID = this->createCompressedTexture2D(dimensions, glFormat,
+    info.fID = this->createCompressedTexture2D(dimensions, compression, glFormat,
                                                mipMapped, &initialState,
                                                rawData, rawDataSize);
     if (!info.fID) {
@@ -1488,8 +1507,8 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
         // Default to unsupported, set this if we find a stencil format that works.
         int firstWorkingStencilFormatIndex = -1;
 
-        GrGLuint colorID =
-                this->createTexture2D({kSize, kSize}, format, GrRenderable::kYes, nullptr, 1);
+        GrGLuint colorID = this->createTexture({kSize, kSize}, format, GR_GL_TEXTURE_2D,
+                                               GrRenderable::kYes, nullptr, 1);
         if (!colorID) {
             return -1;
         }
@@ -1558,6 +1577,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
 
 GrGLuint GrGLGpu::createCompressedTexture2D(
         SkISize dimensions,
+        SkImage::CompressionType compression,
         GrGLFormat format,
         GrMipMapped mipMapped,
         GrGLTextureParameters::SamplerOverriddenState* initialState,
@@ -1576,7 +1596,7 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
     *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
 
     if (data) {
-        if (!this->uploadCompressedTexData(format, dimensions, mipMapped,
+        if (!this->uploadCompressedTexData(compression, format, dimensions, mipMapped,
                                            GR_GL_TEXTURE_2D, data, dataSize)) {
             GL_CALL(DeleteTextures(1, &id));
             return 0;
@@ -1586,11 +1606,12 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
     return id;
 }
 
-GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
-                                  GrGLFormat format,
-                                  GrRenderable renderable,
-                                  GrGLTextureParameters::SamplerOverriddenState* initialState,
-                                  int mipLevelCount) {
+GrGLuint GrGLGpu::createTexture(SkISize dimensions,
+                                GrGLFormat format,
+                                GrGLenum target,
+                                GrRenderable renderable,
+                                GrGLTextureParameters::SamplerOverriddenState* initialState,
+                                int mipLevelCount) {
     SkASSERT(format != GrGLFormat::kUnknown);
     SkASSERT(!GrGLFormatIsCompressed(format));
 
@@ -1601,17 +1622,17 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
         return 0;
     }
 
-    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, id);
+    this->bindTextureToScratchUnit(target, id);
 
     if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
         // provides a hint about how this texture will be used
-        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_USAGE, GR_GL_FRAMEBUFFER_ATTACHMENT));
+        GL_CALL(TexParameteri(target, GR_GL_TEXTURE_USAGE, GR_GL_FRAMEBUFFER_ATTACHMENT));
     }
 
     if (initialState) {
-        *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
+        *initialState = set_initial_texture_params(this->glInterface(), target);
     } else {
-        set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
+        set_initial_texture_params(this->glInterface(), target);
     }
 
     GrGLenum internalFormat = this->glCaps().getTexImageOrStorageInternalFormat(format);
@@ -1620,9 +1641,8 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
     if (internalFormat) {
         if (this->glCaps().formatSupportsTexStorage(format)) {
             auto levelCount = std::max(mipLevelCount, 1);
-            GrGLenum error =
-                    GL_ALLOC_CALL(TexStorage2D(GR_GL_TEXTURE_2D, levelCount, internalFormat,
-                                               dimensions.width(), dimensions.height()));
+            GrGLenum error = GL_ALLOC_CALL(TexStorage2D(target, levelCount, internalFormat,
+                                                        dimensions.width(), dimensions.height()));
             success = (error == GR_GL_NO_ERROR);
         } else {
             GrGLenum externalFormat, externalType;
@@ -1633,9 +1653,9 @@ GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
                     const int twoToTheMipLevel = 1 << level;
                     const int currentWidth = std::max(1, dimensions.width() / twoToTheMipLevel);
                     const int currentHeight = std::max(1, dimensions.height() / twoToTheMipLevel);
-                    error = GL_ALLOC_CALL(TexImage2D(GR_GL_TEXTURE_2D, level, internalFormat,
-                                                     currentWidth, currentHeight, 0, externalFormat,
-                                                     externalType, nullptr));
+                    error = GL_ALLOC_CALL(TexImage2D(target, level, internalFormat, currentWidth,
+                                                     currentHeight, 0, externalFormat, externalType,
+                                                     nullptr));
                 }
                 success = (error == GR_GL_NO_ERROR);
             }
@@ -2260,8 +2280,9 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
         // Apple's extension uses the scissor as the blit bounds.
         // Passing in kTopLeft_GrSurfaceOrigin will make sure no transformation of the rect
         // happens inside flushScissor since resolveRect is already in native device coordinates.
-        this->flushScissor(GrScissorState(resolveRect), rt->width(), rt->height(),
-                           kTopLeft_GrSurfaceOrigin);
+        GrScissorState scissor(rt->dimensions());
+        SkAssertResult(scissor.set(resolveRect));
+        this->flushScissor(scissor, rt->width(), rt->height(), kTopLeft_GrSurfaceOrigin);
         this->disableWindowRectangles();
         GL_CALL(ResolveMultisampleFramebuffer());
     } else {
@@ -3546,16 +3567,29 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     if (glFormat == GrGLFormat::kUnknown) {
         return {};
     }
-
-    info.fTarget = GR_GL_TEXTURE_2D;
+    switch (format.textureType()) {
+        case GrTextureType::kNone:
+        case GrTextureType::kExternal:
+            return {};
+        case GrTextureType::k2D:
+            info.fTarget = GR_GL_TEXTURE_2D;
+            break;
+        case GrTextureType::kRectangle:
+            if (!this->glCaps().rectangleTextureSupport() || mipMapped == GrMipMapped::kYes) {
+                return {};
+            }
+            info.fTarget = GR_GL_TEXTURE_RECTANGLE;
+            break;
+    }
     info.fFormat = GrGLFormatToEnum(glFormat);
-    info.fID = this->createTexture2D(dimensions, glFormat, renderable, &initialState, numMipLevels);
+    info.fID = this->createTexture(dimensions, glFormat, info.fTarget, renderable, &initialState,
+                                   numMipLevels);
     if (!info.fID) {
         return {};
     }
 
     // Unbind this texture from the scratch texture unit.
-    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
+    this->bindTextureToScratchUnit(info.fTarget, 0);
 
     auto parameters = sk_make_sp<GrGLTextureParameters>();
     // The non-sampler params are still at their default values.
@@ -3715,7 +3749,8 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID);
     if (useTexture) {
         GrGLTextureParameters::SamplerOverriddenState initialState;
-        colorID = this->createTexture2D({w, h}, format, GrRenderable::kYes, &initialState, 1);
+        colorID = this->createTexture({w, h}, format, GR_GL_TEXTURE_2D, GrRenderable::kYes,
+                                      &initialState, 1);
         if (!colorID) {
             deleteIDs();
             return {};
@@ -3831,6 +3866,9 @@ bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
         // See if any previously inserted finish procs are good to go.
         fFinishCallbacks.check();
     }
+    if (!this->glCaps().skipErrorChecks()) {
+        this->clearErrorsAndCheckForOOM();
+    }
     return true;
 }
 
@@ -3910,6 +3948,7 @@ std::unique_ptr<GrSemaphore> GrGLGpu::wrapBackendSemaphore(
 }
 
 void GrGLGpu::insertSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore);
 
     GrGLsync sync;
@@ -3919,6 +3958,7 @@ void GrGLGpu::insertSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
+    SkASSERT(semaphore);
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore);
 
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
@@ -3926,6 +3966,23 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
 
 void GrGLGpu::checkFinishProcs() {
     fFinishCallbacks.check();
+}
+
+void GrGLGpu::clearErrorsAndCheckForOOM() {
+    while (this->getErrorAndCheckForOOM() != GR_GL_NO_ERROR) {}
+}
+
+GrGLenum GrGLGpu::getErrorAndCheckForOOM() {
+#if GR_GL_CHECK_ERROR
+    if (this->glInterface()->checkAndResetOOMed()) {
+        this->setOOMed();
+    }
+#endif
+    GrGLenum error = this->fGLContext->glInterface()->fFunctions.fGetError();
+    if (error == GR_GL_OUT_OF_MEMORY) {
+        this->setOOMed();
+    }
+    return error;
 }
 
 void GrGLGpu::deleteSync(GrGLsync sync) const {

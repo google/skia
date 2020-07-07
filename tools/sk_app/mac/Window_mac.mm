@@ -5,6 +5,8 @@
 * found in the LICENSE file.
 */
 
+#include <Carbon/Carbon.h>
+
 #include "src/core/SkUtils.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 #include "tools/sk_app/mac/Window_mac.h"
@@ -68,7 +70,7 @@ bool Window_mac::initWindow() {
     }
 
     // create view
-    MainView* view = [[MainView alloc] initWithWindow:this] ;
+    MainView* view = [[MainView alloc] initWithWindow:this];
     if (nil == view) {
         [fWindow release];
         [delegate release];
@@ -102,8 +104,9 @@ void Window_mac::closeWindow() {
 }
 
 void Window_mac::setTitle(const char* title) {
-    NSString *titleString = [NSString stringWithCString:title encoding:NSUTF8StringEncoding];
-    [fWindow setTitle:titleString];
+    if (NSString* titleStr = [NSString stringWithUTF8String:title]) {
+        [fWindow setTitle:titleStr];
+    }
 }
 
 void Window_mac::show() {
@@ -148,7 +151,7 @@ bool Window_mac::attach(BackendType attachType) {
     }
     this->onBackendCreated();
 
-    return (SkToBool(fWindowContext));
+    return SkToBool(fWindowContext);
 }
 
 void Window_mac::PaintWindows() {
@@ -195,34 +198,37 @@ static skui::Key get_key(unsigned short vk) {
     // Something more robust would be needed to support alternate keyboards.
     static const struct {
         unsigned short fVK;
-        skui::Key    fKey;
+        skui::Key      fKey;
     } gPair[] = {
-        { 0x33, skui::Key::kBack },
-        { 0x24, skui::Key::kOK },
-        { 0x7E, skui::Key::kUp },
-        { 0x7D, skui::Key::kDown },
-        { 0x7B, skui::Key::kLeft },
-        { 0x7C, skui::Key::kRight },
-        { 0x30, skui::Key::kTab },
-        { 0x74, skui::Key::kPageUp },
-        { 0x79, skui::Key::kPageDown },
-        { 0x73, skui::Key::kHome },
-        { 0x77, skui::Key::kEnd },
-        { 0x75, skui::Key::kDelete },
-        { 0x35, skui::Key::kEscape },
-        { 0x38, skui::Key::kShift },
-        { 0x3C, skui::Key::kShift },
-        { 0x3B, skui::Key::kCtrl },
-        { 0x3E, skui::Key::kCtrl },
-        { 0x3A, skui::Key::kOption },
-        { 0x3D, skui::Key::kOption },
-        { 0x00, skui::Key::kA },
-        { 0x08, skui::Key::kC },
-        { 0x09, skui::Key::kV },
-        { 0x07, skui::Key::kX },
-        { 0x10, skui::Key::kY },
-        { 0x06, skui::Key::kZ },
+        { kVK_Delete,        skui::Key::kBack },
+        { kVK_Return,        skui::Key::kOK },
+        { kVK_UpArrow,       skui::Key::kUp },
+        { kVK_DownArrow,     skui::Key::kDown },
+        { kVK_LeftArrow,     skui::Key::kLeft },
+        { kVK_RightArrow,    skui::Key::kRight },
+        { kVK_Tab,           skui::Key::kTab },
+        { kVK_PageUp,        skui::Key::kPageUp },
+        { kVK_PageDown,      skui::Key::kPageDown },
+        { kVK_Home,          skui::Key::kHome },
+        { kVK_End,           skui::Key::kEnd },
+        { kVK_ForwardDelete, skui::Key::kDelete },
+        { kVK_Escape,        skui::Key::kEscape },
+        { kVK_Shift,         skui::Key::kShift },
+        { kVK_RightShift,    skui::Key::kShift },
+        { kVK_Control,       skui::Key::kCtrl },
+        { kVK_RightControl,  skui::Key::kCtrl },
+        { kVK_Option,        skui::Key::kOption },
+        { kVK_RightOption,   skui::Key::kOption },
+        { kVK_Command,       skui::Key::kSuper },
+        { kVK_RightCommand,  skui::Key::kSuper },
+        { kVK_ANSI_A,        skui::Key::kA },
+        { kVK_ANSI_C,        skui::Key::kC },
+        { kVK_ANSI_V,        skui::Key::kV },
+        { kVK_ANSI_X,        skui::Key::kX },
+        { kVK_ANSI_Y,        skui::Key::kY },
+        { kVK_ANSI_Z,        skui::Key::kZ },
     };
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fVK == vk) {
             return gPair[i].fKey;
@@ -249,8 +255,7 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
         modifiers |= skui::ModifierKey::kOption;
     }
 
-    if ((NSKeyDown == [event type] || NSKeyUp == [event type]) &&
-        NO == [event isARepeat]) {
+    if ((NSKeyDown == [event type] || NSKeyUp == [event type]) && ![event isARepeat]) {
         modifiers |= skui::ModifierKey::kFirstPress;
     }
 
@@ -261,6 +266,9 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
     sk_app::Window_mac* fWindow;
     // A TrackingArea prevents us from capturing events outside the view
     NSTrackingArea* fTrackingArea;
+    // We keep track of the state of the modifier keys on each event in order to synthesize
+    // key-up/down events for each modifier.
+    skui::ModifierKey fLastModifiers;
 }
 
 - (MainView*)initWithWindow:(sk_app::Window_mac *)initWindow {
@@ -306,18 +314,59 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
                                           NSTrackingAssumeInside;
 
     fTrackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds]
-                                                options:options
-                                                  owner:self
-                                               userInfo:nil];
+                                                 options:options
+                                                   owner:self
+                                                userInfo:nil];
 
     [self addTrackingArea:fTrackingArea];
     [super updateTrackingAreas];
 }
 
+- (skui::ModifierKey) updateModifierKeys:(NSEvent*) event {
+    using sknonstd::Any;
+
+    skui::ModifierKey modifiers = get_modifiers(event);
+    skui::ModifierKey changed = modifiers ^ fLastModifiers;
+    fLastModifiers = modifiers;
+
+    struct ModMap {
+        skui::ModifierKey modifier;
+        skui::Key         key;
+    };
+
+    // Map each modifier bit to the equivalent skui Key and send key-up/down events.
+    for (const ModMap& cur : {ModMap{skui::ModifierKey::kCommand, skui::Key::kSuper},
+                              ModMap{skui::ModifierKey::kShift,   skui::Key::kShift},
+                              ModMap{skui::ModifierKey::kControl, skui::Key::kCtrl},
+                              ModMap{skui::ModifierKey::kOption,  skui::Key::kOption}}) {
+        if (Any(changed & cur.modifier)) {
+            const skui::InputState state = Any(modifiers & cur.modifier) ? skui::InputState::kDown
+                                                                         : skui::InputState::kUp;
+            (void) fWindow->onKey(cur.key, state, modifiers);
+        }
+    }
+
+    return modifiers;
+}
+
+- (BOOL)performKeyEquivalent:(NSEvent *)event {
+    [self updateModifierKeys:event];
+
+    // By default, unhandled key equivalents send -keyDown events; unfortunately, they do not send
+    // a matching -keyUp. In other words, we can claim that we didn't handle the event and OS X will
+    // turn this event into a -keyDown automatically, but we need to synthesize a matching -keyUp on
+    // a later frame. Since we only read the modifiers and key code from the event, we can reuse
+    // this "key-equivalent" event as a "key up".
+    [self performSelector:@selector(keyUp:) withObject:event afterDelay:0.1];
+    return NO;
+}
+
 - (void)keyDown:(NSEvent *)event {
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
+
     skui::Key key = get_key([event keyCode]);
     if (key != skui::Key::kNONE) {
-        if (!fWindow->onKey(key, skui::InputState::kDown, get_modifiers(event))) {
+        if (!fWindow->onKey(key, skui::InputState::kDown, modifiers)) {
             if (skui::Key::kEscape == key) {
                 [NSApp terminate:fWindow->window()];
             }
@@ -330,47 +379,59 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
         unichar* charBuffer = new unichar[len+1];
         [characters getCharacters:charBuffer range:NSMakeRange(0, len)];
         for (NSUInteger i = 0; i < len; ++i) {
-            (void) fWindow->onChar((SkUnichar) charBuffer[i], get_modifiers(event));
+            (void) fWindow->onChar((SkUnichar) charBuffer[i], modifiers);
         }
         delete [] charBuffer;
     }
 }
 
 - (void)keyUp:(NSEvent *)event {
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
+
     skui::Key key = get_key([event keyCode]);
     if (key != skui::Key::kNONE) {
-        (void) fWindow->onKey(key, skui::InputState::kUp, get_modifiers(event));
+        (void) fWindow->onKey(key, skui::InputState::kUp, modifiers);
     }
 }
 
+-(void)flagsChanged:(NSEvent *)event {
+    [self updateModifierKeys:event];
+}
+
 - (void)mouseDown:(NSEvent *)event {
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
+
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kDown,
-                    get_modifiers(event));
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kDown, modifiers);
 }
 
 - (void)mouseUp:(NSEvent *)event {
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
+
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kUp,
-                     get_modifiers(event));
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kUp, modifiers);
 }
 
 - (void)mouseDragged:(NSEvent *)event {
+    [self updateModifierKeys:event];
     [self mouseMoved:event];
 }
 
 - (void)mouseMoved:(NSEvent *)event {
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
+
     const NSPoint pos = [event locationInWindow];
     const NSRect rect = [fWindow->window().contentView frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kMove,
-                     get_modifiers(event));
+    fWindow->onMouse(pos.x, rect.size.height - pos.y, skui::InputState::kMove, modifiers);
 }
 
 - (void)scrollWheel:(NSEvent *)event {
+    skui::ModifierKey modifiers = [self updateModifierKeys:event];
+
     // TODO: support hasPreciseScrollingDeltas?
-    fWindow->onMouseWheel([event scrollingDeltaY], get_modifiers(event));
+    fWindow->onMouseWheel([event scrollingDeltaY], modifiers);
 }
 
 - (void)drawRect:(NSRect)rect {

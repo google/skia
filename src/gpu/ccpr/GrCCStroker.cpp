@@ -89,8 +89,7 @@ private:
     };
 
     class Impl : public GrGLSLGeometryProcessor {
-        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                     const CoordTransformRange&) override {}
+        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
     };
 
@@ -103,7 +102,6 @@ private:
 
 void LinearStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
-    GrGLSLUniformHandler* uniHandler = args.fUniformHandler;
 
     varyingHandler->emitAttributes(args.fGP.cast<LinearStrokeProcessor>());
 
@@ -137,8 +135,7 @@ void LinearStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                    edgeDistances.vsOut(), edgeDistances.vsOut(), edgeDistances.vsOut());
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
-    this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("position", kFloat2_GrSLType),
-                         SkMatrix::I(), args.fFPCoordTransformHandler);
+    // Leave fLocalCoordVar uninitialized; this GP is not combined with frag processors
 
     // Use the 4 edge distances to calculate coverage in the fragment shader.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
@@ -182,8 +179,7 @@ private:
     };
 
     class Impl : public GrGLSLGeometryProcessor {
-        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                     const CoordTransformRange&) override {}
+        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
     };
 
@@ -194,7 +190,6 @@ private:
 
 void CubicStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
-    GrGLSLUniformHandler* uniHandler = args.fUniformHandler;
 
     varyingHandler->emitAttributes(args.fGP.cast<CubicStrokeProcessor>());
 
@@ -259,8 +254,7 @@ void CubicStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                    coverages.vsOut());
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
-    this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("position", kFloat2_GrSLType),
-                         SkMatrix::I(), args.fFPCoordTransformHandler);
+    // Leave fLocalCoordVar uninitialized; this GP is not combined with frag processors
 
     // Use the 2 edge distances and interpolated butt cap AA to calculate fragment coverage.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
@@ -649,10 +643,10 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
             case Verb::kRoundJoin:
             case Verb::kInternalRoundJoin:
                 conicWeight = params[paramsIdx++].fConicWeight;
-                // fallthru
+                [[fallthrough]];
             case Verb::kMiterJoin:
                 miterCapHeightOverWidth = params[paramsIdx++].fMiterCapHeightOverWidth;
-                // fallthru
+                [[fallthrough]];
             case Verb::kBevelJoin:
             case Verb::kInternalBevelJoin:
                 builder.appendJoin(verb, pts[ptsIdx], normals[normalsIdx], normals[normalsIdx + 1],

@@ -315,7 +315,12 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         case SK_PICT_TYPEFACE_TAG: {
             fTFPlayback.setCount(size);
             for (uint32_t i = 0; i < size; ++i) {
-                sk_sp<SkTypeface> tf(SkTypeface::MakeDeserialize(stream));
+                sk_sp<SkTypeface> tf;
+                if (procs.fTypefaceProc) {
+                    tf = procs.fTypefaceProc(&stream, sizeof(stream), procs.fTypefaceCtx);
+                } else {
+                    tf = SkTypeface::MakeDeserialize(stream);
+                }
                 if (!tf.get()) {    // failed to deserialize
                     // fTFPlayback asserts it never has a null, so we plop in
                     // the default here.

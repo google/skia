@@ -10,56 +10,46 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
 
-bool GrFixedClip::quickContains(const SkRect& rect) const {
-    if (fWindowRectsState.enabled()) {
-        return false;
-    }
-    return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
+SkIRect GrFixedClip::getConservativeBounds() const {
+    return fScissorState.rect();
 }
 
-SkIRect GrFixedClip::getConservativeBounds(int w, int h) const {
-    SkIRect devResult = this->GrClip::getConservativeBounds(w, h);
-    if (fScissorState.enabled()) {
-        if (!devResult.intersect(fScissorState.rect())) {
-            devResult.setEmpty();
-        }
+GrClip::PreClipResult GrFixedClip::preApply(const SkRect& drawBounds) const {
+    if (IsOutsideClip(fScissorState.rect(), drawBounds)) {
+        return Effect::kClippedOut;
     }
-    return devResult;
+
+    if (fWindowRectsState.enabled()) {
+        return Effect::kClipped;
+    }
+
+    if (!fScissorState.enabled() || IsInsideClip(fScissorState.rect(), drawBounds)) {
+        // Either no scissor or the scissor doesn't clip the draw
+        return Effect::kUnclipped;
+    }
+    // Report the scissor as a degenerate round rect
+    return {SkRect::Make(fScissorState.rect()), GrAA::kNo};
 }
 
-bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const {
-    if (fWindowRectsState.enabled()) {
-        return false;
+GrClip::Effect GrFixedClip::apply(GrAppliedHardClip* out, SkRect* bounds) const {
+    if (IsOutsideClip(fScissorState.rect(), *bounds)) {
+        return Effect::kClippedOut;
     }
-    if (fScissorState.enabled()) {
-        SkRect rect = SkRect::Make(fScissorState.rect());
-        if (!rect.intersects(rtBounds)) {
-            return false;
-        }
-        rr->setRect(rect);
-        *aa = GrAA::kNo;
-        return true;
-    }
-    return false;
-};
 
-bool GrFixedClip::apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const {
-    if (fScissorState.enabled()) {
-        SkIRect tightScissor = SkIRect::MakeWH(rtWidth, rtHeight);
-        if (!tightScissor.intersect(fScissorState.rect())) {
-            return false;
-        }
-        if (IsOutsideClip(tightScissor, *bounds)) {
-            return false;
-        }
-        if (!IsInsideClip(fScissorState.rect(), *bounds)) {
-            out->addScissor(tightScissor, bounds);
-        }
+    Effect effect = Effect::kUnclipped;
+    if (fScissorState.enabled() && !IsInsideClip(fScissorState.rect(), *bounds)) {
+        SkIRect tightScissor = bounds->roundOut();
+        SkAssertResult(tightScissor.intersect(fScissorState.rect()));
+        out->addScissor(tightScissor, bounds);
+        effect = Effect::kClipped;
     }
 
     if (fWindowRectsState.enabled()) {
         out->addWindowRectangles(fWindowRectsState);
+        // We could iterate each window rectangle to check for intersection, but be conservative
+        // and report that it's clipped
+        effect = Effect::kClipped;
     }
 
-    return true;
+    return effect;
 }

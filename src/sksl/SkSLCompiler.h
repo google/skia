@@ -28,7 +28,6 @@
 #define SK_IN_BUILTIN                  10002
 #define SK_INCOLOR_BUILTIN             10003
 #define SK_OUTCOLOR_BUILTIN            10004
-#define SK_TRANSFORMEDCOORDS2D_BUILTIN 10005
 #define SK_TEXTURESAMPLERS_BUILTIN     10006
 #define SK_OUT_BUILTIN                 10007
 #define SK_LASTFRAGCOLOR_BUILTIN       10008
@@ -72,6 +71,10 @@ public:
         kPermitInvalidStaticTests_Flag = 1,
     };
 
+    // An invalid (otherwise unused) character to mark where FormatArgs are inserted
+    static constexpr       char  kFormatArgPlaceholder    = '\001';
+    static constexpr const char* kFormatArgPlaceholderStr = "\001";
+
     struct FormatArg {
         enum class Kind {
             kInput,
@@ -79,6 +82,7 @@ public:
             kCoords,
             kUniform,
             kChildProcessor,
+            kChildProcessorWithMatrix,
             kFunctionName
         };
 
@@ -102,7 +106,7 @@ public:
         GrSLType fReturnType;
         SkString fName;
         std::vector<GrShaderVar> fParameters;
-        SkString fBody;
+        String fBody;
         std::vector<Compiler::FormatArg> fFormatArgs;
     };
 #endif
