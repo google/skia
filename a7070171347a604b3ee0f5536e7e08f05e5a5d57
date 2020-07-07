@@ -94,6 +94,29 @@
     },
     {
       "key": {
+        "uuid": "f3e16590_08526b8c",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1167,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-07T16:39:07Z",
+      "side": 1,
+      "message": "why not\n\nmakeSubset(rect, context \u003d nullptr)\n\n?",
+      "range": {
+        "startLine": 1167,
+        "startChar": 14,
+        "endLine": 1167,
+        "endChar": 24
+      },
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ad5b4f6_867c90de",
         "filename": "src/image/SkImage.cpp",
         "patchSetId": 4
