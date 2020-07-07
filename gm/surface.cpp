@@ -30,8 +30,6 @@
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
 
-class GrContext;
-
 #define W 200
 #define H 100
 
@@ -43,7 +41,9 @@ static sk_sp<SkShader> make_shader() {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
-static sk_sp<SkSurface> make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo) {
+static sk_sp<SkSurface> make_surface(GrRecordingContext* ctx,
+                                     const SkImageInfo& info,
+                                     SkPixelGeometry geo) {
     SkSurfaceProps props(0, geo);
     if (ctx) {
         return SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
@@ -83,7 +83,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* ctx = canvas->getGrContext();
+        auto ctx = canvas->recordingContext();
 
         // must be opaque to have a hope of testing LCD text
         const SkImageInfo info = SkImageInfo::MakeN32(W, H, kOpaque_SkAlphaType);
