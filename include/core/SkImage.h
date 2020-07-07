@@ -35,6 +35,25 @@ class GrContextThreadSafeProxy;
 
 struct SkYUVAIndex;
 
+class SkMipmapData;
+
+class SkMipmapBuilder {
+public:
+    SkMipmapBuilder(const SkImageInfo&)
+    ~SkMipmapBuilder();
+
+    int countLevels() const;
+    SkPixmap level(int index) const;
+
+    std::unique_ptr<SkMipmapData> detach();
+};
+
+enum class SkMipMapType {
+    kNone,
+    kFast,
+    kHighQuality,
+};
+
 /** \class SkImage
     SkImage describes a two dimensional array of pixels to draw. The pixels may be
     decoded in a raster bitmap, encoded in a SkPicture or compressed data stream,
@@ -73,7 +92,8 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_MakeRasterCopy
     */
-    static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap);
+    static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap,
+                                         SkMipMapType mip = SkMipMapType::kNone);
 
     /** Creates SkImage from SkImageInfo, sharing pixels.
 
@@ -90,7 +110,7 @@ public:
         @return          SkImage sharing pixels, or nullptr
     */
     static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels,
-                                         size_t rowBytes);
+                                         size_t rowBytes, SkMipMapType mip = SkMipMapType::kNone);
 
     /** Function called when SkImage no longer shares pixels. ReleaseContext is
         provided by caller when SkImage is created, and may be nullptr.
@@ -119,7 +139,8 @@ public:
     */
     static sk_sp<SkImage> MakeFromRaster(const SkPixmap& pixmap,
                                          RasterReleaseProc rasterReleaseProc,
-                                         ReleaseContext releaseContext);
+                                         ReleaseContext releaseContext,
+                                         SkMipMapType mip = SkMipMapType::kNone);
 
     /** Creates SkImage from bitmap, sharing or copying bitmap pixels. If the bitmap
         is marked immutable, and its pixel memory is shareable, it may be shared
@@ -137,7 +158,8 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_MakeFromBitmap
     */
-    static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap);
+    static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap,
+                                         SkMipMapType mip = SkMipMapType::kNone);
 
     /** Creates SkImage from data returned by imageGenerator. Generated data is owned by SkImage and
         may not be shared or accessed.
@@ -155,7 +177,8 @@ public:
         @return                created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator,
-                                            const SkIRect* subset = nullptr);
+                                            const SkIRect* subset = nullptr,
+                                            SkMipMapType mip = SkMipMapType::kNone);
 
     /**
      *  Return an image backed by the encoded data, but attempt to defer decoding until the image
@@ -180,7 +203,8 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_MakeFromEncoded
     */
-    static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
+    static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr,
+                                          SkMipMapType mip = SkMipMapType::kNone);
 
     /**
      *  Decode the data in encoded/length into a raster image.
@@ -200,11 +224,20 @@ public:
      *  @return         created SkImage, or nullptr
      */
     static sk_sp<SkImage> DecodeToRaster(const void* encoded, size_t length,
-                                         const SkIRect* subset = nullptr);
+                                         const SkIRect* subset = nullptr,
+                                         SkMipMapType mip = SkMipMapType::kNone);
     static sk_sp<SkImage> DecodeToRaster(const sk_sp<SkData>& data,
-                                         const SkIRect* subset = nullptr) {
-        return DecodeToRaster(data->data(), data->size(), subset);
+                                         const SkIRect* subset = nullptr,
+                                         SkMipMapType mip = SkMipMapType::kNone) {
+        return DecodeToRaster(data->data(), data->size(), subset, mip);
     }
+
+    /**
+     *  If the current image's mipmap setting matches the parameter, it is returned, else a new
+     *  image is returned that shares the "base" image, but has the corresponding mipmap levels
+     *  created (or removed, if the parameter is kNone).
+     */
+    sk_sp<SkImage> withMipMap(SkMipMapType) const;
 
     /**
      *  Decode the data in encoded/length into a texture-backed image.
