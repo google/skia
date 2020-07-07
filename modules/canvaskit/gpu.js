@@ -51,7 +51,7 @@
       //          CanvasKit.SkColorSpace.SRGB
       //          CanvasKit.SkColorSpace.DISPLAY_P3
       //          CanvasKit.SkColorSpace.ADOBE_RGB
-      CanvasKit.MakeWebGLCanvasSurface = function(idOrElement, colorSpace) {
+      CanvasKit.MakeWebGLCanvasSurface = function(idOrElement, colorSpace, attrs) {
         colorSpace = colorSpace || null;
         var canvas = idOrElement;
         if (canvas.tagName !== 'CANVAS') {
@@ -62,7 +62,8 @@
         }
 
         // we are ok with all the other defaults.
-        var ctx = this.GetWebGLContext(canvas);
+        var ctx = this.GetWebGLContext(canvas, attrs);
+        console.log('OpenGL version ' + canvas.GLctxObject.version);
 
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
