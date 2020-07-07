@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e681324_bb74022c",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T20:59:58Z",
+      "side": 1,
+      "message": "I think you have mixed up the usage of uniformBytes and codeBytes.\n\nI\u0027m also very confused why the code would get used twice - once in convertProgram and once in here. Maybe this should be broken out as its own fuzzer of SkRuntimeEffect?",
+      "range": {
+        "startLine": 37,
+        "startChar": 31,
+        "endLine": 37,
+        "endChar": 43
+      },
+      "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7c130a7_0779d3d7",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T20:59:58Z",
+      "side": 1,
+      "message": "Always have TODO(username)",
+      "range": {
+        "startLine": 46,
+        "startChar": 6,
+        "endLine": 46,
+        "endChar": 10
+      },
+      "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
