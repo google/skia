@@ -703,9 +703,21 @@ public:
             , fInputs(std::move(inputs)) {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorInfo& colorInfo) const override {
-        return GrSkSLFP::Make(context, fEffect, "Runtime_Color_Filter", fInputs);
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext* context,
+                                   const GrColorInfo& colorInfo) const override {
+        auto runtimeFP = GrSkSLFP::Make(context, fEffect, "Runtime_Color_Filter", fInputs);
+        if (inputFP == nullptr) {
+            return GrFPSuccess(std::move(runtimeFP));
+        }
+
+        // Runtime effect scripts are written to take an input color, not a fragment processor.
+        // We need to evaluate the input and pass it to the runtime filter via RunInSeries.
+        std::unique_ptr<GrFragmentProcessor> fp[] = {
+            std::move(inputFP),
+            std::move(runtimeFP),
+        };
+        return GrFPSuccess(GrFragmentProcessor::RunInSeries(fp, SK_ARRAY_COUNT(fp)));
     }
 #endif
 

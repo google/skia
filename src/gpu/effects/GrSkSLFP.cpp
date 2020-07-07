@@ -296,7 +296,10 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
                 c = d->fRandom->nextU();
             }
             auto filter = SkOverdrawColorFilter::MakeWithSkColors(colors);
-            return as_CFB(filter)->asFragmentProcessor(d->context(), GrColorInfo{});
+            auto [success, fp] = as_CFB(filter)->asFragmentProcessor(/*inputFP=*/nullptr,
+                                                                     d->context(), GrColorInfo{});
+            SkASSERT(success);
+            return std::move(fp);
         }
     }
     SK_ABORT("unreachable");
