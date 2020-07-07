@@ -2262,8 +2262,7 @@ GrGLenum GrGLGpu::prepareToDraw(GrPrimitiveType primitiveType) {
     SK_ABORT("invalid GrPrimitiveType");
 }
 
-void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                                    ForExternalIO) {
+void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) {
     // Some extensions automatically resolves the texture when it is read.
     SkASSERT(this->glCaps().usesMSAARenderBuffers());
 

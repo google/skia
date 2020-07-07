@@ -125,8 +125,7 @@ public:
 
     bool onRegenerateMipMapLevels(GrTexture* tex) override;
 
-    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                               ForExternalIO) override;
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) override;
 
     void submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>);
 

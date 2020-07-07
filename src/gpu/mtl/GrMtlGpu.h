@@ -203,8 +203,7 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
-    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                               ForExternalIO) override;
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) override;
 
     void resolveTexture(id<MTLTexture> colorTexture, id<MTLTexture> resolveTexture);
 
