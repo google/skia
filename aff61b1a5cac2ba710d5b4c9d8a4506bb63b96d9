@@ -16,6 +16,29 @@
       "revId": "aff61b1a5cac2ba710d5b4c9d8a4506bb63b96d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b1d2c59_39851646",
+        "filename": "src/gpu/dawn/GrDawnStagingBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-07T19:47:01Z",
+      "side": 1,
+      "message": "Oh also this class will go in its own file, I was just wanted a quick hack and put in a file that was already included in places I need this.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 27
+      },
+      "revId": "aff61b1a5cac2ba710d5b4c9d8a4506bb63b96d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
