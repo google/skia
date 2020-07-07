@@ -16,6 +16,23 @@
       "revId": "d8969f476e729d1827074710e1f71ad84e093140",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "145f1a04_d01a10ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-07T20:33:08Z",
+      "side": 1,
+      "message": "lgtm once the other change lands and we remove the submit from this one",
+      "revId": "d8969f476e729d1827074710e1f71ad84e093140",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
