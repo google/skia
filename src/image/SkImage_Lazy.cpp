@@ -239,8 +239,7 @@ GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipMappe
 }
 #endif
 
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrRecordingContext* context,
-                                          const SkIRect& subset) const {
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrDirectContext*, const SkIRect& subset) const {
     SkASSERT(this->bounds().contains(subset));
     SkASSERT(this->bounds() != subset);
 
