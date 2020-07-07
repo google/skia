@@ -31,6 +31,7 @@ class SkPicture;
 class SkSurface;
 class GrBackendTexture;
 class GrContext;
+class GrDirectContext;
 class GrContextThreadSafeProxy;
 
 struct SkYUVAIndex;
@@ -1141,14 +1142,29 @@ public:
     /** Returns subset of SkImage. subset must be fully contained by SkImage dimensions().
         The implementation may share pixels, or may copy them.
 
-        Returns nullptr if subset is empty, or subset is not contained by bounds, or
-        pixels in SkImage could not be read or copied.
+        Returns nullptr if any of the following:
+          - Subset is empty
+          - Subset is not contained by bounds
+          - Pixels in SkImage could not be read or copied
+          - This is a GPU image and a mismatched context is passed
 
+        The returned image will follow the following rules:
+                                    Image is:
+        Passed in:  |       raster      |    promise image    |       gpu
+        -----------------------------------------------------------------------
+        w/ context  |       gpu         |        gpu          |       gpu
+        nullptr     |       raster      |        null         |       null
+
+
+        @param context the GrDirectContext in play, if it exists
         @param subset  bounds of returned SkImage
         @return        partial or full SkImage, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_makeSubset
     */
+    sk_sp<SkImage> makeSubset(GrDirectContext* context, const SkIRect& subset) const;
+
+    /** To be deprecated. */
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
 
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
