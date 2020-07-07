@@ -67,8 +67,8 @@ public:
         sk_sp<SkImage> makePromiseImage(SkDeferredDisplayListRecorder*);
         void dropCallbackContext() { fCallbackContext.reset(); }
 
-        static void CreateBackendTexture(GrContext*, TileData*);
-        static void DeleteBackendTexture(GrContext*, TileData*);
+        static void CreateBackendTexture(GrDirectContext*, TileData*);
+        static void DeleteBackendTexture(GrDirectContext*, TileData*);
 
     private:
         sk_sp<SkSurface> makeWrappedTileDest(GrContext* context);
@@ -130,8 +130,8 @@ public:
 
     int numTiles() const { return fNumDivisions * fNumDivisions; }
 
-    void createBackendTextures(SkTaskGroup*, GrContext*);
-    void deleteBackendTextures(SkTaskGroup*, GrContext*);
+    void createBackendTextures(SkTaskGroup*, GrDirectContext*);
+    void deleteBackendTextures(SkTaskGroup*, GrDirectContext*);
 
 private:
     int                                    fNumDivisions; // number of tiles along a side

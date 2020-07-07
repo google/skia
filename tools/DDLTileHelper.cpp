@@ -12,6 +12,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrContextPriv.h"
@@ -204,16 +205,14 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImage(SkDeferredDisplayListRe
     return promiseImage;
 }
 
-void DDLTileHelper::TileData::CreateBackendTexture(GrContext* context, TileData* tile) {
-    SkASSERT(context->asDirectContext());
+void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, TileData* tile) {
     SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
 
-    GrBackendTexture beTex = context->createBackendTexture(tile->fCharacterization);
+    GrBackendTexture beTex = direct->createBackendTexture(tile->fCharacterization);
     tile->fCallbackContext->setBackendTexture(beTex);
 }
 
-void DDLTileHelper::TileData::DeleteBackendTexture(GrContext* context, TileData* tile) {
-    SkASSERT(context->asDirectContext());
+void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext* direct, TileData* tile) {
     SkASSERT(tile->fCallbackContext);
 
     // TODO: it seems that, on the Linux bots, backend texture creation is failing
@@ -354,34 +353,31 @@ void DDLTileHelper::resetAllTiles() {
     fComposeDDL.reset();
 }
 
-void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
-    SkASSERT(context->asDirectContext());
+void DDLTileHelper::createBackendTextures(SkTaskGroup* taskGroup, GrDirectContext* direct) {
 
     if (taskGroup) {
         for (int i = 0; i < this->numTiles(); ++i) {
             TileData* tile = &fTiles[i];
 
-            taskGroup->add([context, tile]() { TileData::CreateBackendTexture(context, tile); });
+            taskGroup->add([direct, tile]() { TileData::CreateBackendTexture(direct, tile); });
         }
     } else {
         for (int i = 0; i < this->numTiles(); ++i) {
-            TileData::CreateBackendTexture(context, &fTiles[i]);
+            TileData::CreateBackendTexture(direct, &fTiles[i]);
         }
     }
 }
 
-void DDLTileHelper::deleteBackendTextures(SkTaskGroup* taskGroup, GrContext* context) {
-    SkASSERT(context->asDirectContext());
-
+void DDLTileHelper::deleteBackendTextures(SkTaskGroup* taskGroup, GrDirectContext* direct) {
     if (taskGroup) {
         for (int i = 0; i < this->numTiles(); ++i) {
             TileData* tile = &fTiles[i];
 
-            taskGroup->add([context, tile]() { TileData::DeleteBackendTexture(context, tile); });
+            taskGroup->add([direct, tile]() { TileData::DeleteBackendTexture(direct, tile); });
         }
     } else {
         for (int i = 0; i < this->numTiles(); ++i) {
-            TileData::DeleteBackendTexture(context, &fTiles[i]);
+            TileData::DeleteBackendTexture(direct, &fTiles[i]);
         }
     }
 }
