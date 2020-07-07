@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34ed1fb4_5359ccdd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-07-07T21:59:25Z",
+      "side": 1,
+      "message": "Can you +2? I don\u0027t seem to have a submit button anymore...\n",
+      "revId": "3795e210ada7aff5aa968a446981e117d9b0b2f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
