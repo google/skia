@@ -189,6 +189,15 @@ func (b *jobBuilder) genTasksForJob() {
 		if b.framework("G3") {
 			b.g3FrameworkCanary()
 			return
+		} else if b.framework("Android") {
+			b.canaries("Android")
+			return
+		} else if b.framework("Chromium") {
+			b.canaries("Chromium")
+			return
+		} else if b.framework("Flutter") {
+			b.canaries("Flutter")
+			return
 		}
 	}
 
