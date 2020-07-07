@@ -24,131 +24,30 @@
 
 class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
-    static bool TestForPreservingPMConversions(GrContext* context) {
-        static constexpr int kSize = 256;
-        static constexpr GrColorType kColorType = GrColorType::kRGBA_8888;
-        SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
-        uint32_t* srcData = data.get();
-        uint32_t* firstRead = data.get() + kSize * kSize;
-        uint32_t* secondRead = data.get() + 2 * kSize * kSize;
-
-        // Fill with every possible premultiplied A, color channel value. There will be 256-y
-        // duplicate values in row y. We set r, g, and b to the same value since they are handled
-        // identically.
-        for (int y = 0; y < kSize; ++y) {
-            for (int x = 0; x < kSize; ++x) {
-                uint8_t* color = reinterpret_cast<uint8_t*>(&srcData[kSize * y + x]);
-                color[3] = y;
-                color[2] = std::min(x, y);
-                color[1] = std::min(x, y);
-                color[0] = std::min(x, y);
-            }
-        }
-        memset(firstRead, 0, kSize * kSize * sizeof(uint32_t));
-        memset(secondRead, 0, kSize * kSize * sizeof(uint32_t));
-
-        const SkImageInfo ii =
-                SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-
-        auto readRTC = GrRenderTargetContext::Make(context, kColorType, nullptr,
-                                                   SkBackingFit::kExact, {kSize, kSize});
-        auto tempRTC = GrRenderTargetContext::Make(context, kColorType, nullptr,
-                                                   SkBackingFit::kExact, {kSize, kSize});
-        if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
-            return false;
-        }
-        // Adding discard to appease vulkan validation warning about loading uninitialized data on
-        // draw
-        readRTC->discard();
-
-        // This function is only ever called if we are in a GrContext that has a GrGpu since we are
-        // calling read pixels here. Thus the pixel data will be uploaded immediately and we don't
-        // need to keep the pixel data alive in the proxy. Therefore the ReleaseProc is nullptr.
-        SkBitmap bitmap;
-        bitmap.installPixels(ii, srcData, 4 * kSize);
-        bitmap.setImmutable();
-
-        GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto dataView = maker.view(GrMipMapped::kNo);
-        if (!dataView) {
-            return false;
-        }
-
-        static const SkRect kRect = SkRect::MakeIWH(kSize, kSize);
-
-        // We do a PM->UPM draw from dataTex to readTex and read the data. Then we do a UPM->PM draw
-        // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
-        // We then verify that two reads produced the same values.
-
-        GrPaint paint1;
-        GrPaint paint2;
-        GrPaint paint3;
-        std::unique_ptr<GrFragmentProcessor> pmToUPM(
-                new GrConfigConversionEffect(PMConversion::kToUnpremul));
-        std::unique_ptr<GrFragmentProcessor> upmToPM(
-                new GrConfigConversionEffect(PMConversion::kToPremul));
-
-        paint1.addColorFragmentProcessor(
-                GrTextureEffect::Make(std::move(dataView), kPremul_SkAlphaType));
-        paint1.addColorFragmentProcessor(pmToUPM->clone());
-        paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
-
-        readRTC->fillRectToRect(nullptr, std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect, kRect);
-        if (!readRTC->readPixels(ii, firstRead, 0, {0, 0})) {
-            return false;
-        }
-
-        // Adding discard to appease vulkan validation warning about loading uninitialized data on
-        // draw
-        tempRTC->discard();
-
-        paint2.addColorFragmentProcessor(
-                GrTextureEffect::Make(readRTC->readSurfaceView(), kUnpremul_SkAlphaType));
-        paint2.addColorFragmentProcessor(std::move(upmToPM));
-        paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
-
-        tempRTC->fillRectToRect(nullptr, std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect, kRect);
-
-        paint3.addColorFragmentProcessor(
-                GrTextureEffect::Make(tempRTC->readSurfaceView(), kPremul_SkAlphaType));
-        paint3.addColorFragmentProcessor(std::move(pmToUPM));
-        paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
-
-        readRTC->fillRectToRect(nullptr, std::move(paint3), GrAA::kNo, SkMatrix::I(), kRect, kRect);
-
-        if (!readRTC->readPixels(ii, secondRead, 0, {0, 0})) {
-            return false;
-        }
-
-        for (int y = 0; y < kSize; ++y) {
-            for (int x = 0; x <= y; ++x) {
-                if (firstRead[kSize * y + x] != secondRead[kSize * y + x]) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
+    static bool TestForPreservingPMConversions(GrContext* context);
 
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                      PMConversion pmConversion) {
         if (!fp) {
             return nullptr;
         }
-        std::unique_ptr<GrFragmentProcessor> ccFP(new GrConfigConversionEffect(pmConversion));
-        std::unique_ptr<GrFragmentProcessor> fpPipeline[] = {std::move(fp), std::move(ccFP)};
-        return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrConfigConversionEffect(std::move(fp), pmConversion));
     }
     GrConfigConversionEffect(const GrConfigConversionEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ConfigConversionEffect"; }
+    int inputFP_index = -1;
     PMConversion pmConversion;
 
 private:
-    GrConfigConversionEffect(PMConversion pmConversion)
+    GrConfigConversionEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
+                             PMConversion pmConversion)
             : INHERITED(kGrConfigConversionEffect_ClassID, kNone_OptimizationFlags)
-            , pmConversion(pmConversion) {}
+            , pmConversion(pmConversion) {
+        SkASSERT(inputFP);
+        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
