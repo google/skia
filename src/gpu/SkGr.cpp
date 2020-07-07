@@ -372,23 +372,25 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
 #ifndef SK_IGNORE_GPU_DITHER
     GrColorType ct = dstColorInfo.colorType();
-    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) &&
-        grPaint->numColorFragmentProcessors() > 0) {
+    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) && paintFP != nullptr) {
         float ditherRange = dither_range_for_config(ct);
         if (ditherRange > 0.f) {
-            static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
-            auto ditherFP = GrSkSLFP::Make(context, effect, "Dither",
-                                           SkData::MakeWithCopy(&ditherRange, sizeof(ditherRange)));
-            if (ditherFP) {
-                grPaint->addColorFragmentProcessor(std::move(ditherFP));
+            static sk_sp<SkRuntimeEffect> effect =
+                    std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
+            sk_sp<SkColorFilter> ditherCF = effect->makeColorFilter(
+                    SkData::MakeWithCopy(&ditherRange, sizeof(ditherRange)));
+            auto [success, fp] = as_CFB(ditherCF)->asFragmentProcessor(std::move(paintFP), context,
+                                                                       dstColorInfo);
+            if (!success) {
+                return false;
             }
+            paintFP = std::move(fp);
         }
     }
 #endif
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {
-        if (grPaint->numColorFragmentProcessors()) {
-            grPaint->addColorFragmentProcessor(
-                GrClampFragmentProcessor::Make(/*inputFP=*/nullptr, /*clampToPremul=*/false));
+        if (paintFP != nullptr) {
+            paintFP = GrClampFragmentProcessor::Make(std::move(paintFP), /*clampToPremul=*/false);
         } else {
             auto color = grPaint->getColor4f();
             grPaint->setColor4f({SkTPin(color.fR, 0.f, 1.f),
@@ -397,6 +399,11 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                  SkTPin(color.fA, 0.f, 1.f)});
         }
     }
+
+    if (paintFP) {
+        grPaint->addColorFragmentProcessor(std::move(paintFP));
+    }
+
     return true;
 }
 
