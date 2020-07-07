@@ -15,6 +15,7 @@
 #include "src/gpu/d3d/GrD3DStencilAttachment.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
+#include "src/gpu/d3d/GrD3DUtil.h"
 
 GrD3DCommandList::GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                    gr_cp<ID3D12GraphicsCommandList> commandList)
@@ -382,6 +383,32 @@ void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarg
 
     fCommandList->OMSetRenderTargets(1, &rtvDescriptor, false, dsDescriptorPtr);
 }
+
+void GrD3DDirectCommandList::resolveSubresourceRegion(const GrD3DTextureResource* dstTexture,
+                                                      UINT dstX, UINT dstY,
+                                                      const GrD3DTextureResource* srcTexture,
+                                                      D3D12_RECT* srcRect) {
+    SkASSERT(dstTexture->dxgiFormat() == srcTexture->dxgiFormat());
+    SkASSERT(dstTexture->currentState() == D3D12_RESOURCE_STATE_RESOLVE_DEST);
+    SkASSERT(srcTexture->currentState() == D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+    this->addingWork();
+    this->addResource(dstTexture->resource());
+    this->addResource(srcTexture->resource());
+
+    gr_cp<ID3D12GraphicsCommandList1> commandList1;
+    HRESULT result = fCommandList->QueryInterface(IID_PPV_ARGS(&commandList1));
+    if (SUCCEEDED(result)) {
+        commandList1->ResolveSubresourceRegion(dstTexture->d3dResource(), 0, dstX, dstY,
+                                               srcTexture->d3dResource(), 0, srcRect,
+                                               srcTexture->dxgiFormat(),
+                                               D3D12_RESOLVE_MODE_AVERAGE);
+    } else {
+        fCommandList->ResolveSubresource(dstTexture->d3dResource(), 0, srcTexture->d3dResource(), 0,
+                                         srcTexture->dxgiFormat());
+    }
+}
+
+
 
 void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
         unsigned int rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
