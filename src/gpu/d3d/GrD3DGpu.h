@@ -180,7 +180,7 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override { return true; }
 
-    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, ForExternalIO) override {}
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, ForExternalIO) override;
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;
@@ -222,6 +222,8 @@ private:
 
     void copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                               const SkIPoint& dstPoint);
+    void resolveTexture(GrSurface* dst, int32_t dstX, int32_t dstY,
+                        GrD3DRenderTarget* src, const SkIRect& srcRect);
 
     bool uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
                          GrColorType colorType, const GrMipLevel* texels, int mipLevelCount);

@@ -155,6 +155,10 @@ public:
     void clearDepthStencilView(const GrD3DStencilAttachment*, uint8_t stencilClearValue,
                                const D3D12_RECT* rect);
     void setRenderTarget(const GrD3DRenderTarget* renderTarget);
+    void resolveSubresourceRegion(const GrD3DTextureResource* dstTexture,
+                                  UINT dstX, UINT dstY,
+                                  const GrD3DTextureResource* srcTexture,
+                                  D3D12_RECT* srcRect);
 
     void setGraphicsRootConstantBufferView(unsigned int rootParameterIndex,
                                            D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
