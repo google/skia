@@ -55,42 +55,11 @@ bool SkColorFilterBase::onAsAColorMatrix(float matrix[20]) const {
 }
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkColorFilterBase::asFragmentProcessor(
-        GrRecordingContext* context, const GrColorInfo& dstColorInfo) const {
-    // TODO(skbug.com/10217): remove this method once all SkColorFilters support the new API.
-    if (!this->colorFilterAcceptsInputFP()) {
-        // This color filter doesn't implement `asFragmentProcessor` at all.
-        return nullptr;
-    }
-
-    // This color filter has been updated to absorb an input FP. Redirect to the new API.
-    auto [success, fp] = this->asFragmentProcessor(/*inputFP=*/nullptr, context, dstColorInfo);
-    return success ? std::move(fp) : nullptr;
-}
-
 GrFPResult SkColorFilterBase::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                   GrRecordingContext* context,
                                                   const GrColorInfo& dstColorInfo) const {
-    // A filter that overrides `colorFilterAcceptsInputFP` should also have overridden this method.
-    SkASSERT(!this->colorFilterAcceptsInputFP());
-
-    // This color filter doesn't support taking an inputFP yet. Call the deprecated version instead.
-    std::unique_ptr<GrFragmentProcessor> filter = this->asFragmentProcessor(context, dstColorInfo);
-    if (filter == nullptr) {
-        return GrFPFailure(std::move(inputFP));
-    }
-
-    if (inputFP == nullptr) {
-        // An input FP wasn't actually provided, so we can just return the color filter FP as-is.
-        return GrFPSuccess(std::move(filter));
-    } else {
-        // Use RunInSeries as a crutch to make this color filter work with an input FP.
-        std::unique_ptr<GrFragmentProcessor> series[] = {
-            std::move(inputFP),
-            std::move(filter),
-        };
-        return GrFPSuccess(GrFragmentProcessor::RunInSeries(series, SK_ARRAY_COUNT(series)));
-    }
+    // This color filter doesn't implement `asFragmentProcessor`.
+    return GrFPFailure(std::move(inputFP));
 }
 #endif
 
@@ -168,7 +137,6 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    bool colorFilterAcceptsInputFP() const override { return true; }
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo) const override {
@@ -249,7 +217,6 @@ public:
     }()) {}
 
 #if SK_SUPPORT_GPU
-    bool colorFilterAcceptsInputFP() const override { return true; }
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo) const override {
@@ -385,7 +352,6 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    bool colorFilterAcceptsInputFP() const override { return true; }
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo) const override {
