@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d18520c_71143532",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-07T18:46:54Z",
+      "side": 1,
+      "message": "Okay that latest patchset (6) is an example of what dawn would look like using map for removing things from the busy list. I\u0027ve also switched to getting slices from the new system instead of the old (though the old code is still all in here) so that I could test it. In general this does not currently work, in the sense that things don\u0027t draw, but I haven\u0027t debugged too much why.\n\nOne clue is that if I run through dm long enough I end up hitting an assert in dawn itself at:\nError: Assertion failure at ../../third_party/externals/dawn/src/dawn_native/Device.cpp:364 (CheckPassedSerials): completedSerial \u003c\u003d mLastSubmittedSerial\n\nin this case completedSerial has a value of 0xffffffffffffffff, and this is getting triggered by Tick() calls either in Skia or internal in dawn during submit calls. Does the fact that we are hitting this assert and that completedSerial \u003d 0xffffffffffffffff suggest anything specific is wrong? I\u0027m not sure what this assert means. On patch set 5 I had finished the implementation with fences and I end up hitting the same assert. So any insight to that assert or if anyone can see an obvious logic flaw in this change would be very helpful.",
+      "revId": "aff61b1a5cac2ba710d5b4c9d8a4506bb63b96d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
