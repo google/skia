@@ -11,6 +11,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="/static/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/static/benchmark.js" type="text/javascript" charset="utf-8"></script>
   <style type="text/css" media="screen">
     body {
       margin: 0;
@@ -27,6 +28,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
   <script type="text/javascript" charset="utf-8">
     const WIDTH  = 1000;
     const HEIGHT = 1000;
+    const WARM_UP_FRAMES = 0; // No warmup, so that the jank of initial frames gets's measured.
     // We sample MAX_FRAMES or until MAX_SAMPLE_SECONDS has elapsed.
     const MAX_FRAMES = 600; // ~10s at 60fps
     const MAX_SAMPLE_MS = 30 * 1000; // in case something takes a while, stop after 30 seconds.
@@ -39,7 +41,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
       });
 
       const loadLottie = fetch(LOTTIE_JSON_PATH).then((resp) => {
-        return resp.text()
+        return resp.text();
       });
 
       const loadFontsAndAssets = loadLottie.then((jsonStr) => {
@@ -63,6 +65,10 @@ would display the animation (e.g. using clock time to determine where to seek, n
         const animation = CanvasKit.MakeManagedAnimation(json, assets);
         const loadTime = performance.now() - loadStart;
 
+        window._perfData = {
+          json_load_ms: loadTime,
+        };
+
         const duration = animation.duration() * 1000;
         const bounds = {fLeft: 0, fTop: 0, fRight: WIDTH, fBottom: HEIGHT};
 
@@ -75,70 +81,25 @@ would display the animation (e.g. using clock time to determine where to seek, n
 
         document.getElementById('start_bench').addEventListener('click', () => {
           const clearColor = CanvasKit.WHITE;
-          const frames = new Float32Array(MAX_FRAMES);
-          const seeks = new Float32Array(MAX_FRAMES);
           let idx = 0;
-          const firstFrame = Date.now();
-          function drawFrame() {
-            const now = performance.now();
-            // Actually draw stuff.
-            const seek = ((Date.now() - firstFrame) / duration) % 1.0;
+          const startTime = Date.now();
+
+          function draw() {
+            const seek = ((Date.now() - startTime) / duration) % 1.0;
             const damage = animation.seek(seek);
-            const afterSeek = performance.now();
 
             if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
               canvas.clear(clearColor);
               animation.render(canvas, bounds);
             }
-            surface.flush();
-            // FPS measurement
-            frames[idx] = performance.now() - now;
-            seeks[idx] = afterSeek - now;
-            idx++;
-            // If we have maxed out the frames we are measuring or have completed the animation,
-            // we stop benchmarking.
-            if (idx >= frames.length || (Date.now() - firstFrame) > MAX_SAMPLE_MS) {
-              window._perfData = {
-                frames_ms: Array.from(frames).slice(0, idx),
-                seeks_ms: Array.from(seeks).slice(0, idx),
-                json_load_ms: loadTime,
-              };
-              window._perfDone = true;
-              return;
-            }
-            window.requestAnimationFrame(drawFrame);
           }
-          window.requestAnimationFrame(drawFrame);
+
+          startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES, MAX_SAMPLE_MS);
         });
         console.log('Perf is ready');
         window._perfReady = true;
       });
     })();
-
-  function getSurface(CanvasKit) {
-    let surface;
-    if (window.location.hash.indexOf('gpu') !== -1) {
-      surface = CanvasKit.MakeWebGLCanvasSurface('anim');
-      if (!surface) {
-        window._error = 'Could not make GPU surface';
-        return null;
-      }
-      let c = document.getElementById('anim');
-      // If CanvasKit was unable to instantiate a WebGL context, it will fallback
-      // to CPU and add a ck-replaced class to the canvas element.
-      if (c.classList.contains('ck-replaced')) {
-        window._error = 'fell back to CPU';
-        return null;
-      }
-    } else {
-      surface = CanvasKit.MakeSWCanvasSurface('anim');
-      if (!surface) {
-        window._error = 'Could not make CPU surface';
-        return null;
-      }
-    }
-    return surface;
-  }
 
   function loadFonts(fonts) {
     const promises = [];
