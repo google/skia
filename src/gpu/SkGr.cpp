@@ -354,10 +354,6 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         }
     }
 
-    if (paintFP) {
-        grPaint->addColorFragmentProcessor(std::move(paintFP));
-    }
-
     SkMaskFilterBase* maskFilter = as_MFB(skPaint.getMaskFilter());
     if (maskFilter) {
         // We may have set this before passing to the SkShader.
