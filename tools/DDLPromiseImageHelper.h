@@ -137,8 +137,8 @@ public:
 
     void createCallbackContexts(GrContext*);
 
-    void uploadAllToGPU(SkTaskGroup*, GrContext*);
-    void deleteAllFromGPU(SkTaskGroup*, GrContext*);
+    void uploadAllToGPU(SkTaskGroup*, GrDirectContext*);
+    void deleteAllFromGPU(SkTaskGroup*, GrDirectContext*);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
@@ -262,14 +262,14 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
-    static void CreateBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
-    static void DeleteBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
+    static void CreateBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);
+    static void DeleteBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);
 
     static sk_sp<SkImage> CreatePromiseImages(const void* rawData, size_t length, void* ctxIn);
 
     bool isValidID(int id) const { return id >= 0 && id < fImageInfo.count(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }
-    void uploadImage(GrContext*, PromiseImageInfo*);
+    void uploadImage(GrDirectContext*, PromiseImageInfo*);
 
     // returns -1 if not found
     int findImage(SkImage* image) const;
