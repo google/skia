@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd3a87dd_eededf89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-07T22:48:26Z",
+      "side": 1,
+      "message": "Still have a bit more I want to do on this, but I\u0027ve made a lot of changes, so I think it would be good to get some feedback before I go to deep.\n\nNote: In hindsight I think using a worker may have been nicer than using generator functions for rendering without degrading user experience. But I have written all this code with generators now and it works so I\u0027ll keep it unless anyone sees a problem with it.",
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
