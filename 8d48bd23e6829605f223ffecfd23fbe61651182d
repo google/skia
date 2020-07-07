@@ -22,6 +22,30 @@
       "revId": "8d48bd23e6829605f223ffecfd23fbe61651182d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74c99de4_f96aa23d",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T14:20:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d84c784_e186bf54",
+      "range": {
+        "startLine": 520,
+        "startChar": 28,
+        "endLine": 520,
+        "endChar": 56
+      },
+      "revId": "8d48bd23e6829605f223ffecfd23fbe61651182d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
