@@ -16,6 +16,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="/static/canvaskit.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/static/benchmark.js" type="text/javascript" charset="utf-8"></script>
   <style type="text/css" media="screen">
     body {
       margin: 0;
@@ -32,13 +33,10 @@
   <script type="text/javascript" charset="utf-8">
     const WIDTH  = 1000;
     const HEIGHT = 1000;
-    // Run this number of frames before starting to measure things. This allows us to make sure
-    // the noise from the first few renders (e.g shader compilation, caches) is removed from the
-    // data we capture.
     const WARM_UP_FRAMES = 10;
     const MAX_FRAMES = 201; // This should be sufficient to have low noise.
-
     const SKP_PATH = '/static/test.skp';
+
     (function() {
 
       const loadKit = CanvasKitInit({
@@ -54,6 +52,9 @@
         const loadStart = performance.now();
         const skp = CanvasKit.MakeSkPicture(skpBytes);
         const loadTime = performance.now() - loadStart;
+        window._perfData = {
+          skp_load_ms: loadTime,
+        };
         console.log('loaded skp', skp, loadTime);
         if (!skp) {
           window._error = 'could not read skp';
@@ -69,88 +70,19 @@
 
         document.getElementById('start_bench').addEventListener('click', () => {
           const clearColor = CanvasKit.WHITE;
-          const totalFrame = new Float32Array(MAX_FRAMES);
-          const withFlush = new Float32Array(MAX_FRAMES);
-          const withoutFlush = new Float32Array(MAX_FRAMES);
-          let warmUp = true;
-          let idx = 0;
 
-          let previousFrame;
-
-          function drawFrame() {
-            const start = performance.now();
+          function draw() {
             canvas.clear(clearColor);
             canvas.drawPicture(skp);
-            const afterDraw = performance.now();
-            surface.flush();
-            const end = performance.now();
-
-            if (warmUp) {
-              idx++;
-              if (idx >= WARM_UP_FRAMES) {
-                idx = -1;
-                warmUp = false;
-              }
-              window.requestAnimationFrame(drawFrame);
-              return;
-            }
-            if (idx >= 0) {
-              // Fill out total time the previous frame took to draw.
-              totalFrame[idx] = start - previousFrame;
-            }
-            previousFrame = start;
-            idx++;
-            // If we have maxed out the frames we are measuring or have completed the animation,
-            // we stop benchmarking.
-            if (idx >= withFlush.length) {
-              window._perfData = {
-                total_frame_ms: Array.from(totalFrame).slice(0, idx),
-                with_flush_ms: Array.from(withFlush).slice(0, idx),
-                without_flush_ms: Array.from(withoutFlush).slice(0, idx),
-                skp_load_ms: loadTime,
-              };
-              window._perfDone = true;
-              return;
-            }
-
-            // We can fill out this frame's intermediate steps.
-            withFlush[idx] = end - start;
-            withoutFlush[idx] = afterDraw - start;
-            window.requestAnimationFrame(drawFrame);
           }
-          window.requestAnimationFrame(drawFrame);
+
+          startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES);
         });
         console.log('Perf is ready');
         window._perfReady = true;
       });
     }
   )();
-
-  // TODO(kjlubick) make this configurable to return a WEBGL 1 or WEBGL 2 surface.
-  function getSurface(CanvasKit) {
-    let surface;
-    if (window.location.hash.indexOf('gpu') !== -1) {
-      surface = CanvasKit.MakeWebGLCanvasSurface('anim');
-      if (!surface) {
-        window._error = 'Could not make GPU surface';
-        return null;
-      }
-      let c = document.getElementById('anim');
-      // If CanvasKit was unable to instantiate a WebGL context, it will fallback
-      // to CPU and add a ck-replaced class to the canvas element.
-      if (c.classList.contains('ck-replaced')) {
-        window._error = 'fell back to CPU';
-        return null;
-      }
-    } else {
-      surface = CanvasKit.MakeSWCanvasSurface('anim');
-      if (!surface) {
-        window._error = 'Could not make CPU surface';
-        return null;
-      }
-    }
-    return surface;
-  }
 
   </script>
 </body>
