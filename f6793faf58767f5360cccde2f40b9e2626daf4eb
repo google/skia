@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "f1a10bbb_37fecbf1",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T14:38:01Z",
+      "side": 1,
+      "message": "Yeah - you would have to add a method similar to the one in GrSurfaceContextPriv.",
+      "parentUuid": "d44c74df_be734118",
+      "range": {
+        "startLine": 94,
+        "startChar": 34,
+        "endLine": 94,
+        "endChar": 47
+      },
+      "revId": "f6793faf58767f5360cccde2f40b9e2626daf4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c37c2d9_43cee89a",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 1
