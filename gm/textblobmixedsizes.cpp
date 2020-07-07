@@ -32,6 +32,8 @@
 
 #include <string.h>
 
+class GrContext;
+
 namespace skiagm {
 class TextBlobMixedSizes : public GM {
 public:
@@ -105,7 +107,7 @@ protected:
         sk_sp<SkSurface> surface;
         if (fUseDFT) {
             // Create a new Canvas to enable DFT
-            auto ctx = inputCanvas->recordingContext();
+            GrContext* ctx = inputCanvas->getGrContext();
             SkISize size = onISize();
             sk_sp<SkColorSpace> colorSpace = inputCanvas->imageInfo().refColorSpace();
             SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(),

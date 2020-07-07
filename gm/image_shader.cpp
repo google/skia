@@ -28,6 +28,8 @@
 
 #include <utility>
 
+class GrContext;
+
 static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -40,20 +42,16 @@ static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
     canvas->drawOval(bounds, paint);
 }
 
-typedef sk_sp<SkImage> (*ImageMakerProc)(GrRecordingContext*, SkPicture*, const SkImageInfo&);
+typedef sk_sp<SkImage> (*ImageMakerProc)(GrContext*, SkPicture*, const SkImageInfo&);
 
-static sk_sp<SkImage> make_raster(GrRecordingContext*,
-                                  SkPicture* pic,
-                                  const SkImageInfo& info) {
+static sk_sp<SkImage> make_raster(GrContext*, SkPicture* pic, const SkImageInfo& info) {
     auto surface(SkSurface::MakeRaster(info));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
     return surface->makeImageSnapshot();
 }
 
-static sk_sp<SkImage> make_texture(GrRecordingContext* ctx,
-                                   SkPicture* pic,
-                                   const SkImageInfo& info) {
+static sk_sp<SkImage> make_texture(GrContext* ctx, SkPicture* pic, const SkImageInfo& info) {
     if (!ctx) {
         return nullptr;
     }
@@ -66,17 +64,13 @@ static sk_sp<SkImage> make_texture(GrRecordingContext* ctx,
     return surface->makeImageSnapshot();
 }
 
-static sk_sp<SkImage> make_pict_gen(GrRecordingContext*,
-                                    SkPicture* pic,
-                                    const SkImageInfo& info) {
+static sk_sp<SkImage> make_pict_gen(GrContext*, SkPicture* pic, const SkImageInfo& info) {
     return SkImage::MakeFromPicture(sk_ref_sp(pic), info.dimensions(), nullptr, nullptr,
                                     SkImage::BitDepth::kU8,
                                     SkColorSpace::MakeSRGB());
 }
 
-static sk_sp<SkImage> make_encode_gen(GrRecordingContext* ctx,
-                                      SkPicture* pic,
-                                      const SkImageInfo& info) {
+static sk_sp<SkImage> make_encode_gen(GrContext* ctx, SkPicture* pic, const SkImageInfo& info) {
     sk_sp<SkImage> src(make_raster(ctx, pic, info));
     if (!src) {
         return nullptr;
@@ -141,7 +135,7 @@ protected:
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gProcs); ++i) {
-            sk_sp<SkImage> image(gProcs[i](canvas->recordingContext(), fPicture.get(), info));
+            sk_sp<SkImage> image(gProcs[i](canvas->getGrContext(), fPicture.get(), info));
             if (image) {
                 this->testImage(canvas, image.get());
             }

@@ -8,8 +8,6 @@
 #include "src/gpu/SkGpuDevice.h"
 
 #include "include/core/SkYUVAIndex.h"
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
@@ -17,7 +15,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrImageTextureMaker.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTextureAdjuster.h"
@@ -156,7 +153,7 @@ static SkIRect determine_clipped_src_rect(int width, int height,
 }
 
 // tileSize and clippedSubset are valid if true is returned
-static bool should_tile_image_id(GrRecordingContext* context,
+static bool should_tile_image_id(GrContext* context,
                                  SkISize rtSize,
                                  const GrClip* clip,
                                  uint32_t imageID,
@@ -188,15 +185,14 @@ static bool should_tile_image_id(GrRecordingContext* context,
     // and theoretically, the resource cache's limits could be being changed on another thread, so
     // even having access to just the limit wouldn't be a reliable test during recording here.
     // Instead, we will just upload the entire image to be on the safe side and not tile.
-    auto direct = context->asDirectContext();
-    if (!direct) {
+    if (!context->asDirectContext()) {
         return false;
     }
 
     // assumption here is that sw bitmap size is a good proxy for its size as
     // a texture
     size_t bmpSize = area * sizeof(SkPMColor);  // assume 32bit pixels
-    size_t cacheSize = direct->getResourceCacheLimit();
+    size_t cacheSize = context->getResourceCacheLimit();
     if (bmpSize < cacheSize / 2) {
         return false;
     }
@@ -385,7 +381,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip* clip, const S
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
-static void draw_texture_producer(GrRecordingContext* context,
+static void draw_texture_producer(GrContext* context,
                                   GrRenderTargetContext* rtc,
                                   const GrClip* clip,
                                   const SkMatrixProvider& matrixProvider,
@@ -514,7 +510,7 @@ static void draw_texture_producer(GrRecordingContext* context,
     }
 }
 
-void draw_tiled_bitmap(GrRecordingContext* context,
+void draw_tiled_bitmap(GrContext* context,
                        GrRenderTargetContext* rtc,
                        const GrClip* clip,
                        const SkBitmap& bitmap,

@@ -106,7 +106,8 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
     SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                   ? SkBudgeted::kNo
                                   : SkBudgeted::kYes;
-    auto surface = SkSurface::MakeRenderTarget(ctx, budgeted, info, 0,
+    // CONTEXT TODO: remove this use of 'backdoor' to create an SkSkSurface
+    auto surface = SkSurface::MakeRenderTarget(ctx->priv().backdoor(), budgeted, info, 0,
                                                kTopLeft_GrSurfaceOrigin, &props,
                                                mipMapped == GrMipMapped::kYes);
     if (!surface) {
