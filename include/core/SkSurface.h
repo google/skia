@@ -364,6 +364,14 @@ public:
         @param shouldCreateWithMips  hint that SkSurface will host mip map images
         @return                      SkSurface if all parameters are valid; otherwise, nullptr
     */
+    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& imageInfo,
+                                             int sampleCount, GrSurfaceOrigin surfaceOrigin,
+                                             const SkSurfaceProps* surfaceProps,
+                                             bool shouldCreateWithMips = false);
+
+    /** Deprecated.
+    */
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo,
                                              int sampleCount, GrSurfaceOrigin surfaceOrigin,
@@ -391,12 +399,18 @@ public:
                             fonts; may be nullptr
         @return             SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* surfaceProps) {
         return MakeRenderTarget(context, budgeted, imageInfo, sampleCount,
                                 kBottomLeft_GrSurfaceOrigin, surfaceProps);
     }
+
+    /** Deprecated.
+    */
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& imageInfo, int sampleCount,
+                                             const SkSurfaceProps* surfaceProps);
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
         pixels, based on the width, height, and SkColorType in SkImageInfo.  budgeted
@@ -411,7 +425,7 @@ public:
                           of raster surface; width, or height, or both, may be zero
         @return           SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo) {
         if (!imageInfo.width() || !imageInfo.height()) {
             return nullptr;
@@ -419,6 +433,11 @@ public:
         return MakeRenderTarget(context, budgeted, imageInfo, 0, kBottomLeft_GrSurfaceOrigin,
                                 nullptr);
     }
+
+    /** Deprecated.
+    */
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& imageInfo);
 
     /** Returns SkSurface on GPU indicated by context that is compatible with the provided
         characterization. budgeted selects whether allocation for pixels is tracked by context.
