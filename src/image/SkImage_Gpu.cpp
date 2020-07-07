@@ -231,12 +231,10 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
-#ifndef SK_LEGACY_MAKEFROMTEXTURE_BEHAVIOR
     sk_sp<GrRefCntedCallback> releaseHelper;
     if (releaseP) {
         releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
     }
-#endif
 
     if (!ctx) {
         return nullptr;
@@ -252,13 +250,6 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     if (!SkImage_GpuBase::ValidateBackendTexture(caps, tex, grColorType, ct, at, cs)) {
         return nullptr;
     }
-
-#ifdef SK_LEGACY_MAKEFROMTEXTURE_BEHAVIOR
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (releaseP) {
-        releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
-    }
-#endif
 
     return new_wrapped_texture_common(ctx, tex, grColorType, origin, at, std::move(cs),
                                       kBorrow_GrWrapOwnership, std::move(releaseHelper));
