@@ -134,16 +134,15 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     return true;
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
-                                             const SkIRect& subset) const {
-    if (!context || !fContext->priv().matches(context)) {
+sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset, GrDirectContext* direct) const {
+    if (!direct || !fContext->priv().matches(direct)) {
         return nullptr;
     }
 
-    const GrSurfaceProxyView* view = this->view(context);
+    const GrSurfaceProxyView* view = this->view(direct);
     SkASSERT(view && view->proxy());
 
-    auto copyView = GrSurfaceProxyView::Copy(context, *view, GrMipMapped::kNo, subset,
+    auto copyView = GrSurfaceProxyView::Copy(direct, *view, GrMipMapped::kNo, subset,
                                              SkBackingFit::kExact, view->proxy()->isBudgeted());
 
     if (!copyView) {
