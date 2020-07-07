@@ -827,8 +827,7 @@ private:
                                       GrGpuBuffer* transferBuffer, size_t offset) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
-    virtual void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                                       ForExternalIO) = 0;
+    virtual void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) = 0;
 
     // overridden by backend specific derived class to perform mip map level regeneration.
     virtual bool onRegenerateMipMapLevels(GrTexture*) = 0;

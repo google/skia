@@ -599,7 +599,10 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRe
                                 ForExternalIO forExternalIO) {
     SkASSERT(target);
     this->handleDirtyContext();
-    this->onResolveRenderTarget(target, resolveRect, forExternalIO);
+    this->onResolveRenderTarget(target, resolveRect);
+    if (forExternalIO == ForExternalIO::kYes) {
+        this->submitToGpu(false);
+    }
 }
 
 void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
