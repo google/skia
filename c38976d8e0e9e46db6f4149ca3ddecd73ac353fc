@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0220e21e_42901635",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_skottie_frames/perf_puppeteer_skottie_frames.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T14:51:49Z",
+      "side": 1,
+      "message": "Please run go fmt on these files (it will fix alignment and other things)",
+      "range": {
+        "startLine": 289,
+        "startChar": 16,
+        "endLine": 289,
+        "endChar": 18
+      },
+      "revId": "c38976d8e0e9e46db6f4149ca3ddecd73ac353fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
