@@ -608,12 +608,12 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
             contextPriv.caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
 
-    return blob->firstSubRun()->makeOp(mtxProvider,
-                                       drawOrigin,
-                                       SkIRect::MakeEmpty(),
-                                       skPaint,
-                                       surfaceProps,
-                                       rtc->textTarget());
+    return GrAtlasTextOp::MakeBitmap(rtc,
+                                     skPaint,
+                                     blob->firstSubRun(),
+                                     mtxProvider,
+                                     drawOrigin,
+                                     SkIRect::MakeEmpty());
 }
 
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {

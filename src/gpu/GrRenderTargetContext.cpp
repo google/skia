@@ -554,8 +554,104 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
                 glyphRunList, drawMatrix, fSurfaceProps, supportsSDFT, options, blob.get());
     }
 
-    blob->insertOpsIntoTarget(
-            fTextTarget.get(), fSurfaceProps, blobPaint, clip, matrixProvider, drawOrigin);
+    for (GrTextBlob::SubRun* subRun : blob->subRunList()) {
+        if (subRun->glyphCount() == 0) { continue; }
+        if (subRun->drawAsPaths()) {
+            SkPaint runPaint{blobPaint};
+            runPaint.setAntiAlias(subRun->isAntiAliased());
+            // If there are shaders, blurs or styles, the path must be scaled into source
+            // space independently of the CTM. This allows the CTM to be correct for the
+            // different effects.
+            GrStyle style(runPaint);
+
+            bool needsExactCTM = runPaint.getShader()
+                                 || style.applies()
+                                 || runPaint.getMaskFilter();
+
+            // Calculate the matrix that maps the path glyphs from their size in the strike to
+            // the graphics source space.
+            SkScalar scale = subRun->strikeSpec().strikeToSourceRatio();
+            SkMatrix strikeToSource = SkMatrix::Scale(scale, scale);
+            strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
+            if (!needsExactCTM) {
+                for (const auto& pathPos : subRun->paths()) {
+                    const SkPath& path = pathPos.fPath;
+                    const SkPoint pos = pathPos.fOrigin;  // Transform the glyph to source space.
+                    SkMatrix pathMatrix = strikeToSource;
+                    pathMatrix.postTranslate(pos.x(), pos.y());
+                    SkPreConcatMatrixProvider strikeToDevice(matrixProvider, pathMatrix);
+
+                    GrStyledShape shape(path, blobPaint);
+                    GrBlurUtils::drawShapeWithMaskFilter(
+                            this->fContext, this, clip, runPaint, strikeToDevice, shape);
+                }
+            } else {
+                // Transform the path to device because the deviceMatrix must be unchanged to
+                // draw effect, filter or shader paths.
+                for (const auto& pathPos : subRun->paths()) {
+                    const SkPath& path = pathPos.fPath;
+                    const SkPoint pos = pathPos.fOrigin;
+                    // Transform the glyph to source space.
+                    SkMatrix pathMatrix = strikeToSource;
+                    pathMatrix.postTranslate(pos.x(), pos.y());
+
+                    SkPath deviceOutline;
+                    path.transform(pathMatrix, &deviceOutline);
+                    deviceOutline.setIsVolatile(true);
+                    GrStyledShape shape(deviceOutline, blobPaint);
+                    GrBlurUtils::drawShapeWithMaskFilter(
+                            this->fContext, this, clip, runPaint, matrixProvider, shape);
+                }
+            }
+        } else {
+            bool skipClip = false;
+            SkIRect clipRect = SkIRect::MakeEmpty();
+            SkRect rtBounds = SkRect::MakeWH(this->width(), this->height());
+            // We can clip geometrically if we're not using SDFs or transformed glyphs,
+            // and we have an axis-aligned rectangular non-AA clip
+            if (!subRun->drawAsDistanceFields() && !subRun->needsTransform()) {
+                // We only need to do clipping work if the subrun isn't contained by the clip
+                skipClip = true;
+                SkRect subRunBounds =
+                        subRun->deviceRect(matrixProvider.localToDevice(), drawOrigin);
+                if (!clip && !rtBounds.intersects(subRunBounds)) {
+                    // If the subrun is completely outside, don't add an op for it
+                    return;
+                } else if (clip) {
+                    GrClip::PreClipResult result = clip->preApply(subRunBounds);
+                    if (result.fEffect == GrClip::Effect::kClipped) {
+                        if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
+                            // Embed non-AA axis-aligned clip into the draw
+                            result.fRRect.getBounds().round(&clipRect);
+                        } else {
+                            // Can't actually skip the regular clipping
+                            skipClip = false;
+                        }
+                    } else if (result.fEffect == GrClip::Effect::kClippedOut) {
+                        return;
+                    }
+                }
+            }
+
+            auto op = subRun->drawAsDistanceFields()
+                    ? GrAtlasTextOp::MakeDistanceField(this,
+                                                       blobPaint,
+                                                       subRun,
+                                                       matrixProvider,
+                                                       drawOrigin,
+                                                       clipRect)
+                   : GrAtlasTextOp::MakeBitmap(this,
+                                               blobPaint,
+                                               subRun,
+                                               matrixProvider,
+                                               drawOrigin,
+                                               clipRect);
+
+            if (op != nullptr) {
+                this->addDrawOp(skipClip ? nullptr : clip, std::move(op));
+            }
+        }
+    }
 }
 
 void GrRenderTargetContext::discard() {

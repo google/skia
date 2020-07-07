@@ -381,7 +381,7 @@ auto GrTextBlob::SubRun::MakeTransformedMask(
         SkArenaAlloc* alloc) -> SubRun* {
     return SubRun::InitForAtlas(kTransformedMask, drawables, strikeSpec, format, blob, alloc);
 }
-
+#if 0
 void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                                                    const SkSurfaceProps& props,
                                                    const SkPaint& paint,
@@ -499,7 +499,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
                                          clipRect);
     }
 }
-
+#endif
 auto GrTextBlob::SubRun::InitForAtlas(SubRunType type,
                                       const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                       const SkStrikeSpec& strikeSpec,
@@ -670,17 +670,6 @@ bool GrTextBlob::canReuse(const SkPaint& paint,
 
     // If the blob is all paths, there is no reason to regenerate.
     return true;
-}
-
-void GrTextBlob::insertOpsIntoTarget(GrTextTarget* target,
-                                     const SkSurfaceProps& props,
-                                     const SkPaint& paint,
-                                     const GrClip* clip,
-                                     const SkMatrixProvider& deviceMatrix,
-                                     SkPoint drawOrigin) {
-    for (SubRun* subRun : fSubRunList) {
-        subRun->insertSubRunOpsIntoTarget(target, props, paint, clip, deviceMatrix, drawOrigin);
-    }
 }
 
 const GrTextBlob::Key& GrTextBlob::key() const { return fKey; }

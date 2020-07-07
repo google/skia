@@ -118,13 +118,6 @@ public:
     bool canReuse(const SkPaint& paint, const SkMaskFilterBase::BlurRec& blurRec,
                   const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
-    void insertOpsIntoTarget(GrTextTarget* target,
-                             const SkSurfaceProps& props,
-                             const SkPaint& paint,
-                             const GrClip* clip,
-                             const SkMatrixProvider& deviceMatrix,
-                             SkPoint drawOrigin);
-
     static const int kVerticesPerGlyph = 4;
 
     const Key& key() const;
@@ -139,6 +132,8 @@ public:
     SubRun* firstSubRun() const;
 
     bool forceWForDistanceFields() const;
+
+    const SkTInternalLList<SubRun>& subRunList() const { return fSubRunList; }
 
 private:
     enum TextType {
@@ -329,22 +324,12 @@ public:
                                        GrTextBlob* blob,
                                        SkArenaAlloc* alloc);
 
-    void insertSubRunOpsIntoTarget(GrTextTarget* target,
-                                   const SkSurfaceProps& props,
-                                   const SkPaint& paint,
-                                   const GrClip* clip,
-                                   const SkMatrixProvider& deviceMatrix,
-                                   SkPoint drawOrigin);
-
-    std::unique_ptr<GrAtlasTextOp> makeOp(const SkMatrixProvider& matrixProvider,
-                                          SkPoint drawOrigin,
-                                          const SkIRect& clipRect,
-                                          const SkPaint& paint,
-                                          const SkSurfaceProps&,
-                                          GrTextTarget*);
-
     GrTextBlob* fBlob;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
+
+    bool drawAsPaths() const;
+
+    SkSpan<const PathGlyph> paths() const { return SkMakeSpan(fPaths); }
 
 private:
     struct AtlasPt {
@@ -385,7 +370,6 @@ private:
     bool hasW() const;
     void setUseLCDText(bool useLCDText);
     void setAntiAliased(bool antiAliased);
-    bool drawAsPaths() const;
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob::SubRun);
 
