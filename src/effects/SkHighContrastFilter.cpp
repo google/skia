@@ -39,8 +39,9 @@ public:
     ~SkHighContrast_Filter() override {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                             const GrColorInfo&) const override;
+    bool colorFilterAcceptsInputFP() const override { return true; }
+    GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                   GrRecordingContext*, const GrColorInfo&) const override;
 #endif
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
@@ -217,10 +218,11 @@ void SkHighContrastFilter::RegisterFlattenables() {
 #if SK_SUPPORT_GPU
 class HighContrastFilterEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(const SkHighContrastConfig& config,
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     const SkHighContrastConfig& config,
                                                      bool linearize) {
-        return std::unique_ptr<GrFragmentProcessor>(new HighContrastFilterEffect(config,
-                                                                                 linearize));
+        return std::unique_ptr<GrFragmentProcessor>(new HighContrastFilterEffect(
+                   std::move(inputFP), config, linearize));
     }
 
     const char* name() const override { return "HighContrastFilter"; }
@@ -229,14 +231,24 @@ public:
     bool linearize() const { return fLinearize; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
-        return Make(fConfig, fLinearize);
+        return std::unique_ptr<GrFragmentProcessor>(new HighContrastFilterEffect(*this));
     }
 
 private:
-    HighContrastFilterEffect(const SkHighContrastConfig& config, bool linearize)
+    HighContrastFilterEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
+                             const SkHighContrastConfig& config, bool linearize)
+            : INHERITED(kHighContrastFilterEffect_ClassID, kNone_OptimizationFlags)
+            , fConfig(config)
+            , fLinearize(linearize) {
+        this->registerChild(std::move(inputFP));
+    }
+
+    HighContrastFilterEffect(const HighContrastFilterEffect& that)
         : INHERITED(kHighContrastFilterEffect_ClassID, kNone_OptimizationFlags)
-        , fConfig(config)
-        , fLinearize(linearize) {}
+        , fConfig(that.fConfig)
+        , fLinearize(that.fLinearize) {
+        this->cloneAndRegisterAllChildProcessors(that);
+    }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -302,59 +314,62 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     fContrastUni = args.fUniformHandler->addUniform(&hcfe, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "contrast", &contrast);
 
+    SkString inputColor = (hcfe.numChildProcessors() >= 1)
+                 ? this->invokeChild(0, args.fInputColor, args)
+                 : SkString(args.fInputColor);
+
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-    fragBuilder->codeAppendf("half4 color = %s;", args.fInputColor);
-
     // Unpremultiply.
-    fragBuilder->codeAppendf("color = unpremul(color);");
+    fragBuilder->codeAppendf("half4 inColor = %s;\n"
+                             "half4 color = unpremul(inColor);\n", inputColor.c_str());
 
     if (hcfe.linearize()) {
-        fragBuilder->codeAppend("color.rgb = color.rgb * color.rgb;");
+        fragBuilder->codeAppend("color.rgb = color.rgb * color.rgb;\n");
     }
 
     // Grayscale.
     if (config.fGrayscale) {
-        fragBuilder->codeAppendf("half luma = dot(color, half4(%f, %f, %f, 0));",
+        fragBuilder->codeAppendf("color.r = dot(color, half4(%f, %f, %f, 0));\n"
+                                 "color.rgba = color.rrr0;\n",
                                  SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B);
-        fragBuilder->codeAppendf("color = half4(luma, luma, luma, 0);");
     }
 
     if (config.fInvertStyle == InvertStyle::kInvertBrightness) {
-        fragBuilder->codeAppendf("color = half4(1, 1, 1, 1) - color;");
+        fragBuilder->codeAppend("color = half4(1, 1, 1, 1) - color;\n");
     }
 
     if (config.fInvertStyle == InvertStyle::kInvertLightness) {
         // Convert from RGB to HSL.
-        fragBuilder->codeAppendf("half fmax = max(color.r, max(color.g, color.b));");
-        fragBuilder->codeAppendf("half fmin = min(color.r, min(color.g, color.b));");
-        fragBuilder->codeAppendf("half l = (fmax + fmin) / 2;");
+        fragBuilder->codeAppend("half fmax = max(color.r, max(color.g, color.b));\n"
+                                "half fmin = min(color.r, min(color.g, color.b));\n"
+                                "half l = fmax + fmin;\n"
 
-        fragBuilder->codeAppendf("half h;");
-        fragBuilder->codeAppendf("half s;");
+                                "half h;\n"
+                                "half s;\n"
 
-        fragBuilder->codeAppendf("if (fmax == fmin) {");
-        fragBuilder->codeAppendf("  h = 0;");
-        fragBuilder->codeAppendf("  s = 0;");
-        fragBuilder->codeAppendf("} else {");
-        fragBuilder->codeAppendf("  half d = fmax - fmin;");
-        fragBuilder->codeAppendf("  s = l > 0.5 ?");
-        fragBuilder->codeAppendf("      d / (2 - fmax - fmin) :");
-        fragBuilder->codeAppendf("      d / (fmax + fmin);");
+                                "if (fmax == fmin) {\n"
+                                "  h = 0;\n"
+                                "  s = 0;\n"
+                                "} else {\n"
+                                "  half d = fmax - fmin;\n"
+                                "  s = (l > 1)\n"
+                                         " ? d / (2 - l) \n"
+                                         " : d / l;\n"
         // We'd like to just write "if (color.r == fmax) { ... }". On many GPUs, running the
         // angle_d3d9_es2 config, that failed. It seems that max(x, y) is not necessarily equal
         // to either x or y. Tried several ways to fix it, but this was the only reasonable fix.
-        fragBuilder->codeAppendf("  if (color.r >= color.g && color.r >= color.b) {");
-        fragBuilder->codeAppendf("    h = (color.g - color.b) / d + ");
-        fragBuilder->codeAppendf("        (color.g < color.b ? 6 : 0);");
-        fragBuilder->codeAppendf("  } else if (color.g >= color.b) {");
-        fragBuilder->codeAppendf("    h = (color.b - color.r) / d + 2;");
-        fragBuilder->codeAppendf("  } else {");
-        fragBuilder->codeAppendf("    h = (color.r - color.g) / d + 4;");
-        fragBuilder->codeAppendf("  }");
-        fragBuilder->codeAppendf("}");
-        fragBuilder->codeAppendf("h /= 6;");
-        fragBuilder->codeAppendf("l = 1.0 - l;");
+                                "  if (color.r >= color.g && color.r >= color.b) {\n"
+                                "    h = (color.g - color.b) / d + (color.g < color.b ? 6 : 0);\n"
+                                "  } else if (color.g >= color.b) {\n"
+                                "    h = (color.b - color.r) / d + 2;\n"
+                                "  } else {\n"
+                                "    h = (color.r - color.g) / d + 4;\n"
+                                "  }\n"
+                                "  h /= 6;\n"
+                                "}\n"
+                                "l = 1.0 + (l * -0.5);\n");
+
         // Convert back from HSL to RGB.
         SkString hue2rgbFuncName;
         const GrShaderVar gHue2rgbArgs[] = {
@@ -366,54 +381,59 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
                                   "hue2rgb",
                                   SK_ARRAY_COUNT(gHue2rgbArgs),
                                   gHue2rgbArgs,
-                                  "if (t < 0)"
-                                  "  t += 1;"
-                                  "if (t > 1)"
-                                  "  t -= 1;"
-                                  "if (t < 1/6.)"
-                                  "  return p + (q - p) * 6 * t;"
-                                  "if (t < 1/2.)"
-                                  "  return q;"
-                                  "if (t < 2/3.)"
-                                  "  return p + (q - p) * (2/3. - t) * 6;"
-                                  "return p;",
+                                  "if (t < 0)\n"
+                                  "  t += 1;\n"
+                                  "if (t > 1)\n"
+                                  "  t -= 1;\n"
+                                  "if (t < 1/6.)\n"
+                                  "  return p + (q - p) * 6 * t;\n"
+                                  "if (t < 1/2.)\n"
+                                  "  return q;\n"
+                                  "if (t < 2/3.)\n"
+                                  "  return p + (q - p) * (2/3. - t) * 6;\n"
+                                  "return p;\n",
                                   &hue2rgbFuncName);
-        fragBuilder->codeAppendf("if (s == 0) {");
-        fragBuilder->codeAppendf("  color = half4(l, l, l, 0);");
-        fragBuilder->codeAppendf("} else {");
-        fragBuilder->codeAppendf("  half q = l < 0.5 ? l * (1 + s) : l + s - l * s;");
-        fragBuilder->codeAppendf("  half p = 2 * l - q;");
-        fragBuilder->codeAppendf("  color.r = %s(p, q, h + 1/3.);", hue2rgbFuncName.c_str());
-        fragBuilder->codeAppendf("  color.g = %s(p, q, h);", hue2rgbFuncName.c_str());
-        fragBuilder->codeAppendf("  color.b = %s(p, q, h - 1/3.);", hue2rgbFuncName.c_str());
-        fragBuilder->codeAppendf("}");
+        fragBuilder->codeAppendf("if (s == 0) {\n"
+                                 "  color = half4(l, l, l, 0);\n"
+                                 "} else {\n"
+                                 "  half q = l < 0.5 ? l * (1 + s) : l + s - l * s;\n"
+                                 "  half p = 2 * l - q;\n"
+                                 "  color.r = %s(p, q, h + 1/3.);\n"
+                                 "  color.g = %s(p, q, h);\n"
+                                 "  color.b = %s(p, q, h - 1/3.);\n"
+                                 "}\n",
+                                 hue2rgbFuncName.c_str(),
+                                 hue2rgbFuncName.c_str(),
+                                 hue2rgbFuncName.c_str());
+
     }
 
     // Contrast.
-    fragBuilder->codeAppendf("if (%s != 0) {", contrast);
-    fragBuilder->codeAppendf("  half m = (1 + %s) / (1 - %s);", contrast, contrast);
-    fragBuilder->codeAppendf("  half off = (-0.5 * m + 0.5);");
-    fragBuilder->codeAppendf("  color = m * color + off;");
-    fragBuilder->codeAppendf("}");
+    fragBuilder->codeAppendf("if (%s != 0) {\n"
+                             "  half m = (1 + %s) / (1 - %s);\n"
+                             "  half off = (-0.5 * m + 0.5);\n"
+                             "  color = m * color + off;\n"
+                             "}\n", contrast, contrast, contrast);
 
     // Clamp.
-    fragBuilder->codeAppendf("color = saturate(color);");
+    fragBuilder->codeAppend("color = saturate(color);\n");
 
     if (hcfe.linearize()) {
-        fragBuilder->codeAppend("color.rgb = sqrt(color.rgb);");
+        fragBuilder->codeAppend("color.rgb = sqrt(color.rgb);\n");
     }
 
     // Restore the original alpha and premultiply.
-    fragBuilder->codeAppendf("color.a = %s.a;", args.fInputColor);
-    fragBuilder->codeAppendf("color.rgb *= color.a;");
+    fragBuilder->codeAppend("color.a = inColor.a;\n"
+                            "color.rgb *= color.a;\n");
 
     // Copy to the output color.
-    fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
+    fragBuilder->codeAppendf("%s = color;\n", args.fOutputColor);
 }
 
-std::unique_ptr<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorInfo& csi) const {
+GrFPResult SkHighContrast_Filter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                      GrRecordingContext*,
+                                                      const GrColorInfo& csi) const {
     bool linearize = !csi.isLinearlyBlended();
-    return HighContrastFilterEffect::Make(fConfig, linearize);
+    return GrFPSuccess(HighContrastFilterEffect::Make(std::move(inputFP), fConfig, linearize));
 }
 #endif
