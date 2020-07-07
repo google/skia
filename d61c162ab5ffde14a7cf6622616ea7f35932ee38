@@ -16,6 +16,24 @@
       "revId": "d61c162ab5ffde14a7cf6622616ea7f35932ee38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ca19923_8cd0ccfe",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieViewBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-07T19:59:40Z",
+      "side": 1,
+      "message": "I was thinking the caller might want to make a builder, load it up with certain options, then hold onto it to make 2-3 views with those options. That\u0027s how I imagine people would use the lib for, but that\u0027s something that will become clearer after people actually start using it. I\u0027d like to keep it as a separate class for now. If we end up not needing the builder it would be easier to move to a simpler static call later than to go the other way around.\n\nI\u0027ll move it to an inner class right now.",
+      "parentUuid": "c6bec13a_27865047",
+      "revId": "d61c162ab5ffde14a7cf6622616ea7f35932ee38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
