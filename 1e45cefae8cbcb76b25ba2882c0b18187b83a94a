@@ -16,6 +16,63 @@
       "revId": "1e45cefae8cbcb76b25ba2882c0b18187b83a94a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b331bad5_89f40205",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:12:32Z",
+      "side": 1,
+      "message": "You need to start from master, pull to rebase, and then re upload your CL. The SVG changes (which have already landed) should not be here.",
+      "revId": "1e45cefae8cbcb76b25ba2882c0b18187b83a94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0454efdc_251342e9",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:12:32Z",
+      "side": 1,
+      "message": "Once again, you have re-used the same \"random\" data in two places. This is not ideal for fuzzing because the fuzzer can\u0027t independently control the two locations.\n\nIf you aren\u0027t sure what this parameter is for, I would strongly suggest playing with an example \n\nSee https://jsfiddle.skia.org/canvaskit/33ff9bed883cd5742b4770169da0b36fb0cbc18fd395ddd9563213e178362d30 for an example (in our JS library at least); The array on line 37-40 is passed in as \"data\".\n\nPlease make a plan of how to extract two sets of bytes - one for the sksl program and one for the uniform data. Write that plan down on line 16. Then execute it.",
+      "range": {
+        "startLine": 43,
+        "startChar": 48,
+        "endLine": 43,
+        "endChar": 53
+      },
+      "revId": "1e45cefae8cbcb76b25ba2882c0b18187b83a94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff3d9752_dfc34883",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:12:32Z",
+      "side": 1,
+      "message": "I would expect line 57 to be unnecessary with line 56 here.",
+      "revId": "1e45cefae8cbcb76b25ba2882c0b18187b83a94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
