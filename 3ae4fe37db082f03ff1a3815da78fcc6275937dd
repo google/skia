@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52441612_d2c04904",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T14:29:00Z",
+      "side": 1,
+      "message": "I couldn\u0027t use GrTypesPriv.h because the GrContext headers depend on types defined in there, so GrTypesPriv.h cannot include it.",
+      "revId": "3ae4fe37db082f03ff1a3815da78fcc6275937dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
