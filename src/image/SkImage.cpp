@@ -153,15 +153,21 @@ sk_sp<SkData> SkImage::refEncodedData() const {
     return sk_sp<SkData>(as_IB(this)->onRefEncoded());
 }
 
-sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset) {
+sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset,
+                                        SkMipMapType mmt) {
     if (nullptr == encoded || 0 == encoded->size()) {
         return nullptr;
     }
     return SkImage::MakeFromGenerator(SkImageGenerator::MakeFromEncoded(std::move(encoded)),
-                                      subset);
+                                      subset, mmt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImage> SkImage::withMipMap(SkMipMapType mmt) const {
+    auto img = as_IB(this);
+    return img->mipMapType() == mmt ? sk_ref_sp(this) : img->onWithMipMap(mmt);
+}
 
 sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
     if (subset.isEmpty()) {
@@ -295,12 +301,13 @@ bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint c
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::MakeFromBitmap(const SkBitmap& bm) {
+sk_sp<SkImage> SkImage::MakeFromBitmap(const SkBitmap& bm, SkMipMapType mmt) {
     if (!bm.pixelRef()) {
         return nullptr;
     }
 
-    return SkMakeImageFromRasterBitmap(bm, kIfMutable_SkCopyPixelsMode);
+    auto img = SkMakeImageFromRasterBitmap(bm, kIfMutable_SkCopyPixelsMode);
+    return mmt == SkMipMapType::kNone ? img : img->withMipMap(mmt);
 }
 
 bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode ) const {

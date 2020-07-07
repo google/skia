@@ -267,12 +267,13 @@ sk_sp<SkImage> MakeRasterCopyPriv(const SkPixmap& pmap, uint32_t id) {
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), id);
 }
 
-sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap) {
-    return MakeRasterCopyPriv(pmap, kNeedNewImageUniqueID);
+sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap, SkMipMapType mmt) {
+    auto img = MakeRasterCopyPriv(pmap, kNeedNewImageUniqueID);
+    return img ? img->withMipMap(mmt) : nullptr;
 }
 
 sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> data,
-                                       size_t rowBytes) {
+                                       size_t rowBytes, SkMipMapType mmt) {
     size_t size;
     if (!SkImage_Raster::ValidArgs(info, rowBytes, &size) || !data) {
         return nullptr;
@@ -283,7 +284,7 @@ sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> da
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Raster>(info, std::move(data), rowBytes);
+    return sk_make_sp<SkImage_Raster>(info, std::move(data), rowBytes)->withMipMap(mmt);
 }
 
 // TODO: this could be improved to decode and make use of the mipmap
@@ -320,14 +321,14 @@ sk_sp<SkImage> SkImage::MakeRasterFromCompressed(sk_sp<SkData> data,
 }
 
 sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc proc,
-                                       ReleaseContext ctx) {
+                                       ReleaseContext ctx, SkMipMapType mmt) {
     size_t size;
     if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(), &size) || !pmap.addr()) {
         return nullptr;
     }
 
     sk_sp<SkData> data(SkData::MakeWithProc(pmap.addr(), size, proc, ctx));
-    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes());
+    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes())->withMipMap(mmt);
 }
 
 sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm,

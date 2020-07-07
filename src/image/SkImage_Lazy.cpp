@@ -288,14 +288,16 @@ sk_sp<SkImage> SkImage_Lazy::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) 
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator,
-                                          const SkIRect* subset) {
+                                          const SkIRect* subset, SkMipMapType mmt) {
     SkImage_Lazy::Validator
             validator(SharedGenerator::Make(std::move(generator)), subset, nullptr, nullptr);
 
-    return validator ? sk_make_sp<SkImage_Lazy>(&validator) : nullptr;
+    auto img = validator ? sk_make_sp<SkImage_Lazy>(&validator) : nullptr;
+    return img ? img->withMipMap(mmt) : nullptr;
 }
 
-sk_sp<SkImage> SkImage::DecodeToRaster(const void* encoded, size_t length, const SkIRect* subset) {
+sk_sp<SkImage> SkImage::DecodeToRaster(const void* encoded, size_t length, const SkIRect* subset,
+                                       SkMipMapType mmt) {
     // The generator will not outlive this function, so we can wrap the encoded data without copy
     auto gen = SkImageGenerator::MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length));
     if (!gen) {
@@ -330,7 +332,7 @@ sk_sp<SkImage> SkImage::DecodeToRaster(const void* encoded, size_t length, const
         return nullptr;
     }
 
-    return SkImage::MakeRasterData(info, data, rb);
+    return SkImage::MakeRasterData(info, data, rb, mmt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
