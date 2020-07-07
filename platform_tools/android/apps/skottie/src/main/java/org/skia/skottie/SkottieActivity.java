@@ -19,7 +19,6 @@ import android.widget.Button;
 import android.widget.GridLayout;
 
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -56,15 +55,17 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
         };
 
         for (int resId : rawAssets) {
-            SkottieView view = new SkottieView(this);
-            view.setSkottieResource(resId);
+            SkottieViewBuilder builder = new SkottieViewBuilder();
+            SkottieView view =  builder.build(this);
+            view.setSource(resId);
             mAnimations.add(view);
         }
 
         for (Uri uri : mAnimationFiles) {
             try {
-                SkottieView view = new SkottieView(this);
-                view.setSkottieURI(this, uri);
+                SkottieViewBuilder builder = new SkottieViewBuilder();
+                SkottieView view = builder.build(this);
+                view.setSource(this, uri);
                 mAnimations.add(view);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -185,8 +186,9 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
     private void addLottie(Uri uri) throws FileNotFoundException {
         int animations = mAnimations.size();
         if (animations < mRowCount * mColumnCount) {
-            SkottieView view = new SkottieView(this);
-            view.setSkottieURI(this, uri);
+            SkottieViewBuilder builder = new SkottieViewBuilder();
+            SkottieView view = builder.build(this);
+            view.setSource(this, uri);
             int row = animations / mColumnCount, column = animations % mColumnCount;
             mAnimations.add(view);
             mAnimationFiles.add(uri);

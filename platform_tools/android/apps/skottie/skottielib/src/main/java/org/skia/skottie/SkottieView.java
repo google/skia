@@ -9,52 +9,49 @@ package org.skia.skottie;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.AttributeSet;
+import android.view.SurfaceView;
 import android.view.TextureView;
 
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class SkottieView extends TextureView {
+public class SkottieView extends FrameLayout {
 
     private SkottieAnimation mAnimation;
+    private View backingView;
 
-    public SkottieView(Context context) {
-        super(context);
-        init();
+    protected SkottieView(Context context, SkottieViewBuilder builder) {
+      super(context);
+      // create the backing view
+      if (builder.advancedFeatures) {
+            // backing view must be SurfaceView
+          backingView = new SurfaceView(context, builder.attrs, builder.defStyleAttr);
+        } else {
+          backingView = new TextureView(context, builder.attrs, builder.defStyleAttr);
+          ((TextureView)backingView).setOpaque(false);
+        }
+      backingView.setLayoutParams(new ViewGroup.LayoutParams(
+          ViewGroup.LayoutParams.MATCH_PARENT,
+          ViewGroup.LayoutParams.MATCH_PARENT));
+      addView(backingView);
     }
-
-    public SkottieView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    public SkottieView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    public SkottieView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
-
-    private void init() {
-        setOpaque(false);
-    }
-
+    //TODO handle SurfaceView
     public void setSource(InputStream inputStream) {
-        mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
+        mAnimation = SkottieRunner.getInstance().createAnimation(((TextureView)backingView), inputStream);
     }
 
-    public void setSkottieResource(int resId) {
-        InputStream inputStream = getResources().openRawResource(resId);
-        mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
+    public void setSource(int resId) {
+        InputStream inputStream = backingView.getResources().openRawResource(resId);
+        mAnimation = SkottieRunner.getInstance().createAnimation(((TextureView)backingView), inputStream);
     }
 
-    public void setSkottieURI(Context context, Uri uri) throws FileNotFoundException {
+    public void setSource(Context context, Uri uri) throws FileNotFoundException {
         InputStream inputStream = context.getContentResolver().openInputStream(uri);
-        mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
+        mAnimation = SkottieRunner.getInstance().createAnimation(((TextureView)backingView), inputStream);
     }
 
     public SkottieAnimation getSkottieAnimation() {

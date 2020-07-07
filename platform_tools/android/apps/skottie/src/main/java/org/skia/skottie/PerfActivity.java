@@ -60,7 +60,8 @@ public class PerfActivity extends Activity {
     }
 
     void runSkottie(int id) {
-        SkottieView view = new SkottieView(this);
+        SkottieViewBuilder builder = new SkottieViewBuilder();
+        SkottieView view = builder.build(this);
         view.setSource(getResources().openRawResource(id));
         view.getSkottieAnimation().start();
         setContentView(view);
