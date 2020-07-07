@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97d81741_4d362ac7",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-07T18:20:59Z",
+      "side": 1,
+      "message": "I think these would be a bit easier to read if they used the Make() factory. e.g.:\n        paint1.addColorFragmentProcessor(\n                GrConfigConversionEffect::Make(\n                        GrTextureEffect::Make(std::move(dataView), kPremul_SkAlphaType),\n                        PMConversion::kToUnpremul)))",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 83,
+        "endChar": 53
+      },
+      "revId": "056ef51ee01497c73f2b7e47c9f8fd0feeec77a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
