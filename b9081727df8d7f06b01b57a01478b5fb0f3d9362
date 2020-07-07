@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "7ebda2bb_cdbea631",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-07T19:23:59Z",
+      "side": 1,
+      "message": "is this termed defined in this header? does it need to be?\n\nDoes this API need to be spec\u0027d here at all? Can it not be part of GrDirectContext\u0027s api?",
+      "range": {
+        "startLine": 1153,
+        "startChar": 58,
+        "endLine": 1153,
+        "endChar": 71
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "627947d8_7f72e45c",
         "filename": "include/private/GrContext_Base.h",
         "patchSetId": 7
