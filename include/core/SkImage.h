@@ -26,6 +26,7 @@ class SkData;
 class SkCanvas;
 class SkImageFilter;
 class SkImageGenerator;
+class SkMipMap;
 class SkPaint;
 class SkPicture;
 class SkSurface;
@@ -34,6 +35,31 @@ class GrContext;
 class GrContextThreadSafeProxy;
 
 struct SkYUVAIndex;
+
+class SkMipmapData {
+public:
+    ~SkMipmapData();
+
+private:
+    SkMipmapData() {}
+    SkMipMap* fMM;
+
+    friend class SkMipmapBuilder;
+};
+
+class SkMipmapBuilder {
+public:
+    SkMipmapBuilder(const SkImageInfo&);
+    ~SkMipmapBuilder();
+
+    int countLevels() const;
+    SkPixmap level(int index) const;
+
+    std::unique_ptr<SkMipmapData> detach();
+
+private:
+    SkMipMap* fMM;
+};
 
 /** \class SkImage
     SkImage describes a two dimensional array of pixels to draw. The pixels may be
@@ -1150,6 +1176,20 @@ public:
         example: https://fiddle.skia.org/c/@Image_makeSubset
     */
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
+
+    /**
+     *  Returns true if the image has mipmap levels.
+     */
+    bool hasMipmaps() const;
+
+    /**
+     *  Returns an image with the same "base" pixels as the this image, but with mipmap levels
+     *  as well. If this image already has mipmap levels, they will be replaced with new ones.
+     *
+     *  If data == nullptr, the mipmap levels are computed automatically.
+     *  If data != nullptr, then the caller has provided the data for each level.
+     */
+    sk_sp<SkImage> makeWithMipmaps(std::unique_ptr<SkMipmapData> data) const;
 
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
         compatible with SkSurface created with dstColorSpace. The returned SkImage respects
