@@ -171,7 +171,7 @@ private:
                               GrColorType surfaceColorType, GrColorType bufferColorType,
                               GrGpuBuffer* transferBuffer, size_t offset) override;
 
-    void onResolveRenderTarget(GrRenderTarget*, const SkIRect&, ForExternalIO) override {}
+    void onResolveRenderTarget(GrRenderTarget*, const SkIRect&) override {}
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 

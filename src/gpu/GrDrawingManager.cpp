@@ -503,8 +503,8 @@ static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
         SkASSERT(rtProxy);
         if (rtProxy->isMSAADirty()) {
             SkASSERT(rtProxy->peekRenderTarget());
-            gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect(),
-                                     GrGpu::ForExternalIO::kYes);
+            gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect());
+            gpu->submitToGpu(false);
             rtProxy->markMSAAResolved();
         }
     }
