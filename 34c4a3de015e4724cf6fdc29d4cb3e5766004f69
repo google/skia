@@ -16,6 +16,24 @@
       "revId": "34c4a3de015e4724cf6fdc29d4cb3e5766004f69",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b7da4a7_4cbb10c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-07T21:18:09Z",
+      "side": 1,
+      "message": "Good point.  You may still need to have the attribute constructors public, but require that certain attributes are present.  Basically the required attributes will be the required parameters of your builder.",
+      "parentUuid": "a9337384_2fbe27d3",
+      "revId": "34c4a3de015e4724cf6fdc29d4cb3e5766004f69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
