@@ -75,7 +75,7 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                 offset);
     }
 
-    fDataManager.resetDirtyBits();
+    fDataManager.markDirty();
 
 #ifdef SK_DEBUG
     if (programInfo.pipeline().isStencilEnabled()) {

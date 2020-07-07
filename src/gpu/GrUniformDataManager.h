@@ -14,6 +14,10 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkAutoMalloc.h"
 
+/**
+ * Subclass of GrGLSLProgramDataManager used to store uniforms for a program in a CPU buffer that
+ * can be uploaded to a UBO.
+ */
 class GrUniformDataManager : public GrGLSLProgramDataManager {
 public:
     GrUniformDataManager(uint32_t uniformCount, uint32_t uniformSize);
