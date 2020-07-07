@@ -16,6 +16,92 @@
       "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34267386_ae573214",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-07T19:10:12Z",
+      "side": 1,
+      "message": "can we just put this in the if itself? if (GrRenderTarget* dstRT \u003d dst-\u003easRenderTarget())",
+      "range": {
+        "startLine": 408,
+        "startChar": 4,
+        "endLine": 408,
+        "endChar": 50
+      },
+      "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e66052ab_09aa393d",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-07T19:10:12Z",
+      "side": 1,
+      "message": "I wonder how many backends to this sort of thing now? Should we just have a higher level submit call in the general code that requests the resolve instead of passing the need for external down to here.",
+      "range": {
+        "startLine": 431,
+        "startChar": 4,
+        "endLine": 436,
+        "endChar": 5
+      },
+      "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf5edee6_fbc0f4ad",
+        "filename": "src/gpu/d3d/GrD3DGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-07T19:10:12Z",
+      "side": 1,
+      "message": "do you still need override here?",
+      "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdd5c573_d623ac38",
+        "filename": "tools/sk_app/win/D3D12WindowContext_win.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-07T19:10:12Z",
+      "side": 1,
+      "message": "just to confirm, like vulkan does d3d only give you non multisampled swaphchain surfaces? Which is why we do all this stuff here.",
+      "range": {
+        "startLine": 151,
+        "startChar": 59,
+        "endLine": 151,
+        "endChar": 63
+      },
+      "revId": "205b0976a1b13027d56325e99f645b8a19d380e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
