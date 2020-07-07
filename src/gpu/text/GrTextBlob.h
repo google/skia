@@ -118,13 +118,6 @@ public:
     bool canReuse(const SkPaint& paint, const SkMaskFilterBase::BlurRec& blurRec,
                   const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
-    void insertOpsIntoTarget(GrTextTarget* target,
-                             const SkSurfaceProps& props,
-                             const SkPaint& paint,
-                             const GrClip* clip,
-                             const SkMatrixProvider& deviceMatrix,
-                             SkPoint drawOrigin);
-
     static const int kVerticesPerGlyph = 4;
 
     const Key& key() const;
@@ -139,6 +132,8 @@ public:
     SubRun* firstSubRun() const;
 
     bool forceWForDistanceFields() const;
+
+    const SkTInternalLList<SubRun>& subRunList() const { return fSubRunList; }
 
 private:
     enum TextType {
