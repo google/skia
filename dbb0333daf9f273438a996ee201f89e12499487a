@@ -16,6 +16,46 @@
       "revId": "dbb0333daf9f273438a996ee201f89e12499487a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c05b6fa_463ac751",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-07T19:46:47Z",
+      "side": 1,
+      "message": "I think this is definitely cleaner and another good step towards resolving the old coord transform system.",
+      "revId": "dbb0333daf9f273438a996ee201f89e12499487a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c23cd24_dac78a81",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-07T19:46:47Z",
+      "side": 1,
+      "message": "It doesn\u0027t need to be now, but I think this could just be a simple for-loop over the paint\u0027s color and coverage FPs, and then check each root\u0027s usesVaryingCoords(). The PaintCRange\u0027s flattening of all FPs + checking their direct behavior should be equivalent to checking each root\u0027s indirect behavior.",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 5
+      },
+      "revId": "dbb0333daf9f273438a996ee201f89e12499487a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
