@@ -16,6 +16,69 @@
       "revId": "345fc3610500dec4f32a6526a9b613370b16c614",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2b45449_afe09c70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-07T21:43:10Z",
+      "side": 1,
+      "message": "LGTM with nits.",
+      "revId": "345fc3610500dec4f32a6526a9b613370b16c614",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c26b84f_c8d10e23",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-07T21:43:10Z",
+      "side": 1,
+      "message": "Seems like this could be shorted to something like\n\n    tag-\u003efAnnotations.push_back({pageIndex, annotaionRef});\n\nor (to match the code right above this on line 366)\n\n    SkPDFTagNode::AnnotationInfo annotationInfo \u003d {pageIndex, annotationRef};\n    tag-\u003efAnnotations.push_back(annotationInfo);",
+      "range": {
+        "startLine": 383,
+        "startChar": 0,
+        "endLine": 386,
+        "endChar": 48
+      },
+      "revId": "345fc3610500dec4f32a6526a9b613370b16c614",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de833a3c_f68e5a32",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-07T21:43:10Z",
+      "side": 1,
+      "message": "Skia lets you go to 100, so this should all fit on one line and be a bit easier to read that way.",
+      "range": {
+        "startLine": 429,
+        "startChar": 62,
+        "endLine": 430,
+        "endChar": 12
+      },
+      "revId": "345fc3610500dec4f32a6526a9b613370b16c614",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
