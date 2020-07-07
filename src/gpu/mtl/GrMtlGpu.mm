@@ -1368,17 +1368,9 @@ void GrMtlGpu::waitSemaphore(GrSemaphore* semaphore) {
     }
 }
 
-void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&,
-                                     ForExternalIO forExternalIO) {
+void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&) {
     this->resolveTexture(static_cast<GrMtlRenderTarget*>(target)->mtlResolveTexture(),
                          static_cast<GrMtlRenderTarget*>(target)->mtlColorTexture());
-
-    if (ForExternalIO::kYes == forExternalIO) {
-        // This resolve is called when we are preparing an msaa surface for external I/O. It is
-        // called after flushing, so we need to make sure we submit the command buffer after
-        // doing the resolve so that the resolve actually happens.
-        this->submitCommandBuffer(kSkip_SyncQueue);
-    }
 }
 
 void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colorTexture) {

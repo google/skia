@@ -420,20 +420,12 @@ void GrD3DGpu::resolveTexture(GrSurface* dst, int32_t dstX, int32_t dstY,
                                                         src->msaaTextureResource(), &srcRect);
 }
 
-void GrD3DGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
-                                     ForExternalIO forExternalIO) {
+void GrD3DGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) {
     SkASSERT(target->numSamples() > 1);
     GrD3DRenderTarget* rt = static_cast<GrD3DRenderTarget*>(target);
     SkASSERT(rt->msaaTextureResource());
 
     this->resolveTexture(target, resolveRect.fLeft, resolveRect.fTop, rt, resolveRect);
-
-    if (ForExternalIO::kYes == forExternalIO) {
-        // This resolve is called when we are preparing an msaa surface for external I/O. It is
-        // called after flushing, so we need to make sure we submit the command buffer after doing
-        // the resolve so that the resolve actually happens.
-        this->submitDirectCommandList(SyncQueue::kSkip);
-    }
 }
 
 bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
