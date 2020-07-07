@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "44bb1ef8_0b0891d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:20:39Z",
+      "side": 1,
+      "message": "Let me take another look at this CL",
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "627947d8_7f72e45c",
         "filename": "include/private/GrContext_Base.h",
         "patchSetId": 7
@@ -31,6 +48,24 @@
       "side": 1,
       "message": "a wide area*",
       "parentUuid": "627947d8_7f72e45c",
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eeb8a28_04262f20",
+        "filename": "include/private/GrContext_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:20:39Z",
+      "side": 1,
+      "message": "I think it should be fine.",
+      "parentUuid": "1169df19_f87adcf7",
       "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
