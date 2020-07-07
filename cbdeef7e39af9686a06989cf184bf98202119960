@@ -108,6 +108,30 @@
     },
     {
       "key": {
+        "uuid": "36486df2_ce57942f",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-07T13:14:54Z",
+      "side": 1,
+      "message": "Along these lines, we could go all the way to naming it what it controls: \"[uses|requires]VaryingSampleCoords\". At that point, I think we still have the confusion vs. sampleCoordsDependOnLocalCoords. So perhaps instead:\n\nsampleCoordsDependOnLocalCoords -\u003e usesVaryingCoords() (includes indirect usage)\nnew thing -\u003e usesVaryingCoordsDirectly()",
+      "parentUuid": "3dd54685_8cc6e0ca",
+      "range": {
+        "startLine": 165,
+        "startChar": 9,
+        "endLine": 165,
+        "endChar": 32
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f07b34d3_75de32b7",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 4
@@ -176,6 +200,30 @@
       "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65256ec9_be04aaec",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-07T13:14:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf34bba8_1a3b4451",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 51
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
