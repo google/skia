@@ -623,3 +623,41 @@ SkIRect SkImage_getSubset(const SkImage* image) {
     SkASSERT(image);
     return as_IB(image)->onGetSubset();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "src/core/SkMipMap.h"
+
+SkMipmapBuilder::SkMipmapBuilder(const SkImageInfo& info) {
+    fMM = SkMipMap::Build({info, nullptr, 0}, nullptr, false);
+}
+
+SkMipmapBuilder::~SkMipmapBuilder() {
+    if (fMM) {
+        fMM->unref();
+    }
+}
+
+int SkMipmapBuilder::countLevels() const {
+    return fMM ? fMM->countLevels() : 0;
+}
+
+SkPixmap SkMipmapBuilder::level(int index) const {
+    SkPixmap pm;
+
+    SkMipMap::Level level;
+    if (fMM && fMM->getLevel(index, &level)) {
+        pm = level.fPixmap;
+    }
+    return pm;
+}
+
+std::unique_ptr<SkMipmapData> SkMipmapBuilder::detach() {
+    SkMipmapData* md = nullptr;
+    if (fMM) {
+        md = new SkMipmapData;
+        md->fMM = fMM;
+        fMM = nullptr;
+    }
+    return std::unique_ptr<SkMipmapData>(md);
+}
