@@ -991,7 +991,7 @@ GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {
     return stagingBuffer;
 }
 
-GrStagingBuffer::Slice GrGpu::allocateStagingBufferSlice(size_t size) {
+GrStagingBuffer::Slice GrGpu::allocateStagingBufferSlice2(size_t size) {
 #ifdef SK_DEBUG
     this->validateStagingBuffers();
 #endif

@@ -27,4 +27,34 @@ private:
     typedef GrStagingBuffer INHERITED;
 };
 
+class GrDawnTransferBuffer : public GrDawnBuffer {
+public:
+    GrDawnTransferBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
+                         GrAccessPattern pattern);
+
+    enum class MappedState {
+        kNotMapped,
+        kMapPending,
+        kMapped,
+    };
+
+    void onMap() override;
+    void mapWriteAsync();
+    void mapReadAsync();
+
+    void setMapPtr(void* mapPtr) {
+        fMapPtr = mapPtr;
+        fMappedState = MappedState::kMapped;
+    }
+
+    void onUnmap() override {
+        GrDawnBuffer::onUnmap();
+        fMappedState = MappedState::kNotMapped;
+    }
+
+    MappedState mappedState() const { return fMappedState; }
+
+private:
+    MappedState fMappedState = MappedState::kNotMapped;
+};
 #endif
