@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f51bb34_61ba57db",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_skottie_frames/perf_puppeteer_skottie_frames.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:21:40Z",
+      "side": 1,
+      "message": "Can this be removed?",
+      "range": {
+        "startLine": 288,
+        "startChar": 4,
+        "endLine": 288,
+        "endChar": 14
+      },
+      "revId": "ff41c0c5e8dd351bd3aee0897342b9ab60951883",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0e6dd53_f9218372",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_skottie_frames/perf_puppeteer_skottie_frames.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:21:40Z",
+      "side": 1,
+      "message": "These should probably be updated to be nth_frame_ms",
+      "range": {
+        "startLine": 321,
+        "startChar": 3,
+        "endLine": 321,
+        "endChar": 24
+      },
+      "revId": "ff41c0c5e8dd351bd3aee0897342b9ab60951883",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86df0ea2_302f6161",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_skottie_frames/perf_puppeteer_skottie_frames.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:21:40Z",
+      "side": 1,
+      "message": "Let\u0027s align these names with perf_puppeteer_render_skps.go\n\navg_render_frame_ms\n\n(and below)\navg_render_with_flush_ms\navg_render_without_flush_ms",
+      "range": {
+        "startLine": 328,
+        "startChar": 3,
+        "endLine": 328,
+        "endChar": 24
+      },
+      "revId": "ff41c0c5e8dd351bd3aee0897342b9ab60951883",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74bc171c_a0f3a76f",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_skottie_frames/perf_puppeteer_skottie_frames.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:21:40Z",
+      "side": 1,
+      "message": "Yes - at least the average, median, stddev. Bonus for some high percentiles",
+      "range": {
+        "startLine": 335,
+        "startChar": 41,
+        "endLine": 335,
+        "endChar": 71
+      },
+      "revId": "ff41c0c5e8dd351bd3aee0897342b9ab60951883",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4db8d65_fa961052",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_skottie_frames/perf_puppeteer_skottie_frames.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:21:40Z",
+      "side": 1,
+      "message": "nit: TODO(nifong)",
+      "range": {
+        "startLine": 335,
+        "startChar": 4,
+        "endLine": 335,
+        "endChar": 16
+      },
+      "revId": "ff41c0c5e8dd351bd3aee0897342b9ab60951883",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4140eea5_9f1cce39",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_skottie_frames/perf_puppeteer_skottie_frames_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-07T12:21:40Z",
+      "side": 1,
+      "message": "Be sure this sample contains *all* of the fields the actual data would have.",
+      "range": {
+        "startLine": 329,
+        "startChar": 6,
+        "endLine": 329,
+        "endChar": 28
+      },
+      "revId": "ff41c0c5e8dd351bd3aee0897342b9ab60951883",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
