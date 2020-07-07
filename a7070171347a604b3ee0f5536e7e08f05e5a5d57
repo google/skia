@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcc2fe73_98ce7167",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T16:30:09Z",
+      "side": 1,
+      "message": "VRAM-backed, gpu-backed ?",
+      "range": {
+        "startLine": 1153,
+        "startChar": 70,
+        "endLine": 1153,
+        "endChar": 73
+      },
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c30b44c_6672d785",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T16:30:09Z",
+      "side": 1,
+      "message": "raster-backed ?",
+      "range": {
+        "startLine": 1153,
+        "startChar": 28,
+        "endLine": 1153,
+        "endChar": 40
+      },
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29b91c5d_b9a1d6e9",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T16:30:09Z",
+      "side": 1,
+      "message": "\u0027context\u0027 param: ?",
+      "range": {
+        "startLine": 1153,
+        "startChar": 8,
+        "endLine": 1153,
+        "endChar": 18
+      },
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9f20c00_c5421ffd",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1155,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T16:30:09Z",
+      "side": 1,
+      "message": "\u0027direct context\u0027 ?",
+      "range": {
+        "startLine": 1155,
+        "startChar": 8,
+        "endLine": 1155,
+        "endChar": 18
+      },
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ad5b4f6_867c90de",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T16:30:09Z",
+      "side": 1,
+      "message": "Can we use the new function here ?",
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41edb82b_090676f8",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T16:30:09Z",
+      "side": 1,
+      "message": "This should be onMakeSubset",
+      "range": {
+        "startLine": 189,
+        "startChar": 17,
+        "endLine": 189,
+        "endChar": 27
+      },
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10a3eb05_a73ce9d6",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T16:30:09Z",
+      "side": 1,
+      "message": "Here too ?",
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0469bde8_c7dcc8a4",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T16:30:09Z",
+      "side": 1,
+      "message": "Should this be GrContext_Base::matches ?",
+      "revId": "a7070171347a604b3ee0f5536e7e08f05e5a5d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
