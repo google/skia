@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abd139ea_a5f8b13b",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-07-07T20:59:27Z",
+      "side": 1,
+      "message": "Note: I discovered that this change was also necessary, otherwise\nthe document would no longer validate with CommonLook\u0027s PDF\nvalidator.",
+      "revId": "d9e528fc5cacc1e63d7af0edd1d60be9b3ec5d71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94fb5fe5_6d2a1416",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-07-07T20:59:27Z",
+      "side": 1,
+      "message": "Note: I ended up also needing to add the page index here.",
+      "revId": "d9e528fc5cacc1e63d7af0edd1d60be9b3ec5d71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

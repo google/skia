@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52afd47a_23340ea0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-07-07T20:59:27Z",
+      "side": 1,
+      "message": "Ready for another look. I really appreciate your taking the time to\nlook at the spec and make the terminology more precise, and also the\nsuggestions to make the code more readable.\n",
+      "revId": "345fc3610500dec4f32a6526a9b613370b16c614",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

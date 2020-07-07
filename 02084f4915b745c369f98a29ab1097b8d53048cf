@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6d4fe293_056bf0c0",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-07-07T20:59:27Z",
+      "side": 1,
+      "message": "You\u0027re completely right. The issue I was trying to fix was\nthat the node an annotation pointed to could get pruned.\nI fixed it the right way now, by setting fCanDiscard in\ngetParentTreeIdForNodeId.",
+      "parentUuid": "ceaac70e_f235ee95",
+      "range": {
+        "startLine": 341,
+        "startChar": 12,
+        "endLine": 341,
+        "endChar": 30
+      },
+      "revId": "02084f4915b745c369f98a29ab1097b8d53048cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ff4a4259_097c5c57",
         "filename": "src/pdf/SkPDFDocumentPriv.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2020-07-02T03:40:24Z",
       "side": 1,
       "message": "In general, these to names don\u0027t seem to suit what they do. The \u0027get\u0027 implies some form of idempotent behavior, that if one calls this with a given nodeId at one point and then calls it with the same nodeId later that the same value will be returned. But these actually always create a new markId / parentTreeId (actually a structParentId?). They should either be renamed \u0027createNew*\u0027 instead of \u0027get*\u0027 to eliminate the confusion, or they should be modified to actually be getters (which may create a new id if not already present, but that would be opaque to the caller).",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 45
+      },
+      "revId": "02084f4915b745c369f98a29ab1097b8d53048cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d9d80d2_5befe2dc",
+        "filename": "src/pdf/SkPDFDocumentPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-07-07T20:59:27Z",
+      "side": 1,
+      "message": "Agreed. I renamed these from get to create.",
+      "parentUuid": "ff4a4259_097c5c57",
       "range": {
         "startLine": 122,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "660f8002_8dfb0387",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-07-07T20:59:27Z",
+      "side": 1,
+      "message": "That\u0027s correct. In practice that would mean that somehow there were\ntwo annotations associated with the same node. In the case of Chrome,\nthat wouldn\u0027t happen because each link (annotation) would be associated\nwith a different DOM node. But even if it did, it\u0027d just mean there\u0027d\nbe two keys pointing to the same node, which I think would be okay.",
+      "parentUuid": "3649aa2f_b6bb5898",
+      "range": {
+        "startLine": 412,
+        "startChar": 27,
+        "endLine": 412,
+        "endChar": 55
+      },
+      "revId": "02084f4915b745c369f98a29ab1097b8d53048cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4e1201fe_95af8907",
         "filename": "src/pdf/SkPDFTag.cpp",
         "patchSetId": 5
@@ -82,6 +154,30 @@
       "writtenOn": "2020-07-02T03:40:24Z",
       "side": 1,
       "message": "This is a structParentId or the structParentKey, that is to say it isn\u0027t the id of the parent tree, it is the Key of the StructParent for the given nodeId. The StructParent Key just happens to also be used as a Key in the ParentTree.",
+      "range": {
+        "startLine": 414,
+        "startChar": 12,
+        "endLine": 414,
+        "endChar": 22
+      },
+      "revId": "02084f4915b745c369f98a29ab1097b8d53048cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8426cb9_493f8c58",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2020-07-07T20:59:27Z",
+      "side": 1,
+      "message": "Totally right. I renamed this to structParentKey throughout and\nclarified the comments.",
+      "parentUuid": "4e1201fe_95af8907",
       "range": {
         "startLine": 414,
         "startChar": 12,
