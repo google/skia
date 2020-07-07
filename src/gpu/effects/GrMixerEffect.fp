@@ -7,26 +7,21 @@
 
 // Mixes the output of two FPs.
 
+in fragmentProcessor? inputFP;
 in fragmentProcessor  fp0;
 in fragmentProcessor? fp1;
-in uniform half      weight;
+in uniform half       weight;
 
 @class {
-
-    static OptimizationFlags OptFlags(const std::unique_ptr<GrFragmentProcessor>& fp0,
-                                      const std::unique_ptr<GrFragmentProcessor>& fp1) {
-        auto flags = ProcessorOptimizationFlags(fp0.get());
-        if (fp1) {
-            flags &= ProcessorOptimizationFlags(fp1.get());
-        }
-        return flags;
-    }
-
-    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
-        const auto c0 = ConstantOutputForConstantInput(this->childProcessor(0), input),
-                   c1 = (this->numChildProcessors() > 1)
-                      ? ConstantOutputForConstantInput(this->childProcessor(1), input)
-                      : input;
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& in) const override {
+        const SkPMColor4f inColor = (inputFP_index >= 0)
+              ? ConstantOutputForConstantInput(this->childProcessor(inputFP_index), in)
+              : in;
+        const SkPMColor4f c0 =
+                ConstantOutputForConstantInput(this->childProcessor(fp0_index), inColor);
+        const SkPMColor4f c1 = (fp1_index >= 0)
+              ? ConstantOutputForConstantInput(this->childProcessor(fp1_index), inColor)
+              : inColor;
         return {
             c0.fR + (c1.fR - c0.fR) * weight,
             c0.fG + (c1.fG - c0.fG) * weight,
@@ -36,8 +31,13 @@ in uniform half      weight;
     }
 }
 
-@optimizationFlags { OptFlags(fp0, fp1) }
+@optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+    (fp1 ?     ProcessorOptimizationFlags(fp1.get())     : kAll_OptimizationFlags) &
+     ProcessorOptimizationFlags(fp0.get())
+}
 
 void main() {
-    sk_OutColor = mix(sample(fp0, sk_InColor), sample(fp1, sk_InColor), weight);
+    half4 inColor = sample(inputFP, sk_InColor);
+    sk_OutColor = mix(sample(fp0, inColor), sample(fp1, inColor), weight);
 }
