@@ -5,25 +5,60 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #include "fuzz/Fuzz.h"
-
+// call SkData::MakeSubset to divide bytes into two equal size data
+// one for SkRuntimeEffect, the other for makeShader
 bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
+    //one bytes for informBytes
+    sk_sp<SkData> uniformBytes = SkData::MakeSubset(bytes.get(), 0, 1);
+    sk_sp<SkData> codeBytes = SkData::MakeSubset(bytes.get(), 1, bytes->size() - 1);
+
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                     SkSL::Program::kPipelineStage_Kind,
-                                                    SkSL::String((const char*) bytes->data(),
-                                                                 bytes->size()),
+                                                    SkSL::String((const char*) uniformBytes->data(),
+                                                                 uniformBytes->size()),
                                                     settings);
     SkSL::PipelineStageArgs args;
     if (!program || !compiler.toPipelineStage(*program, &args)) {
         return false;
     }
+    SkRuntimeEffect::EffectResult pair = SkRuntimeEffect::Make(
+        SkString((const char*) uniformBytes->data(), uniformBytes->size())
+    );
+    SkRuntimeEffect* effect = std::get<0>(pair).get();
+    if (!effect) {
+        return false;
+    }
+
+    SkMatrix localM;
+    localM.setRotate(90, 128, 128);
+    //TODO codeBytes was passed in as SkColor4f, in this case should the bytes be
+    //random or always valid?
+    auto shader = effect->makeShader(codeBytes, nullptr, 0, &localM, true);
+    if (!shader) {
+        return false;
+    }
+    SkPaint paint;
+    paint.setShader(std::move(shader));
+
+    sk_sp<SkSurface> s = SkSurface::MakeRasterN32Premul(128, 128);
+    if (!s) {
+        return false;
+    }
+
+    s->getCanvas()->drawPaint(paint);
+
     return true;
 }
 
