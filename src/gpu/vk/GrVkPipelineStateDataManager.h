@@ -20,14 +20,13 @@ class GrVkPipelineStateDataManager : public GrUniformDataManager {
 public:
     typedef GrVkUniformHandler::UniformInfoArray UniformInfoArray;
 
-    GrVkPipelineStateDataManager(const UniformInfoArray&,
-                                 uint32_t uniformSize);
+    GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t uniformSize);
 
     // Returns true if either the geometry or fragment buffers needed to generate a new underlying
     // VkBuffer object in order upload data. If true is returned, this is a signal to the caller
     // that they will need to update the descriptor set that is using these buffers.
-    bool uploadUniformBuffers(GrVkGpu* gpu,
-                              GrVkUniformBuffer* buffer) const;
+    bool uploadUniformBuffers(GrVkGpu* gpu, GrVkUniformBuffer* buffer) const;
+
 private:
     typedef GrUniformDataManager INHERITED;
 };
