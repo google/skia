@@ -200,8 +200,7 @@ private:
 
     uint8_t fTextType{0};
 
-    SubRun* fFirstSubRun{nullptr};
-    SubRun* fLastSubRun{nullptr};
+    SkTInternalLList<SubRun> fSubRunList;
     SkArenaAlloc fAlloc;
 };
 
@@ -344,7 +343,6 @@ public:
                                           const SkSurfaceProps&,
                                           GrTextTarget*);
 
-    SubRun* fNextSubRun{nullptr};
     GrTextBlob* fBlob;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
 
@@ -388,6 +386,8 @@ private:
     void setUseLCDText(bool useLCDText);
     void setAntiAliased(bool antiAliased);
     bool drawAsPaths() const;
+
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob::SubRun);
 
     const SubRunType fType;
     const GrMaskFormat fMaskFormat;

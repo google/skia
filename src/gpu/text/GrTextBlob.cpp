@@ -678,7 +678,7 @@ void GrTextBlob::insertOpsIntoTarget(GrTextTarget* target,
                                      const GrClip* clip,
                                      const SkMatrixProvider& deviceMatrix,
                                      SkPoint drawOrigin) {
-    for (SubRun* subRun = fFirstSubRun; subRun != nullptr; subRun = subRun->fNextSubRun) {
+    for (SubRun* subRun : fSubRunList) {
         subRun->insertSubRunOpsIntoTarget(target, props, paint, clip, deviceMatrix, drawOrigin);
     }
 }
@@ -725,13 +725,7 @@ GrTextBlob::GrTextBlob(size_t allocSize,
         , fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2} { }
 
 void GrTextBlob::insertSubRun(SubRun* subRun) {
-    if (fFirstSubRun == nullptr) {
-        fFirstSubRun = subRun;
-        fLastSubRun = subRun;
-    } else {
-        fLastSubRun->fNextSubRun = subRun;
-        fLastSubRun = subRun;
-    }
+    fSubRunList.addToTail(subRun);
 }
 
 void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -764,7 +758,7 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
     this->addMultiMaskFormat(SubRun::MakeTransformedMask, drawables, strikeSpec);
 }
 
-auto GrTextBlob::firstSubRun() const -> SubRun* { return fFirstSubRun; }
+auto GrTextBlob::firstSubRun() const -> SubRun* { return fSubRunList.head(); }
 
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
