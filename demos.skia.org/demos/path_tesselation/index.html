@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<title>Hello World Demo</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://particles.skia.org/static/canvaskit.js"></script>
+
+<style>
+  canvas {
+    border: 1px dashed grey;
+  }
+</style>
+
+<body>
+  <h1>Wavy Path Rendering Demo</h1>
+
+  <h2>DOM Rendering Method</h2>
+  <object type="image/svg+xml" data="chalk.svg" id="test-svg">
+    Chalk image
+  </object>
+  <div id="dom-fpslabel">Waiting for first frame... (⚠️may take a while⚠️)</div>
+  <button id="dom-button">Try out DOM wavy path rendering</button>
+  <span id="dom-inprogress-indicator">In progress</span>
+
+  <h2>Canvas2D Rendering Method</h2>
+  <canvas id="canvas2d-canvas" width=500 height=500></canvas>
+  <div id="canvas2d-fpslabel">Waiting for first frame...</div>
+  <button id="canvas2d-button">Try out Canvas2D wavy path rendering</button>
+  <span id="canvas2d-inprogress-indicator" hidden>In progress</span>
+
+  <h2>CanvasKit Rendering Method</h2>
+  <canvas id="canvaskit-canvas" width=500 height=500></canvas>
+  <div id="canvaskit-fpslabel">Waiting for first frame...</div>
+  <button id="canvaskit-button">Try out CanvasKit wavy path rendering</button>
+  <span id="canvaskit-inprogress-indicator" hidden>In progress</span>
+</body>
+<script type="text/javascript" src="path_tools.js"></script>
+<script type="text/javascript" src="main.js"></script>
+
