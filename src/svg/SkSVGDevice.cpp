@@ -402,6 +402,7 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
                                                           Resources* resources) {
     SkShader::GradientInfo grInfo;
     grInfo.fColorCount = 0;
+    grInfo.fColors = nullptr;
     if (SkShader::kLinear_GradientType != shader->asAGradient(&grInfo)) {
         // TODO: non-linear gradient support
         return;
