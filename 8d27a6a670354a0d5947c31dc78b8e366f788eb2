@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85e30845_d3b5f63c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-07T19:06:46Z",
+      "side": 1,
+      "message": "The logic that led to this makes sense, and I\u0027ve been convinced that we should/shouldn\u0027t have color on our signature multiple times, so I\u0027m easily swayed. Anything else to solve this right now is probably more obtuse, so lgtm.",
+      "revId": "8d27a6a670354a0d5947c31dc78b8e366f788eb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
