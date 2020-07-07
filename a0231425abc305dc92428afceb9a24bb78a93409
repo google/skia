@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7f1d1dd9_9da63bd0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T13:39:17Z",
+      "side": 1,
+      "message": "You should probably also add a unit test for all the permutations in that table",
+      "revId": "a0231425abc305dc92428afceb9a24bb78a93409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ed36de7_0a21fe3c",
         "filename": "include/core/SkImage.h",
         "patchSetId": 3
@@ -13,6 +30,86 @@
       "writtenOn": "2020-07-07T13:22:21Z",
       "side": 1,
       "message": "So what happens if the image is raster backed but a context is passed in? It seems like we have the table:\n\n                              Image is:\n                      \nPassed in:  |       raster      |   gpu w/ recording  |   gpu w/ direct\n-----------------------------------------------------------------------\nw/ context  |   raster or gpu?  |        gpu          |       gpu\nnullptr     |       raster      |       raster        |       gpu?\n\nIt seems like, if a context is passed in the result is always on the gpu.\nFor the no context passed in case we\u0027re stuck w/ raster for the first two but the last one is a bit problematic.",
+      "revId": "a0231425abc305dc92428afceb9a24bb78a93409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d889e09_c3e55b47",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T13:39:17Z",
+      "side": 1,
+      "message": "Won\u0027t this crash on a raster-backed image?",
+      "revId": "a0231425abc305dc92428afceb9a24bb78a93409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b849d886_bcf5f8dc",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T13:39:17Z",
+      "side": 1,
+      "message": "rm this #include ?",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 34
+      },
+      "revId": "a0231425abc305dc92428afceb9a24bb78a93409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca7c0bb0_195f526c",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T13:39:17Z",
+      "side": 1,
+      "message": "ctx ? ctx-\u003easDirectContext() : nullptr ?",
+      "range": {
+        "startLine": 771,
+        "startChar": 18,
+        "endLine": 771,
+        "endChar": 40
+      },
+      "revId": "a0231425abc305dc92428afceb9a24bb78a93409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3d8b756_6494eb53",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T13:39:17Z",
+      "side": 1,
+      "message": "Can this go up a line ?",
       "revId": "a0231425abc305dc92428afceb9a24bb78a93409",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
