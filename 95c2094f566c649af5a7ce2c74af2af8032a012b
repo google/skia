@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "d73213bf_a4668bd9",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-07T21:09:26Z",
+      "side": 1,
+      "message": "Just observing and commenting, because I pointed Zepeng at SkRuntimeEffect... Yes, if we\u0027re going to fuzz SkRuntimeEffect (which I think we should), then that can be done separately from (or to completely replace) the fuzzing of the pipeline stage/compiler stuff above. Essentially, I think you could omit lines 23 through 35 entirely, and start from feeding the fuzzer string to the runtime effect factory. Then you also need to supply uniform bytes to get a shader from the resulting effect. I don\u0027t know how good the fuzzer is at avoiding input-length related early termination (vs value termination), but assuming the effect creation succeeds, you can ask it for exactly how many bytes of data it *wants*. If you give it any other amount of uniform data when you call makeShader, it\u0027s just going to fail.",
+      "parentUuid": "1e681324_bb74022c",
+      "range": {
+        "startLine": 37,
+        "startChar": 31,
+        "endLine": 37,
+        "endChar": 43
+      },
+      "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7c130a7_0779d3d7",
         "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
         "patchSetId": 4
