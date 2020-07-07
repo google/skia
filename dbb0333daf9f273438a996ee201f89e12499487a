@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7859b5cb_e2049b04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-07T18:51:49Z",
+      "side": 1,
+      "message": "Any more thoughts? I\u0027ve renamed things to refer to \"varyingCoords\", though there are still some other types or variables laying around with inconsistent names. I hope this is still globally clearer than it was before.",
+      "revId": "dbb0333daf9f273438a996ee201f89e12499487a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
