@@ -391,7 +391,49 @@ void GrD3DGpu::copySurfaceAsCopyTexture(GrSurface* dst, GrSurface* src,
 
 void GrD3DGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                     const SkIPoint& dstPoint) {
-    // TODO
+    GrD3DRenderTarget* srcRT = static_cast<GrD3DRenderTarget*>(src->asRenderTarget());
+    SkASSERT(srcRT);
+
+    this->resolveTexture(dst, dstPoint.fX, dstPoint.fY, srcRT, srcRect);
+}
+
+void GrD3DGpu::resolveTexture(GrSurface* dst, int32_t dstX, int32_t dstY,
+                              GrD3DRenderTarget* src, const SkIRect& srcIRect) {
+    SkASSERT(dst);
+    SkASSERT(src && src->numSamples() > 1 && src->msaaTextureResource());
+
+    D3D12_RECT srcRect = { srcIRect.fLeft, srcIRect.fTop, srcIRect.fRight, srcIRect.fBottom };
+
+    GrD3DTextureResource* dstTextureResource;
+    GrRenderTarget* dstRT = dst->asRenderTarget();
+    if (dstRT) {
+        dstTextureResource = static_cast<GrD3DRenderTarget*>(dstRT);
+    } else {
+        SkASSERT(dst->asTexture());
+        dstTextureResource = static_cast<GrD3DTexture*>(dst->asTexture());
+    }
+
+    dstTextureResource->setResourceState(this, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+    src->msaaTextureResource()->setResourceState(this, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+
+    fCurrentDirectCommandList->resolveSubresourceRegion(dstTextureResource, dstX, dstY,
+                                                        src->msaaTextureResource(), &srcRect);
+}
+
+void GrD3DGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                     ForExternalIO forExternalIO) {
+    SkASSERT(target->numSamples() > 1);
+    GrD3DRenderTarget* rt = static_cast<GrD3DRenderTarget*>(target);
+    SkASSERT(rt->msaaTextureResource());
+
+    this->resolveTexture(target, resolveRect.fLeft, resolveRect.fTop, rt, resolveRect);
+
+    if (ForExternalIO::kYes == forExternalIO) {
+        // This resolve is called when we are preparing an msaa surface for external I/O. It is
+        // called after flushing, so we need to make sure we submit the command buffer after doing
+        // the resolve so that the resolve actually happens.
+        this->submitDirectCommandList(SyncQueue::kSkip);
+    }
 }
 
 bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,

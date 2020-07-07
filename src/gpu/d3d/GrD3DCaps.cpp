@@ -73,8 +73,22 @@ bool GrD3DCaps::canCopyTexture(DXGI_FORMAT dstFormat, int dstSampleCnt,
 
 bool GrD3DCaps::canCopyAsResolve(DXGI_FORMAT dstFormat, int dstSampleCnt,
                                  DXGI_FORMAT srcFormat, int srcSampleCnt) const {
-    // TODO
-    return false;
+    // The src surface must be multisampled.
+    if (srcSampleCnt <= 1) {
+        return false;
+    }
+
+    // The dst must not be multisampled.
+    if (dstSampleCnt > 1) {
+        return false;
+    }
+
+    // Surfaces must have the same format.
+    if (srcFormat != dstFormat) {
+        return false;
+    }
+
+    return true;
 }
 
 bool GrD3DCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
