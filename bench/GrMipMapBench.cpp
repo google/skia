@@ -30,8 +30,8 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         if (!fSurface) {
-            auto context = canvas->recordingContext();
-            if (!context) {
+            GrContext* context = canvas->getGrContext();
+            if (nullptr == context) {
                 return;
             }
             auto srgb = SkColorSpace::MakeSRGB();

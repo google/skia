@@ -364,7 +364,7 @@ public:
         @param shouldCreateWithMips  hint that SkSurface will host mip map images
         @return                      SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo,
                                              int sampleCount, GrSurfaceOrigin surfaceOrigin,
                                              const SkSurfaceProps* surfaceProps,
@@ -391,7 +391,7 @@ public:
                             fonts; may be nullptr
         @return             SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* surfaceProps) {
         return MakeRenderTarget(context, budgeted, imageInfo, sampleCount,
@@ -411,7 +411,7 @@ public:
                           of raster surface; width, or height, or both, may be zero
         @return           SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo) {
         if (!imageInfo.width() || !imageInfo.height()) {
             return nullptr;
