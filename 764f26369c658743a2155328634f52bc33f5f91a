@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94efb303_b89bdebd",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-07T20:13:40Z",
+      "side": 1,
+      "message": "I would go up another level or 2 here. Get forExternalIO out of of GrGpu. Here is the only place external yes is passed in, https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/GrDrawingManager.cpp;l\u003d493\n\nJust general thoughts that don\u0027t need to be fixed here, but I\u0027m surprised that only the resolve triggers a submit, but the mipmap regeneration does not. Also we claim that after an SkSurface::flush clients always expect us to have resolved (regardless of how they will use the surface). Is this actually true? Should this be something the client specifically needs to request?",
+      "range": {
+        "startLine": 603,
+        "startChar": 0,
+        "endLine": 604,
+        "endChar": 33
+      },
+      "revId": "764f26369c658743a2155328634f52bc33f5f91a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
