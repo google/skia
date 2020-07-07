@@ -82,6 +82,30 @@
     },
     {
       "key": {
+        "uuid": "7b959f05_e06f5eaf",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-07T19:44:24Z",
+      "side": 1,
+      "message": "Other image-derivation functions that may need the GPU like makeWithFilter will have this param as well, probably with the same semantics. So maybe in some section at the top of this file or above this family of methods? I don\u0027t think these semantics are broad enough to be in GrDirectContext itself – although, maybe.\n\nWhat\u0027s going here is that right now SkImages carry around a GrContext, which gives them – the appearance of – GPU access. We want to enable sharing images across DDL recording threads. So we want to have them carry only the weaker GrImageContext and force users to provide a direct GPU context when they do operations that require one.\n\nI want to get this right, so I\u0027d be glad to gvc or stick to text.",
+      "parentUuid": "7ebda2bb_cdbea631",
+      "range": {
+        "startLine": 1153,
+        "startChar": 58,
+        "endLine": 1153,
+        "endChar": 71
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "627947d8_7f72e45c",
         "filename": "include/private/GrContext_Base.h",
         "patchSetId": 7
