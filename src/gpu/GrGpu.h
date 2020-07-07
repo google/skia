@@ -712,7 +712,7 @@ public:
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
     GrStagingBuffer* findStagingBuffer(size_t size);
-    GrStagingBuffer::Slice allocateStagingBufferSlice(size_t size);
+    GrStagingBuffer::Slice allocateStagingBufferSlice2(size_t size);
     virtual std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size) { return nullptr; }
     void unmapStagingBuffers();
     void moveStagingBufferFromActiveToBusy(GrStagingBuffer* buffer);

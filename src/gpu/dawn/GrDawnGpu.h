@@ -14,6 +14,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 
 #include <unordered_map>
@@ -35,6 +36,8 @@ public:
     ~GrDawnGpu() override;
 
     void disconnect(DisconnectType) override;
+
+    GrStagingBufferManager* stagingBufferManager() { return &fStagingBufferManager; }
 
     const wgpu::Device& device() const { return fDevice; }
     const wgpu::Queue&  queue() const { return fQueue; }
@@ -184,6 +187,7 @@ private:
     bool onSubmitToGpu(bool syncCpu) override;
 
     void mapStagingBuffers();
+    void checkCompletedStagingBuffers();
 
     wgpu::Device                                    fDevice;
     wgpu::Queue                                     fQueue;
@@ -192,6 +196,14 @@ private:
     GrDawnRingBuffer                                fUniformRingBuffer;
     wgpu::CommandEncoder                            fCopyEncoder;
     std::vector<wgpu::CommandBuffer>                fCommandBuffers;
+    GrStagingBufferManager                          fStagingBufferManager;
+
+    struct BusyStagingBuffers {
+        std::vector<sk_sp<GrGpuBuffer>> fBuffers;
+        GrFence fFence = 0;
+    };
+
+    std::list<BusyStagingBuffers> fBusyStagingBuffers;
 
     struct ProgramDescHash {
         uint32_t operator()(const GrProgramDesc& desc) const {

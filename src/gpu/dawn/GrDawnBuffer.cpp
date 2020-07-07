@@ -64,10 +64,11 @@ void GrDawnBuffer::onMap() {
         return;
     }
     if (fMappable == Mappable::kNot) {
-        GrStagingBuffer::Slice slice = getGpu()->allocateStagingBufferSlice(this->size());
-        fStagingBuffer = static_cast<GrDawnStagingBuffer*>(slice.fBuffer)->buffer();
+        GrStagingBufferManager::Slice slice =
+            this->getDawnGpu()->stagingBufferManager()->allocateStagingBufferSlice(this->size());
+        fStagingBuffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
         fStagingOffset = slice.fOffset;
-        fMapPtr = slice.fData;
+        fMapPtr = slice.fOffsetMapPtr;
     } else {
         SkASSERT(!fStagingBuffer);
         SkASSERT(!fMapPtr);
