@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e516d48_c088c8e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-07T15:47:03Z",
+      "side": 1,
+      "message": "Just trying to share more code. Seems like with a little flexibility on how things are packed this could be used in Metal as well.",
+      "revId": "58e7ccfa3bfa0fa300168b6589a2ae51e5cfe5dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
