@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9337384_2fbe27d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-07-07T20:52:35Z",
+      "side": 1,
+      "message": "Is the builder pattern working if somebody wants to use SkottieView from XML layout?",
+      "revId": "34c4a3de015e4724cf6fdc29d4cb3e5766004f69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
