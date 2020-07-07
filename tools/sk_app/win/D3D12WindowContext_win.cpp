@@ -103,7 +103,7 @@ void D3D12WindowContext::initializeContext() {
     swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapChainDesc.SampleDesc.Count = 1; // TODO: support MSAA
+    swapChainDesc.SampleDesc.Count = 1;
 
     gr_cp<IDXGISwapChain1> swapChain;
     GR_D3D_CALL_ERRCHECK(factory->CreateSwapChainForHwnd(
@@ -115,6 +115,8 @@ void D3D12WindowContext::initializeContext() {
     GR_D3D_CALL_ERRCHECK(swapChain->QueryInterface(IID_PPV_ARGS(&fSwapChain)));
 
     fBufferIndex = fSwapChain->GetCurrentBackBufferIndex();
+
+    fSampleCount = fDisplayParams.fMSAASampleCount;
 
     this->setupSurfaces(width, height);
 
@@ -131,7 +133,6 @@ void D3D12WindowContext::initializeContext() {
     fHeight = height;
 }
 
-
 void D3D12WindowContext::setupSurfaces(int width, int height) {
     // set up base resource info
     GrD3DTextureResourceInfo info(nullptr,
@@ -145,12 +146,18 @@ void D3D12WindowContext::setupSurfaces(int width, int height) {
         SkASSERT(fBuffers[i]->GetDesc().Width == (UINT64)width &&
                  fBuffers[i]->GetDesc().Height == (UINT64)height);
 
-        // TODO: support MSAA
         info.fResource = fBuffers[i];
-        GrBackendRenderTarget backendRT(width, height, 1, info);
-        fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(
-            fContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-            fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
+        if (fSampleCount > 1) {
+            GrBackendTexture backendTexture(width, height, info);
+            fSurfaces[i] = SkSurface::MakeFromBackendTexture(
+                fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
+                kRGBA_8888_SkColorType, fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
+        } else {
+            GrBackendRenderTarget backendRT(width, height, 1, info);
+            fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(
+                fContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
+                fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
+        }
     }
 }
 

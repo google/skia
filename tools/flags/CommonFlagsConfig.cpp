@@ -116,6 +116,8 @@ static const struct {
 #endif
 #ifdef SK_DIRECT3D
     { "d3d",                   "gpu", "api=direct3d" },
+    { "d3dmsaa4",              "gpu", "api=direct3d,samples=4" },
+    { "d3dmsaa8",              "gpu", "api=direct3d,samples=8" },
 #endif
 };
 // clang-format on
