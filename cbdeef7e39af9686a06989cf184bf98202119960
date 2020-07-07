@@ -132,6 +132,30 @@
     },
     {
       "key": {
+        "uuid": "1784aacd_86608b25",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-07T15:12:39Z",
+      "side": 1,
+      "message": "I am okay with those new names, and think emphasizing \"Direct\" makes sense (vs. emphasizing indirect). I am also leaning towards \"uses\" over \"requires\"",
+      "parentUuid": "36486df2_ce57942f",
+      "range": {
+        "startLine": 165,
+        "startChar": 9,
+        "endLine": 165,
+        "endChar": 32
+      },
+      "revId": "cbdeef7e39af9686a06989cf184bf98202119960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f07b34d3_75de32b7",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 4
