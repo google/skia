@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "266b474d_2d564e4e",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:37:35Z",
+      "side": 1,
+      "message": "are true ?",
+      "range": {
+        "startLine": 1145,
+        "startChar": 47,
+        "endLine": 1145,
+        "endChar": 48
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ebda2bb_cdbea631",
         "filename": "include/core/SkImage.h",
         "patchSetId": 7
@@ -127,6 +150,132 @@
       "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51812908_48530337",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:37:35Z",
+      "side": 1,
+      "message": "It seems like this parameter order should match the API call\u0027s order",
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11870af9_6a8b3bbe",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:37:35Z",
+      "side": 1,
+      "message": "direct ?",
+      "range": {
+        "startLine": 790,
+        "startChar": 47,
+        "endLine": 790,
+        "endChar": 50
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47c70129_d4b502f5",
+        "filename": "tests/GrDDLImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:37:35Z",
+      "side": 1,
+      "message": "CrossContext images are actually a different thing. This name could be confusing.",
+      "range": {
+        "startLine": 24,
+        "startChar": 34,
+        "endLine": 24,
+        "endChar": 42
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ea7c81d_0ad5182d",
+        "filename": "tests/GrDDLImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:37:35Z",
+      "side": 1,
+      "message": "Maybe throw in a bm.eraseColor to quiet the *SAN bots ?",
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e51f8e2_c7758ec0",
+        "filename": "tests/GrDDLImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:37:35Z",
+      "side": 1,
+      "message": "Maybe jam these numbers in the chart ?",
+      "range": {
+        "startLine": 48,
+        "startChar": 11,
+        "endLine": 48,
+        "endChar": 13
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c33f737e_adf896e0",
+        "filename": "tests/GrDDLImageTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T19:37:35Z",
+      "side": 1,
+      "message": "Won\u0027t this always fail? How can the recording+direct case (#3) work?",
+      "range": {
+        "startLine": 63,
+        "startChar": 64,
+        "endLine": 63,
+        "endChar": 83
+      },
+      "revId": "b9081727df8d7f06b01b57a01478b5fb0f3d9362",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
