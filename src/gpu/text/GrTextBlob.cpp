@@ -672,17 +672,6 @@ bool GrTextBlob::canReuse(const SkPaint& paint,
     return true;
 }
 
-void GrTextBlob::insertOpsIntoTarget(GrTextTarget* target,
-                                     const SkSurfaceProps& props,
-                                     const SkPaint& paint,
-                                     const GrClip* clip,
-                                     const SkMatrixProvider& deviceMatrix,
-                                     SkPoint drawOrigin) {
-    for (SubRun* subRun : fSubRunList) {
-        subRun->insertSubRunOpsIntoTarget(target, props, paint, clip, deviceMatrix, drawOrigin);
-    }
-}
-
 const GrTextBlob::Key& GrTextBlob::key() const { return fKey; }
 size_t GrTextBlob::size() const { return fSize; }
 

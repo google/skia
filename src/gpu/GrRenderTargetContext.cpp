@@ -554,8 +554,10 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
                 glyphRunList, drawMatrix, fSurfaceProps, supportsSDFT, options, blob.get());
     }
 
-    blob->insertOpsIntoTarget(
-            fTextTarget.get(), fSurfaceProps, blobPaint, clip, matrixProvider, drawOrigin);
+    for (GrTextBlob::SubRun* subRun : blob->subRunList()) {
+        subRun->insertSubRunOpsIntoTarget(
+                fTextTarget.get(), fSurfaceProps, blobPaint, clip, matrixProvider, drawOrigin);
+    }
 }
 
 void GrRenderTargetContext::discard() {
