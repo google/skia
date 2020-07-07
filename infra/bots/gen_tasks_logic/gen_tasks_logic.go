@@ -220,6 +220,7 @@ type Config struct {
 	Project string `json:"project"`
 
 	// Service accounts.
+	ServiceAccountCanary       string `json:"service_account_canary"`
 	ServiceAccountCompile      string `json:"service_account_compile"`
 	ServiceAccountHousekeeper  string `json:"service_account_housekeeper"`
 	ServiceAccountRecreateSKPs string `json:"service_account_recreate_skps"`
@@ -1279,7 +1280,6 @@ func (b *taskBuilder) commonTestPerfAssets() {
 
 // dm generates a Test task using dm.
 func (b *jobBuilder) dm() {
-	// HERE HERE
 	compileTaskName := ""
 	// LottieWeb doesn't require anything in Skia to be compiled.
 	if !b.extraConfig("LottieWeb") {
@@ -1394,6 +1394,28 @@ func (b *jobBuilder) fm() {
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
 		b.expiration(15 * time.Minute)
+		b.attempts(1)
+	})
+}
+
+// canary generates a task that uses TaskDrivers to trigger canary manual rolls on autorollers.
+// Canary-G3 does not use this path because it is very different from other autorollers.
+func (b *jobBuilder) canary(rollerName string) {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.isolate("test_skia_bundled.isolate")
+		b.dep(b.buildTaskDrivers())
+		b.cmd("./canary",
+			"--local=false",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--roller_name", rollerName,
+			"--alsologtostderr")
+		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+		b.serviceAccount(b.cfg.ServiceAccountCanary)
+		b.swarmDimensions()
+		// Should this be more?
+		b.timeout(3 * time.Hour)
 		b.attempts(1)
 	})
 }

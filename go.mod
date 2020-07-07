@@ -3,6 +3,7 @@ module go.skia.org/skia
 go 1.12
 
 require (
+	cloud.google.com/go/datastore v1.2.0
 	cloud.google.com/go/storage v1.10.0
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
