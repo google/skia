@@ -132,8 +132,7 @@ static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
     source->size  = gm->getISize();
     source->tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); };
     source->draw  = [gm](SkCanvas* canvas) {
-        auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
-                                                 : nullptr;
+        auto direct = GrAsDirectContext(canvas->recordingContext());
 
         SkString err;
         switch (gm->gpuSetup(direct, canvas, &err)) {

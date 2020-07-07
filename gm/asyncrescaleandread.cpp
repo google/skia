@@ -133,11 +133,9 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                                           bool doYUV420,
                                           SkString* errorMsg,
                                           int pad = 0) {
-    if (doYUV420) {
-        if (!canvas->recordingContext() || !canvas->recordingContext()->asDirectContext()) {
-            errorMsg->printf("YUV420 only supported on direct GPU for now.");
-            return skiagm::DrawResult::kSkip;
-        }
+    if (doYUV420 && !GrAsDirectContext(canvas->recordingContext())) {
+        errorMsg->printf("YUV420 only supported on direct GPU for now.");
+        return skiagm::DrawResult::kSkip;
     }
     if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
         *errorMsg = "Not supported on recording/vector backends.";
