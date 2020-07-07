@@ -2271,8 +2271,9 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         return Result::Fatal("ViaDDL: Couldn't deflate SkPicture");
     }
     auto draw = [&](SkCanvas* canvas) -> Result {
-        GrContext* context = canvas->getGrContext();
-        if (!context || !context->priv().getGpu()) {
+        auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
+                                                 : nullptr;
+        if (!direct) {
             return Result::Fatal("ViaDDL: DDLs are GPU only");
         }
         SkSurface* tmp = canvas->getSurface();
@@ -2284,10 +2285,10 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         SkSurfaceCharacterization dstCharacterization;
         SkAssertResult(dstSurface->characterize(&dstCharacterization));
 
-        promiseImageHelper.createCallbackContexts(context);
+        promiseImageHelper.createCallbackContexts(direct);
 
         // This is here bc this is the first point where we have access to the context
-        promiseImageHelper.uploadAllToGPU(nullptr, context);
+        promiseImageHelper.uploadAllToGPU(nullptr, direct);
         // We draw N times, with a clear between.
         for (int replay = 0; replay < fNumReplays; ++replay) {
             if (replay > 0) {
@@ -2295,9 +2296,9 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
                 canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(context, dstCharacterization, viewport, fNumDivisions);
+            DDLTileHelper tiles(direct, dstCharacterization, viewport, fNumDivisions);
 
-            tiles.createBackendTextures(nullptr, context);
+            tiles.createBackendTextures(nullptr, direct);
 
             // Second, reinflate the compressed picture individually for each thread
             // This recreates the promise SkImages on each replay iteration. We are currently
@@ -2320,7 +2321,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // Fourth, synchronously render the display lists into the dest tiles
             // TODO: it would be cool to not wait until all the tiles are drawn to begin
             // drawing to the GPU and composing to the final surface
-            tiles.precompileAndDrawAllTiles(context);
+            tiles.precompileAndDrawAllTiles(direct);
 
             if (replay == fNumReplays - 1) {
                 // At this point the compose DDL holds refs to the composition promise images
@@ -2333,8 +2334,8 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 
             // We need to ensure all the GPU work is finished so the promise image callback
             // contexts will delete all the backend textures.
-            context->flush();
-            context->submit(true);
+            direct->flush();
+            direct->submit(true);
         }
         return Result::Ok();
     };

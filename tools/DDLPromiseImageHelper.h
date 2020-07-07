@@ -33,8 +33,8 @@ struct SkYUVAIndex;
 // it drops all of its refs (via "reset").
 class PromiseImageCallbackContext : public SkRefCnt {
 public:
-    PromiseImageCallbackContext(GrContext* context, GrBackendFormat backendFormat)
-            : fContext(context)
+    PromiseImageCallbackContext(GrDirectContext* direct, GrBackendFormat backendFormat)
+            : fContext(direct)
             , fBackendFormat(backendFormat) {}
 
     ~PromiseImageCallbackContext();
@@ -43,14 +43,7 @@ public:
 
     void setBackendTexture(const GrBackendTexture& backendTexture);
 
-    void destroyBackendTexture() {
-        SkASSERT(!fPromiseImageTexture || fPromiseImageTexture->unique());
-
-        if (fPromiseImageTexture) {
-            fContext->deleteBackendTexture(fPromiseImageTexture->backendTexture());
-        }
-        fPromiseImageTexture = nullptr;
-    }
+    void destroyBackendTexture();
 
     sk_sp<SkPromiseImageTexture> fulfill() {
         SkASSERT(fUnreleasedFulfills >= 0);
@@ -93,7 +86,7 @@ public:
     }
 
 private:
-    GrContext*                   fContext;
+    GrDirectContext*             fContext;
     GrBackendFormat              fBackendFormat;
     sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
     int                          fNumImages = 0;
@@ -135,10 +128,10 @@ public:
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
     sk_sp<SkData> deflateSKP(const SkPicture* inputPicture);
 
-    void createCallbackContexts(GrContext*);
+    void createCallbackContexts(GrDirectContext*);
 
-    void uploadAllToGPU(SkTaskGroup*, GrContext*);
-    void deleteAllFromGPU(SkTaskGroup*, GrContext*);
+    void uploadAllToGPU(SkTaskGroup*, GrDirectContext*);
+    void deleteAllFromGPU(SkTaskGroup*, GrDirectContext*);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
@@ -262,14 +255,14 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
-    static void CreateBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
-    static void DeleteBETexturesForPromiseImage(GrContext*, PromiseImageInfo*);
+    static void CreateBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);
+    static void DeleteBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);
 
     static sk_sp<SkImage> CreatePromiseImages(const void* rawData, size_t length, void* ctxIn);
 
     bool isValidID(int id) const { return id >= 0 && id < fImageInfo.count(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }
-    void uploadImage(GrContext*, PromiseImageInfo*);
+    void uploadImage(GrDirectContext*, PromiseImageInfo*);
 
     // returns -1 if not found
     int findImage(SkImage* image) const;
