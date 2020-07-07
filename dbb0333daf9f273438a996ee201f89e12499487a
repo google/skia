@@ -56,6 +56,30 @@
       "revId": "dbb0333daf9f273438a996ee201f89e12499487a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ec5284d_e52c0a03",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-07T20:05:47Z",
+      "side": 1,
+      "message": "I spotted that, too. Probably going to be a follow-up.",
+      "parentUuid": "5c23cd24_dac78a81",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 5
+      },
+      "revId": "dbb0333daf9f273438a996ee201f89e12499487a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
