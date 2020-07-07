@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6bec13a_27865047",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieViewBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-07T17:16:29Z",
+      "side": 1,
+      "message": "If you need to keep this as a separate class then make this an inner class to SkottieView.java.  \n\nDo you expect that the caller will want to hold onto the builder or set a bunch of different options in the builder?  If not, you can get the same effect by making a few static \"builder\" functions in SkottieView.\n\nSkottieView sv \u003d SkottieView.create()\nOR\nSkottieView sv \u003d SkottieView.createSurface(/*Color*/backgroundColor);",
+      "revId": "d61c162ab5ffde14a7cf6622616ea7f35932ee38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
