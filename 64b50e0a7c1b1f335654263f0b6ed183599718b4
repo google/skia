@@ -16,6 +16,63 @@
       "revId": "64b50e0a7c1b1f335654263f0b6ed183599718b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05566c7e_bd9b5b3b",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T14:42:07Z",
+      "side": 1,
+      "message": "static ?",
+      "revId": "64b50e0a7c1b1f335654263f0b6ed183599718b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c05ca8b7_6962e5bb",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T14:42:07Z",
+      "side": 1,
+      "message": "Maybe move up a line and use in the SkPaintToGrPaint call ?",
+      "revId": "64b50e0a7c1b1f335654263f0b6ed183599718b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "108ae9a7_40744279",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-07T14:42:07Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 40,
+        "startChar": 75,
+        "endLine": 40,
+        "endChar": 79
+      },
+      "revId": "64b50e0a7c1b1f335654263f0b6ed183599718b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
