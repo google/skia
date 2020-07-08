@@ -137,6 +137,30 @@
     },
     {
       "key": {
+        "uuid": "f4eddd52_febe7982",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T17:07:14Z",
+      "side": 1,
+      "message": "\" I wonder if SkRuntimeEffect should be a separate fuzz file so that the current fuzzer will aim at compiling and the fuzzer of SkRuntimeEffect will aim at executing.\" - Yes, that\u0027s what Brian and I both suggested you do.",
+      "parentUuid": "a2809c07_5a27760e",
+      "range": {
+        "startLine": 37,
+        "startChar": 31,
+        "endLine": 37,
+        "endChar": 43
+      },
+      "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7c130a7_0779d3d7",
         "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
         "patchSetId": 4

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14f35a70_6b3169b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T17:07:14Z",
+      "side": 1,
+      "message": "Make a new fuzzer file for just SkRuntimeEffect, and then I\u0027ll review again.",
+      "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
