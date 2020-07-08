@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a142b374_8b4502a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-08T19:54:57Z",
+      "side": 1,
+      "message": "Okay this all seems to be work now in dawn and passing everything. Please take a look at the design and if we like it I can go and clean it all up for a real review/landing.",
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6ce03f_62c16705",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-08T19:54:57Z",
+      "side": 1,
+      "message": "I don\u0027t really like this here which is only needed to fix the TextureProxyTest, and that I can go and just fix the expected values in the test. However, I just wanted to leave it here for now to point it out and say that it slightly irks me that we just \"sync\u0027d\" the cpu and gpu and made sure all work has finished. Yet in that time it is not assured that the map has also finished.",
+      "range": {
+        "startLine": 537,
+        "startChar": 0,
+        "endLine": 542,
+        "endChar": 5
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2df8b40b_a4618436",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-08T19:54:57Z",
+      "side": 1,
+      "message": "this chunk will all be deleted when I remove the old staging code.",
+      "range": {
+        "startLine": 766,
+        "startChar": 3,
+        "endLine": 769,
+        "endChar": 5
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
