@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30a55120_ba8b1fe6",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-08T14:30:32Z",
+      "side": 1,
+      "message": "I think this could still be done directly with GrSkSLFP, without making the intermediate color filter. You\u0027d have to change the dither src at the top of the file to add a child:\nin fragmentProcessor child;\nvoid main(inout half4 outColor) {\n  half4 color \u003d sample(child);\n  ...\n  outColor \u003d color;\n}\n\nThen, here you could make the SkSLFP like before, but rather than call addColorFragmentProcessor, do:\n  ditherFP-\u003eaddChild(std::move(paintFP));\n  paintFP \u003d std::move(ditherFP);\n\nI\u0027m not sure if this is better or worse, except that I\u0027d like to get rid of runtime color filters, and jumping back up to the color filter abstraction level here just to create an FP is a little non-standard.",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 0
+      },
+      "revId": "9e2322650ed6fd9e096902ddf16ac5fa0ede10aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
