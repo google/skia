@@ -98,12 +98,10 @@ void GrMtlPipelineState::setTextures(const GrPrimitiveProcessor& primProc,
     }
 
     for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        for (auto& fp : GrFragmentProcessor::FPCRange(pipeline.getFragmentProcessor(i))) {
-            for (int s = 0; s < fp.numTextureSamplers(); ++s) {
-                const auto& sampler = fp.textureSampler(s);
-                fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(), fGpu);
-            }
-        }
+        auto& fp = pipeline.getFragmentProcessor(i);
+        fp.visitTextureEffects([&](const GrTextureEffect& te) {
+            fSamplerBindings.emplace_back(te.samplerState(), te.texture(), fGpu);
+        });
     }
 
     if (GrTextureProxy* dstTextureProxy = pipeline.dstProxyView().asTextureProxy()) {
