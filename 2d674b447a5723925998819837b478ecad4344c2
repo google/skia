@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08954378_f3f46f6e",
+        "filename": "modules/skparagraph/src/TextStyle.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-08T18:45:45Z",
+      "side": 1,
+      "message": "So logically you want\n            return (!fHasBackground \u0026\u0026 !other.fHasBackground) ||\n                   ( fHasBackground \u0026\u0026  other.fHasBackground \u0026\u0026 fBackground \u003d\u003d other.fBackground)\n\nWhich is a little more readable (an I think will all fit in the 100 char limit).\n\nIn fact, while here, why not do the same to the kForground case above. The two should look the same.",
+      "revId": "2d674b447a5723925998819837b478ecad4344c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
