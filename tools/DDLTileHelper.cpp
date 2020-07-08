@@ -22,9 +22,11 @@
 void DDLTileHelper::TileData::init(int id,
                                    GrDirectContext* direct,
                                    const SkSurfaceCharacterization& dstSurfaceCharacterization,
-                                   const SkIRect& clip) {
+                                   const SkIRect& clip,
+                                   const SkIRect& padRect) {
     fID = id;
     fClip = clip;
+    fPadRect = padRect;
 
     fCharacterization = dstSurfaceCharacterization.createResized(clip.width(), clip.height());
     SkASSERT(fCharacterization.isValid());
@@ -79,6 +81,7 @@ void DDLTileHelper::TileData::createDDL() {
         }
     }
 
+    // We always record the DDL in the (0,0) .. (clipWidth, clipWidth) coordinates
     recordingCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
     recordingCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
@@ -99,14 +102,15 @@ void DDLTileHelper::createComposeDDL() {
     for (int i = 0; i < this->numTiles(); ++i) {
         TileData* tile = &fTiles[i];
 
-        sk_sp<SkImage> promiseImage = tile->makePromiseImage(&recorder);
+        sk_sp<SkImage> promiseImage = tile->makePromiseImageForDst(&recorder);
 
-        SkIRect clipRect = tile->clipRect();
+        SkRect dstRect = SkRect::Make(tile->clipRect());
+        SkIRect srcRect = tile->clipRect();
+        srcRect.offsetTo(tile->padOffset().x(), tile->padOffset().y());
 
-        SkASSERT(clipRect.width() == promiseImage->width() &&
-                 clipRect.height() == promiseImage->height());
+        SkASSERT(promiseImage->bounds().contains(srcRect));
 
-        recordingCanvas->drawImage(promiseImage, clipRect.fLeft, clipRect.fTop);
+        recordingCanvas->drawImageRect(promiseImage.get(), srcRect, dstRect, nullptr);
     }
 
     fComposeDDL = recorder.detach();
@@ -149,6 +153,7 @@ void DDLTileHelper::TileData::drawSKPDirectly(GrContext* context) {
     if (fTileSurface) {
         SkCanvas* tileCanvas = fTileSurface->getCanvas();
 
+        SkASSERT(this->padOffset().isZero() && this->paddedRectSize() == fClip.size());
         tileCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
         tileCanvas->translate(-fClip.fLeft, -fClip.fTop);
 
@@ -182,14 +187,14 @@ void DDLTileHelper::TileData::reset() {
     fTileSurface = nullptr;
 }
 
-sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImage(SkDeferredDisplayListRecorder* recorder) {
+sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImageForDst(SkDeferredDisplayListRecorder* recorder) {
     SkASSERT(fCallbackContext);
 
     // The promise image gets a ref on the promise callback context
     sk_sp<SkImage> promiseImage = recorder->makePromiseTexture(
                                     fCallbackContext->backendFormat(),
-                                    fClip.width(),
-                                    fClip.height(),
+                                    this->paddedRectSize().width(),
+                                    this->paddedRectSize().height(),
                                     GrMipMapped::kNo,
                                     GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
                                     fCharacterization.colorType(),
@@ -231,7 +236,8 @@ void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext*, TileData* t
 DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
                              const SkSurfaceCharacterization& dstChar,
                              const SkIRect& viewport,
-                             int numDivisions)
+                             int numDivisions,
+                             bool addRandomPaddingToDst)
         : fNumDivisions(numDivisions)
         , fTiles(numDivisions * numDivisions)
         , fDstCharacterization(dstChar) {
@@ -239,6 +245,8 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
 
     int xTileSize = viewport.width()/fNumDivisions;
     int yTileSize = viewport.height()/fNumDivisions;
+
+    SkRandom rand;
 
     // Create the destination tiles
     for (int y = 0, yOff = 0; y < fNumDivisions; ++y, yOff += yTileSize) {
@@ -251,7 +259,14 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
 
             SkASSERT(viewport.contains(clip));
 
-            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip);
+            static const uint32_t kMaxPad = 64;
+            int32_t lPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
+            int32_t tPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
+            int32_t rPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
+            int32_t bPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
+
+            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
+                                           {lPad, tPad, rPad, bPad});
         }
     }
 }
