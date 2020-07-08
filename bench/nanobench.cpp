@@ -19,6 +19,7 @@
 #include "bench/SKPAnimationBench.h"
 #include "bench/SKPBench.h"
 #include "bench/SkGlyphCacheBench.h"
+#include "bench/SkSLBench.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkCanvas.h"
@@ -148,6 +149,7 @@ static DEFINE_string(images, "",
                      " is treated as a fatal error.");
 static DEFINE_bool(simpleCodec, false,
                    "Runs of a subset of the codec tests, always N32, Premul or Opaque");
+static DEFINE_bool(skslMemory, false, "Include SkSL compiler memory stats in json");
 
 static DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of name to run.\n"
@@ -1464,6 +1466,10 @@ int main(int argc, char** argv) {
     log.appendS32("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
     log.endObject(); // config
     log.endBench();
+
+    if (FLAGS_skslMemory) {
+        RunSkSLMemoryBenchmarks(&log);
+    }
 
     log.endObject(); // results
     log.endObject(); // root
