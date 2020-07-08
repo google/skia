@@ -37,7 +37,7 @@ function startTimingFrames(drawFn, surface, warmupFrames, maxFrames, timeoutMill
   const withFlush = new Float32Array(maxFrames);
   const withoutFlush = new Float32Array(maxFrames);
   let warmUp = warmupFrames > 0;
-  let idx = 0;
+  let idx = -1;
   let previousFrame;
 
   function drawFrame() {
