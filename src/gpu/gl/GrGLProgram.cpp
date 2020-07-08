@@ -140,13 +140,14 @@ void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc,
     }
     int nextTexSamplerIdx = primProc.numTextureSamplers();
 
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    for (; fpIter; ++fpIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            const GrFragmentProcessor::TextureSampler& sampler = fpIter->textureSampler(i);
-            fGpu->bindTexture(nextTexSamplerIdx++, sampler.samplerState(), sampler.view().swizzle(),
-                              static_cast<GrGLTexture*>(sampler.peekTexture()));
-        }
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        auto& fp = pipeline.getFragmentProcessor(i);
+        fp.visitTextureEffects([&](const GrTextureEffect& te) {
+            GrSamplerState samplerState = te.samplerState();
+            GrSwizzle swizzle = te.view().swizzle();
+            auto* texture = static_cast<GrGLTexture*>(te.texture());
+            fGpu->bindTexture(nextTexSamplerIdx++, samplerState, swizzle, texture);
+        });
     }
 
     SkIPoint offset;
