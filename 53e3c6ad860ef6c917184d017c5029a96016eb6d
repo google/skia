@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33e5df03_a50016e0",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-08T19:10:18Z",
+      "side": 1,
+      "message": "It seems like these should be retrieved from the \u0027rtc\u0027",
+      "range": {
+        "startLine": 585,
+        "startChar": 26,
+        "endLine": 585,
+        "endChar": 38
+      },
+      "revId": "53e3c6ad860ef6c917184d017c5029a96016eb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
