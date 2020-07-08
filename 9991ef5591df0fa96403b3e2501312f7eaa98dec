@@ -33,6 +33,46 @@
       "revId": "9991ef5591df0fa96403b3e2501312f7eaa98dec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a17a642d_45a05170",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-08T20:19:14Z",
+      "side": 1,
+      "message": "Check out sk_tools::getCurrResidentSetSizeMB()?  If we factored out a version of it that returned bytes, could you use that?  It\u0027s got implementations for all our major platforms, and I guess would track anything outside malloc() like, I dunno, mmaps()?",
+      "revId": "9991ef5591df0fa96403b3e2501312f7eaa98dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e01ad53_183252db",
+        "filename": "bench/SkSLBench.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-08T20:19:14Z",
+      "side": 1,
+      "message": "I bet the \u0027Nano\u0027 subclass part of the API is moot?",
+      "range": {
+        "startLine": 14,
+        "startChar": 29,
+        "endLine": 14,
+        "endChar": 33
+      },
+      "revId": "9991ef5591df0fa96403b3e2501312f7eaa98dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
