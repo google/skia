@@ -582,8 +582,6 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
                                                              const char* text,
                                                              int x,
                                                              int y) {
-    static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
-
     size_t textLen = (int)strlen(text);
 
     const SkMatrix& drawMatrix(mtxProvider.localToDevice());
@@ -603,16 +601,16 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
     SkGlyphRunListPainter* painter = &rtc->fGlyphPainter;
     painter->processGlyphRunList(
-            glyphRunList, drawMatrix, surfaceProps,
+            glyphRunList, drawMatrix, rtc->surfaceProps(),
             contextPriv.caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
 
-    return blob->firstSubRun()->makeOp(mtxProvider,
-                                       drawOrigin,
-                                       SkIRect::MakeEmpty(),
-                                       skPaint,
-                                       surfaceProps,
-                                       rtc->textTarget());
+    return GrAtlasTextOp::MakeBitmap(rtc,
+                                     skPaint,
+                                     blob->firstSubRun(),
+                                     mtxProvider,
+                                     drawOrigin,
+                                     SkIRect::MakeEmpty());
 }
 
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {

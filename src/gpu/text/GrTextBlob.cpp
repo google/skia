@@ -440,60 +440,49 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
 
         // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
         // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
-        SkIRect clipRect = SkIRect::MakeEmpty();
-        if (!this->drawAsDistanceFields() && !this->needsTransform()) {
-            // We only need to do clipping work if the SubRun isn't contained by the clip
-            SkRect subRunBounds = this->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
-            SkRect renderTargetBounds = SkRect::MakeWH(target->width(), target->height());
-            if (clip == nullptr && !renderTargetBounds.intersects(subRunBounds)) {
-                // If the SubRun is completely outside, don't add an op for it.
-                return;
-            } else if (clip != nullptr) {
-                GrClip::PreClipResult result = clip->preApply(subRunBounds);
-                if (result.fEffect == GrClip::Effect::kClipped) {
-                    if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
-                        // Clip geometrically during onPrepare using clipRect.
-                        result.fRRect.getBounds().round(&clipRect);
-                        clip = nullptr;
-                    }
-                } else if (result.fEffect == GrClip::Effect::kClippedOut) {
+        std::unique_ptr<GrAtlasTextOp> op;
+        if (!this->drawAsDistanceFields()) {
+            SkIRect clipRect = SkIRect::MakeEmpty();
+            if (!this->needsTransform()) {
+                // We only need to do clipping work if the SubRun isn't contained by the clip
+                SkRect subRunBounds = this->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
+                SkRect renderTargetBounds = SkRect::MakeWH(target->width(), target->height());
+                if (clip == nullptr && !renderTargetBounds.intersects(subRunBounds)) {
+                    // If the SubRun is completely outside, don't add an op for it.
                     return;
+                } else if (clip != nullptr) {
+                    GrClip::PreClipResult result = clip->preApply(subRunBounds);
+                    if (result.fEffect == GrClip::Effect::kClipped) {
+                        if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
+                            // Clip geometrically during onPrepare using clipRect.
+                            result.fRRect.getBounds().round(&clipRect);
+                            clip = nullptr;
+                        }
+                    } else if (result.fEffect == GrClip::Effect::kClippedOut) {
+                        return;
+                    }
                 }
             }
+
+            if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
+
+            op = GrAtlasTextOp::MakeBitmap(target->renderTargetContext(),
+                                           paint,
+                                           this,
+                                           deviceMatrix,
+                                           drawOrigin,
+                                           clipRect);
+        } else {
+            op = GrAtlasTextOp::MakeDistanceField(target->renderTargetContext(),
+                                                  paint,
+                                                  this,
+                                                  deviceMatrix,
+                                                  drawOrigin);
         }
 
-        if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
-
-        auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect, paint, props, target);
         if (op != nullptr) {
             target->addDrawOp(clip, std::move(op));
         }
-    }
-}
-
-std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
-        const SkMatrixProvider& matrixProvider,
-        SkPoint drawOrigin,
-        const SkIRect& clipRect,
-        const SkPaint& paint,
-        const SkSurfaceProps& props,
-        GrTextTarget* target) {
-
-    if (this->drawAsDistanceFields()) {
-        // TODO: Can we be even smarter based on the dest transfer function?
-        SkASSERT(clipRect.isEmpty());
-        return GrAtlasTextOp::MakeDistanceField(target->renderTargetContext(),
-                                                paint,
-                                                this,
-                                                matrixProvider,
-                                                drawOrigin);
-    } else {
-        return GrAtlasTextOp::MakeBitmap(target->renderTargetContext(),
-                                         paint,
-                                         this,
-                                         matrixProvider,
-                                         drawOrigin,
-                                         clipRect);
     }
 }
 

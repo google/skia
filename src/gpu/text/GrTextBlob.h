@@ -331,13 +331,6 @@ public:
                                    const SkMatrixProvider& deviceMatrix,
                                    SkPoint drawOrigin);
 
-    std::unique_ptr<GrAtlasTextOp> makeOp(const SkMatrixProvider& matrixProvider,
-                                          SkPoint drawOrigin,
-                                          const SkIRect& clipRect,
-                                          const SkPaint& paint,
-                                          const SkSurfaceProps&,
-                                          GrTextTarget*);
-
     GrTextBlob* fBlob;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
 
