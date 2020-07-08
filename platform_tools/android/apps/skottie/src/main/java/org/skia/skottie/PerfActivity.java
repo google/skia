@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
 import com.airbnb.lottie.RenderMode;
+import org.skia.skottie.SkottieView.SkottieViewBuilder;
 
 public class PerfActivity extends Activity {
 
@@ -60,7 +60,8 @@ public class PerfActivity extends Activity {
     }
 
     void runSkottie(int id) {
-        SkottieView view = new SkottieView(this);
+        SkottieViewBuilder builder = new SkottieViewBuilder();
+        SkottieView view = builder.build(this);
         view.setSource(getResources().openRawResource(id));
         view.getSkottieAnimation().start();
         setContentView(view);
