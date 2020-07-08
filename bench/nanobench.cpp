@@ -19,6 +19,7 @@
 #include "bench/SKPAnimationBench.h"
 #include "bench/SKPBench.h"
 #include "bench/SkGlyphCacheBench.h"
+#include "bench/SkSLBench.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkCanvas.h"
@@ -1464,6 +1465,8 @@ int main(int argc, char** argv) {
     log.appendS32("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
     log.endObject(); // config
     log.endBench();
+
+    RunSkSLMemoryBenchmarks(&log);
 
     log.endObject(); // results
     log.endObject(); // root
