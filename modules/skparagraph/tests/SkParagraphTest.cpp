@@ -5413,3 +5413,47 @@ DEF_TEST(SkParagraph_PlaceholderHeightInf, reporter) {
 
     paragraph->paint(canvas.get(), 0, 0);
 }
+
+DEF_TEST(SkParagraph_LineMetricsTextAlign, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_LineMetricsTextAlign.png");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+
+    auto layout = [&](TextAlign text_align) -> std::pair<SkScalar, SkScalar> {
+        paragraph_style.setTextAlign(text_align);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText("Some text that takes more than 200 px");
+        auto paragraph = builder.Build();
+        paragraph->layout(200);
+
+        std::vector<LineMetrics> metrics;
+        paragraph->getLineMetrics(metrics);
+        REPORTER_ASSERT(reporter, metrics.size() > 0);
+        return { metrics[0].fLeft, metrics[0].fWidth };
+    };
+
+    SkScalar left[4];
+    SkScalar width[4];
+    std::tie(left[0], width[0]) = layout(TextAlign::kLeft);
+    std::tie(left[1], width[1]) = layout(TextAlign::kCenter);
+    std::tie(left[2], width[2]) = layout(TextAlign::kRight);
+    std::tie(left[3], width[3]) = layout(TextAlign::kJustify);
+
+    // delta = line_width - text_width
+    REPORTER_ASSERT(reporter, left[0] == 0);        // Starts from 0
+    REPORTER_ASSERT(reporter, left[1] > left[0]);   // Starts from delta / 2
+    REPORTER_ASSERT(reporter, left[2] > left[1]);   // Starts from delta
+    REPORTER_ASSERT(reporter, left[3] == left[0]);  // Starts from 0
+    REPORTER_ASSERT(reporter, width[1] == width[0]);
+    REPORTER_ASSERT(reporter, width[2] == width[0]);
+    REPORTER_ASSERT(reporter, width[3] > width[0]); // delta == 0
+}
