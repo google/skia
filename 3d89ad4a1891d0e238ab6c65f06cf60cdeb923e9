@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7cdad6b_ec1ea1bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-08T22:09:58Z",
+      "side": 1,
+      "message": "This was discovered while running tests in a setup where the default typeface doesn\u0027t actually draw anything (all the glyphs are of zero size). As a result when the text is drawn it is noted that nothing will ever show up so the draw is essentially skipped. In one of the tests this produced an SkDocument where essentially nothing was ever drawn into it which meant the root was discardable since no annotations were actually drawn.\n\nThe alternative would be to delay creating the root until the first annotation is drawn, but that seems a bit awkward.",
+      "revId": "3d89ad4a1891d0e238ab6c65f06cf60cdeb923e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
