@@ -49,8 +49,7 @@ public:
             const SkPaint&,
             GrTextBlob::SubRun*,
             const SkMatrixProvider&,
-            SkPoint drawOrigin,
-            const SkIRect& clipRect);
+            SkPoint drawOrigin);
 
     const char* name() const override { return "AtlasTextOp"; }
 

@@ -488,8 +488,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
                                                 paint,
                                                 this,
                                                 matrixProvider,
-                                                drawOrigin,
-                                                clipRect);
+                                                drawOrigin);
     } else {
         return GrAtlasTextOp::MakeBitmap(target->renderTargetContext(),
                                          paint,
