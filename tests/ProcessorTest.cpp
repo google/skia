@@ -232,9 +232,12 @@ void test_draw_op(GrContext* context,
                   GrSurfaceProxyView inputDataView,
                   SkAlphaType inputAlphaType) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(GrTextureEffect::Make(std::move(inputDataView),
-                                                          inputAlphaType));
-    paint.addColorFragmentProcessor(std::move(fp));
+    std::unique_ptr<GrFragmentProcessor> fpSeries[2] = {
+        GrTextureEffect::Make(std::move(inputDataView), inputAlphaType),
+        std::move(fp),
+    };
+    paint.addColorFragmentProcessor(
+            GrFragmentProcessor::RunInSeries(fpSeries, SK_ARRAY_COUNT(fpSeries)));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto op = GrFillRectOp::MakeNonAARect(context, std::move(paint), SkMatrix::I(),
