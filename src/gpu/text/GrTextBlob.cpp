@@ -389,6 +389,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                                                    const SkMatrixProvider& deviceMatrix,
                                                    SkPoint drawOrigin) {
     if (this->drawAsPaths()) {
+        SkASSERT(!fPaths.empty());
         SkPaint runPaint{paint};
         runPaint.setAntiAlias(this->isAntiAliased());
         // If there are shaders, blurs or styles, the path must be scaled into source
@@ -434,10 +435,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
             }
         }
     } else {
-        int glyphCount = this->glyphCount();
-        if (0 == glyphCount) {
-            return;
-        }
+        SkASSERT(this->glyphCount() != 0);
 
         bool skipClip = false;
         SkIRect clipRect = SkIRect::MakeEmpty();
