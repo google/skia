@@ -389,6 +389,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                                                    const SkMatrixProvider& deviceMatrix,
                                                    SkPoint drawOrigin) {
     if (this->drawAsPaths()) {
+        SkASSERT(!fPaths.empty());
         SkPaint runPaint{paint};
         runPaint.setAntiAlias(this->isAntiAliased());
         // If there are shaders, blurs or styles, the path must be scaled into source
@@ -434,10 +435,8 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
             }
         }
     } else {
-        if (this->glyphCount() == 0) {
-            return;
-        }
         // Handle the mask and distance field cases.
+        SkASSERT(this->glyphCount() != 0);
 
         // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
         // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
