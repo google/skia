@@ -16,6 +16,23 @@
       "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fded969c_ec09369c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-08T20:34:46Z",
+      "side": 1,
+      "message": "Interesting.\n\nDo you have a reference(s) for the formulas? That would certainly help future maintainers.\n\nOff hand, is this improving something related to stroking (that we can measure)? Does it reduce the complexity of the resulting stroke? The accuracy?\n",
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
