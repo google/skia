@@ -385,12 +385,10 @@ void SkPDFTagTree::addNodeAnnotation(int nodeId, SkPDFIndirectReference annotati
 }
 
 SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
-    if (!fRoot) {
+    if (!fRoot || can_discard(fRoot)) {
         return SkPDFIndirectReference();
     }
-    if (can_discard(fRoot)) {
-        SkDEBUGFAIL("PDF has tag tree but no marked content.");
-    }
+
     SkPDFIndirectReference ref = doc->reserveRef();
 
     unsigned pageCount = SkToUInt(doc->pageCount());
