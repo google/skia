@@ -32,6 +32,13 @@ struct FunctionReference : public Expression {
         return std::unique_ptr<Expression>(new FunctionReference(fOffset, fFunctions, &fType));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return String::printf("FunctionReference()");
+    }
+#endif
+
     String description() const override {
         return String("<function>");
     }

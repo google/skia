@@ -224,6 +224,30 @@ struct Layout {
     , fKey(kNo_Key)
     , fCType(CType::kDefault) {}
 
+    static Layout builtin(int builtin) {
+        Layout result;
+        result.fBuiltin = builtin;
+        return result;
+    }
+
+    String constructionCode() const {
+        Layout blank;
+        if (*this == blank) {
+            return "l";
+        }
+        Layout copy = *this;
+        copy.fBuiltin = -1;
+        if (copy == blank) {
+            return String::printf("Layout::builtin(%d)", fBuiltin);
+        }
+        return String::printf("Layout(%d, %d, %d, %d, %d, %d, %d, %d, (Layout::Format) %d, "
+                              "(Layout::Primitive) %d, %d, %d, \"%s\", \"%s\", (Layout::Key) %d, "
+                              "(Layout::CType) %d)", fFlags, fLocation,
+                              fOffset, fBinding, fIndex, fSet, fBuiltin, fInputAttachmentIndex,
+                              fFormat, fPrimitive, fMaxVertices, fInvocations,
+                              String(fMarker).c_str(), String(fWhen).c_str(), fKey, fCType);
+    }
+
     String description() const {
         String result;
         auto separator = [firstSeparator = true]() mutable -> String {

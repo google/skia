@@ -52,6 +52,13 @@ struct ForStatement : public Statement {
                                                      fSymbols));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return String::printf("ForStatement()");
+    }
+#endif
+
     String description() const override {
         String result("for (");
         if (fInitializer) {

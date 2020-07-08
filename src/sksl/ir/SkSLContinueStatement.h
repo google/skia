@@ -28,6 +28,12 @@ struct ContinueStatement : public Statement {
         return std::unique_ptr<Statement>(new ContinueStatement(fOffset));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return "Continue(-1)";
+    }
+#endif
+
     String description() const override {
         return String("continue;");
     }

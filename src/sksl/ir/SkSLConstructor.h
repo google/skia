@@ -75,6 +75,20 @@ struct Constructor : public Expression {
         return std::unique_ptr<Expression>(new Constructor(fOffset, fType, std::move(cloned)));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String args("make_vector<Expression>(");
+        args += to_string((int) fArguments.size());
+        for (const auto& a : fArguments) {
+            args += ", ";
+            args += a->constructionCode();
+        }
+        args += ")";
+        return String::printf("new Constructor(-1, *%s, %s)",
+                              SymbolWriter::symbolCode(fType).c_str(), args.c_str());
+    }
+#endif
+
     String description() const override {
         String result = fType.description() + "(";
         String separator;

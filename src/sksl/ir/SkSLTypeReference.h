@@ -34,6 +34,13 @@ struct TypeReference : public Expression {
         return std::unique_ptr<Expression>(new TypeReference(fOffset, fValue, &fType));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return "<type reference>";
+    }
+#endif
+
     const Type& fValue;
 
     typedef Expression INHERITED;

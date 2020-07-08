@@ -141,8 +141,10 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
 }
 
 void IRGenerator::start(const Program::Settings* settings,
-                        std::vector<std::unique_ptr<ProgramElement>>* inherited) {
+                        std::vector<std::unique_ptr<ProgramElement>>* inherited,
+                        bool markFunctionsBuiltin) {
     fSettings = settings;
+    fMarkFunctionsBuiltin = markFunctionsBuiltin;
     fCapsMap.clear();
     if (settings->fCaps) {
         fill_caps(*settings->fCaps, &fCapsMap);
@@ -716,7 +718,8 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                               invokeModifiers,
                                                               "_invoke",
                                                               std::vector<const Variable*>(),
-                                                              *fContext.fVoid_Type);
+                                                              *fContext.fVoid_Type,
+                                                              false);
     fProgramElements->push_back(std::unique_ptr<ProgramElement>(
                                          new FunctionDefinition(-1, *invokeDecl, std::move(main))));
     fSymbolTable->add(invokeDecl->fName, std::unique_ptr<FunctionDeclaration>(invokeDecl));
@@ -799,7 +802,24 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     return std::unique_ptr<Statement>(new ExpressionStatement(std::move(result)));
 }
 
+template<typename T>
+class AutoClear {
+public:
+    AutoClear(T* container)
+        : fContainer(container) {
+        SkASSERT(container->empty());
+    }
+
+    ~AutoClear() {
+        fContainer->clear();
+    }
+
+private:
+    T* fContainer;
+};
+
 void IRGenerator::convertFunction(const ASTNode& f) {
+    AutoClear<std::set<const FunctionDeclaration*>> clear(&fReferencedIntrinsics);
     auto iter = f.begin();
     const Type* returnType = this->convertType(*(iter++));
     if (!returnType) {
@@ -913,7 +933,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 if (match) {
                     if (*returnType != other->fReturnType) {
                         FunctionDeclaration newDecl(f.fOffset, fd.fModifiers, fd.fName, parameters,
-                                                    *returnType);
+                                                    *returnType, fMarkFunctionsBuiltin);
                         fErrors.error(f.fOffset, "functions '" + newDecl.declaration() +
                                                  "' and '" + other->declaration() +
                                                  "' differ only in return type");
@@ -940,11 +960,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
     if (!decl) {
         // couldn't find an existing declaration
-        auto newDecl = std::unique_ptr<FunctionDeclaration>(new FunctionDeclaration(f.fOffset,
-                                                                                    fd.fModifiers,
-                                                                                    fd.fName,
-                                                                                    parameters,
-                                                                                    *returnType));
+        auto newDecl = std::unique_ptr<FunctionDeclaration>(new FunctionDeclaration(
+                                                                            f.fOffset,
+                                                                            fd.fModifiers,
+                                                                            fd.fName,
+                                                                            parameters,
+                                                                            *returnType,
+                                                                            fMarkFunctionsBuiltin));
         decl = newDecl.get();
         fSymbolTable->add(decl->fName, std::move(newDecl));
     }
@@ -986,8 +1008,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (Program::kVertex_Kind == fKind && fd.fName == "main" && fRTAdjust) {
             body->fStatements.insert(body->fStatements.end(), this->getNormalizeSkPositionCode());
         }
-        std::unique_ptr<FunctionDefinition> result(new FunctionDefinition(f.fOffset, *decl,
-                                                                          std::move(body)));
+        std::unique_ptr<FunctionDefinition> result(new FunctionDefinition(
+                                                                 f.fOffset,
+                                                                 *decl,
+                                                                 std::move(body),
+                                                                 std::move(fReferencedIntrinsics)));
         decl->fDefinition = result.get();
         result->fSource = &f;
         fProgramElements->push_back(std::move(result));
@@ -1967,6 +1992,14 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(int offset,
     }
 }
 
+const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
+    if (src->kind() == Type::kArray_Kind) {
+        std::unique_ptr<Symbol> copy(new Type(*src));
+        return (Type*) symbolTable.takeOwnership(std::move(copy));
+    }
+    return src;
+}
+
 std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
                                                         std::map<const Variable*,
                                                                  const Variable*>* varMap,
@@ -2083,8 +2116,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
             // its symbols
             std::unique_ptr<String> name(new String(old->fName));
             String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
-            std::unique_ptr<Symbol> type(new Type(old->fType));
-            Type* typePtr = (Type*) fSymbolTable->takeOwnership(std::move(type));
+            const Type* typePtr = copy_if_needed(&old->fType, *fSymbolTable);
             Variable* clone = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
                                                    new Variable(offset, old->fModifiers,
                                                                 namePtr->c_str(), *typePtr,
@@ -2100,8 +2132,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
             for (const auto& var : decls.fVars) {
                 vars.emplace_back((VarDeclaration*) stmt(var).release());
             }
-            std::unique_ptr<Symbol> type(new Type(decls.fBaseType));
-            Type* typePtr = (Type*) fSymbolTable->takeOwnership(std::move(type));
+            const Type* typePtr = copy_if_needed(&decls.fBaseType, *fSymbolTable);
             return std::unique_ptr<Statement>(new VarDeclarationsStatement(
                     std::unique_ptr<VarDeclarations>(new VarDeclarations(offset, typePtr,
                                                                          std::move(vars)))));
@@ -2203,13 +2234,13 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
         std::unique_ptr<String> name(new String());
         int varIndex = fInlineVarCounter++;
-        name->appendf("inlineResult%d", varIndex);
+        name->appendf("_inlineResult%d", varIndex);
         String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
-        resultVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
-                                                     new Variable(-1, Modifiers(), namePtr->c_str(),
+        resultVar = new Variable(-1, Modifiers(), namePtr->c_str(),
                                                                   function.fDeclaration.fReturnType,
                                                                   Variable::kLocal_Storage,
-                                                                  nullptr)));
+                                                                  nullptr);
+        fSymbolTable->add(resultVar->fName, std::unique_ptr<Symbol>(resultVar));
         std::vector<std::unique_ptr<VarDeclaration>> variables;
         variables.emplace_back(new VarDeclaration(resultVar, {}, nullptr));
         fExtraStatements.emplace_back(new VarDeclarationsStatement(
@@ -2225,14 +2256,11 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     int argIndex = fInlineVarCounter++;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         std::unique_ptr<String> argName(new String());
-        argName->appendf("inlineArg%d_%d", argIndex, i);
+        argName->appendf("_inlineArg%d_%d", argIndex, i);
         String* argNamePtr = (String*) fSymbolTable->takeOwnership(std::move(argName));
-        Variable* argVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
-                                                      new Variable(-1, Modifiers(),
-                                                                   argNamePtr->c_str(),
-                                                                   arguments[i]->fType,
-                                                                   Variable::kLocal_Storage,
-                                                                   arguments[i].get())));
+        Variable* argVar = new Variable(-1, Modifiers(), argNamePtr->c_str(), arguments[i]->fType,
+                                        Variable::kLocal_Storage, arguments[i].get());
+        fSymbolTable->add(argVar->fName, std::unique_ptr<Symbol>(argVar));
         varMap[function.fDeclaration.fParameters[i]] = argVar;
         std::vector<std::unique_ptr<VarDeclaration>> vars;
         if (function.fDeclaration.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
@@ -2288,17 +2316,27 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     }
 }
 
+void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
+    auto found = fIntrinsics->find(function.declaration());
+    if (found != fIntrinsics->end() && !found->second.second) {
+        found->second.second = true;
+        FunctionDefinition& original = ((FunctionDefinition&) *found->second.first);
+        for (const FunctionDeclaration* f : original.fReferencedIntrinsics) {
+            this->copyIntrinsicIfNeeded(*f);
+        }
+        fProgramElements->push_back(original.clone());
+    }
+}
+
 std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
     if (function.fBuiltin) {
-        auto found = fIntrinsics->find(function.declaration());
-        if (found != fIntrinsics->end() && !found->second.second) {
-            found->second.second = true;
-            const FunctionDeclaration* old = fCurrentFunction;
-            fCurrentFunction = nullptr;
-            this->convertFunction(*((FunctionDefinition&) *found->second.first).fSource);
-            fCurrentFunction = old;
+        if (function.fDefinition) {
+            fReferencedIntrinsics.insert(&function);
+        }
+        if (!fMarkFunctionsBuiltin) {
+            this->copyIntrinsicIfNeeded(function);
         }
     }
     if (function.fParameters.size() != arguments.size()) {
@@ -3006,15 +3044,15 @@ void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind 
 void IRGenerator::convertProgram(Program::Kind kind,
                                  const char* text,
                                  size_t length,
-                                 SymbolTable& types,
                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
     fKind = kind;
     fProgramElements = out;
-    Parser parser(text, length, types, fErrors);
+    Parser parser(text, length, *fSymbolTable, fErrors);
     fFile = parser.file();
     if (fErrors.errorCount()) {
         return;
     }
+    this->pushSymbolTable();
     SkASSERT(fFile);
     for (const auto& decl : fFile->root()) {
         switch (decl.fKind) {

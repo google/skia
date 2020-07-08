@@ -26,10 +26,11 @@ struct FunctionDefinition;
  */
 struct FunctionDeclaration : public Symbol {
     FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
-                        std::vector<const Variable*> parameters, const Type& returnType)
+                        std::vector<const Variable*> parameters, const Type& returnType,
+                        bool builtin)
     : INHERITED(offset, kFunctionDeclaration_Kind, std::move(name))
     , fDefinition(nullptr)
-    , fBuiltin(false)
+    , fBuiltin(builtin)
     , fModifiers(modifiers)
     , fParameters(std::move(parameters))
     , fReturnType(returnType) {}
@@ -49,6 +50,52 @@ struct FunctionDeclaration : public Symbol {
     String description() const override {
         return this->declaration();
     }
+
+#ifdef SKSL_STANDALONE
+    static bool is_simple(const Variable* p) {
+        return p->fModifiers == Modifiers() &&
+               !strstr(SymbolWriter::symbolCode(p->fType).c_str(), "new ");
+    }
+
+    String constructionCode() const override {
+        String parameters;
+        const char* separator = "";
+        for (const auto& p : fParameters) {
+            parameters += separator;
+            separator = ", ";
+            if (is_simple(p)) {
+                parameters += String::printf("simple_parameter(\"%s\", \"%s\", symbols)",
+                                             String(p->fName).c_str(), p->fType.name().c_str());
+            } else {
+                parameters += String::printf("(Variable*) symbols->takeOwnership("
+                                             "std::unique_ptr<Symbol>(%s))",
+                                             p->constructionCode().c_str());
+            }
+        }
+        return String::printf("new FunctionDeclaration(-1, %s, \"%s\", { %s }, *%s, %d)",
+                              fModifiers.constructionCode().c_str(),
+                              String(fName).c_str(), parameters.c_str(),
+                              SymbolWriter::symbolCode(fReturnType).c_str(),
+                              fBuiltin);
+    }
+
+    String addSymbolCode() const override {
+        String parameters;
+        for (const auto& p : fParameters) {
+            if (is_simple(p)) {
+                parameters += String::printf(", \"%s\", \"%s\"",
+                                             String(p->fName).c_str(),
+                                             p->fType.name().c_str());
+            } else {
+                return INHERITED::addSymbolCode();
+            }
+        }
+        return String::printf("create_simple_function(symbols, %s, \"%s\", \"%s\", %d%s);\n",
+                              fModifiers.constructionCode().c_str(), String(fName).c_str(),
+                              String(fReturnType.fName).c_str(), (int) fParameters.size(),
+                              parameters.c_str());
+    }
+#endif
 
     bool matches(const FunctionDeclaration& f) const {
         if (fName != f.fName) {

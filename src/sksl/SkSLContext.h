@@ -386,6 +386,13 @@ private:
             return std::unique_ptr<Expression>(new Defined(fType));
         }
 
+#ifdef SKSL_STANDALONE
+        String constructionCode() const override {
+            SkASSERT(false);
+            return "Defined()";
+        }
+#endif
+
         typedef Expression INHERITED;
     };
 

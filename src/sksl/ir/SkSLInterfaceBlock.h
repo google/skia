@@ -46,6 +46,21 @@ struct InterfaceBlock : public ProgramElement {
                                                                   fTypeOwner));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String sizes("make_vector<Expression>(");
+        sizes += to_string((int) fSizes.size());
+        for (const auto& s : fSizes) {
+            sizes += ", ";
+            sizes += s->constructionCode();
+        }
+        sizes += ")";
+        return String::printf("new SkSL::InterfaceBlock(-1, %s, \"%s\", \"%s\", %s, nullptr)",
+                              fVariable.constructionCode().c_str(), fTypeName.c_str(),
+                              fInstanceName.c_str(), sizes.c_str());
+    }
+#endif
+
     String description() const override {
         String result = fVariable.fModifiers.description() + fTypeName + " {\n";
         const Type* structType = &fVariable.fType;

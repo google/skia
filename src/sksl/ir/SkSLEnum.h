@@ -50,6 +50,13 @@ struct Enum : public ProgramElement {
         return result;
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new Enum(-1, \"%s\", std::shared_ptr<SymbolTable>(%s))",
+                              String(fTypeName).c_str(), fSymbols->constructionCode().c_str());
+    }
+#endif
+
     String description() const override {
         return this->code();
     }

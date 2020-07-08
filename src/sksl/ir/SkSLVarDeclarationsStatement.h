@@ -39,6 +39,13 @@ struct VarDeclarationsStatement : public Statement {
         return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(cloned)));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new VarDeclarationsStatement(std::unique_ptr<VarDeclarations>(%s))",
+                              fDeclaration->constructionCode().c_str());
+    }
+#endif
+
     String description() const override {
         return fDeclaration->description() + ";";
     }

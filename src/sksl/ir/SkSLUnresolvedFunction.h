@@ -30,6 +30,13 @@ struct UnresolvedFunction : public Symbol {
         return fName;
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return "<unresolved function>";
+    }
+#endif
+
     const std::vector<const FunctionDeclaration*> fFunctions;
 
     typedef Symbol INHERITED;

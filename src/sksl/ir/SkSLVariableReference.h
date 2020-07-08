@@ -9,6 +9,7 @@
 #define SKSL_VARIABLEREFERENCE
 
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 namespace SkSL {
 
@@ -65,6 +66,13 @@ struct VariableReference : public Expression {
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
     }
+
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new VariableReference(-1, *%s, (VariableReference::RefKind) %d)",
+                              SymbolWriter::symbolCode(fVariable).c_str(), (int) fRefKind);
+    }
+#endif
 
     String description() const override {
         return fVariable.fName;

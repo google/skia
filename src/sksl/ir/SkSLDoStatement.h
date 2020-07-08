@@ -32,6 +32,13 @@ struct DoStatement : public Statement {
                                                           fTest->clone()));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return "DoStatement()";
+    }
+#endif
+
     String description() const override {
         return "do " + fStatement->description() + " while (" + fTest->description() + ");";
     }

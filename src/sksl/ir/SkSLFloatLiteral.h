@@ -61,6 +61,12 @@ struct FloatLiteral : public Expression {
         return std::unique_ptr<Expression>(new FloatLiteral(fOffset, fValue, &fType));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new FloatLiteral(context, -1, %.8f)", fValue);
+    }
+#endif
+
     const double fValue;
 
     typedef Expression INHERITED;

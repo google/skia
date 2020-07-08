@@ -36,6 +36,13 @@ struct Setting : public Expression {
         return std::unique_ptr<Expression>(new Setting(fOffset, fName, fValue->clone()));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new Setting(-1, \"%s\", std::unique_ptr<Expression>(%s))",
+                              fName.c_str(), fValue->constructionCode().c_str());
+    }
+#endif
+
     String description() const override {
         return fName;
     }

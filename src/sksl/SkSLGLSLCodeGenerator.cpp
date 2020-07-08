@@ -82,7 +82,7 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
 String GLSLCodeGenerator::getTypeName(const Type& type) {
     switch (type.kind()) {
         case Type::kVector_Kind: {
-            Type component = type.componentType();
+            const Type& component = type.componentType();
             String result;
             if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
                 result = "vec";
@@ -104,7 +104,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
         }
         case Type::kMatrix_Kind: {
             String result;
-            Type component = type.componentType();
+            const Type& component = type.componentType();
             if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
                 result = "mat";
             }

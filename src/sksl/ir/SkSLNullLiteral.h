@@ -47,6 +47,12 @@ struct NullLiteral : public Expression {
         return std::unique_ptr<Expression>(new NullLiteral(fOffset, fType));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new NullLiteral()");
+    }
+#endif
+
     typedef Expression INHERITED;
 };
 

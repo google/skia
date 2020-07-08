@@ -63,6 +63,13 @@ struct IndexExpression : public Expression {
                                                                &fType));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return String::printf("IndexExpression()");
+    }
+#endif
+
     String description() const override {
         return fBase->description() + "[" + fIndex->description() + "]";
     }

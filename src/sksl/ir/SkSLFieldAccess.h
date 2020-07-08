@@ -44,6 +44,13 @@ struct FieldAccess : public Expression {
                                                            fOwnerKind));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return String::printf("FieldAccess()");
+    }
+#endif
+
     String description() const override {
         return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
     }

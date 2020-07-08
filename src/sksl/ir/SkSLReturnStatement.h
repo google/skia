@@ -35,6 +35,17 @@ struct ReturnStatement : public Statement {
         return std::unique_ptr<Statement>(new ReturnStatement(fOffset));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        if (fExpression) {
+            return String::printf("new ReturnStatement(std::unique_ptr<Expression>(%s))",
+                                  fExpression->constructionCode().c_str());
+        } else {
+            return String::printf("new ReturnStatement(%d)", fOffset);
+        }
+    }
+#endif
+
     String description() const override {
         if (fExpression) {
             return "return " + fExpression->description() + ";";

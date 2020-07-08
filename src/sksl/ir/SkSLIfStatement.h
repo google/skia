@@ -35,6 +35,16 @@ struct IfStatement : public Statement {
                 fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new IfStatement(%d, %d, std::unique_ptr<Expression>(%s), "
+                              "std::unique_ptr<Statement>(%s), std::unique_ptr<Statement>(%s))",
+                              fOffset, fIsStatic, fTest->constructionCode().c_str(),
+                              fIfTrue->constructionCode().c_str(),
+                              fIfFalse ? fIfFalse->constructionCode().c_str() : "nullptr");
+    }
+#endif
+
     String description() const override {
         String result;
         if (fIsStatic) {

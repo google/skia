@@ -30,7 +30,13 @@ struct Symbol : public IRNode {
     , fKind(kind)
     , fName(name) {}
 
-    virtual ~Symbol() override {}
+#ifdef SKSL_STANDALONE
+    virtual String addSymbolCode() const {
+        return String::printf("symbols->add(\"%s\", std::unique_ptr<Symbol>(%s));\n",
+                              SkSL::String(fName).c_str(),
+                              this->constructionCode().c_str());
+    }
+#endif
 
     Kind fKind;
     StringFragment fName;

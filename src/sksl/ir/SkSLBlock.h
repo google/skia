@@ -50,6 +50,22 @@ struct Block : public Statement {
                                                     fIsScope));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String result = String::printf("new Block(-1, make_vector<Statement>(%d",
+                                       (int) fStatements.size());
+        for (const auto& s : fStatements) {
+            result += ", ";
+            result += s->constructionCode();
+        }
+        result += String::printf("), symbols, %d)", fIsScope);
+        if (fSymbols) {
+            result = SymbolWriter::runInSymbolTable(*fSymbols, result);
+        }
+        return result;
+    }
+#endif
+
     String description() const override {
         String result("{");
         for (size_t i = 0; i < fStatements.size(); i++) {

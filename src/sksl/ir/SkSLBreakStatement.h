@@ -28,6 +28,12 @@ struct BreakStatement : public Statement {
         return std::unique_ptr<Statement>(new BreakStatement(fOffset));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return "BreakStatement(-1)";
+    }
+#endif
+
     String description() const override {
         return String("break;");
     }

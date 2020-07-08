@@ -31,6 +31,23 @@ public:
     : fParent(parent)
     , fErrorReporter(*errorReporter) {}
 
+    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter* errorReporter,
+                std::vector<std::unique_ptr<Symbol>> ownedSymbols,
+                std::vector<std::pair<const char*, int>> map)
+    : fParent(parent)
+    , fErrorReporter(*errorReporter) {
+        for (std::pair<const char*, int> entry : map) {
+            fSymbols.insert({ entry.first, ownedSymbols[entry.second].get() });
+        }
+        for (std::unique_ptr<Symbol>& s : ownedSymbols) {
+            this->takeOwnership(std::move(s));
+        }
+    }
+
+    ~SymbolTable() {
+        valid = false;
+    }
+
     const Symbol* operator[](StringFragment name);
 
     void add(StringFragment name, std::unique_ptr<Symbol> symbol);
@@ -43,7 +60,9 @@ public:
 
     String* takeOwnership(std::unique_ptr<String> n);
 
-    void markAllFunctionsBuiltin();
+#ifdef SKSL_STANDALONE
+    String constructionCode() const;
+#endif
 
     std::unordered_map<StringFragment, const Symbol*>::iterator begin();
 
@@ -51,7 +70,9 @@ public:
 
     const std::shared_ptr<SymbolTable> fParent;
 
-private:
+//private:
+    void appendMapCode(String& mapCode, const Symbol* s) const;
+
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
     std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
@@ -63,6 +84,9 @@ private:
     std::unordered_map<StringFragment, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
+
+// FIXME DON'T LAND WITH THIS
+    bool valid = true;
 };
 
 } // namespace

@@ -45,6 +45,22 @@ struct SwitchStatement : public Statement {
                                                               std::move(cloned), fSymbols));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String cases("make_vector<SwitchCase>(");
+        cases += to_string((int) fCases.size());
+        for (const auto& c : fCases) {
+            cases += ", ";
+            cases += c->constructionCode().c_str();
+        }
+        cases += ")";
+        return String::printf("new SwitchStatement(-1, %d, std::unique_ptr<Expression>(%s), %s, "
+                              "std::shared_ptr<SymbolTable>(%s))", fIsStatic,
+                              fValue->constructionCode().c_str(), cases.c_str(),
+                              fSymbols->constructionCode().c_str());
+    }
+#endif
+
     String description() const override {
         String result;
         if (fIsStatic) {

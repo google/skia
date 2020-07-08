@@ -29,6 +29,13 @@ struct ExpressionStatement : public Statement {
         return std::unique_ptr<Statement>(new ExpressionStatement(fExpression->clone()));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new ExpressionStatement(std::unique_ptr<Expression>(%s))",
+                              fExpression->constructionCode().c_str());
+    }
+#endif
+
     String description() const override {
         return fExpression->description() + ";";
     }

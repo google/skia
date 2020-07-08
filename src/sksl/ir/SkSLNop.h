@@ -36,6 +36,12 @@ struct Nop : public Statement {
         return std::unique_ptr<Statement>(new Nop());
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new Nop()");
+    }
+#endif
+
     typedef Statement INHERITED;
 };
 
