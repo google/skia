@@ -111,6 +111,30 @@
       "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91c9ec5c_e5826c24",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T18:45:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca70df4d_99be7cb8",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 44
+      },
+      "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
