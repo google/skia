@@ -33,6 +33,23 @@
       "revId": "e83a2aa64783959057da3f82c3a485658ae9ee0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "782ddcd9_4cb90129",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-08T15:44:02Z",
+      "side": 1,
+      "message": "I\u0027m curious whether this could work with a GrRecordingContext instead of a GrDirectContext.",
+      "revId": "e83a2aa64783959057da3f82c3a485658ae9ee0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
