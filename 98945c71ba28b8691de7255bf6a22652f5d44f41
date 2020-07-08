@@ -50,6 +50,42 @@
       "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da9f51ef_0b3c07f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-08T20:52:50Z",
+      "side": 1,
+      "message": "\u003e Do we understand why this is breaking webview? Is it a driver bug, or an issue with state tracking that we could potentially work around and still benefit from tiled rendering?\n\nI do not. I\u0027m hoping Chris can help figure that out, since he knows most about this code.",
+      "parentUuid": "96fbf055_b7eeb64e",
+      "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fe457b8_6689bb59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-08T20:52:50Z",
+      "side": 1,
+      "message": "Not sure - if we only revert it in android/next-release, wouldn\u0027t that mean it would get merged to goog/rvc-dev, which would then get merged to goog/master? Then upstream would be out of sync with external/skia?\n\nOr are you suggesting that we prevent it from merging to goog/master, in which case the bug would reappear in S (barring some other fix)?",
+      "parentUuid": "332ef15e_7bffa6e4",
+      "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
