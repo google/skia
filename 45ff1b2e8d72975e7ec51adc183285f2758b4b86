@@ -16,6 +16,24 @@
       "revId": "45ff1b2e8d72975e7ec51adc183285f2758b4b86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "237299ad_86a30da6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-08T15:07:40Z",
+      "side": 1,
+      "message": "changed to deleteSemahporesAfterWait",
+      "parentUuid": "f7cc5a46_45a77b61",
+      "revId": "45ff1b2e8d72975e7ec51adc183285f2758b4b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
