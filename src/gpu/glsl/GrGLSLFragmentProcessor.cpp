@@ -144,6 +144,27 @@ GrGLSLFragmentProcessor::Iter::Iter(std::unique_ptr<GrGLSLFragmentProcessor> fps
     }
 }
 
+GrGLSLFragmentProcessor::ParallelIter::ParallelIter(const GrFragmentProcessor& fp,
+                                                    GrGLSLFragmentProcessor& glslFP)
+        : fpIter(fp), glslIter(glslFP) {}
+
+GrGLSLFragmentProcessor::ParallelIter& GrGLSLFragmentProcessor::ParallelIter::operator++() {
+    ++fpIter;
+    ++glslIter;
+    SkASSERT(static_cast<bool>(fpIter) == static_cast<bool>(glslIter));
+    return *this;
+}
+
+std::tuple<const GrFragmentProcessor&, GrGLSLFragmentProcessor&>
+GrGLSLFragmentProcessor::ParallelIter::operator*() const {
+    return {*fpIter, *glslIter};
+}
+
+bool GrGLSLFragmentProcessor::ParallelIter::operator==(const ParallelIterEnd& end) const {
+    SkASSERT(static_cast<bool>(fpIter) == static_cast<bool>(glslIter));
+    return !fpIter;
+}
+
 GrGLSLFragmentProcessor& GrGLSLFragmentProcessor::Iter::operator*() const {
     return *fFPStack.back();
 }
@@ -161,3 +182,7 @@ GrGLSLFragmentProcessor::Iter& GrGLSLFragmentProcessor::Iter::operator++() {
     }
     return *this;
 }
+
+GrGLSLFragmentProcessor::ParallelRange::ParallelRange(const GrFragmentProcessor& fp,
+                                                      GrGLSLFragmentProcessor& glslFP)
+        : fInitialFP(fp), fInitialGLSLFP(glslFP) {}

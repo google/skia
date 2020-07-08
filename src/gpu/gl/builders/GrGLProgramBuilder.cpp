@@ -559,7 +559,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
                              std::move(fGeometryProcessor),
                              std::move(fXferProcessor),
                              std::move(fFragmentProcessors),
-                             fFragmentProcessorCnt,
                              std::move(fAttributes),
                              fVertexAttributeCnt,
                              fInstanceAttributeCnt,
