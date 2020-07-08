@@ -434,44 +434,57 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
             }
         }
     } else {
-        if (this->glyphCount() == 0) {
-            return;
-        }
         // Handle the mask and distance field cases.
-
+        if (this->glyphCount() == 0) { return; }
         // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
         // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
-        SkIRect clipRect = SkIRect::MakeEmpty();
-        if (!this->drawAsDistanceFields() && !this->needsTransform()) {
-            // We only need to do clipping work if the SubRun isn't contained by the clip
-            SkRect subRunBounds = this->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
-            SkRect renderTargetBounds = SkRect::MakeWH(target->width(), target->height());
-            if (clip == nullptr && !renderTargetBounds.intersects(subRunBounds)) {
-                // If the SubRun is completely outside, don't add an op for it.
-                return;
-            } else if (clip != nullptr) {
-                GrClip::PreClipResult result = clip->preApply(subRunBounds);
-                if (result.fEffect == GrClip::Effect::kClipped) {
-                    if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
-                        // Clip geometrically during onPrepare using clipRect.
-                        result.fRRect.getBounds().round(&clipRect);
-                        clip = nullptr;
-                    }
-                } else if (result.fEffect == GrClip::Effect::kClippedOut) {
+        std::unique_ptr<GrAtlasTextOp> op;
+        if (!this->drawAsDistanceFields()) {
+            SkIRect clipRect = SkIRect::MakeEmpty();
+            if (!this->needsTransform()) {
+                // We only need to do clipping work if the SubRun isn't contained by the clip
+                SkRect subRunBounds = this->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
+                SkRect renderTargetBounds = SkRect::MakeWH(target->width(), target->height());
+                if (clip == nullptr && !renderTargetBounds.intersects(subRunBounds)) {
+                    // If the SubRun is completely outside, don't add an op for it.
                     return;
+                } else if (clip != nullptr) {
+                    GrClip::PreClipResult result = clip->preApply(subRunBounds);
+                    if (result.fEffect == GrClip::Effect::kClipped) {
+                        if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
+                            // Clip geometrically during onPrepare using clipRect.
+                            result.fRRect.getBounds().round(&clipRect);
+                            clip = nullptr;
+                        }
+                    } else if (result.fEffect == GrClip::Effect::kClippedOut) {
+                        return;
+                    }
                 }
             }
+
+            if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
+
+            op = GrAtlasTextOp::MakeBitmap(target->renderTargetContext(),
+                                           paint,
+                                           this,
+                                           deviceMatrix,
+                                           drawOrigin,
+                                           clipRect);
+        } else {
+            op = GrAtlasTextOp::MakeDistanceField(target->renderTargetContext(),
+                                                  paint,
+                                                  this,
+                                                  deviceMatrix,
+                                                  drawOrigin);
         }
 
-        if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
-
-        auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect, paint, props, target);
         if (op != nullptr) {
             target->addDrawOp(clip, std::move(op));
         }
     }
 }
 
+#if 0
 std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
         const SkMatrixProvider& matrixProvider,
         SkPoint drawOrigin,
@@ -497,6 +510,7 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
                                          clipRect);
     }
 }
+    #endif
 
 auto GrTextBlob::SubRun::InitForAtlas(SubRunType type,
                                       const SkZip<SkGlyphVariant, SkPoint>& drawables,
