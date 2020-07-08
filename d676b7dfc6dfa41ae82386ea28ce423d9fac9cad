@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24df07f7_bca22fae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-08T19:09:44Z",
+      "side": 1,
+      "message": "On the off chance that 300784 is too boring to contemplate, this is a more substantial change.\n\nNote that I did not push the implementation through to src/gpu/ops/GrAAHairLinePathRenderer.cpp::split_conic or src/pathops/SkOpEdgeBuilder.cpp because of the degeneracy issue. It could be that what is needed is a SkConic::chopAtMaxCurvature() method corresponding to SkChopQuadAtMaxCurvature and SkChopCubicAtMaxCurvature that checks for degeneracy and does something appropriate. That could be as simple as returning two lines in the line-degenerate case, or two conics with control points centered between the on-curve points if \"conic-ness\" needs to be preserved. I\u0027m not in a good position to make those decisions but the two added methods provide a means.\n\nfindMaxCurvature() has its own test. findDegenerateExtreme is easiest to test graphically. One easy way to do this is to run viewer --slide AAGeometry, convert one of the lines to a conic, and move the control point back and forth across the line axis above and below the segment formed by the on-curve points. This should be done with different weight values below, at, and above 1. If you do this in the current master you\u0027ll see the discontinuity in length as the point crosses the line for weight !\u003d 1. This is due to the quad approximation. With this patch there should be no discontinuity. ",
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
