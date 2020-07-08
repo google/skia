@@ -434,32 +434,28 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
             }
         }
     } else {
-        int glyphCount = this->glyphCount();
-        if (0 == glyphCount) {
+        if (this->glyphCount() == 0) {
             return;
         }
+        // Handle the mask and distance field cases.
 
-        bool skipClip = false;
+        // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
+        // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
         SkIRect clipRect = SkIRect::MakeEmpty();
-        SkRect rtBounds = SkRect::MakeWH(target->width(), target->height());
-        // We can clip geometrically if we're not using SDFs or transformed glyphs,
-        // and we have an axis-aligned rectangular non-AA clip
         if (!this->drawAsDistanceFields() && !this->needsTransform()) {
-            // We only need to do clipping work if the subrun isn't contained by the clip
-            skipClip = true;
+            // We only need to do clipping work if the SubRun isn't contained by the clip
             SkRect subRunBounds = this->deviceRect(deviceMatrix.localToDevice(), drawOrigin);
-            if (!clip && !rtBounds.intersects(subRunBounds)) {
-                // If the subrun is completely outside, don't add an op for it
+            SkRect renderTargetBounds = SkRect::MakeWH(target->width(), target->height());
+            if (clip == nullptr && !renderTargetBounds.intersects(subRunBounds)) {
+                // If the SubRun is completely outside, don't add an op for it.
                 return;
-            } else if (clip) {
+            } else if (clip != nullptr) {
                 GrClip::PreClipResult result = clip->preApply(subRunBounds);
                 if (result.fEffect == GrClip::Effect::kClipped) {
                     if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
-                        // Embed non-AA axis-aligned clip into the draw
+                        // Clip geometrically during onPrepare using clipRect.
                         result.fRRect.getBounds().round(&clipRect);
-                    } else {
-                        // Can't actually skip the regular clipping
-                        skipClip = false;
+                        clip = nullptr;
                     }
                 } else if (result.fEffect == GrClip::Effect::kClippedOut) {
                     return;
@@ -467,9 +463,11 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
             }
         }
 
+        if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
+
         auto op = this->makeOp(deviceMatrix, drawOrigin, clipRect, paint, props, target);
         if (op != nullptr) {
-            target->addDrawOp(skipClip ? nullptr : clip, std::move(op));
+            target->addDrawOp(clip, std::move(op));
         }
     }
 }
