@@ -87,6 +87,30 @@
       "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca70df4d_99be7cb8",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-08T18:01:51Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure. It\u0027s something to consider, but I guess we can always grow the corpus later and pad out existing data if we want more? 256 is probably plenty.",
+      "parentUuid": "e8622110_90971ae6",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 44
+      },
+      "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
