@@ -130,36 +130,31 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
 void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* coverage) {
     int transformedCoordVarsIdx = 0;
     SkString** inOut = &color;
-    SkSTArray<8, std::unique_ptr<GrGLSLFragmentProcessor>> glslFragmentProcessors;
-    for (int i = 0; i < this->pipeline().numFragmentProcessors(); ++i) {
+    int fpCount = this->pipeline().numFragmentProcessors();
+    fFragmentProcessors.reset(new std::unique_ptr<GrGLSLFragmentProcessor>[fpCount]);
+    for (int i = 0; i < fpCount; ++i) {
         if (i == this->pipeline().numColorFragmentProcessors()) {
             inOut = &coverage;
         }
         SkString output;
         const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
-        output = this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, output,
-                                              &glslFragmentProcessors);
+        fFragmentProcessors[i] = std::unique_ptr<GrGLSLFragmentProcessor>(fp.createGLSLInstance());
+        output = this->emitFragProc(fp, *fFragmentProcessors[i], transformedCoordVarsIdx, **inOut,
+                                    output);
         for (const auto& subFP : GrFragmentProcessor::FPCRange(fp)) {
             transformedCoordVarsIdx += subFP.numVaryingCoordsUsed();
         }
         **inOut = output;
     }
-    int fpCount = glslFragmentProcessors.count();
-    fFragmentProcessors.reset(new std::unique_ptr<GrGLSLFragmentProcessor>[fpCount]);
-    for (int i = 0; i < fpCount; ++i) {
-        fFragmentProcessors[i] = std::move(glslFragmentProcessors[i]);
-    }
 }
 
 // TODO Processors cannot output zeros because an empty string is all 1s
 // the fix is to allow effects to take the SkString directly
-SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
-        const GrFragmentProcessor& fp,
-        int index,
-        int transformedCoordVarsIdx,
-        const SkString& input,
-        SkString output,
-        SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>>* glslFragmentProcessors) {
+SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
+                                            GrGLSLFragmentProcessor& glslFP,
+                                            int transformedCoordVarsIdx,
+                                            const SkString& input,
+                                            SkString output) {
     SkASSERT(input.size());
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
@@ -170,24 +165,21 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
     openBrace.printf("{ // Stage %d, %s\n", fStageIndex, fp.name());
     fFS.codeAppend(openBrace.c_str());
 
-    GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
-
-    SkSTArray<4, SamplerHandle> texSamplers;
     int samplerIdx = 0;
-    for (const auto& subFP : GrFragmentProcessor::FPCRange(fp)) {
-        for (int i = 0; i < subFP.numTextureSamplers(); ++i) {
+    for (auto [subFP, subGLSLFP] : GrGLSLFragmentProcessor::ParallelRange(fp, glslFP)) {
+        if (auto* te = subFP.asTextureEffect()) {
             SkString name;
             name.printf("TextureSampler_%d", samplerIdx++);
-            const auto& sampler = subFP.textureSampler(i);
-            texSamplers.emplace_back(this->emitSampler(sampler.view().proxy()->backendFormat(),
-                                                       sampler.samplerState(),
-                                                       sampler.view().swizzle(),
-                                                       name.c_str()));
+
+            GrSamplerState samplerState = te->samplerState();
+            const GrBackendFormat& format = te->view().proxy()->backendFormat();
+            GrSwizzle swizzle = te->view().swizzle();
+            SamplerHandle handle = this->emitSampler(format, samplerState, swizzle, name.c_str());
+            static_cast<GrTextureEffect::Impl&>(subGLSLFP).setSamplerHandle(handle);
         }
     }
     const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
-    GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, texSamplers.begin());
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
                                            this->shaderCaps(),
@@ -195,8 +187,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            output.c_str(),
                                            input.c_str(),
                                            "_coords",
-                                           coords,
-                                           textureSamplers);
+                                           coords);
 
     if (fp.referencesSampleCoords()) {
         // The fp's generated code expects a _coords variable, but we're at the root so _coords
@@ -222,12 +213,11 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
         }
     }
 
-    fragProc->emitCode(args);
+    glslFP.emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(fp);)
-    glslFragmentProcessors->emplace_back(fragProc);
 
     fFS.codeAppend("}");
     return output;
