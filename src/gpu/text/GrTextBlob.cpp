@@ -484,12 +484,12 @@ std::unique_ptr<GrAtlasTextOp> GrTextBlob::SubRun::makeOp(
 
     if (this->drawAsDistanceFields()) {
         // TODO: Can we be even smarter based on the dest transfer function?
+        SkASSERT(clipRect.isEmpty());
         return GrAtlasTextOp::MakeDistanceField(target->renderTargetContext(),
                                                 paint,
                                                 this,
                                                 matrixProvider,
-                                                drawOrigin,
-                                                clipRect);
+                                                drawOrigin);
     } else {
         return GrAtlasTextOp::MakeBitmap(target->renderTargetContext(),
                                          paint,
