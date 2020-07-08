@@ -346,7 +346,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     }
 
     GrPaint paint;
-    std::unique_ptr<GrFragmentProcessor> bgFP;
+    std::unique_ptr<GrFragmentProcessor> fp;
     const auto& caps = *ctx.getContext()->priv().caps();
     GrSamplerState sampler(GrSamplerState::WrapMode::kClampToBorder,
                            GrSamplerState::Filter::kNearest);
@@ -356,40 +356,43 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         SkMatrix backgroundMatrix = SkMatrix::Translate(
                 SkIntToScalar(bgSubset.left() - backgroundOffset.fX),
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
-        bgFP = GrTextureEffect::MakeSubset(std::move(backgroundView), background->alphaType(),
-                                           backgroundMatrix, sampler, bgSubset, caps);
-        bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP),
-                                             background->getColorSpace(), background->alphaType(),
-                                             ctx.colorSpace(), kPremul_SkAlphaType);
+        fp = GrTextureEffect::MakeSubset(std::move(backgroundView), background->alphaType(),
+                                         backgroundMatrix, sampler, bgSubset, caps);
+        fp = GrColorSpaceXformEffect::Make(std::move(fp), background->getColorSpace(),
+                                           background->alphaType(), ctx.colorSpace(),
+                                           kPremul_SkAlphaType);
     } else {
-        bgFP = GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fTRANSPARENT,
-                                           GrConstColorProcessor::InputMode::kIgnore);
+        fp = GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fTRANSPARENT,
+                                         GrConstColorProcessor::InputMode::kIgnore);
     }
 
     if (foreground) {
+        SkSTArray<2, std::unique_ptr<GrFragmentProcessor>> fpSeries;
+
         SkRect fgSubset = SkRect::Make(foreground->subset());
         SkMatrix foregroundMatrix = SkMatrix::Translate(
                 SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
                 SkIntToScalar(fgSubset.top()  - foregroundOffset.fY));
         auto fgFP = GrTextureEffect::MakeSubset(std::move(foregroundView), foreground->alphaType(),
                                                 foregroundMatrix, sampler, fgSubset, caps);
-        fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP),
-                                             foreground->getColorSpace(), foreground->alphaType(),
-                                             ctx.colorSpace(), kPremul_SkAlphaType);
-        paint.addColorFragmentProcessor(std::move(fgFP));
+        fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP), foreground->getColorSpace(),
+                                             foreground->alphaType(), ctx.colorSpace(),
+                                             kPremul_SkAlphaType);
+        fpSeries.push_back(std::move(fgFP));
 
         static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
         SkASSERT(effect->inputSize() == sizeof(fInputs));
         std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(
                 context, effect, "Arithmetic", SkData::MakeWithCopy(&fInputs, sizeof(fInputs)));
         if (xferFP) {
-            ((GrSkSLFP&) *xferFP).addChild(std::move(bgFP));
-            paint.addColorFragmentProcessor(std::move(xferFP));
+            ((GrSkSLFP&) *xferFP).addChild(std::move(fp));
+            fpSeries.push_back(std::move(xferFP));
         }
-    } else {
-        paint.addColorFragmentProcessor(std::move(bgFP));
+
+        fp = GrFragmentProcessor::RunInSeries(&fpSeries.front(), fpSeries.size());
     }
 
+    paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto renderTargetContext = GrRenderTargetContext::Make(

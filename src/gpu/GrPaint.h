@@ -63,6 +63,7 @@ public:
      * Appends an additional color processor to the color computation.
      */
     void addColorFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp) {
+        SkASSERT(fColorFragmentProcessors.empty());
         SkASSERT(fp);
         fColorFragmentProcessors.push_back(std::move(fp));
         fTrivial = false;
