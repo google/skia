@@ -33,6 +33,23 @@
       "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "96fbf055_b7eeb64e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-08T20:45:40Z",
+      "side": 1,
+      "message": "Do we understand why this is breaking webview? Is it a driver bug, or an issue with state tracking that we could potentially work around and still benefit from tiled rendering?",
+      "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
