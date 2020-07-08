@@ -162,7 +162,12 @@ TextLine::TextLine(ParagraphImpl* master,
 
 SkRect TextLine::calculateBoundaries() {
 
-    auto boundaries = SkRect::MakeIWH(fAdvance.fX, fAdvance.fY);
+    // For flutter: height and/or width and/or baseline! can be Inf
+    // (coming from placeholders - we should ignore it)
+    auto boundaries = SkRect::MakeWH(
+        SkScalarIsFinite(fAdvance.fX) ? fAdvance.fX : 0,
+        SkScalarIsFinite(fAdvance.fY) ? fAdvance.fY : 0);
+    auto baseline = SkScalarIsFinite(this->baseline()) ? this->baseline() : 0;
     auto clusters = fMaster->clusters(fClusterRange);
     Run* run = nullptr;
     auto runShift = 0.0f;
@@ -218,8 +223,8 @@ SkRect TextLine::calculateBoundaries() {
         boundaries.fBottom += shadowRect.fBottom;
     }
 
-    boundaries.offset(this->offset());         // Line offset from the beginning of the para
-    boundaries.offset(0, this->baseline()); // Down by baseline
+    boundaries.offset(this->offset());    // Line offset from the beginning of the para
+    boundaries.offset(0, baseline);         // Down by baseline
 
     return boundaries;
 }

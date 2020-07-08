@@ -5379,3 +5379,37 @@ DEF_TEST(SkParagraph_LineMetrics, reporter) {
         canvas.get()->drawLine(x0, y, x1, y, green);
     }
 };
+
+DEF_TEST(SkParagraph_PlaceholderHeightInf, reporter) {
+    TestCanvas canvas("SkParagraph_PlaceholderHeightInf.png");
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(14);
+
+    PlaceholderStyle placeholder_style;
+    placeholder_style.fWidth = 16.0f;
+    placeholder_style.fHeight = SK_ScalarInfinity;
+    placeholder_style.fAlignment = PlaceholderAlignment::kBottom;
+    placeholder_style.fBaseline = TextBaseline::kAlphabetic;
+    placeholder_style.fBaselineOffset = SK_ScalarInfinity;
+
+    ParagraphStyle paragraph_style;
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText("Limited by budget");
+    builder.addPlaceholder(placeholder_style);
+    auto paragraph = builder.Build();
+    paragraph->layout(SK_ScalarInfinity);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(impl->getBoundaries().height()));
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(impl->getBoundaries().width()));
+
+    paragraph->paint(canvas.get(), 0, 0);
+}
