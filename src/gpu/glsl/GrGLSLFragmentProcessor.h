@@ -73,8 +73,6 @@ private:
 public:
     using TransformedCoordVars =
             BuilderInputProvider<GrShaderVar, &GrFragmentProcessor::numVaryingCoordsUsed>;
-    using TextureSamplers =
-            BuilderInputProvider<SamplerHandle, &GrFragmentProcessor::numTextureSamplers>;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -96,9 +94,6 @@ public:
         @param localCoord        The name of a local coord reference to a float2 variable.
         @param transformedCoords Fragment shader variables containing the coords computed using
                                  each of the GrFragmentProcessor's GrCoordTransforms.
-        @param texSamplers       Contains one entry for each TextureSampler  of the GrProcessor.
-                                 These can be passed to the builder to emit texture reads in the
-                                 generated code.
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -108,8 +103,7 @@ public:
                  const char* outputColor,
                  const char* inputColor,
                  const char* sampleCoord,
-                 const TransformedCoordVars& transformedCoordVars,
-                 const TextureSamplers& textureSamplers)
+                 const TransformedCoordVars& transformedCoordVars)
                 : fFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
@@ -117,8 +111,7 @@ public:
                 , fOutputColor(outputColor)
                 , fInputColor(inputColor ? inputColor : "half4(1.0)")
                 , fSampleCoord(sampleCoord)
-                , fTransformedCoords(transformedCoordVars)
-                , fTexSamplers(textureSamplers) {}
+                , fTransformedCoords(transformedCoordVars) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -127,7 +120,6 @@ public:
         const char* fInputColor;
         const char* fSampleCoord;
         const TransformedCoordVars& fTransformedCoords;
-        const TextureSamplers& fTexSamplers;
     };
 
     virtual void emitCode(EmitArgs&) = 0;
@@ -190,6 +182,8 @@ public:
     class Iter {
     public:
         Iter(std::unique_ptr<GrGLSLFragmentProcessor> fps[], int cnt);
+        Iter(GrGLSLFragmentProcessor& fp) { fFPStack.push_back(&fp); }
+        Iter() = default;
 
         GrGLSLFragmentProcessor& operator*() const;
         GrGLSLFragmentProcessor* operator->() const;
@@ -202,6 +196,43 @@ public:
 
     private:
         SkSTArray<4, GrGLSLFragmentProcessor*, true> fFPStack;
+    };
+
+    class ParallelIterEnd {};
+
+    /**
+     * Walks parallel trees of GrFragmentProcessor and associated GrGLSLFragmentProcessors. The
+     * GrGLSLFragmentProcessor used to initialize the iterator must have been created by calling
+     * GrFragmentProcessor::createGLSLInstance() on the passed GrFragmentProcessor.
+     */
+    class ParallelIter {
+    public:
+        ParallelIter(const GrFragmentProcessor& fp, GrGLSLFragmentProcessor& glslFP);
+
+        ParallelIter& operator++();
+
+        std::tuple<const GrFragmentProcessor&, GrGLSLFragmentProcessor&> operator*() const;
+
+        bool operator==(const ParallelIterEnd& end) const;
+
+        bool operator!=(const ParallelIterEnd& end) const { return !(*this == end); }
+
+    private:
+        GrFragmentProcessor::CIter fpIter;
+        GrGLSLFragmentProcessor::Iter glslIter;
+    };
+
+    class ParallelRange {
+    public:
+        ParallelRange(const GrFragmentProcessor& fp, GrGLSLFragmentProcessor& glslFP);
+
+        ParallelIter begin() { return {fInitialFP, fInitialGLSLFP}; }
+
+        ParallelIterEnd end() { return {}; }
+
+    private:
+        const GrFragmentProcessor& fInitialFP;
+        GrGLSLFragmentProcessor& fInitialGLSLFP;
     };
 
 protected:

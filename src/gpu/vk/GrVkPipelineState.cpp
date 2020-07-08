@@ -127,16 +127,14 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
     }
 
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            const auto& sampler = fpIter->textureSampler(i);
-            samplerBindings[currTextureBinding++] =
-                    {sampler.samplerState(), static_cast<GrVkTexture*>(sampler.peekTexture())};
-        }
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        auto& fp = pipeline.getFragmentProcessor(i);
+        fp.visitTextureEffects([&](const GrTextureEffect& te) {
+            GrSamplerState samplerState = te.samplerState();
+            auto* texture = static_cast<GrVkTexture*>(te.texture());
+            samplerBindings[currTextureBinding++] = {samplerState, texture};
+        });
     }
-    SkASSERT(!fpIter && !glslIter);
 
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
         samplerBindings[currTextureBinding++] = {
@@ -222,29 +220,6 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         descriptorSet->recycle();
     }
     return true;
-}
-
-void set_uniform_descriptor_writes(VkWriteDescriptorSet* descriptorWrite,
-                                   VkDescriptorBufferInfo* bufferInfo,
-                                   const GrVkUniformBuffer* buffer,
-                                   VkDescriptorSet descriptorSet) {
-
-    memset(bufferInfo, 0, sizeof(VkDescriptorBufferInfo));
-    bufferInfo->buffer = buffer->buffer();
-    bufferInfo->offset = buffer->offset();
-    bufferInfo->range = buffer->size();
-
-    memset(descriptorWrite, 0, sizeof(VkWriteDescriptorSet));
-    descriptorWrite->sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite->pNext = nullptr;
-    descriptorWrite->dstSet = descriptorSet;
-    descriptorWrite->dstBinding = GrVkUniformHandler::kUniformBinding;
-    descriptorWrite->dstArrayElement = 0;
-    descriptorWrite->descriptorCount = 1;
-    descriptorWrite->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrite->pImageInfo = nullptr;
-    descriptorWrite->pBufferInfo = bufferInfo;
-    descriptorWrite->pTexelBufferView = nullptr;
 }
 
 void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
