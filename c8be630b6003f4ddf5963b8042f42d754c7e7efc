@@ -63,6 +63,30 @@
       "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8622110_90971ae6",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T17:57:27Z",
+      "side": 1,
+      "message": "Yeah, if we need to, we can just generate a second corpus by adding those 256 random bytes (or just 256 zeros).\n\nAre you suggesting we change 256 to account for more uniforms?",
+      "parentUuid": "4efdc6de_21afe426",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 44
+      },
+      "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
