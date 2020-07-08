@@ -121,7 +121,8 @@ protected:
                     SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(kColors[procColor]);
                     auto fp = GrConstColorProcessor::Make(/*inputFP=*/nullptr, color, mode);
 
-                    grPaint.addColorFragmentProcessor(std::move(fp));
+                    // FIXME: SkPaintToGrPaint + addColorFragmentProcessor ?
+                    // grPaint.addColorFragmentProcessor(std::move(fp));
                     renderTargetContext->priv().testingOnly_addDrawOp(
                             GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
                                                         viewMatrix, renderRect));
