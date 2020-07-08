@@ -39,19 +39,6 @@ public:
 
 #if SK_SUPPORT_GPU
     /**
-     *  TEMPORARY: SkColorFilters that support asFragmentProcessor(inputFP) should override this
-     *  method to return true. TODO(skbug.com/10217): This will be removed once
-     *  asFragmentProcessor(inputFP, ...) is implemented across all SkColorFilters.
-     */
-    virtual bool colorFilterAcceptsInputFP() const { return false; }
-
-    /**
-     *  Deprecated: SkColorFilters should use the newer form of asFragmentProcessor; see below.
-     */
-    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorInfo& dstColorInfo) const;
-
-    /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
      *  a GrFragmentProcessor that implements the color filter in GPU shader code.
      *
