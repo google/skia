@@ -703,7 +703,6 @@ public:
             , fInputs(std::move(inputs)) {}
 
 #if SK_SUPPORT_GPU
-    bool colorFilterAcceptsInputFP() const override { return true; }
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& colorInfo) const override {

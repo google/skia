@@ -39,7 +39,6 @@ public:
     ~SkHighContrast_Filter() override {}
 
 #if SK_SUPPORT_GPU
-    bool colorFilterAcceptsInputFP() const override { return true; }
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*, const GrColorInfo&) const override;
 #endif
