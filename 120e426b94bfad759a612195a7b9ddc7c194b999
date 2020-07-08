@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72e97173_a88b5cd8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-07-08T20:50:44Z",
+      "side": 1,
+      "message": "I see SkottieView derives from FrameLayout and using a child TextureView. I hope the extra FrameLayout is a no-op as it comes to performance.",
+      "revId": "120e426b94bfad759a612195a7b9ddc7c194b999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
