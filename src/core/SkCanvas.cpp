@@ -2005,15 +2005,28 @@ static bool fillable(const SkRect& r) {
     return SkScalarIsFinite(w) && w > 0 && SkScalarIsFinite(h) && h > 0;
 }
 
+#if 1
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
-                             const SkPaint* paint, SrcRectConstraint constraint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(image);
-    if (!fillable(dst) || !fillable(src)) {
-        return;
-    }
-    this->onDrawImageRect(image, &src, dst, paint, constraint);
+                             const SkPaint* paint) {
+    this->drawImageRect(image, src, dst, paint, kStrict_SrcRectConstraint);
 }
+void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& src, const SkRect& dst,
+                             const SkPaint* paint) {
+    this->drawImageRect(image, src, dst, paint, kStrict_SrcRectConstraint);
+}
+
+void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
+                              const SkPaint* paint) {
+    this->drawBitmapRect(bitmap, src, dst, paint, kStrict_SrcRectConstraint);
+}
+void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
+                              const SkPaint* paint) {
+    this->drawBitmapRect(bitmap, isrc, dst, paint, kStrict_SrcRectConstraint);
+}
+void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint) {
+    this->drawBitmapRect(bitmap, dst, paint, kStrict_SrcRectConstraint);
+}
+#endif
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
@@ -2025,6 +2038,16 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPa
     RETURN_ON_NULL(image);
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
                         kFast_SrcRectConstraint);
+}
+
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                             const SkPaint* paint, SrcRectConstraint constraint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(image);
+    if (!fillable(dst) || !fillable(src)) {
+        return;
+    }
+    this->onDrawImageRect(image, &src, dst, paint, constraint);
 }
 
 namespace {
