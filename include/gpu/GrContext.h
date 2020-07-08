@@ -325,8 +325,14 @@ public:
      * and delete them once they have been signaled and waited on. If this call returns false, then
      * the GPU back-end will not wait on any passed in semaphores, and the client will still own the
      * semaphores.
+     *
+     * If clientOwnsSemaphoresAfterWait is true then Skia will not take ownership of the semaphores.
+     * In this case it is the client's responsibility to not destroy or attempt to reuse the
+     * semaphores until it knows that Skia has finished waiting on them. This can be done by using
+     * finishedProcs on flush calls.
      */
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+              bool clientOwnsSemaphoresAfterWait = false);
 
     /**
      * Call to ensure all drawing to the context has been flushed and submitted to the underlying 3D

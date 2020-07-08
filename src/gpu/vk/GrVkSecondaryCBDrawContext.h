@@ -78,11 +78,18 @@ public:
         false, then the GPU back-end will not wait on any passed in semaphores, and the client will
         still own the semaphores.
 
-        @param numSemaphores   size of waitSemaphores array
-        @param waitSemaphores  array of semaphore containers
-        @return                true if GPU is waiting on semaphores
+        If clientOwnsSemaphoresAfterWait is true then Skia will not take ownership of the
+        semaphores. In this case it is the client's responsibility to not destroy or attempt to
+        reuse the semaphores until it knows that Skia has finished waiting on them. This can be done
+        by using finishedProcs on flush calls.
+
+        @param numSemaphores                   size of waitSemaphores array
+        @param waitSemaphores                  array of semaphore containers
+        @paramm clientOwnsSemaphoresAfterWait  who owns and should delete the semaphores
+        @return                                true if GPU is waiting on semaphores
     */
-    bool wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]);
+    bool wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                     bool clientOwnsSemaphoresAfterWait = false);
 
     // This call will release all resources held by the draw context. The client must call
     // releaseResources() before deleting the drawing context. However, the resources also include

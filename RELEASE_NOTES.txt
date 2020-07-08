@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 86
 ------------
 
+  * Add option for clients to own semaphores after wait calls.
+    https://review.skia.org/301216
+
   * Remove obsolete GrFlushFlags.
     https://review.skia.org/298818
 
