@@ -189,6 +189,15 @@ func (b *jobBuilder) genTasksForJob() {
 		if b.framework("G3") {
 			b.g3FrameworkCanary()
 			return
+		} else if b.framework("Android") {
+			b.canary("android-master-autoroll")
+			return
+		} else if b.framework("Chromium") {
+			b.canary("skia-autoroll")
+			return
+		} else if b.framework("Flutter") {
+			b.canary("skia-flutter-autoroll")
+			return
 		}
 	}
 
@@ -215,7 +224,7 @@ func (b *jobBuilder) finish() {
 		b.trigger(specs.TRIGGER_WEEKLY)
 	} else if b.extraConfig("Flutter", "CommandBuffer") {
 		b.trigger(specs.TRIGGER_MASTER_ONLY)
-	} else if b.frequency("OnDemand") || (b.extraConfig("Framework") && b.extraConfig("Android", "G3")) {
+	} else if b.frequency("OnDemand") || (b.extraConfig("Framework") && b.extraConfig("Android", "G3") || b.role("Canary")) {
 		b.trigger(specs.TRIGGER_ON_DEMAND)
 	} else {
 		b.trigger(specs.TRIGGER_ANY_BRANCH)
