@@ -788,7 +788,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
     if (!image->unique() || !texture->unique() ||
         texture->resourcePriv().refsWrappedObjects()) {
         // onMakeSubset will always copy the image.
-        image = as_IB(image)->onMakeSubset(ctx, image->bounds());
+        image = as_IB(image)->onMakeSubset(image->bounds(), ctx);
         if (!image) {
             return false;
         }
