@@ -22,6 +22,30 @@
       "revId": "9e2322650ed6fd9e096902ddf16ac5fa0ede10aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dc3b3b7_41c81b51",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-08T19:24:22Z",
+      "side": 1,
+      "message": "Done at http://review.skia.org/301379\n\nI\u0027ll fix up clamping in a separate CL.",
+      "parentUuid": "30a55120_ba8b1fe6",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 0
+      },
+      "revId": "9e2322650ed6fd9e096902ddf16ac5fa0ede10aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
