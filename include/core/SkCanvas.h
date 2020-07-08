@@ -32,6 +32,8 @@
 #include <memory>
 #include <vector>
 
+//#define SK_SUPPORT_LEGACY_SRCRECTCONSTRAINT_DRAWIMAGERECT
+
 class GrContext;
 class GrRecordingContext;
 class GrRenderTargetContext;
@@ -1490,20 +1492,18 @@ public:
         current CTM, so will reflect the dst rect geometry and is equivalent to
         drawRect(dst). The src rect is only used to access the provided image.
 
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within src; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
         @param image       SkImage containing pixels, dimensions, and format
         @param src         source SkRect of image to draw from
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                            and so on; or nullptr
-        @param constraint  filter strictly within src or draw faster
     */
     void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
-                       const SkPaint* paint,
-                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+                       const SkPaint* paint);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint) {
+        this->drawImageRect(image.get(), src, dst, paint);
+    }
 
     /** Draws SkIRect isrc of SkImage image, scaled and translated to fill SkRect dst.
         Note that isrc is on integer pixel boundaries; dst may include fractional
@@ -1522,20 +1522,18 @@ public:
         current CTM, so will reflect the dst rect geometry and is equivalent to
         drawRect(dst). The src rect is only used to access the provided image.
 
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within isrc; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
         @param image       SkImage containing pixels, dimensions, and format
         @param isrc        source SkIRect of image to draw from
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                            and so on; or nullptr
-        @param constraint  filter strictly within isrc or draw faster
     */
     void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
-                       const SkPaint* paint,
-                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+                       const SkPaint* paint);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint) {
+        this->drawImageRect(image.get(), isrc, dst, paint);
+    }
 
     /** Draws SkImage image, scaled and translated to fill SkRect dst, using clip, SkMatrix,
         and optional SkPaint paint.
@@ -1560,88 +1558,6 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_drawImageRect_3
     */
     void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint);
-
-    /** Draws SkRect src of SkImage image, scaled and translated to fill SkRect dst.
-        Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
-
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter, and
-        SkBlendMode. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds.
-
-        If generated mask extends beyond image bounds, replicate image edge colors, just
-        as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
-        replicates the image edge color when it samples outside of its bounds.
-
-        When using a shader or shader mask filter, its coordinate system is based on the
-        current CTM, so will reflect the dst rect geometry and is equivalent to
-        drawRect(dst). The src rect is only used to access the provided image.
-
-        @param image       SkImage containing pixels, dimensions, and format
-        @param src         source SkRect of image to draw from
-        @param dst         destination SkRect of image to draw to
-        @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
-                           and so on; or nullptr
-        @param constraint  filter strictly within src or draw faster
-    */
-    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
-                       const SkPaint* paint,
-                       SrcRectConstraint constraint = kStrict_SrcRectConstraint) {
-        this->drawImageRect(image.get(), src, dst, paint, constraint);
-    }
-
-    /** Draws SkIRect isrc of SkImage image, scaled and translated to fill SkRect dst.
-        isrc is on integer pixel boundaries; dst may include fractional boundaries.
-        Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
-
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter, and
-        SkBlendMode. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds.
-
-        If generated mask extends beyond image bounds, replicate image edge colors, just
-        as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
-        replicates the image edge color when it samples outside of its bounds.
-
-        When using a shader or shader mask filter, its coordinate system is based on the
-        current CTM, so will reflect the dst rect geometry and is equivalent to
-        drawRect(dst). The src rect is only used to access the provided image.
-
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within image; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
-        @param image       SkImage containing pixels, dimensions, and format
-        @param isrc        source SkIRect of image to draw from
-        @param dst         destination SkRect of image to draw to
-        @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
-                           and so on; or nullptr
-        @param constraint  filter strictly within image or draw faster
-    */
-    void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
-                       const SkPaint* paint,
-                       SrcRectConstraint constraint = kStrict_SrcRectConstraint) {
-        this->drawImageRect(image.get(), isrc, dst, paint, constraint);
-    }
-
-    /** Draws SkImage image, scaled and translated to fill SkRect dst,
-        using clip, SkMatrix, and optional SkPaint paint.
-
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter, and
-        SkBlendMode. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds.
-
-        If generated mask extends beyond image bounds, replicate image edge colors, just
-        as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
-        replicates the image edge color when it samples outside of its bounds.
-
-        When using a shader or shader mask filter, its coordinate system is based on the
-        current CTM, so will reflect the dst rect geometry and is equivalent to
-        drawRect(dst).
-
-        @param image       SkImage containing pixels, dimensions, and format
-        @param dst         destination SkRect of image to draw to
-        @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
-                           and so on; or nullptr
-    */
     void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint) {
         this->drawImageRect(image.get(), dst, paint);
     }
@@ -1735,20 +1651,14 @@ public:
         SkShader::kClamp_TileMode set replicates the bitmap edge color when it samples
         outside of its bounds.
 
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within src; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
         @param bitmap      SkBitmap containing pixels, dimensions, and format
         @param src         source SkRect of image to draw from
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                            and so on; or nullptr
-        @param constraint  filter strictly within src or draw faster
     */
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
-                        const SkPaint* paint,
-                        SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+                        const SkPaint* paint);
 
     /** Draws SkIRect isrc of SkBitmap bitmap, scaled and translated to fill SkRect dst.
         isrc is on integer pixel boundaries; dst may include fractional boundaries.
@@ -1763,20 +1673,14 @@ public:
         SkShader::kClamp_TileMode set replicates the bitmap edge color when it samples
         outside of its bounds.
 
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within isrc; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
         @param bitmap      SkBitmap containing pixels, dimensions, and format
         @param isrc        source SkIRect of image to draw from
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                            and so on; or nullptr
-        @param constraint  sample strictly within isrc, or draw faster
     */
     void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
-                        const SkPaint* paint,
-                        SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+                        const SkPaint* paint);
 
     /** Draws SkBitmap bitmap, scaled and translated to fill SkRect dst.
         bitmap bounds is on integer pixel boundaries; dst may include fractional boundaries.
@@ -1791,18 +1695,39 @@ public:
         SkShader::kClamp_TileMode set replicates the bitmap edge color when it samples
         outside of its bounds.
 
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within bitmap; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
         @param bitmap      SkBitmap containing pixels, dimensions, and format
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                            and so on; or nullptr
-        @param constraint  filter strictly within bitmap or draw faster
     */
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint);
+
+#ifndef SK_SUPPORT_LEGACY_SRCRECTCONSTRAINT_DRAWIMAGERECT
+private:
+#endif
+    void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint constraint) {
+        this->drawImageRect(image.get(), src, dst, paint, constraint);
+    }
+
+    void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint constraint) {
+        this->drawImageRect(image.get(), isrc, dst, paint, constraint);
+    }
+
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
+                        const SkPaint* paint, SrcRectConstraint);
+    void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
+                        const SkPaint* paint, SrcRectConstraint);
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
-                        SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+                        SrcRectConstraint);
+#ifndef SK_SUPPORT_LEGACY_SRCRECTCONSTRAINT_DRAWIMAGERECT
+public:
+#endif
 
     /** \struct SkCanvas::Lattice
         SkCanvas::Lattice divides SkBitmap or SkImage into a rectangular grid.
