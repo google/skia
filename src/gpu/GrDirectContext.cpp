@@ -162,7 +162,7 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
                                    const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kOpenGL, options));
+    auto direct = new GrDirectContext(GrBackendApi::kOpenGL, options);
 #if GR_TEST_UTILS
     if (options.fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);
@@ -175,7 +175,8 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
         glInterface = std::move(copy);
     }
 #endif
-    context->fGpu = GrGLGpu::Make(std::move(glInterface), options, context.get());
+    direct->fGpu = GrGLGpu::Make(std::move(glInterface), options, direct);
+    auto context = sk_sp<GrContext>(direct);
     if (!context->init()) {
         return nullptr;
     }
@@ -190,9 +191,10 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMock, options));
+    auto direct = new GrDirectContext(GrBackendApi::kMock, options);
 
-    context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
+    direct->fGpu = GrMockGpu::Make(mockOptions, options, direct);
+    auto context = sk_sp<GrContext>(direct);
     if (!context->init()) {
         return nullptr;
     }
@@ -232,9 +234,10 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
 }
 
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMetal, options));
+    auto direct = new GrDirectContext(GrBackendApi::kMetal, options);
 
-    context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
+    direct->fGpu = GrMtlTrampoline::MakeGpu(direct, options, device, queue);
+    auto context = sk_sp<GrContext>(direct);
     if (!context->init()) {
         return nullptr;
     }
