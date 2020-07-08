@@ -536,8 +536,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
                                   (uint32_t)fUniformHandler.numSamplers(),
                                   std::move(fGeometryProcessor),
                                   std::move(fXferProcessor),
-                                  std::move(fFragmentProcessors),
-                                  fFragmentProcessorCnt);
+                                  std::move(fFragmentProcessors));
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -655,7 +655,6 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
                                                             std::move(fGeometryProcessor),
                                                             std::move(fXferProcessor),
                                                             std::move(fFragmentProcessors),
-                                                            fFragmentProcessorCnt,
                                                             primProc.vertexStride(),
                                                             primProc.instanceStride()));
 }

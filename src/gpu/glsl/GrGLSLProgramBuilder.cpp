@@ -144,9 +144,9 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
         }
         **inOut = output;
     }
-    fFragmentProcessorCnt = glslFragmentProcessors.count();
-    fFragmentProcessors.reset(new std::unique_ptr<GrGLSLFragmentProcessor>[fFragmentProcessorCnt]);
-    for (int i = 0; i < fFragmentProcessorCnt; ++i) {
+    int fpCount = glslFragmentProcessors.count();
+    fFragmentProcessors.reset(new std::unique_ptr<GrGLSLFragmentProcessor>[fpCount]);
+    for (int i = 0; i < fpCount; ++i) {
         fFragmentProcessors[i] = std::move(glslFragmentProcessors[i]);
     }
 }

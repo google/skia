@@ -41,8 +41,7 @@ GrMtlPipelineState::GrMtlPipelineState(
         uint32_t numSamplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
-        int fragmentProcessorCnt)
+        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors)
         : fGpu(gpu)
         , fPipelineState(pipelineState)
         , fPixelFormat(pixelFormat)
@@ -51,7 +50,6 @@ GrMtlPipelineState::GrMtlPipelineState(
         , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
-        , fFragmentProcessorCnt(fragmentProcessorCnt)
         , fDataManager(uniforms, uniformBufferSize) {
     (void) fPixelFormat; // Suppress unused-var warning.
 }
@@ -61,12 +59,13 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     this->setRenderTargetState(renderTarget, programInfo.origin());
     fGeometryProcessor->setData(fDataManager, programInfo.primProc());
 
-    GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
-        glslIter->setData(fDataManager, *fpIter);
+    for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
+        auto& pipelineFP = programInfo.pipeline().getFragmentProcessor(i);
+        auto& baseGLSLFP = *fFragmentProcessors[i];
+        for (auto [fp, glslFP] : GrGLSLFragmentProcessor::ParallelRange(pipelineFP, baseGLSLFP)) {
+            glslFP.setData(fDataManager, fp);
+        }
     }
-    SkASSERT(!fpIter && !glslIter);
 
     {
         SkIPoint offset;
@@ -98,11 +97,12 @@ void GrMtlPipelineState::setTextures(const GrPrimitiveProcessor& primProc,
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    for (; fpIter; ++fpIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            const auto& sampler = fpIter->textureSampler(i);
-            fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(), fGpu);
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        for (auto& fp : GrFragmentProcessor::FPCRange(pipeline.getFragmentProcessor(i))) {
+            for (int s = 0; s < fp.numTextureSamplers(); ++s) {
+                const auto& sampler = fp.textureSampler(s);
+                fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(), fGpu);
+            }
         }
     }
 

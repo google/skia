@@ -36,15 +36,13 @@ GrVkPipelineState::GrVkPipelineState(
         const UniformInfoArray& samplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
-        int fragmentProcessorCnt)
+        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors)
         : fPipeline(pipeline)
         , fSamplerDSHandle(samplerDSHandle)
         , fBuiltinUniformHandles(builtinUniformHandles)
         , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
-        , fFragmentProcessorCnt(fragmentProcessorCnt)
         , fDataManager(uniforms, uniformSize) {
     fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
 
@@ -80,12 +78,13 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
     fGeometryProcessor->setData(fDataManager, programInfo.primProc());
-    GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
-        glslIter->setData(fDataManager, *fpIter);
+    for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
+        auto& pipelineFP = programInfo.pipeline().getFragmentProcessor(i);
+        auto& baseGLSLFP = *fFragmentProcessors[i];
+        for (auto [fp, glslFP] : GrGLSLFragmentProcessor::ParallelRange(pipelineFP, baseGLSLFP)) {
+            glslFP.setData(fDataManager, fp);
+        }
     }
-    SkASSERT(!fpIter && !glslIter);
 
     {
         SkIPoint offset;
@@ -127,16 +126,15 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
     }
 
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            const auto& sampler = fpIter->textureSampler(i);
-            samplerBindings[currTextureBinding++] =
-                    {sampler.samplerState(), static_cast<GrVkTexture*>(sampler.peekTexture())};
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        for (auto& fp : GrFragmentProcessor::FPCRange(pipeline.getFragmentProcessor(i))) {
+            for (int s = 0; s < fp.numTextureSamplers(); ++s) {
+                const auto& sampler = fp.textureSampler(s);
+                samplerBindings[currTextureBinding++] = {
+                        sampler.samplerState(), static_cast<GrVkTexture*>(sampler.peekTexture())};
+            }
         }
     }
-    SkASSERT(!fpIter && !glslIter);
 
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
         samplerBindings[currTextureBinding++] = {

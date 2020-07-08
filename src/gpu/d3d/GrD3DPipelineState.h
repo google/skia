@@ -33,7 +33,6 @@ public:
                        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragProcessors,
-                       int fragmentProcessorCnt,
                        size_t vertexStride,
                        size_t instanceStride);
 
@@ -118,7 +117,6 @@ private:
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
-    int fFragmentProcessorCnt;
 
     GrD3DPipelineStateDataManager fDataManager;
 

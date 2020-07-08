@@ -57,7 +57,6 @@ public:
                                    std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                                    std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                                    std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fps,
-                                   int fragmentProcessorCnt,
                                    std::unique_ptr<Attribute[]>,
                                    int vertexAttributeCnt,
                                    int instanceAttributeCnt,
@@ -150,7 +149,6 @@ private:
                 std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                 std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                 std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fps,
-                int fragmentProcessorCnt,
                 std::unique_ptr<Attribute[]>,
                 int vertexAttributeCnt,
                 int instanceAttributeCnt,
@@ -169,7 +167,6 @@ private:
     std::unique_ptr<GrGLSLPrimitiveProcessor> fPrimitiveProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
-    int fFragmentProcessorCnt;
 
     std::unique_ptr<Attribute[]> fAttributes;
     int fVertexAttributeCnt;
