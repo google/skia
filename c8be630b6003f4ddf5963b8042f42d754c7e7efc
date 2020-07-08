@@ -16,6 +16,29 @@
       "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5912689c_72696be9",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T17:34:18Z",
+      "side": 1,
+      "message": "This is a convoluted way to extract a single byte from this. With my suggestion below, we don\u0027t need to read this byte.\n\nI do like where you are going with the \"reserve some of the data and use it for uniforms\".\n\nHow about this: \nbytes has length n.\nWe have a *constant* amount of bytes reserved for uniforms (256 bytes seem like a good starting point). The data will be *after* the code data\ncodeBytes \u003d SkData::MakeSubset(bytes.get(), 0, bytes-\u003esize() - 256);\nmake runtime effect\nask runtime effect for the input size. If input size \u003e 256, fail. otherwise, store to \"uniformLen\".\nuniformBytes \u003d SkData::MakeSubset(bytes.get(), codeBytes-\u003esize(), uniformLen);\npass in uniform bytes to runtime effect.\n\nThis way, we can use the same seed corpus (of valid programs) that we already have for this new fuzzer. The fuzzers will learn to append data to the end to fill out the uniforms and make valid inputs.\n\nWhat do you think?",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 44
+      },
+      "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
