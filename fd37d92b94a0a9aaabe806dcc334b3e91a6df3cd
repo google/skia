@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "04f4c2c2_028c16c1",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-08T21:11:36Z",
+      "side": 1,
+      "message": "Yeah I really want to say\n    SkASSERT(!dstArray implies numGlyphs \u003d\u003d 0)\nwhich (since we don\u0027t have an \u0027imp\u0027 operator) turns into\n    SkASSERT(dstArray || numGlyphs \u003d\u003d 0)\nit also has the nice property of logically short circuiting, though that\u0027s a bit silly here.\n\nSince it seems \u0027imp\u0027 is A?B:true this could be written\n    SkASSERT(!dstArray ? numGlyphs \u003d\u003d 0 : true);\nWhich leads me to believe that in C++ the implies operator should be written `a??b` which is a binary operator which works like `a?b:true`. The objection would be that the ?? logical operator could have no ? binary operator, but whatever.\n\nBut that extra hanging true to make it work is ugly, could be\n    constexpr bool implies(bool a, bool b) { return a ? b : true; }\n    SkASSERT(implies(!dstArray, numGlyphs \u003d\u003d 0));\nThough without the infix of implies that looks a bit awkward. \n\nOf course, since it\u0027s the hanging `else true` that\u0027s ugly we end up with\n    if (!dstArray) { SkASSERT(numGlyphs \u003d\u003d 0); }",
+      "parentUuid": "f5fa55ef_6932c112",
+      "range": {
+        "startLine": 662,
+        "startChar": 4,
+        "endLine": 662,
+        "endChar": 41
+      },
+      "revId": "fd37d92b94a0a9aaabe806dcc334b3e91a6df3cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a7a9a09_a5790238",
         "filename": "src/ports/SkFontHost_FreeType.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "fd37d92b94a0a9aaabe806dcc334b3e91a6df3cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0686fd1_b6c23209",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1803,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-08T21:11:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a7a9a09_a5790238",
+      "range": {
+        "startLine": 1803,
+        "startChar": 8,
+        "endLine": 1803,
+        "endChar": 17
+      },
+      "revId": "fd37d92b94a0a9aaabe806dcc334b3e91a6df3cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
