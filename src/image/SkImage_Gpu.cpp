@@ -87,11 +87,6 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
         return nullptr;
     }
 
-    auto xform = GrColorSpaceXformEffect::Make(/*childFP=*/nullptr,
-                                               this->colorSpace(), this->alphaType(),
-                                               targetCS.get(), this->alphaType());
-    SkASSERT(xform || targetCT != this->colorType());
-
     auto renderTargetContext = GrRenderTargetContext::MakeWithFallback(
             context, SkColorTypeToGrColorType(targetCT), nullptr, SkBackingFit::kExact,
             this->dimensions());
@@ -99,12 +94,15 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
         return nullptr;
     }
 
+    auto texFP = GrTextureEffect::Make(*this->view(context), this->alphaType());
+    auto colorFP = GrColorSpaceXformEffect::Make(std::move(texFP),
+                                                 this->colorSpace(), this->alphaType(),
+                                                 targetCS.get(), this->alphaType());
+    SkASSERT(colorFP);
+
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorFragmentProcessor(GrTextureEffect::Make(*this->view(context), this->alphaType()));
-    if (xform) {
-        paint.addColorFragmentProcessor(std::move(xform));
-    }
+    paint.addColorFragmentProcessor(std::move(colorFP));
 
     renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                   SkRect::MakeIWH(this->width(), this->height()));
