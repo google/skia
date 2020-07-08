@@ -2,6 +2,54 @@
   "comments": [
     {
       "key": {
+        "uuid": "5eee7cf5_c92b840f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T12:36:07Z",
+      "side": 1,
+      "message": "\u003e \"tesselation\" is a possible misspelling of \"tessellation\".\n\nPlease fix.",
+      "parentUuid": "98f72d40_93638550",
+      "range": {
+        "startLine": 27,
+        "startChar": 50,
+        "endLine": 27,
+        "endChar": 61
+      },
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47b2c057_ebaa6486",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T12:36:07Z",
+      "side": 1,
+      "message": "\u003e \"tesselation\" is a possible misspelling of \"tessellation\".\n\nPlease fix.",
+      "parentUuid": "d288354d_b3d529cd",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 19
+      },
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fd3a87dd_eededf89",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -13,6 +61,23 @@
       "writtenOn": "2020-07-07T22:48:26Z",
       "side": 1,
       "message": "Still have a bit more I want to do on this, but I\u0027ve made a lot of changes, so I think it would be good to get some feedback before I go to deep.\n\nNote: In hindsight I think using a worker may have been nicer than using generator functions for rendering without degrading user experience. But I have written all this code with generators now and it works so I\u0027ll keep it unless anyone sees a problem with it.",
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b09bbaa_e5cdd231",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T12:36:07Z",
+      "side": 1,
+      "message": "Some general notes (I\u0027ll give a more thorough review after these are addressed):\n - Please add more comments, especially focusing on how this demo is structured/design and *why* the code is structured that way. main.js is 400 lines of code and there are 4 comments lines. path_tools.js has 2 comments. For something as complex/nuanced as this, I would expect closer to a 400/100 split of code to comments. Maybe this demo should have a README.md that outlines how it works.\n - Please follow the JS style guide (I see lots of double quotes and single quotes, missing semicolons, etc).\n - Please redesign the UI so there is only one svg/canvas visible at a time. Sort of like the YouTube player, with some buttons/toggles around the outside that change how it\u0027s being displayed. The buttons should toggle what is seen on that central place. Otherwise, there\u0027s too much to look at.\n - Default to CanvasKit as the player, as it\u0027s going to be the fastest. If we default to SVG and it takes 30 seconds per frame, the demo will be confusing to people.\n - The frame rate measurement should average over the last N frames, so there\u0027s less jitter. N \u003d 10 maybe?\n - Add a text description to the page explaining what the demo is and what it shows. Feel free to include approximate FPS measurements.\n - Break larger chunks of code up into smaller, well named functions where possible. For example, the CanvasKit Animator\u0027s constructor is over 150 lines of code. In an ideal world, a function \"does one thing; that thing is described in its name\". This style can help have self-documenting code which is easier to read and maintain.\n - Please check the code for errors before uploading. I downloaded PS 1 and there\u0027s an error on main.js:88 because it can\u0027t find #button4\n - Make sure all 3 cases draw the same thing (I noticed the tiger looked very different on the Canvas 2D version). Please also make sure the images are drawn to fit in the viewport.",
       "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
