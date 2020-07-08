@@ -31,6 +31,7 @@ class SkPicture;
 class SkSurface;
 class GrBackendTexture;
 class GrContext;
+class GrRecordingContext;
 class GrContextThreadSafeProxy;
 
 struct SkYUVAIndex;
@@ -1141,15 +1142,29 @@ public:
     /** Returns subset of SkImage. subset must be fully contained by SkImage dimensions().
         The implementation may share pixels, or may copy them.
 
-        Returns nullptr if subset is empty, or subset is not contained by bounds, or
-        pixels in SkImage could not be read or copied.
+        Returns nullptr if any of the following are true:
+          - Subset is empty
+          - Subset is not contained by bounds
+          - Pixels in SkImage could not be read or copied
+          - This is a VRAM-backed image and a mismatched context is passed
+
+        The returned image will follow the following rules:
+                                                  Image is:
+        `context` param: |     raster-backed    |     promise image    |     VRAM-backed
+        --------------------------------------------------------------------------------------
+        nonnull          |  1. VRAM-backed      |  3. VRAM-backed      |  5. VRAM-backed
+        nullptr          |  2. raster-backed    |  4. null             |  6. VRAM-backed
+
+        In cases 1, 3, and 5, the returned image will live in the provided context's space.
+        In case 6, the returned image will live in the source image's context's space.
 
         @param subset  bounds of returned SkImage
+        @param context the GrRecordingContext in play, if it exists
         @return        partial or full SkImage, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_makeSubset
     */
-    sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
+    sk_sp<SkImage> makeSubset(const SkIRect& subset, GrRecordingContext* context = nullptr) const;
 
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
         compatible with SkSurface created with dstColorSpace. The returned SkImage respects
