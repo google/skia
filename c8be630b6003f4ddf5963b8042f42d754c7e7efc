@@ -39,6 +39,30 @@
       "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4efdc6de_21afe426",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-08T17:50:22Z",
+      "side": 1,
+      "message": "I like this idea, but... 256 bytes is plenty for most valid programs. We may not be stressing SkSL that uses a huge number of uniforms (which is an area that might be worth targeting). More importantly, we\u0027re going to be truncating all of our existing corpus, right? So it seems likely that they won\u0027t compile any longer? (I guess we could take the existing corpus, and generate a new one by appending 256 random bytes to each file we have?)",
+      "parentUuid": "5912689c_72696be9",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 44
+      },
+      "revId": "c8be630b6003f4ddf5963b8042f42d754c7e7efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
