@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf6096e9_370c380c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-08T20:29:05Z",
+      "side": 1,
+      "message": "We may need this in Android\u0027s rvc-dev. There seems to a separate but related bug that we are still looking into.",
+      "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
