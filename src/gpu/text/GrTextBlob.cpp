@@ -389,6 +389,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                                                    const SkMatrixProvider& deviceMatrix,
                                                    SkPoint drawOrigin) {
     if (this->drawAsPaths()) {
+        SkASSERT(!fPaths.empty());
         SkPaint runPaint{paint};
         runPaint.setAntiAlias(this->isAntiAliased());
         // If there are shaders, blurs or styles, the path must be scaled into source
@@ -434,10 +435,8 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
             }
         }
     } else {
-        if (this->glyphCount() == 0) {
-            return;
-        }
         // Handle the mask and distance field cases.
+        SkASSERT(this->glyphCount() != 0);
 
         // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
         // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
@@ -588,6 +587,11 @@ bool GrTextBlob::canReuse(const SkPaint& paint,
                           const SkMaskFilterBase::BlurRec& blurRec,
                           const SkMatrix& drawMatrix,
                           SkPoint drawOrigin) {
+    // A singular matrix will create a GrTextBlob with no subRuns. Assume that, and just regenerate.
+    if (fSubRunList.isEmpty()) {
+        return false;
+    }
+
     // If we have LCD text then our canonical color will be set to transparent, in this case we have
     // to regenerate the blob on any color change
     // We use the grPaint to get any color filter effects

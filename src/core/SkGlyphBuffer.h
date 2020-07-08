@@ -209,6 +209,11 @@ public:
         return SkZip<SkGlyphVariant, SkPoint>{fDrawableSize, fMultiBuffer, fPositions};
     }
 
+    bool drawableIsEmpty() const {
+        SkASSERT(fPhase == kProcess || fPhase == kDraw);
+        return fDrawableSize == 0;
+    }
+
     void reset();
 
     template <typename Fn>
