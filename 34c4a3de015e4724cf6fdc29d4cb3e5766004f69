@@ -34,6 +34,24 @@
       "revId": "34c4a3de015e4724cf6fdc29d4cb3e5766004f69",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11a3440c_ba0e79ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-08T14:09:51Z",
+      "side": 1,
+      "message": "Right now, we don\u0027t have any required parameters for a SkottieView. We default to TextureView if it\u0027s not specified and everything else is optional. Would we want to consider making a custom set of attributes for SkottieView? If so, we can make advancedFeatures (and future options we want to implement) an XML attribute.",
+      "parentUuid": "7b7da4a7_4cbb10c6",
+      "revId": "34c4a3de015e4724cf6fdc29d4cb3e5766004f69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
