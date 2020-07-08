@@ -34,8 +34,8 @@ public:
     void prePrepare(GrRecordingContext* context) { this->onPrePrepare(context); }
 
     // These two methods are only invoked at flush time
-    void prepare(GrOpFlushState* flushState);
-    bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
+    void prepare1(GrOpFlushState* flushState);
+    bool execute1(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
@@ -127,6 +127,7 @@ protected:
 private:
     // for resetFlag, TopoSortTraits, gatherProxyIntervals, handleInternalAllocationFailure
     friend class GrDrawingManager;
+    friend class GrUnrefDDLTask;
 
     // Drops any pending operations that reference proxies that are not instantiated.
     // NOTE: Derived classes don't need to check targets. That is handled when the
@@ -202,9 +203,8 @@ private:
         }
     };
 
-    // Only the GrOpsTask currently overrides this virtual
-    virtual void onPrePrepare(GrRecordingContext*) {}
-    virtual void onPrepare(GrOpFlushState*) {} // Only the GrOpsTask overrides this virtual
+    virtual void onPrePrepare(GrRecordingContext*) {} // Only the GrOpsTask currently overrides this
+    virtual void onPrepare(GrOpFlushState*) {} // Only GrOpsTask and GrDDLTask override this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;
