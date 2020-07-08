@@ -276,19 +276,23 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
         case 0: {
             static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
             int rangeType = d->fRandom->nextULessThan(3);
-            auto result = GrSkSLFP::Make(d->context(), effect, "Dither",
-                                         SkData::MakeWithCopy(&rangeType, sizeof(rangeType)));
-            return std::unique_ptr<GrFragmentProcessor>(result.release());
+            std::unique_ptr<GrSkSLFP> fp =
+                    GrSkSLFP::Make(d->context(), effect, "Dither",
+                                   SkData::MakeWithCopy(&rangeType, sizeof(rangeType)));
+            fp->addChild(GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fWHITE,
+                                                     GrConstColorProcessor::InputMode::kIgnore));
+            return std::move(fp);
         }
         case 1: {
             static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
             ArithmeticFPInputs inputs{d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(),
                                       d->fRandom->nextF(), d->fRandom->nextBool()};
-            auto result = GrSkSLFP::Make(d->context(), effect, "Arithmetic",
-                                         SkData::MakeWithCopy(&inputs, sizeof(inputs)));
-            result->addChild(GrConstColorProcessor::Make(
-                /*inputFP=*/nullptr, SK_PMColor4fWHITE, GrConstColorProcessor::InputMode::kIgnore));
-            return std::unique_ptr<GrFragmentProcessor>(result.release());
+            std::unique_ptr<GrSkSLFP> fp =
+                    GrSkSLFP::Make(d->context(), effect, "Arithmetic",
+                                   SkData::MakeWithCopy(&inputs, sizeof(inputs)));
+            fp->addChild(GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fWHITE,
+                                                     GrConstColorProcessor::InputMode::kIgnore));
+            return std::move(fp);
         }
         case 2: {
             SkColor colors[SkOverdrawColorFilter::kNumColors];

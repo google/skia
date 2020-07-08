@@ -51,9 +51,13 @@
 GR_FP_SRC_STRING SKSL_DITHER_SRC = R"(
 // This controls the range of values added to color channels and is based on the destination color
 // type; as such it doesn't really affect our program cache to have a variant per-range.
+in fragmentProcessor inputFP;
 in half range;
 
 void main(inout half4 color) {
+    // Sample from the input FP, ignoring the passed-in color.
+    color = sample(inputFP);
+
     half value;
     @if (sk_Caps.integerSupport)
     {
@@ -354,10 +358,6 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         }
     }
 
-    if (paintFP) {
-        grPaint->addColorFragmentProcessor(std::move(paintFP));
-    }
-
     SkMaskFilterBase* maskFilter = as_MFB(skPaint.getMaskFilter());
     if (maskFilter) {
         // We may have set this before passing to the SkShader.
@@ -376,19 +376,25 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
 #ifndef SK_IGNORE_GPU_DITHER
     GrColorType ct = dstColorInfo.colorType();
-    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) &&
-        grPaint->numColorFragmentProcessors() > 0) {
+    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) && paintFP != nullptr) {
         float ditherRange = dither_range_for_config(ct);
         if (ditherRange > 0.f) {
             static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
-            auto ditherFP = GrSkSLFP::Make(context, effect, "Dither",
-                                           SkData::MakeWithCopy(&ditherRange, sizeof(ditherRange)));
+            std::unique_ptr<GrSkSLFP> ditherFP =
+                    GrSkSLFP::Make(context, effect, "Dither",
+                                   SkData::MakeWithCopy(&ditherRange, sizeof(ditherRange)));
             if (ditherFP) {
-                grPaint->addColorFragmentProcessor(std::move(ditherFP));
+                ditherFP->addChild(std::move(paintFP));
+                paintFP = std::move(ditherFP);
             }
         }
     }
 #endif
+
+    if (paintFP) {
+        grPaint->addColorFragmentProcessor(std::move(paintFP));
+    }
+
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {
         if (grPaint->numColorFragmentProcessors()) {
             grPaint->addColorFragmentProcessor(
