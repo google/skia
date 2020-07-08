@@ -652,10 +652,14 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
 }
 
 void SkTypeface_FreeType::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
-    SkASSERT(dstArray);
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
+    if (!face) {
+        return;
+    }
+
     FT_Long numGlyphs = face->num_glyphs;
+    SkASSERT(dstArray || numGlyphs == 0);
     sk_bzero(dstArray, sizeof(SkUnichar) * numGlyphs);
 
     FT_UInt glyphIndex;
@@ -671,11 +675,17 @@ void SkTypeface_FreeType::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
 }
 
 void SkTypeface_FreeType::getPostScriptGlyphNames(SkString* dstArray) const {
-    SkASSERT(dstArray);
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
-    if (face && FT_HAS_GLYPH_NAMES(face)) {
-        for (int gID = 0; gID < face->num_glyphs; gID++) {
+    if (!face) {
+        return;
+    }
+
+    FT_Long numGlyphs = face->num_glyphs;
+    SkASSERT(dstArray || numGlyphs == 0);
+
+    if (FT_HAS_GLYPH_NAMES(face)) {
+        for (int gID = 0; gID < numGlyphs; ++gID) {
             char glyphName[128];  // PS limit for names is 127 bytes.
             FT_Get_Glyph_Name(face, gID, glyphName, 128);
             dstArray[gID] = glyphName;
@@ -709,14 +719,18 @@ SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContex
 
 std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(
                                                             const SkFontArguments& args) const {
-    SkString name;
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
-    Scanner::AxisDefinitions axisDefinitions;
+    if (!face) {
+        return nullptr;
+    }
 
+    Scanner::AxisDefinitions axisDefinitions;
     if (!Scanner::GetAxes(face, &axisDefinitions)) {
         return nullptr;
     }
+
+    SkString name;
     SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
     Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                axisValues, name);
@@ -768,9 +782,7 @@ void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
 }
 
 int SkTypeface_FreeType::GetUnitsPerEm(FT_Face face) {
-    if (!face) {
-        return 0;
-    }
+    SkASSERT(face);
 
     SkScalar upem = SkIntToScalar(face->units_per_EM);
     // At least some versions of FreeType set face->units_per_EM to 0 for bitmap only fonts.
@@ -786,6 +798,9 @@ int SkTypeface_FreeType::GetUnitsPerEm(FT_Face face) {
 int SkTypeface_FreeType::onGetUPEM() const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
+    if (!face) {
+        return 0;
+    }
     return GetUnitsPerEm(face);
 }
 
@@ -1722,6 +1737,9 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
 int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
+    if (!face) {
+        return 0;
+    }
 
     FT_ULong tableCount = 0;
     FT_Error error;
@@ -1751,6 +1769,9 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
 {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
+    if (!face) {
+        return 0;
+    }
 
     FT_ULong tableLength = 0;
     FT_Error error;
@@ -1778,6 +1799,9 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
 sk_sp<SkData> SkTypeface_FreeType::onCopyTableData(SkFontTableTag tag) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
+    if (!face) {
+        return 0;
+    }
 
     FT_ULong tableLength = 0;
     FT_Error error;
@@ -1953,7 +1977,8 @@ bool SkTypeface_FreeType::Scanner::scanFont(
 }
 
 bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) {
-    if (axes && face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
+    SkASSERT(face && axes);
+    if (face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
         FT_MM_Var* variations = nullptr;
         FT_Error err = FT_Get_MM_Var(face, &variations);
         if (err) {
