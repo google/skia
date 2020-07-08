@@ -256,6 +256,10 @@ SkTextBlobBuilder::~SkTextBlobBuilder() {
     }
 }
 
+static SkRect map_quad_to_rect(const SkRSXform& xform, const SkRect& rect) {
+    return SkMatrix().setRSXform(xform).mapRect(rect);
+}
+
 SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
     const SkFont& font = run.font();
     SkRect bounds;
@@ -269,33 +273,37 @@ SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
     SkAutoSTArray<16, SkRect> glyphBounds(run.glyphCount());
     font.getBounds(run.glyphBuffer(), run.glyphCount(), glyphBounds.get(), nullptr);
 
-    SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
-             SkTextBlob::kHorizontal_Positioning == run.positioning());
-    // kFull_Positioning       => [ x, y, x, y... ]
-    // kHorizontal_Positioning => [ x, x, x... ]
-    //                            (const y applied by runBounds.offset(run->offset()) later)
-    const SkScalar horizontalConstY = 0;
-    const SkScalar* glyphPosX = run.posBuffer();
-    const SkScalar* glyphPosY = (run.positioning() == SkTextBlob::kFull_Positioning) ?
-                                                      glyphPosX + 1 : &horizontalConstY;
-    const unsigned posXInc = SkTextBlob::ScalarsPerGlyph(run.positioning());
-    const unsigned posYInc = (run.positioning() == SkTextBlob::kFull_Positioning) ?
-                                                   posXInc : 0;
+    if (SkTextBlob::kRSXform_Positioning == run.positioning()) {
+        bounds.setEmpty();
+        const SkRSXform* xform = run.xformBuffer();
+        SkASSERT((void*)(xform + run.glyphCount()) <= SkTextBlob::RunRecord::Next(&run));
+        for (unsigned i = 0; i < run.glyphCount(); ++i) {
+            bounds.join(map_quad_to_rect(xform[i], glyphBounds[i]));
+        }
+    } else {
+        SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
+                 SkTextBlob::kHorizontal_Positioning == run.positioning());
+        // kFull_Positioning       => [ x, y, x, y... ]
+        // kHorizontal_Positioning => [ x, x, x... ]
+        //                            (const y applied by runBounds.offset(run->offset()) later)
+        const SkScalar horizontalConstY = 0;
+        const SkScalar* glyphPosX = run.posBuffer();
+        const SkScalar* glyphPosY = (run.positioning() == SkTextBlob::kFull_Positioning) ?
+                                                        glyphPosX + 1 : &horizontalConstY;
+        const unsigned posXInc = SkTextBlob::ScalarsPerGlyph(run.positioning());
+        const unsigned posYInc = (run.positioning() == SkTextBlob::kFull_Positioning) ?
+                                                    posXInc : 0;
 
-    bounds.setEmpty();
-    for (unsigned i = 0; i < run.glyphCount(); ++i) {
-        bounds.join(glyphBounds[i].makeOffset(*glyphPosX, *glyphPosY));
-        glyphPosX += posXInc;
-        glyphPosY += posYInc;
+        bounds.setEmpty();
+        for (unsigned i = 0; i < run.glyphCount(); ++i) {
+            bounds.join(glyphBounds[i].makeOffset(*glyphPosX, *glyphPosY));
+            glyphPosX += posXInc;
+            glyphPosY += posYInc;
+        }
+
+        SkASSERT((void*)glyphPosX <= SkTextBlob::RunRecord::Next(&run));
     }
-
-    SkASSERT((void*)glyphPosX <= SkTextBlob::RunRecord::Next(&run));
-
     return bounds.makeOffset(run.offset().x(), run.offset().y());
-}
-
-static SkRect map_quad_to_rect(const SkRSXform& xform, const SkRect& rect) {
-    return SkMatrix().setRSXform(xform).mapRect(rect);
 }
 
 SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run) {
@@ -337,8 +345,8 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
     case SkTextBlob::kRSXform_Positioning: {
         const SkRSXform* xform = run.xformBuffer();
         SkASSERT((void*)(xform + run.glyphCount()) <= SkTextBlob::RunRecord::Next(&run));
-        bounds = map_quad_to_rect(xform[0], fontBounds);
-        for (unsigned i = 1; i < run.glyphCount(); ++i) {
+        bounds.setEmpty();
+        for (unsigned i = 0; i < run.glyphCount(); ++i) {
             bounds.join(map_quad_to_rect(xform[i], fontBounds));
         }
     } break;
