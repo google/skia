@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "5860e42b_4c29fb90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "I have fixed some of the issues, please take another look.",
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dca9d583_9d927f68",
         "filename": "fuzz/FuzzMain.cpp",
         "patchSetId": 8
@@ -65,6 +82,30 @@
     },
     {
       "key": {
+        "uuid": "0aa01d46_9b3eca00",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc1ef44c_ebd7080f",
+      "range": {
+        "startLine": 13,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 31
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2a26fd4_6bd3a907",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 8
@@ -85,6 +126,30 @@
       "revId": "6973115483b234c936f06777fad1e9e6f493941e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36c417da_bebb7422",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2a26fd4_6bd3a907",
+      "range": {
+        "startLine": 17,
+        "startChar": 5,
+        "endLine": 17,
+        "endChar": 24
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -135,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "07a519cd_de0e0657",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d73266dc_6ad6aada",
+      "range": {
+        "startLine": 18,
+        "startChar": 65,
+        "endLine": 18,
+        "endChar": 84
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f48c8169_6e905074",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 8
@@ -181,6 +270,54 @@
     },
     {
       "key": {
+        "uuid": "a6810db9_cdcfa202",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f48c8169_6e905074",
+      "range": {
+        "startLine": 24,
+        "startChar": 41,
+        "endLine": 24,
+        "endChar": 44
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4d72dbe_dbedcbd0",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c22cad94_8ced712d",
+      "range": {
+        "startLine": 24,
+        "startChar": 82,
+        "endLine": 24,
+        "endChar": 87
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79472b5a_9a5f11ac",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 8
@@ -204,6 +341,30 @@
     },
     {
       "key": {
+        "uuid": "e48f6b04_96c9e69c",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79472b5a_9a5f11ac",
+      "range": {
+        "startLine": 31,
+        "startChar": 11,
+        "endLine": 31,
+        "endChar": 20
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3840b066_be920923",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 8
@@ -215,6 +376,30 @@
       "writtenOn": "2020-07-08T19:07:10Z",
       "side": 1,
       "message": "Wrong data. Did you test that your code will eventually reach line 45?",
+      "range": {
+        "startLine": 32,
+        "startChar": 37,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f55a0d0b_c89558e5",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "I am using alf to run the code, and \"new edge on\" stick to 2.68%. So I wrote some lines to print something in the command line to see where goes wrong. while alf is executing the command line does not print anything. Is there some way to print stuff out while afl is executing?",
+      "parentUuid": "3840b066_be920923",
       "range": {
         "startLine": 32,
         "startChar": 37,
@@ -247,6 +432,30 @@
       "revId": "6973115483b234c936f06777fad1e9e6f493941e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dad08199_9ea0ef59",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T21:35:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33ff9870_251be462",
+      "range": {
+        "startLine": 54,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 21
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
