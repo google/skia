@@ -120,14 +120,12 @@ bool TextStyle::equalsByFonts(const TextStyle& that) const {
 bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) const {
     switch (styleType) {
         case kForeground:
-            if (fHasForeground) {
-                return other.fHasForeground && fForeground == other.fForeground;
-            } else {
-                return !other.fHasForeground && fColor == other.fColor;
-            }
+            return (!fHasForeground && !other.fHasForeground && fColor == other.fColor) ||
+                   ( fHasForeground &&  other.fHasForeground && fForeground == other.fForeground);
 
         case kBackground:
-            return (fHasBackground == other.fHasBackground && fBackground == other.fBackground);
+            return (!fHasBackground && !other.fHasBackground) ||
+                   ( fHasBackground &&  other.fHasBackground && fBackground == other.fBackground);
 
         case kShadow:
             if (fTextShadows.size() != other.fTextShadows.size()) {
