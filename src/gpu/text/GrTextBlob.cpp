@@ -382,6 +382,7 @@ auto GrTextBlob::SubRun::MakeTransformedMask(
     return SubRun::InitForAtlas(kTransformedMask, drawables, strikeSpec, format, blob, alloc);
 }
 
+#if 0
 void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
                                                    const SkSurfaceProps& props,
                                                    const SkPaint& paint,
@@ -485,6 +486,7 @@ void GrTextBlob::SubRun::insertSubRunOpsIntoTarget(GrTextTarget* target,
         }
     }
 }
+#endif
 
 auto GrTextBlob::SubRun::InitForAtlas(SubRunType type,
                                       const SkZip<SkGlyphVariant, SkPoint>& drawables,
