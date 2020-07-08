@@ -51,6 +51,24 @@
       "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38210215_35cb59fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-08T21:29:17Z",
+      "side": 1,
+      "message": "Actually on second look I\u0027m not sure hairline stroking is affected -- it appears that only the \"bold\" stroke of the curve (from its being selected) in AAGeometry has the inaccuracy -- you can see the hairline extend to the correct point with the current code. That makes sense if the hairline implementation makes use of De Casteljau of something analogous.",
+      "parentUuid": "6559bfa4_8bd379f2",
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
