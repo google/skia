@@ -49,41 +49,16 @@ GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType t
 GrDawnBuffer::~GrDawnBuffer() {
 }
 
-static void callback_read(WGPUBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
-                     void* userData) {
-    (*reinterpret_cast<const void**>(userData)) = data;
-}
-
-static void callback_write(WGPUBufferMapAsyncStatus status, void* data, uint64_t dataLength,
-                           void* userData) {
-    (*reinterpret_cast<const void**>(userData)) = data;
-}
-
 void GrDawnBuffer::onMap() {
     if (this->wasDestroyed()) {
         return;
     }
-    if (fMappable == Mappable::kNot) {
-        GrStagingBuffer::Slice slice = getGpu()->allocateStagingBufferSlice(this->size());
-        fStagingBuffer = static_cast<GrDawnStagingBuffer*>(slice.fBuffer)->buffer();
-        fStagingOffset = slice.fOffset;
-        fMapPtr = slice.fData;
-    } else {
-        SkASSERT(!fStagingBuffer);
-        SkASSERT(!fMapPtr);
-
-        if (fMappable == Mappable::kReadOnly) {
-            fBuffer.MapReadAsync(callback_read, &fMapPtr);
-        } else {
-            fBuffer.MapWriteAsync(callback_write, &fMapPtr);
-        }
-        // We shouldn't be sitting in this loop for long since we will rarely if ever even try to
-        // map a GrGpuBuffer that is still in use on the GPU.
-        while (!fMapPtr) {
-            this->getDawnGpu()->device().Tick();
-        }
-        fStagingOffset = 0;
-    }
+    SkASSERT(fMappable == Mappable::kNot);
+    GrStagingBufferManager::Slice slice =
+        this->getDawnGpu()->stagingBufferManager()->allocateStagingBufferSlice(this->size());
+    fStagingBuffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
+    fStagingOffset = slice.fOffset;
+    fMapPtr = slice.fOffsetMapPtr;
 }
 
 void GrDawnBuffer::onUnmap() {
