@@ -127,7 +127,7 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             }
 
         case kBackground:
-            return (fHasBackground == other.fHasBackground && fBackground == other.fBackground);
+            return fHasBackground ? (other.fHasBackground && fBackground == other.fBackground) : !other.fHasBackground;
 
         case kShadow:
             if (fTextShadows.size() != other.fTextShadows.size()) {
