@@ -563,14 +563,14 @@ wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
                         &binding);
         }
     }
-    GrFragmentProcessor::CIter fpIter(pipeline);
-    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
-        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
-            auto& s = fpIter->textureSampler(i);
-            set_texture(gpu, s.samplerState(), s.peekTexture(), &bindings, &binding);
-        }
+
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        auto& fp = pipeline.getFragmentProcessor(i);
+        fp.visitTextureEffects([&](const GrTextureEffect& te) {
+            set_texture(gpu, te.samplerState(), te.texture(), &bindings, &binding);
+        });
     }
+
     SkIPoint offset;
     if (GrTexture* dstTexture = pipeline.peekDstTexture(&offset)) {
         set_texture(gpu, GrSamplerState::Filter::kNearest, dstTexture, &bindings, &binding);
