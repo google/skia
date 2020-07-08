@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "00ebe317_31bde008",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-08T18:39:15Z",
+      "side": 1,
+      "message": "Nope. Don\u0027t even come close. ...and we don\u0027t test geometric clipping either.",
+      "parentUuid": "14ce28ed_d9c87734",
+      "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f1e1f2d_5dcace1a",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 3
@@ -79,6 +97,72 @@
       "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5a919d0_652a955e",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-08T18:39:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f1e1f2d_5dcace1a",
+      "range": {
+        "startLine": 438,
+        "startChar": 37,
+        "endLine": 438,
+        "endChar": 38
+      },
+      "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c25be3bd_88bb6bfa",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-08T18:39:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a106a66_7639027b",
+      "range": {
+        "startLine": 438,
+        "startChar": 47,
+        "endLine": 438,
+        "endChar": 48
+      },
+      "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f1d6658_3e528104",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-08T18:39:15Z",
+      "side": 1,
+      "message": "Yes. That was a bug. I have CL\nhttps://skia-review.googlesource.com/c/skia/+/301304\nto fix the root of the problem.",
+      "parentUuid": "df6c7678_36be19a7",
+      "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
