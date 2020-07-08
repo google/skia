@@ -33,6 +33,24 @@
       "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6559bfa4_8bd379f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-08T21:10:15Z",
+      "side": 1,
+      "message": "The reference for the new calculations is at the top of the implementation:\n\n    /* Calculate the center \"C\" and the vector to one focus \"c\".\n       Equations from \"Characteristics of conic segments in Bezier form\"\n       by Javier-Sanchez-Reyes (Proceedings of the IMProve 2011,\n       pp. 231-4 section 3.2.) */\n\nThat\u0027s this: https://pdfs.semanticscholar.org/9e4a/b59c8cabb925e907183e899cca62ba55b565.pdf\n\nThe end of my initial CR comment (not the description) describes the sense in which this push improves accuracy, and yes it\u0027s related to stroking. I believe the AAGeometry \"test\" I describe is more or less a demonstration of hairline stroking. In the current master the extreme of the line-degenerate conic is estimated inaccurately, which you can see from the discontinuity as the control point crosses the line of the other two points. With this change that discontinuity should go away. \n\n(That problem affects strokes of any width, not just hairlines, but I don\u0027t have a handy tool to refer to. There will be one in my next CR if we get that far.)\n\nAs for findMaxCurvature() more generally you\u0027ll have to look at the other two code spots referencing the need for it (src/gpu/ops/GrAAHairLinePathRenderer.cpp::split_conic and src/pathops/SkOpEdgeBuilder.cpp line 236) to judge the effect. There are several common reasons to chop splines at curvature maximums and I haven\u0027t looked in enough detail to determine the reasoning. I\u0027ve only really looked at the stroke code in any detail.",
+      "parentUuid": "fded969c_ec09369c",
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
