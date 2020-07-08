@@ -110,9 +110,8 @@ void GrPipeline::genKey(GrProcessorKeyBuilder* b, const GrCaps& caps) const {
 
 void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
     // This iteration includes any clip coverage FPs
-    for (auto [sampler, fp] : GrFragmentProcessor::PipelineTextureSamplerRange(*this)) {
-        bool mipped = (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter());
-        func(sampler.view().proxy(), GrMipMapped(mipped));
+    for (auto& fp : fFragmentProcessors) {
+        fp->visitProxies(func);
     }
     if (fDstProxyView.asTextureProxy()) {
         func(fDstProxyView.asTextureProxy(), GrMipMapped::kNo);
