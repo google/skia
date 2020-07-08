@@ -16,6 +16,23 @@
       "revId": "2002b1ff7150717b466f60d245a936eabbf5e290",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9efedd17_4e3cf53e",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-08T17:40:41Z",
+      "side": 1,
+      "message": "So this is a shortcut for\n    if (fInitialMatrix.invert(nullptr) !\u003d drawMatrix.invert(nullptr)) {\n\n? Seems we don\u0027t have a matrix type for \u0027singular\u0027.",
+      "revId": "2002b1ff7150717b466f60d245a936eabbf5e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
