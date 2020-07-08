@@ -321,12 +321,17 @@ public:
 
     /**
      * Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
-     * executing any more commands on the GPU. Skia will take ownership of the underlying semaphores
-     * and delete them once they have been signaled and waited on. If this call returns false, then
-     * the GPU back-end will not wait on any passed in semaphores, and the client will still own the
-     * semaphores.
+     * executing any more commands on the GPU. If this call returns false, then the GPU back-end
+     * will not wait on any passed in semaphores, and the client will still own the semaphores,
+     * regardless of the value of deleteSemaphoresAfterWait.
+     *
+     * If deleteSemaphoresAfterWait is false then Skia will not delete the semaphores. In this case
+     * it is the client's responsibility to not destroy or attempt to reuse the semaphores until it
+     * knows that Skia has finished waiting on them. This can be done by using finishedProcs on
+     * flush calls.
      */
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+              bool deleteSemaphoresAfterWait = true);
 
     /**
      * Call to ensure all drawing to the context has been flushed and submitted to the underlying 3D
