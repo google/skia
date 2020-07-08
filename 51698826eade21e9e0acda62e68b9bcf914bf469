@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "12c3d90d_472708b6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T18:55:03Z",
+      "side": 1,
+      "message": "Sure, fixed the commit message and submitted",
+      "parentUuid": "37c0d7b2_59379e1e",
+      "revId": "51698826eade21e9e0acda62e68b9bcf914bf469",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9368b385_3d7ff439",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
