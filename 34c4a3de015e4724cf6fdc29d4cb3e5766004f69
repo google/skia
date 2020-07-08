@@ -52,6 +52,24 @@
       "revId": "34c4a3de015e4724cf6fdc29d4cb3e5766004f69",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "001b0558_9e5a90cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-08T15:35:33Z",
+      "side": 1,
+      "message": "I added the appropriate constructor as a placeholder, but I plan to flesh it out more in a followup cl.",
+      "parentUuid": "11a3440c_ba0e79ae",
+      "revId": "34c4a3de015e4724cf6fdc29d4cb3e5766004f69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
