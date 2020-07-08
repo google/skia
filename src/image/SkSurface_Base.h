@@ -119,7 +119,8 @@ public:
      * commands on the gpu. Any previously submitting commands will not be blocked by these
      * semaphores.
      */
-    virtual bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+    virtual bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+                        bool deleteSemaphoresAfterWait) {
         return false;
     }
 

@@ -1027,10 +1027,12 @@ GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
     return fRenderTargetContext->flush(access, info, newState);
 }
 
-bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+                       bool deleteSemaphoresAfterWait) {
     ASSERT_SINGLE_OWNER
 
-    return fRenderTargetContext->waitOnSemaphores(numSemaphores, waitSemaphores);
+    return fRenderTargetContext->waitOnSemaphores(numSemaphores, waitSemaphores,
+                                                  deleteSemaphoresAfterWait);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

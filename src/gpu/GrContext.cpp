@@ -290,14 +290,16 @@ int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]) {
+bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                     bool deleteSemaphoresAfterWait) {
     if (!fGpu || fGpu->caps()->semaphoreSupport()) {
         return false;
     }
+    GrWrapOwnership ownership =
+            deleteSemaphoresAfterWait ? kAdopt_GrWrapOwnership : kBorrow_GrWrapOwnership;
     for (int i = 0; i < numSemaphores; ++i) {
         std::unique_ptr<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
-                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
-                kAdopt_GrWrapOwnership);
+                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait, ownership);
         // If we failed to wrap the semaphore it means the client didn't give us a valid semaphore
         // to begin with. Therefore, it is fine to not wait on it.
         if (sema) {
