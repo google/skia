@@ -32,6 +32,12 @@ struct WhileStatement : public Statement {
                                                              fStatement->clone()));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("WhileStatement()");
+    }
+#endif
+
     String description() const override {
         return "while (" + fTest->description() + ") " + fStatement->description();
     }

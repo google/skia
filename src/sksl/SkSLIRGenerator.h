@@ -45,7 +45,6 @@ public:
     void convertProgram(Program::Kind kind,
                         const char* text,
                         size_t length,
-                        SymbolTable& types,
                         std::vector<std::unique_ptr<ProgramElement>>* result);
 
     /**
@@ -63,14 +62,15 @@ public:
     const Program::Settings* fSettings;
     const Context& fContext;
     Program::Kind fKind;
-
-private:
+// FIXME do not land like this
+//private:
     /**
      * Prepare to compile a program. Resets state, pushes a new symbol table, and installs the
      * settings.
      */
     void start(const Program::Settings* settings,
-               std::vector<std::unique_ptr<ProgramElement>>* inherited);
+               std::vector<std::unique_ptr<ProgramElement>>* inherited,
+               bool markFunctionsBuiltin = false);
 
     /**
      * Performs cleanup after compilation is complete.
@@ -161,6 +161,7 @@ private:
     void setRefKind(const Expression& expr, VariableReference::RefKind kind);
     void getConstantInt(const Expression& value, int64_t* out);
     bool checkSwizzleWrite(const Swizzle& swizzle);
+    void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
 
     std::unique_ptr<ASTFile> fFile;
     const FunctionDeclaration* fCurrentFunction;
@@ -173,6 +174,7 @@ private:
     // Symbols which have definitions in the include files. The bool tells us whether this
     // intrinsic has been included already.
     std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
+    std::set<const FunctionDeclaration*> fReferencedIntrinsics;
     int fLoopLevel;
     int fSwitchLevel;
     ErrorReporter& fErrors;
@@ -184,6 +186,7 @@ private:
     int fRTAdjustFieldIndex;
     int fInlineVarCounter;
     bool fCanInline = true;
+    bool fMarkFunctionsBuiltin;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

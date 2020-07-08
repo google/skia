@@ -38,6 +38,13 @@ struct PostfixExpression : public Expression {
         return std::unique_ptr<Expression>(new PostfixExpression(fOperand->clone(), fOperator));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return String::printf("PostfixExpression()");
+    }
+#endif
+
     String description() const override {
         return fOperand->description() + Compiler::OperatorName(fOperator);
     }

@@ -33,6 +33,13 @@ struct ExternalValueReference : public Expression {
         return String(fValue->fName);
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return "<external value reference>";
+    }
+#endif
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new ExternalValueReference(fOffset, fValue));
     }

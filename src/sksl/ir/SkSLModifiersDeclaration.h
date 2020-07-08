@@ -27,6 +27,13 @@ struct ModifiersDeclaration : public ProgramElement {
         return std::unique_ptr<ProgramElement>(new ModifiersDeclaration(fModifiers));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return "ModifiersDeclaration()";
+    }
+#endif
+
     String description() const override {
         return fModifiers.description() + ";";
     }

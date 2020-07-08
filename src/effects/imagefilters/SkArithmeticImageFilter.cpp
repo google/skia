@@ -378,7 +378,9 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                              ctx.colorSpace(), kPremul_SkAlphaType);
         paint.addColorFragmentProcessor(std::move(fgFP));
 
-        static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
+        static auto result = SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC));
+        static auto effect = std::get<0>(result);
+        printf("%s\n", std::get<1>(result).c_str());
         SkASSERT(effect->inputSize() == sizeof(fInputs));
         std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(
                 context, effect, "Arithmetic", SkData::MakeWithCopy(&fInputs, sizeof(fInputs)));

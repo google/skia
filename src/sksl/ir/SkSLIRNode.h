@@ -11,6 +11,10 @@
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLString.h"
 
+#ifdef SKSL_STANDALONE
+#include "src/sksl/SkSLSymbolWriter.h"
+#endif
+
 namespace SkSL {
 
 /**
@@ -28,6 +32,9 @@ struct IRNode {
         return 1;
     }
 
+#ifdef SKSL_STANDALONE
+    virtual String constructionCode() const = 0;
+#endif
 
     virtual String description() const = 0;
 

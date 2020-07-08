@@ -55,6 +55,13 @@ struct ExternalFunctionCall : public Expression {
                                                                     std::move(cloned)));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return String::printf("ExternalFunctionCall()");
+    }
+#endif
+
     String description() const override {
         String result = String(fFunction->fName) + "(";
         String separator;

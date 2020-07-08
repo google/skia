@@ -59,6 +59,22 @@ struct FunctionCall : public Expression {
                                                             std::move(cloned)));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String args("make_vector<Expression>(");
+        args += to_string((int) fArguments.size());
+        for (const auto& a : fArguments) {
+            args += ", ";
+            args += a->constructionCode();
+        }
+        args += ")";
+        return String::printf("new FunctionCall(-1, *%s, *%s, %s)",
+                              SymbolWriter::symbolCode(fType).c_str(),
+                              SymbolWriter::symbolCode(fFunction).c_str(),
+                              args.c_str());
+    }
+#endif
+
     String description() const override {
         String result = String(fFunction.fName) + "(";
         String separator;

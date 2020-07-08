@@ -138,6 +138,21 @@ struct Swizzle : public Expression {
         return std::unique_ptr<Expression>(new Swizzle(fType, fBase->clone(), fComponents));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String result = String::printf("new Swizzle(context, std::unique_ptr<Expression>(%s), {",
+                                       fBase->constructionCode().c_str());
+        const char* separator = " ";
+        for (int c : fComponents) {
+            result += separator;
+            separator = ", ";
+            result += to_string(c);
+        }
+        result += " })";
+        return result;
+    }
+#endif
+
     String description() const override {
         String result = fBase->description() + ".";
         for (int x : fComponents) {

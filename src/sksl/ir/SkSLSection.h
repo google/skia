@@ -26,6 +26,13 @@ struct Section : public ProgramElement {
         return std::unique_ptr<ProgramElement>(new Section(fOffset, fName, fArgument, fText));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return "Section()";
+    }
+#endif
+
     String description() const override {
         String result = "@" + fName;
         if (fArgument.size()) {

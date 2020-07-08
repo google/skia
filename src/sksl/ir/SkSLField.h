@@ -31,6 +31,13 @@ struct Field : public Symbol {
         return fOwner.description() + "." + fOwner.fType.fields()[fFieldIndex].fName;
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new Field(-1, *(Variable*) (*symbols)[\"%s_$var\"], %d)",
+                              String(fOwner.fName).c_str(), fFieldIndex);
+    }
+#endif
+
     const Variable& fOwner;
     const int fFieldIndex;
 

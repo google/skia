@@ -28,6 +28,12 @@ struct DiscardStatement : public Statement {
         return std::unique_ptr<Statement>(new DiscardStatement(fOffset));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return "DiscardStatement(%d)";
+    }
+#endif
+
     String description() const override {
         return String("discard;");
     }

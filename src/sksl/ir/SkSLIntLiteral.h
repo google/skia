@@ -64,6 +64,12 @@ struct IntLiteral : public Expression {
         return std::unique_ptr<Expression>(new IntLiteral(fOffset, fValue, &fType));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new IntLiteral(context, -1, %d)", fValue);
+    }
+#endif
+
     const int64_t fValue;
 
     typedef Expression INHERITED;

@@ -24,6 +24,13 @@ struct Extension : public ProgramElement {
         return std::unique_ptr<ProgramElement>(new Extension(fOffset, fName));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return "Extension()";
+    }
+#endif
+
     String description() const override {
         return "#extension " + fName + " : enable";
     }

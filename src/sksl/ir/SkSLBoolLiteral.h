@@ -46,6 +46,12 @@ struct BoolLiteral : public Expression {
         return std::unique_ptr<Expression>(new BoolLiteral(fOffset, fValue, &fType));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new BoolLiteral(context, -1, %d)", fValue);
+    }
+#endif
+
     const bool fValue;
 
     typedef Expression INHERITED;

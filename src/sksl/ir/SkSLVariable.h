@@ -9,13 +9,12 @@
 #define SKSL_VARIABLE
 
 #include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
-
-struct Expression;
 
 /**
  * Represents a variable, whether local, global, or a function parameter. This represents the
@@ -45,8 +44,26 @@ struct Variable : public Symbol {
         if (fInitialValue) {
             --fWriteCount;
         }
-        SkASSERT(!fReadCount && !fWriteCount);
+//        SkASSERT(!fReadCount && !fWriteCount);
     }
+
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        // For everything other than enums, We leave initialValue null here and fill it in later
+        // when we reach the VarDeclaration
+        String initialValue;
+        if (fType.kind() == Type::kEnum_Kind && fInitialValue) {
+            initialValue = "(Expression*) symbols->takeOwnership(std::unique_ptr<Expression>(" +
+                           fInitialValue->constructionCode() + "))";
+        } else {
+            initialValue = "nullptr";
+        }
+        return String::printf("new Variable(-1, %s, \"%s\", *%s, (Variable::Storage) %d, %s)",
+                              fModifiers.constructionCode().c_str(),
+                              String(fName).c_str(), SymbolWriter::symbolCode(fType).c_str(),
+                              fStorage, initialValue.c_str());
+    }
+#endif
 
     virtual String description() const override {
         return fModifiers.description() + fType.fName + " " + fName;

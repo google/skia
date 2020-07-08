@@ -32,6 +32,14 @@ public:
         , fName(name)
         , fType(std::move(type)) {}
 
+#ifdef SKSL_STANDALONE
+        String constructionCode() const {
+            return String::printf("Type::Field(%s, \"%s\", %s)",
+                                  fModifiers.constructionCode().c_str(),
+                                  String(fName).c_str(), SymbolWriter::symbolCode(*fType).c_str());
+        }
+#endif
+
         const String description() const {
             return fType->displayName() + " " + fName + ";";
         }
@@ -241,6 +249,40 @@ public:
         }
         return fNameString;
     }
+
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        switch (fTypeKind) {
+            case kArray_Kind:
+                return String::printf("new Type(\"%s\", Type::kArray_Kind, *%s, %d)",
+                                      String(fName).c_str(),
+                                      SymbolWriter::symbolCode(*fComponentType).c_str(), fColumns);
+            case kEnum_Kind:
+                return String::printf("new Type(\"%s\", Type::kEnum_Kind)",
+                                      String(fName).c_str());
+
+            case kNullable_Kind:
+                return String::printf("new Type(\"%s\", Type::kNullable_Kind, *%s)",
+                                      String(fName).c_str(),
+                                      SymbolWriter::symbolCode(*fComponentType).c_str());
+            case kStruct_Kind: {
+                String fields("{");
+                const char* separator = " ";
+                for (const auto& f : fFields) {
+                    fields += separator;
+                    fields += f.constructionCode();
+                    separator = ", ";
+                }
+                fields += " }";
+                return String::printf("new Type(%d, \"%s\", %s)", fOffset, String(fName).c_str(),
+                                      fields.c_str());
+            }
+            default:
+                SkASSERT(false);
+                return "<cannot construct type " + fName + ">";
+        }
+    }
+#endif
 
     String description() const override {
         return this->displayName();

@@ -103,6 +103,15 @@ struct Modifiers {
         return result;
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const {
+        if (*this == Modifiers()) {
+            return "m";
+        }
+        return String::printf("Modifiers(%s, %d)", fLayout.constructionCode().c_str(), fFlags);
+    }
+#endif
+
     bool operator==(const Modifiers& other) const {
         return fLayout == other.fLayout && fFlags == other.fFlags;
     }

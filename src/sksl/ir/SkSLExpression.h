@@ -9,7 +9,6 @@
 #define SKSL_EXPRESSION
 
 #include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/ir/SkSLVariable.h"
 
 #include <unordered_map>
 
@@ -17,6 +16,7 @@ namespace SkSL {
 
 struct Expression;
 class IRGenerator;
+struct Variable;
 
 typedef std::unordered_map<const Variable*, std::unique_ptr<Expression>*> DefinitionMap;
 

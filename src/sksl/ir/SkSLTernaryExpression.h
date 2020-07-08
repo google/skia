@@ -46,6 +46,13 @@ struct TernaryExpression : public Expression {
                                                                  fIfFalse->clone()));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        SkASSERT(false);
+        return String::printf("TernaryExpression()");
+    }
+#endif
+
     String description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
                fIfFalse->description() + ")";

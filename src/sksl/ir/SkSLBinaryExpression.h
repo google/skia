@@ -54,6 +54,16 @@ struct BinaryExpression : public Expression {
                                                                 fRight->clone(), fType));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        return String::printf("new BinaryExpression(-1, std::unique_ptr<Expression>(%s), "
+                              "(Token::Kind) %d, std::unique_ptr<Expression>(%s), *%s)",
+                              fLeft->constructionCode().c_str(), (int) fOperator,
+                              fRight->constructionCode().c_str(),
+                              SymbolWriter::symbolCode(fType).c_str());
+    }
+#endif
+
     String description() const override {
         return "(" + fLeft->description() + " " + Compiler::OperatorName(fOperator) + " " +
                fRight->description() + ")";

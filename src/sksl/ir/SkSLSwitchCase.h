@@ -44,6 +44,22 @@ struct SwitchCase : public Statement {
                                                          std::move(cloned)));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String result = String::printf("new SwitchCase(-1, std::unique_ptr<Expression>(%s), "
+                                       "make_vector<Statement>(%d",
+                                       fValue ? fValue->constructionCode().c_str()
+                                                   : "nullptr",
+                                       (int) fStatements.size());
+        for (const auto& s : fStatements) {
+            result += ", ";
+            result += s->constructionCode();
+        }
+        result += "))";
+        return result;
+    }
+#endif
+
     String description() const override {
         String result;
         if (fValue) {

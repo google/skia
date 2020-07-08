@@ -49,7 +49,7 @@ void String::vappendf(const char* fmt, va_list args) {
     va_list reuse;
     va_copy(reuse, args);
     size_t size = vsnprintf(buffer, BUFFER_SIZE, fmt, args);
-    if (BUFFER_SIZE >= size) {
+    if (BUFFER_SIZE >= size + 1) {
         this->append(buffer, size);
     } else {
         auto newBuffer = std::unique_ptr<char[]>(new char[size + 1]);

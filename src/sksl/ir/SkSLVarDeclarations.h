@@ -56,7 +56,7 @@ struct VarDeclaration : public Statement {
     }
 
     String description() const override {
-        String result = fVar->fName;
+        String result = fVar->fModifiers.description() + fVar->fType.name() + " " + fVar->fName;
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
@@ -65,10 +65,34 @@ struct VarDeclaration : public Statement {
             }
         }
         if (fValue) {
-            result += " = " + fValue->description();
+            result += " = " + fValue->description() + String::printf("/*this: %p, var: %p, value:%p*/", this, fVar, fValue.get());
         }
         return result;
     }
+
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String sizes("make_vector<Expression>(");
+        sizes += to_string((int32_t) fSizes.size());
+        for (const auto& s : fSizes) {
+            sizes += ", ";
+            sizes += s->constructionCode();
+        }
+        sizes += ")";
+        if (fValue) {
+            return String::printf("((void) set_initial_value((Variable*) (*symbols)[\"%s\"], %s), "
+                                  "new VarDeclaration(%s, %s, std::unique_ptr<Expression>(("
+                                  "(Variable*) (*symbols)[\"%s\"])->fInitialValue)))",
+                                  String(fVar->fName).c_str(), fValue->constructionCode().c_str(),
+                                  SymbolWriter::symbolCode(*fVar).c_str(), sizes.c_str(),
+                                  String(fVar->fName).c_str());
+        } else {
+            return String::printf("new VarDeclaration(%s, %s, "
+                                  "std::unique_ptr<Expression>(nullptr))",
+                                  SymbolWriter::symbolCode(*fVar).c_str(), sizes.c_str());
+        }
+    }
+#endif
 
     const Variable* fVar;
     std::vector<std::unique_ptr<Expression>> fSizes;
@@ -108,6 +132,20 @@ struct VarDeclarations : public ProgramElement {
                                                                      std::move(cloned)));
     }
 
+#ifdef SKSL_STANDALONE
+    String constructionCode() const override {
+        String vars("make_vector<VarDeclaration>(");
+        vars += to_string((int32_t) fVars.size());
+        for (const auto& decl : fVars) {
+            vars += ", ";
+            vars += decl->constructionCode();
+        }
+        vars += ")";
+        return String::printf("new VarDeclarations(-1, %s, %s)",
+                              SymbolWriter::symbolCode(fBaseType).c_str(), vars.c_str());
+    }
+#endif
+
     String description() const override {
         if (!fVars.size()) {
             return String();
@@ -122,10 +160,18 @@ struct VarDeclarations : public ProgramElement {
         }
         result += fBaseType.description() + " ";
         String separator;
-        for (const auto& var : fVars) {
+        for (const auto& rawVar : fVars) {
+            if (rawVar->fKind == Statement::kNop_Kind) {
+                continue;
+            }
+            SkASSERT(rawVar->fKind == Statement::kVarDeclaration_Kind);
+            VarDeclaration& var = (VarDeclaration&) *rawVar;
             result += separator;
             separator = ", ";
-            result += var->description();
+            result += var.fVar->fName;
+            if (var.fValue) {
+                result += " = " + var.fValue->description();
+            }
         }
         return result;
     }
