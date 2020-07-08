@@ -73,16 +73,22 @@ public:
         commands for this secondary CB. The wait semaphores will get added to the VkCommandBuffer
         owned by this GrContext when flush() is called, and not the command buffer which the
         Secondary CB is from. This will guarantee that the driver waits on the semaphores before
-        the secondary command buffer gets executed. Skia will take ownership of the underlying
-        semaphores and delete them once they have been signaled and waited on. If this call returns
-        false, then the GPU back-end will not wait on any passed in semaphores, and the client will
-        still own the semaphores.
+        the secondary command buffer gets executed. If this call returns false, then the GPU
+        back end will not wait on any passed in semaphores, and the client will still own the
+        semaphores, regardless of the value of deleteSemaphoresAfterWait.
 
-        @param numSemaphores   size of waitSemaphores array
-        @param waitSemaphores  array of semaphore containers
-        @return                true if GPU is waiting on semaphores
+        If deleteSemaphoresAfterWait is false then Skia will not delete the semaphores. In this case
+        it is the client's responsibility to not destroy or attempt to reuse the semaphores until it
+        knows that Skia has finished waiting on them. This can be done by using finishedProcs
+        on flush calls.
+
+        @param numSemaphores               size of waitSemaphores array
+        @param waitSemaphores              array of semaphore containers
+        @paramm deleteSemaphoresAfterWait  who owns and should delete the semaphores
+        @return                            true if GPU is waiting on semaphores
     */
-    bool wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]);
+    bool wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                     bool deleteSemaphoresAfterWait = true);
 
     // This call will release all resources held by the draw context. The client must call
     // releaseResources() before deleting the drawing context. However, the resources also include

@@ -54,7 +54,8 @@ public:
     void onDiscard() override;
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
                                   const GrBackendSurfaceMutableState*) override;
-    bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
+    bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+                 bool deleteSemaphoresAfterWait) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool onIsCompatible(const SkSurfaceCharacterization&) const override;
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
