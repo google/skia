@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf886b34_7d19f035",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-08T15:10:12Z",
+      "side": 1,
+      "message": "Rob mentioned that he got the ok from reed@. Brian what say you?",
+      "revId": "e83a2aa64783959057da3f82c3a485658ae9ee0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
