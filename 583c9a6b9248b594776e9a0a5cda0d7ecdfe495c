@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14ce28ed_d9c87734",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-08T18:22:01Z",
+      "side": 1,
+      "message": "So, we don\u0027t test DF ops ?",
+      "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f1e1f2d_5dcace1a",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-08T18:22:01Z",
+      "side": 1,
+      "message": "\\n",
+      "range": {
+        "startLine": 438,
+        "startChar": 37,
+        "endLine": 438,
+        "endChar": 38
+      },
+      "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a106a66_7639027b",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-08T18:22:01Z",
+      "side": 1,
+      "message": "\\n",
+      "range": {
+        "startLine": 438,
+        "startChar": 47,
+        "endLine": 438,
+        "endChar": 48
+      },
+      "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df6c7678_36be19a7",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-08T18:22:01Z",
+      "side": 1,
+      "message": "Wasn\u0027t this moved to the top of this method in an earlier CL?",
+      "revId": "583c9a6b9248b594776e9a0a5cda0d7ecdfe495c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
