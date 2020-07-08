@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 #include "bench/Benchmark.h"
+#include "bench/ResultsWriter.h"
+#include "bench/SkSLBench.h"
 #include "src/sksl/SkSLCompiler.h"
 
 class SkSLBench : public Benchmark {
@@ -115,3 +117,33 @@ DEF_BENCH(return new SkSLBench("huge", R"(
         }
     }
 )"); )
+
+#if defined(SK_BUILD_FOR_UNIX)
+
+#include <malloc.h>
+
+// These benchmarks aren't timed, they produce memory usage statistics. They run standalone, and
+// directly add their results to the nanobench log.
+void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
+    auto heap_bytes_used = []() { return mallinfo().uordblks; };
+    auto bench = [log](const char* name, int bytes) {
+        log->beginObject(name);          // test
+        log->beginObject("meta");        //   config
+        log->appendS32("bytes", bytes);  //     sub_result
+        log->endObject();                //   config
+        log->endObject();                // test
+    };
+
+    {
+        int before = heap_bytes_used();
+        SkSL::Compiler compiler;
+        int after = heap_bytes_used();
+        bench("sksl_compiler_baseline", after - before);
+    }
+}
+
+#else
+
+void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter*) {}
+
+#endif
