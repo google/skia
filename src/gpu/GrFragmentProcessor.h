@@ -238,37 +238,33 @@ public:
     // hierarchies rooted in a GrPaint, GrProcessorSet, or GrPipeline. For these collections it
     // iterates the tree rooted at each color FP and then each coverage FP.
     //
-    // Iter is the non-const version and CIter is the const version.
-    //
     // An iterator is constructed from one of the srcs and used like this:
     //   for (GrFragmentProcessor::Iter iter(pipeline); iter; ++iter) {
     //       GrFragmentProcessor& fp = *iter;
     //   }
-    // The exit test for the loop is using Iter's operator bool().
+    // The exit test for the loop is using CIter's operator bool().
     // To use a range-for loop instead see CIterRange below.
-    class Iter;
     class CIter;
 
     // Used to implement a range-for loop using CIter. Src is one of GrFragmentProcessor,
     // GrPaint, GrProcessorSet, or GrPipeline. Type aliases for these defined below.
     // Example usage:
-    //   for (const auto& fp : GrFragmentProcessor::PaintCRange(paint)) {
+    //   for (const auto& fp : GrFragmentProcessor::PaintRange(paint)) {
     //       if (fp.usesLocalCoords()) {
     //       ...
     //       }
     //   }
     template <typename Src> class CIterRange;
 
-
-    // We would use template deduction guides for Iter/CIter but for:
+    // We would use template deduction guides for CIter but for:
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79501
     // Instead we use these specialized type aliases to make it prettier
-    // to construct Iters for particular sources of FPs.
-    using FPCRange = CIterRange<GrFragmentProcessor>;
-    using PaintCRange = CIterRange<GrPaint>;
+    // to construct CIters for particular sources of FPs.
+    using FPRange = CIterRange<GrFragmentProcessor>;
+    using PaintRange = CIterRange<GrPaint>;
 
-    // Sentinel type for range-for using Iter.
-    class EndIter {};
+    // Sentinel type for range-for using CIter.
+    class EndCIter {};
 
 protected:
     enum OptimizationFlags : uint32_t {
@@ -369,9 +365,6 @@ protected:
     }
 
 private:
-    // Implementation details of Iter and CIter.
-    template <typename> class IterBase;
-
     virtual SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& /* inputColor */) const {
         SK_ABORT("Subclass must override this if advertising this optimization.");
     }
@@ -420,59 +413,31 @@ GR_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
 
 //////////////////////////////////////////////////////////////////////////////
 
-template <typename FP> class GrFragmentProcessor::IterBase {
+class GrFragmentProcessor::CIter {
 public:
-    FP& operator*() const { return *fFPStack.back(); }
-    FP* operator->() const { return fFPStack.back(); }
-    operator bool() const { return !fFPStack.empty(); }
-    bool operator!=(const EndIter&) { return (bool)*this; }
-
-    // Hopefully this does not actually get called because of RVO.
-    IterBase(const IterBase&) = default;
-
-    // Because each iterator carries a stack we want to avoid copies.
-    IterBase& operator=(const IterBase&) = delete;
-
-protected:
-    void increment();
-
-    IterBase() = default;
-    explicit IterBase(FP& fp) { fFPStack.push_back(&fp); }
-
-    SkSTArray<4, FP*, true> fFPStack;
-};
-
-template <typename FP> void GrFragmentProcessor::IterBase<FP>::increment() {
-    SkASSERT(!fFPStack.empty());
-    FP* back = fFPStack.back();
-    fFPStack.pop_back();
-    for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(&back->childProcessor(i));
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-class GrFragmentProcessor::Iter : public IterBase<GrFragmentProcessor> {
-public:
-    explicit Iter(GrFragmentProcessor& fp) : IterBase(fp) {}
-    Iter& operator++() {
-        this->increment();
-        return *this;
-    }
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-class GrFragmentProcessor::CIter : public IterBase<const GrFragmentProcessor> {
-public:
-    explicit CIter(const GrFragmentProcessor& fp) : IterBase(fp) {}
+    explicit CIter(const GrFragmentProcessor& fp) { fFPStack.push_back(&fp); }
     explicit CIter(const GrPaint&);
     explicit CIter(const GrPipeline&);
-    CIter& operator++() {
-        this->increment();
-        return *this;
-    }
+
+    const GrFragmentProcessor& operator*() const  { return *fFPStack.back(); }
+    const GrFragmentProcessor* operator->() const { return fFPStack.back(); }
+
+    CIter& operator++();
+
+    operator bool() const { return !fFPStack.empty(); }
+
+    bool operator!=(const EndCIter&) { return (bool)*this; }
+
+    // Hopefully this does not actually get called because of RVO.
+    CIter(const CIter&) = default;
+
+    // Because each iterator carries a stack we want to avoid copies.
+    CIter& operator=(const CIter&) = delete;
+
+protected:
+    CIter() = delete;
+
+    SkSTArray<4, const GrFragmentProcessor*, true> fFPStack;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -481,7 +446,7 @@ template <typename Src> class GrFragmentProcessor::CIterRange {
 public:
     explicit CIterRange(const Src& t) : fT(t) {}
     CIter begin() const { return CIter(fT); }
-    EndIter end() const { return EndIter(); }
+    EndCIter end() const { return EndCIter(); }
 
 private:
     const Src& fT;
