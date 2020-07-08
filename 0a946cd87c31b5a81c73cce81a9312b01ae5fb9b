@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3e179a4_a1ce536c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-08T13:23:20Z",
+      "side": 1,
+      "message": "This lgtm, but I\u0027d split it into two separate CLs. I\u0027d like to have the conversion of runtime color filter separate from the structural change that it unblocks. It\u0027s unlikely, but if we need to revert the conversion of some other color filter, they don\u0027t get tangled together.",
+      "revId": "0a946cd87c31b5a81c73cce81a9312b01ae5fb9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
