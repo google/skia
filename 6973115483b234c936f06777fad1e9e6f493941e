@@ -19,6 +19,75 @@
     },
     {
       "key": {
+        "uuid": "dca9d583_9d927f68",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "nit: Could not compile or execute sksl code",
+      "range": {
+        "startLine": 761,
+        "startChar": 41,
+        "endLine": 761,
+        "endChar": 49
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc1ef44c_ebd7080f",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "I don\u0027t think all these includes are needed.",
+      "range": {
+        "startLine": 13,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 31
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2a26fd4_6bd3a907",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "Please add a block comment describing how the data will be used. Describe the partioning process.",
+      "range": {
+        "startLine": 17,
+        "startChar": 5,
+        "endLine": 17,
+        "endChar": 24
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9fad0235_891d46fc",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 8
@@ -35,6 +104,145 @@
         "startChar": 65,
         "endLine": 18,
         "endChar": 84
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d73266dc_6ad6aada",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "Don\u0027t assert - asserting will get flagged as a bug/crash. Add an if statement to make sure we have at least 257 bytes.",
+      "parentUuid": "9fad0235_891d46fc",
+      "range": {
+        "startLine": 18,
+        "startChar": 65,
+        "endLine": 18,
+        "endChar": 84
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f48c8169_6e905074",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "Put 256 as a constant above (prefixed with a k, as per C++ convention). We want to avoid \"magic numbers\" in our code.",
+      "range": {
+        "startLine": 24,
+        "startChar": 41,
+        "endLine": 24,
+        "endChar": 44
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c22cad94_8ced712d",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "wrap lines to 100 columns wide.",
+      "range": {
+        "startLine": 24,
+        "startChar": 82,
+        "endLine": 24,
+        "endChar": 87
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79472b5a_9a5f11ac",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "Add a comment explaining that this matrix is just an arbitrary matrix. That is, there\u0027s no special meaning.",
+      "range": {
+        "startLine": 31,
+        "startChar": 11,
+        "endLine": 31,
+        "endChar": 20
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3840b066_be920923",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "Wrong data. Did you test that your code will eventually reach line 45?",
+      "range": {
+        "startLine": 32,
+        "startChar": 37,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33ff9870_251be462",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-08T19:07:10Z",
+      "side": 1,
+      "message": "This is incorrect.",
+      "range": {
+        "startLine": 54,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 21
       },
       "revId": "6973115483b234c936f06777fad1e9e6f493941e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
