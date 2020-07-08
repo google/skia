@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26f61139_dabc4c74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-08T23:53:31Z",
+      "side": 1,
+      "message": "Motivated by next change in the relation chain. I don\u0027t like the names at all but whenever I tried to think of something better it made me want to go all the way to renaming GrGLSLFragmentProcessor. Open to suggestions. I\u0027m also open to following this up with some bigger renamings.\n\nAlso noticed we never use GrFP::Iter. It\u0027s removed in the third change in the series. I think with more cleanup of the transformed coords stuff we can simplify the range helpers more. And of course when we get rid of top level FP series then we won\u0027t need the paint/pipeline range helpers at all.",
+      "revId": "1522d592dc2b2d78b3d3a77d9a2c31f99b7769df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
