@@ -1618,6 +1618,7 @@ protected:
     void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
+        auto direct = context->asDirectContext();
         int x = kPad;
         for (int tagged : { 0, 1 }) {
             for (int opaque : { 0, 1 }) {
@@ -1634,8 +1635,8 @@ protected:
                     canvas->drawImage(yuv, x, y);
                     y += kTileWidthHeight + kPad;
 
-                    auto subset = yuv->makeSubset(SkIRect::MakeWH(kTileWidthHeight / 2,
-                                                                  kTileWidthHeight / 2));
+                    SkIRect bounds = SkIRect::MakeWH(kTileWidthHeight / 2, kTileWidthHeight / 2);
+                    auto subset = yuv->makeSubset(bounds, direct);
                     canvas->drawImage(subset, x, y);
                     y += kTileWidthHeight + kPad;
 
