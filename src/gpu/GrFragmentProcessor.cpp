@@ -47,7 +47,7 @@ void GrFragmentProcessor::visitProxies(const GrOp::VisitProxyFunc& func) const {
 
 void GrFragmentProcessor::visitTextureEffects(
         const std::function<void(const GrTextureEffect&)>& func) const {
-    for (auto& fp : FPCRange(*this)) {
+    for (auto& fp : FPRange(*this)) {
         if (auto te = fp.asTextureEffect()) {
             func(*te);
         }
@@ -441,6 +441,10 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
     }
     return SeriesFragmentProcessor::Make(series, cnt);
 }
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::PremulInput(
+        std::unique_ptr<GrFragmentProcessor>) {
+    return std::unique_ptr<GrFragmentProcessor>();
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -458,3 +462,14 @@ GrFragmentProcessor::CIter::CIter(const GrPipeline& pipeline) {
         fFPStack.push_back(&pipeline.getFragmentProcessor(i));
     }
 }
+
+GrFragmentProcessor::CIter& GrFragmentProcessor::CIter::operator++() {
+    SkASSERT(!fFPStack.empty());
+    const GrFragmentProcessor* back = fFPStack.back();
+    fFPStack.pop_back();
+    for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(&back->childProcessor(i));
+    }
+    return *this;
+}
+
