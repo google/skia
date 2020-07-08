@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80717f4a_412afd57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-08T18:52:32Z",
+      "side": 1,
+      "message": "Overall lgtm. Just some bike shedding.\n\nTangentially just want to point out that we *could* now share the backing store (like raster does) with the original since GrTextureEffect now supports all filter/tilemode combos on texture subsets. It\u0027s not obvious that it\u0027s the right thing, though.",
+      "revId": "49edb1cf3d7a8859e628a5dace21d94879ff9666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94b8d62c_dd812d39",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-08T18:52:32Z",
+      "side": 1,
+      "message": "I quite like this table.  While VRAM-backed makes some sense, it\u0027s not really a term we\u0027ve been used historically. Also, in many cases (all?) we won\u0027t have actually made any GPU memory allocations before this returns (e.g. a subset of a promise image records some commands to make a copy to a not-yet-allocated texture).\n\nI\u0027m wondering if we\u0027d be better off saying \"texture-backed\"? And in the column labels distinguishing between \"texture-backed\" and \"texture promise-backed\"? Also \"raster-backed\" maybe a little unclear since there are things like SkPicture-backed images. Maybe better to say \"not texture-backed\"?\n\nReally posing this as questions. We\u0027ll probably be doing more of this kind of documentation as we proceed in changing up the image factories, passing contexts more places. It\u0027d be good to have a somewhat consistent nomenclature.",
+      "range": {
+        "startLine": 1144,
+        "startChar": 0,
+        "endLine": 1165,
+        "endChar": 60
+      },
+      "revId": "49edb1cf3d7a8859e628a5dace21d94879ff9666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
