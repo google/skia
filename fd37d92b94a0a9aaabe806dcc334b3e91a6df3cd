@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5fa55ef_6932c112",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-08T16:10:07Z",
+      "side": 1,
+      "message": "Can you write this as:\nif (!dstArray) { SkASSERT(numGlyphs \u003d\u003d 0); }\n\nI think this is clearer for implications. Here and below.",
+      "range": {
+        "startLine": 662,
+        "startChar": 4,
+        "endLine": 662,
+        "endChar": 41
+      },
+      "revId": "fd37d92b94a0a9aaabe806dcc334b3e91a6df3cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a7a9a09_a5790238",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1803,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-08T16:10:07Z",
+      "side": 1,
+      "message": "Does 0 make sense here? Maybe:\nreturn nullptr;",
+      "range": {
+        "startLine": 1803,
+        "startChar": 8,
+        "endLine": 1803,
+        "endChar": 17
+      },
+      "revId": "fd37d92b94a0a9aaabe806dcc334b3e91a6df3cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
