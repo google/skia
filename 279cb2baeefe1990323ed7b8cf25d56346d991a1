@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48999dbf_9d30ab5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-08T11:36:22Z",
+      "side": 1,
+      "message": "Do the newlines actually make a difference in viewer\u0027s formatting? If so, I\u0027d rather fix it elsewhere - we moved away from incorporating explicit newlines in the emitted code a while ago, and I think that putting them back hurts readability in emitCode.",
+      "revId": "279cb2baeefe1990323ed7b8cf25d56346d991a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
