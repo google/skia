@@ -16,6 +16,29 @@
       "revId": "6973115483b234c936f06777fad1e9e6f493941e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fad0235_891d46fc",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T18:49:58Z",
+      "side": 1,
+      "message": "In the case where the result may be negative, the MakeSubset will then call SkASSERT(length \u003e 0);, will fuzzer accept SkASSERT or should an if statement to be added here for checking this value?",
+      "range": {
+        "startLine": 18,
+        "startChar": 65,
+        "endLine": 18,
+        "endChar": 84
+      },
+      "revId": "6973115483b234c936f06777fad1e9e6f493941e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
