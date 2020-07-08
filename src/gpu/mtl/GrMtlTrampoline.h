@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 
-class GrContext;
+class GrDirectContext;
 class GrGpu;
 struct GrContextOptions;
 
@@ -21,7 +21,8 @@ struct GrContextOptions;
  */
 class GrMtlTrampoline {
 public:
-    static sk_sp<GrGpu> MakeGpu(GrContext*, const GrContextOptions&, void* device, void* queue);
+    static sk_sp<GrGpu> MakeGpu(GrDirectContext*, const GrContextOptions&,
+                                void* device, void* queue);
 };
 
 #endif
