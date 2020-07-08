@@ -133,8 +133,7 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                             const SkPaint& paint,
                                             GrTextBlob::SubRun* subrun,
                                             const SkMatrixProvider& matrixProvider,
-                                            SkPoint drawOrigin,
-                                            const SkIRect& clipRect) {
+                                            SkPoint drawOrigin) {
     GrPaint grPaint;
     GrRecordingContext* context = rtc->priv().getContext();
     const GrColorInfo& colorInfo = rtc->colorInfo();
@@ -170,7 +169,7 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                          subrun,
                                          drawMatrix,
                                          drawOrigin,
-                                         clipRect,
+                                         SkIRect::MakeEmpty(),
                                          drawingColor,
                                          SkPaintPriv::ComputeLuminanceColor(paint),
                                          useGammaCorrectDistanceTable,
