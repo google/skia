@@ -2054,21 +2054,6 @@ private:
 };
 } // namespace
 
-void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                             const SkPaint* paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(image);
-    if (dst.isEmpty()) {
-        return;
-    }
-    if (SkLatticeIter::Valid(image->width(), image->height(), center)) {
-        LatticePaint latticePaint(paint);
-        this->onDrawImageNine(image, center, dst, latticePaint.get());
-    } else {
-        this->drawImageRect(image, dst, paint);
-    }
-}
-
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                 const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2545,28 +2530,6 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
 
     while (iter.next()) {
         iter.fDevice->drawImageRect(image, src, dst, draw.paint(), constraint);
-    }
-
-    DRAW_END
-}
-
-void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                               const SkPaint* paint) {
-    SkPaint realPaint;
-    paint = init_image_paint(&realPaint, paint);
-
-    if (nullptr == paint || paint->canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
-            return;
-        }
-    }
-    paint = &realPaint;
-
-    DRAW_BEGIN(*paint, &dst)
-
-    while (iter.next()) {
-        iter.fDevice->drawImageNine(image, center, dst, draw.paint());
     }
 
     DRAW_END

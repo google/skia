@@ -223,7 +223,6 @@ const char* DrawCommand::GetCommandString(OpType type) {
         case kDrawDRRect_OpType: return "DrawDRRect";
         case kDrawImage_OpType: return "DrawImage";
         case kDrawImageLattice_OpType: return "DrawImageLattice";
-        case kDrawImageNine_OpType: return "DrawImageNine";
         case kDrawImageRect_OpType: return "DrawImageRect";
         case kDrawImageRectLayer_OpType: return "DrawImageRectLayer";
         case kDrawOval_OpType: return "DrawOval";
@@ -1335,51 +1334,6 @@ void DrawImageRectLayerCommand::toJSON(SkJSONWriter& writer, UrlDataManager& url
 
     SkString desc;
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_SHORTDESC, str_append(&desc, fDst)->c_str());
-}
-
-DrawImageNineCommand::DrawImageNineCommand(const SkImage* image,
-                                           const SkIRect& center,
-                                           const SkRect&  dst,
-                                           const SkPaint* paint)
-        : INHERITED(kDrawImageNine_OpType)
-        , fImage(SkRef(image))
-        , fCenter(center)
-        , fDst(dst)
-        , fPaint(paint) {}
-
-void DrawImageNineCommand::execute(SkCanvas* canvas) const {
-    canvas->drawImageNine(fImage.get(), fCenter, fDst, fPaint.getMaybeNull());
-}
-
-bool DrawImageNineCommand::render(SkCanvas* canvas) const {
-    SkAutoCanvasRestore acr(canvas, true);
-    canvas->clear(0xFFFFFFFF);
-
-    xlate_and_scale_to_bounds(canvas, fDst);
-
-    this->execute(canvas);
-    return true;
-}
-
-void DrawImageNineCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
-    INHERITED::toJSON(writer, urlDataManager);
-    if (urlDataManager.hasImageIndex()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
-        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
-    } else {
-        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
-        flatten(*fImage, writer, urlDataManager);
-        writer.endObject();  // image
-    }
-
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_CENTER);
-    MakeJsonIRect(writer, fCenter);
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
-    MakeJsonRect(writer, fDst);
-    if (fPaint.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint, urlDataManager);
-    }
 }
 
 DrawOvalCommand::DrawOvalCommand(const SkRect& oval, const SkPaint& paint)

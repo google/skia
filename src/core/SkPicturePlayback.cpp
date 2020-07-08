@@ -374,16 +374,15 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             canvas->drawImageLattice(image, lattice, *dst, paint);
         } break;
-        case DRAW_IMAGE_NINE: {
-            const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkImage* image = fPictureData->getImage(reader);
+        case DRAW_IMAGE_NINE_REMOVED_JULY_2020: {
+            (void)fPictureData->getPaint(reader);
+            (void)fPictureData->getImage(reader);
             SkIRect center;
             reader->readIRect(&center);
             SkRect dst;
             reader->readRect(&dst);
             BREAK_ON_READ_ERROR(reader);
-
-            canvas->drawImageNine(image, center, dst, paint);
+            // no longer supported
         } break;
         case DRAW_IMAGE_RECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);

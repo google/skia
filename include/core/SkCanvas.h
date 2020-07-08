@@ -1646,62 +1646,6 @@ public:
         this->drawImageRect(image.get(), dst, paint);
     }
 
-    /** Draws SkImage image stretched proportionally to fit into SkRect dst.
-        SkIRect center divides the image into nine sections: four sides, four corners, and
-        the center. Corners are unmodified or scaled down proportionately if their sides
-        are larger than dst; center and four sides are scaled to fit remaining space, if any.
-
-        Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
-
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter, and
-        SkBlendMode. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds. If paint
-        SkFilterQuality set to kNone_SkFilterQuality, disable pixel filtering. For all
-        other values of paint SkFilterQuality, use kLow_SkFilterQuality to filter pixels.
-        Any SkMaskFilter on paint is ignored as is paint anti-aliasing state.
-
-        If generated mask extends beyond image bounds, replicate image edge colors, just
-        as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
-        replicates the image edge color when it samples outside of its bounds.
-
-        @param image   SkImage containing pixels, dimensions, and format
-        @param center  SkIRect edge of image corners and sides
-        @param dst     destination SkRect of image to draw to
-        @param paint   SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
-                       and so on; or nullptr
-    */
-    void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                       const SkPaint* paint = nullptr);
-
-    /** Draws SkImage image stretched proportionally to fit into SkRect dst.
-        SkIRect center divides the image into nine sections: four sides, four corners, and
-        the center. Corners are not scaled, or scaled down proportionately if their sides
-        are larger than dst; center and four sides are scaled to fit remaining space, if any.
-
-        Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
-
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter, and
-        SkBlendMode. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds. If paint
-        SkFilterQuality set to kNone_SkFilterQuality, disable pixel filtering. For all
-        other values of paint SkFilterQuality, use kLow_SkFilterQuality to filter pixels.
-        Any SkMaskFilter on paint is ignored as is paint anti-aliasing state.
-
-        If generated mask extends beyond image bounds, replicate image edge colors, just
-        as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
-        replicates the image edge color when it samples outside of its bounds.
-
-        @param image   SkImage containing pixels, dimensions, and format
-        @param center  SkIRect edge of image corners and sides
-        @param dst     destination SkRect of image to draw to
-        @param paint   SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
-                       and so on; or nullptr
-    */
-    void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
-                       const SkPaint* paint = nullptr) {
-        this->drawImageNine(image.get(), center, dst, paint);
-    }
-
     /** Draws SkBitmap bitmap, with its top-left corner at (left, top),
         using clip, SkMatrix, and optional SkPaint paint.
 
@@ -2528,8 +2472,8 @@ protected:
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
     virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint);
-    virtual void onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                                 const SkPaint* paint);
+    virtual void onDrawImageNine(const SkImage*, const SkIRect&, const SkRect&,
+                                 const SkPaint*) { /* remove me */ }
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
 

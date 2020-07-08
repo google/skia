@@ -47,8 +47,6 @@ protected:
                      const SkPaint* paint) override = 0;
     void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                          const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) override = 0;
-    void onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                         const SkPaint* paint) override = 0;
     void onDrawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
                             const SkRect& dst, const SkPaint* paint) override = 0;
 

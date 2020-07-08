@@ -254,7 +254,6 @@ gm_sources = [
   "$_gm/modecolorfilters.cpp",
   "$_gm/morphology.cpp",
   "$_gm/nested.cpp",
-  "$_gm/ninepatchstretch.cpp",
   "$_gm/nonclosedpaths.cpp",
   "$_gm/offsetimagefilter.cpp",
   "$_gm/orientation.cpp",

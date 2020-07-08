@@ -61,7 +61,6 @@ namespace SkRecords {
     M(DrawImage)                                                    \
     M(DrawImageLattice)                                             \
     M(DrawImageRect)                                                \
-    M(DrawImageNine)                                                \
     M(DrawDRRect)                                                   \
     M(DrawOval)                                                     \
     M(DrawBehind)                                                   \
@@ -255,11 +254,6 @@ RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkRect> src;
         SkRect dst;
         SkCanvas::SrcRectConstraint constraint);
-RECORD(DrawImageNine, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
-        Optional<SkPaint> paint;
-        sk_sp<const SkImage> image;
-        SkIRect center;
-        SkRect dst);
 RECORD(DrawOval, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRect oval);

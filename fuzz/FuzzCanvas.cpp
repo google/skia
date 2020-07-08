@@ -1311,27 +1311,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 canvas->drawImageRect(img, dst, usePaint ? &paint : nullptr);
                 break;
             }
-            case 37: {
-                auto img = make_fuzz_image(fuzz);
-                SkIRect center;
-                SkRect dst;
-                bool usePaint;
-                fuzz->next(&usePaint);
-                if (usePaint) {
-                    fuzz_paint(fuzz, &paint, depth - 1);
-                }
-                if (make_fuzz_t<bool>(fuzz)) {
-                    fuzz->next(&center);
-                } else {  // Make valid center, see SkLatticeIter::Valid().
-                    fuzz->nextRange(&center.fLeft, 0, img->width() - 1);
-                    fuzz->nextRange(&center.fTop, 0, img->height() - 1);
-                    fuzz->nextRange(&center.fRight, center.fLeft + 1, img->width());
-                    fuzz->nextRange(&center.fBottom, center.fTop + 1, img->height());
-                }
-                fuzz->next(&dst);
-                canvas->drawImageNine(img, center, dst, usePaint ? &paint : nullptr);
+            case 37: // was drawImageNine
                 break;
-            }
             case 38: {
                 SkBitmap bitmap = make_fuzz_bitmap(fuzz);
                 SkScalar left, top;
