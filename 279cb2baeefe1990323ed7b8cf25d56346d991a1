@@ -16,6 +16,24 @@
       "revId": "279cb2baeefe1990323ed7b8cf25d56346d991a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c1d95d1_1e30b247",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-08T13:30:23Z",
+      "side": 1,
+      "message": "You\u0027re right, the viewer fixes it up regardless. Done.",
+      "parentUuid": "48999dbf_9d30ab5c",
+      "revId": "279cb2baeefe1990323ed7b8cf25d56346d991a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
