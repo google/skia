@@ -653,13 +653,18 @@ SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& coni
     if (!conic_in_line(conic)) {
         return kQuad_ReductionType;
     }
-    // SkFindConicMaxCurvature would be a better solution, once we know how to
-    // implement it. Quad curvature is a reasonable substitute
-    SkScalar t = SkFindQuadMaxCurvature(conic.fPts);
-    if (0 == t) {
+    // Could probably make this check more efficient
+    if (((conic.fPts[0].fX <= conic.fPts[1].fX &&
+         conic.fPts[1].fX <= conic.fPts[2].fX) ||
+         (conic.fPts[0].fX >= conic.fPts[1].fX &&
+         conic.fPts[1].fX >= conic.fPts[2].fX)) &&
+        ((conic.fPts[0].fY <= conic.fPts[1].fY &&
+         conic.fPts[1].fY <= conic.fPts[2].fY) ||
+         (conic.fPts[0].fY >= conic.fPts[1].fY &&
+         conic.fPts[1].fY >= conic.fPts[2].fY))) {
         return kLine_ReductionType;
     }
-    conic.evalAt(t, reduction, nullptr);
+    conic.findDegenerateExtreme(reduction);
     return kDegenerate_ReductionType;
 }
 

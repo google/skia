@@ -10,6 +10,7 @@
 #include "src/core/SkPointPriv.h"
 #include "tests/Test.h"
 
+#include <algorithm>
 #include <array>
 #include <numeric>
 
@@ -356,6 +357,38 @@ static void test_cubic_cusps(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_conic_max_curvature(skiatest::Reporter* reporter) {
+    SkPoint pts[] = {
+        {436, 169.5f}, {1000, 1058.25f}, {154, 209},
+        {436, 169.5f}, {1128, 785.25f}, {148, 277},
+        {436, 169.5f}, {221, 84.25f}, {148, 277},
+    };
+    SkScalar weights[] = {.2, .5, .8, 1.2, 1.5, 2}, t, c, c1;
+    SkConic sc[2];
+    int wc = (int) SK_ARRAY_COUNT(weights);
+    int cc = (int) SK_ARRAY_COUNT(pts) / 3;
+    for (int wi = 0; wi < wc; ++wi) {
+        for (int ci = 0; ci < cc; ++ci) {
+            SkConic conic(&pts[ci * 3], weights[wi]);
+            if (conic.findMaxCurvature(&t)) {
+                if (conic.chopAt(t, sc)) {
+                    c = SkScalarAbs(sc[0].findEndCurvatureVal());
+                    if (conic.chopAt(std::max(0.0f, t-.05f), sc)) {
+                        c1 = SkScalarAbs(sc[0].findEndCurvatureVal());
+                        //SkDebugf(" before t=%f:  %f %f\n", t, c, c1);
+                        REPORTER_ASSERT(reporter, c >= sc[0].findEndCurvatureVal());
+                    }
+                    if (conic.chopAt(std::min(SK_Scalar1, t+.05f), sc)) {
+                        c1 = SkScalarAbs(sc[0].findEndCurvatureVal());
+                        //SkDebugf(" after t=%f:  %f %f\n", t, c, c1);
+                        REPORTER_ASSERT(reporter, c >= c1);
+                    }
+                }
+            }
+        }
+    }
+}
+
 DEF_TEST(Geometry, reporter) {
     SkPoint pts[5];
 
@@ -386,4 +419,5 @@ DEF_TEST(Geometry, reporter) {
     test_conic_to_quads(reporter);
     test_classify_cubic(reporter);
     test_cubic_cusps(reporter);
+    test_conic_max_curvature(reporter);
 }
