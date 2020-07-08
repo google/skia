@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "13813f24_a0ff97f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T15:25:31Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look",
+      "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cdeec7d8_2cf6479e",
         "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
         "patchSetId": 4
@@ -13,6 +30,30 @@
       "writtenOn": "2020-07-07T21:00:48Z",
       "side": 1,
       "message": "I thought the plan was to read one byte from bytes, then use that number as the number of bytes to pass in as uniforms, and use the remaining bytes as the shader code? That doesn\u0027t quite seem to be done here.",
+      "range": {
+        "startLine": 20,
+        "startChar": 18,
+        "endLine": 20,
+        "endChar": 30
+      },
+      "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51668357_e80738b9",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T15:25:31Z",
+      "side": 1,
+      "message": "I change the code here a little bit. As the inputSize of effect should be equal to the size of uniform bytes, I will first read a byte to determine how much to reverse for uniform bytes and later only copy the exact amount (same as effect-\u003einputSize()) to the uniform bytes. If there is not enough bytes then return false",
+      "parentUuid": "cdeec7d8_2cf6479e",
       "range": {
         "startLine": 20,
         "startChar": 18,
@@ -72,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "a2809c07_5a27760e",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T15:25:31Z",
+      "side": 1,
+      "message": "I fixed name of the variable, as uniform should go to shader and code should go to the effect. In SkRuntimeEffect::Make() it has the codes to compile the code string and it will be execute when shader start to paint. I wonder if SkRuntimeEffect should be a separate fuzz file so that the current fuzzer will aim at compiling and the fuzzer of SkRuntimeEffect will aim at executing.",
+      "parentUuid": "d73213bf_a4668bd9",
+      "range": {
+        "startLine": 37,
+        "startChar": 31,
+        "endLine": 37,
+        "endChar": 43
+      },
+      "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7c130a7_0779d3d7",
         "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
         "patchSetId": 4
@@ -92,6 +157,30 @@
       "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "998aac1c_e19941b1",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-08T15:25:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7c130a7_0779d3d7",
+      "range": {
+        "startLine": 46,
+        "startChar": 6,
+        "endLine": 46,
+        "endChar": 10
+      },
+      "revId": "95c2094f566c649af5a7ce2c74af2af8032a012b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
