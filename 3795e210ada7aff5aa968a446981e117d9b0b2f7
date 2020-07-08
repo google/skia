@@ -16,6 +16,24 @@
       "revId": "3795e210ada7aff5aa968a446981e117d9b0b2f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "161587b5_bbb0b967",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-08T00:06:54Z",
+      "side": 1,
+      "message": "Sure, some of the infra guys were just changing some permissions today, might have to check on that.",
+      "parentUuid": "34ed1fb4_5359ccdd",
+      "revId": "3795e210ada7aff5aa968a446981e117d9b0b2f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
