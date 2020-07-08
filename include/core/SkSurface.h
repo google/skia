@@ -1015,11 +1015,18 @@ public:
         If this call returns false, then the GPU back-end will not wait on any passed in semaphores,
         and the client will still own the semaphores.
 
-        @param numSemaphores   size of waitSemaphores array
-        @param waitSemaphores  array of semaphore containers
+        If clientOwnsSemaphoresAfterWait is true the Skia will not take ownership of the semaphores.
+        In this case it is the clients responsibility to not destroy or attempt to reuse the
+        semaphores until it knows that Skia has finished waiting on them. This can be done by using
+        finishedProcs on flush calls.
+
+        @param numSemaphores                  size of waitSemaphores array
+        @param waitSemaphores                 array of semaphore containers
+        @paramm clientOwnsSemaphoresAfterWait who owns and should delete the semaphores
         @return                true if GPU is waiting on semaphores
     */
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+              bool clientOwnsSemaphoresAfterWait = false);
 
     /** Initializes SkSurfaceCharacterization that can be used to perform GPU back-end
         processing in a separate thread. Typically this is used to divide drawing
