@@ -3,6 +3,7 @@ module go.skia.org/skia
 go 1.12
 
 require (
+	cloud.google.com/go/pubsub v1.5.0 // indirect
 	cloud.google.com/go/storage v1.10.0
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
@@ -22,16 +23,16 @@ require (
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
-	go.chromium.org/luci v0.0.0-20200707033358-8fb6a0ac9ee5 // indirect
-	go.skia.org/infra v0.0.0-20200706211051-88e733d409bf
+	go.chromium.org/luci v0.0.0-20200708090551-4d14b1192fec // indirect
+	go.skia.org/infra v0.0.0-20200708134745-fcce5bb3db4b
+	golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200706234117-b22de6825cf7 // indirect
+	golang.org/x/tools v0.0.0-20200708003708-134513de8882 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.28.0
-	google.golang.org/genproto v0.0.0-20200707001353-8e8330bf89df // indirect
+	google.golang.org/genproto v0.0.0-20200708133552-18036109789b // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
