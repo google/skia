@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8a99d2c_96ed8571",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-08T14:08:51Z",
+      "side": 1,
+      "message": "Maybe:\n\nWhereas in cases 1, 2, and 3, the returned image will live in the provided context\u0027s space.",
+      "range": {
+        "startLine": 1158,
+        "startChar": 51,
+        "endLine": 1158,
+        "endChar": 62
+      },
+      "revId": "06f04eb4b2184209ee8ddb00dd6127bc77c7fd9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
