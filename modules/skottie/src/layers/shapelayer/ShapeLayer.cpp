@@ -48,6 +48,7 @@ static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
     ShapeBuilder::AttachTrimGeometryEffect,
     ShapeBuilder::AttachRoundGeometryEffect,
     ShapeBuilder::AttachOffsetGeometryEffect,
+    ShapeBuilder::AttachPuckerBloatGeometryEffect,
 };
 
 using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const skjson::ObjectValue&,
@@ -107,6 +108,7 @@ const ShapeInfo* FindShapeInfo(const skjson::ObjectValue& jshape) {
         { "gs", ShapeType::kPaint         , 3, kNone          }, // gstroke
         { "mm", ShapeType::kGeometryEffect, 0, kSuppressDraws }, // merge
         { "op", ShapeType::kGeometryEffect, 3, kNone          }, // offset
+        { "pb", ShapeType::kGeometryEffect, 4, kNone          }, // pucker/bloat
         { "rc", ShapeType::kGeometry      , 1, kNone          }, // rrect
         { "rd", ShapeType::kGeometryEffect, 2, kNone          }, // round
         { "rp", ShapeType::kDrawEffect    , 0, kNone          }, // repeater
