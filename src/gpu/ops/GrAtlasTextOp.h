@@ -37,20 +37,6 @@ public:
         void fillVertexData(void* dst, int offset, int count) const;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRenderTargetContext*,
-                                                     const SkPaint&,
-                                                     GrTextBlob::SubRun*,
-                                                     const SkMatrixProvider&,
-                                                     SkPoint drawOrigin,
-                                                     const SkIRect& clipRect);
-
-    static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrRenderTargetContext*,
-            const SkPaint&,
-            GrTextBlob::SubRun*,
-            const SkMatrixProvider&,
-            SkPoint drawOrigin);
-
     const char* name() const override { return "AtlasTextOp"; }
 
     void visitProxies(const VisitProxyFunc& func) const override;
