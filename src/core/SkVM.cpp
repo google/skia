@@ -2857,10 +2857,19 @@ namespace skvm {
                 }
 
                 // Allocate stack for our values and callee-saved xmm6-15.
-                a->sub(A::rsp, nstack_slots*K*4 + 10*16);
+                int stack_needed = nstack_slots*K*4;
                 for (int r = 6; r < 16; r++) {
                     if (incoming_registers_used & (1<<r)) {
-                        a->vmovups(A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16}, (A::Xmm)r);
+                        stack_needed += 16;
+                    }
+                }
+                if (stack_needed) { a->sub(A::rsp, stack_needed); }
+
+                int next_saved_xmm = nstack_slots*K*4;
+                for (int r = 6; r < 16; r++) {
+                    if (incoming_registers_used & (1<<r)) {
+                        a->vmovups(A::Mem{A::rsp, next_saved_xmm}, (A::Xmm)r);
+                        next_saved_xmm += 16;
                         regs[r] = NA;
                     }
                 }
@@ -2870,12 +2879,14 @@ namespace skvm {
                 SkASSERT((*registers_used & incoming_registers_used) == *registers_used);
 
                 // Restore callee-saved xmm6-15 and the stack pointer.
+                int stack_used = nstack_slots*K*4;
                 for (int r = 6; r < 16; r++) {
                     if (incoming_registers_used & (1<<r)) {
-                        a->vmovups((A::Xmm)r, A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16});
+                        a->vmovups((A::Xmm)r, A::Mem{A::rsp, stack_used});
+                        stack_used += 16;
                     }
                 }
-                a->add(A::rsp, nstack_slots*K*4 + 10*16);
+                if (stack_used) { a->add(A::rsp, stack_used); }
 
                 // Restore callee-saved rdi if we used it.
                 if (fImpl->strides.size() >= 5) {
