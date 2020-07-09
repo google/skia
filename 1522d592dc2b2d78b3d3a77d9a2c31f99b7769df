@@ -16,6 +16,23 @@
       "revId": "1522d592dc2b2d78b3d3a77d9a2c31f99b7769df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41ea66aa_41aae29f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T13:33:26Z",
+      "side": 1,
+      "message": "I wanted to suggest using SkMakeZip, but it won\u0027t work in this case. (Other libraries have a fairly generic zip iterator construct for doing parallel iteration. Herb added one to Skia, but it\u0027s specialized to only work on things that function as pointers/random access). Failing that, I don\u0027t really have a better name.",
+      "revId": "1522d592dc2b2d78b3d3a77d9a2c31f99b7769df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

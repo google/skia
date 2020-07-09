@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503061df_26b2786f",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T13:33:26Z",
+      "side": 0,
+      "message": "We were just iterating over the GLSLFPs by accident? (Or to triple-check that the sequence lengths were the same?)",
+      "revId": "6669b01267057f32bd02cddad00b8ad3cbbac918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
