@@ -605,13 +605,19 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 
         if (m[0] == ShaderMode::kRepeatBilerp || m[0] == ShaderMode::kClampToBorderFilter) {
             fb->codeAppend("half errX = half(subsetCoord.x - clampedCoord.x);");
-            fb->codeAppendf("float repeatCoordX = errX > 0 ? %s.x : %s.z;", clampName, clampName);
-            repeatBilerpReadX = read("float2(repeatCoordX, clampedCoord.y)");
+            if (m[0] == ShaderMode::kRepeatBilerp) {
+                fb->codeAppendf("float repeatCoordX = errX > 0 ? %s.x : %s.z;",
+                                clampName, clampName);
+                repeatBilerpReadX = read("float2(repeatCoordX, clampedCoord.y)");
+            }
         }
         if (m[1] == ShaderMode::kRepeatBilerp || m[1] == ShaderMode::kClampToBorderFilter) {
             fb->codeAppend("half errY = half(subsetCoord.y - clampedCoord.y);");
-            fb->codeAppendf("float repeatCoordY = errY > 0 ? %s.y : %s.w;", clampName, clampName);
-            repeatBilerpReadY = read("float2(clampedCoord.x, repeatCoordY)");
+            if (m[1] == ShaderMode::kRepeatBilerp) {
+                fb->codeAppendf("float repeatCoordY = errY > 0 ? %s.y : %s.w;",
+                                clampName, clampName);
+                repeatBilerpReadY = read("float2(clampedCoord.x, repeatCoordY)");
+            }
         }
 
         // Add logic for kRepeatBilerp. Do 1 or 3 more texture reads depending
