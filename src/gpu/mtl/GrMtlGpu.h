@@ -33,7 +33,7 @@ namespace SkSL {
 
 class GrMtlGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(GrContext* context, const GrContextOptions& options,
+    static sk_sp<GrGpu> Make(GrDirectContext* direct, const GrContextOptions& options,
                              id<MTLDevice> device, id<MTLCommandQueue> queue);
     ~GrMtlGpu() override;
 
@@ -117,7 +117,7 @@ public:
     }
 
 private:
-    GrMtlGpu(GrContext* context, const GrContextOptions& options,
+    GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
              id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet);
 
     void destroyResources();
