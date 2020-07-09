@@ -106,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "9e0a3932_3ba40bba",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T20:28:45Z",
+      "side": 1,
+      "message": "Option 1 sounds good to me.",
+      "parentUuid": "f825b4de_efc2e962",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 41
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b78c9a0_58845096",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 7
