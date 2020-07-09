@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "8262a74c_784cb1f6",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-09T17:42:54Z",
+      "side": 1,
+      "message": "Yes, by doing that (returning false) it exposed the issue in the previous (related) CL, that in SkTextBlob.cpp\u0027s SkTextBlobBuilder::ConservativeRunBounds there\u0027s code like\n\n    const SkRect fontBounds \u003d SkFontPriv::GetFontBounds(run.font());\n    if (fontBounds.isEmpty()) {\n        // Empty font bounds are likely a font bug.  TightBounds has a better chance of\n        // producing useful results in this case.\n        return TightRunBounds(run);\n    }\n\nand TightRunBounds wasn\u0027t handling RSXform.",
+      "parentUuid": "731a5832_99c27e8c",
+      "revId": "3a7928f69743926412e3a70ad63a2fa449bc63c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "98286527_70b5d13e",
         "filename": "src/core/SkTypeface.cpp",
         "patchSetId": 1
@@ -47,6 +65,30 @@
       "writtenOn": "2020-07-09T15:46:35Z",
       "side": 1,
       "message": "Are the bounds filled by hasBounds() not what we need here?  If not, a note about how they differ and why we still need to call hasBounds()?",
+      "range": {
+        "startLine": 396,
+        "startChar": 2,
+        "endLine": 402,
+        "endChar": 70
+      },
+      "revId": "3a7928f69743926412e3a70ad63a2fa449bc63c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fb851e7_6525d85e",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-09T17:42:54Z",
+      "side": 1,
+      "message": "I\u0027m not sure we even really want the SkRect* bounds to pass into hasBounds. I did that to follow the style of the other \u0027hasXXX\u0027 methods on SkFontMgr which return a bool and also set a SkScalar to the value if returning true (even though the value set is something the user already has in their hand).\n\nNote that this method (SkTypeface::onComputeBounds) takes in an \u0027SkRect* bounds\u0027 and if this were just returning the bounds directly, just passing through \u0027bounds\u0027 would be fine. However, because of the inflation it\u0027s actually less mucking about to just use the \u0027fm\u0027 which has all the values on the stack. It\u0027s interesting to see what gcc and clang do with this version and the version where we pass bounds through and multiply it out in-place. With this code here they both do ok, with the version where bounds is passed through gcc sees that everything lines up so does one wide multiply (after much mucking about to get that set up) but clang doesn\u0027t seem to optimize any of it and does much worse (using a bunch of mulss instead of one mulps). Seems like clang has difficulty with optimizing the instructions past the conditionals?\n\nAfter all this mucking about I\u0027m just going to make hasBounds not take an out param since it doesn\u0027t seem to actually help anyone (and can hurt). Can add it later if it is wanted I suppose.",
+      "parentUuid": "98286527_70b5d13e",
       "range": {
         "startLine": 396,
         "startChar": 2,
