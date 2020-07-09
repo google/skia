@@ -19,6 +19,92 @@
     },
     {
       "key": {
+        "uuid": "8b848683_6e7aad8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T19:06:29Z",
+      "side": 1,
+      "message": "In general it looks pretty good to me. The only part I\u0027m not fond of is the split between GrDawnBuffer and GrDawnTransferBuffer.",
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88144a3e_18816640",
+        "filename": "src/gpu/GrStagingBufferManager.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T19:06:29Z",
+      "side": 1,
+      "message": "64?",
+      "range": {
+        "startLine": 48,
+        "startChar": 52,
+        "endLine": 48,
+        "endChar": 54
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87e16a55_9032d297",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T19:06:29Z",
+      "side": 1,
+      "message": "This doesn\u0027t feel quite right to me -- we can\u0027t ever directly map a generic buffer, but only if it\u0027s a subclassed transfer buffer? It feels like it should be the other way around, or handled in here somehow. And IIRC the plan was to move away from specialized buffer types.",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 41
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b78c9a0_58845096",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T19:06:29Z",
+      "side": 1,
+      "message": "Put in wrapper method?",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 5
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "da6ce03f_62c16705",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 7
@@ -58,6 +144,75 @@
         "startChar": 3,
         "endLine": 769,
         "endChar": 5
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85663a0e_fb8cb9a1",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T19:06:29Z",
+      "side": 1,
+      "message": "Hoist up to GrGpu?",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 48
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed23db8d_36a8d5a8",
+        "filename": "src/gpu/dawn/GrDawnRingBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T19:06:29Z",
+      "side": 1,
+      "message": "Bump to 64 (D3D buffers align to 64K boundaries)?",
+      "range": {
+        "startLine": 15,
+        "startChar": 29,
+        "endLine": 15,
+        "endChar": 31
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a10397e_0b1e0109",
+        "filename": "src/gpu/dawn/GrDawnStagingBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T19:06:29Z",
+      "side": 1,
+      "message": "I\u0027m guessing this will be moved somewhere else.",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 26
       },
       "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
