@@ -16,6 +16,40 @@
       "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5040b106_1d242b6a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9996
+      },
+      "writtenOn": "2020-07-09T19:55:30Z",
+      "side": 1,
+      "message": "Thanks for getting to this so quickly!",
+      "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9de0ed66_7c4c28e2",
+        "filename": "src/codec/SkCodecImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9996
+      },
+      "writtenOn": "2020-07-09T19:55:30Z",
+      "side": 1,
+      "message": "Can we expose this on SkImageGenerator?\n\nOtherwise callers have to static_cast to this. Probably not the end of the world, but `Make*` on this class return `SkImageGenerator`.\n\nThen again, maybe this method never makes sense without a codec.",
+      "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
