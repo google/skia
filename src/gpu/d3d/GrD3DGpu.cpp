@@ -29,8 +29,8 @@
 #endif
 
 sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
-                            const GrContextOptions& contextOptions, GrContext* context) {
-    return sk_sp<GrGpu>(new GrD3DGpu(context, contextOptions, backendContext));
+                            const GrContextOptions& contextOptions, GrDirectContext* direct) {
+    return sk_sp<GrGpu>(new GrD3DGpu(direct, contextOptions, backendContext));
 }
 
 // This constant determines how many OutstandingCommandLists are allocated together as a block in
@@ -39,9 +39,9 @@ sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
 // command lists we expect to see.
 static const int kDefaultOutstandingAllocCnt = 8;
 
-GrD3DGpu::GrD3DGpu(GrContext* context, const GrContextOptions& contextOptions,
+GrD3DGpu::GrD3DGpu(GrDirectContext* direct, const GrContextOptions& contextOptions,
                    const GrD3DBackendContext& backendContext)
-        : INHERITED(context)
+        : INHERITED(direct)
         , fDevice(backendContext.fDevice)
 
         , fQueue(backendContext.fQueue)

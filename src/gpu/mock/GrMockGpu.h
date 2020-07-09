@@ -20,7 +20,7 @@ class GrPipeline;
 
 class GrMockGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(const GrMockOptions*, const GrContextOptions&, GrContext*);
+    static sk_sp<GrGpu> Make(const GrMockOptions*, const GrContextOptions&, GrDirectContext*);
 
     ~GrMockGpu() override {}
 
@@ -57,7 +57,7 @@ public:
     void checkFinishProcs() override {}
 
 private:
-    GrMockGpu(GrContext* context, const GrMockOptions&, const GrContextOptions&);
+    GrMockGpu(GrDirectContext*, const GrMockOptions&, const GrContextOptions&);
 
     void onResetContext(uint32_t resetBits) override {}
 

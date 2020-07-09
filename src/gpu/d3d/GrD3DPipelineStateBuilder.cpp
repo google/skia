@@ -9,7 +9,7 @@
 
 #include "src/gpu/d3d/GrD3DPipelineStateBuilder.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAutoLocaleSetter.h"

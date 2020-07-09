@@ -7,7 +7,7 @@
 
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkATrace.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkReadBuffer.h"

@@ -10,6 +10,7 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
@@ -63,7 +64,7 @@
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RESULT(this, RET, X)
 
 sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
-                           const GrContextOptions& options, GrContext* context) {
+                           const GrContextOptions& options, GrDirectContext* direct) {
     if (backendContext.fInstance == VK_NULL_HANDLE ||
         backendContext.fPhysicalDevice == VK_NULL_HANDLE ||
         backendContext.fDevice == VK_NULL_HANDLE ||
@@ -153,7 +154,7 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         return nullptr;
     }
 
-     sk_sp<GrVkGpu> vkGpu(new GrVkGpu(context, options, backendContext, interface,
+     sk_sp<GrVkGpu> vkGpu(new GrVkGpu(direct, options, backendContext, interface,
                                       instanceVersion, physDevVersion,
                                       std::move(memoryAllocator)));
      if (backendContext.fProtectedContext == GrProtected::kYes &&
@@ -165,11 +166,11 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
+GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrContextOptions& options,
                  const GrVkBackendContext& backendContext, sk_sp<const GrVkInterface> interface,
                  uint32_t instanceVersion, uint32_t physicalDeviceVersion,
                  sk_sp<GrVkMemoryAllocator> memoryAllocator)
-        : INHERITED(context)
+        : INHERITED(direct)
         , fInterface(std::move(interface))
         , fMemoryAllocator(std::move(memoryAllocator))
         , fPhysicalDevice(backendContext.fPhysicalDevice)
@@ -2031,7 +2032,7 @@ void GrVkGpu::addImageMemoryBarrier(const GrManagedResource* resource,
                                     VkPipelineStageFlags dstStageMask,
                                     bool byRegion,
                                     VkImageMemoryBarrier* barrier) const {
-    // If we are in the middle of destroying or abandoning the GrContext we may hit a release proc
+    // If we are in the middle of destroying or abandoning the context we may hit a release proc
     // that triggers the destruction of a GrVkImage. This could cause us to try and transfer the
     // VkImage back to the original queue. In this state we don't submit anymore work and we may not
     // have a current command buffer. Thus we won't do the queue transfer.

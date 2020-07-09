@@ -160,9 +160,10 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 }
 #endif
 
+// CONTEXT TODO: Make* functions should return an sk_sp<GrDirectContext>
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
                                    const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kOpenGL, options));
+    auto direct = new GrDirectContext(GrBackendApi::kOpenGL, options);
 #if GR_TEST_UTILS
     if (options.fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);
@@ -175,7 +176,8 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
         glInterface = std::move(copy);
     }
 #endif
-    context->fGpu = GrGLGpu::Make(std::move(glInterface), options, context.get());
+    direct->fGpu = GrGLGpu::Make(std::move(glInterface), options, direct);
+    sk_sp<GrContext> context(direct);
     if (!context->init()) {
         return nullptr;
     }
@@ -190,9 +192,10 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMock, options));
+    auto direct = new GrDirectContext(GrBackendApi::kMock, options);
 
-    context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
+    direct->fGpu = GrMockGpu::Make(mockOptions, options, direct);
+    sk_sp<GrContext> context(direct);
     if (!context->init()) {
         return nullptr;
     }
@@ -212,9 +215,10 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext)
 sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                        const GrContextOptions& options) {
 #ifdef SK_VULKAN
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kVulkan, options));
+    auto direct = new GrDirectContext(GrBackendApi::kVulkan, options);
 
-    context->fGpu = GrVkGpu::Make(backendContext, options, context.get());
+    direct->fGpu = GrVkGpu::Make(backendContext, options, direct);
+    sk_sp<GrContext> context(direct);
     if (!context->init()) {
         return nullptr;
     }
@@ -232,9 +236,10 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
 }
 
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMetal, options));
+    auto direct = new GrDirectContext(GrBackendApi::kMetal, options);
 
-    context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
+    direct->fGpu = GrMtlTrampoline::MakeGpu(direct, options, device, queue);
+    sk_sp<GrContext> context(direct);
     if (!context->init()) {
         return nullptr;
     }
@@ -251,9 +256,10 @@ sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendConte
 
 sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
                                          const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kDirect3D, options));
+    auto direct = new GrDirectContext(GrBackendApi::kDirect3D, options);
 
-    context->fGpu = GrD3DGpu::Make(backendContext, options, context.get());
+    direct->fGpu = GrD3DGpu::Make(backendContext, options, direct);
+    sk_sp<GrContext> context(direct);
     if (!context->init()) {
         return nullptr;
     }
@@ -269,9 +275,10 @@ sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
 }
 
 sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kDawn, options));
+    auto direct = new GrDirectContext(GrBackendApi::kDawn, options);
 
-    context->fGpu = GrDawnGpu::Make(device, options, context.get());
+    direct->fGpu = GrDawnGpu::Make(device, options, direct);
+    sk_sp<GrContext> context(direct);
     if (!context->init()) {
         return nullptr;
     }
