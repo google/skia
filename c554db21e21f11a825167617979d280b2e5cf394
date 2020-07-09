@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "91a9fec1_0bd3573d",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-09T19:30:41Z",
+      "side": 1,
+      "message": "Added. Not sure if it\u0027s friending – since we are GrContext, in order to call GrDirectContext::init I think we need to _become_ friends?",
+      "parentUuid": "5b113040_a2bf1bf5",
+      "revId": "c554db21e21f11a825167617979d280b2e5cf394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "297dff2d_7b755754",
         "filename": "src/gpu/dawn/GrDawnGpu.h",
         "patchSetId": 7
@@ -51,6 +69,24 @@
       "revId": "c554db21e21f11a825167617979d280b2e5cf394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cac0a53_726b9e73",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-09T19:30:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "297dff2d_7b755754",
+      "revId": "c554db21e21f11a825167617979d280b2e5cf394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -74,6 +110,30 @@
       "revId": "c554db21e21f11a825167617979d280b2e5cf394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ac511bb_9c8e7adc",
+        "filename": "src/gpu/mock/GrMockGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-09T19:30:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c11385cd_2c3335ec",
+      "range": {
+        "startLine": 60,
+        "startChar": 31,
+        "endLine": 60,
+        "endChar": 37
+      },
+      "revId": "c554db21e21f11a825167617979d280b2e5cf394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -120,6 +180,54 @@
       "revId": "c554db21e21f11a825167617979d280b2e5cf394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c27ab4a8_54c71805",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-09T19:30:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9476422_da3bc16b",
+      "range": {
+        "startLine": 36,
+        "startChar": 78,
+        "endLine": 36,
+        "endChar": 85
+      },
+      "revId": "c554db21e21f11a825167617979d280b2e5cf394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e58bfbc5_5c54ddfb",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-09T19:30:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c9942bb_1bf472ec",
+      "range": {
+        "startLine": 36,
+        "startChar": 46,
+        "endLine": 36,
+        "endChar": 52
+      },
+      "revId": "c554db21e21f11a825167617979d280b2e5cf394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
