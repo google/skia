@@ -103,6 +103,24 @@
       "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16724dce_2f4e8049",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-09T14:00:26Z",
+      "side": 1,
+      "message": "\u003e Sorry for the delay, I was OOO today.\n\nNo worries!\n\n\u003e Do we have more info on what device this is happening on?\n\nI believe it happens on the following devices:\n- mentioned by others in the bug:\n  - Bramble\n  - Coral\n- I\u0027ve tested manually:\n  - Blueline\n  - Flame\n\nThe bug also mentioned that it did not happen on a Sunfish, but that was running a QT build. I\u0027m not aware of whether there are devices it does not affect, but these are all Pixels. (Stan tested on a non-Pixel device, but it\u0027s his personal phone, which I believe is running QT or earlier.\n\n\u003e What\u0027s the exact issue?\n\n- Clip to a round rect/path. (On Android, this results in an AA clip, which may be important.)\n- Draw a WebView\n- Sometimes the WebView simply doesn\u0027t draw, so it flickers\n\nMore details in b/156413480",
+      "parentUuid": "17ce49c5_dcb7862d",
+      "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
