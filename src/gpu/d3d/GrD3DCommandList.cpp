@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrScissorState.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
+#include "src/gpu/d3d/GrD3DCommandSignature.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
@@ -338,6 +339,19 @@ void GrD3DDirectCommandList::drawIndexedInstanced(unsigned int indexCount,
                                        startInstance);
 }
 
+void GrD3DDirectCommandList::executeIndirect(const sk_sp<GrD3DCommandSignature> commandSignature,
+                                             unsigned int maxCommandCount,
+                                             const GrD3DBuffer* argumentBuffer,
+                                             size_t argumentBufferOffset) {
+    SkASSERT(fIsActive);
+    this->addingWork();
+    this->addResource(commandSignature);
+    this->addResource(argumentBuffer->resource());
+    fCommandList->ExecuteIndirect(commandSignature->commandSignature(), maxCommandCount,
+                                  argumentBuffer->d3dResource(), argumentBufferOffset,
+                                  nullptr, 0);
+}
+
 void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* renderTarget,
                                                    const SkPMColor4f& color,
                                                    const D3D12_RECT* rect) {
@@ -382,7 +396,7 @@ void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarg
 }
 
 void GrD3DDirectCommandList::resolveSubresourceRegion(const GrD3DTextureResource* dstTexture,
-                                                      UINT dstX, UINT dstY,
+                                                      unsigned int dstX, unsigned int dstY,
                                                       const GrD3DTextureResource* srcTexture,
                                                       D3D12_RECT* srcRect) {
     SkASSERT(dstTexture->dxgiFormat() == srcTexture->dxgiFormat());
