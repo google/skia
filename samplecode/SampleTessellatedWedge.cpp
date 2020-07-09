@@ -12,10 +12,10 @@
 
 #if SK_SUPPORT_GPU
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrClip.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/tessellate/GrTessellatePathOp.h"
@@ -59,7 +59,7 @@ private:
 void TessellatedWedge::onDrawContent(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
-    GrContext* ctx = canvas->getGrContext();
+    auto ctx = canvas->recordingContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     SkString error;

@@ -261,7 +261,7 @@ public:
     virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront) = 0;
 
     void onDrawContent(SkCanvas* canvas) override {
-        if (!canvas->getGrContext() && !(fFlags & kCanRunOnCPU)) {
+        if (!canvas->recordingContext() && !(fFlags & kCanRunOnCPU)) {
             return;
         }
 
