@@ -709,11 +709,9 @@ SkISize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
-    if (nullptr == fLevels) {
-        return false;
-    }
-
+// Returns fractional level value. floor(level) is the index of the larger level.
+// < 0 means failure.
+float SkMipMap::ComputeLevel(SkSize scaleSize) {
     SkASSERT(scaleSize.width() >= 0 && scaleSize.height() >= 0);
 
 #ifndef SK_SUPPORT_LEGACY_ANISOTROPIC_MIPMAP_SCALE
@@ -727,17 +725,24 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
 #endif
 
     if (scale >= SK_Scalar1 || scale <= 0 || !SkScalarIsFinite(scale)) {
-        return false;
+        return -1;
     }
 
     SkScalar L = -SkScalarLog2(scale);
     if (!SkScalarIsFinite(L)) {
-        return false;
+        return -1;
     }
     SkASSERT(L >= 0);
-    int level = SkScalarFloorToInt(L);
+    return L;
+}
 
-    SkASSERT(level >= 0);
+bool SkMipMap::extractLevel(SkSize scaleSize, Level* levelPtr) const {
+    if (nullptr == fLevels) {
+        return false;
+    }
+
+    float L = ComputeLevel(scaleSize);
+    int level = SkScalarFloorToInt(L);
     if (level <= 0) {
         return false;
     }
@@ -779,6 +784,8 @@ bool SkMipMap::getLevel(int index, Level* levelPtr) const {
     }
     if (levelPtr) {
         *levelPtr = fLevels[index];
+        // need to augment with our colorspace
+        levelPtr->fPixmap.setColorSpace(fCS);
     }
     return true;
 }
