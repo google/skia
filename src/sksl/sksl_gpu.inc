@@ -64,7 +64,7 @@ $genHType fract($genHType x);
 $genType mod($genType x, float y);
 $genType mod($genType x, $genType y);
 $genHType mod($genHType x, half y);
-$genHType mod($genHType x, $genType y);
+$genHType mod($genHType x, $genHType y);
 $genType modf($genType x, out $genType i);
 $genHType modf($genHType x, out $genHType i);
 $genType min($genType x, $genType y);
