@@ -82,6 +82,30 @@
     },
     {
       "key": {
+        "uuid": "f825b4de_efc2e962",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-09T19:26:11Z",
+      "side": 1,
+      "message": "Yeah I\u0027m really not a big fan of the separate class at all, but dawn is very explicit that only our transfer buffers (to and from gpu) are directly mappable. All others have to be GPU only.\n\nI at first did have it all in one class, but once I started need to track whether the buffer was non mapped, map called but not returned yet, or fully mapped it seemed like a lot for generic buffer class to be managing.\n\nSome possible thoughts. If we don\u0027t mind the separate classes I do think structurally it makes sense to have a GrDawnBuffer base class then have a GrDawnTransferBuffer subclass and GrDawnGpuBuffer subclass. Each of those basically override the map call and all else is basically shared in GrDawnBuffer.\n\nOption 2 is to just put all the mapped tracking and related functions in the base class and just deal with it.\n\nOption 3 is to remove all the mapped tracking from GrDawnBuffer. Instead do something where the busy list doesn\u0027t hold GrDawnBuffers but a struct of {sk_sp\u003cGrDawnBuffer\u003e, MappedState}. Then we\u0027d have to plumb that struct into the async map calls so it knows which MappedState to update in the callback.\n\nAs much as I like the idea of merging buffers together I kind of think option 1 is the cleanest. The way Dawn itself is structured it is really begging to treat those two types of buffers differently.",
+      "parentUuid": "87e16a55_9032d297",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 41
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b78c9a0_58845096",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 7
@@ -174,6 +198,30 @@
     },
     {
       "key": {
+        "uuid": "0908997d_68da0d28",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-09T19:26:11Z",
+      "side": 1,
+      "message": "As of now I don\u0027t think so. Currently we aren\u0027t needing access to this in GrGpu or generic code. If a pattern appears where other backends want to access the stagingBufferManager then that could make sense. But as of now I think only Dawn needs it (vulkan doesn\u0027t and I don\u0027t see d3d needing it).",
+      "parentUuid": "85663a0e_fb8cb9a1",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 48
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ed23db8d_36a8d5a8",
         "filename": "src/gpu/dawn/GrDawnRingBuffer.cpp",
         "patchSetId": 7
@@ -208,6 +256,30 @@
       "writtenOn": "2020-07-09T19:06:29Z",
       "side": 1,
       "message": "I\u0027m guessing this will be moved somewhere else.",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 26
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96eb921d_2477e8d5",
+        "filename": "src/gpu/dawn/GrDawnStagingBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-09T19:26:11Z",
+      "side": 1,
+      "message": "Yeah my other comment on a different patchset get hidden when I uploaded the new one 😞\n\nBut yeah this was just convenient while hacked cause this file was in all the places I needed it already.",
+      "parentUuid": "3a10397e_0b1e0109",
       "range": {
         "startLine": 30,
         "startChar": 6,
