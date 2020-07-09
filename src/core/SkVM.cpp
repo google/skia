@@ -2802,6 +2802,7 @@ namespace skvm {
 
     bool Program::jit(const std::vector<OptimizedInstruction>& instructions,
                       int* stack_hint,
+                      uint32_t* registers_used,
                       Assembler* a) const {
         using A = Assembler;
 
@@ -2823,17 +2824,25 @@ namespace skvm {
         const int nstack_slots = *stack_hint >= 0 ? *stack_hint
                                                   : stack_slot.size();
 
-
     #if defined(__x86_64__) || defined(_M_X64)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
         const int K = 8;
+        using Reg = A::Ymm;
         #if defined(_M_X64)  // Important to check this first; clang-cl defines both.
             const A::GP64 N = A::rcx,
                         GP0 = A::rax,
                         GP1 = A::r11,
                         arg[]    = { A::rdx, A::r8, A::r9, A::r10, A::rdi };
+
+            // xmm6-15 need are callee-saved.
+            std::array<Val,16> regs = {
+                 NA, NA, NA, NA,  NA, NA,RES,RES,
+                RES,RES,RES,RES, RES,RES,RES,RES,
+            };
+            const uint32_t incoming_registers_used = *registers_used;
+
             auto enter = [&]{
                 // rcx,rdx,r8,r9 are all already holding their correct values.
                 // Load caller-saved r10 from rsp+40 if there's a fourth arg.
@@ -2850,13 +2859,21 @@ namespace skvm {
                 // Allocate stack for our values and callee-saved xmm6-15.
                 a->sub(A::rsp, nstack_slots*K*4 + 10*16);
                 for (int r = 6; r < 16; r++) {
-                    a->vmovups(A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16}, (A::Xmm)r);
+                    if (incoming_registers_used & (1<<r)) {
+                        a->vmovups(A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16}, (A::Xmm)r);
+                        regs[r] = NA;
+                    }
                 }
             };
             auto exit  = [&]{
+                // The second pass of jit() shouldn't use any register it didn't in the first pass.
+                SkASSERT((*registers_used & incoming_registers_used) == *registers_used);
+
                 // Restore callee-saved xmm6-15 and the stack pointer.
                 for (int r = 6; r < 16; r++) {
-                    a->vmovups((A::Xmm)r, A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16});
+                    if (incoming_registers_used & (1<<r)) {
+                        a->vmovups((A::Xmm)r, A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16});
+                    }
                 }
                 a->add(A::rsp, nstack_slots*K*4 + 10*16);
 
@@ -2874,18 +2891,17 @@ namespace skvm {
                         GP1 = A::r11,
                         arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
+            // All 16 ymm registers are available to use.
+            std::array<Val,16> regs = {
+                NA,NA,NA,NA, NA,NA,NA,NA,
+                NA,NA,NA,NA, NA,NA,NA,NA,
+            };
+
             auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
             auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
                               a->vzeroupper();
                               a->ret(); };
         #endif
-
-        // All 16 ymm registers are available to use.
-        using Reg = A::Ymm;
-        std::array<Val,16> regs = {
-            NA,NA,NA,NA, NA,NA,NA,NA,
-            NA,NA,NA,NA, NA,NA,NA,NA,
-        };
 
         auto load_from_memory = [&](Reg r, Val v) {
             if (instructions[v].op == Op::splat) {
@@ -2906,22 +2922,22 @@ namespace skvm {
         };
     #elif defined(__aarch64__)
         const int K = 4;
+        using Reg = A::V;
         const A::X N     = A::x0,
                    GP0   = A::x8,
                    arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
 
-        auto enter = [&]{ if (nstack_slots) { a->sub(A::sp, A::sp, nstack_slots*K*4); } };
-        auto exit  = [&]{ if (nstack_slots) { a->add(A::sp, A::sp, nstack_slots*K*4); }
-                          a->ret(A::x30); };
-
         // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15 in enter/exit.
-        using Reg = A::V;
         std::array<Val,32> regs = {
              NA, NA, NA, NA,  NA, NA, NA, NA,
             RES,RES,RES,RES, RES,RES,RES,RES,
              NA, NA, NA, NA,  NA, NA, NA, NA,
              NA, NA, NA, NA,  NA, NA, NA, NA,
         };
+
+        auto enter = [&]{ if (nstack_slots) { a->sub(A::sp, A::sp, nstack_slots*K*4); } };
+        auto exit  = [&]{ if (nstack_slots) { a->add(A::sp, A::sp, nstack_slots*K*4); }
+                          a->ret(A::x30); };
 
         auto load_from_memory = [&](Reg r, Val v) {
             if (instructions[v].op == Op::splat) {
@@ -2941,6 +2957,8 @@ namespace skvm {
             a->strq(r, A::sp, stack_slot[v]);
         };
     #endif
+
+        *registers_used = 0;  // We'll update this as we go.
 
         if (SK_ARRAY_COUNT(arg) < fImpl->strides.size()) {
             return false;
@@ -2981,6 +2999,7 @@ namespace skvm {
 
                 Reg r = (Reg)std::distance(regs.begin(), avail);
                 Val& v = regs[r];
+                *registers_used |= (1<<r);
 
                 SkASSERT(v == NA || v >= 0);
                 if (v >= 0) {
@@ -3601,10 +3620,12 @@ namespace skvm {
 
     void Program::setupJIT(const std::vector<OptimizedInstruction>& instructions,
                            const char* debug_name) {
-        // Assemble with no buffer to determine a.size(), the number of bytes we'll assemble.
+        // Assemble with no buffer to determine a.size() (the number of bytes we'll assemble)
+        // and stack_hint/registers_used to feed forward into the next jit() call.
         Assembler a{nullptr};
         int stack_hint = -1;
-        if (!this->jit(instructions, &stack_hint, &a)) {
+        uint32_t registers_used = 0xffff'ffff;  // Start conservatively with all.
+        if (!this->jit(instructions, &stack_hint, &registers_used, &a)) {
             return;
         }
 
@@ -3612,9 +3633,9 @@ namespace skvm {
         void* jit_entry = alloc_jit_buffer(&fImpl->jit_size);
         fImpl->jit_entry.store(jit_entry);
 
-        // Assemble the program for real.
+        // Assemble the program for real with stack_hint/registers_used as feedback from first call.
         a = Assembler{jit_entry};
-        SkAssertResult(this->jit(instructions, &stack_hint, &a));
+        SkAssertResult(this->jit(instructions, &stack_hint, &registers_used, &a));
         SkASSERT(a.size() <= fImpl->jit_size);
 
         // Remap as executable, and flush caches on platforms that need that.
