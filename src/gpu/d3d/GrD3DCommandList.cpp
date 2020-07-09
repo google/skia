@@ -285,13 +285,14 @@ void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
                                               size_t instanceStride) {
     if (fCurrentVertexBuffer != vertexBuffer || fCurrentVertexStride != vertexStride ||
         fCurrentInstanceBuffer != instanceBuffer || fCurrentInstanceStride != instanceStride) {
-        this->addResource(vertexBuffer->resource());
-
         D3D12_VERTEX_BUFFER_VIEW views[2];
         int numViews = 0;
-        views[numViews].BufferLocation = vertexBuffer->d3dResource()->GetGPUVirtualAddress();
-        views[numViews].SizeInBytes = vertexBuffer->size();
-        views[numViews++].StrideInBytes = vertexStride;
+        if (vertexBuffer) {
+            this->addResource(vertexBuffer->resource());
+            views[numViews].BufferLocation = vertexBuffer->d3dResource()->GetGPUVirtualAddress();
+            views[numViews].SizeInBytes = vertexBuffer->size();
+            views[numViews++].StrideInBytes = vertexStride;
+        }
         if (instanceBuffer) {
             this->addResource(instanceBuffer->resource());
             views[numViews].BufferLocation = instanceBuffer->d3dResource()->GetGPUVirtualAddress();
