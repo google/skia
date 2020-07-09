@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49c6bb09_d54bc357",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T21:43:14Z",
+      "side": 1,
+      "message": "Now that we\u0027ve gotten rid of the uniform resets, I think we can leave this one how it is?  There won\u0027t be any sharing or anything for this one-off value, right?",
+      "revId": "f6ed5334afab1f7f24ab6add8799d0e996ebfbb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

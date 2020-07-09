@@ -16,6 +16,63 @@
       "revId": "61f075b5cba0fdd5e893d11e8fac895f93690381",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0493383a_e2bbcb62",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T21:43:14Z",
+      "side": 1,
+      "message": "Kill this too?",
+      "range": {
+        "startLine": 806,
+        "startChar": 3,
+        "endLine": 808,
+        "endChar": 51
+      },
+      "revId": "61f075b5cba0fdd5e893d11e8fac895f93690381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "719197b4_95fe6bd0",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T21:43:14Z",
+      "side": 1,
+      "message": "// Level-specific uniforms that are used in sample_texel(),\n// built here instead of inline because they\u0027ll be reused\n// for the 4x/16x sample_texel() calls for bilerp/bicubic.",
+      "revId": "61f075b5cba0fdd5e893d11e8fac895f93690381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edae4c92_2c79598e",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 933,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T21:43:14Z",
+      "side": 1,
+      "message": "Clearer to have setup_uniforms(pm) return a Uniforms, and then pass that as an argument to sample_texel?  That way you can see how all the data flows through the calls, and we could even keep the Uniforms struct const per-level.",
+      "revId": "61f075b5cba0fdd5e893d11e8fac895f93690381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
