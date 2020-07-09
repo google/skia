@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6017110_d1cf9917",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-09T15:35:43Z",
+      "side": 1,
+      "message": "The test for this is in the related CL \u0027Notify when SkFontMetrics bounds are bogus\u0027 since that\u0027s the more natural way to test this (actually discovered while investigating https://bugs.chromium.org/p/oss-fuzz/issues/detail?id\u003d23862 ).",
+      "revId": "2a86e9822633158cb14b95ccf362021f0d6c9bc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
