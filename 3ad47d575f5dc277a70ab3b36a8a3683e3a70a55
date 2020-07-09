@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "be697a8c_9bcf1a4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T20:57:07Z",
+      "side": 1,
+      "message": "MeshTest passes. I haven\u0027t gotten to testing tessellation -- I was waiting for your CL to merge in.",
+      "parentUuid": "1264cfbc_5fdd0f8d",
+      "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "992d1184_e9ccbcdb",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 3
@@ -59,6 +77,30 @@
     },
     {
       "key": {
+        "uuid": "f256f396_4741abc1",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T20:57:07Z",
+      "side": 1,
+      "message": "That\u0027s what addResource() does -- it adds it to be tracked on the command list.",
+      "parentUuid": "992d1184_e9ccbcdb",
+      "range": {
+        "startLine": 350,
+        "startChar": 52,
+        "endLine": 350,
+        "endChar": 68
+      },
+      "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca8786a8_cf8d9eea",
         "filename": "src/gpu/d3d/GrD3DCommandSignature.cpp",
         "patchSetId": 3
@@ -70,6 +112,24 @@
       "writtenOn": "2020-07-09T20:48:40Z",
       "side": 1,
       "message": "I\u0027m not too familiar with the slot here, but I assume it\u0027s always supposed to be zero? Does it make a difference whether the attribs are vertex or instanced?",
+      "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddd0bb48_5b25ee00",
+        "filename": "src/gpu/d3d/GrD3DCommandSignature.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T20:57:07Z",
+      "side": 1,
+      "message": "The slot doesn\u0027t have to be 0 -- it\u0027s set in the shader -- but yes for us it\u0027s always 0. I added it here just to be flexible in case something changes later. I was feeling a little uneasy that we were always assuming it would be 0.",
+      "parentUuid": "ca8786a8_cf8d9eea",
       "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
