@@ -213,10 +213,11 @@ bool GrD3DOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         update_resource_state(primProcTextures[i]->peekTexture(), fRenderTarget, fGpu);
     }
-    GrFragmentProcessor::PipelineTextureSamplerRange textureSamplerRange(pipeline);
-    for (auto [sampler, fp] : textureSamplerRange) {
-        update_resource_state(sampler.peekTexture(), fRenderTarget, fGpu);
-    }
+
+    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
+        update_resource_state(te.texture(), fRenderTarget, fGpu);
+    });
+
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
         update_resource_state(dstTexture, fRenderTarget, fGpu);
     }

@@ -110,20 +110,15 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProc
         rangeSizes[currTextureBinding++] = 1;
     }
 
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        for (auto& fp : GrFragmentProcessor::FPCRange(pipeline.getFragmentProcessor(i))) {
-            for (int s = 0; s < fp.numTextureSamplers(); ++s) {
-                const auto& sampler = fp.textureSampler(s);
-                auto texture = static_cast<GrD3DTexture*>(sampler.peekTexture());
-                shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
-                samplers[currTextureBinding] =
-                        gpu->resourceProvider().findOrCreateCompatibleSampler(
-                                sampler.samplerState());
-                gpu->currentCommandList()->addSampledTextureRef(texture);
-                rangeSizes[currTextureBinding++] = 1;
-            }
-        }
-    }
+    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
+        GrSamplerState samplerState = te.samplerState();
+        auto* texture = static_cast<GrD3DTexture*>(te.texture());
+        shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
+        samplers[currTextureBinding] =
+                gpu->resourceProvider().findOrCreateCompatibleSampler(samplerState);
+        gpu->currentCommandList()->addSampledTextureRef(texture);
+        rangeSizes[currTextureBinding++] = 1;
+    });
 
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
         auto texture = static_cast<GrD3DTexture*>(dstTexture);

@@ -567,15 +567,9 @@ wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
         }
     }
 
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        for (auto& fp : GrFragmentProcessor::FPCRange(pipeline.getFragmentProcessor(i))) {
-            for (int s = 0; s < fp.numTextureSamplers(); ++s) {
-                const auto& sampler = fp.textureSampler(s);
-                set_texture(gpu, sampler.samplerState(), sampler.peekTexture(), &bindings,
-                            &binding);
-            }
-        }
-    }
+    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
+        set_texture(gpu, te.samplerState(), te.texture(), &bindings, &binding);
+    });
 
     SkIPoint offset;
     if (GrTexture* dstTexture = pipeline.peekDstTexture(&offset)) {

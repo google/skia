@@ -20,14 +20,13 @@ class GrPipeline;
 class GrProcessorKeyBuilder;
 class GrShaderCaps;
 class GrSwizzle;
+class GrTextureEffect;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (half4) and
     produce an output color. They may reference textures and uniforms.
  */
 class GrFragmentProcessor : public GrProcessor {
 public:
-    class TextureSampler;
-
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
     *  only consider the input color's alpha. However, there is a competing desire to have reusable
@@ -114,9 +113,6 @@ public:
             fChildProcessors[i]->getGLSLProcessorKey(caps, b);
         }
     }
-
-    int numTextureSamplers() const { return fTextureSamplerCnt; }
-    const TextureSampler& textureSampler(int i) const;
 
     int numVaryingCoordsUsed() const { return this->usesVaryingCoordsDirectly() ? 1 : 0; }
 
@@ -231,7 +227,12 @@ public:
      */
     bool isEqual(const GrFragmentProcessor& that) const;
 
-    void visitProxies(const GrOp::VisitProxyFunc& func);
+    void visitProxies(const GrOp::VisitProxyFunc& func) const;
+
+    void visitTextureEffects(const std::function<void(const GrTextureEffect&)>&) const;
+
+    GrTextureEffect* asTextureEffect();
+    const GrTextureEffect* asTextureEffect() const;
 
     // A pre-order traversal iterator over a hierarchy of FPs. It can also iterate over all the FP
     // hierarchies rooted in a GrPaint, GrProcessorSet, or GrPipeline. For these collections it
@@ -251,18 +252,13 @@ public:
     // Used to implement a range-for loop using CIter. Src is one of GrFragmentProcessor,
     // GrPaint, GrProcessorSet, or GrPipeline. Type aliases for these defined below.
     // Example usage:
-    //   for (const auto& fp : GrFragmentProcessor::PaintRange(paint)) {
+    //   for (const auto& fp : GrFragmentProcessor::PaintCRange(paint)) {
     //       if (fp.usesLocalCoords()) {
     //       ...
     //       }
     //   }
     template <typename Src> class CIterRange;
-    // Like CIterRange but non const and only constructable from GrFragmentProcessor. This could
-    // support GrPaint as it owns non-const FPs but no need for it as of now.
-    //   for (auto& fp0 : GrFragmentProcessor::IterRange(fp)) {
-    //       ...
-    //   }
-    class IterRange;
+
 
     // We would use template deduction guides for Iter/CIter but for:
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79501
@@ -271,56 +267,8 @@ public:
     using FPCRange = CIterRange<GrFragmentProcessor>;
     using PaintCRange = CIterRange<GrPaint>;
 
-    // Implementation details for iterators that walk an array of Items owned by a set of FPs.
-    using CountFn = int (GrFragmentProcessor::*)() const;
-    // Defined GetFn to be a member function that returns an Item by index. The function itself is
-    // const if Item is a const type and non-const if Item is non-const.
-    template <typename Item, bool IsConst = std::is_const<Item>::value> struct GetT;
-    template <typename Item> struct GetT<Item, false> {
-        using GetFn = Item& (GrFragmentProcessor::*)(int);
-    };
-    template <typename Item> struct GetT<Item, true> {
-        using GetFn = const Item& (GrFragmentProcessor::*)(int) const;
-    };
-    template <typename Item> using GetFn = typename GetT<Item>::GetFn;
-    // This is an iterator over the Items owned by a (collection of) FP. CountFn is a FP member that
-    // gets the number of Items owned by each FP and GetFn is a member that gets them by index.
-    template <typename Item, CountFn Count, GetFn<Item> Get> class FPItemIter;
-
-    // Loops over all the TextureSamplers owned by GrFragmentProcessors. The possible sources for
-    // the iteration are the same as those for Iter and the FPs are walked in the same order as
-    // Iter. This provides access to the texture sampler and the FP that owns it. Example usage:
-    //   for (GrFragmentProcessor::TextureSamplerIter iter(pipeline); iter; ++iter) {
-    //       // TextureSamplerIter is const GrFragmentProcessor::TextureSampler& and
-    //       // owningFP is const GrFragmentProcessor&.
-    //       auto [sampler, owningFP] = *iter;
-    //       ...
-    //   }
-    // See the ranges below to make this simpler a la range-for loops.
-    using TextureSamplerIter = FPItemIter<const TextureSampler,
-                                          &GrFragmentProcessor::numTextureSamplers,
-                                          &GrFragmentProcessor::textureSampler>;
-
-    // Implementation detail for using TextureSamplerIter in range-for loops.
-    template <typename Src, typename ItemIter> class FPItemRange;
-
-    // These allow iteration over texture samplers for various FP sources via range-for loops.
-    // An example usage for looping over the texture samplers in a pipeline:
-    // for (auto [sampler, fp] : GrFragmentProcessor::PipelineTextureSamplerRange(pipeline)) {
-    //     ...
-    // }
-    // Only the combinations of FP sources and iterable things have been defined but it is easy
-    // to add more as they become useful. Maybe someday we'll have template argument deduction
-    // with guides for type aliases and the sources can be removed from the type aliases:
-    // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1021r5.html
-    using PipelineTextureSamplerRange = FPItemRange<const GrPipeline, TextureSamplerIter>;
-    using FPTextureSamplerRange = FPItemRange<const GrFragmentProcessor, TextureSamplerIter>;
-    using ProcessorSetTextureSamplerRange = FPItemRange<const GrProcessorSet, TextureSamplerIter>;
-
     // Sentinel type for range-for using Iter.
     class EndIter {};
-    // Sentinel type for range-for using FPItemIter.
-    class FPItemEndIter {};
 
 protected:
     enum OptimizationFlags : uint32_t {
@@ -414,27 +362,11 @@ protected:
      */
     void cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src);
 
-    void setTextureSamplerCnt(int cnt) {
-        SkASSERT(cnt >= 0);
-        fTextureSamplerCnt = cnt;
-    }
-
     // FP implementations must call this function if their matching GrGLSLFragmentProcessor's
     // emitCode() function uses the EmitArgs::fSampleCoord variable in generated SkSL.
     void setUsesSampleCoordsDirectly() {
         fFlags |= kUsesSampleCoordsDirectly_Flag;
     }
-
-    /**
-     * Helper for implementing onTextureSampler(). E.g.:
-     * return IthTexureSampler(i, fMyFirstSampler, fMySecondSampler, fMyThirdSampler);
-     */
-    template <typename... Args>
-    static const TextureSampler& IthTextureSampler(int i, const TextureSampler& samp0,
-                                                   const Args&... samps) {
-        return (0 == i) ? samp0 : IthTextureSampler(i - 1, samps...);
-    }
-    inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
     // Implementation details of Iter and CIter.
@@ -459,8 +391,6 @@ private:
      */
     virtual bool onIsEqual(const GrFragmentProcessor&) const = 0;
 
-    virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
-
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
 
@@ -476,74 +406,15 @@ private:
     };
     void addAndPushFlagToChildren(PrivateFlags flag);
 
-    uint32_t fFlags = 0;
-
-    int fTextureSamplerCnt = 0;
-
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
     const GrFragmentProcessor* fParent = nullptr;
+    uint32_t fFlags = 0;
     SkSL::SampleUsage fUsage;
 
     typedef GrProcessor INHERITED;
 };
 
-/**
- * Used to represent a texture that is required by a GrFragmentProcessor. It holds a GrTextureProxy
- * along with an associated GrSamplerState. TextureSamplers don't perform any coord manipulation to
- * account for texture origin.
- */
-class GrFragmentProcessor::TextureSampler {
-public:
-    TextureSampler() = default;
-
-    /**
-     * This copy constructor is used by GrFragmentProcessor::clone() implementations.
-     */
-    explicit TextureSampler(const TextureSampler&) = default;
-
-    TextureSampler(GrSurfaceProxyView, GrSamplerState = {});
-
-    TextureSampler(TextureSampler&&) = default;
-    TextureSampler& operator=(TextureSampler&&) = default;
-    TextureSampler& operator=(const TextureSampler&) = delete;
-
-    bool operator==(const TextureSampler& that) const {
-        return fView == that.fView && fSamplerState == that.fSamplerState;
-    }
-
-    bool operator!=(const TextureSampler& other) const { return !(*this == other); }
-
-    SkDEBUGCODE(bool isInstantiated() const { return this->proxy()->isInstantiated(); })
-
-    // 'peekTexture' should only ever be called after a successful 'instantiate' call
-    GrTexture* peekTexture() const {
-        SkASSERT(this->proxy()->isInstantiated());
-        return this->proxy()->peekTexture();
-    }
-
-    const GrSurfaceProxyView& view() const { return fView; }
-    GrSamplerState samplerState() const { return fSamplerState; }
-
-    bool isInitialized() const { return SkToBool(this->proxy()); }
-
-    GrSurfaceProxy* proxy() const { return fView.proxy(); }
-
-#if GR_TEST_UTILS
-    void set(GrSurfaceProxyView, GrSamplerState);
-#endif
-
-private:
-    GrSurfaceProxyView    fView;
-    GrSamplerState        fSamplerState;
-};
-
 //////////////////////////////////////////////////////////////////////////////
-
-const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::IthTextureSampler(int i) {
-    SK_ABORT("Illegal texture sampler index");
-    static const TextureSampler kBogus;
-    return kBogus;
-}
 
 GR_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
 
@@ -597,7 +468,6 @@ class GrFragmentProcessor::CIter : public IterBase<const GrFragmentProcessor> {
 public:
     explicit CIter(const GrFragmentProcessor& fp) : IterBase(fp) {}
     explicit CIter(const GrPaint&);
-    explicit CIter(const GrProcessorSet&);
     explicit CIter(const GrPipeline&);
     CIter& operator++() {
         this->increment();
@@ -615,60 +485,6 @@ public:
 
 private:
     const Src& fT;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-template <typename Item, GrFragmentProcessor::CountFn Count, GrFragmentProcessor::GetFn<Item> Get>
-class GrFragmentProcessor::FPItemIter {
-public:
-    template <typename Src> explicit FPItemIter(Src& s);
-
-    std::pair<Item&, const GrFragmentProcessor&> operator*() const {
-        return {(*fFPIter.*Get)(fIndex), *fFPIter};
-    }
-    FPItemIter& operator++();
-    operator bool() const { return fFPIter; }
-    bool operator!=(const FPItemEndIter&) { return (bool)*this; }
-
-    FPItemIter(const FPItemIter&) = delete;
-    FPItemIter& operator=(const FPItemIter&) = delete;
-
-private:
-    typename std::conditional<std::is_const<Item>::value, CIter, Iter>::type fFPIter;
-    int fIndex;
-};
-
-template <typename Item, GrFragmentProcessor::CountFn Count, GrFragmentProcessor::GetFn<Item> Get>
-template <typename Src>
-GrFragmentProcessor::FPItemIter<Item, Count, Get>::FPItemIter(Src& s) : fFPIter(s), fIndex(-1) {
-    if (fFPIter) {
-        ++*this;
-    }
-}
-
-template <typename Item, GrFragmentProcessor::CountFn Count, GrFragmentProcessor::GetFn<Item> Get>
-GrFragmentProcessor::FPItemIter<Item, Count, Get>&
-GrFragmentProcessor::FPItemIter<Item, Count, Get>::operator++() {
-    ++fIndex;
-    if (fIndex < ((*fFPIter).*Count)()) {
-        return *this;
-    }
-    fIndex = 0;
-    do {} while (++fFPIter && !((*fFPIter).*Count)());
-    return *this;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-template <typename Src, typename ItemIter> class GrFragmentProcessor::FPItemRange {
-public:
-    FPItemRange(Src& src) : fSrc(src) {}
-    ItemIter begin() const { return ItemIter(fSrc); }
-    FPItemEndIter end() const { return FPItemEndIter(); }
-
-private:
-    Src& fSrc;
 };
 
 /**
