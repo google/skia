@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "395564c6_0b463801",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-09T20:00:36Z",
+      "side": 1,
+      "message": "Fun to figure out.  You can preview the test here: https://imgur.com/a/H41Mqk9",
+      "revId": "810a718e3f59ee47aa0a0977ca35343fe0b75127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
