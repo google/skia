@@ -33,6 +33,10 @@ constexpr static auto kAtlasAlgorithm = GrDynamicAtlas::RectanizerAlgorithm::kPo
 // Ensure every path in the atlas falls in or below the 128px high rectanizer band.
 constexpr static int kMaxAtlasPathHeight = 128;
 
+bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
+    return caps.drawInstancedSupport() && caps.shaderCaps()->vertexIDSupport();
+}
+
 GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps)
         : fAtlas(GrColorType::kAlpha_8, GrDynamicAtlas::InternalMultisample::kYes,
                  kAtlasInitialSize, std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()),
