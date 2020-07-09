@@ -20,12 +20,11 @@
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
-#include <map>
 
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
+class GrDirectContext;
 class GrGpuBuffer;
-class GrContext;
 struct GrContextOptions;
 class GrGLContext;
 class GrPath;
@@ -44,11 +43,11 @@ class SkJSONWriter;
 
 class GrGpu : public SkRefCnt {
 public:
-    GrGpu(GrContext* context);
+    GrGpu(GrDirectContext* direct);
     ~GrGpu() override;
 
-    GrContext* getContext() { return fContext; }
-    const GrContext* getContext() const { return fContext; }
+    GrDirectContext* getContext() { return fContext; }
+    const GrDirectContext* getContext() const { return fContext; }
 
     /**
      * Gets the capabilities of the draw target.
@@ -66,12 +65,12 @@ public:
         kCleanup,
     };
 
-    // Called by GrContext when the underlying backend context is already or will be destroyed
-    // before GrContext.
+    // Called by context when the underlying backend context is already or will be destroyed
+    // before GrDirectContext.
     virtual void disconnect(DisconnectType);
 
-    // Called by GrContext::isContextLost. Returns true if the backend Gpu object has gotten into an
-    // unrecoverable, lost state.
+    // Called by GrDirectContext::isContextLost. Returns true if the backend Gpu object has gotten
+    // into an unrecoverable, lost state.
     virtual bool isDeviceLost() const { return false; }
 
     /**
@@ -390,7 +389,7 @@ public:
     bool checkAndResetOOMed();
 
     /**
-     *  Put this texture in a safe and known state for use across multiple GrContexts. Depending on
+     *  Put this texture in a safe and known state for use across multiple contexts. Depending on
      *  the backend, this may return a GrSemaphore. If so, other contexts should wait on that
      *  semaphore before using this texture.
      */
@@ -636,7 +635,7 @@ public:
 
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
-     * texture has been transferred to a GrContext using adopt semantics this should not be called.
+     * texture has been transferred to a context using adopt semantics this should not be called.
      */
     virtual void deleteBackendTexture(const GrBackendTexture&) = 0;
 
@@ -868,7 +867,7 @@ private:
 
     uint32_t fResetBits;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
-    GrContext* fContext;
+    GrDirectContext* fContext;
     GrSamplePatternDictionary fSamplePatternDictionary;
 
     std::vector<std::unique_ptr<GrStagingBuffer>> fStagingBuffers;
