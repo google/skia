@@ -41,53 +41,12 @@
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
+#include "src/gpu/effects/generated/GrDitherEffect.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
-
-GR_FP_SRC_STRING SKSL_DITHER_SRC = R"(
-// This controls the range of values added to color channels and is based on the destination color
-// type; as such it doesn't really affect our program cache to have a variant per-range.
-in half range;
-
-void main(inout half4 color) {
-    half value;
-    @if (sk_Caps.integerSupport)
-    {
-        // This ordered-dither code is lifted from the cpu backend.
-        uint x = uint(sk_FragCoord.x);
-        uint y = uint(sk_FragCoord.y) ^ x;
-        uint m = (y & 1) << 5 | (x & 1) << 4 |
-                 (y & 2) << 2 | (x & 2) << 1 |
-                 (y & 4) >> 1 | (x & 4) >> 2;
-        value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;
-    } else {
-        // Simulate the integer effect used above using step/mod/abs. For speed, simulates a 4x4
-        // dither pattern rather than an 8x8 one. Since it's 4x4, this is effectively computing:
-        // uint m = (y & 1) << 3 | (x & 1) << 2 |
-        //          (y & 2) << 0 | (x & 2) >> 1;
-        // where 'y' has already been XOR'ed with 'x' as in the integer-supported case.
-
-        // To get the low bit of p.x and p.y, we compute mod 2.0; for the high bit, we mod 4.0
-        half4 bits = mod(half4(sk_FragCoord.yxyx), half4(2.0, 2.0, 4.0, 4.0));
-        // Use step to convert the 0-3 value in bits.zw into a 0|1 value. bits.xy is already 0|1.
-        bits.zw = step(2.0, bits.zw);
-        // bits was constructed such that the p.x bits were already in the right place for
-        // interleaving (in bits.yw). We just need to update the other bits from p.y to (p.x ^ p.y).
-        // These are in bits.xz. Since the values are 0|1, we can simulate ^ as abs(y - x).
-        bits.xz = abs(bits.xz - bits.yw);
-
-        // Manual binary sum, divide by N^2, and offset
-        value = dot(bits, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
-    }
-    // For each color channel, add the random offset to the channel value and then clamp
-    // between 0 and alpha to keep the color premultiplied.
-    color = half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
-}
-)";
 
 void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds) {
     SkASSERT(key);
@@ -354,10 +313,6 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         }
     }
 
-    if (paintFP) {
-        grPaint->addColorFragmentProcessor(std::move(paintFP));
-    }
-
     SkMaskFilterBase* maskFilter = as_MFB(skPaint.getMaskFilter());
     if (maskFilter) {
         // We may have set this before passing to the SkShader.
@@ -376,23 +331,15 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
 #ifndef SK_IGNORE_GPU_DITHER
     GrColorType ct = dstColorInfo.colorType();
-    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) &&
-        grPaint->numColorFragmentProcessors() > 0) {
+    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) && paintFP != nullptr) {
         float ditherRange = dither_range_for_config(ct);
-        if (ditherRange > 0.f) {
-            static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
-            auto ditherFP = GrSkSLFP::Make(context, effect, "Dither",
-                                           SkData::MakeWithCopy(&ditherRange, sizeof(ditherRange)));
-            if (ditherFP) {
-                grPaint->addColorFragmentProcessor(std::move(ditherFP));
-            }
-        }
+        paintFP = GrDitherEffect::Make(std::move(paintFP), ditherRange);
     }
 #endif
+
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {
-        if (grPaint->numColorFragmentProcessors()) {
-            grPaint->addColorFragmentProcessor(
-                GrClampFragmentProcessor::Make(/*inputFP=*/nullptr, /*clampToPremul=*/false));
+        if (paintFP != nullptr) {
+            paintFP = GrClampFragmentProcessor::Make(std::move(paintFP), /*clampToPremul=*/false);
         } else {
             auto color = grPaint->getColor4f();
             grPaint->setColor4f({SkTPin(color.fR, 0.f, 1.f),
@@ -401,6 +348,11 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                  SkTPin(color.fA, 0.f, 1.f)});
         }
     }
+
+    if (paintFP) {
+        grPaint->addColorFragmentProcessor(std::move(paintFP));
+    }
+
     return true;
 }
 
