@@ -145,6 +145,30 @@
     },
     {
       "key": {
+        "uuid": "a9357091_f14d2aaa",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T19:42:29Z",
+      "side": 1,
+      "message": "I\u0027ll add that this could be a follow-up CL to improve the coverage of this fuzzer, like I said - everything is going to work as-is, we just won\u0027t be exercising all code paths.",
+      "parentUuid": "d2fa9492_741fa1bc",
+      "range": {
+        "startLine": 43,
+        "startChar": 51,
+        "endLine": 43,
+        "endChar": 62
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "51f45761_826a5d2d",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 11

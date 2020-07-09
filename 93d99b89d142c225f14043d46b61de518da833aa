@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b276e802_ad718cab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T19:42:29Z",
+      "side": 1,
+      "message": "Minor follow-up comment, and I just want to re-iterate how excited I am to start fuzzing runtime effects. It\u0027s really going to be critical to start pushing this as something clients can (safely) use.",
+      "revId": "93d99b89d142c225f14043d46b61de518da833aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
