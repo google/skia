@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "0d3b1648_9c030225",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-09T16:07:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b169191_07260219",
+      "range": {
+        "startLine": 50,
+        "startChar": 20,
+        "endLine": 50,
+        "endChar": 28
+      },
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c4070e1_c93780ca",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 8
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "6db6a6ae_87b443f8",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-09T16:07:37Z",
+      "side": 1,
+      "message": "That makes sense to me.\n\nFWIW I did try modifying this so that I didn\u0027t have to add visitTextureEffects. It got complicated because I had to update VisitProxyFunc to take parameters that only made sense for sampled textures. But we use VisitProxyFunc to visit things like rendering destinations and it started to feel like I was stretching it too far to my purpose.",
+      "parentUuid": "0c4070e1_c93780ca",
+      "range": {
+        "startLine": 230,
+        "startChar": 9,
+        "endLine": 230,
+        "endChar": 21
+      },
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f510c52_40a340d9",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 8
@@ -85,6 +133,30 @@
       "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45b2c130_ef68f05c",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-09T16:07:37Z",
+      "side": 1,
+      "message": "I thought about it but it sounds like John is getting close to having a single FP. So I figured it wasn\u0027t worth adding a helper that\u0027d be deleted soon.\n\nBut it is pretty simple and having done it, it is a definite improvement. Good suggestion.",
+      "parentUuid": "9f510c52_40a340d9",
+      "range": {
+        "startLine": 113,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 52
+      },
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
