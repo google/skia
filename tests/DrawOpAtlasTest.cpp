@@ -212,6 +212,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     std::unique_ptr<GrDrawOp> op =
             GrAtlasTextOp::CreateOpTestingOnly(
                     rtc.get(), paint, font, matrixProvider, text, 16, 16);
+    if (!op) {
+        return;
+    }
 
     bool hasMixedSampledCoverage = false;
     op->finalize(*context->priv().caps(), nullptr, hasMixedSampledCoverage, GrClampType::kAuto);
