@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0587d3d_12ece31f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-09T13:10:19Z",
+      "side": 1,
+      "message": "Adding bsalomon@ for API review",
+      "revId": "63bff39d68fb2f3dfc3ab654c2b1b186509b84c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
