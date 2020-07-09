@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65fab217_65c61b09",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-09T14:12:28Z",
+      "side": 1,
+      "message": "gerrit got confused, but this is only whitespace change from the left side.",
+      "range": {
+        "startLine": 507,
+        "startChar": 1,
+        "endLine": 588,
+        "endChar": 84
+      },
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
