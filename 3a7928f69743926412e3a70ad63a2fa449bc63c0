@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "544f3b38_0022b14e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-09T15:38:35Z",
+      "side": 1,
+      "message": "Note that these two changes in the relation chain (the other being \u0027Handle kRSXform_Positioning in TightRunBounds\u0027) are kinda dependent in that each found bugs in the other and should be landed at the same time, but also are logically separate.",
+      "revId": "3a7928f69743926412e3a70ad63a2fa449bc63c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
