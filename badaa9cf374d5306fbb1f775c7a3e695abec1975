@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "880055ee_c4d84c4f",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T16:28:11Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "03adf603_775f48fb",
+      "range": {
+        "startLine": 706,
+        "startChar": 17,
+        "endLine": 706,
+        "endChar": 19
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6f9ecd8_8c061801",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 14
@@ -70,6 +94,30 @@
       "writtenOn": "2020-07-06T21:07:41Z",
       "side": 1,
       "message": "even just mips might be clearer?",
+      "range": {
+        "startLine": 707,
+        "startChar": 17,
+        "endLine": 707,
+        "endChar": 19
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32d25b4e_b24ed3d0",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T16:28:11Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "b6f9ecd8_8c061801",
       "range": {
         "startLine": 707,
         "startChar": 17,
@@ -105,6 +153,30 @@
     },
     {
       "key": {
+        "uuid": "debad096_0406709b",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T16:28:11Z",
+      "side": 1,
+      "message": "removed, this was just a testing hack, not meant to be real/completely-accurate.",
+      "parentUuid": "41025171_79cc2bd1",
+      "range": {
+        "startLine": 708,
+        "startChar": 6,
+        "endLine": 708,
+        "endChar": 47
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e7e9f96f_bd80b5f8",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 14
@@ -128,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "adc44c80_2e952649",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T16:28:11Z",
+      "side": 1,
+      "message": "Good idea, done.",
+      "parentUuid": "e7e9f96f_bd80b5f8",
+      "range": {
+        "startLine": 732,
+        "startChar": 26,
+        "endLine": 732,
+        "endChar": 47
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d9140954_0e23f641",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 14
@@ -139,6 +235,30 @@
       "writtenOn": "2020-07-06T21:07:41Z",
       "side": 1,
       "message": "we\u0027re hoping this chunk eventually goes away right?",
+      "range": {
+        "startLine": 747,
+        "startChar": 0,
+        "endLine": 768,
+        "endChar": 7
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bd0d1b5_34f70b1b",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T16:28:11Z",
+      "side": 1,
+      "message": "Added comment. This else-block has to remain until we remove all users of the filterquality enum",
+      "parentUuid": "d9140954_0e23f641",
       "range": {
         "startLine": 747,
         "startChar": 0,
@@ -197,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "38708eb2_65241482",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T16:28:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e53303e_e4850713",
+      "range": {
+        "startLine": 898,
+        "startChar": 9,
+        "endLine": 898,
+        "endChar": 23
+      },
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40b8cacf_90989e44",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 14
@@ -214,6 +358,24 @@
     },
     {
       "key": {
+        "uuid": "d77179a3_8c1c2f7d",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T16:28:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40b8cacf_90989e44",
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "446639f9_0057dbc9",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 14
@@ -228,6 +390,24 @@
       "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc004439_a274a019",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 968,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T16:28:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "446639f9_0057dbc9",
+      "revId": "badaa9cf374d5306fbb1f775c7a3e695abec1975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
