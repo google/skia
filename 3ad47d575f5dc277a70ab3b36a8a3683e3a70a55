@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8d61e8b_c36e9581",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-09T20:17:09Z",
+      "side": 1,
+      "message": "LGTM, but I think it would be good for chris to give it a look over to make sure there isn\u0027t any indirect specific stuff that I missed.",
+      "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
