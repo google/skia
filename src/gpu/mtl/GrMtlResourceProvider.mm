@@ -8,6 +8,7 @@
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
 
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
