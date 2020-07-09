@@ -209,6 +209,10 @@ public:
         GrGLFunction<GrGLDrawElementsInstancedBaseVertexBaseInstanceFn> fDrawElementsInstancedBaseVertexBaseInstance;
         GrGLFunction<GrGLMultiDrawArraysIndirectFn> fMultiDrawArraysIndirect;
         GrGLFunction<GrGLMultiDrawElementsIndirectFn> fMultiDrawElementsIndirect;
+        GrGLFunction<GrGLMultiDrawArraysInstancedFn> fMultiDrawArraysInstanced;
+        GrGLFunction<GrGLMultiDrawElementsInstancedFn> fMultiDrawElementsInstanced;
+        GrGLFunction<GrGLMultiDrawArraysInstancedBaseInstanceFn> fMultiDrawArraysInstancedBaseInstance;
+        GrGLFunction<GrGLMultiDrawElementsInstancedBaseVertexBaseInstanceFn> fMultiDrawElementsInstancedBaseVertexBaseInstance;
         GrGLFunction<GrGLPatchParameteriFn> fPatchParameteri;
         GrGLFunction<GrGLPixelStoreiFn> fPixelStorei;
         GrGLFunction<GrGLPolygonModeFn> fPolygonMode;
