@@ -8,6 +8,7 @@
 #ifndef SkFontMetrics_DEFINED
 #define SkFontMetrics_DEFINED
 
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 
 /** \class SkFontMetrics
@@ -26,6 +27,7 @@ struct SK_API SkFontMetrics {
         kUnderlinePositionIsValid_Flag  = 1 << 1, //!< set if fUnderlinePosition is valid
         kStrikeoutThicknessIsValid_Flag = 1 << 2, //!< set if fStrikeoutThickness is valid
         kStrikeoutPositionIsValid_Flag  = 1 << 3, //!< set if fStrikeoutPosition is valid
+        kBoundsInvalid_Flag             = 1 << 4, //!< set if fTop, fBottom, fXMin, fXMax invalid
     };
 
     uint32_t fFlags;              //!< FontMetricsFlags indicating which metrics are valid
@@ -105,6 +107,21 @@ struct SK_API SkFontMetrics {
         return false;
     }
 
+    /** Returns true if SkFontMetrics has a valid fTop, fBottom, fXMin, and fXMax, and sets
+     bounds to that value. If the bounds are not valid, return false and ignore bounds.
+
+     @param bounds  storage for maximum glyph bounds
+     @return        true if font specifies maximum glyph bounds
+     */
+    bool hasBounds(SkRect* bounds) const {
+        if (!SkToBool(fFlags & kBoundsInvalid_Flag)) {
+            if (bounds) {
+                *bounds = SkRect::MakeLTRB(fXMin, fTop, fXMax, fBottom);
+            }
+            return true;
+        }
+        return false;
+    }
 };
 
 #endif
