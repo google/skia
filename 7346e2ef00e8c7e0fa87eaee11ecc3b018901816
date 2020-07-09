@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a0ed866_1aefb759",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T15:40:36Z",
+      "side": 1,
+      "message": "I noticed this type wasn\u0027t used anywhere while working on some new adapters on top of GrBlockAllocator, so figured we\u0027d keep our memory structures as consolidated as possible and just remove this one.",
+      "revId": "7346e2ef00e8c7e0fa87eaee11ecc3b018901816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
