@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46afcae9_c0e7d2e4",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T22:07:26Z",
+      "side": 1,
+      "message": "I meant to say that I really like how sample_texel() no longer takes the SkPixmap.\nThat makes it really clear everything we need is in Uniforms.",
+      "range": {
+        "startLine": 849,
+        "startChar": 9,
+        "endLine": 849,
+        "endChar": 47
+      },
+      "revId": "666eb8a2e8e06d627dc7d9c26d9ee85cd4ca23f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeff05ae_ec36e300",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 934,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T22:07:26Z",
+      "side": 1,
+      "message": "Might consider going back and replacing uni with u (or vice versa)?",
+      "range": {
+        "startLine": 934,
+        "startChar": 22,
+        "endLine": 934,
+        "endChar": 24
+      },
+      "revId": "666eb8a2e8e06d627dc7d9c26d9ee85cd4ca23f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

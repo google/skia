@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b002b100_710e0dd6",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T22:07:26Z",
+      "side": 1,
+      "message": "If lowerWeight really is the weight for the lower level, I think you had it right here.\n\n   lerp(lo,hi,t) \u003d (hi-lo)t + lo\n\n   lerp(upper,lower,w) \u003d (lower-upper)*w + upper",
+      "range": {
+        "startLine": 976,
+        "startChar": 7,
+        "endLine": 978,
+        "endChar": 60
+      },
+      "revId": "9dd26b7e2fcf0829bad3037282ee90842209983e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
