@@ -16,6 +16,24 @@
       "revId": "6669b01267057f32bd02cddad00b8ad3cbbac918",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "253bbc1d_667792ed",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-09T13:40:51Z",
+      "side": 0,
+      "message": "Yeah, I was confused by this as well. I dunno.",
+      "parentUuid": "503061df_26b2786f",
+      "revId": "6669b01267057f32bd02cddad00b8ad3cbbac918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
