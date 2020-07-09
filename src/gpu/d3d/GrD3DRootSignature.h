@@ -43,7 +43,6 @@ private:
     // release the fRootSignature cause the gr_cp will handle that in the dtor.
     void freeGPUData() const override {}
 
-    // mutable needed so we can release the resource in freeGPUData
     gr_cp<ID3D12RootSignature> fRootSignature;
     int fNumTextureSamplers;
 };

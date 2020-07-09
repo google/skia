@@ -13,6 +13,7 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
+#include "src/gpu/d3d/GrD3DCommandSignature.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DPipelineStateBuilder.h"
@@ -258,6 +259,26 @@ void GrD3DOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, i
                                                      baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }
+
+void GrD3DOpsRenderPass::onDrawIndirect(const GrBuffer* buffer, size_t offset, int drawCount) {
+    constexpr unsigned int kSlot = 0;
+    sk_sp<GrD3DCommandSignature> cmdSig = fGpu->resourceProvider().findOrCreateCommandSignature(
+            GrD3DCommandSignature::ForIndexed::kNo, kSlot);
+    fGpu->currentCommandList()->executeIndirect(cmdSig, drawCount,
+                                                static_cast<const GrD3DBuffer*>(buffer), offset);
+    fGpu->stats()->incNumDraws();
+}
+
+void GrD3DOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* buffer, size_t offset,
+                                               int drawCount) {
+    constexpr unsigned int kSlot = 0;
+    sk_sp<GrD3DCommandSignature> cmdSig = fGpu->resourceProvider().findOrCreateCommandSignature(
+            GrD3DCommandSignature::ForIndexed::kYes, kSlot);
+    fGpu->currentCommandList()->executeIndirect(cmdSig, drawCount,
+                                                static_cast<const GrD3DBuffer*>(buffer), offset);
+    fGpu->stats()->incNumDraws();
+}
+
 
 static D3D12_RECT scissor_to_d3d_clear_rect(const GrScissorState& scissor,
                                             const GrSurface* surface,

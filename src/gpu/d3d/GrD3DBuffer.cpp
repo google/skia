@@ -263,7 +263,7 @@ void GrD3DBuffer::validate() const {
     SkASSERT(!fResource ||
              this->intendedType() == GrGpuBufferType::kVertex ||
              this->intendedType() == GrGpuBufferType::kIndex ||
-             //this->intendedType() == GrGpuBufferType::kDrawIndirect ||
+             this->intendedType() == GrGpuBufferType::kDrawIndirect ||
              this->intendedType() == GrGpuBufferType::kXferCpuToGpu ||
              this->intendedType() == GrGpuBufferType::kXferGpuToCpu);
     SkASSERT(!fMappedResource || !fResource ||

@@ -33,6 +33,7 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     fGpuTracingSupport = false; //TODO: figure this out
     fOversizedStencilSupport = false; //TODO: figure this out
     fDrawInstancedSupport = true;
+    fNativeDrawIndirectSupport = true;
 
     fSemaphoreSupport = true;
     fFenceSyncSupport = true;

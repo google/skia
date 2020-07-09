@@ -59,6 +59,21 @@ sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int n
     return rootSig;
 }
 
+sk_sp<GrD3DCommandSignature> GrD3DResourceProvider::findOrCreateCommandSignature(
+        GrD3DCommandSignature::ForIndexed indexed, unsigned int slot) {
+    for (int i = 0; i < fCommandSignatures.count(); ++i) {
+        if (fCommandSignatures[i]->isCompatible(indexed, slot)) {
+            return fCommandSignatures[i];
+        }
+    }
+
+    auto commandSig = GrD3DCommandSignature::Make(fGpu, indexed, slot);
+    if (!commandSig) {
+        return nullptr;
+    }
+    fCommandSignatures.push_back(commandSig);
+    return commandSig;
+}
 
 GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createRenderTargetView(
         ID3D12Resource* textureResource) {
