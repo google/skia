@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "459fd6f8_7b9e4b0e",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-09T20:47:50Z",
+      "side": 1,
+      "message": "Michael, I\u0027m a little confused about what\u0027s going on here. I noticed that this will generate code like:\n\n    half4 output_Stage1;\n    {\n        float2 _coords \u003d vLocalCoord_Stage0.xy;\n        output_Stage1 \u003d GaussianConvolution_Stage1_c0(outputColor_Stage0);\n    }\n\nbut then GaussianConvolution_Stage1_c0() isn\u0027t passed _coords and it directly refers to vLocalCoord_Stage0. Before this change the code would have been inlined instead of a function call.\n\nIs the unused var related to the changes I made here? Just wondering if I\u0027m breaking something subtle or if we were already inserting a variable we don\u0027t need. Or maybe there is a context in which we need it.\n\nThis change isn\u0027t important to land. I was just trying to make the generated code a little easier to read.",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 201,
+        "endChar": 5
+      },
+      "revId": "72354280ecaf906985e4e26f59b181865ed59d9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
