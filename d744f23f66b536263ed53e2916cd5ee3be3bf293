@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "993debb5_55ff24a6",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-09T19:12:20Z",
+      "side": 1,
+      "message": "[... code bytes ...| 256 reserved bytes for uniforms]",
+      "revId": "d744f23f66b536263ed53e2916cd5ee3be3bf293",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
