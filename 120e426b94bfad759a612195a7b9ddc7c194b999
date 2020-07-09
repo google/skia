@@ -16,6 +16,24 @@
       "revId": "120e426b94bfad759a612195a7b9ddc7c194b999",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "314a7bf6_79e6c3e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-09T17:49:33Z",
+      "side": 1,
+      "message": "It only add one more inflate() call to the view hierarchy per SkottieView. The SkottieView framelayout directly accesses the backingView when we make the mAnimation using the SkottieRunner. Shouldn\u0027t interfere with drawing performance after all the views are inflated.",
+      "parentUuid": "72e97173_a88b5cd8",
+      "revId": "120e426b94bfad759a612195a7b9ddc7c194b999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
