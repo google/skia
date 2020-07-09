@@ -44,12 +44,12 @@ int GrMockGpu::NextExternalRenderTargetID() {
 }
 
 sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
-                             const GrContextOptions& contextOptions, GrContext* context) {
+                             const GrContextOptions& contextOptions, GrDirectContext* direct) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();
     if (!mockOptions) {
         mockOptions = &kDefaultOptions;
     }
-    return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
+    return sk_sp<GrGpu>(new GrMockGpu(direct, *mockOptions, contextOptions));
 }
 
 GrOpsRenderPass* GrMockGpu::getOpsRenderPass(
@@ -68,9 +68,9 @@ void GrMockGpu::submit(GrOpsRenderPass* renderPass) {
     delete renderPass;
 }
 
-GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
+GrMockGpu::GrMockGpu(GrDirectContext* direct, const GrMockOptions& options,
                      const GrContextOptions& contextOptions)
-        : INHERITED(context)
+        : INHERITED(direct)
         , fMockOptions(options) {
     fCaps.reset(new GrMockCaps(contextOptions, options));
 }

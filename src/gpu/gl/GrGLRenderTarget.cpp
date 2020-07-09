@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrRenderTargetPriv.h"

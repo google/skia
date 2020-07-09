@@ -334,7 +334,7 @@ void CCPRGeometryView::updateGpuData() {
 void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
                                                       const SkRect& chainBounds) {
     GrResourceProvider* rp = state->resourceProvider();
-    auto direct = GrAsDirectContext(state->gpu()->getContext());
+    auto direct = state->gpu()->getContext();
 #ifdef SK_GL
     GrGLGpu* glGpu = GrBackendApi::kOpenGL == direct->backend()
                              ? static_cast<GrGLGpu*>(state->gpu())

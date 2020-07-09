@@ -31,7 +31,7 @@ namespace SkSL {
 class GrD3DGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(const GrD3DBackendContext& backendContext, const GrContextOptions&,
-                             GrContext*);
+                             GrDirectContext*);
 
     ~GrD3DGpu() override;
 
@@ -113,7 +113,7 @@ private:
         kSkip
     };
 
-    GrD3DGpu(GrContext* context, const GrContextOptions&, const GrD3DBackendContext&);
+    GrD3DGpu(GrDirectContext*, const GrContextOptions&, const GrD3DBackendContext&);
 
     void destroyResources();
 

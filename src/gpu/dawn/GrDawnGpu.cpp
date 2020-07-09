@@ -10,6 +10,7 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
@@ -96,19 +97,19 @@ static wgpu::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode)
 }
 
 sk_sp<GrGpu> GrDawnGpu::Make(const wgpu::Device& device,
-                             const GrContextOptions& options, GrContext* context) {
+                             const GrContextOptions& options, GrDirectContext* direct) {
     if (!device) {
         return nullptr;
     }
 
-    return sk_sp<GrGpu>(new GrDawnGpu(context, options, device));
+    return sk_sp<GrGpu>(new GrDawnGpu(direct, options, device));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
+GrDawnGpu::GrDawnGpu(GrDirectContext* direct, const GrContextOptions& options,
                      const wgpu::Device& device)
-        : INHERITED(context)
+        : INHERITED(direct)
         , fDevice(device)
         , fQueue(device.GetDefaultQueue())
         , fCompiler(new SkSL::Compiler())

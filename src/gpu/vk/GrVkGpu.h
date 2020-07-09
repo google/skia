@@ -18,6 +18,7 @@
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
+class GrDirectContext;
 class GrPipeline;
 
 class GrVkBufferImpl;
@@ -38,7 +39,7 @@ namespace SkSL {
 
 class GrVkGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(const GrVkBackendContext&, const GrContextOptions&, GrContext*);
+    static sk_sp<GrGpu> Make(const GrVkBackendContext&, const GrContextOptions&, GrDirectContext*);
 
     ~GrVkGpu() override;
 
@@ -178,7 +179,7 @@ private:
         kSkip_SyncQueue
     };
 
-    GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext&,
+    GrVkGpu(GrDirectContext*, const GrContextOptions&, const GrVkBackendContext&,
             sk_sp<const GrVkInterface>, uint32_t instanceVersion, uint32_t physicalDeviceVersion,
             sk_sp<GrVkMemoryAllocator>);
 
