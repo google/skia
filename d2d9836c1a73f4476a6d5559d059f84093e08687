@@ -16,6 +16,24 @@
       "revId": "d2d9836c1a73f4476a6d5559d059f84093e08687",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b740c6b_5599d437",
+        "filename": "include/core/SkFontMetrics.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-09T18:03:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69f983b1_cf5bd15a",
+      "revId": "d2d9836c1a73f4476a6d5559d059f84093e08687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
