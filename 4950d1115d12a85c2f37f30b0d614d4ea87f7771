@@ -33,6 +33,23 @@
       "revId": "4950d1115d12a85c2f37f30b0d614d4ea87f7771",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e0daf41_d57ea9ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-09T19:50:42Z",
+      "side": 1,
+      "message": "Returning nullptr only means there is nothing to draw. There are no failure cases I know of. I don\u0027t think the pool allocate is allowed to return nullptr.",
+      "revId": "4950d1115d12a85c2f37f30b0d614d4ea87f7771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
