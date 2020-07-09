@@ -68,6 +68,24 @@
       "revId": "4950d1115d12a85c2f37f30b0d614d4ea87f7771",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21e8e535_d447ef08",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-09T20:23:08Z",
+      "side": 1,
+      "message": "Created this alternative version at https://skia-review.googlesource.com/c/skia/+/301586 .",
+      "parentUuid": "9029f32a_b175f2d7",
+      "revId": "4950d1115d12a85c2f37f30b0d614d4ea87f7771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
