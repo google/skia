@@ -86,7 +86,7 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
     this->setFlag(kClosed_Flag);
 }
 
-void GrRenderTask::prepare(GrOpFlushState* flushState) {
+void GrRenderTask::prepare1(GrOpFlushState* flushState) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
         fDeferredProxies[i]->texPriv().scheduleUpload(flushState);
     }

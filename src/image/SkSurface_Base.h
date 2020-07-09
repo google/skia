@@ -125,7 +125,9 @@ public:
 
     virtual bool onCharacterize(SkSurfaceCharacterization*) const { return false; }
     virtual bool onIsCompatible(const SkSurfaceCharacterization&) const { return false; }
-    virtual bool onDraw(sk_sp<const SkDeferredDisplayList>) { return false; }
+    virtual bool onDraw(sk_sp<const SkDeferredDisplayList>, int xOffset, int yOffset) {
+        return false;
+    }
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
