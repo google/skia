@@ -64,8 +64,9 @@ void GrContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 }
 
 void GrContextPriv::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
-                                           GrRenderTargetProxy* newDest) {
-    fContext->drawingManager()->copyRenderTasksFromDDL(std::move(ddl), newDest);
+                                           GrRenderTargetProxy* newDest,
+                                           int xOffset, int yOffset) {
+    fContext->drawingManager()->copyRenderTasksFromDDL(std::move(ddl), newDest, xOffset, yOffset);
 }
 
 bool GrContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {

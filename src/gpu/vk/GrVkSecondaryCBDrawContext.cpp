@@ -165,7 +165,7 @@ bool GrVkSecondaryCBDrawContext::draw(const SkDeferredDisplayList* ddl) {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
-    ctx->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
+    ctx->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy(), 0, 0);
     return true;
 }
 
