@@ -18,6 +18,7 @@
 
 class GrD3DGpu;
 class GrD3DBuffer;
+class GrD3DCommandSignature;
 class GrD3DConstantRingBuffer;
 class GrD3DPipelineState;
 class GrD3DRenderTarget;
@@ -149,6 +150,8 @@ public:
     void drawIndexedInstanced(unsigned int indexCount, unsigned int instanceCount,
                               unsigned int startIndex, unsigned int baseVertex,
                               unsigned int startInstance);
+    void executeIndirect(const sk_sp<GrD3DCommandSignature> commandSig, unsigned int maxCommandCnt,
+                         const GrD3DBuffer* argumentBuffer, size_t argumentBufferOffset);
 
     void clearRenderTargetView(const GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
                                const D3D12_RECT* rect);
@@ -156,7 +159,7 @@ public:
                                const D3D12_RECT* rect);
     void setRenderTarget(const GrD3DRenderTarget* renderTarget);
     void resolveSubresourceRegion(const GrD3DTextureResource* dstTexture,
-                                  UINT dstX, UINT dstY,
+                                  unsigned int dstX, unsigned int dstY,
                                   const GrD3DTextureResource* srcTexture,
                                   D3D12_RECT* srcRect);
 
