@@ -16,6 +16,41 @@
       "revId": "c554db21e21f11a825167617979d280b2e5cf394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b113040_a2bf1bf5",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-09T19:17:44Z",
+      "side": 1,
+      "message": "Maybe add a: // CONTEXT TODO: MakeGL should return an sk_sp\u003cGrDirectContext\u003e\n\n?\n\nOn the second bullet I would be there is some friending going on.",
+      "parentUuid": "1aae288b_b26a6266",
+      "revId": "c554db21e21f11a825167617979d280b2e5cf394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "297dff2d_7b755754",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-09T19:17:44Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be in private ?",
+      "revId": "c554db21e21f11a825167617979d280b2e5cf394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
