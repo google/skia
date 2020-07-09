@@ -16,6 +16,63 @@
       "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1264cfbc_5fdd0f8d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-09T20:48:40Z",
+      "side": 1,
+      "message": "LGTM with a couple questions for clarification.\n\nSo were you able to see tessellation working? Can you verify GrMeshTest goes through these calls and that it still passes?",
+      "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "992d1184_e9ccbcdb",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-09T20:48:40Z",
+      "side": 1,
+      "message": "Does this need to persist beyond the end of the call?",
+      "range": {
+        "startLine": 350,
+        "startChar": 52,
+        "endLine": 350,
+        "endChar": 68
+      },
+      "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca8786a8_cf8d9eea",
+        "filename": "src/gpu/d3d/GrD3DCommandSignature.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-09T20:48:40Z",
+      "side": 1,
+      "message": "I\u0027m not too familiar with the slot here, but I assume it\u0027s always supposed to be zero? Does it make a difference whether the attribs are vertex or instanced?",
+      "revId": "3ad47d575f5dc277a70ab3b36a8a3683e3a70a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
