@@ -395,6 +395,9 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
 
     SkFontMetrics fm;
     ctx->getFontMetrics(&fm);
+    if (!fm.hasBounds()) {
+        return false;
+    }
     bounds->setLTRB(fm.fXMin * invTextSize, fm.fTop * invTextSize,
                     fm.fXMax * invTextSize, fm.fBottom * invTextSize);
     return true;
