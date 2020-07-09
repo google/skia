@@ -3390,7 +3390,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  GrShaderCaps* shaderCaps,
                                                  FormatWorkarounds* formatWorkarounds) {
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
-    // Thus we are blacklisting this extension for now on Adreno4xx devices.
+    // Thus we are disabling this extension for now on Adreno4xx devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() ||
         fDriverBugWorkarounds.disable_discard_framebuffer) {
@@ -3758,7 +3758,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // Disabling advanced blend on various platforms with major known issues. We also block Chrome
-    // for now until its own blacklists can be updated.
+    // for now until its own denylists can be updated.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno5xx_GrGLRenderer == ctxInfo.renderer() ||
@@ -3784,13 +3784,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (this->advancedBlendEquationSupport()) {
         if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
             ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355, 00, 0)) {
-            // Blacklist color-dodge and color-burn on pre-355.00 NVIDIA.
-            fAdvBlendEqBlacklist |= (1 << kColorDodge_GrBlendEquation) |
+            // Disable color-dodge and color-burn on pre-355.00 NVIDIA.
+            fAdvBlendEqDisableFlags |= (1 << kColorDodge_GrBlendEquation) |
                                     (1 << kColorBurn_GrBlendEquation);
         }
         if (kARM_GrGLVendor == ctxInfo.vendor()) {
-            // Blacklist color-burn on ARM until the fix is released.
-            fAdvBlendEqBlacklist |= (1 << kColorBurn_GrBlendEquation);
+            // Disable color-burn on ARM until the fix is released.
+            fAdvBlendEqDisableFlags |= (1 << kColorBurn_GrBlendEquation);
         }
     }
 
@@ -3822,7 +3822,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #ifdef SK_BUILD_FOR_IOS
     // iOS drivers appear to implement TexSubImage by creating a staging buffer, and copying
     // UNPACK_ROW_LENGTH * height bytes. That's unsafe in several scenarios, and the simplest fix
-    // is to just blacklist the feature.
+    // is to just disable the feature.
     // https://github.com/flutter/flutter/issues/16718
     // https://bugreport.apple.com/web/?problemID=39948888
     fWritePixelsRowBytesSupport = false;
@@ -3834,14 +3834,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         (kIntelSandyBridge_GrGLRenderer == ctxInfo.renderer() ||
          kIntelIvyBridge_GrGLRenderer == ctxInfo.renderer() ||
          kIntelValleyView_GrGLRenderer == ctxInfo.renderer())) {
-        fDriverBlacklistCCPR = true;
+        fDriverDisableCCPR = true;
     }
 
     // Temporarily disable the MSAA implementation of CCPR on various platforms while we work out
     // specific issues.
     if (kATI_GrGLVendor == ctxInfo.vendor() ||  // Radeon drops stencil draws that use sample mask.
         kImagination_GrGLVendor == ctxInfo.vendor() /* PowerVR produces flaky results on Gold. */) {
-        fDriverBlacklistMSAACCPR = true;
+        fDriverDisableMSAACCPR = true;
     }
 
     // http://skbug.com/9739

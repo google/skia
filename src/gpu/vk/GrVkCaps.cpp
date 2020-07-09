@@ -471,12 +471,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // blending, but that shouldn't be an issue because MSAA CCPR seems to work fine (even without
     // mixed samples) on later NVIDIA hardware where mixed samples would be supported.
     if ((kNvidia_VkVendor == properties.vendorID) && !fMixedSamplesSupport) {
-        fDriverBlacklistMSAACCPR = true;
+        fDriverDisableMSAACCPR = true;
     }
 
 #ifdef SK_BUILD_FOR_ANDROID
     // MSAA CCPR is slow on Android. http://skbug.com/9676
-    fDriverBlacklistMSAACCPR = true;
+    fDriverDisableMSAACCPR = true;
 #endif
 
     if (kARM_VkVendor == properties.vendorID) {

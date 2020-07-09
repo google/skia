@@ -2473,7 +2473,7 @@ void GrGLGpu::flushBlendAndColorWrite(
         if (kNo_TriState != fHWBlendState.fEnabled) {
             GL_CALL(Disable(GR_GL_BLEND));
 
-            // Workaround for the ARM KHR_blend_equation_advanced blacklist issue
+            // Workaround for the ARM KHR_blend_equation_advanced disable flags issue
             // https://code.google.com/p/skia/issues/detail?id=3943
             if (kARM_GrGLVendor == this->ctxInfo().vendor() &&
                 GrBlendEquationIsAdvanced(fHWBlendState.fEquation)) {

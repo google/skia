@@ -53,11 +53,11 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fWritePixelsRowBytesSupport = false;
     fReadPixelsRowBytesSupport = false;
     fShouldCollapseSrcOverToSrcWhenAble = false;
-    fDriverBlacklistCCPR = false;
-    fDriverBlacklistMSAACCPR = false;
+    fDriverDisableCCPR = false;
+    fDriverDisableMSAACCPR = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
-    fAdvBlendEqBlacklist = 0;
+    fAdvBlendEqDisableFlags = 0;
 
     fMapBufferFlags = kNone_MapFlags;
 
@@ -105,13 +105,13 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fShaderCaps->applyOptionsOverrides(options);
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
-        SkASSERT(!fDriverBlacklistCCPR);
-        SkASSERT(!fDriverBlacklistMSAACCPR);
+        SkASSERT(!fDriverDisableCCPR);
+        SkASSERT(!fDriverDisableMSAACCPR);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAvoidWritePixelsFastPath);
         SkASSERT(!fRequiresManualFBBarrierAfterTessellatedStencilDraw);
         SkASSERT(!fNativeDrawIndexedIndirectIsBroken);
-        SkASSERT(!fAdvBlendEqBlacklist);
+        SkASSERT(!fAdvBlendEqDisableFlags);
         SkASSERT(!fPerformColorClearsAsDraws);
         SkASSERT(!fPerformStencilClearsAsDraws);
         // Don't check the partial-clear workaround, since that is a backend limitation, not a
@@ -230,9 +230,9 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                        fTransferFromSurfaceToBufferSupport);
     writer->appendBool("Write pixels row bytes support", fWritePixelsRowBytesSupport);
     writer->appendBool("Read pixels row bytes support", fReadPixelsRowBytesSupport);
-    writer->appendBool("Blacklist CCPR on current driver [workaround]", fDriverBlacklistCCPR);
-    writer->appendBool("Blacklist MSAA version of CCPR on current driver [workaround]",
-                       fDriverBlacklistMSAACCPR);
+    writer->appendBool("Disable CCPR on current driver [workaround]", fDriverDisableCCPR);
+    writer->appendBool("Disable MSAA version of CCPR on current driver [workaround]",
+                       fDriverDisableMSAACCPR);
     writer->appendBool("Clamp-to-border", fClampToBorderSupport);
 
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
@@ -246,7 +246,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                        fNativeDrawIndexedIndirectIsBroken);
 
     if (this->advancedBlendEquationSupport()) {
-        writer->appendHexU32("Advanced Blend Equation Blacklist", fAdvBlendEqBlacklist);
+        writer->appendHexU32("Advanced Blend Equation Disable Flags", fAdvBlendEqDisableFlags);
     }
 
     writer->appendS32("Max Vertex Attributes", fMaxVertexAttributes);

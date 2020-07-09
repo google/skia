@@ -129,10 +129,10 @@ public:
         return kAdvancedCoherent_BlendEquationSupport == fBlendEquationSupport;
     }
 
-    bool isAdvancedBlendEquationBlacklisted(GrBlendEquation equation) const {
+    bool isAdvancedBlendEquationDisabled(GrBlendEquation equation) const {
         SkASSERT(GrBlendEquationIsAdvanced(equation));
         SkASSERT(this->advancedBlendEquationSupport());
-        return SkToBool(fAdvBlendEqBlacklist & (1 << equation));
+        return SkToBool(fAdvBlendEqDisableFlags & (1 << equation));
     }
 
     // On some GPUs it is a performance win to disable blending instead of doing src-over with a src
@@ -366,8 +366,8 @@ public:
     bool allowCoverageCounting() const { return fAllowCoverageCounting; }
 
     // Should we disable the CCPR code due to a faulty driver?
-    bool driverBlacklistCCPR() const { return fDriverBlacklistCCPR; }
-    bool driverBlacklistMSAACCPR() const { return fDriverBlacklistMSAACCPR; }
+    bool driverDisableCCPR() const { return fDriverDisableCCPR; }
+    bool driverDisableMSAACCPR() const { return fDriverDisableMSAACCPR; }
 
     /**
      * This is used to try to ensure a successful copy a dst in order to perform shader-based
@@ -485,8 +485,8 @@ protected:
     bool fShouldCollapseSrcOverToSrcWhenAble         : 1;
 
     // Driver workaround
-    bool fDriverBlacklistCCPR                        : 1;
-    bool fDriverBlacklistMSAACCPR                    : 1;
+    bool fDriverDisableCCPR                          : 1;
+    bool fDriverDisableMSAACCPR                      : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
@@ -508,7 +508,7 @@ protected:
     bool fDynamicStateArrayGeometryProcessorTextureSupport : 1;
 
     BlendEquationSupport fBlendEquationSupport;
-    uint32_t fAdvBlendEqBlacklist;
+    uint32_t fAdvBlendEqDisableFlags;
     static_assert(kLast_GrBlendEquation < 32);
 
     uint32_t fMapBufferFlags;

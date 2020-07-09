@@ -47,7 +47,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
                 caps, GrClampType::kAuto, &overrideColor);
 
         if (caps.advancedBlendEquationSupport() &&
-                !caps.isAdvancedBlendEquationBlacklisted(blendEquation)) {
+                !caps.isAdvancedBlendEquationDisabled(blendEquation)) {
             REPORTER_ASSERT(reporter,
                             !(xpfAnalysis & GrXPFactory::AnalysisProperties::kReadsDstInShader));
             if (GrCaps::kAdvancedCoherent_BlendEquationSupport == caps.blendEquationSupport()) {
