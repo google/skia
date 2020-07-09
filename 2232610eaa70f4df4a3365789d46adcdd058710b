@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5b5b0a4_a11fe060",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T17:14:35Z",
+      "side": 1,
+      "message": "I confirmed with the new GM that the bulk API was not applying the paint color before hand, and that afterwards the top and bottom rows match.",
+      "revId": "2232610eaa70f4df4a3365789d46adcdd058710b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
