@@ -67,7 +67,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
 
-    void onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
+    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
         SkPaint paint;
 

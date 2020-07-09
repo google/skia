@@ -16,7 +16,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrContext.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -38,7 +37,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         const char text[] = "Hamburgefons";
 
         SkFont font(ToolUtils::create_portable_typeface(), 20);
@@ -52,9 +51,7 @@ protected:
         canvas->drawTextBlob(blob, 20, 60, SkPaint());
 
         // This text should look fine
-        if (GrContext* directContext = context->priv().asDirectContext()) {
-            directContext->freeGpuResources();
-        }
+        context->freeGpuResources();
         canvas->drawTextBlob(blob, 20, 160, SkPaint());
     }
 

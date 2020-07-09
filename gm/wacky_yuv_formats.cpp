@@ -38,16 +38,14 @@
 #include "include/gpu/GrConfig.h"
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkYUVMath.h"
-#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrGpu.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
 
@@ -328,7 +326,7 @@ static bool is_colorType_texturable(const GrCaps* caps, GrColorType ct) {
     return caps->isFormatTexturable(format);
 }
 
-static bool is_format_natively_supported(GrRecordingContext* context, YUVFormat yuvFormat) {
+static bool is_format_natively_supported(GrContext* context, YUVFormat yuvFormat) {
 
     const GrCaps* caps = context->priv().caps();
 
@@ -1622,7 +1620,7 @@ protected:
         fImages[0][0] = fImages[0][1] = fImages[1][0] = fImages[1][1] = nullptr;
     }
 
-    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
         int x = kPad;

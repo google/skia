@@ -13,11 +13,10 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkScopeExit.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrContextPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -137,7 +136,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                                           SkString* errorMsg,
                                           int pad = 0) {
     if (doYUV420) {
-        if (!canvas->recordingContext() || !canvas->recordingContext()->priv().asDirectContext()) {
+        if (!canvas->getGrContext() || !canvas->getGrContext()->priv().asDirectContext()) {
             errorMsg->printf("YUV420 only supported on direct GPU for now.");
             return skiagm::DrawResult::kSkip;
         }
@@ -208,7 +207,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         if (!surface) {
             *errorMsg = "Could not create surface for image.";
             // When testing abandoned GrContext we expect surface creation to fail.
-            if (canvas->recordingContext() && canvas->recordingContext()->priv().abandoned()) {
+            if (canvas->getGrContext() && canvas->getGrContext()->abandoned()) {
                 return skiagm::DrawResult::kSkip;
             }
             return skiagm::DrawResult::kFail;
@@ -223,7 +222,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         if (!image) {
             *errorMsg = "Could not create image.";
             // When testing abandoned GrContext we expect surface creation to fail.
-            if (canvas->recordingContext() && canvas->recordingContext()->priv().abandoned()) {
+            if (canvas->getGrContext() && canvas->getGrContext()->abandoned()) {
                 return skiagm::DrawResult::kSkip;
             }
             return skiagm::DrawResult::kFail;

@@ -8,11 +8,9 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
-#include "include/gpu/GrContext.h"
-#include "include/private/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 
 constexpr int kImgWidth  = 16;
@@ -115,8 +113,7 @@ static sk_sp<SkImage> data_to_img(GrContext *context, sk_sp<SkData> data,
     }
 }
 
-static void draw_image(GrRecordingContext* context, SkCanvas* canvas,
-                       sk_sp<SkImage> image, int x, int y) {
+static void draw_image(GrContext* context, SkCanvas* canvas, sk_sp<SkImage> image, int x, int y) {
 
     bool isCompressed = false;
     if (image && image->isTextureBacked()) {
@@ -180,7 +177,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        auto context = canvas->getGrContext();
+        GrContext* context = canvas->getGrContext();
 
         sk_sp<SkImage> rgbImg = data_to_img(context, fBC1Data,
                                             SkImage::CompressionType::kBC1_RGB8_UNORM);

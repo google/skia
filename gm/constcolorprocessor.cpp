@@ -69,7 +69,7 @@ protected:
                                                SkTileMode::kClamp);
     }
 
-    void onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
+    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
         constexpr GrColor kColors[] = {
             0xFFFFFFFF,

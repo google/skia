@@ -18,9 +18,9 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/private/GrRecordingContext.h"
+#include "include/gpu/GrContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrContextPriv.h"
 
 namespace skiagm {
 
@@ -125,7 +125,7 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
     // (See https://skia-review.googlesource.com/c/skia/+/73200)
     int bitmapW = 1;
     int bitmapH = 60000;
-    if (auto ctx = canvas->recordingContext()) {
+    if (auto* ctx = canvas->getGrContext()) {
         bitmapH = ctx->priv().caps()->maxTextureSize() + 1;
     }
     bitmap.setInfo(SkImageInfo::MakeA8(bitmapW, bitmapH), bitmapW);

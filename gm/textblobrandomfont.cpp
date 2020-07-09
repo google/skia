@@ -24,7 +24,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrContext.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/RandomScalerContext.h"
 
@@ -107,7 +106,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         // This GM exists to test a specific feature of the GPU backend.
         // This GM uses ToolUtils::makeSurface which doesn't work well with vias.
@@ -148,10 +147,8 @@ protected:
         surface->draw(canvas, 0, 0, nullptr);
         yOffset += stride;
 
-        if (GrContext* directContext = context->priv().asDirectContext()) {
-            // free gpu resources and verify
-            directContext->freeGpuResources();
-        }
+        // free gpu resources and verify
+        context->freeGpuResources();
 
         canvas->rotate(-0.05f);
         canvas->drawTextBlob(fBlob, 10, yOffset, paint);

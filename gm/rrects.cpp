@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
 #include "include/private/GrSharedEnums.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrCaps.h"
@@ -81,7 +82,7 @@ protected:
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
-        auto context = canvas->recordingContext();
+        GrContext* context = canvas->getGrContext();
         if (kEffect_Type == fType && (!renderTargetContext || !context)) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;
