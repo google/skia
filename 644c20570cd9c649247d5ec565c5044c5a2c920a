@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f418375b_04c861d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T21:40:00Z",
+      "side": 1,
+      "message": "Running with tessellation fired this assert -- looks like at some point we submit with null vertex, instance, and index buffers.",
+      "revId": "644c20570cd9c649247d5ec565c5044c5a2c920a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
