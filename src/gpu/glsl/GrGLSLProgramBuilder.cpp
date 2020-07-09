@@ -160,11 +160,6 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
     AutoStageAdvance adv(this);
     this->nameExpression(&output, "output");
 
-    // Enclose custom code in a block to avoid namespace conflicts
-    SkString openBrace;
-    openBrace.printf("{ // Stage %d, %s\n", fStageIndex, fp.name());
-    fFS.codeAppend(openBrace.c_str());
-
     int samplerIdx = 0;
     for (auto [subFP, subGLSLFP] : GrGLSLFragmentProcessor::ParallelRange(fp, glslFP)) {
         if (auto* te = subFP.asTextureEffect()) {
@@ -180,29 +175,20 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
     }
     const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
-    GrGLSLFragmentProcessor::EmitArgs args(&fFS,
-                                           this->uniformHandler(),
-                                           this->shaderCaps(),
-                                           fp,
-                                           output.c_str(),
-                                           input.c_str(),
-                                           "_coords",
-                                           coords);
-
+    static constexpr const char* kCoordArg = "_coords";
     if (fp.referencesSampleCoords()) {
+        fFS.codeAppend("{");
         // The fp's generated code expects a _coords variable, but we're at the root so _coords
         // is just the local coordinates produced by the primitive processor.
         SkASSERT(fp.usesVaryingCoordsDirectly());
-
         const GrShaderVar& varying = coordVars[0];
         switch(varying.getType()) {
             case kFloat2_GrSLType:
-                fFS.codeAppendf("float2 %s = %s.xy;\n",
-                                args.fSampleCoord, varying.getName().c_str());
+                fFS.codeAppendf("float2 %s = %s.xy;\n", kCoordArg, varying.getName().c_str());
                 break;
             case kFloat3_GrSLType:
                 fFS.codeAppendf("float2 %s = %s.xy / %s.z;\n",
-                                args.fSampleCoord,
+                                kCoordArg,
                                 varying.getName().c_str(),
                                 varying.getName().c_str());
                 break;
@@ -211,15 +197,27 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
                              (int) varying.getType(), varying.getName().c_str());
                 break;
         }
-    }
 
-    glslFP.emitCode(args);
+    }
+    GrGLSLFragmentProcessor::EmitArgs args(&fFS,
+                                           this->uniformHandler(),
+                                           this->shaderCaps(),
+                                           fp,
+                                           "_output",
+                                           "_input",
+                                           kCoordArg,
+                                           coords);
+
+    auto name = fFS.writeProcessorFunction(&glslFP, args);
+    fFS.codeAppendf("%s = %s(%s);", output.c_str(), name.c_str(), input.c_str());
+    if (fp.referencesSampleCoords()) {
+        fFS.codeAppend("}");
+    }
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(fp);)
 
-    fFS.codeAppend("}");
     return output;
 }
 
