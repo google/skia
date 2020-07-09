@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "187cb1d8_c1e38c65",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T19:08:44Z",
+      "side": 1,
+      "message": "\u0026\u0026?",
+      "range": {
+        "startLine": 656,
+        "startChar": 43,
+        "endLine": 656,
+        "endChar": 45
+      },
+      "revId": "a86761b0b45abc179f7fbaced48a103e4e804c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
