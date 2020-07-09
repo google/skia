@@ -32,7 +32,7 @@ class GrSwizzle;
 
 class GrGLGpu final : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrContext*);
+    static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrDirectContext*);
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;
@@ -189,7 +189,7 @@ public:
     void flushProgram(GrGLuint);
 
 private:
-    GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
+    GrGLGpu(std::unique_ptr<GrGLContext>, GrDirectContext*);
 
     // GrGpu overrides
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
