@@ -312,3 +312,56 @@ DEF_GM( return new ShowMipLevels2(255, 255); )
 DEF_GM( return new ShowMipLevels2(256, 255); )
 DEF_GM( return new ShowMipLevels2(255, 256); )
 DEF_GM( return new ShowMipLevels2(256, 256); )
+
+#include "tools/Resources.h"
+
+class ShowMipLevels3 : public skiagm::GM {
+    sk_sp<SkImage> fImg;
+
+    SkString onShortName() override { return SkString("showmiplevels_explicit"); }
+
+    SkISize onISize() override { return {1290, 990}; }
+
+    SkScalar draw_downscaling(SkCanvas* canvas, SkFilterOptions options) {
+        SkAutoCanvasRestore acr(canvas, true);
+
+        SkPaint paint;
+        SkRect r = {0, 0, 150, 150};
+        for (float scale = 1; scale >= 0.125f; scale *= 0.75f) {
+            SkMatrix matrix = SkMatrix::Scale(scale, scale);
+            paint.setShader(fImg->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                             options, &matrix));
+            canvas->drawRect(r, paint);
+//            r.offset(r.width() + 10, 0);
+            canvas->translate(r.width() + 10, 0);
+        }
+        return 160;
+    }
+
+    void onOnceBeforeDraw() override {
+        fImg = GetResourceAsImage("images/ship.png");
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->drawColor(0xFFDDDDDD);
+
+        const SkSamplingMode samplings[] = {
+            SkSamplingMode::kNearest, SkSamplingMode::kLinear
+        };
+        const SkMipmapMode mipmodes[] = {
+            SkMipmapMode::kNone, SkMipmapMode::kNearest, SkMipmapMode::kLinear
+        };
+
+        canvas->translate(10, 10);
+        for (auto mm : mipmodes) {
+            for (auto sa : samplings) {
+                canvas->translate(0, draw_downscaling(canvas, {sa, mm}));
+            }
+            canvas->translate(0, 10);
+        }
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new ShowMipLevels3; )
