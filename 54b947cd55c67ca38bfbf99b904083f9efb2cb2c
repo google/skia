@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "40e4398d_9a3cb818",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T20:35:42Z",
+      "side": 1,
+      "message": "There ",
+      "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9de0ed66_7c4c28e2",
         "filename": "src/codec/SkCodecImageGenerator.h",
         "patchSetId": 1
@@ -101,6 +118,24 @@
       "side": 1,
       "message": "Flutter\u0027s multi-frame solution currently goes through SkCodec directly, but that doesn\u0027t have to be the case in the future.\n\nThis is probably fine this way for now, it can always be promoted later and easier to do that than to remove it.",
       "parentUuid": "679c7e00_82b72a72",
+      "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d23a4e2_9dc66d32",
+        "filename": "src/codec/SkCodecImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T20:35:42Z",
+      "side": 1,
+      "message": "... there are three SkImageGenerators that aren\u0027t codec-backed (in the way we think of that term).\n\nPicture-image-generator is actually infinitely scalable (it\u0027s getPixels will rasterize to the exact requested, no matter what).\n\nThen there are two image generators that are really just implementation details of how we handle cross-context textures, and Android\u0027s gralloc buffers. Those are just elaborate schemes for shuffling GPU resources around, and have no scalability at all.",
+      "parentUuid": "703c1f59_30753b59",
       "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
