@@ -52,6 +52,24 @@
       "revId": "de44d56e2b1bbbc0ffc0727f0f9a621afbce9699",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e01bb4e_0be261a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-09T15:04:37Z",
+      "side": 1,
+      "message": "Oh! I think I like addAnalytic[ShapeName] and numAnalyticShapes/Elements. No sense in overloading an API when we can name things clearly.\n\nDo you have a preference between Shapes and Elements? I can see a case for either.",
+      "parentUuid": "5d80e855_19cde173",
+      "revId": "de44d56e2b1bbbc0ffc0727f0f9a621afbce9699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
