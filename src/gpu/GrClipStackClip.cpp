@@ -208,20 +208,20 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     //   isect convex_poly
     //   isect convex_poly
     // when drawing rounded div borders.
-    constexpr int kMaxAnalyticFPs = 4;
+    constexpr int kMaxAnalyticElements = 4;
 
     int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
-    int maxAnalyticFPs = kMaxAnalyticFPs;
+    int maxAnalyticElements = kMaxAnalyticElements;
     if (renderTargetContext->numSamples() > 1 || useHWAA || hasUserStencilSettings) {
         // Disable analytic clips when we have MSAA. In MSAA we never conflate coverage and opacity.
-        maxAnalyticFPs = 0;
+        maxAnalyticElements = 0;
         // We disable MSAA when avoiding stencil.
         SkASSERT(!context->priv().caps()->avoidStencilBuffers());
     }
     auto* ccpr = context->priv().drawingManager()->getCoverageCountingPathRenderer();
 
-    GrReducedClip reducedClip(*fStack, devBounds, context->priv().caps(),
-                              maxWindowRectangles, maxAnalyticFPs, ccpr ? maxAnalyticFPs : 0);
+    GrReducedClip reducedClip(*fStack, devBounds, context->priv().caps(), maxWindowRectangles,
+                              maxAnalyticElements, ccpr ? maxAnalyticElements : 0);
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return Effect::kClippedOut;
@@ -250,8 +250,8 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     // The opsTask ID must not be looked up until AFTER producing the clip mask (if any). That step
     // can cause a flush or otherwise change which opstask our draw is going into.
     uint32_t opsTaskID = renderTargetContext->getOpsTask()->uniqueID();
-    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(context, *fMatrixProvider, ccpr,
-                                                              opsTaskID)) {
+    if (auto clipFPs = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider, ccpr,
+                                                                   opsTaskID)) {
         out->addCoverageFP(std::move(clipFPs));
         effect = Effect::kClipped;
     }
@@ -310,7 +310,7 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 8-bit clip mask in alpha
 
-static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int numAnalyticFPs,
+static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int numAnalyticElements,
                                  GrUniqueKey* key) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(key, kDomain, 4, GrClipStackClip::kMaskTestTag);
@@ -319,7 +319,7 @@ static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int 
     // sometimes result in negative coordinates from device space.
     builder[1] = SkToS16(bounds.fLeft) | (SkToS16(bounds.fRight) << 16);
     builder[2] = SkToS16(bounds.fTop) | (SkToS16(bounds.fBottom) << 16);
-    builder[3] = numAnalyticFPs;
+    builder[3] = numAnalyticElements;
 }
 
 static void add_invalidate_on_pop_message(GrRecordingContext* context,
@@ -349,7 +349,7 @@ GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* cont
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
-                         reducedClip.numAnalyticFPs(), &key);
+                         reducedClip.numAnalyticElements(), &key);
 
     if (auto cachedView = find_mask(context->priv().proxyProvider(), key)) {
         return cachedView;
@@ -458,7 +458,7 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
         GrRenderTargetContext* renderTargetContext) const {
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
-                         reducedClip.numAnalyticFPs(), &key);
+                         reducedClip.numAnalyticElements(), &key);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 

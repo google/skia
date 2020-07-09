@@ -27,7 +27,8 @@ public:
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
     GrReducedClip(const SkClipStack&, const SkRect& queryBounds, const GrCaps* caps,
-                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0, int maxCCPRClipPaths = 0);
+                  int maxWindowRectangles = 0, int maxAnalyticElements = 0,
+                  int maxCCPRClipPaths = 0);
 
     enum class InitialState : bool {
         kAllIn,
@@ -92,7 +93,7 @@ public:
     bool drawAlphaClipMask(GrRenderTargetContext*) const;
     bool drawStencilClipMask(GrRecordingContext*, GrRenderTargetContext*) const;
 
-    int numAnalyticFPs() const;
+    int numAnalyticElements() const;
 
     /**
      * Called once the client knows the ID of the opsTask that the clip FPs will operate in. This
@@ -103,7 +104,7 @@ public:
      * the render target context, surface allocations, and even switching render targets (pre MDB)
      * may cause flushes or otherwise change which opsTask the actual draw is going into.
      */
-    std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(
+    std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticElements(
             GrRecordingContext*, const SkMatrixProvider& matrixProvider,
             GrCoverageCountingPathRenderer*, uint32_t opsTaskID);
 
@@ -132,15 +133,15 @@ private:
     };
 
     static GrClipEdgeType GetClipEdgeType(Invert, GrAA);
-    ClipResult addAnalyticFP(const SkRect& deviceSpaceRect, Invert, GrAA);
-    ClipResult addAnalyticFP(const SkRRect& deviceSpaceRRect, Invert, GrAA);
-    ClipResult addAnalyticFP(const SkPath& deviceSpacePath, Invert, GrAA);
+    ClipResult addAnalyticRect(const SkRect& deviceSpaceRect, Invert, GrAA);
+    ClipResult addAnalyticRRect(const SkRRect& deviceSpaceRRect, Invert, GrAA);
+    ClipResult addAnalyticPath(const SkPath& deviceSpacePath, Invert, GrAA);
 
     void makeEmpty();
 
     const GrCaps* fCaps;
     const int fMaxWindowRectangles;
-    const int fMaxAnalyticFPs;
+    const int fMaxAnalyticElements;
     const int fMaxCCPRClipPaths;
 
     InitialState fInitialState;
@@ -154,7 +155,7 @@ private:
     uint32_t fMaskGenID = SK_InvalidGenID;
     bool fMaskRequiresAA = false;
     std::unique_ptr<GrFragmentProcessor> fAnalyticFP;
-    int fNumAnalyticFPs = 0;
+    int fNumAnalyticElements = 0;
     SkSTArray<4, SkPath> fCCPRClipPaths; // Converted to FPs once we have an opsTask ID for CCPR.
     // Will be the combination of all kShader elements or null if there's no clip shader.
     // Does not count against the analytic FP limit.
