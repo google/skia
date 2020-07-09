@@ -216,6 +216,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
         return;
     }
 
+    SkASSERT(op);
+
     bool hasMixedSampledCoverage = false;
     op->finalize(*context->priv().caps(), nullptr, hasMixedSampledCoverage, GrClampType::kAuto);
 
