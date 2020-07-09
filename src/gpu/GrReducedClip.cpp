@@ -716,6 +716,9 @@ void GrReducedClip::makeEmpty() {
     fMaskElements.reset();
     fShader.reset();
     fInitialState = InitialState::kAllOut;
+    fAnalyticFP = nullptr;
+    fNumAnalyticFPs = 0;
+    fCCPRClipPaths.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
