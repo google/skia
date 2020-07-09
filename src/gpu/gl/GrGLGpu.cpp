@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkTemplates.h"
@@ -301,7 +302,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContextOptions& options,
-                           GrContext* context) {
+                           GrDirectContext* direct) {
     if (!interface) {
         interface = GrGLMakeNativeInterface();
         // For clients that have written their own GrGLCreateNativeInterface and haven't yet updated
@@ -320,11 +321,11 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
     if (!glContext) {
         return nullptr;
     }
-    return sk_sp<GrGpu>(new GrGLGpu(std::move(glContext), context));
+    return sk_sp<GrGpu>(new GrGLGpu(std::move(glContext), direct));
 }
 
-GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrContext* context)
-        : GrGpu(context)
+GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* direct)
+        : GrGpu(direct)
         , fGLContext(std::move(ctx))
         , fProgramCache(new ProgramCache(this))
         , fHWProgramID(0)

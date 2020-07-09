@@ -8,6 +8,7 @@
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandList.h"

@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/gpu/GrDirectContext.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrContextPriv.h"
@@ -332,9 +333,9 @@ void CCPRGeometryView::updateGpuData() {
 void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
                                                       const SkRect& chainBounds) {
     GrResourceProvider* rp = state->resourceProvider();
-    GrContext* context = state->gpu()->getContext();
+    auto direct = state->gpu()->getContext();
 #ifdef SK_GL
-    GrGLGpu* glGpu = GrBackendApi::kOpenGL == context->backend()
+    GrGLGpu* glGpu = GrBackendApi::kOpenGL == direct->backend()
                              ? static_cast<GrGLGpu*>(state->gpu())
                              : nullptr;
     if (glGpu) {
@@ -397,7 +398,7 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
                                        SkIRect::MakeWH(fView->width(), fView->height()), {0, 0});
         GrCCStroker::BatchID batchID = stroker.closeCurrentBatch();
 
-        GrOnFlushResourceProvider onFlushRP(context->priv().drawingManager());
+        GrOnFlushResourceProvider onFlushRP(direct->priv().drawingManager());
         stroker.prepareToDraw(&onFlushRP);
 
         SkIRect ibounds;
@@ -407,7 +408,7 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
 
 #ifdef SK_GL
     if (glGpu) {
-        context->resetContext(kMisc_GrGLBackendState);
+        direct->resetContext(kMisc_GrGLBackendState);
     }
 #endif
 }
