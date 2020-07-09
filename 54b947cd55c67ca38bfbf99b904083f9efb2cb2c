@@ -86,6 +86,24 @@
       "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "703c1f59_30753b59",
+        "filename": "src/codec/SkCodecImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9996
+      },
+      "writtenOn": "2020-07-09T20:32:21Z",
+      "side": 1,
+      "message": "Flutter\u0027s multi-frame solution currently goes through SkCodec directly, but that doesn\u0027t have to be the case in the future.\n\nThis is probably fine this way for now, it can always be promoted later and easier to do that than to remove it.",
+      "parentUuid": "679c7e00_82b72a72",
+      "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
