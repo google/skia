@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4315d421_bdbac6a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T15:12:50Z",
+      "side": 1,
+      "message": "Lgtm, will probably need to hit \u0027Rebase\u0027 and detach from its parent so it can land sooner.",
+      "revId": "03d5ce219af238cabb1b76132792f6125000bd53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
