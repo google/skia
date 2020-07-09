@@ -932,9 +932,7 @@ bool GrGpu::updateBackendTexture(const GrBackendTexture& backendTexture,
 GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
                                                        const GrBackendFormat& format,
                                                        GrMipMapped mipMapped,
-                                                       GrProtected isProtected,
-                                                       sk_sp<GrRefCntedCallback> finishedCallback,
-                                                       const BackendTextureData* data) {
+                                                       GrProtected isProtected) {
     const GrCaps* caps = this->caps();
 
     if (!format.isValid()) {
@@ -957,12 +955,38 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (!CompressedDataIsCorrect(dimensions, compressionType, mipMapped, data)) {
-        return {};
+    return this->onCreateCompressedBackendTexture(dimensions, format, mipMapped, isProtected);
+}
+
+bool GrGpu::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,
+                                           sk_sp<GrRefCntedCallback> finishedCallback,
+                                           const BackendTextureData* data) {
+    SkASSERT(data);
+
+    if (!backendTexture.isValid()) {
+        return false;
     }
 
-    return this->onCreateCompressedBackendTexture(dimensions, format, mipMapped,
-                                                  isProtected, std::move(finishedCallback), data);
+    GrBackendFormat format = backendTexture.getBackendFormat();
+
+    SkImage::CompressionType compressionType = GrBackendFormatToCompressionType(format);
+    if (compressionType == SkImage::CompressionType::kNone) {
+        // Uncompressed formats must go through the createBackendTexture API
+        return false;
+    }
+
+    if (backendTexture.hasMipMaps() && !this->caps()->mipMapSupport()) {
+        return false;
+    }
+
+    GrMipMapped mipMapped = backendTexture.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
+
+    if (!CompressedDataIsCorrect(backendTexture.dimensions(), compressionType, mipMapped, data)) {
+        return false;
+    }
+
+    return this->onUpdateCompressedBackendTexture(backendTexture, std::move(finishedCallback),
+                                                  data);
 }
 
 GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {

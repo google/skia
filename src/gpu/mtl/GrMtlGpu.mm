@@ -978,8 +978,7 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
 GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(
         SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
-        GrProtected isProtected, sk_sp<GrRefCntedCallback> finishedCallback,
-        const BackendTextureData* data) {
+        GrProtected isProtected) {
     const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
 
     GrMtlTextureInfo info;
@@ -988,16 +987,13 @@ GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(
         return {};
     }
 
-    GrBackendTexture backendTex(dimensions.width(), dimensions.height(), mipMapped, info);
+    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info);
+}
 
-    if (data) {
-        if (!this->onUpdateBackendTexture(backendTex, std::move(finishedCallback), data)) {
-            this->deleteBackendTexture(backendTex);
-            return {};
-        }
-    }
-
-    return backendTex;
+bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
+                                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                                const BackendTextureData* data) {
+    return this->onUpdateBackendTexture(backendTexture, std::move(finishedCallback), data);
 }
 
 void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {
