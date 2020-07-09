@@ -145,15 +145,17 @@ private:
 
     InitialState fInitialState;
     SkIRect fScissor;
-    bool fHasScissor;
+    bool fHasScissor = false;
     SkRect fAAClipRect;
-    uint32_t fAAClipRectGenID; // GenID the mask will have if includes the AA clip rect.
+    uint32_t fAAClipRectGenID = SK_InvalidGenID;  // the GenID that the mask will have if the AA
+                                                  // clip-rect is included
     GrWindowRectangles fWindowRects;
     ElementList fMaskElements;
-    uint32_t fMaskGenID;
-    bool fMaskRequiresAA;
+    uint32_t fMaskGenID = SK_InvalidGenID;
+    bool fMaskRequiresAA = false;
     std::unique_ptr<GrFragmentProcessor> fAnalyticFP;
-    SkSTArray<4, SkPath> fCCPRClipPaths; // Will convert to FPs once we have an opsTask ID for CCPR.
+    int fNumAnalyticFPs = 0;
+    SkSTArray<4, SkPath> fCCPRClipPaths; // Converted to FPs once we have an opsTask ID for CCPR.
     // Will be the combination of all kShader elements or null if there's no clip shader.
     // Does not count against the analytic FP limit.
     sk_sp<SkShader> fShader;
