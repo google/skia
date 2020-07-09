@@ -2835,42 +2835,36 @@ namespace skvm {
                         GP1 = A::r11,
                         arg[]    = { A::rdx, A::r8, A::r9, A::r10, A::rdi };
             auto enter = [&]{
-                // Fun extra setup to work within the MS ABI:
-                // 0) rcx,rdx,r8,r9 are all already holding their correct values,
-                //    and rax,r10,r11 can be used freely.
-                // 1) Load r10 from rsp+40 if there's a fourth arg.
+                // rcx,rdx,r8,r9 are all already holding their correct values.
+                // Load caller-saved r10 from rsp+40 if there's a fourth arg.
                 if (fImpl->strides.size() >= 4) {
                     a->mov(A::r10, A::Mem{A::rsp, 40});
                 }
-                // 2) Load rdi from rsp+48 if there's a fifth arg,
-                //    first preserving its original callee-saved value at rsp+8,
-                //    which is an ABI reserved shadow area usually for spilling rcx.
+                // Load callee-saved rdi from rsp+48 if there's a fifth arg,
+                // first saving it to ABI reserved shadow area rsp+8.
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::Mem{A::rsp, 8}, A::rdi);
                     a->mov(A::rdi, A::Mem{A::rsp, 48});
                 }
-                // 3) Save xmm6-xmm15.
-                a->sub(A::rsp, 10*16);
-                for (int i = 0; i < 10; i++) {
-                    a->vmovups(A::Mem{A::rsp, i*16}, (A::Xmm)(i+6));
-                }
 
-                // Now our normal "make space for values".
-                if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); }
+                // Allocate stack for our values and callee-saved xmm6-15.
+                a->sub(A::rsp, nstack_slots*K*4 + 10*16);
+                for (int r = 6; r < 16; r++) {
+                    a->vmovups(A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16}, (A::Xmm)r);
+                }
             };
             auto exit  = [&]{
-                if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
-                // Undo MS ABI setup in reverse.
-                // 3) restore xmm6-xmm15
-                for (int i = 0; i < 10; i++) {
-                    a->vmovups((A::Xmm)(i+6), A::Mem{A::rsp, i*16});
+                // Restore callee-saved xmm6-15 and the stack pointer.
+                for (int r = 6; r < 16; r++) {
+                    a->vmovups((A::Xmm)r, A::Mem{A::rsp, nstack_slots*K*4 + (r-6)*16});
                 }
-                a->add(A::rsp, 10*16);
-                // 2) restore rdi if we used it
+                a->add(A::rsp, nstack_slots*K*4 + 10*16);
+
+                // Restore callee-saved rdi if we used it.
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::rdi, A::Mem{A::rsp, 8});
                 }
-                // 1) no need to restore caller-saved r10
+
                 a->vzeroupper();
                 a->ret();
             };
