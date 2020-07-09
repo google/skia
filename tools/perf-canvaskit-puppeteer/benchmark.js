@@ -1,10 +1,10 @@
 // Shared benchmarking functions such as surface creation, measurement, publishing to perf.skia.org
 
-// TODO(kjlubick) make this configurable to return a WEBGL 1 or WEBGL 2 surface.
-function getSurface(CanvasKit) {
+function getSurface(CanvasKit, webglversion) {
+  webglversion = webglversion || 2;
   let surface;
   if (window.location.hash.indexOf('gpu') !== -1) {
-    surface = CanvasKit.MakeWebGLCanvasSurface('anim');
+    surface = CanvasKit.MakeWebGLCanvasSurface('anim', null /* colorspace */, {'majorVersion': webglversion});
     if (!surface) {
       window._error = 'Could not make GPU surface';
       return null;

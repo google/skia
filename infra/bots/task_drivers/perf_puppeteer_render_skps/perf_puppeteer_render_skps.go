@@ -185,6 +185,7 @@ func benchSKPs(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvaski
 				"--canvaskit_wasm", filepath.Join(canvaskitBinPath, "canvaskit.wasm"),
 				"--input_skp", skp,
 				"--output", filepath.Join(benchmarkPath, "out", name+".json"),
+				// "--query_params", "webgl1",
 			}
 			if perf.Key[perfKeyCpuOrGPU] != "CPU" {
 				args = append(args, "--use_gpu")

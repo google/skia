@@ -1414,6 +1414,12 @@ func (b *jobBuilder) puppeteer() {
 		b.isolate("perf_puppeteer.isolate")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 
+		// b.parts["cpu_or_gpu"] == "GPU"
+		webglversion := "2"
+		if (b.extraConfig("WebGL1")) {
+			webglversion = "1"
+		}
+
 		if b.extraConfig("SkottieFrames") {
 			b.cmd(
 				"./perf_puppeteer_skottie_frames",
@@ -1431,6 +1437,7 @@ func (b *jobBuilder) puppeteer() {
 				"--cpu_or_gpu_trace", b.parts["cpu_or_gpu"],
 				"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
 				"--alsologtostderr",
+				"--webgl_version", webglversion,
 			)
 			// This CIPD package was made by hand with the following invocation:
 			//   cipd create -name skia/internal/lotties_with_assets -in ./lotties/ -tag version:0
