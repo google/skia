@@ -162,8 +162,6 @@ void GrD3DPipelineState::bindBuffers(GrD3DGpu* gpu, const GrBuffer* indexBuffer,
     // assigned in the PipelineState. That is, vertex first (if any) followed by instance.
     auto* d3dVertexBuffer = static_cast<const GrD3DBuffer*>(vertexBuffer);
     auto* d3dInstanceBuffer = static_cast<const GrD3DBuffer*>(instanceBuffer);
-    // We should have at least one of these
-    SkASSERT(d3dVertexBuffer || d3dInstanceBuffer);
     if (d3dVertexBuffer) {
         SkASSERT(!d3dVertexBuffer->isCpuBuffer());
         SkASSERT(!d3dVertexBuffer->isMapped());
