@@ -2,6 +2,92 @@
   "comments": [
     {
       "key": {
+        "uuid": "4d8a5550_5d41b5d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T15:10:57Z",
+      "side": 1,
+      "message": "overall, very happy to see a lot of the complicated iterator templates getting cleaned up and I like the visitor pattern for this use case. Added a few thoughts on how the visitor is used/implemented but they aren\u0027t super strong opinions.",
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b169191_07260219",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T15:10:57Z",
+      "side": 1,
+      "message": "Just thinking towards the future, since FPCRange and FPCIter flatten the FP tree and require internal allocations to store that list, but if it visited itself and just looped over the immediate children and recursed via visitTextureEffects(), that might be more efficient and move closer to where we can drop the remaining usages of the flattening FP iterators?",
+      "range": {
+        "startLine": 50,
+        "startChar": 20,
+        "endLine": 50,
+        "endChar": 28
+      },
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c4070e1_c93780ca",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T15:10:57Z",
+      "side": 1,
+      "message": "Initially, I was hoping that this could go away entirely, but I see that visitProxies is used by both GrPipeline and GrProcessorSet. When GrProcessorSet can go away after John\u0027s FP chaining fixes, maybe we can just move this into GrPipeline\u0027s visitProxies?",
+      "range": {
+        "startLine": 230,
+        "startChar": 9,
+        "endLine": 230,
+        "endChar": 21
+      },
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f510c52_40a340d9",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T15:10:57Z",
+      "side": 1,
+      "message": "This pattern is repeated a fair amount. Maybe add a helper on GrPipeline to iterate over the top-level FPs and call visitTextureEffects on them?",
+      "range": {
+        "startLine": 113,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 52
+      },
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "65fab217_65c61b09",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 8
@@ -22,6 +108,29 @@
       "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "932d188c_85dcbf11",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T15:10:57Z",
+      "side": 1,
+      "message": "I like the signature simplification a lot, getting close to being able to drop the BuilderInputProvider entirely.",
+      "range": {
+        "startLine": 156,
+        "startChar": 13,
+        "endLine": 156,
+        "endChar": 25
+      },
+      "revId": "7ba3fa8e02eb5d00aaa753dc5826b53085535567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
