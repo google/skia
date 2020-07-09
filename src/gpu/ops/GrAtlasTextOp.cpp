@@ -75,107 +75,6 @@ void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) c
                                fDrawMatrix, fDrawOrigin, fClipRect);
 }
 
-static SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
-    SkColor4f c = paint.getColor4f();
-    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
-        c = xform->apply(c);
-    }
-    if (auto* cf = paint.getColorFilter()) {
-        c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
-    }
-    return c.premul();
-}
-
-std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRenderTargetContext* rtc,
-                                                         const SkPaint& paint,
-                                                         GrTextBlob::SubRun* subrun,
-                                                         const SkMatrixProvider& matrixProvider,
-                                                         SkPoint drawOrigin,
-                                                         const SkIRect& clipRect) {
-    GrPaint grPaint;
-    GrRecordingContext* context = rtc->priv().getContext();
-    const GrColorInfo& colorInfo = rtc->colorInfo();
-    if (kARGB_GrMaskFormat == subrun->maskFormat()) {
-        SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, paint, matrixProvider, &grPaint);
-    } else {
-        SkPaintToGrPaint(context, colorInfo, paint, matrixProvider, &grPaint);
-    }
-
-    // This is the color the op will use to draw.
-    SkPMColor4f drawingColor = generate_filtered_color(paint, colorInfo);
-
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-    MaskType maskType = [&]() {
-        switch (subrun->maskFormat()) {
-            case kA8_GrMaskFormat: return kGrayscaleCoverageMask_MaskType;
-            case kA565_GrMaskFormat: return kLCDCoverageMask_MaskType;
-            case kARGB_GrMaskFormat: return kColorBitmapMask_MaskType;
-            // Needed to placate some compilers.
-            default: return kGrayscaleCoverageMask_MaskType;
-        }
-    }();
-
-    return pool->allocate<GrAtlasTextOp>(maskType,
-                                         std::move(grPaint),
-                                         subrun,
-                                         matrixProvider.localToDevice(),
-                                         drawOrigin,
-                                         clipRect,
-                                         drawingColor,
-                                         0,
-                                         false,
-                                         0);
-}
-
-std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
-                                            GrRenderTargetContext* rtc,
-                                            const SkPaint& paint,
-                                            GrTextBlob::SubRun* subrun,
-                                            const SkMatrixProvider& matrixProvider,
-                                            SkPoint drawOrigin) {
-    GrPaint grPaint;
-    GrRecordingContext* context = rtc->priv().getContext();
-    const GrColorInfo& colorInfo = rtc->colorInfo();
-    SkPaintToGrPaint(context, colorInfo, paint, matrixProvider, &grPaint);
-
-    // This is the color the op will use to draw.
-    SkPMColor4f drawingColor = generate_filtered_color(paint, colorInfo);
-
-    const SkSurfaceProps& props = rtc->surfaceProps();
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-    bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
-    bool isLCD = subrun->hasUseLCDText() && SkPixelGeometryIsH(props.pixelGeometry());
-    MaskType maskType = !subrun->isAntiAliased() ? kAliasedDistanceField_MaskType
-                                                 : isLCD ? (isBGR ? kLCDBGRDistanceField_MaskType
-                                                                  : kLCDDistanceField_MaskType)
-                                                         : kGrayscaleDistanceField_MaskType;
-
-    const SkMatrix& drawMatrix = matrixProvider.localToDevice();
-    bool useGammaCorrectDistanceTable = colorInfo.isLinearlyBlended();
-    uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= kAliasedDistanceField_MaskType == maskType ? kAliased_DistanceFieldEffectFlag : 0;
-
-    if (isLCD) {
-        DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
-        DFGPFlags |= kLCDBGRDistanceField_MaskType == maskType ? kBGR_DistanceFieldEffectFlag : 0;
-    }
-
-    return pool->allocate<GrAtlasTextOp>(maskType,
-                                         std::move(grPaint),
-                                         subrun,
-                                         drawMatrix,
-                                         drawOrigin,
-                                         SkIRect::MakeEmpty(),
-                                         drawingColor,
-                                         SkPaintPriv::ComputeLuminanceColor(paint),
-                                         useGammaCorrectDistanceTable,
-                                         DFGPFlags);
-}
-
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
     fProcessors.visitProxies(func);
 }
@@ -595,11 +494,11 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
         return nullptr;
     }
 
-    const GrRecordingContextPriv& contextPriv = rtc->fContext->priv();
-    GrSDFTOptions SDFOptions = rtc->fContext->priv().SDFTOptions();
+    const GrRecordingContextPriv& contextPriv = rtc->priv().getContext()->priv();
+    GrSDFTOptions SDFOptions = contextPriv.SDFTOptions();
 
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
-    SkGlyphRunListPainter* painter = &rtc->fGlyphPainter;
+    SkGlyphRunListPainter* painter = rtc->priv().testingOnly_glyphRunPainter();
     painter->processGlyphRunList(
             glyphRunList, drawMatrix, rtc->surfaceProps(),
             contextPriv.caps()->shaderCaps()->supportsDistanceFieldText(),
@@ -608,12 +507,10 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
         return nullptr;
     }
 
-    return GrAtlasTextOp::MakeBitmap(rtc,
-                                     skPaint,
-                                     blob->firstSubRun(),
-                                     mtxProvider,
-                                     drawOrigin,
-                                     SkIRect::MakeEmpty());
+    std::unique_ptr<GrDrawOp> op;
+    std::tie(std::ignore, op) =
+            rtc->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, blob->firstSubRun());
+    return op;
 }
 
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {

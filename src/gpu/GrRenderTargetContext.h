@@ -24,6 +24,8 @@
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/text/GrTextBlob.h"
 
+#include <tuple>
+
 class GrBackendSemaphore;
 class GrClip;
 class GrColorSpaceXform;
@@ -139,8 +141,6 @@ public:
                           const SkSurfaceProps*, bool managedOpsTask = true);
 
     ~GrRenderTargetContext() override;
-
-    virtual void drawGlyphRunList(const GrClip*, const SkMatrixProvider&, const SkGlyphRunList&);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -519,6 +519,26 @@ public:
                        GrTextBlob::SubRun* subRun);
 
     /**
+     * Make the AtlasTextOp - returns the op and the original clip or nullptr for the clip if the
+     *                        op is going to clip geometrically.
+     */
+    std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+    makeAtlasTextOp(const GrClip*,
+                    const SkMatrixProvider& viewMatrix,
+                    const SkGlyphRunList& glyphRunList,
+                    GrTextBlob::SubRun* subRun);
+
+    /**
+     * Draw the text specified by the SkGlyphRunList.
+     *
+     * @param viewMatrix      transformationMatrix
+     * @param glyphRunList    text, text positions, and paint.
+     */
+    void drawGlyphRunList(const GrClip*,
+                          const SkMatrixProvider& viewMatrix,
+                          const SkGlyphRunList& glyphRunList);
+
+    /**
      * Draws the src texture with no matrix. The dstRect is the dstPoint with the width and height
      * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
      * respectively.
@@ -590,7 +610,6 @@ private:
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrTessellationPathRenderer;         // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
-    friend class GrAtlasTextOp;                      // for access to addDrawOp
 
     SkDEBUGCODE(void onValidate() const override;)
 
