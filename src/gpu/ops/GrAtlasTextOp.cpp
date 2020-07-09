@@ -575,6 +575,43 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 }
 
 #if GR_TEST_UTILS
+namespace {
+
+class NullOp final : public GrDrawOp {
+public:
+    DEFINE_OP_CLASS_ID
+
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context) {
+        return context->priv().opMemoryPool()->allocate<NullOp>();
+    }
+
+    void visitProxies(const VisitProxyFunc& func) const override {}
+
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {}
+
+private:
+    friend class ::GrOpMemoryPool; // for ctor
+
+    NullOp() : GrDrawOp(ClassID()) {
+        this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsHairline::kNo);
+    }
+
+    const char* name() const override { return "NullOp"; }
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip* clip,
+                                      bool hasMixedSampledCoverage, GrClampType) override {
+        return GrProcessorSet::EmptySetAnalysis();
+    }
+    void onPrePrepare(GrRecordingContext*,
+                      const GrSurfaceProxyView* writeView,
+                      GrAppliedClip*,
+                      const GrXferProcessor::DstProxyView&) override {}
+
+    void onPrepare(GrOpFlushState*) override {}
+};
+
+}
+
 std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
                                                              const SkPaint& skPaint,
                                                              const SkFont& font,
@@ -591,19 +628,22 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
     builder.drawTextUTF8(skPaint, font, text, textLen, drawOrigin);
 
     auto glyphRunList = builder.useGlyphRunList();
+    if (glyphRunList.empty()) {
+        return NullOp::Make(rtc->priv().getContext());
+    }
 
     const GrRecordingContextPriv& contextPriv = rtc->fContext->priv();
     GrSDFTOptions SDFOptions = rtc->fContext->priv().SDFTOptions();
 
-    if (glyphRunList.empty()) {
-        return nullptr;
-    }
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
     SkGlyphRunListPainter* painter = &rtc->fGlyphPainter;
     painter->processGlyphRunList(
             glyphRunList, drawMatrix, rtc->surfaceProps(),
             contextPriv.caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
+    if (!blob->firstSubRun()) {
+        return NullOp::Make(rtc->priv().getContext());
+    }
 
     return GrAtlasTextOp::MakeBitmap(rtc,
                                      skPaint,
