@@ -237,6 +237,14 @@ else
 
 fi # no_codecs
 
+# skia effect deserializations are enabled by default, pass no_effects_deserializer to
+# suppress the behaviour. Effect deserializations are suppressed in npm currently.
+EFFECTS_FLAG=""
+if [[ $@ == *no_effects_deserializer* ]]; then
+    echo "Disabling effects deserialization"
+    EFFECTS_FLAG+="\"-DSK_DISABLE_EFFECT_DESERIALIZATION\","
+fi # no_effects_deserializer
+
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
 NINJA=`which ninja`
@@ -259,8 +267,8 @@ echo "Compiling bitcode"
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
-    \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
+    ${EFFECTS_FLAG}
     ${GN_GPU_FLAGS}
     ${GN_SKP_FLAGS}
     ${EXTRA_CFLAGS}
