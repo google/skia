@@ -23,26 +23,12 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/effects/generated/GrArithmeticProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
-
-GR_FP_SRC_STRING SKSL_ARITHMETIC_SRC = R"(
-uniform float4 k;
-in bool enforcePMColor;
-in fragmentProcessor child;
-
-void main(float2 p, inout half4 color) {
-    half4 dst = sample(child);
-    color = saturate(half(k.x) * color * dst + half(k.y) * color + half(k.z) * dst + half(k.w));
-    @if (enforcePMColor) {
-        color.rgb = min(color.rgb, color.a);
-    }
-}
-)";
 #endif
 
 namespace {
@@ -376,16 +362,8 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP),
                                              foreground->getColorSpace(), foreground->alphaType(),
                                              ctx.colorSpace(), kPremul_SkAlphaType);
-        paint.addColorFragmentProcessor(std::move(fgFP));
-
-        static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
-        SkASSERT(effect->inputSize() == sizeof(fInputs));
-        std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(
-                context, effect, "Arithmetic", SkData::MakeWithCopy(&fInputs, sizeof(fInputs)));
-        if (xferFP) {
-            ((GrSkSLFP&) *xferFP).addChild(std::move(bgFP));
-            paint.addColorFragmentProcessor(std::move(xferFP));
-        }
+        paint.addColorFragmentProcessor(
+                GrArithmeticProcessor::Make(std::move(fgFP), std::move(bgFP), fInputs));
     } else {
         paint.addColorFragmentProcessor(std::move(bgFP));
     }
