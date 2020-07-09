@@ -337,14 +337,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     }
 #endif
 
-    if (paintFP) {
-        grPaint->addColorFragmentProcessor(std::move(paintFP));
-    }
-
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {
-        if (grPaint->numColorFragmentProcessors()) {
-            grPaint->addColorFragmentProcessor(
-                GrClampFragmentProcessor::Make(/*inputFP=*/nullptr, /*clampToPremul=*/false));
+        if (paintFP != nullptr) {
+            paintFP = GrClampFragmentProcessor::Make(std::move(paintFP), /*clampToPremul=*/false);
         } else {
             auto color = grPaint->getColor4f();
             grPaint->setColor4f({SkTPin(color.fR, 0.f, 1.f),
@@ -353,6 +348,11 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                  SkTPin(color.fA, 0.f, 1.f)});
         }
     }
+
+    if (paintFP) {
+        grPaint->addColorFragmentProcessor(std::move(paintFP));
+    }
+
     return true;
 }
 
