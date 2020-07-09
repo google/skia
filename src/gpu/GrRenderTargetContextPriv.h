@@ -102,6 +102,10 @@ public:
     void testingOnly_addDrawOp(const GrClip*, std::unique_ptr<GrDrawOp>,
                                const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
+    SkGlyphRunListPainter* testingOnly_glyphRunPainter() {
+        return &fRenderTargetContext->fGlyphPainter;
+    }
+
     bool refsWrappedObjects() const {
         return fRenderTargetContext->asRenderTargetProxy()->refsWrappedObjects();
     }

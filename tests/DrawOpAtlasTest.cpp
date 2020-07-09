@@ -213,6 +213,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
             GrAtlasTextOp::CreateOpTestingOnly(
                     rtc.get(), paint, font, matrixProvider, text, 16, 16);
 
+    SkASSERT(op);
+
     bool hasMixedSampledCoverage = false;
     op->finalize(*context->priv().caps(), nullptr, hasMixedSampledCoverage, GrClampType::kAuto);
 
