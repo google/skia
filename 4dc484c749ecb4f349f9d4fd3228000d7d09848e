@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8a286dc_f2dcc5a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-09T19:15:03Z",
+      "side": 1,
+      "message": "Fuzzer looks good conceptually. Brian, do you want to take a pass for API validity and C++ style?",
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5dc0d80f_4b538f1c",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-09T19:15:03Z",
+      "side": 1,
+      "message": "Maybe add a note that if uniformBytes-\u003esize() !\u003d effect-\u003einputSize() the shader won\u0027t be created.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 3
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
