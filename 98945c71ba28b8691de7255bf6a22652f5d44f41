@@ -86,6 +86,23 @@
       "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17ce49c5_dcb7862d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-09T00:56:11Z",
+      "side": 1,
+      "message": "Sorry for the delay, I was OOO today.\n\nI don\u0027t think a revert is the way to go. In cases like these we identify the exact hardware that is problematic (vendor, renderer, driver version, etc.) Then turn the feature back off in applyDriverWorkarounds.\n\nDo we have more info on what device this is happening on? Do we know whether it works on others? What\u0027s the exact issue?",
+      "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
