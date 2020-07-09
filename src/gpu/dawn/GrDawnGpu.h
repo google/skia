@@ -20,6 +20,7 @@
 
 class GrDawnOpsRenderPass;
 class GrDawnStagingBuffer;
+class GrDirectContext;
 class GrPipeline;
 struct GrDawnProgram;
 
@@ -29,8 +30,8 @@ namespace SkSL {
 
 class GrDawnGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(const wgpu::Device& device, const GrContextOptions&, GrContext*);
-    GrDawnGpu(GrContext* context, const GrContextOptions& options, const wgpu::Device& device);
+    static sk_sp<GrGpu> Make(const wgpu::Device&, const GrContextOptions&, GrDirectContext*);
+    GrDawnGpu(GrDirectContext*, const GrContextOptions&, const wgpu::Device&);
 
     ~GrDawnGpu() override;
 
