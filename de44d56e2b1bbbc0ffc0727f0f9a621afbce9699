@@ -34,6 +34,24 @@
       "revId": "de44d56e2b1bbbc0ffc0727f0f9a621afbce9699",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d80e855_19cde173",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-09T14:59:23Z",
+      "side": 1,
+      "message": "Good question. I\u0027m ok with \"Clips\". Another alternative is to make the \"add\" methods specify the geometry type in the name rather than being overloads, e.g. \"addAnalyticRect\", \"addAnalyticPath\", ... I\u0027m fairly indifferent between that and \"addAnalyticClip\".",
+      "parentUuid": "9fad8b5f_b5d0696e",
+      "revId": "de44d56e2b1bbbc0ffc0727f0f9a621afbce9699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
