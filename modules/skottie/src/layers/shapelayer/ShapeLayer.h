@@ -70,6 +70,9 @@ public:
     static std::vector<sk_sp<sksg::GeometryNode>> AttachOffsetGeometryEffect(
             const skjson::ObjectValue&, const AnimationBuilder*,
             std::vector<sk_sp<sksg::GeometryNode>>&&);
+    static std::vector<sk_sp<sksg::GeometryNode>> AttachPuckerBloatGeometryEffect(
+            const skjson::ObjectValue&, const AnimationBuilder*,
+            std::vector<sk_sp<sksg::GeometryNode>>&&);
     static std::vector<sk_sp<sksg::GeometryNode>> AdjustStrokeGeometry(
             const skjson::ObjectValue&, const AnimationBuilder*,
             std::vector<sk_sp<sksg::GeometryNode>>&&);

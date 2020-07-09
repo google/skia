@@ -74,6 +74,7 @@ skia_skottie_sources = [
   "$_src/layers/shapelayer/MergePaths.cpp",
   "$_src/layers/shapelayer/OffsetPaths.cpp",
   "$_src/layers/shapelayer/Polystar.cpp",
+  "$_src/layers/shapelayer/PuckerBloat.cpp",
   "$_src/layers/shapelayer/Rectangle.cpp",
   "$_src/layers/shapelayer/Repeater.cpp",
   "$_src/layers/shapelayer/RoundCorners.cpp",
