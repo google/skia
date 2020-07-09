@@ -16,6 +16,46 @@
       "revId": "3a7928f69743926412e3a70ad63a2fa449bc63c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "731a5832_99c27e8c",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T15:46:35Z",
+      "side": 1,
+      "message": "Does this call percolate up to SkFontPriv::GetFontBounds() and SkTextBlob bounds?  I guess we\u0027d see bad font bounds and fall back to the glyph-by-glyph bounds?",
+      "revId": "3a7928f69743926412e3a70ad63a2fa449bc63c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98286527_70b5d13e",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T15:46:35Z",
+      "side": 1,
+      "message": "Are the bounds filled by hasBounds() not what we need here?  If not, a note about how they differ and why we still need to call hasBounds()?",
+      "range": {
+        "startLine": 396,
+        "startChar": 2,
+        "endLine": 402,
+        "endChar": 70
+      },
+      "revId": "3a7928f69743926412e3a70ad63a2fa449bc63c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
