@@ -1,0 +1,11 @@
+{
+  'includes': [
+    'infrabots.isolate',
+    'run_recipe.isolate',
+  ],
+  'variables': {
+    'files': [
+      '../../../.gclient',
+    ],
+  },
+}
