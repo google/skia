@@ -17,7 +17,7 @@
 #include "tools/timer/Timer.h"
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
+//#include "include/gpu/GrDirectContext.h"
 #endif
 
 // Create an animation of a bunch of letters that rotate in place. This is intended to stress

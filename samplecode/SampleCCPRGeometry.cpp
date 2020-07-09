@@ -187,7 +187,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     SkString caption;
     if (GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext()) {
         // Render coverage count.
-        GrContext* ctx = canvas->getGrContext();
+        auto ctx = canvas->recordingContext();
         SkASSERT(ctx);
 
         GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
