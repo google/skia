@@ -265,22 +265,14 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 extern const char* SKSL_ARITHMETIC_SRC;
-extern const char* SKSL_DITHER_SRC;
 extern const char* SKSL_OVERDRAW_SRC;
 
 using Value = SkSL::Program::Settings::Value;
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
-    int type = d->fRandom->nextULessThan(3);
+    int type = d->fRandom->nextULessThan(2);
     switch (type) {
         case 0: {
-            static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
-            int rangeType = d->fRandom->nextULessThan(3);
-            auto result = GrSkSLFP::Make(d->context(), effect, "Dither",
-                                         SkData::MakeWithCopy(&rangeType, sizeof(rangeType)));
-            return std::unique_ptr<GrFragmentProcessor>(result.release());
-        }
-        case 1: {
             static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
             ArithmeticFPInputs inputs{d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(),
                                       d->fRandom->nextF(), d->fRandom->nextBool()};
@@ -290,7 +282,7 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
                 /*inputFP=*/nullptr, SK_PMColor4fWHITE, GrConstColorProcessor::InputMode::kIgnore));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
-        case 2: {
+        case 1: {
             SkColor colors[SkOverdrawColorFilter::kNumColors];
             for (SkColor& c : colors) {
                 c = d->fRandom->nextU();

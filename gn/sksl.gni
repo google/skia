@@ -88,6 +88,7 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrConfigConversionEffect.fp",
   "$_src/gpu/effects/GrConstColorProcessor.fp",
   "$_src/gpu/effects/GrDeviceSpaceEffect.fp",
+  "$_src/gpu/effects/GrDitherEffect.fp",
   "$_src/gpu/effects/GrEllipseEffect.fp",
   "$_src/gpu/effects/GrHSLToRGBFilterEffect.fp",
   "$_src/gpu/effects/GrLumaColorFilterEffect.fp",
