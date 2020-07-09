@@ -55,7 +55,7 @@ private:
         BuilderInputProvider childInputs(int childIdx) const {
             const GrFragmentProcessor* child = &fFP->childProcessor(childIdx);
             int numToSkip = 0;
-            for (const auto& fp : GrFragmentProcessor::FPCRange(*fFP)) {
+            for (const auto& fp : GrFragmentProcessor::FPRange(*fFP)) {
                 if (&fp == child) {
                     return BuilderInputProvider(child, fTs + numToSkip);
                 }
