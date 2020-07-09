@@ -843,7 +843,9 @@ namespace skvm {
         void setupJIT        (const std::vector<OptimizedInstruction>&, const char* debug_name);
         void setupLLVM       (const std::vector<OptimizedInstruction>&, const char* debug_name);
 
-        bool jit(const std::vector<OptimizedInstruction>&, int* stack_hint, Assembler*) const;
+        bool jit(const std::vector<OptimizedInstruction>&,
+                 int* stack_hint, uint32_t* registers_used,
+                 Assembler*) const;
 
         void waitForLLVM() const;
 
