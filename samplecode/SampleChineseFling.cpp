@@ -17,7 +17,7 @@
 #include "include/utils/SkRandom.h"
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #endif
 
@@ -137,21 +137,21 @@ class ChineseZoomView : public Sample {
 
         if (fAfterFirstFrame) {
 #if SK_SUPPORT_GPU
-            GrContext* grContext = canvas->getGrContext();
-            if (grContext) {
-                sk_sp<SkImage> image = grContext->priv().testingOnly_getFontAtlasImage(
+            auto direct = GrAsDirectContext(canvas->recordingContext());
+            if (direct) {
+                sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
                             GrMaskFormat::kA8_GrMaskFormat, 0);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 10.0f, 512.0f, 512.0), &paint);
-                image = grContext->priv().testingOnly_getFontAtlasImage(
+                image = direct->priv().testingOnly_getFontAtlasImage(
                         GrMaskFormat::kA8_GrMaskFormat, 1);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 10.0f, 512.f, 512.0f), &paint);
-                image = grContext->priv().testingOnly_getFontAtlasImage(
+                image = direct->priv().testingOnly_getFontAtlasImage(
                         GrMaskFormat::kA8_GrMaskFormat, 2);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(10.0f, 522.0f, 512.0f, 512.0f), &paint);
-                image = grContext->priv().testingOnly_getFontAtlasImage(
+                image = direct->priv().testingOnly_getFontAtlasImage(
                         GrMaskFormat::kA8_GrMaskFormat, 3);
                 canvas->drawImageRect(image,
                                       SkRect::MakeXYWH(522.0f, 522.0f, 512.0f, 512.0f), &paint);
