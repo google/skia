@@ -68,6 +68,24 @@
       "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "679c7e00_82b72a72",
+        "filename": "src/codec/SkCodecImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-09T20:00:58Z",
+      "side": 1,
+      "message": "What are our other types of SkImageGenerators? I am planning to make an SkImageGenerator that wraps the NDK APIs (though, Dan, it sounded like you wanted that to go through SkCodec anyway?), which support scaling. And I would imagine that our other platform generators might, too (CG, WIC), though I haven\u0027t checked.",
+      "parentUuid": "0fc4d116_af711083",
+      "revId": "54b947cd55c67ca38bfbf99b904083f9efb2cb2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
