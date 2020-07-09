@@ -10,7 +10,7 @@
 #include "samplecode/Sample.h"
 
 #if SK_SUPPORT_GPU
-#   include "include/gpu/GrContext.h"
+#   include "include/gpu/GrDirectContext.h"
 #else
 class GrContext;
 #endif
@@ -50,8 +50,8 @@ void Sample::draw(SkCanvas* canvas) {
         this->onDrawContent(canvas);
 #if SK_SUPPORT_GPU
         // Ensure the GrContext doesn't combine GrDrawOps across draw loops.
-        if (GrContext* context = canvas->getGrContext()) {
-            context->flushAndSubmit();
+        if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
+            direct->flushAndSubmit();
         }
 #endif
 

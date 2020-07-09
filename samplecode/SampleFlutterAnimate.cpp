@@ -16,10 +16,6 @@
 #include "samplecode/Sample.h"
 #include "tools/timer/Timer.h"
 
-#if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
-#endif
-
 // Create an animation of a bunch of letters that rotate in place. This is intended to stress
 // the glyph atlas and test that we don't see corruption or bad slowdowns.
 class FlutterAnimateView : public Sample {
