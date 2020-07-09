@@ -314,7 +314,7 @@ private:
 
     uint32_t fLastClipStackGenID = SK_InvalidUniqueID;
     SkIRect fLastDevClipBounds;
-    int fLastClipNumAnalyticFPs;
+    int fLastClipNumAnalyticElements;
 
     // We must track if we have a wait op so that we don't delete the op when we have a full clear.
     bool fHasWaitOp = false;
