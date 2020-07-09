@@ -24,6 +24,8 @@ public:
         kHigh,
         // this is the special value for backward compatibility
         kInheritFromPaint,
+        // this signals we should use the new SkFilterOptions
+        kUseFilterOptions,
     };
 
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
@@ -32,6 +34,12 @@ public:
                                 const SkMatrix* localMatrix,
                                 FilterEnum,
                                 bool clampAsIfUnpremul = false);
+
+    static sk_sp<SkShader> Make(sk_sp<SkImage>,
+                                SkTileMode tmx,
+                                SkTileMode tmy,
+                                const SkFilterOptions&,
+                                const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
 
@@ -48,6 +56,11 @@ private:
                   const SkMatrix* localMatrix,
                   FilterEnum,
                   bool clampAsIfUnpremul);
+    SkImageShader(sk_sp<SkImage>,
+                  SkTileMode tmx,
+                  SkTileMode tmy,
+                  const SkFilterOptions&,
+                  const SkMatrix* localMatrix);
 
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -66,14 +79,22 @@ private:
     bool doStages(const SkStageRec&, SkImageStageUpdater* = nullptr) const;
 
     SkFilterQuality resolveFiltering(SkFilterQuality paintQuality) const {
-        return fFiltering == kInheritFromPaint ? paintQuality : (SkFilterQuality)fFiltering;
+        switch (fFilterEnum) {
+            case kUseFilterOptions: return kNone_SkFilterQuality;   // TODO
+            case kInheritFromPaint: return paintQuality;
+            default: break;
+        }
+        return (SkFilterQuality)fFilterEnum;
     }
 
     sk_sp<SkImage>   fImage;
     const SkTileMode fTileModeX;
     const SkTileMode fTileModeY;
-    const FilterEnum fFiltering;
+    const FilterEnum fFilterEnum;
     const bool       fClampAsIfUnpremul;
+
+    // only use this if fFilterEnum == kUseFilterOptions
+    SkFilterOptions  fFilterOptions;
 
     friend class SkShaderBase;
     typedef SkShaderBase INHERITED;
