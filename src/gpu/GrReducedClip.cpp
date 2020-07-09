@@ -37,15 +37,15 @@
  * take a rect in case the caller knows a bound on what is to be drawn through this clip.
  */
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
-                             const GrCaps* caps, int maxWindowRectangles, int maxAnalyticFPs,
+                             const GrCaps* caps, int maxWindowRectangles, int maxAnalyticElements,
                              int maxCCPRClipPaths)
         : fCaps(caps)
         , fMaxWindowRectangles(maxWindowRectangles)
-        , fMaxAnalyticFPs(maxAnalyticFPs)
+        , fMaxAnalyticElements(maxAnalyticElements)
         , fMaxCCPRClipPaths(maxCCPRClipPaths) {
     SkASSERT(!queryBounds.isEmpty());
     SkASSERT(fMaxWindowRectangles <= GrWindowRectangles::kMaxWindows);
-    SkASSERT(fMaxCCPRClipPaths <= fMaxAnalyticFPs);
+    SkASSERT(fMaxCCPRClipPaths <= fMaxAnalyticElements);
 
     if (stack.isWideOpen()) {
         fInitialState = InitialState::kAllIn;
@@ -125,7 +125,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     }
 
     if (SK_InvalidGenID != fAAClipRectGenID && // Is there an AA clip rect?
-        ClipResult::kNotClipped == this->addAnalyticFP(fAAClipRect, Invert::kNo, GrAA::kYes)) {
+        ClipResult::kNotClipped == this->addAnalyticRect(fAAClipRect, Invert::kNo, GrAA::kYes)) {
         if (fMaskElements.isEmpty()) {
             // Use a replace since it is faster than intersect.
             fMaskElements.addToHead(fAAClipRect, SkMatrix::I(), kReplace_SkClipOp, true /*doAA*/);
@@ -538,12 +538,12 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
 
         case Element::DeviceSpaceType::kRRect:
             SkASSERT(!element->isInverseFilled());
-            return this->addAnalyticFP(element->getDeviceSpaceRRect(), Invert::kNo,
-                                       GrAA(element->isAA()));
+            return this->addAnalyticRRect(element->getDeviceSpaceRRect(), Invert::kNo,
+                                          GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kPath:
-            return this->addAnalyticFP(element->getDeviceSpacePath(),
-                                       Invert(element->isInverseFilled()), GrAA(element->isAA()));
+            return this->addAnalyticPath(element->getDeviceSpacePath(),
+                                         Invert(element->isInverseFilled()), GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kShader:
             SkUNREACHABLE;
@@ -569,14 +569,14 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
                     return ClipResult::kClipped;
                 }
             }
-            return this->addAnalyticFP(element->getDeviceSpaceRect(), Invert::kYes,
-                                       GrAA(element->isAA()));
+            return this->addAnalyticRect(element->getDeviceSpaceRect(), Invert::kYes,
+                                         GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kRRect: {
             SkASSERT(!element->isInverseFilled());
             const SkRRect& clipRRect = element->getDeviceSpaceRRect();
-            ClipResult clipResult = this->addAnalyticFP(clipRRect, Invert::kYes,
-                                                        GrAA(element->isAA()));
+            ClipResult clipResult = this->addAnalyticRRect(clipRRect, Invert::kYes,
+                                                           GrAA(element->isAA()));
             if (fWindowRects.count() >= fMaxWindowRectangles) {
                 return clipResult;
             }
@@ -613,8 +613,9 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
         }
 
         case Element::DeviceSpaceType::kPath:
-            return this->addAnalyticFP(element->getDeviceSpacePath(),
-                                       Invert(!element->isInverseFilled()), GrAA(element->isAA()));
+            return this->addAnalyticPath(element->getDeviceSpacePath(),
+                                         Invert(!element->isInverseFilled()),
+                                         GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kShader:
             SkUNREACHABLE;
@@ -643,9 +644,9 @@ GrClipEdgeType GrReducedClip::GetClipEdgeType(Invert invert, GrAA aa) {
     }
 }
 
-GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRect& deviceSpaceRect,
-                                                       Invert invert, GrAA aa) {
-    if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
+GrReducedClip::ClipResult GrReducedClip::addAnalyticRect(const SkRect& deviceSpaceRect,
+                                                         Invert invert, GrAA aa) {
+    if (this->numAnalyticElements() >= fMaxAnalyticElements) {
         return ClipResult::kNotClipped;
     }
 
@@ -653,14 +654,14 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRect& deviceSpace
                                        deviceSpaceRect);
 
     SkASSERT(fAnalyticFP != nullptr);
-    ++fNumAnalyticFPs;
+    ++fNumAnalyticElements;
 
     return ClipResult::kClipped;
 }
 
-GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpaceRRect,
-                                                       Invert invert, GrAA aa) {
-    if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
+GrReducedClip::ClipResult GrReducedClip::addAnalyticRRect(const SkRRect& deviceSpaceRRect,
+                                                          Invert invert, GrAA aa) {
+    if (this->numAnalyticElements() >= fMaxAnalyticElements) {
         return ClipResult::kNotClipped;
     }
 
@@ -670,19 +671,19 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpac
                                                          GetClipEdgeType(invert, aa),
                                                          deviceSpaceRRect, *fCaps->shaderCaps());
     if (success) {
-        ++fNumAnalyticFPs;
+        ++fNumAnalyticElements;
         return ClipResult::kClipped;
     }
 
     SkPath deviceSpacePath;
     deviceSpacePath.setIsVolatile(true);
     deviceSpacePath.addRRect(deviceSpaceRRect);
-    return this->addAnalyticFP(deviceSpacePath, invert, aa);
+    return this->addAnalyticPath(deviceSpacePath, invert, aa);
 }
 
-GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpacePath,
-                                                       Invert invert, GrAA aa) {
-    if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
+GrReducedClip::ClipResult GrReducedClip::addAnalyticPath(const SkPath& deviceSpacePath,
+                                                         Invert invert, GrAA aa) {
+    if (this->numAnalyticElements() >= fMaxAnalyticElements) {
         return ClipResult::kNotClipped;
     }
 
@@ -692,7 +693,7 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpace
                                                               GetClipEdgeType(invert, aa),
                                                               deviceSpacePath);
     if (success) {
-        ++fNumAnalyticFPs;
+        ++fNumAnalyticElements;
         return ClipResult::kClipped;
     }
 
@@ -717,7 +718,7 @@ void GrReducedClip::makeEmpty() {
     fShader.reset();
     fInitialState = InitialState::kAllOut;
     fAnalyticFP = nullptr;
-    fNumAnalyticFPs = 0;
+    fNumAnalyticElements = 0;
     fCCPRClipPaths.reset();
 }
 
@@ -867,7 +868,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
                                         GrRenderTargetContext* renderTargetContext) const {
     GrStencilMaskHelper helper(context, renderTargetContext);
-    if (!helper.init(fScissor, this->maskGenID(), fWindowRects, this->numAnalyticFPs())) {
+    if (!helper.init(fScissor, this->maskGenID(), fWindowRects, this->numAnalyticElements())) {
         // The stencil mask doesn't need updating
         return true;
     }
@@ -895,16 +896,16 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
     return true;
 }
 
-int GrReducedClip::numAnalyticFPs() const {
-    return fCCPRClipPaths.size() + fNumAnalyticFPs;
+int GrReducedClip::numAnalyticElements() const {
+    return fCCPRClipPaths.size() + fNumAnalyticElements;
 }
 
-std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
+std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticElements(
         GrRecordingContext* context, const SkMatrixProvider& matrixProvider,
         GrCoverageCountingPathRenderer* ccpr, uint32_t opsTaskID) {
     // Combine the analytic FP with any CCPR clip processors.
     std::unique_ptr<GrFragmentProcessor> clipFP = std::move(fAnalyticFP);
-    fNumAnalyticFPs = 0;
+    fNumAnalyticElements = 0;
 
     for (const SkPath& ccprClipPath : fCCPRClipPaths) {
         SkASSERT(ccpr);
