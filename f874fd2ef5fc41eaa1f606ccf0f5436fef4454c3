@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "786355a1_1df72735",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-09T12:12:26Z",
+      "side": 1,
+      "message": "Following up on Project Code Inclusion.",
+      "revId": "f874fd2ef5fc41eaa1f606ccf0f5436fef4454c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
