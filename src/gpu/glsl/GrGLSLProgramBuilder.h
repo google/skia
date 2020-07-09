@@ -153,12 +153,11 @@ private:
 
     void emitAndInstallPrimProc(SkString* outputColor, SkString* outputCoverage);
     void emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
-    SkString emitAndInstallFragProc(const GrFragmentProcessor&,
-                                    int index,
-                                    int transformedCoordVarsIdx,
-                                    const SkString& input,
-                                    SkString output,
-                                    SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>>*);
+    SkString emitFragProc(const GrFragmentProcessor&,
+                          GrGLSLFragmentProcessor&,
+                          int transformedCoordVarsIdx,
+                          const SkString& input,
+                          SkString output);
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     SamplerHandle emitSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
                               const char* name);

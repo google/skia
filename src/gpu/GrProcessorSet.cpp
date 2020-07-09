@@ -253,8 +253,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
 }
 
 void GrProcessorSet::visitProxies(const GrOp::VisitProxyFunc& func) const {
-    for (auto [sampler, fp] : GrFragmentProcessor::ProcessorSetTextureSamplerRange(*this)) {
-        bool mipped = (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter());
-        func(sampler.view().proxy(), GrMipMapped(mipped));
+    for (int i = fFragmentProcessorOffset; i < fFragmentProcessors.count(); ++i) {
+        fFragmentProcessors[i]->visitProxies(func);
     }
 }

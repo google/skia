@@ -113,6 +113,8 @@ public:
     }
     int numFragmentProcessors() const { return fFragmentProcessors.count(); }
 
+    void visitTextureEffects(const std::function<void(const GrTextureEffect&)>&) const;
+
     const GrXferProcessor& getXferProcessor() const {
         if (fXferProcessor) {
             return *fXferProcessor.get();

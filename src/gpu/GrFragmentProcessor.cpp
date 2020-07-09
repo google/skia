@@ -21,14 +21,6 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     if (this->classID() != that.classID()) {
         return false;
     }
-    if (this->numTextureSamplers() != that.numTextureSamplers()) {
-        return false;
-    }
-    for (int i = 0; i < this->numTextureSamplers(); ++i) {
-        if (this->textureSampler(i) != that.textureSampler(i)) {
-            return false;
-        }
-    }
     if (this->usesVaryingCoordsDirectly() != that.usesVaryingCoordsDirectly()) {
         return false;
     }
@@ -46,11 +38,35 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     return true;
 }
 
-void GrFragmentProcessor::visitProxies(const GrOp::VisitProxyFunc& func) {
-    for (auto [sampler, fp] : FPTextureSamplerRange(*this)) {
-        bool mipped = (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter());
-        func(sampler.view().proxy(), GrMipMapped(mipped));
+void GrFragmentProcessor::visitProxies(const GrOp::VisitProxyFunc& func) const {
+    this->visitTextureEffects([&func](const GrTextureEffect& te) {
+        bool mipped = (GrSamplerState::Filter::kMipMap == te.samplerState().filter());
+        func(te.view().proxy(), GrMipMapped(mipped));
+    });
+}
+
+void GrFragmentProcessor::visitTextureEffects(
+        const std::function<void(const GrTextureEffect&)>& func) const {
+    if (auto* te = this->asTextureEffect()) {
+        func(*te);
     }
+    for (auto& child : fChildProcessors) {
+        child->visitTextureEffects(func);
+    }
+}
+
+GrTextureEffect* GrFragmentProcessor::asTextureEffect() {
+    if (this->classID() == kGrTextureEffect_ClassID) {
+        return static_cast<GrTextureEffect*>(this);
+    }
+    return nullptr;
+}
+
+const GrTextureEffect* GrFragmentProcessor::asTextureEffect() const {
+    if (this->classID() == kGrTextureEffect_ClassID) {
+        return static_cast<const GrTextureEffect*>(this);
+    }
+    return nullptr;
 }
 
 GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
@@ -60,11 +76,6 @@ GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
         glFragProc->fChildProcessors[i] = fChildProcessors[i]->createGLSLInstance();
     }
     return glFragProc;
-}
-
-const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::textureSampler(int i) const {
-    SkASSERT(i >= 0 && i < fTextureSamplerCnt);
-    return this->onTextureSampler(i);
 }
 
 void GrFragmentProcessor::addAndPushFlagToChildren(PrivateFlags flag) {
@@ -84,19 +95,13 @@ void GrFragmentProcessor::addAndPushFlagToChildren(PrivateFlags flag) {
 
 #ifdef SK_DEBUG
 bool GrFragmentProcessor::isInstantiated() const {
-    for (int i = 0; i < fTextureSamplerCnt; ++i) {
-        if (!this->textureSampler(i).isInstantiated()) {
-            return false;
+    bool result = true;
+    this->visitTextureEffects([&result](const GrTextureEffect& te) {
+        if (!te.texture()) {
+            result = false;
         }
-    }
-
-    for (int i = 0; i < this->numChildProcessors(); ++i) {
-        if (!this->childProcessor(i).isInstantiated()) {
-            return false;
-        }
-    }
-
-    return true;
+    });
+    return result;
 }
 #endif
 
@@ -449,41 +454,8 @@ GrFragmentProcessor::CIter::CIter(const GrPaint& paint) {
     }
 }
 
-GrFragmentProcessor::CIter::CIter(const GrProcessorSet& set) {
-    for (int i = set.numCoverageFragmentProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(set.coverageFragmentProcessor(i));
-    }
-    for (int i = set.numColorFragmentProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(set.colorFragmentProcessor(i));
-    }
-}
-
 GrFragmentProcessor::CIter::CIter(const GrPipeline& pipeline) {
     for (int i = pipeline.numFragmentProcessors() - 1; i >= 0; --i) {
         fFPStack.push_back(&pipeline.getFragmentProcessor(i));
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-GrFragmentProcessor::TextureSampler::TextureSampler(GrSurfaceProxyView view,
-                                                    GrSamplerState samplerState)
-        : fView(std::move(view)), fSamplerState(samplerState) {
-    GrSurfaceProxy* proxy = this->proxy();
-    fSamplerState.setFilterMode(
-            std::min(samplerState.filter(),
-                   GrTextureProxy::HighestFilterMode(proxy->backendFormat().textureType())));
-}
-
-#if GR_TEST_UTILS
-void GrFragmentProcessor::TextureSampler::set(GrSurfaceProxyView view,
-                                              GrSamplerState samplerState) {
-    SkASSERT(view.proxy()->asTextureProxy());
-    fView = std::move(view);
-    fSamplerState = samplerState;
-
-    fSamplerState.setFilterMode(
-            std::min(samplerState.filter(),
-                   GrTextureProxy::HighestFilterMode(this->proxy()->backendFormat().textureType())));
-}
-#endif

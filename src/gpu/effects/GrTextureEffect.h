@@ -11,6 +11,8 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrTextureEffect : public GrFragmentProcessor {
 public:
@@ -89,6 +91,29 @@ public:
 
     const char* name() const override { return "TextureEffect"; }
 
+    GrSamplerState samplerState() const { return fSamplerState; }
+
+    GrTexture* texture() const { return fView.asTextureProxy()->peekTexture(); }
+
+    const GrSurfaceProxyView& view() const { return fView; }
+
+    class Impl : public GrGLSLFragmentProcessor {
+    public:
+        void emitCode(EmitArgs&) override;
+        void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+
+        void setSamplerHandle(GrGLSLShaderBuilder::SamplerHandle handle) {
+            fSamplerHandle = handle;
+        }
+
+    private:
+        UniformHandle fSubsetUni;
+        UniformHandle fClampUni;
+        UniformHandle fNormUni;
+        UniformHandle fBorderUni;
+        GrGLSLShaderBuilder::SamplerHandle fSamplerHandle;
+    };
+
 private:
     struct Sampling;
 
@@ -109,7 +134,8 @@ private:
     static ShaderMode GetShaderMode(GrSamplerState::WrapMode, GrSamplerState::Filter);
     static bool ShaderModeIsClampToBorder(ShaderMode);
 
-    TextureSampler fSampler;
+    GrSurfaceProxyView fView;
+    GrSamplerState fSamplerState;
     float fBorder[4];
     SkRect fSubset;
     SkRect fClamp;
@@ -126,8 +152,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    const TextureSampler& onTextureSampler(int) const override;
 
     bool hasClampToBorderShaderMode() const {
         return ShaderModeIsClampToBorder(fShaderModes[0]) ||

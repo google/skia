@@ -11,8 +11,6 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
-#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
@@ -308,441 +306,426 @@ inline bool GrTextureEffect::ShaderModeIsClampToBorder(ShaderMode m) {
     return m == ShaderMode::kClampToBorderNearest || m == ShaderMode::kClampToBorderFilter;
 }
 
-GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
-    class Impl : public GrGLSLFragmentProcessor {
-        UniformHandle fSubsetUni;
-        UniformHandle fClampUni;
-        UniformHandle fNormUni;
-        UniformHandle fBorderUni;
+void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
+    using ShaderMode = GrTextureEffect::ShaderMode;
 
-    public:
-        void emitCode(EmitArgs& args) override {
-            auto& te = args.fFp.cast<GrTextureEffect>();
-            auto* fb = args.fFragBuilder;
+    auto& te = args.fFp.cast<GrTextureEffect>();
+    auto* fb = args.fFragBuilder;
 
-            if (te.fShaderModes[0] == ShaderMode::kNone &&
-                te.fShaderModes[1] == ShaderMode::kNone) {
-                fb->codeAppendf("%s = ", args.fOutputColor);
-                if (te.fLazyProxyNormalization) {
-                    const char* norm = nullptr;
-                    fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
-                                                                kFloat4_GrSLType, "norm", &norm);
-                    fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                                    args.fTexSamplers[0],
-                                                    SkStringPrintf("%s * %s.zw", args.fSampleCoord,
-                                                                   norm).c_str());
-                } else {
-                    fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                                    args.fTexSamplers[0], args.fSampleCoord);
-                }
-                fb->codeAppendf(";");
+    if (te.fShaderModes[0] == ShaderMode::kNone &&
+        te.fShaderModes[1] == ShaderMode::kNone) {
+        fb->codeAppendf("%s = ", args.fOutputColor);
+        if (te.fLazyProxyNormalization) {
+            const char* norm = nullptr;
+            fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
+                                                        kFloat4_GrSLType, "norm", &norm);
+            SkString coordString = SkStringPrintf("%s * %s.zw", args.fSampleCoord, norm);
+            fb->appendTextureLookupAndBlend(args.fInputColor,
+                                            SkBlendMode::kModulate,
+                                            fSamplerHandle,
+                                            coordString.c_str());
+        } else {
+            fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
+                                            fSamplerHandle, args.fSampleCoord);
+        }
+        fb->codeAppendf(";");
+    } else {
+        // Tripping this assert means we have a normalized fully lazy proxy with a
+        // non-default ShaderMode. There's nothing fundamentally wrong with doing that, but
+        // it hasn't been tested and this code path probably won't handle normalization
+        // properly in that case.
+        SkASSERT(!te.fLazyProxyNormalization);
+        // Here is the basic flow of the various ShaderModes are implemented in a series of
+        // steps. Not all the steps apply to all the modes. We try to emit only the steps
+        // that are necessary for the given x/y shader modes.
+        //
+        // 0) Start with interpolated coordinates (unnormalize if doing anything
+        //    complicated).
+        // 1) Map the coordinates into the subset range [Repeat and MirrorRepeat], or pass
+        //    through output of 0).
+        // 2) Clamp the coordinates to a 0.5 inset of the subset rect [Clamp, Repeat, and
+        //    MirrorRepeat always or ClampToBorder only when filtering] or pass through
+        //    output of 1). The clamp rect collapses to a line or point it if the subset
+        //    rect is less than one pixel wide/tall.
+        // 3) Look up texture with output of 2) [All]
+        // 3) Use the difference between 1) and 2) to apply filtering at edge [Repeat or
+        //    ClampToBorder]. In the Repeat case this requires extra texture lookups on the
+        //    other side of the subset (up to 3 more reads). Or if ClampToBorder and not
+        //    filtering do a hard less than/greater than test with the subset rect.
+
+        // Convert possible projective texture coordinates into non-homogeneous half2.
+        fb->codeAppendf("float2 inCoord = %s;", args.fSampleCoord);
+
+        const auto& m = te.fShaderModes;
+        GrTextureType textureType = te.view().proxy()->backendFormat().textureType();
+        bool normCoords = textureType != GrTextureType::kRectangle;
+
+        const char* borderName = nullptr;
+        if (te.hasClampToBorderShaderMode()) {
+            fBorderUni = args.fUniformHandler->addUniform(
+                    &te, kFragment_GrShaderFlag, kHalf4_GrSLType, "border", &borderName);
+        }
+        auto modeUsesSubset = [](ShaderMode m) {
+          switch (m) {
+              case ShaderMode::kNone:                     return false;
+              case ShaderMode::kClamp:                    return false;
+              case ShaderMode::kRepeatNearest:            return true;
+              case ShaderMode::kRepeatBilerp:             return true;
+              case ShaderMode::kRepeatMipMap:             return true;
+              case ShaderMode::kMirrorRepeat:             return true;
+              case ShaderMode::kClampToBorderNearest:     return true;
+              case ShaderMode::kClampToBorderFilter:      return true;
+          }
+          SkUNREACHABLE;
+        };
+
+        auto modeUsesClamp = [](ShaderMode m) {
+          switch (m) {
+              case ShaderMode::kNone:                     return false;
+              case ShaderMode::kClamp:                    return true;
+              case ShaderMode::kRepeatNearest:            return true;
+              case ShaderMode::kRepeatBilerp:             return true;
+              case ShaderMode::kRepeatMipMap:             return true;
+              case ShaderMode::kMirrorRepeat:             return true;
+              case ShaderMode::kClampToBorderNearest:     return false;
+              case ShaderMode::kClampToBorderFilter:      return true;
+          }
+          SkUNREACHABLE;
+        };
+
+        // To keep things a little simpler, when we have filtering logic in the shader we
+        // operate on unnormalized texture coordinates. We will add a uniform that stores
+        // {w, h, 1/w, 1/h} in a float4 below.
+        auto modeRequiresUnormCoords = [](ShaderMode m) {
+          switch (m) {
+              case ShaderMode::kNone:                     return false;
+              case ShaderMode::kClamp:                    return false;
+              case ShaderMode::kRepeatNearest:            return false;
+              case ShaderMode::kRepeatBilerp:             return true;
+              case ShaderMode::kRepeatMipMap:             return true;
+              case ShaderMode::kMirrorRepeat:             return false;
+              case ShaderMode::kClampToBorderNearest:     return true;
+              case ShaderMode::kClampToBorderFilter:      return true;
+          }
+          SkUNREACHABLE;
+        };
+
+        bool useSubset[2] = {modeUsesSubset(m[0]), modeUsesSubset(m[1])};
+        bool useClamp [2] = {modeUsesClamp (m[0]), modeUsesClamp (m[1])};
+
+        const char* subsetName = nullptr;
+        if (useSubset[0] || useSubset[1]) {
+            fSubsetUni = args.fUniformHandler->addUniform(
+                    &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "subset", &subsetName);
+        }
+
+        const char* clampName = nullptr;
+        if (useClamp[0] || useClamp[1]) {
+            fClampUni = args.fUniformHandler->addUniform(
+                    &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "clamp", &clampName);
+        }
+
+        const char* norm = nullptr;
+        if (normCoords && (modeRequiresUnormCoords(m[0]) ||
+                           modeRequiresUnormCoords(m[1]))) {
+            // TODO: Detect support for textureSize() or polyfill textureSize() in SkSL and
+            // always use?
+            fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
+                                                        kFloat4_GrSLType, "norm", &norm);
+            // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
+            // step here.
+            fb->codeAppendf("inCoord *= %s.xy;", norm);
+        }
+
+        // Generates a string to read at a coordinate, normalizing coords if necessary.
+        auto read = [&](const char* coord) {
+            SkString result;
+            SkString normCoord;
+            if (norm) {
+                normCoord.printf("(%s) * %s.zw", coord, norm);
             } else {
-                // Tripping this assert means we have a normalized fully lazy proxy with a
-                // non-default ShaderMode. There's nothing fundamentally wrong with doing that, but
-                // it hasn't been tested and this code path probably won't handle normalization
-                // properly in that case.
-                SkASSERT(!te.fLazyProxyNormalization);
-                // Here is the basic flow of the various ShaderModes are implemented in a series of
-                // steps. Not all the steps apply to all the modes. We try to emit only the steps
-                // that are necessary for the given x/y shader modes.
-                //
-                // 0) Start with interpolated coordinates (unnormalize if doing anything
-                //    complicated).
-                // 1) Map the coordinates into the subset range [Repeat and MirrorRepeat], or pass
-                //    through output of 0).
-                // 2) Clamp the coordinates to a 0.5 inset of the subset rect [Clamp, Repeat, and
-                //    MirrorRepeat always or ClampToBorder only when filtering] or pass through
-                //    output of 1). The clamp rect collapses to a line or point it if the subset
-                //    rect is less than one pixel wide/tall.
-                // 3) Look up texture with output of 2) [All]
-                // 3) Use the difference between 1) and 2) to apply filtering at edge [Repeat or
-                //    ClampToBorder]. In the Repeat case this requires extra texture lookups on the
-                //    other side of the subset (up to 3 more reads). Or if ClampToBorder and not
-                //    filtering do a hard less than/greater than test with the subset rect.
+                normCoord = coord;
+            }
+            fb->appendTextureLookup(&result, fSamplerHandle, normCoord.c_str());
+            return result;
+        };
 
-                // Convert possible projective texture coordinates into non-homogeneous half2.
-                fb->codeAppendf("float2 inCoord = %s;", args.fSampleCoord);
-
-                const auto& m = te.fShaderModes;
-                GrTextureType textureType = te.fSampler.proxy()->backendFormat().textureType();
-                bool normCoords = textureType != GrTextureType::kRectangle;
-
-                const char* borderName = nullptr;
-                if (te.hasClampToBorderShaderMode()) {
-                    fBorderUni = args.fUniformHandler->addUniform(
-                            &te, kFragment_GrShaderFlag, kHalf4_GrSLType, "border", &borderName);
-                }
-                auto modeUsesSubset = [](ShaderMode m) {
-                    switch (m) {
-                        case ShaderMode::kNone:                     return false;
-                        case ShaderMode::kClamp:                    return false;
-                        case ShaderMode::kRepeatNearest:            return true;
-                        case ShaderMode::kRepeatBilerp:             return true;
-                        case ShaderMode::kRepeatMipMap:             return true;
-                        case ShaderMode::kMirrorRepeat:             return true;
-                        case ShaderMode::kClampToBorderNearest:     return true;
-                        case ShaderMode::kClampToBorderFilter:      return true;
-                    }
-                    SkUNREACHABLE;
-                };
-
-                auto modeUsesClamp = [](ShaderMode m) {
-                    switch (m) {
-                        case ShaderMode::kNone:                     return false;
-                        case ShaderMode::kClamp:                    return true;
-                        case ShaderMode::kRepeatNearest:            return true;
-                        case ShaderMode::kRepeatBilerp:             return true;
-                        case ShaderMode::kRepeatMipMap:             return true;
-                        case ShaderMode::kMirrorRepeat:             return true;
-                        case ShaderMode::kClampToBorderNearest:     return false;
-                        case ShaderMode::kClampToBorderFilter:      return true;
-                    }
-                    SkUNREACHABLE;
-                };
-
-                // To keep things a little simpler, when we have filtering logic in the shader we
-                // operate on unnormalized texture coordinates. We will add a uniform that stores
-                // {w, h, 1/w, 1/h} in a float4 below.
-                auto modeRequiresUnormCoords = [](ShaderMode m) {
-                  switch (m) {
-                      case ShaderMode::kNone:                     return false;
-                      case ShaderMode::kClamp:                    return false;
-                      case ShaderMode::kRepeatNearest:            return false;
-                      case ShaderMode::kRepeatBilerp:             return true;
-                      case ShaderMode::kRepeatMipMap:             return true;
-                      case ShaderMode::kMirrorRepeat:             return false;
-                      case ShaderMode::kClampToBorderNearest:     return true;
-                      case ShaderMode::kClampToBorderFilter:      return true;
-                  }
-                  SkUNREACHABLE;
-                };
-
-                bool useSubset[2] = {modeUsesSubset(m[0]), modeUsesSubset(m[1])};
-                bool useClamp [2] = {modeUsesClamp (m[0]), modeUsesClamp (m[1])};
-
-                const char* subsetName = nullptr;
-                if (useSubset[0] || useSubset[1]) {
-                    fSubsetUni = args.fUniformHandler->addUniform(
-                            &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "subset", &subsetName);
-                }
-
-                const char* clampName = nullptr;
-                if (useClamp[0] || useClamp[1]) {
-                    fClampUni = args.fUniformHandler->addUniform(
-                            &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "clamp", &clampName);
-                }
-
-                const char* norm = nullptr;
-                if (normCoords && (modeRequiresUnormCoords(m[0]) ||
-                                   modeRequiresUnormCoords(m[1]))) {
-                    // TODO: Detect support for textureSize() or polyfill textureSize() in SkSL and
-                    // always use?
-                    fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
-                                                                kFloat4_GrSLType, "norm", &norm);
-                    // TODO: Remove the normalization from the CoordTransform to skip unnormalizing
-                    // step here.
-                    fb->codeAppendf("inCoord *= %s.xy;", norm);
-                }
-
-                // Generates a string to read at a coordinate, normalizing coords if necessary.
-                auto read = [&](const char* coord) {
-                    SkString result;
-                    SkString normCoord;
-                    if (norm) {
-                        normCoord.printf("(%s) * %s.zw", coord, norm);
-                    } else {
-                        normCoord = coord;
-                    }
-                    fb->appendTextureLookup(&result, args.fTexSamplers[0], normCoord.c_str());
-                    return result;
-                };
-
-                // Implements coord wrapping for kRepeat and kMirrorRepeat
-                auto subsetCoord = [&](ShaderMode mode,
-                                       const char* coordSwizzle,
-                                       const char* subsetStartSwizzle,
-                                       const char* subsetStopSwizzle,
-                                       const char* extraCoord,
-                                       const char* coordWeight) {
-                    switch (mode) {
-                        // These modes either don't use the subset rect or don't need to map the
-                        // coords to be within the subset.
-                        case ShaderMode::kNone:
-                        case ShaderMode::kClampToBorderNearest:
-                        case ShaderMode::kClampToBorderFilter:
-                        case ShaderMode::kClamp:
-                            fb->codeAppendf("subsetCoord.%s = inCoord.%s;", coordSwizzle,
-                                            coordSwizzle);
-                            break;
-                        case ShaderMode::kRepeatNearest:
-                        case ShaderMode::kRepeatBilerp:
-                            fb->codeAppendf(
-                                    "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + "
-                                    "%s.%s;",
-                                    coordSwizzle, coordSwizzle, subsetName, subsetStartSwizzle,
-                                    subsetName, subsetStopSwizzle, subsetName, subsetStartSwizzle,
+        // Implements coord wrapping for kRepeat and kMirrorRepeat
+        auto subsetCoord = [&](ShaderMode mode,
+                               const char* coordSwizzle,
+                               const char* subsetStartSwizzle,
+                               const char* subsetStopSwizzle,
+                               const char* extraCoord,
+                               const char* coordWeight) {
+            switch (mode) {
+                // These modes either don't use the subset rect or don't need to map the
+                // coords to be within the subset.
+                case ShaderMode::kNone:
+                case ShaderMode::kClampToBorderNearest:
+                case ShaderMode::kClampToBorderFilter:
+                case ShaderMode::kClamp:
+                    fb->codeAppendf("subsetCoord.%s = inCoord.%s;", coordSwizzle, coordSwizzle);
+                    break;
+                case ShaderMode::kRepeatNearest:
+                case ShaderMode::kRepeatBilerp:
+                    fb->codeAppendf(
+                            "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + "
+                            "%s.%s;",
+                            coordSwizzle, coordSwizzle, subsetName, subsetStartSwizzle, subsetName,
+                            subsetStopSwizzle, subsetName, subsetStartSwizzle, subsetName,
+                            subsetStartSwizzle);
+                    break;
+                case ShaderMode::kRepeatMipMap:
+                    // The approach here is to generate two sets of texture coords that
+                    // are both "moving" at the same speed (if not direction) as
+                    // inCoords. We accomplish that by using two out of phase mirror
+                    // repeat coords. We will always sample using both coords but the
+                    // read from the upward sloping one is selected using a weight
+                    // that transitions from one set to the other near the reflection
+                    // point. Like the coords, the weight is a saw-tooth function,
+                    // phase-shifted, vertically translated, and then clamped to 0..1.
+                    // TODO: Skip this and use textureGrad() when available.
+                    SkASSERT(extraCoord);
+                    SkASSERT(coordWeight);
+                    fb->codeAppend("{");
+                    fb->codeAppendf("float w = %s.%s - %s.%s;", subsetName, subsetStopSwizzle,
                                     subsetName, subsetStartSwizzle);
-                            break;
-                        case ShaderMode::kRepeatMipMap:
-                            // The approach here is to generate two sets of texture coords that
-                            // are both "moving" at the same speed (if not direction) as
-                            // inCoords. We accomplish that by using two out of phase mirror
-                            // repeat coords. We will always sample using both coords but the
-                            // read from the upward sloping one is selected using a weight
-                            // that transitions from one set to the other near the reflection
-                            // point. Like the coords, the weight is a saw-tooth function,
-                            // phase-shifted, vertically translated, and then clamped to 0..1.
-                            // TODO: Skip this and use textureGrad() when available.
-                            SkASSERT(extraCoord);
-                            SkASSERT(coordWeight);
-                            fb->codeAppend("{");
-                            fb->codeAppendf("float w = %s.%s - %s.%s;", subsetName,
-                                            subsetStopSwizzle, subsetName, subsetStartSwizzle);
-                            fb->codeAppendf("float w2 = 2 * w;");
-                            fb->codeAppendf("float d = inCoord.%s - %s.%s;", coordSwizzle,
-                                            subsetName, subsetStartSwizzle);
-                            fb->codeAppend("float m = mod(d, w2);");
-                            fb->codeAppend("float o = mix(m, w2 - m, step(w, m));");
-                            fb->codeAppendf("subsetCoord.%s = o + %s.%s;", coordSwizzle, subsetName,
-                                            subsetStartSwizzle);
-                            fb->codeAppendf("%s = w - o + %s.%s;", extraCoord, subsetName,
-                                            subsetStartSwizzle);
-                            // coordWeight is used as the third param of mix() to blend between a
-                            // sample taken using subsetCoord and a sample at extraCoord.
-                            fb->codeAppend("float hw = w/2;");
-                            fb->codeAppend("float n = mod(d - hw, w2);");
-                            fb->codeAppendf(
-                                    "%s = saturate(half(mix(n, w2 - n, step(w, n)) - hw + "
-                                    "0.5));",
-                                    coordWeight);
-                            fb->codeAppend("}");
-                            break;
-                        case ShaderMode::kMirrorRepeat:
-                            fb->codeAppend("{");
-                            fb->codeAppendf("float w = %s.%s - %s.%s;", subsetName,
-                                            subsetStopSwizzle, subsetName, subsetStartSwizzle);
-                            fb->codeAppendf("float w2 = 2 * w;");
-                            fb->codeAppendf("float m = mod(inCoord.%s - %s.%s, w2);", coordSwizzle,
-                                            subsetName, subsetStartSwizzle);
-                            fb->codeAppendf("subsetCoord.%s = mix(m, w2 - m, step(w, m)) + %s.%s;",
-                                            coordSwizzle, subsetName, subsetStartSwizzle);
-                            fb->codeAppend("}");
-                            break;
-                    }
-                };
-
-                auto clampCoord = [&](bool clamp,
-                                      const char* coordSwizzle,
-                                      const char* clampStartSwizzle,
-                                      const char* clampStopSwizzle) {
-                    if (clamp) {
-                        fb->codeAppendf("clampedCoord.%s = clamp(subsetCoord.%s, %s.%s, %s.%s);",
-                                        coordSwizzle, coordSwizzle, clampName, clampStartSwizzle,
-                                        clampName, clampStopSwizzle);
-                    } else {
-                        fb->codeAppendf("clampedCoord.%s = subsetCoord.%s;", coordSwizzle,
-                                        coordSwizzle);
-                    }
-                };
-
-                // Insert vars for extra coords and blending weights for kRepeatMipMap.
-                const char* extraRepeatCoordX  = nullptr;
-                const char* repeatCoordWeightX = nullptr;
-                const char* extraRepeatCoordY  = nullptr;
-                const char* repeatCoordWeightY = nullptr;
-                if (m[0] == ShaderMode::kRepeatMipMap) {
-                    fb->codeAppend("float extraRepeatCoordX; half repeatCoordWeightX;");
-                    extraRepeatCoordX   = "extraRepeatCoordX";
-                    repeatCoordWeightX  = "repeatCoordWeightX";
-                }
-                if (m[1] == ShaderMode::kRepeatMipMap) {
-                    fb->codeAppend("float extraRepeatCoordY; half repeatCoordWeightY;");
-                    extraRepeatCoordY   = "extraRepeatCoordY";
-                    repeatCoordWeightY  = "repeatCoordWeightY";
-                }
-
-                // Apply subset rect and clamp rect to coords.
-                fb->codeAppend("float2 subsetCoord;");
-                subsetCoord(te.fShaderModes[0], "x", "x", "z", extraRepeatCoordX,
-                            repeatCoordWeightX);
-                subsetCoord(te.fShaderModes[1], "y", "y", "w", extraRepeatCoordY,
-                            repeatCoordWeightY);
-                fb->codeAppend("float2 clampedCoord;");
-                clampCoord(useClamp[0], "x", "x", "z");
-                clampCoord(useClamp[1], "y", "y", "w");
-
-                // Additional clamping for the extra coords for kRepeatMipMap.
-                if (m[0] == ShaderMode::kRepeatMipMap) {
-                    fb->codeAppendf("extraRepeatCoordX = clamp(extraRepeatCoordX, %s.x, %s.z);",
-                                    clampName, clampName);
-                }
-                if (m[1] == ShaderMode::kRepeatMipMap) {
-                    fb->codeAppendf("extraRepeatCoordY = clamp(extraRepeatCoordY, %s.y, %s.w);",
-                                    clampName, clampName);
-                }
-
-                // Do the 2 or 4 texture reads for kRepeatMipMap and then apply the weight(s)
-                // to blend between them. If neither direction is kRepeatMipMap do a single
-                // read at clampedCoord.
-                if (m[0] == ShaderMode::kRepeatMipMap && m[1] == ShaderMode::kRepeatMipMap) {
+                    fb->codeAppendf("float w2 = 2 * w;");
+                    fb->codeAppendf("float d = inCoord.%s - %s.%s;", coordSwizzle, subsetName,
+                                    subsetStartSwizzle);
+                    fb->codeAppend("float m = mod(d, w2);");
+                    fb->codeAppend("float o = mix(m, w2 - m, step(w, m));");
+                    fb->codeAppendf("subsetCoord.%s = o + %s.%s;", coordSwizzle, subsetName,
+                                    subsetStartSwizzle);
+                    fb->codeAppendf("%s = w - o + %s.%s;", extraCoord, subsetName,
+                                    subsetStartSwizzle);
+                    // coordWeight is used as the third param of mix() to blend between a
+                    // sample taken using subsetCoord and a sample at extraCoord.
+                    fb->codeAppend("float hw = w/2;");
+                    fb->codeAppend("float n = mod(d - hw, w2);");
                     fb->codeAppendf(
-                            "half4 textureColor ="
-                            "   mix(mix(%s, %s, repeatCoordWeightX),"
-                            "       mix(%s, %s, repeatCoordWeightX),"
-                            "       repeatCoordWeightY);",
+                            "%s = saturate(half(mix(n, w2 - n, step(w, n)) - hw + "
+                            "0.5));",
+                            coordWeight);
+                    fb->codeAppend("}");
+                    break;
+                case ShaderMode::kMirrorRepeat:
+                    fb->codeAppend("{");
+                    fb->codeAppendf("float w = %s.%s - %s.%s;", subsetName, subsetStopSwizzle,
+                                    subsetName, subsetStartSwizzle);
+                    fb->codeAppendf("float w2 = 2 * w;");
+                    fb->codeAppendf("float m = mod(inCoord.%s - %s.%s, w2);", coordSwizzle,
+                                    subsetName, subsetStartSwizzle);
+                    fb->codeAppendf("subsetCoord.%s = mix(m, w2 - m, step(w, m)) + %s.%s;",
+                                    coordSwizzle, subsetName, subsetStartSwizzle);
+                    fb->codeAppend("}");
+                    break;
+            }
+        };
+
+        auto clampCoord = [&](bool clamp,
+                              const char* coordSwizzle,
+                              const char* clampStartSwizzle,
+                              const char* clampStopSwizzle) {
+            if (clamp) {
+                fb->codeAppendf("clampedCoord.%s = clamp(subsetCoord.%s, %s.%s, %s.%s);",
+                                coordSwizzle, coordSwizzle, clampName, clampStartSwizzle, clampName,
+                                clampStopSwizzle);
+            } else {
+                fb->codeAppendf("clampedCoord.%s = subsetCoord.%s;", coordSwizzle, coordSwizzle);
+            }
+        };
+
+        // Insert vars for extra coords and blending weights for kRepeatMipMap.
+        const char* extraRepeatCoordX  = nullptr;
+        const char* repeatCoordWeightX = nullptr;
+        const char* extraRepeatCoordY  = nullptr;
+        const char* repeatCoordWeightY = nullptr;
+        if (m[0] == ShaderMode::kRepeatMipMap) {
+            fb->codeAppend("float extraRepeatCoordX; half repeatCoordWeightX;");
+            extraRepeatCoordX   = "extraRepeatCoordX";
+            repeatCoordWeightX  = "repeatCoordWeightX";
+        }
+        if (m[1] == ShaderMode::kRepeatMipMap) {
+            fb->codeAppend("float extraRepeatCoordY; half repeatCoordWeightY;");
+            extraRepeatCoordY   = "extraRepeatCoordY";
+            repeatCoordWeightY  = "repeatCoordWeightY";
+        }
+
+        // Apply subset rect and clamp rect to coords.
+        fb->codeAppend("float2 subsetCoord;");
+        subsetCoord(te.fShaderModes[0], "x", "x", "z", extraRepeatCoordX, repeatCoordWeightX);
+        subsetCoord(te.fShaderModes[1], "y", "y", "w", extraRepeatCoordY, repeatCoordWeightY);
+        fb->codeAppend("float2 clampedCoord;");
+        clampCoord(useClamp[0], "x", "x", "z");
+        clampCoord(useClamp[1], "y", "y", "w");
+
+        // Additional clamping for the extra coords for kRepeatMipMap.
+        if (m[0] == ShaderMode::kRepeatMipMap) {
+            fb->codeAppendf("extraRepeatCoordX = clamp(extraRepeatCoordX, %s.x, %s.z);", clampName,
+                            clampName);
+        }
+        if (m[1] == ShaderMode::kRepeatMipMap) {
+            fb->codeAppendf("extraRepeatCoordY = clamp(extraRepeatCoordY, %s.y, %s.w);", clampName,
+                            clampName);
+        }
+
+        // Do the 2 or 4 texture reads for kRepeatMipMap and then apply the weight(s)
+        // to blend between them. If neither direction is kRepeatMipMap do a single
+        // read at clampedCoord.
+        if (m[0] == ShaderMode::kRepeatMipMap && m[1] == ShaderMode::kRepeatMipMap) {
+            fb->codeAppendf(
+                    "half4 textureColor ="
+                    "   mix(mix(%s, %s, repeatCoordWeightX),"
+                    "       mix(%s, %s, repeatCoordWeightX),"
+                    "       repeatCoordWeightY);",
+                    read("clampedCoord").c_str(),
+                    read("float2(extraRepeatCoordX, clampedCoord.y)").c_str(),
+                    read("float2(clampedCoord.x, extraRepeatCoordY)").c_str(),
+                    read("float2(extraRepeatCoordX, extraRepeatCoordY)").c_str());
+
+        } else if (m[0] == ShaderMode::kRepeatMipMap) {
+            fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightX);",
                             read("clampedCoord").c_str(),
-                            read("float2(extraRepeatCoordX, clampedCoord.y)").c_str(),
-                            read("float2(clampedCoord.x, extraRepeatCoordY)").c_str(),
-                            read("float2(extraRepeatCoordX, extraRepeatCoordY)").c_str());
-
-                } else if (m[0] == ShaderMode::kRepeatMipMap) {
-                    fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightX);",
-                                    read("clampedCoord").c_str(),
-                                    read("float2(extraRepeatCoordX, clampedCoord.y)").c_str());
-                } else if (m[1] == ShaderMode::kRepeatMipMap) {
-                    fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightY);",
-                                    read("clampedCoord").c_str(),
-                                    read("float2(clampedCoord.x, extraRepeatCoordY)").c_str());
-                } else {
-                    fb->codeAppendf("half4 textureColor = %s;", read("clampedCoord").c_str());
-                }
-
-                // Strings for extra texture reads used only in kRepeatBilerp
-                SkString repeatBilerpReadX;
-                SkString repeatBilerpReadY;
-
-                // Calculate the amount the coord moved for clamping. This will be used
-                // to implement shader-based filtering for kClampToBorder and kRepeat.
-
-                if (m[0] == ShaderMode::kRepeatBilerp || m[0] == ShaderMode::kClampToBorderFilter) {
-                    fb->codeAppend("half errX = half(subsetCoord.x - clampedCoord.x);");
-                    fb->codeAppendf("float repeatCoordX = errX > 0 ? %s.x : %s.z;", clampName,
-                                    clampName);
-                    repeatBilerpReadX = read("float2(repeatCoordX, clampedCoord.y)");
-                }
-                if (m[1] == ShaderMode::kRepeatBilerp || m[1] == ShaderMode::kClampToBorderFilter) {
-                    fb->codeAppend("half errY = half(subsetCoord.y - clampedCoord.y);");
-                    fb->codeAppendf("float repeatCoordY = errY > 0 ? %s.y : %s.w;", clampName,
-                                    clampName);
-                    repeatBilerpReadY = read("float2(clampedCoord.x, repeatCoordY)");
-                }
-
-                // Add logic for kRepeatBilerp. Do 1 or 3 more texture reads depending
-                // on whether both modes are kRepeat and whether we're near a single subset edge
-                // or a corner. Then blend the multiple reads using the err values calculated
-                // above.
-                const char* ifStr = "if";
-                if (m[0] == ShaderMode::kRepeatBilerp && m[1] == ShaderMode::kRepeatBilerp) {
-                    auto repeatBilerpReadXY = read("float2(repeatCoordX, repeatCoordY)");
-                    fb->codeAppendf(
-                            "if (errX != 0 && errY != 0) {"
-                            "    errX = abs(errX);"
-                            "    textureColor = mix(mix(textureColor, %s, errX),"
-                            "                       mix(%s, %s, errX),"
-                            "                       abs(errY));"
-                            "}",
-                            repeatBilerpReadX.c_str(), repeatBilerpReadY.c_str(),
-                            repeatBilerpReadXY.c_str());
-                    ifStr = "else if";
-                }
-                if (m[0] == ShaderMode::kRepeatBilerp) {
-                    fb->codeAppendf(
-                            "%s (errX != 0) {"
-                            "    textureColor = mix(textureColor, %s, abs(errX));"
-                            "}",
-                            ifStr, repeatBilerpReadX.c_str());
-                }
-                if (m[1] == ShaderMode::kRepeatBilerp) {
-                    fb->codeAppendf(
-                            "%s (errY != 0) {"
-                            "    textureColor = mix(textureColor, %s, abs(errY));"
-                            "}",
-                            ifStr, repeatBilerpReadY.c_str());
-                }
-
-                // Do soft edge shader filtering against border color for kClampToBorderFilter using
-                // the err values calculated above.
-                if (m[0] == ShaderMode::kClampToBorderFilter) {
-                    fb->codeAppendf("textureColor = mix(textureColor, %s, min(abs(errX), 1));",
-                                    borderName);
-                }
-                if (m[1] == ShaderMode::kClampToBorderFilter) {
-                    fb->codeAppendf("textureColor = mix(textureColor, %s, min(abs(errY), 1));",
-                                    borderName);
-                }
-
-                // Do hard-edge shader transition to border color for kClampToBorderNearest at the
-                // subset boundaries. Snap the input coordinates to nearest neighbor (with an
-                // epsilon) before comparing to the subset rect to avoid GPU interpolation errors
-                if (m[0] == ShaderMode::kClampToBorderNearest) {
-                    fb->codeAppendf(
-                            "float snappedX = floor(inCoord.x + 0.001) + 0.5;"
-                            "if (snappedX < %s.x || snappedX > %s.z) {"
-                            "    textureColor = %s;"
-                            "}",
-                            subsetName, subsetName, borderName);
-                }
-                if (m[1] == ShaderMode::kClampToBorderNearest) {
-                    fb->codeAppendf(
-                            "float snappedY = floor(inCoord.y + 0.001) + 0.5;"
-                            "if (snappedY < %s.y || snappedY > %s.w) {"
-                            "    textureColor = %s;"
-                            "}",
-                            subsetName, subsetName, borderName);
-                }
-                fb->codeAppendf("%s = %s * textureColor;", args.fOutputColor, args.fInputColor);
-            }
+                            read("float2(extraRepeatCoordX, clampedCoord.y)").c_str());
+        } else if (m[1] == ShaderMode::kRepeatMipMap) {
+            fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightY);",
+                            read("clampedCoord").c_str(),
+                            read("float2(clampedCoord.x, extraRepeatCoordY)").c_str());
+        } else {
+            fb->codeAppendf("half4 textureColor = %s;", read("clampedCoord").c_str());
         }
 
-    protected:
-        void onSetData(const GrGLSLProgramDataManager& pdm,
-                       const GrFragmentProcessor& fp) override {
-            const auto& te = fp.cast<GrTextureEffect>();
+        // Strings for extra texture reads used only in kRepeatBilerp
+        SkString repeatBilerpReadX;
+        SkString repeatBilerpReadY;
 
-            const float w = te.fSampler.peekTexture()->width();
-            const float h = te.fSampler.peekTexture()->height();
-            const auto& s = te.fSubset;
-            const auto& c = te.fClamp;
+        // Calculate the amount the coord moved for clamping. This will be used
+        // to implement shader-based filtering for kClampToBorder and kRepeat.
 
-            auto type = te.fSampler.peekTexture()->texturePriv().textureType();
-
-            float norm[4] = {w, h, 1.f/w, 1.f/h};
-
-            if (fNormUni.isValid()) {
-                pdm.set4fv(fNormUni, 1, norm);
-                SkASSERT(type != GrTextureType::kRectangle);
-            }
-
-            auto pushRect = [&](float rect[4], UniformHandle uni) {
-                if (te.fSampler.view().origin() == kBottomLeft_GrSurfaceOrigin) {
-                    rect[1] = h - rect[1];
-                    rect[3] = h - rect[3];
-                    std::swap(rect[1], rect[3]);
-                }
-                if (!fNormUni.isValid() && type != GrTextureType::kRectangle) {
-                    rect[0] *= norm[2];
-                    rect[2] *= norm[2];
-                    rect[1] *= norm[3];
-                    rect[3] *= norm[3];
-                }
-                pdm.set4fv(uni, 1, rect);
-            };
-
-            if (fSubsetUni.isValid()) {
-                float subset[] = {s.fLeft, s.fTop, s.fRight, s.fBottom};
-                pushRect(subset, fSubsetUni);
-            }
-            if (fClampUni.isValid()) {
-                float subset[] = {c.fLeft, c.fTop, c.fRight, c.fBottom};
-                pushRect(subset, fClampUni);
-            }
-            if (fBorderUni.isValid()) {
-                pdm.set4fv(fBorderUni, 1, te.fBorder);
-            }
+        if (m[0] == ShaderMode::kRepeatBilerp || m[0] == ShaderMode::kClampToBorderFilter) {
+            fb->codeAppend("half errX = half(subsetCoord.x - clampedCoord.x);");
+            fb->codeAppendf("float repeatCoordX = errX > 0 ? %s.x : %s.z;", clampName, clampName);
+            repeatBilerpReadX = read("float2(repeatCoordX, clampedCoord.y)");
         }
-    };
-    return new Impl;
+        if (m[1] == ShaderMode::kRepeatBilerp || m[1] == ShaderMode::kClampToBorderFilter) {
+            fb->codeAppend("half errY = half(subsetCoord.y - clampedCoord.y);");
+            fb->codeAppendf("float repeatCoordY = errY > 0 ? %s.y : %s.w;", clampName, clampName);
+            repeatBilerpReadY = read("float2(clampedCoord.x, repeatCoordY)");
+        }
+
+        // Add logic for kRepeatBilerp. Do 1 or 3 more texture reads depending
+        // on whether both modes are kRepeat and whether we're near a single subset edge
+        // or a corner. Then blend the multiple reads using the err values calculated
+        // above.
+        const char* ifStr = "if";
+        if (m[0] == ShaderMode::kRepeatBilerp && m[1] == ShaderMode::kRepeatBilerp) {
+            auto repeatBilerpReadXY = read("float2(repeatCoordX, repeatCoordY)");
+            fb->codeAppendf(
+                    "if (errX != 0 && errY != 0) {"
+                    "    errX = abs(errX);"
+                    "    textureColor = mix(mix(textureColor, %s, errX),"
+                    "                       mix(%s, %s, errX),"
+                    "                       abs(errY));"
+                    "}",
+                    repeatBilerpReadX.c_str(), repeatBilerpReadY.c_str(),
+                    repeatBilerpReadXY.c_str());
+            ifStr = "else if";
+        }
+        if (m[0] == ShaderMode::kRepeatBilerp) {
+            fb->codeAppendf(
+                    "%s (errX != 0) {"
+                    "    textureColor = mix(textureColor, %s, abs(errX));"
+                    "}",
+                    ifStr, repeatBilerpReadX.c_str());
+        }
+        if (m[1] == ShaderMode::kRepeatBilerp) {
+            fb->codeAppendf(
+                    "%s (errY != 0) {"
+                    "    textureColor = mix(textureColor, %s, abs(errY));"
+                    "}",
+                    ifStr, repeatBilerpReadY.c_str());
+        }
+
+        // Do soft edge shader filtering against border color for kClampToBorderFilter using
+        // the err values calculated above.
+        if (m[0] == ShaderMode::kClampToBorderFilter) {
+            fb->codeAppendf("textureColor = mix(textureColor, %s, min(abs(errX), 1));", borderName);
+        }
+        if (m[1] == ShaderMode::kClampToBorderFilter) {
+            fb->codeAppendf("textureColor = mix(textureColor, %s, min(abs(errY), 1));", borderName);
+        }
+
+        // Do hard-edge shader transition to border color for kClampToBorderNearest at the
+        // subset boundaries. Snap the input coordinates to nearest neighbor (with an
+        // epsilon) before comparing to the subset rect to avoid GPU interpolation errors
+        if (m[0] == ShaderMode::kClampToBorderNearest) {
+            fb->codeAppendf(
+                    "float snappedX = floor(inCoord.x + 0.001) + 0.5;"
+                    "if (snappedX < %s.x || snappedX > %s.z) {"
+                    "    textureColor = %s;"
+                    "}",
+                    subsetName, subsetName, borderName);
+        }
+        if (m[1] == ShaderMode::kClampToBorderNearest) {
+            fb->codeAppendf(
+                    "float snappedY = floor(inCoord.y + 0.001) + 0.5;"
+                    "if (snappedY < %s.y || snappedY > %s.w) {"
+                    "    textureColor = %s;"
+                    "}",
+                    subsetName, subsetName, borderName);
+        }
+        fb->codeAppendf("%s = %s * textureColor;", args.fOutputColor, args.fInputColor);
+    }
 }
+
+void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
+                                      const GrFragmentProcessor& fp) {
+    const auto& te = fp.cast<GrTextureEffect>();
+
+    const float w = te.texture()->width();
+    const float h = te.texture()->height();
+    const auto& s = te.fSubset;
+    const auto& c = te.fClamp;
+
+    auto type = te.texture()->texturePriv().textureType();
+
+    float norm[4] = {w, h, 1.f/w, 1.f/h};
+
+    if (fNormUni.isValid()) {
+        pdm.set4fv(fNormUni, 1, norm);
+        SkASSERT(type != GrTextureType::kRectangle);
+    }
+
+    auto pushRect = [&](float rect[4], UniformHandle uni) {
+        if (te.view().origin() == kBottomLeft_GrSurfaceOrigin) {
+            rect[1] = h - rect[1];
+            rect[3] = h - rect[3];
+            std::swap(rect[1], rect[3]);
+        }
+        if (!fNormUni.isValid() && type != GrTextureType::kRectangle) {
+            rect[0] *= norm[2];
+            rect[2] *= norm[2];
+            rect[1] *= norm[3];
+            rect[3] *= norm[3];
+        }
+        pdm.set4fv(uni, 1, rect);
+    };
+
+    if (fSubsetUni.isValid()) {
+        float subset[] = {s.fLeft, s.fTop, s.fRight, s.fBottom};
+        pushRect(subset, fSubsetUni);
+    }
+    if (fClampUni.isValid()) {
+        float subset[] = {c.fLeft, c.fTop, c.fRight, c.fBottom};
+        pushRect(subset, fClampUni);
+    }
+    if (fBorderUni.isValid()) {
+        pdm.set4fv(fBorderUni, 1, te.fBorder);
+    }
+}
+
+GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const { return new Impl; }
 
 void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     auto m0 = static_cast<uint32_t>(fShaderModes[0]);
@@ -752,6 +735,12 @@ void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyB
 
 bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     auto& that = other.cast<GrTextureEffect>();
+    if (fView != that.fView) {
+        return false;
+    }
+    if (fSamplerState != that.fSamplerState) {
+        return false;
+    }
     if (fShaderModes[0] != that.fShaderModes[0] || fShaderModes[1] != that.fShaderModes[1]) {
         return false;
     }
@@ -764,11 +753,14 @@ bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 
-GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
-                                 const Sampling& sampling, bool lazyProxyNormalization)
+GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view,
+                                 SkAlphaType alphaType,
+                                 const Sampling& sampling,
+                                 bool lazyProxyNormalization)
         : GrFragmentProcessor(kGrTextureEffect_ClassID,
                               ModulateForSamplerOptFlags(alphaType, sampling.hasBorderAlpha()))
-        , fSampler(std::move(view), sampling.fHWSampler)
+        , fView(std::move(view))
+        , fSamplerState(sampling.fHWSampler)
         , fSubset(sampling.fShaderSubset)
         , fClamp(sampling.fShaderClamp)
         , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]}
@@ -777,29 +769,24 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
     // values.
     SkASSERT(fShaderModes[0] != ShaderMode::kNone || (fSubset.fLeft == 0 && fSubset.fRight == 0));
     SkASSERT(fShaderModes[1] != ShaderMode::kNone || (fSubset.fTop == 0 && fSubset.fBottom == 0));
-    this->setTextureSamplerCnt(1);
     this->setUsesSampleCoordsDirectly();
     std::copy_n(sampling.fBorder, 4, fBorder);
 }
 
 GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)
         : INHERITED(kGrTextureEffect_ClassID, src.optimizationFlags())
-        , fSampler(src.fSampler)
+        , fView(src.fView)
+        , fSamplerState(src.fSamplerState)
         , fSubset(src.fSubset)
         , fClamp(src.fClamp)
         , fShaderModes{src.fShaderModes[0], src.fShaderModes[1]}
         , fLazyProxyNormalization(src.fLazyProxyNormalization) {
     std::copy_n(src.fBorder, 4, fBorder);
-    this->setTextureSamplerCnt(1);
     this->setUsesSampleCoordsDirectly();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTextureEffect(*this));
-}
-
-const GrFragmentProcessor::TextureSampler& GrTextureEffect::onTextureSampler(int) const {
-    return fSampler;
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureEffect);
