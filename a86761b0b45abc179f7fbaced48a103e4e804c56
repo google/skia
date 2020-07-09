@@ -22,6 +22,30 @@
       "revId": "a86761b0b45abc179f7fbaced48a103e4e804c56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cce12f6f_41c3de51",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-09T19:10:56Z",
+      "side": 1,
+      "message": "No I think || is right. If we don\u0027t have the KHR version it is safe to push everything back. If we do have the KHR version then we need to check the extension is the the EXT one.",
+      "parentUuid": "187cb1d8_c1e38c65",
+      "range": {
+        "startLine": 656,
+        "startChar": 43,
+        "endLine": 656,
+        "endChar": 45
+      },
+      "revId": "a86761b0b45abc179f7fbaced48a103e4e804c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
