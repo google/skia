@@ -141,7 +141,7 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
         fFragmentProcessors[i] = std::unique_ptr<GrGLSLFragmentProcessor>(fp.createGLSLInstance());
         output = this->emitFragProc(fp, *fFragmentProcessors[i], transformedCoordVarsIdx, **inOut,
                                     output);
-        for (const auto& subFP : GrFragmentProcessor::FPCRange(fp)) {
+        for (const auto& subFP : GrFragmentProcessor::FPRange(fp)) {
             transformedCoordVarsIdx += subFP.numVaryingCoordsUsed();
         }
         **inOut = output;

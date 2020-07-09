@@ -459,3 +459,14 @@ GrFragmentProcessor::CIter::CIter(const GrPipeline& pipeline) {
         fFPStack.push_back(&pipeline.getFragmentProcessor(i));
     }
 }
+
+GrFragmentProcessor::CIter& GrFragmentProcessor::CIter::operator++() {
+    SkASSERT(!fFPStack.empty());
+    const GrFragmentProcessor* back = fFPStack.back();
+    fFPStack.pop_back();
+    for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(&back->childProcessor(i));
+    }
+    return *this;
+}
+
