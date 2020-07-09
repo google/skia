@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "cfa6a813_655fd794",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T21:47:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0493383a_e2bbcb62",
+      "range": {
+        "startLine": 806,
+        "startChar": 3,
+        "endLine": 808,
+        "endChar": 51
+      },
+      "revId": "61f075b5cba0fdd5e893d11e8fac895f93690381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "719197b4_95fe6bd0",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 17
@@ -56,6 +80,24 @@
       "revId": "61f075b5cba0fdd5e893d11e8fac895f93690381",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02058ca8_fa85c709",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T21:47:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "719197b4_95fe6bd0",
+      "revId": "61f075b5cba0fdd5e893d11e8fac895f93690381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
