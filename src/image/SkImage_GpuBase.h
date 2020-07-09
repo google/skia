@@ -23,7 +23,7 @@ public:
     GrContext* context() const final { return fContext.get(); }
 
     bool getROPixels(SkBitmap*, CachingHint) const final;
-    sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect& subset) const final;
+    sk_sp<SkImage> onMakeSubset(const SkIRect& subset, GrRecordingContext*) const final;
 
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                       int srcX, int srcY, CachingHint) const override;
@@ -90,6 +90,7 @@ protected:
                                  GrSurfaceProxyView views[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
+    // TODO: Migrate this to something much weaker, such as GrContextThreadSafeProxy.
     sk_sp<GrContext> fContext;
 
 private:

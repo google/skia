@@ -28,7 +28,9 @@
 #include "src/shaders/SkImageShader.h"
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
 #include "include/gpu/GrBackendSurface.h"
@@ -163,7 +165,7 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
+sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, GrRecordingContext* context) const {
     if (subset.isEmpty()) {
         return nullptr;
     }
@@ -173,17 +175,19 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
         return nullptr;
     }
 
+#if SK_SUPPORT_GPU
+    auto myContext = as_IB(this)->context();
+    if (myContext && !myContext->priv().matches(context)) {
+        return nullptr;
+    }
+#endif
+
     // optimization : return self if the subset == our bounds
     if (bounds == subset) {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    // CONTEXT TODO: propagate the context parameter to the top-level API
-#if SK_SUPPORT_GPU
-    return as_IB(this)->onMakeSubset(as_IB(this)->context(), subset);
-#else
-    return as_IB(this)->onMakeSubset(nullptr, subset);
-#endif
+    return as_IB(this)->onMakeSubset(subset, context);
 }
 
 #if SK_SUPPORT_GPU
