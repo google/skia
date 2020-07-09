@@ -50,6 +50,24 @@
       "revId": "4950d1115d12a85c2f37f30b0d614d4ea87f7771",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9029f32a_b175f2d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-09T20:15:12Z",
+      "side": 1,
+      "message": "The users are GrAtlasTextOpPreparation and GrDrawRandomOp. Currently they both don\u0027t handle nullptr at all. If nullptr really does mean no-op then I could update those two to do that.",
+      "parentUuid": "5e0daf41_d57ea9ca",
+      "revId": "4950d1115d12a85c2f37f30b0d614d4ea87f7771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
