@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b8b61d4_ceb280e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-09T20:22:42Z",
+      "side": 1,
+      "message": "An alternative to https://skia-review.googlesource.com/c/skia/+/301580 .",
+      "revId": "bdab24bb0e4ef03fb94c8b5d60d5458e3b0320d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
