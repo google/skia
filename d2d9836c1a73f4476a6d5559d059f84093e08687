@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69f983b1_cf5bd15a",
+        "filename": "include/core/SkFontMetrics.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-09T17:59:33Z",
+      "side": 1,
+      "message": "probably can drop this again",
+      "revId": "d2d9836c1a73f4476a6d5559d059f84093e08687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
