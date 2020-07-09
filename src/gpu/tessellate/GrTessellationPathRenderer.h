@@ -43,6 +43,8 @@ public:
         kWireframe = (1 << 2)
     };
 
+    static bool IsSupported(const GrCaps&);
+
     GrTessellationPathRenderer(const GrCaps&);
     const char* name() const final { return "GrTessellationPathRenderer"; }
     StencilSupport onGetStencilSupport(const GrStyledShape& shape) const override {
