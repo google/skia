@@ -1542,6 +1542,11 @@ void SkScalerContext_FreeType::generateFontMetrics(SkFontMetrics* metrics) {
     metrics->fUnderlinePosition = underlinePosition * fScale.y();
     metrics->fStrikeoutThickness = strikeoutThickness * fScale.y();
     metrics->fStrikeoutPosition = strikeoutPosition * fScale.y();
+
+    if (face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
+        // The bounds are only valid for the default variation.
+        metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

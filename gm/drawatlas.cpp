@@ -12,6 +12,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
@@ -238,6 +239,44 @@ DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     font.setSize(50);
 
     const char text[] = "CrazyXform";
+    constexpr size_t len = sizeof(text) - 1;
+
+    SkRSXform xforms[len];
+    SkScalar scale = 1;
+    SkScalar x = 0, y = 0;
+    for (size_t i = 0; i < len; ++i) {
+        scale = SkScalarSin(i * SK_ScalarPI / (len-1)) * 0.75f + 0.5f;
+        xforms[i] = SkRSXform::Make(scale, 0, x, y);
+        x += 50 * scale;
+    }
+
+    auto blob = SkTextBlob::MakeFromRSXform(text, len, xforms, font);
+
+    SkPoint offset = { 20, 70 };
+    SkPaint paint;
+    paint.setColor(0xFFCCCCCC);
+    canvas->drawRect(blob->bounds().makeOffset(offset.fX, offset.fY), paint);
+    paint.setColor(SK_ColorBLACK);
+    canvas->drawTextBlob(blob, offset.fX, offset.fY, paint);
+}
+
+// Exercise xform blob and its tight bounds
+DEF_SIMPLE_GM(blob_rsxform_distortable, canvas, 500, 100) {
+    sk_sp<SkTypeface> typeface;
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (distortable) {
+        sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+        const SkFontArguments::VariationPosition::Coordinate position[] = {
+            { SkSetFourByteTag('w','g','h','t'), 1.618033988749895f }
+        };
+        SkFontArguments params;
+        params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+        typeface = fm->makeFromStream(std::move(distortable), params);
+    }
+
+    SkFont font(typeface, 50);
+
+    const char text[] = "abcabcabc";
     constexpr size_t len = sizeof(text) - 1;
 
     SkRSXform xforms[len];
