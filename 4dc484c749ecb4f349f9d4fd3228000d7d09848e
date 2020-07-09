@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "35d3b3ad_079d68a3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T19:37:48Z",
+      "side": 1,
+      "message": "I\u0027d update the CL description, now that this has changed into an SkRuntimeEffect fuzzer.",
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8a286dc_f2dcc5a5",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 11
@@ -13,6 +30,23 @@
       "writtenOn": "2020-07-09T19:15:03Z",
       "side": 1,
       "message": "Fuzzer looks good conceptually. Brian, do you want to take a pass for API validity and C++ style?",
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4028f5e0_a4f358b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T19:37:48Z",
+      "side": 1,
+      "message": "Despite the length of my comments, I think this is looking good.",
       "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -36,6 +70,92 @@
         "endLine": 24,
         "endChar": 3
       },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cec706b_649b1c21",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T19:37:48Z",
+      "side": 1,
+      "message": "I don\u0027t think this matrix is necessary. (Some of our examples use it, but for fuzzing purposes it doesn\u0027t matter). You can just pass `nullptr` rather than \u0026localM when you call makeShader.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 58
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2fa9492_741fa1bc",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T19:37:48Z",
+      "side": 1,
+      "message": "Explanation, then a request:\nSome of our SkSL shaders simply create colors based on position, possibly using uniforms. We have gradient examples that work like that. Many others use inputs that come from *other* SkShaders. These are declared in the SkSL like this (this effect blends the results of two other SkShaders):\n\n  in shader child_one; // I can declare as many of these as I want\n  in shader child_two;\n  void main(float2 xy, inout half4 color) {\n    color \u003d (sample(child_one) + sample(child_two)) * 0.5;\n  }\n\nAfter creating the runtime effect, effect-\u003echildren().count() will tell you how many children it\u0027s expecting (how many \u0027in shader\u0027 variables were declared). When you call makeShader(), the second and third arguments are a (C-style) array of shader pointers, and a count (which must match children().count()).\n\nAs written, this fuzzer will work, but makeShader() will fail if the SkSL ever tries to use an \u0027in shader\u0027, and I\u0027d like to fuzz that code-path too. It\u0027s probably not necessary for the child SkShaders to be very complex, fully random, or even part of the fuzz input (I\u0027m not sure), but I think it\u0027s worth it to construct other SkShader objects here, and pass those to makeShader (assuming children().count() is greater than 0). You could use the code in FuzzCanvas to generate random SkShaders, or even just have a small helper function that randomly creates a few simple SkShaders (images or gradients) that can be created here so that we can hit this code-path.",
+      "range": {
+        "startLine": 43,
+        "startChar": 51,
+        "endLine": 43,
+        "endChar": 62
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a03d92f_30111c9f",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T19:37:48Z",
+      "side": 1,
+      "message": "I\u0027d pass false here. This parameter is a promise by the client that the shader only produces opaque colors, which we can\u0027t guarantee.",
+      "range": {
+        "startLine": 43,
+        "startChar": 72,
+        "endLine": 43,
+        "endChar": 76
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51f45761_826a5d2d",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-09T19:37:48Z",
+      "side": 1,
+      "message": "This is good for now. In a future CL, can we also run this fuzzer with a GPU surface (which will exercise other code-paths)?",
       "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
