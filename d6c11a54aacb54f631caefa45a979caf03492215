@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d8f9458_37e43dc7",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-09T18:37:03Z",
+      "side": 1,
+      "message": "I don\u0027t have 100% confidence in my optimization flags--is this right?",
+      "range": {
+        "startLine": 52,
+        "startChar": 7,
+        "endLine": 53,
+        "endChar": 45
+      },
+      "revId": "d6c11a54aacb54f631caefa45a979caf03492215",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7590c2d_bfeb7a0d",
+        "filename": "src/gpu/effects/generated/GrDitherEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-09T18:37:03Z",
+      "side": 1,
+      "message": "This seems like a codegen bug.",
+      "range": {
+        "startLine": 59,
+        "startChar": 13,
+        "endLine": 59,
+        "endChar": 22
+      },
+      "revId": "d6c11a54aacb54f631caefa45a979caf03492215",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
