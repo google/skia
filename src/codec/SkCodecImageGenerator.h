@@ -21,6 +21,17 @@ public:
 
     static std::unique_ptr<SkImageGenerator> MakeFromCodec(std::unique_ptr<SkCodec>);
 
+    /**
+     * Return a size that approximately supports the desired scale factor. The codec may not be able
+     * to scale efficiently to the exact scale factor requested, so return a size that approximates
+     * that scale. The returned value is the codec's suggestion for the closest valid scale that it
+     * can natively support.
+     *
+     * This is similar to SkCodec::getScaledDimensions, but adjusts the returned dimensions based
+     * on the image's EXIF orientation.
+     */
+    SkISize getScaledDimensions(float desiredScale) const;
+
 protected:
     sk_sp<SkData> onRefEncodedData() override;
 

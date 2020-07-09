@@ -96,3 +96,11 @@ bool SkCodecImageGenerator::onGetYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
             return false;
     }
 }
+
+SkISize SkCodecImageGenerator::getScaledDimensions(float desiredScale) const {
+    SkISize size = fCodec->getScaledDimensions(desiredScale);
+    if (SkPixmapPriv::ShouldSwapWidthHeight(fCodec->getOrigin())) {
+        std::swap(size.fWidth, size.fHeight);
+    }
+    return size;
+}
