@@ -634,13 +634,29 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     for (int i = 0; i < deviceLayers.count(); ++i) {
         deviceLayerNames.push_back(deviceLayers[i].layerName);
     }
+
+    // We can't have both VK_KHR_buffer_device_address and VK_EXT_buffer_device_address as
+    // extensions. So see if we have the KHR version and if so don't push back the EXT version in
+    // the next loop.
+    bool hasKHRBufferDeviceAddress = false;
+    for (int i = 0; i < deviceExtensions.count(); ++i) {
+        if (!strcmp(deviceExtensions[i].extensionName, "VK_KHR_buffer_device_address")) {
+            hasKHRBufferDeviceAddress = true;
+            break;
+        }
+    }
+
     for (int i = 0; i < deviceExtensions.count(); ++i) {
         // Don't use experimental extensions since they typically don't work with debug layers and
         // often are missing dependecy requirements for other extensions. Additionally, these are
         // often left behind in the driver even after they've been promoted to real extensions.
         if (strncmp(deviceExtensions[i].extensionName, "VK_KHX", 6) &&
             strncmp(deviceExtensions[i].extensionName, "VK_NVX", 6)) {
-            deviceExtensionNames.push_back(deviceExtensions[i].extensionName);
+
+            if (!hasKHRBufferDeviceAddress ||
+                strcmp(deviceExtensions[i].extensionName, "VK_EXT_buffer_device_address")) {
+                deviceExtensionNames.push_back(deviceExtensions[i].extensionName);
+            }
         }
     }
 
