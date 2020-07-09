@@ -26,21 +26,21 @@ public:
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
     void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
-                     int numClipAnalyticFPs) {
+                     int numClipAnalyticElements) {
         GrOpsTask* opsTask = fRenderTargetContext->getOpsTask();
         opsTask->fLastClipStackGenID = clipStackGenID;
         opsTask->fLastDevClipBounds = devClipBounds;
-        opsTask->fLastClipNumAnalyticFPs = numClipAnalyticFPs;
+        opsTask->fLastClipNumAnalyticElements = numClipAnalyticElements;
     }
 
     // called to determine if we have to render the clip into SB.
     // TODO: remove after clipping overhaul.
     bool mustRenderClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
-                        int numClipAnalyticFPs) const {
+                        int numClipAnalyticElements) const {
         GrOpsTask* opsTask = fRenderTargetContext->getOpsTask();
         return opsTask->fLastClipStackGenID != clipStackGenID ||
                !opsTask->fLastDevClipBounds.contains(devClipBounds) ||
-               opsTask->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
+               opsTask->fLastClipNumAnalyticElements != numClipAnalyticElements;
     }
 
     // Clear at minimum the pixels within 'scissor', but is allowed to clear the full render target
