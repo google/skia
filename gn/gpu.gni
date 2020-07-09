@@ -479,7 +479,6 @@ skia_gpu_sources = [
   "$_src/gpu/text/GrTextBlob.h",
   "$_src/gpu/text/GrTextBlobCache.cpp",
   "$_src/gpu/text/GrTextBlobCache.h",
-  "$_src/gpu/text/GrTextTarget.h",
 
   # GLSL
   "$_src/gpu/glsl/GrGLSL.cpp",
