@@ -81,6 +81,7 @@ public:
         kEllipticalRRectEffect_ClassID,
         kGP_ClassID,
         kVertexColorSpaceBenchGP_ClassID,
+        kGrArithmeticProcessor_ClassID,
         kGrAARectEffect_ClassID,
         kGrAlphaThresholdFragmentProcessor_ClassID,
         kGrBicubicEffect_ClassID,
