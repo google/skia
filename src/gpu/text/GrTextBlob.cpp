@@ -21,11 +21,9 @@
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlob.h"
-#include "src/gpu/text/GrTextTarget.h"
 
 #include <cstddef>
 #include <new>
-
 
 // -- GrTextBlob::Key ------------------------------------------------------------------------------
 GrTextBlob::Key::Key() { sk_bzero(this, sizeof(Key)); }
