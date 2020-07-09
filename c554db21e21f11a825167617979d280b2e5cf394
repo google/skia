@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aae288b_b26a6266",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-09T19:10:46Z",
+      "side": 1,
+      "message": "This bizarre pattern of creating the raw pointer then wrapping it in an upcast sk_sp is me weaving through a few constraints:\n- If I create an sk_sp\u003cGrDirectContext\u003e upfront, I get warned that there\u0027s a bug in C++ where it will not be able to use RVO because the return value is sk_sp\u003cGrContext\u003e which isn\u0027t a perfect match.\n- Also, I can\u0027t call `init` on a GrDirectContext because that\u0027s a protected member. Not sure I understand this one precisely but it makes unwelcome sense.",
+      "revId": "c554db21e21f11a825167617979d280b2e5cf394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
