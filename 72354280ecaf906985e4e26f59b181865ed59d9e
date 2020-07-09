@@ -22,6 +22,30 @@
       "revId": "72354280ecaf906985e4e26f59b181865ed59d9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0739ec66_dbb481bb",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-09T21:12:28Z",
+      "side": 1,
+      "message": "_coords being injected here previously because the top-level function was being manually inlined/emitted, and not going through invokeChild and writeProcessorFunction.  The switch and varying lookup that you highlighted is basically equivalent to what writeProcessorFunction injects into the function body of a child FP.\n\nI think you should be able to just get rid it and it\u0027ll work.",
+      "parentUuid": "459fd6f8_7b9e4b0e",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 201,
+        "endChar": 5
+      },
+      "revId": "72354280ecaf906985e4e26f59b181865ed59d9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
