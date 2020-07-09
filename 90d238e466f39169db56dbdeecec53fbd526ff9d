@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bbf9e3c_61507689",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-09T21:38:47Z",
+      "side": 1,
+      "message": "Did not plumb through bicubic option. I think I may remove that header change, and do that in a separate CL...",
+      "revId": "90d238e466f39169db56dbdeecec53fbd526ff9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
