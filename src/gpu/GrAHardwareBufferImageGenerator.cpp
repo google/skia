@@ -215,7 +215,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
                                     SkBackingFit::kExact, budgeted);
 }
 
-bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {
+bool GrAHardwareBufferImageGenerator::onIsValid(GrRecordingContext* context) const {
     if (nullptr == context) {
         return false; //CPU backend is not supported, because hardware buffer can be swizzled
     }
