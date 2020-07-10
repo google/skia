@@ -16,6 +16,24 @@
       "revId": "5160e8caa226213c77b2a5f98908aa4eeee75ef5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b682c81c_b75fd265",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-10T15:28:08Z",
+      "side": 1,
+      "message": "Yes, same sort of failures you\u0027d see on presubmits there.  You can kick off the Build-Debian10-Clang-TAP-Presubmit-G3_Framework trybot to dry run it from here in Gerrit too.  (You may need to go into the Chrome inspector and edit the \"Add\" button to remove the disabled attribute to kick off that trybot... known UI bug.)",
+      "parentUuid": "fdabe0ad_4f0729c3",
+      "revId": "5160e8caa226213c77b2a5f98908aa4eeee75ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
