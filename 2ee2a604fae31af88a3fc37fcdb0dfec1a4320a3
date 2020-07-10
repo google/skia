@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4f32695_27f8b54c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-10T13:41:09Z",
+      "side": 1,
+      "message": "I\u0027m assuming Brian\u0027s okay with this slight variant.",
+      "revId": "2ee2a604fae31af88a3fc37fcdb0dfec1a4320a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
