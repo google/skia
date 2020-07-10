@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbd1975d_19546b2e",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-10T12:55:01Z",
+      "side": 1,
+      "message": "rm a \u0027 \u0027 ?",
+      "revId": "4b70394c28c3b4b4d57cf9362782f7f2b5f4c174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "773123d9_c68fb802",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-10T12:55:01Z",
+      "side": 1,
+      "message": "over 1 ?",
+      "range": {
+        "startLine": 411,
+        "startChar": 0,
+        "endLine": 412,
+        "endChar": 76
+      },
+      "revId": "4b70394c28c3b4b4d57cf9362782f7f2b5f4c174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9020fc6_3dbd9dbe",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-10T12:55:01Z",
+      "side": 1,
+      "message": "Should we just \"SkASSERT(data \u0026\u0026 data-\u003etype() !\u003d BackendTextureData::Type::kPixmaps)\" here and remove the later assert and the checks re \"data\" not being null?",
+      "revId": "4b70394c28c3b4b4d57cf9362782f7f2b5f4c174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
