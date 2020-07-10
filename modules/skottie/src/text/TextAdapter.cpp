@@ -138,16 +138,29 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
 
     SkASSERT(fText->fHasFill || fText->fHasStroke);
 
-    if (fText->fHasFill) {
-        rec.fFillColorNode = sksg::Color::Make(fText->fFillColor);
-        rec.fFillColorNode->setAntiAlias(true);
-        draws.push_back(sksg::Draw::Make(blob_node, rec.fFillColorNode));
-    }
-    if (fText->fHasStroke) {
-        rec.fStrokeColorNode = sksg::Color::Make(fText->fStrokeColor);
-        rec.fStrokeColorNode->setAntiAlias(true);
-        rec.fStrokeColorNode->setStyle(SkPaint::kStroke_Style);
-        draws.push_back(sksg::Draw::Make(blob_node, rec.fStrokeColorNode));
+    auto add_fill = [&]() {
+        if (fText->fHasFill) {
+            rec.fFillColorNode = sksg::Color::Make(fText->fFillColor);
+            rec.fFillColorNode->setAntiAlias(true);
+            draws.push_back(sksg::Draw::Make(blob_node, rec.fFillColorNode));
+        }
+    };
+    auto add_stroke = [&] {
+        if (fText->fHasStroke) {
+            rec.fStrokeColorNode = sksg::Color::Make(fText->fStrokeColor);
+            rec.fStrokeColorNode->setAntiAlias(true);
+            rec.fStrokeColorNode->setStyle(SkPaint::kStroke_Style);
+            rec.fStrokeColorNode->setStrokeWidth(fText->fStrokeWidth);
+            draws.push_back(sksg::Draw::Make(blob_node, rec.fStrokeColorNode));
+        }
+    };
+
+    if (fText->fPaintOrder == TextPaintOrder::kFillStroke) {
+        add_fill();
+        add_stroke();
+    } else {
+        add_stroke();
+        add_fill();
     }
 
     SkASSERT(!draws.empty());
