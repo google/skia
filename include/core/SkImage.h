@@ -32,6 +32,7 @@ class SkSurface;
 class GrBackendTexture;
 class GrContext;
 class GrContextThreadSafeProxy;
+class GrRecordingContext;
 
 struct SkYUVAIndex;
 
@@ -830,7 +831,7 @@ public:
         If context is nullptr, tests if SkImage draws on raster surface;
         otherwise, tests if SkImage draws on GPU surface associated with context.
 
-        SkImage backed by GPU texture may become invalid if associated GrContext is
+        SkImage backed by GPU texture may become invalid if associated context is
         invalid. lazy image may be invalid and may not draw to raster surface or
         GPU surface or both.
 
@@ -839,6 +840,10 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_isValid
     */
+    bool isValid(GrRecordingContext* context) const;
+
+    /** Deprecated.
+     */
     bool isValid(GrContext* context) const;
 
     /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not

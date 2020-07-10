@@ -55,7 +55,7 @@ public:
                                                 SkColorType, sk_sp<SkColorSpace>) const override;
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
-    bool onIsValid(GrContext*) const override;
+    bool onIsValid(GrRecordingContext*) const override;
 
 #if SK_SUPPORT_GPU
     // Returns the texture proxy. CachingHint refers to whether the generator's output should be

@@ -41,7 +41,7 @@ public:
 
     GrTexture* getTexture() const;
 
-    bool onIsValid(GrContext*) const final;
+    bool onIsValid(GrRecordingContext*) const final;
 
 #if GR_TEST_UTILS
     void resetContext(sk_sp<GrContext> newContext);
