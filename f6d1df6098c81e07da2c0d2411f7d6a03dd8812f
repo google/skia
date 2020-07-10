@@ -69,6 +69,24 @@
       "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d46a980e_6f56be50",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:29:26Z",
+      "side": 1,
+      "message": "Just saw your other comment on the other CL about the create mapped buffer which answers part of the above.",
+      "parentUuid": "1da09fee_c758f2fa",
+      "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
