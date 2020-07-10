@@ -76,6 +76,30 @@
     },
     {
       "key": {
+        "uuid": "2687f630_eb2f3dd2",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T00:39:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5dc0d80f_4b538f1c",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 3
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cec706b_649b1c21",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 11
@@ -96,6 +120,30 @@
       "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6792395e_ce3484f3",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T00:39:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cec706b_649b1c21",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 58
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +205,30 @@
       "side": 1,
       "message": "I\u0027ll add that this could be a follow-up CL to improve the coverage of this fuzzer, like I said - everything is going to work as-is, we just won\u0027t be exercising all code paths.",
       "parentUuid": "d2fa9492_741fa1bc",
+      "range": {
+        "startLine": 43,
+        "startChar": 51,
+        "endLine": 43,
+        "endChar": 62
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5d3de30_ca127cac",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T00:39:01Z",
+      "side": 1,
+      "message": "I see, as we have already reserved 256 bytes for uniform, how about create a constant variable (e.g. kMaxUniformSize \u003d 30) and use a while loop to create shaders in which the size of each shader is a random byte % kMaxUniformSize, and then only one shaders that will be used to be painted and remaining are assgined as its children. \n\nreserve bytes for 1 shader\nwhile (has enough bytes) {\n    size \u003d read a random type % kMaxUniformSize;\n    uniformBytes \u003d read bytes with size size\n    create a shader with uniformBytes and put into children[]\n}\ncreate the shader with children[]",
+      "parentUuid": "a9357091_f14d2aaa",
       "range": {
         "startLine": 43,
         "startChar": 51,
