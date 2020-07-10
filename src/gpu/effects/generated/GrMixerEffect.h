@@ -58,15 +58,10 @@ private:
                                      : kAll_OptimizationFlags) &
                                 ProcessorOptimizationFlags(fp0.get()))
             , weight(weight) {
-        if (inputFP) {
-            inputFP_index =
-                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        }
+        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(fp0);
         fp0_index = this->registerChild(std::move(fp0), SkSL::SampleUsage::PassThrough());
-        if (fp1) {
-            fp1_index = this->registerChild(std::move(fp1), SkSL::SampleUsage::PassThrough());
-        }
+        fp1_index = this->registerChild(std::move(fp1), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -44,9 +44,7 @@ private:
             : INHERITED(kGrArithmeticProcessor_ClassID, (OptimizationFlags)kNone_OptimizationFlags)
             , k(k)
             , enforcePMColor(enforcePMColor) {
-        if (srcFP) {
-            srcFP_index = this->registerChild(std::move(srcFP), SkSL::SampleUsage::PassThrough());
-        }
+        srcFP_index = this->registerChild(std::move(srcFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(dstFP);
         dstFP_index = this->registerChild(std::move(dstFP), SkSL::SampleUsage::PassThrough());
     }
