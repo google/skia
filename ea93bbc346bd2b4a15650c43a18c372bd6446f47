@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "276a28fb_9bd30d70",
+        "filename": "gm/showmiplevels.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-10T12:57:13Z",
+      "side": 1,
+      "message": "You might want to try grouping the other way?  The diffs between the mip settings look a lot subtler to me than the diffs between sampling, so the diffs might be easier to see as\n\n    nearest - no mips\n    nearest - nearest\n    nearest - lerp\n\n    bilerp  - no mips\n    nearest - nearest\n    bilperp - lerp",
+      "revId": "ea93bbc346bd2b4a15650c43a18c372bd6446f47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
