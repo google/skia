@@ -198,6 +198,19 @@
     ]
   },
 
+  {
+    "GL":    null,
+    "GLES":  [{"ext": "GL_ANGLE_base_vertex_base_instance"}],
+    "WebGL": null,
+
+    "functions": [
+      "MultiDrawArraysInstancedBaseInstance", "MultiDrawElementsInstancedBaseVertexBaseInstance",
+    ],
+    "optional": [
+      "MultiDrawArraysInstancedBaseInstance", "MultiDrawElementsInstancedBaseVertexBaseInstance",
+    ]
+  },
+
   { // glDrawRangeElements was added to ES in 3.0.
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
