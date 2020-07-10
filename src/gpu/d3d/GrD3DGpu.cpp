@@ -1071,8 +1071,7 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
 GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(
         SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
-        GrProtected isProtected, sk_sp<GrRefCntedCallback> finishedCallback,
-        const BackendTextureData* data) {
+        GrProtected isProtected) {
     this->handleDirtyContext();
 
     const GrD3DCaps& caps = this->d3dCaps();
@@ -1099,6 +1098,12 @@ GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(
     }
 
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
+}
+
+bool GrD3DGpu::onUpdateCompressedBackendTexture(const GrBackendTexture&,
+                                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                                const BackendTextureData*) {
+    return false;
 }
 
 void GrD3DGpu::deleteBackendTexture(const GrBackendTexture& tex) {

@@ -195,13 +195,15 @@ private:
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
-                                                      GrProtected,
-                                                      sk_sp<GrRefCntedCallback> finishedCallbacks,
-                                                      const BackendTextureData*) override;
+                                                      GrProtected) override;
 
     bool onUpdateBackendTexture(const GrBackendTexture&,
                                 sk_sp<GrRefCntedCallback> finishedCallback,
                                 const BackendTextureData*) override;
+
+    bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
+                                          sk_sp<GrRefCntedCallback> finishedCallback,
+                                          const BackendTextureData*) override;
 
     bool setBackendSurfaceState(GrVkImageInfo info,
                                 sk_sp<GrBackendSurfaceMutableStateImpl> currentState,

@@ -695,6 +695,30 @@ bool GrContext::updateBackendTexture(const GrBackendTexture& backendTexture,
 
 //////////////////////////////////////////////////////////////////////////////
 
+static GrBackendTexture create_and_update_compressed_backend_texture(
+        GrContext* context,
+        SkISize dimensions,
+        const GrBackendFormat& backendFormat,
+        GrMipMapped mipMapped,
+        GrProtected isProtected,
+        sk_sp<GrRefCntedCallback> finishedCallback,
+        const GrGpu::BackendTextureData* data) {
+    GrGpu* gpu = context->priv().getGpu();
+
+    GrBackendTexture beTex = gpu->createCompressedBackendTexture(dimensions, backendFormat,
+                                                                 mipMapped, isProtected);
+    if (!beTex.isValid()) {
+        return {};
+    }
+
+    if (!context->priv().getGpu()->updateCompressedBackendTexture(
+                beTex, std::move(finishedCallback), data)) {
+        context->deleteBackendTexture(beTex);
+        return {};
+    }
+    return beTex;
+}
+
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
                                                            const GrBackendFormat& backendFormat,
                                                            const SkColor4f& color,
@@ -717,9 +741,9 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
     }
 
     GrGpu::BackendTextureData data(color);
-    return fGpu->createCompressedBackendTexture({width, height}, backendFormat,
-                                                mipMapped, isProtected, std::move(finishedCallback),
-                                                &data);
+    return create_and_update_compressed_backend_texture(this, {width, height}, backendFormat,
+                                                        mipMapped, isProtected,
+                                                        std::move(finishedCallback), &data);
 }
 
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
@@ -759,9 +783,9 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
     }
 
     GrGpu::BackendTextureData data(compressedData, dataSize);
-    return fGpu->createCompressedBackendTexture({width, height}, backendFormat,
-                                                mipMapped, isProtected, std::move(finishedCallback),
-                                                &data);
+    return create_and_update_compressed_backend_texture(this, {width, height}, backendFormat,
+                                                        mipMapped, isProtected,
+                                                        std::move(finishedCallback), &data);
 }
 
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,

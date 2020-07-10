@@ -1392,10 +1392,17 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
     desc.fID = this->createCompressedTexture2D(desc.fSize, compression, desc.fFormat,
-                                               mipMapped, &initialState,
-                                               data, dataSize);
+                                               mipMapped, &initialState);
     if (!desc.fID) {
         return nullptr;
+    }
+
+    if (data) {
+        if (!this->uploadCompressedTexData(compression, desc.fFormat, dimensions, mipMapped,
+                                           GR_GL_TEXTURE_2D, data, dataSize)) {
+            GL_CALL(DeleteTextures(1, &desc.fID));
+            return nullptr;
+        }
     }
 
     // Unbind this texture from the scratch texture unit.
@@ -1414,8 +1421,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
 
 GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
         SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
-        GrProtected isProtected, sk_sp<GrRefCntedCallback> finishedCallback,
-        const BackendTextureData* data) {
+        GrProtected isProtected) {
     // We don't support protected textures in GL.
     if (isProtected == GrProtected::kYes) {
         return {};
@@ -1430,34 +1436,13 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
 
     SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
 
-    const char* rawData = nullptr;
-    size_t rawDataSize = 0;
-    SkAutoMalloc am;
-    SkASSERT(!data || data->type() != BackendTextureData::Type::kPixmaps);
-    if (data && data->type() == BackendTextureData::Type::kCompressed) {
-        rawData = (const char*) data->compressedData();
-        rawDataSize = data->compressedSize();
-    } else if (data && data->type() == BackendTextureData::Type::kColor) {
-        SkASSERT(compression != SkImage::CompressionType::kNone);
-
-        rawDataSize = SkCompressedDataSize(compression, dimensions, nullptr,
-                                           mipMapped == GrMipMapped::kYes);
-
-        am.reset(rawDataSize);
-
-        GrFillInCompressedData(compression, dimensions, mipMapped, (char*)am.get(), data->color());
-
-        rawData = (const char*) am.get();
-    }
-
     GrGLTextureInfo info;
     GrGLTextureParameters::SamplerOverriddenState initialState;
 
     info.fTarget = GR_GL_TEXTURE_2D;
     info.fFormat = GrGLFormatToEnum(glFormat);
     info.fID = this->createCompressedTexture2D(dimensions, compression, glFormat,
-                                               mipMapped, &initialState,
-                                               rawData, rawDataSize);
+                                               mipMapped, &initialState);
     if (!info.fID) {
         return {};
     }
@@ -1472,6 +1457,55 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
 
     return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info,
                             std::move(parameters));
+}
+
+bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
+                                               sk_sp<GrRefCntedCallback> finishedCallback,
+                                               const BackendTextureData* data) {
+    SkASSERT(data && data->type() != BackendTextureData::Type::kPixmaps);
+
+    GrGLTextureInfo info;
+    SkAssertResult(backendTexture.getGLTextureInfo(&info));
+
+    GrBackendFormat format = backendTexture.getBackendFormat();
+    GrGLFormat glFormat = format.asGLFormat();
+    if (glFormat == GrGLFormat::kUnknown) {
+        return false;
+    }
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+
+    GrMipMapped mipMapped = backendTexture.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
+
+    const char* rawData = nullptr;
+    size_t rawDataSize = 0;
+    SkAutoMalloc am;
+    if (data->type() == BackendTextureData::Type::kCompressed) {
+        rawData = (const char*)data->compressedData();
+        rawDataSize = data->compressedSize();
+    } else {
+        SkASSERT(data->type() == BackendTextureData::Type::kColor);
+        SkASSERT(compression != SkImage::CompressionType::kNone);
+
+        rawDataSize = SkCompressedDataSize(compression, backendTexture.dimensions(), nullptr,
+                                           backendTexture.hasMipMaps());
+
+        am.reset(rawDataSize);
+
+        GrFillInCompressedData(compression, backendTexture.dimensions(), mipMapped, (char*)am.get(),
+                               data->color());
+
+        rawData = (const char*)am.get();
+    }
+
+    this->bindTextureToScratchUnit(info.fTarget, info.fID);
+    bool result = this->uploadCompressedTexData(
+            compression, glFormat, backendTexture.dimensions(),  mipMapped, GR_GL_TEXTURE_2D,
+            rawData, rawDataSize);
+
+    // Unbind this texture from the scratch texture unit.
+    this->bindTextureToScratchUnit(info.fTarget, 0);
+
+    return result;
 }
 
 namespace {
@@ -1581,8 +1615,7 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
         SkImage::CompressionType compression,
         GrGLFormat format,
         GrMipMapped mipMapped,
-        GrGLTextureParameters::SamplerOverriddenState* initialState,
-        const void* data, size_t dataSize) {
+        GrGLTextureParameters::SamplerOverriddenState* initialState) {
     if (format == GrGLFormat::kUnknown) {
         return 0;
     }
@@ -1595,14 +1628,6 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, id);
 
     *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
-
-    if (data) {
-        if (!this->uploadCompressedTexData(compression, format, dimensions, mipMapped,
-                                           GR_GL_TEXTURE_2D, data, dataSize)) {
-            GL_CALL(DeleteTextures(1, &id));
-            return 0;
-        }
-    }
 
     return id;
 }

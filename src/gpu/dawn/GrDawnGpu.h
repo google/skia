@@ -149,9 +149,11 @@ private:
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
-                                                      GrProtected,
-                                                      sk_sp<GrRefCntedCallback> finishedCallback,
-                                                      const BackendTextureData*) override;
+                                                      GrProtected) override;
+
+    bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
+                                          sk_sp<GrRefCntedCallback> finishedCallback,
+                                          const BackendTextureData*) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType type, GrAccessPattern,
                                       const void* data) override;

@@ -404,9 +404,14 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 }
 
 GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(
-        SkISize dimensions, const GrBackendFormat&, GrMipMapped, GrProtected,
-        sk_sp<GrRefCntedCallback> finishedCallback, const BackendTextureData*) {
+        SkISize dimensions, const GrBackendFormat&, GrMipMapped, GrProtected) {
     return {};
+}
+
+bool GrDawnGpu::onUpdateCompressedBackendTexture(const GrBackendTexture&,
+                                                 sk_sp<GrRefCntedCallback> finishedCallback,
+                                                 const BackendTextureData*) {
+    return false;
 }
 
 void GrDawnGpu::deleteBackendTexture(const GrBackendTexture& tex) {

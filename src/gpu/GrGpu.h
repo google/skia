@@ -617,9 +617,11 @@ public:
     GrBackendTexture createCompressedBackendTexture(SkISize dimensions,
                                                     const GrBackendFormat&,
                                                     GrMipMapped,
-                                                    GrProtected,
-                                                    sk_sp<GrRefCntedCallback> finishedCallback,
-                                                    const BackendTextureData*);
+                                                    GrProtected);
+
+    bool updateCompressedBackendTexture(const GrBackendTexture&,
+                                        sk_sp<GrRefCntedCallback> finishedCallback,
+                                        const BackendTextureData*);
 
     virtual bool setBackendTextureState(const GrBackendTexture&,
                                         const GrBackendSurfaceMutableState&,
@@ -741,12 +743,15 @@ private:
                                                     GrProtected) = 0;
 
     virtual GrBackendTexture onCreateCompressedBackendTexture(
-            SkISize dimensions, const GrBackendFormat&, GrMipMapped, GrProtected,
-            sk_sp<GrRefCntedCallback> finishedCallback, const BackendTextureData*) = 0;
+            SkISize dimensions, const GrBackendFormat&, GrMipMapped, GrProtected) = 0;
 
     virtual bool onUpdateBackendTexture(const GrBackendTexture&,
                                         sk_sp<GrRefCntedCallback> finishedCallback,
                                         const BackendTextureData*) = 0;
+
+    virtual bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
+                                                  sk_sp<GrRefCntedCallback> finishedCallback,
+                                                  const BackendTextureData*) = 0;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.

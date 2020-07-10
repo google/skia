@@ -161,9 +161,14 @@ private:
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
-                                                      GrProtected,
-                                                      sk_sp<GrRefCntedCallback> finishedCallback,
-                                                      const BackendTextureData*) override;
+                                                      GrProtected) override;
+
+    bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
+                                          sk_sp<GrRefCntedCallback> finishedCallback,
+                                          const BackendTextureData*) override {
+        return true;
+    }
+
     void deleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override { return false; }

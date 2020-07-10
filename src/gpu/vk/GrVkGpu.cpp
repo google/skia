@@ -1765,8 +1765,7 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
 
 GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
         SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
-        GrProtected isProtected, sk_sp<GrRefCntedCallback> finishedCallback,
-        const BackendTextureData* data) {
+        GrProtected isProtected) {
     this->handleDirtyContext();
 
     const GrVkCaps& caps = this->vkCaps();
@@ -1796,15 +1795,13 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
         return {};
     }
 
-    GrBackendTexture beTex(dimensions.width(), dimensions.height(), info);
+    return GrBackendTexture(dimensions.width(), dimensions.height(), info);
+}
 
-    if (data) {
-        if (!this->onUpdateBackendTexture(beTex, std::move(finishedCallback), data)) {
-            this->deleteBackendTexture(beTex);
-            return {};
-        }
-    }
-    return beTex;
+bool GrVkGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
+                                               sk_sp<GrRefCntedCallback> finishedCallback,
+                                               const BackendTextureData* data) {
+    return this->onUpdateBackendTexture(backendTexture, std::move(finishedCallback), data);
 }
 
 void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,

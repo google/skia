@@ -201,13 +201,15 @@ private:
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipMapped,
-                                                      GrProtected,
-                                                      sk_sp<GrRefCntedCallback> finishedCallback,
-                                                      const BackendTextureData*) override;
+                                                      GrProtected) override;
 
     bool onUpdateBackendTexture(const GrBackendTexture&,
                                 sk_sp<GrRefCntedCallback> finishedCallback,
                                 const BackendTextureData*) override;
+
+    bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
+                                          sk_sp<GrRefCntedCallback> finishedCallback,
+                                          const BackendTextureData*) override;
 
     void onResetContext(uint32_t resetBits) override;
 
@@ -271,8 +273,7 @@ private:
                                        SkImage::CompressionType compression,
                                        GrGLFormat,
                                        GrMipMapped,
-                                       GrGLTextureParameters::SamplerOverriddenState*,
-                                       const void* data, size_t dataSize);
+                                       GrGLTextureParameters::SamplerOverriddenState*);
 
     bool onReadPixels(GrSurface*, int left, int top, int width, int height,
                       GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
