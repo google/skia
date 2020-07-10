@@ -317,3 +317,44 @@ class ColorCubeRT : public skiagm::GM {
     }
 };
 DEF_GM(return new ColorCubeRT;)
+
+class DefaultColorRT : public skiagm::GM {
+    sk_sp<SkImage> fMandrill;
+    sk_sp<SkRuntimeEffect> fEffect;
+
+    void onOnceBeforeDraw() override {
+        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
+
+        const char code[] = R"(
+            in shader input;
+            in shader paintColor;
+
+            void main(float2 xy, inout half4 color) {
+                color = sample(input) * sample(paintColor).a;
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    SkString onShortName() override { return SkString("default_color_rt"); }
+
+    SkISize onISize() override { return {256, 256}; }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkRuntimeShaderBuilder builder(fEffect);
+
+        // We leave child("paintColor") as null, so sampling it returns the default (paint) color
+        builder.child("input") = fMandrill->makeShader();
+
+        SkPaint paint;
+        paint.setColor4f({ 1.0f, 1.0f, 1.0f, 0.75f });
+        paint.setShader(builder.makeShader(nullptr, false));
+
+        canvas->drawRect({ 0, 0, 256, 256 }, paint);
+    }
+};
+DEF_GM(return new DefaultColorRT;)

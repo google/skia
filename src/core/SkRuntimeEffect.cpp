@@ -495,10 +495,11 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 int ix = u8();
 
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                skvm::Color c = as_SB(children[ix])->program(p, device,local,paint,
-                                                             mats, nullptr,
-                                                             quality, dst,
-                                                             uniforms, alloc);
+                skvm::Color c = children[ix] ? as_SB(children[ix])->program(p, device,local,paint,
+                                                                            mats, nullptr,
+                                                                            quality, dst,
+                                                                            uniforms, alloc)
+                                             : paint;
                 if (!c) {
                     return {};
                 }
@@ -524,10 +525,11 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 y = y * (1.0f / w);
 
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                skvm::Color c = as_SB(children[ix])->program(p, device,{x,y},paint,
-                                                             mats, nullptr,
-                                                             quality, dst,
-                                                             uniforms, alloc);
+                skvm::Color c = children[ix] ? as_SB(children[ix])->program(p, device,{x,y},paint,
+                                                                            mats, nullptr,
+                                                                            quality, dst,
+                                                                            uniforms, alloc)
+                                             : paint;
                 if (!c) {
                     return {};
                 }
@@ -546,10 +548,11 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                           x = pop();
 
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                skvm::Color c = as_SB(children[ix])->program(p, device,{x,y},paint,
-                                                             mats, nullptr,
-                                                             quality, dst,
-                                                             uniforms, alloc);
+                skvm::Color c = children[ix] ? as_SB(children[ix])->program(p, device,{x,y},paint,
+                                                                            mats, nullptr,
+                                                                            quality, dst,
+                                                                            uniforms, alloc)
+                                             : paint;
                 if (!c) {
                     return {};
                 }
@@ -910,10 +913,6 @@ public:
         auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", std::move(inputs));
         for (const auto& child : fChildren) {
             auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
-            if (!childFP) {
-                // TODO: This is the case that should eventually mean "the original input color"
-                return nullptr;
-            }
             fp->addChild(std::move(childFP));
         }
         std::unique_ptr<GrFragmentProcessor> result = std::move(fp);
