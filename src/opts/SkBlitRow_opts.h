@@ -9,8 +9,8 @@
 #define SkBlitRow_opts_DEFINED
 
 #include "include/private/SkColorData.h"
-#include "include/private/SkVx.h"
 #include "src/core/SkMSAN.h"
+#include "src/core/SkVx.h"
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
     #include <immintrin.h>
 

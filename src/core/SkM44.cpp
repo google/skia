@@ -7,7 +7,7 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/SkVx.h"
+#include "src/core/SkVx.h"
 
 typedef skvx::Vec<4, float> sk4f;
 

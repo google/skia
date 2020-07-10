@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkVx.h"
+#include "src/core/SkVx.h"
 #include "tests/Test.h"
 
 using float2 = skvx::Vec<2,float>;

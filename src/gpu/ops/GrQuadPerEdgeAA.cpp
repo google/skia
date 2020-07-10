@@ -7,7 +7,7 @@
 
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 
-#include "include/private/SkVx.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"

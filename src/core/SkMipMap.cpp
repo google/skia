@@ -14,8 +14,8 @@
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTo.h"
-#include "include/private/SkVx.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkVx.h"
 #include <new>
 
 //

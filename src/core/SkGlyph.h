@@ -13,8 +13,8 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkTo.h"
-#include "include/private/SkVx.h"
 #include "src/core/SkMask.h"
+#include "src/core/SkVx.h"
 
 class SkArenaAlloc;
 class SkScalerContext;

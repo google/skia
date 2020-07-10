@@ -11,7 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
-#include "include/private/SkVx.h"
+#include "src/core/SkVx.h"
 
 enum class GrQuadAAFlags;
 

@@ -8,8 +8,8 @@
 #ifndef SKSL_STANDALONE
 
 #include "include/core/SkPoint3.h"
-#include "include/private/SkVx.h"
 #include "src/core/SkUtils.h"   // sk_unaligned_load
+#include "src/core/SkVx.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLExternalValue.h"

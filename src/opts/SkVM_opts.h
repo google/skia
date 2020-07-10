@@ -4,8 +4,8 @@
 #ifndef SkVM_opts_DEFINED
 #define SkVM_opts_DEFINED
 
-#include "include/private/SkVx.h"
 #include "src/core/SkVM.h"
+#include "src/core/SkVx.h"
 
 namespace SK_OPTS_NS {
 

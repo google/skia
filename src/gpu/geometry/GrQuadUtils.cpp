@@ -9,8 +9,8 @@
 
 #include "include/core/SkRect.h"
 #include "include/private/GrTypesPriv.h"
-#include "include/private/SkVx.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/geometry/GrQuad.h"
 
 using V4f = skvx::Vec<4, float>;
