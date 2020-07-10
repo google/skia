@@ -16,6 +16,24 @@
       "revId": "813386f07466f7a728ceb03e55655e2982ff6511",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "889497ae_a67dde6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-10T13:59:41Z",
+      "side": 1,
+      "message": "Yes, looked at a few example shaders. Definitely easier to read to me.",
+      "parentUuid": "ac46c5c3_1cbc24e5",
+      "revId": "813386f07466f7a728ceb03e55655e2982ff6511",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
