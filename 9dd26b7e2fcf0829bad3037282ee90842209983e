@@ -22,6 +22,30 @@
       "revId": "9dd26b7e2fcf0829bad3037282ee90842209983e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e1e6030_f12c755a",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-10T02:17:28Z",
+      "side": 1,
+      "message": "Doh! -- I hacked the mip builder to colorize each level, and (of course) you\u0027re right. Done.",
+      "parentUuid": "b002b100_710e0dd6",
+      "range": {
+        "startLine": 976,
+        "startChar": 7,
+        "endLine": 978,
+        "endChar": 60
+      },
+      "revId": "9dd26b7e2fcf0829bad3037282ee90842209983e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
