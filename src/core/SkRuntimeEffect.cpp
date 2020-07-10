@@ -481,6 +481,24 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             }
         };
 
+        auto sample = [&](int ix, skvm::Coord coord) {
+            skvm::Color c = paint;
+            if (children[ix]) {
+                SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
+                c = as_SB(children[ix])->program(p, device,coord,paint,
+                                                 mats, nullptr,
+                                                 quality, dst,
+                                                 uniforms, alloc);
+            }
+            if (c) {
+                push(c.r);
+                push(c.g);
+                push(c.b);
+                push(c.a);
+            }
+            return static_cast<bool>(c);
+        };
+
         switch (inst) {
             default:
                 #if 0
@@ -493,19 +511,9 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
             case Inst::kSample: {
                 // Child shader to run.
                 int ix = u8();
-
-                SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                skvm::Color c = as_SB(children[ix])->program(p, device,local,paint,
-                                                             mats, nullptr,
-                                                             quality, dst,
-                                                             uniforms, alloc);
-                if (!c) {
+                if (!sample(ix, local)) {
                     return {};
                 }
-                push(c.r);
-                push(c.g);
-                push(c.b);
-                push(c.a);
             } break;
 
             case Inst::kSampleMatrix: {
@@ -523,18 +531,9 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 x = x * (1.0f / w);
                 y = y * (1.0f / w);
 
-                SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                skvm::Color c = as_SB(children[ix])->program(p, device,{x,y},paint,
-                                                             mats, nullptr,
-                                                             quality, dst,
-                                                             uniforms, alloc);
-                if (!c) {
+                if (!sample(ix, {x,y})) {
                     return {};
                 }
-                push(c.r);
-                push(c.g);
-                push(c.b);
-                push(c.a);
             } break;
 
             case Inst::kSampleExplicit: {
@@ -545,18 +544,9 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
                 skvm::F32 y = pop(),
                           x = pop();
 
-                SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                skvm::Color c = as_SB(children[ix])->program(p, device,{x,y},paint,
-                                                             mats, nullptr,
-                                                             quality, dst,
-                                                             uniforms, alloc);
-                if (!c) {
+                if (!sample(ix, {x,y})) {
                     return {};
                 }
-                push(c.r);
-                push(c.g);
-                push(c.b);
-                push(c.a);
             } break;
 
             case Inst::kLoad: {
@@ -910,10 +900,6 @@ public:
         auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", std::move(inputs));
         for (const auto& child : fChildren) {
             auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
-            if (!childFP) {
-                // TODO: This is the case that should eventually mean "the original input color"
-                return nullptr;
-            }
             fp->addChild(std::move(childFP));
         }
         std::unique_ptr<GrFragmentProcessor> result = std::move(fp);
