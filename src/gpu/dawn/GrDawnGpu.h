@@ -14,6 +14,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 
 #include <unordered_map>
@@ -36,6 +37,8 @@ public:
 
     void disconnect(DisconnectType) override;
 
+    GrStagingBufferManager* stagingBufferManager() { return &fStagingBufferManager; }
+
     const wgpu::Device& device() const { return fDevice; }
     const wgpu::Queue&  queue() const { return fQueue; }
 
@@ -53,7 +56,6 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
-    std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size) override;
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -188,6 +190,8 @@ private:
     bool onSubmitToGpu(bool syncCpu) override;
 
     void mapStagingBuffers();
+    void checkForCompletedStagingBuffers();
+    void waitOnAllBusyStagingBuffers();
 
     wgpu::Device                                    fDevice;
     wgpu::Queue                                     fQueue;
@@ -196,6 +200,15 @@ private:
     GrDawnRingBuffer                                fUniformRingBuffer;
     wgpu::CommandEncoder                            fCopyEncoder;
     std::vector<wgpu::CommandBuffer>                fCommandBuffers;
+    GrStagingBufferManager                          fStagingBufferManager;
+
+    enum class BusyStatus {
+        kNeedsMap,
+        kWaiting,
+        kDone,
+    };
+
+    std::list<sk_sp<GrGpuBuffer>> fBusyStagingBuffers;
 
     struct ProgramDescHash {
         uint32_t operator()(const GrProgramDesc& desc) const {

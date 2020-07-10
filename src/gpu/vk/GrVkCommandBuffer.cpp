@@ -44,6 +44,7 @@ void GrVkCommandBuffer::freeGPUData(const GrGpu* gpu, VkCommandPool cmdPool) con
     SkASSERT(!fIsActive);
     SkASSERT(!fTrackedResources.count());
     SkASSERT(!fTrackedRecycledResources.count());
+    SkASSERT(!fTrackedGpuBuffers.count());
     SkASSERT(cmdPool != VK_NULL_HANDLE);
     SkASSERT(!this->isWrapped());
 
@@ -75,6 +76,8 @@ void GrVkCommandBuffer::releaseResources() {
         fTrackedResources.rewind();
         fTrackedRecycledResources.rewind();
     }
+
+    fTrackedGpuBuffers.reset();
 
     this->invalidateState();
 
@@ -376,41 +379,6 @@ void GrVkCommandBuffer::addingWork(const GrVkGpu* gpu) {
     this->submitPipelineBarriers(gpu);
     fHasWork = true;
 }
-
-#ifdef SK_DEBUG
-bool GrVkCommandBuffer::validateNoSharedImageResources(const GrVkCommandBuffer* other) {
-    auto resourceIsInCommandBuffer = [this](const GrManagedResource* resource) {
-        if (!resource->asVkImageResource()) {
-            return false;
-        }
-
-        for (int i = 0; i < fTrackedResources.count(); ++i) {
-            if (resource == fTrackedResources[i]->asVkImageResource()) {
-                return true;
-            }
-        }
-        for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
-            if (resource == fTrackedRecycledResources[i]->asVkImageResource()) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    for (int i = 0; i < other->fTrackedResources.count(); ++i) {
-        if (resourceIsInCommandBuffer(other->fTrackedResources[i])) {
-            return false;
-        }
-    }
-
-    for (int i = 0; i < other->fTrackedRecycledResources.count(); ++i) {
-        if (resourceIsInCommandBuffer(other->fTrackedRecycledResources[i])) {
-            return false;
-        }
-    }
-    return true;
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // PrimaryCommandBuffer
