@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f13f159b_939bd79a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-10T18:27:03Z",
+      "side": 1,
+      "message": "This keeps the concept of nullable vs. not-nullable FPs in .fp files, although the only difference is an assert that\u0027s added in the factory.",
+      "revId": "f154286732b7e4ea8b034f172567cae2459709f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
