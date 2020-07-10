@@ -241,6 +241,10 @@ using GrGLDrawElementsInstancedBaseVertexBaseInstanceFn = GrGLvoid GR_GL_FUNCTIO
 using GrGLMultiDrawArraysIndirectFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, const GrGLvoid* indirect, GrGLsizei drawcount, GrGLsizei stride);
 using GrGLMultiDrawElementsIndirectFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, GrGLenum type, const GrGLvoid* indirect, GrGLsizei drawcount, GrGLsizei stride);
 
+/* ANGLE_base_vertex_base_instance */
+using GrGLMultiDrawArraysInstancedBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, const GrGLint* firsts, const GrGLsizei* counts, const GrGLsizei* instanceCounts, const GrGLint* baseInstances, const GrGLsizei drawcount);
+using GrGLMultiDrawElementsInstancedBaseVertexBaseInstanceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum mode, const GrGLint* counts, GrGLenum type, const GrGLvoid* const* indices, const GrGLsizei* instanceCounts, const GrGLint* baseVertices, const GrGLint* baseInstances, const GrGLsizei drawcount);
+
 /* ARB_sync */
 using GrGLFenceSyncFn = GrGLsync GR_GL_FUNCTION_TYPE(GrGLenum condition, GrGLbitfield flags);
 using GrGLIsSyncFn = GrGLboolean GR_GL_FUNCTION_TYPE(GrGLsync sync);

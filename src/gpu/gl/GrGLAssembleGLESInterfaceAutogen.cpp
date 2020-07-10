@@ -213,6 +213,11 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC(DrawElementsIndirect);
     }
 
+    if (extensions.has("GL_ANGLE_base_vertex_base_instance")) {
+        GET_PROC_SUFFIX(MultiDrawArraysInstancedBaseInstance, ANGLE);
+        GET_PROC_SUFFIX(MultiDrawElementsInstancedBaseVertexBaseInstance, ANGLE);
+    }
+
     if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(DrawRangeElements);
     }
