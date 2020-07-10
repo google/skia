@@ -309,7 +309,7 @@ public:
         SkRect fDstRect;
         const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
         const SkMatrix* fPreViewMatrix; // If not null, entry's CTM is 'viewMatrix' * fPreViewMatrix
-        float fAlpha;
+        SkPMColor4f   fColor; // {a,a,a,a} for rgb textures, {r,g,b,a} for alpha-only textures
         GrQuadAAFlags fAAFlags;
     };
     /**
