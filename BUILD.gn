@@ -2247,6 +2247,7 @@ if (skia_enable_tools) {
       "tools/sk_app/RasterWindowContext.h",
       "tools/sk_app/Window.cpp",
       "tools/sk_app/Window.h",
+      "tools/sk_app/WindowContext.cpp",
       "tools/sk_app/WindowContext.h",
     ]
     libs = []

@@ -11,7 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -1517,9 +1517,9 @@ void Viewer::onPaint(SkSurface* surface) {
 
     this->drawImGui();
 
-    if (GrContext* ctx = fWindow->getGrContext()) {
+    if (auto direct = fWindow->directContext()) {
         // Clean out cache items that haven't been used in more than 10 seconds.
-        ctx->performDeferredCleanup(std::chrono::seconds(10));
+        direct->performDeferredCleanup(std::chrono::seconds(10));
     }
 }
 
@@ -1743,7 +1743,7 @@ void Viewer::drawImGui() {
         ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
         DisplayParams params = fWindow->getRequestedDisplayParams();
         bool paramsChanged = false;
-        const GrContext* ctx = fWindow->getGrContext();
+        auto ctx = fWindow->directContext();
 
         if (ImGui::Begin("Tools", &fShowImGuiDebugWindow,
                          ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
@@ -2321,7 +2321,7 @@ void Viewer::drawImGui() {
 
                 if (doLoad) {
                     fPersistentCache.reset();
-                    fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+                    ctx->priv().getGpu()->resetShaderCacheForTesting();
                     gLoadPending = true;
                 }
                 // We don't support updating SPIRV shaders. We could re-assemble them (with edits),
@@ -2331,7 +2331,7 @@ void Viewer::drawImGui() {
                 }
                 if (doSave) {
                     fPersistentCache.reset();
-                    fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+                    ctx->priv().getGpu()->resetShaderCacheForTesting();
                     for (auto& entry : fCachedShaders) {
                         SkSL::String backup = entry.fShader[kFragment_GrShaderType];
                         if (entry.fHovered) {
@@ -2527,7 +2527,7 @@ void Viewer::updateUIState() {
     GpuPathRenderers pr = fWindow->getRequestedDisplayParams().fGrContextOptions.fGpuPathRenderers;
     WriteStateObject(writer, kPathRendererStateName, gPathRendererNames[pr].c_str(),
         [this](SkJSONWriter& writer) {
-            const GrContext* ctx = fWindow->getGrContext();
+            auto ctx = fWindow->directContext();
             if (!ctx) {
                 writer.appendString("Software");
             } else {

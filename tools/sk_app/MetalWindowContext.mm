@@ -8,7 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
@@ -22,8 +22,8 @@ using sk_app::MetalWindowContext;
 namespace sk_app {
 
 MetalWindowContext::MetalWindowContext(const DisplayParams& params)
-    : WindowContext(params)
-    , fValid(false) {
+        : WindowContext(params)
+        , fValid(false) {
 
     fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
 }
@@ -48,8 +48,10 @@ void MetalWindowContext::initializeContext() {
 
     fValid = this->onInitializeContext();
 
-    fContext = GrContext::MakeMetal((__bridge void*)fDevice, (__bridge void*)fQueue,
+    // CONTEXT TODO: MakeMetal should return an sk_sp<GrDirectContext>
+    auto tmp = GrContext::MakeMetal((__bridge void*)fDevice, (__bridge void*)fQueue,
                                     fDisplayParams.fGrContextOptions);
+    fContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();

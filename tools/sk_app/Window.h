@@ -16,7 +16,7 @@
 #include "tools/skui/Key.h"
 #include "tools/skui/ModifierKey.h"
 
-class GrContext;
+class GrDirectContext;
 class SkCanvas;
 class SkSurface;
 class SkSurfaceProps;
@@ -135,7 +135,7 @@ public:
     int stencilBits() const;
 
     // Returns null if there is not a GPU backend or if the backend is not yet created.
-    GrContext* getGrContext() const;
+    GrDirectContext* directContext() const;
 
 protected:
     Window();

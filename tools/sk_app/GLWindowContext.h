@@ -16,8 +16,6 @@
 
 #include "tools/sk_app/WindowContext.h"
 
-class GrContext;
-
 namespace sk_app {
 
 class GLWindowContext : public WindowContext {
