@@ -123,8 +123,21 @@ public:
     void onUnpinAsTexture(GrContext*) const override;
 #endif
 
+    SkMipMap* onPeekMips() const override { return fMips.get(); }
+
+    sk_sp<SkImage> onMakeWithMipmaps(std::unique_ptr<SkMipmapData> data) const override {
+        auto img = new SkImage_Raster(fBitmap);
+        if (data) {
+            img->fMips = SkImage_Base::RefMips(data.get());
+        } else {
+            img->fMips.reset(SkMipMap::Build(fBitmap.pixmap(), nullptr));
+        }
+        return sk_sp<SkImage>(img);
+    }
+
 private:
     SkBitmap fBitmap;
+    sk_sp<SkMipMap> fMips;
 
 #if SK_SUPPORT_GPU
     mutable GrSurfaceProxyView fPinnedView;

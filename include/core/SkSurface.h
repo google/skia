@@ -25,6 +25,7 @@
 class SkCanvas;
 class SkDeferredDisplayList;
 class SkPaint;
+class SkPixmap;
 class SkSurfaceCharacterization;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
@@ -68,6 +69,9 @@ public:
     */
     static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
                                              size_t rowBytes,
+                                             const SkSurfaceProps* surfaceProps = nullptr);
+
+    static sk_sp<SkSurface> MakeRasterDirect(const SkPixmap& pm,
                                              const SkSurfaceProps* surfaceProps = nullptr);
 
     /** Allocates raster SkSurface. SkCanvas returned by SkSurface draws directly into pixels.
