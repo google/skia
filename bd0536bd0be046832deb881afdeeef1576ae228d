@@ -99,6 +99,108 @@
       "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92166c14_6fc8df76",
+        "filename": "demos.skia.org/demos/path_tesselation/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-10T17:24:59Z",
+      "side": 1,
+      "message": "Write a description of what the user is seeing, explain what differs between the two methods. Picture the user being someone who\u0027s never used canvaskit and has only a vague idea of how an SVG is drawn.",
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2c3cb71_384e3c9b",
+        "filename": "demos.skia.org/demos/path_tesselation/main.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-10T17:24:59Z",
+      "side": 1,
+      "message": "Document the format of the object these generators produce. What are the generators expected to do?",
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7852fe3_c28be554",
+        "filename": "demos.skia.org/demos/path_tesselation/main.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-10T17:24:59Z",
+      "side": 1,
+      "message": "I understand the motivation for keeping frames from taking 30 seconds in this demo, but maybe 33 ms is too short. How about 1 second, to give the impression that the slower methods are just slow but still work, and have a disclaimer on the page saying frame times are limited to 1 second, and may take longer if allowed to run to completion. \n\nMaybe show some visual indication that a frame was cut short like red icon near the canvas.",
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da66d0bb_09748351",
+        "filename": "demos.skia.org/demos/path_tesselation/main.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-10T17:24:59Z",
+      "side": 1,
+      "message": "What is this sub-generator expected to do?",
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fb1d460_8088441b",
+        "filename": "demos.skia.org/demos/path_tesselation/main.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-10T17:24:59Z",
+      "side": 1,
+      "message": "What is this class supposed to do?",
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52db8b1a_a2d0424e",
+        "filename": "demos.skia.org/demos/path_tesselation/path_tools.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-10T17:24:59Z",
+      "side": 1,
+      "message": "Can you give an example in a comment of the path format this parser expects?\nOr better, is there documentation for someone attempting to write such a path?",
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
