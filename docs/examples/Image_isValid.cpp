@@ -1,4 +1,3 @@
-#if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
@@ -9,16 +8,22 @@ void draw(SkCanvas* canvas) {
         if (nullptr == image) {
             return;
         }
+        SkFont font;
         SkPaint paint;
         paint.setAntiAlias(true);
         canvas->drawImage(image, 0, 0);
-        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);
-        if (canvas->getGrContext()) {
-            canvas->drawString(image->isValid(canvas->getGrContext()) ? "is valid on GPU" :
-                    "not valid on GPU", 20, image->height() * 5 / 8, paint);
+        canvas->drawString(label, image->width() / 2, image->height() / 4, font, paint);
+        if (canvas->recordingContext()) {
+            const char* msg = image->isValid(canvas->recordingContext()) ? "is valid on GPU"
+                                                                         : "not valid on GPU";
+            canvas->drawString(msg, 20, image->height() * 5 / 8, font, paint);
         }
-        canvas->drawString(image->isValid(nullptr) ? "is valid on CPU" :
-                "not valid on CPU", 20, image->height() * 7 / 8, paint);
+
+        // CONTEXT TODO: Once GrContext is gone, remove this cast
+        const char* msg = image->isValid((GrRecordingContext*) nullptr) ? "is valid on CPU"
+                                                                        : "not valid on CPU";
+
+        canvas->drawString(msg, 20, image->height() * 7 / 8, font, paint);
     };
     sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
     sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
@@ -31,4 +36,3 @@ void draw(SkCanvas* canvas) {
     drawImage(textureImage, "backEndTexture");
 }
 }  // END FIDDLE
-#endif  // Disabled until updated to use current API.
