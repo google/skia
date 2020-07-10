@@ -226,9 +226,16 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     }
 
+    // Some of our backends use buffers to do uploads that will live in our resource cache. So we
+    // need to account for those extra resources here.
+    int bufferResources = 0;
+    if (context->backend() == GrBackendApi::kDawn) {
+        bufferResources = 1;
+    }
+
     sk_sp<SkImage> textureImg = rasterImg->makeTextureImage(context);
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
-    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, 1 + bufferResources == cache->getResourceCount());
 
     rasterImg = nullptr;        // this invalidates the uniqueKey
 
@@ -237,9 +244,14 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     context->setResourceCacheLimit(maxBytes-1);
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
-    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, 1 + bufferResources == cache->getResourceCount());
 
     textureImg = nullptr;
+
+    // For backends that use buffers to upload lets make sure that work has been submit and done
+    // before we try to purge all resources.
+    context->submit(true);
+
     context->priv().testingOnly_purgeAllUnlockedResources();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
