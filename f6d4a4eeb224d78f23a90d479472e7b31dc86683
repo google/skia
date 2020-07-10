@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "54429c5d_aabeefbb",
+        "filename": "src/gpu/GrStagingBufferManager.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:34:53Z",
+      "side": 1,
+      "message": "I probably missed that in the GrDawnBuffer update, but I can definitely have the create buffer call the mapped version for any xfer buffer.",
+      "parentUuid": "d52cac74_d1369149",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "89109434_72825912",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2020-07-10T18:05:15Z",
       "side": 1,
       "message": "If the only map states we need to check against are \"mapped\" or \"not mapped\", could we just have an \"isMapped() { return fMapPtr !\u003d nullptr; }\" ?\n\n(The only place I could find that checks for Pending is an assert in the other CL, in a piece of code I\u0027d like to remove :) )\n\nActually, could we have the map callback simply remove its buffer from the busy list when the callback is called? Then we could remove this function altogether.\n\nAs you point out, they should be removed in the order they were added, so even though we\u0027ll have to iterate to find which one to remove, it\u0027s likely going to be the first one in the list anyway.",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d80cba61_8a7a9e29",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:34:53Z",
+      "side": 1,
+      "message": "Nothing specifically checks Pending but things do check both \"mapped\" and \"not mapped\". We need a third state that is not either of those.",
+      "parentUuid": "89109434_72825912",
       "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "935360e0_300f9d0a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:34:53Z",
+      "side": 1,
+      "message": "The detach unmaps the buffers. That needs to happen before we submit right?",
+      "parentUuid": "86543925_b6dc868d",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71c21b00_46d938a9",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 9
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "80f7fd2c_ab5bdd33",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 767,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:34:53Z",
+      "side": 1,
+      "message": "What is fragile about this, assuming we pushed to the back above?\n\nAnyways since we do need to do the detach above, what we can do is detach to a temporary list in the submit function. Then we can easily map all those buffers in the list and push them to busy here.",
+      "parentUuid": "71c21b00_46d938a9",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a1147950_b14f3add",
         "filename": "src/gpu/dawn/GrDawnGpu.h",
         "patchSetId": 9
@@ -81,6 +153,24 @@
       "writtenOn": "2020-07-10T18:05:15Z",
       "side": 1,
       "message": "Is this used anywhere?",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3072a878_5529455f",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:34:53Z",
+      "side": 1,
+      "message": "Nope left over from previous version. Will remove",
+      "parentUuid": "a1147950_b14f3add",
       "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
