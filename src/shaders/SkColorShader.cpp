@@ -13,6 +13,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkUtils.h"
 #include "src/core/SkVM.h"
+#include "src/gpu/effects/generated/GrModulateAlphaEffect.h"
 #include "src/shaders/SkColorShader.h"
 
 SkColorShader::SkColorShader(SkColor c) : fColor(c) {}
@@ -120,8 +121,7 @@ skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
 std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     SkPMColor4f color = SkColorToPMColor4f(fColor, *args.fDstColorInfo);
-    return GrConstColorProcessor::Make(/*inputFP=*/nullptr, color,
-                                       GrConstColorProcessor::InputMode::kModulateA);
+    return GrModulateAlphaEffect::Make(/*inputFP=*/nullptr, color);
 }
 
 std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
@@ -130,8 +130,7 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
                                   args.fDstColorInfo->colorSpace(), kUnpremul_SkAlphaType };
     SkColor4f color = fColor;
     steps.apply(color.vec());
-    return GrConstColorProcessor::Make(/*inputFP=*/nullptr, color.premul(),
-                                       GrConstColorProcessor::InputMode::kModulateA);
+    return GrModulateAlphaEffect::Make(/*inputFP=*/nullptr, color.premul());
 }
 
 #endif
