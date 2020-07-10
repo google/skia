@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1157d2d7_f664f2a0",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-10T18:00:00Z",
+      "side": 1,
+      "message": "Maybe we don\u0027t need to document this if we\u0027re going to pull it back soon?",
+      "revId": "b15fb02b77119c1f05a9db4ac58d0290e32024d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
