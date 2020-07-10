@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82384d47_5c918953",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-10T16:57:21Z",
+      "side": 1,
+      "message": "lg, just question about which header to include.",
+      "revId": "60fadf1c5425c3bab23d1077e68b2d656edaf78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40df4434_f61dbf73",
+        "filename": "src/core/SkImageGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-10T16:57:21Z",
+      "side": 1,
+      "message": "Don\u0027t you just need directcontext\u0027s defn here",
+      "range": {
+        "startLine": 14,
+        "startChar": 22,
+        "endLine": 14,
+        "endChar": 37
+      },
+      "revId": "60fadf1c5425c3bab23d1077e68b2d656edaf78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11136a01_be8d198f",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-10T16:57:21Z",
+      "side": 1,
+      "message": "same q",
+      "range": {
+        "startLine": 31,
+        "startChar": 22,
+        "endLine": 31,
+        "endChar": 37
+      },
+      "revId": "60fadf1c5425c3bab23d1077e68b2d656edaf78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
