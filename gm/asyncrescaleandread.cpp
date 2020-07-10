@@ -40,7 +40,7 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
 // the result in a raster image.
 template <typename Src>
 static sk_sp<SkImage> do_read_and_scale(Src* src,
-                                        GrContext* context,
+                                        GrDirectContext* direct,
                                         const SkIRect& srcRect,
                                         const SkImageInfo& ii,
                                         SkImage::RescaleGamma rescaleGamma,
@@ -48,13 +48,13 @@ static sk_sp<SkImage> do_read_and_scale(Src* src,
     auto* asyncContext = new AsyncContext();
     src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, quality, async_callback,
                                    asyncContext);
-    if (context) {
-        context->submit();
+    if (direct) {
+        direct->submit();
     }
     while (!asyncContext->fCalled) {
         // Only GPU should actually be asynchronous.
-        SkASSERT(context);
-        context->checkAsyncWorkCompletion();
+        SkASSERT(direct);
+        direct->checkAsyncWorkCompletion();
     }
     if (!asyncContext->fResult) {
         return nullptr;
@@ -66,7 +66,7 @@ static sk_sp<SkImage> do_read_and_scale(Src* src,
 
 template <typename Src>
 static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
-                                            GrContext* context,
+                                            GrDirectContext* direct,
                                             SkYUVColorSpace yuvCS,
                                             const SkIRect& srcRect,
                                             SkISize size,
@@ -82,13 +82,13 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     AsyncContext asyncContext;
     src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
                                          rescaleGamma, quality, async_callback, &asyncContext);
-    if (context) {
-        context->submit();
+    if (direct) {
+        direct->submit();
     }
     while (!asyncContext.fCalled) {
         // Only GPU should actually be asynchronous.
-        SkASSERT(context);
-        context->checkAsyncWorkCompletion();
+        SkASSERT(direct);
+        direct->checkAsyncWorkCompletion();
     }
     if (!asyncContext.fResult) {
         return nullptr;
@@ -99,9 +99,9 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     SkPixmap uPM(uvII, asyncContext.fResult->data(1), asyncContext.fResult->rowBytes(1));
     SkPixmap vPM(uvII, asyncContext.fResult->data(2), asyncContext.fResult->rowBytes(2));
 
-    backendTextures[0] = context->createBackendTexture(yPM, GrRenderable::kNo, GrProtected::kNo);
-    backendTextures[1] = context->createBackendTexture(uPM, GrRenderable::kNo, GrProtected::kNo);
-    backendTextures[2] = context->createBackendTexture(vPM, GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[0] = direct->createBackendTexture(yPM, GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[1] = direct->createBackendTexture(uPM, GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[2] = direct->createBackendTexture(vPM, GrRenderable::kNo, GrProtected::kNo);
 
     SkYUVAIndex indices[4] = {
         { 0, SkColorChannel::kR},
@@ -110,15 +110,15 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
         {-1, SkColorChannel::kR}
     };
 
-    *cleanup = {[context, backendTextures] {
-        context->flush();
-        context->submit(true);
-        context->deleteBackendTexture(backendTextures[0]);
-        context->deleteBackendTexture(backendTextures[1]);
-        context->deleteBackendTexture(backendTextures[2]);
+    *cleanup = {[direct, backendTextures] {
+        direct->flush();
+        direct->submit(true);
+        direct->deleteBackendTexture(backendTextures[0]);
+        direct->deleteBackendTexture(backendTextures[1]);
+        direct->deleteBackendTexture(backendTextures[2]);
     }};
 
-    return SkImage::MakeFromYUVATextures(context, yuvCS, backendTextures, indices, size,
+    return SkImage::MakeFromYUVATextures(direct, yuvCS, backendTextures, indices, size,
                                          kTopLeft_GrSurfaceOrigin, SkColorSpace::MakeSRGB());
 }
 
@@ -127,13 +127,13 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
 template <typename Src>
 static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                                           Src* src,
-                                          GrContext* context,
+                                          GrDirectContext* direct,
                                           const SkIRect& srcRect,
                                           SkISize newSize,
                                           bool doYUV420,
                                           SkString* errorMsg,
                                           int pad = 0) {
-    if (doYUV420 && !GrAsDirectContext(canvas->recordingContext())) {
+    if (doYUV420 && !direct) {
         errorMsg->printf("YUV420 only supported on direct GPU for now.");
         return skiagm::DrawResult::kSkip;
     }
@@ -151,7 +151,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
             SkScopeExit cleanup;
             sk_sp<SkImage> result;
             if (doYUV420) {
-                result = do_read_and_scale_yuv(src, context, yuvColorSpace, srcRect, newSize, gamma,
+                result = do_read_and_scale_yuv(src, direct, yuvColorSpace, srcRect, newSize, gamma,
                                                quality, &cleanup);
                 if (!result) {
                     errorMsg->printf("YUV420 async call failed. Allowed for now.");
@@ -160,7 +160,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                 int nextCS = static_cast<int>(yuvColorSpace + 1) % (kLastEnum_SkYUVColorSpace + 1);
                 yuvColorSpace = static_cast<SkYUVColorSpace>(nextCS);
             } else {
-                result = do_read_and_scale(src, context, srcRect, ii, gamma, quality);
+                result = do_read_and_scale(src, direct, srcRect, ii, gamma, quality);
                 if (!result) {
                     errorMsg->printf("async read call failed.");
                     return skiagm::DrawResult::kFail;
@@ -192,6 +192,8 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         *errorMsg = "Not supported on recording/vector backends.";
         return skiagm::DrawResult::kSkip;
     }
+    auto direct = GrAsDirectContext(canvas->recordingContext());
+
     if (doSurface) {
         // Turn the image into a surface in order to call the read and rescale API
         auto surfInfo = image->imageInfo().makeDimensions(image->dimensions());
@@ -211,10 +213,10 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         surface->getCanvas()->drawImage(image, 0, 0, &paint);
-        return do_rescale_grid(canvas, surface.get(), canvas->getGrContext(), srcRect, newSize,
+        return do_rescale_grid(canvas, surface.get(), direct, srcRect, newSize,
                                doYUV420, errorMsg);
-    } else if (auto ctx = canvas->getGrContext()) {
-        image = image->makeTextureImage(ctx);
+    } else if (direct) {
+        image = image->makeTextureImage(direct);
         if (!image) {
             *errorMsg = "Could not create image.";
             // When testing abandoned GrContext we expect surface creation to fail.
@@ -224,7 +226,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
             return skiagm::DrawResult::kFail;
         }
     }
-    return do_rescale_grid(canvas, image.get(), canvas->getGrContext(), srcRect, newSize, doYUV420,
+    return do_rescale_grid(canvas, image.get(), direct, srcRect, newSize, doYUV420,
                            errorMsg);
 }
 
@@ -292,8 +294,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_yuv_no_scale, canvas, errorMsg, 400, 300) {
     SkPaint paint;
     canvas->drawImage(image.get(), 0, 0);
 
-    auto direct = surface->recordingContext() ? surface->recordingContext()->asDirectContext()
-                                              : nullptr;
+    auto direct = GrAsDirectContext(surface->recordingContext());
 
     SkScopeExit scopeExit;
     auto yuvImage = do_read_and_scale_yuv(
@@ -322,7 +323,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     if (!surface) {
         *errorMsg = "Could not create surface for image.";
         // When testing abandoned GrContext we expect surface creation to fail.
-        if (canvas->getGrContext() && canvas->getGrContext()->abandoned()) {
+        if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
             return skiagm::DrawResult::kSkip;
         }
         return skiagm::DrawResult::kFail;
@@ -336,8 +337,8 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     canvas->translate(kPad, kPad);
     skiagm::DrawResult result;
     SkISize downSize = {static_cast<int>(kInner/2),  static_cast<int>(kInner / 2)};
-    GrContext* context = canvas->getGrContext();
-    result = do_rescale_grid(canvas, surface.get(), context, srcRect, downSize, false, errorMsg,
+    auto direct = GrAsDirectContext(canvas->recordingContext());
+    result = do_rescale_grid(canvas, surface.get(), direct, srcRect, downSize, false, errorMsg,
                              kPad);
 
     if (result != skiagm::DrawResult::kOk) {
@@ -345,8 +346,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     }
     canvas->translate(0, 4 * downSize.height());
     SkISize upSize = {static_cast<int>(kInner * 3.5), static_cast<int>(kInner * 4.6)};
-    result =
-            do_rescale_grid(canvas, surface.get(), context, srcRect, upSize, false, errorMsg, kPad);
+    result = do_rescale_grid(canvas, surface.get(), direct, srcRect, upSize, false, errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }

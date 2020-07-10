@@ -32,6 +32,7 @@ class SkSurface;
 class GrBackendTexture;
 class GrContext;
 class GrContextThreadSafeProxy;
+class GrRecordingContext;
 
 struct SkYUVAIndex;
 
@@ -839,6 +840,10 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_isValid
     */
+    bool isValid(GrRecordingContext* context) const;
+
+    /** Deprecated.
+     */
     bool isValid(GrContext* context) const;
 
     /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not

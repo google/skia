@@ -20,7 +20,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkTableColorFilter.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 constexpr int kTestRectSize = 50;
 constexpr int kDetectorGreenValue = 50;
@@ -138,7 +138,7 @@ static void draw_svg_opacity_and_filter_layer_sequence(SkCanvas* canvas, SkColor
 //    (the grey dent is from the color filter removing everything but the "good" green, see below)
 //  - Last 6 rows are grey
 DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
-    GrContext* context = canvas->getGrContext();
+    auto direct = GrAsDirectContext(canvas->recordingContext());
     canvas->clear(SK_ColorTRANSPARENT);
 
     typedef void (*TestVariantSequence)(SkCanvas*, SkColor, InstallDetectorFunc);
@@ -161,8 +161,8 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
 
         TestVariantSequence drawTestSequence = funcs[k];
         drawTestSequence(canvas, shapeColor, no_detector_install);
-        if (context) {
-            context->flushAndSubmit();
+        if (direct) {
+            direct->flushAndSubmit();
         }
         canvas->translate(SkIntToScalar(kTestRectSize) + SkIntToScalar(1), SkIntToScalar(0));
         {
@@ -171,8 +171,8 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
                                                      SkIntToScalar(kTestRectSize)),
                              shapeColor, no_detector_install);
             recorder.finishRecordingAsPicture()->playback(canvas);
-            if (context) {
-                context->flushAndSubmit();
+            if (direct) {
+                direct->flushAndSubmit();
             }
         }
         canvas->restore();
@@ -206,23 +206,23 @@ DEF_SIMPLE_GM(recordopts, canvas, (kTestRectSize+1)*2, (kTestRectSize+1)*15) {
                 TestVariantSequence drawTestSequence = funcs[k];
                 canvas->save();
                 drawTestSequence(canvas, shapeColor, detectorInstallFunc);
-                if (context) {
-                    context->flushAndSubmit();
+                if (direct) {
+                    direct->flushAndSubmit();
                 }
-                canvas->translate(SkIntToScalar(kTestRectSize) + SkIntToScalar(1), SkIntToScalar(0));
+                canvas->translate(SkIntToScalar(kTestRectSize + 1), SkIntToScalar(0));
                 {
                     SkPictureRecorder recorder;
                     drawTestSequence(recorder.beginRecording(SkIntToScalar(kTestRectSize),
                                                              SkIntToScalar(kTestRectSize)),
                                      shapeColor, detectorInstallFunc);
                     recorder.finishRecordingAsPicture()->playback(canvas);
-                    if (context) {
-                        context->flushAndSubmit();
+                    if (direct) {
+                        direct->flushAndSubmit();
                     }
                 }
 
                 canvas->restore();
-                canvas->translate(SkIntToScalar(0), SkIntToScalar(kTestRectSize) + SkIntToScalar(1));
+                canvas->translate(SkIntToScalar(0), SkIntToScalar(kTestRectSize + 1));
             }
 
         }
