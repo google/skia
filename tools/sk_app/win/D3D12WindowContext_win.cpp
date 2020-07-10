@@ -11,6 +11,7 @@
 #include "tools/gpu/d3d/D3DTestUtils.h"
 
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 
 #include <d3d12.h>
@@ -81,7 +82,9 @@ void D3D12WindowContext::initializeContext() {
     fDevice = backendContext.fDevice;
     fQueue = backendContext.fQueue;
 
-    fContext = GrContext::MakeDirect3D(backendContext, fDisplayParams.fGrContextOptions);
+    // CONTEXT TODO: MakeDirect3D should return an sk_sp<GrDirectContext>
+    auto tmp = GrContext::MakeDirect3D(backendContext, fDisplayParams.fGrContextOptions);
+    fContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
     SkASSERT(fContext);
 
     // Make the swapchain
