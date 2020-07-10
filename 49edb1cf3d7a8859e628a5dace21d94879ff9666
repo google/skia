@@ -39,6 +39,30 @@
       "revId": "49edb1cf3d7a8859e628a5dace21d94879ff9666",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0abf61e_af974b84",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-10T17:51:03Z",
+      "side": 1,
+      "message": "Resolved",
+      "parentUuid": "94b8d62c_dd812d39",
+      "range": {
+        "startLine": 1144,
+        "startChar": 0,
+        "endLine": 1165,
+        "endChar": 60
+      },
+      "revId": "49edb1cf3d7a8859e628a5dace21d94879ff9666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
