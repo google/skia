@@ -69,7 +69,7 @@ protected:
     uint32_t contextID() const;
 
     bool matches(GrContext_Base* candidate) const {
-        return candidate->contextID() == this->contextID();
+        return candidate && candidate->contextID() == this->contextID();
     }
 
     /*

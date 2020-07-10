@@ -17,12 +17,12 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrTextureProxy.h"
 
-class GrRecordingContext;
 class GrTexture;
 #endif
 
 #include <new>
 
+class GrDirectContext;
 class GrSamplerState;
 class SkCachedData;
 struct SkYUVASizeInfo;
@@ -98,7 +98,7 @@ public:
     // but only inspect them (or encode them).
     virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
-    virtual sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect&) const = 0;
+    virtual sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const = 0;
 
     virtual sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
                                           SkYUVColorSpace*, const void* planes[4]);

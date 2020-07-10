@@ -57,7 +57,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
         canvas->drawImage(images[i], 0, 0);
         canvas->translate(0, 256 + 10);
 
-        canvas->drawImage(images[i]->makeSubset(SkIRect::MakeXYWH(64, 64, 128, 128)), 0, 0);
+        canvas->drawImage(images[i]->makeSubset(SkIRect::MakeXYWH(64, 64, 128, 128), direct), 0, 0);
         canvas->translate(128, 0);
 
         SkPaint paint;
