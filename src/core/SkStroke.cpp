@@ -1138,6 +1138,13 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
               return true;
             }
         }
+        if (kSplit_ResultType == resultType) {
+            // Before we split, check if a line segment would be good enough.
+            if (quad_in_line(quadPts->fQuad) && cubicMidOnLine(cubic, quadPts)) {
+              addDegenerateLine(quadPts);
+              return true;
+            }
+        }
     }
     if (!SkScalarIsFinite(quadPts->fQuad[2].fX) || !SkScalarIsFinite(quadPts->fQuad[2].fY)) {
         return false;  // just abort if projected quad isn't representable

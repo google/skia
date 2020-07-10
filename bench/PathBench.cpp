@@ -966,6 +966,42 @@ public:
 DEF_BENCH( return new ConicBench_EvalTan(false); )
 DEF_BENCH( return new ConicBench_EvalTan(true); )
 
+class ConicBench_TinyError : public Benchmark {
+protected:
+    SkString fName;
+
+public:
+    ConicBench_TinyError() : fName("conic-tinyerror") {}
+
+protected:
+    const char* onGetName() override { return fName.c_str(); }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setColor(SK_ColorBLACK);
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2);
+
+        // The large y scale factor produces a tiny error threshold.
+        canvas->save();
+        canvas->concat(SkMatrix::MakeAll(3.07294035, 0.833333373, 361.111115,
+                                         0, 6222222.5, 28333.334,
+                                         0, 0, 1));
+        for (int i = 0; i < loops; ++i) {
+            SkPath path;
+            path.moveTo(-100, 1);
+            path.cubicTo(-101, 1, -118, -47, -138, -44);
+            canvas->drawPath(path, paint);
+        }
+        canvas->restore();
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new ConicBench_TinyError; )
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void rand_conic(SkConic* conic, SkRandom& rand) {
