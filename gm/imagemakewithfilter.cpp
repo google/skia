@@ -270,8 +270,8 @@ protected:
         // These need to be GPU-backed when on the GPU to ensure that the image filters use the GPU
         // code paths (otherwise they may choose to do CPU filtering then upload)
         sk_sp<SkImage> mainImage, auxImage;
-        if (canvas->getGrContext()) {
-            if (canvas->getGrContext()->abandoned()) {
+        if (canvas->recordingContext()) {
+            if (canvas->recordingContext()->abandoned()) {
                 return;
             }
             mainImage = fMainImage->makeTextureImage(canvas->getGrContext());
@@ -283,8 +283,8 @@ protected:
         if (!mainImage || !auxImage) {
             return;
         }
-        SkASSERT(mainImage && (mainImage->isTextureBacked() || !canvas->getGrContext()));
-        SkASSERT(auxImage && (auxImage->isTextureBacked() || !canvas->getGrContext()));
+        SkASSERT(mainImage && (mainImage->isTextureBacked() || !canvas->recordingContext()));
+        SkASSERT(auxImage && (auxImage->isTextureBacked() || !canvas->recordingContext()));
 
         SkScalar MARGIN = SkIntToScalar(40);
         SkScalar DX = mainImage->width() + MARGIN;

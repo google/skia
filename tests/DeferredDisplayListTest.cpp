@@ -987,10 +987,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
 ////////////////////////////////////////////////////////////////////////////////
 // Ensure that flushing while DDL recording doesn't cause a crash
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto direct = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(direct, SkBudgeted::kNo, ii);
 
     SkSurfaceCharacterization characterization;
     SkAssertResult(s->characterize(&characterization));
@@ -998,6 +998,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     SkDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* canvas = recorder.getCanvas();
 
+    // CONTEXT TODO: once getGrContext goes away this test should be deleted since this
+    // situation won't be possible.
     canvas->getGrContext()->flushAndSubmit();
 }
 

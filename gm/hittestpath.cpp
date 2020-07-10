@@ -35,7 +35,7 @@ static void test_hittest(SkCanvas* canvas, const SkPath& path) {
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(hittestpath, canvas, errorMsg, 700, 460) {
-    if (canvas->getGrContext()) {
+    if (canvas->recordingContext()) {
         // GPU rasterization results vary greatly from platform to platform. We can't use them as
         // an expected result for our internal SkPath::contains().
         *errorMsg = "This test is for CPU configs only.";

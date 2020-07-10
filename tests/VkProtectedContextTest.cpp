@@ -143,9 +143,12 @@ DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options)
     if (!protectedTestHelper->init()) {
         return;
     }
-    REPORTER_ASSERT(reporter, protectedTestHelper->directContext() != nullptr);
 
-    auto surface = create_protected_sksurface(protectedTestHelper->directContext(), reporter);
+    auto direct = protectedTestHelper->directContext();
+
+    REPORTER_ASSERT(reporter, direct != nullptr);
+
+    auto surface = create_protected_sksurface(direct, reporter);
     REPORTER_ASSERT(reporter, surface);
     AsyncContext cbContext;
     const auto image_info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
@@ -154,14 +157,14 @@ DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options)
                                              image_info.bounds(), image_info.dimensions(),
                                              SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
                                              &async_callback, &cbContext);
-    protectedTestHelper->directContext()->submit();
+    direct->submit();
     while (!cbContext.fCalled) {
-        surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
+        direct->checkAsyncWorkCompletion();
     }
     REPORTER_ASSERT(reporter, !cbContext.fResult);
 
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
+    direct->deleteBackendTexture(
+            surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangle, reporter, options) {

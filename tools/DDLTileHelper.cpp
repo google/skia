@@ -71,6 +71,8 @@ void DDLTileHelper::TileData::createDDL() {
     // stored in fReconstitutedPicture's promise images are incorrect. Patch them with the correct
     // one now.
     for (int i = 0; i < fPromiseImages.count(); ++i) {
+        // CONTEXT TODO: this can be converted to a recording context once images no longer
+        // hold GrContexts
         GrContext* newContext = recordingCanvas->getGrContext();
 
         if (fPromiseImages[i]->isTextureBacked()) {
