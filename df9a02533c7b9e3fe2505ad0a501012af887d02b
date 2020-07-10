@@ -39,6 +39,30 @@
       "revId": "df9a02533c7b9e3fe2505ad0a501012af887d02b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "325a8a5f_300addf4",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 12089
+      },
+      "writtenOn": "2020-07-10T08:01:16Z",
+      "side": 1,
+      "message": "All GL subdirectories (src/gpu/gl/**) are already excluded above except the \u0027builders\u0027 directory. Added exclude rule for \"src/gpu/gl/builders/*\" as well.",
+      "parentUuid": "1c4e388e_93e3aecf",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 23
+      },
+      "revId": "df9a02533c7b9e3fe2505ad0a501012af887d02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
