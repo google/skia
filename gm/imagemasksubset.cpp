@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tools/ToolUtils.h"
 
 namespace {
@@ -82,7 +83,8 @@ DEF_SIMPLE_GM(imagemasksubset, canvas, 480, 480) {
         sk_sp<SkImage> image = makers[i](canvas, info);
         if (image) {
             canvas->drawImageRect(image, SkRect::Make(kSubset), kDest, &paint);
-            sk_sp<SkImage> subset = image->makeSubset(kSubset);
+            auto direct = GrAsDirectContext(canvas->recordingContext());
+            sk_sp<SkImage> subset = image->makeSubset(kSubset, direct);
             canvas->drawImageRect(subset, kDest.makeOffset(kSize.width() * 1.5f, 0), &paint);
         }
         canvas->translate(0, kSize.height() * 1.5f);
