@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52330536_e11a3253",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T17:27:52Z",
+      "side": 1,
+      "message": "Shouldn\u0027t use also set fMapPtr to null here? Otherwise the Tick() loop below may return a false positive.",
+      "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b255831_28c653b8",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T17:27:52Z",
+      "side": 1,
+      "message": "Technically, this should be safe, but I\u0027m a little concerned about allowing for \"blocking\" writeable buffers. Unless there\u0027s use case that needs them, it\u0027s just inviting jank. For example, if someone removed the mapWriteAsync() calls from from onSubmitToGpu(), tests would likely still pass thanks to this \"seatbelt\", but performance would be terrible.\n\nIMHO, we should just assert that the buffer is already in the mapped state, the callback has been called and the pointer is non-null.",
+      "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
