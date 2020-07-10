@@ -46,7 +46,6 @@ private:
     size_t fStagingOffset = 0;
 };
 
-
 class GrDawnTransferBuffer : public GrDawnBuffer {
 public:
     GrDawnTransferBuffer(GrDawnGpu* gpu,

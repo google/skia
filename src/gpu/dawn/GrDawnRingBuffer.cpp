@@ -8,7 +8,6 @@
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 
 #include "src/gpu/dawn/GrDawnGpu.h"
-#include "src/gpu/dawn/GrDawnStagingBuffer.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
 
 namespace {
@@ -31,12 +30,13 @@ GrDawnRingBuffer::Slice GrDawnRingBuffer::allocate(int size) {
         fOffset = 0;
     }
 
-    GrStagingBuffer::Slice staging = fGpu->allocateStagingBufferSlice(size);
+    GrStagingBufferManager::Slice staging =
+            fGpu->stagingBufferManager()->allocateStagingBufferSlice(size);
     size_t offset = fOffset;
     fOffset += size;
     fOffset = GrDawnRoundRowBytes(fOffset);
-    wgpu::Buffer srcBuffer = static_cast<GrDawnStagingBuffer*>(staging.fBuffer)->buffer();
-    fGpu->getCopyEncoder().CopyBufferToBuffer(srcBuffer, staging.fOffset,
+    GrDawnBuffer* srcBuffer = static_cast<GrDawnBuffer*>(staging.fBuffer);
+    fGpu->getCopyEncoder().CopyBufferToBuffer(srcBuffer->get(), staging.fOffset,
                                               fBuffer, offset, size);
-    return Slice(fBuffer, offset, staging.fData);
+    return Slice(fBuffer, offset, staging.fOffsetMapPtr);
 }
