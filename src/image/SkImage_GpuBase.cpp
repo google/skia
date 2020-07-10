@@ -248,8 +248,8 @@ GrTexture* SkImage_GpuBase::getTexture() const {
     return view->proxy()->peekTexture();
 }
 
-bool SkImage_GpuBase::onIsValid(GrContext* context) const {
-    // The base class has already checked that context isn't abandoned (if it's not nullptr)
+bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
+    // The base class has already checked that 'context' isn't abandoned (if it's not nullptr)
     if (fContext->abandoned()) {
         return false;
     }
