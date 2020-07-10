@@ -3,7 +3,8 @@ module go.skia.org/skia
 go 1.12
 
 require (
-	cloud.google.com/go/pubsub v1.5.0 // indirect
+	cloud.google.com/go/datastore v1.2.0
+	cloud.google.com/go/pubsub v1.5.0
 	cloud.google.com/go/storage v1.10.0
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
@@ -24,8 +25,8 @@ require (
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
-	go.chromium.org/luci v0.0.0-20200709090344-f701a3b9eae1 // indirect
-	go.skia.org/infra v0.0.0-20200709171759-d743a7d95130
+	go.chromium.org/luci v0.0.0-20200708090551-4d14b1192fec // indirect
+	go.skia.org/infra v0.0.0-20200708160605-39bbe4780f83
 	golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
