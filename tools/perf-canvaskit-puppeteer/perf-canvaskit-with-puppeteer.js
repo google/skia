@@ -211,7 +211,7 @@ async function driveBrowser() {
     // Page is mostly loaded, wait for benchmark page to report itself ready.
     console.log('Waiting 15s for benchmark to be ready');
     await page.waitForFunction(`(window._perfReady === true) || window._error`, {
-      timeout: 15000,
+      timeout: 1500000,
     });
 
     let err = await page.evaluate('window._error');
@@ -237,7 +237,7 @@ async function driveBrowser() {
 
     console.log('Waiting 60s for run to be done');
     await page.waitForFunction(`(window._perfDone === true) || window._error`, {
-      timeout: 60000,
+      timeout: 6000000,
     });
 
     err = await page.evaluate('window._error');
