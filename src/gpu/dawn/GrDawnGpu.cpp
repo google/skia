@@ -149,9 +149,16 @@ GrOpsRenderPass* GrDawnGpu::getOpsRenderPass(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
 sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
                                              GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrGpuBuffer> b(new GrDawnBuffer(this, size, type, accessPattern));
+    sk_sp<GrGpuBuffer> b;
+    if (type == GrGpuBufferType::kXferCpuToGpu || type == GrGpuBufferType::kXferGpuToCpu) {
+        b.reset(new GrDawnTransferBuffer(this, size, type, accessPattern));
+    } else {
+        b.reset(new GrDawnGpuBuffer(this, size, type, accessPattern));
+    }
+
     if (data && b) {
         b->updateData(data, size);
     }
