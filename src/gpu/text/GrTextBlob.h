@@ -25,6 +25,7 @@
 class GrAtlasManager;
 class GrAtlasTextOp;
 class GrDeferredUploadTarget;
+class GrDrawOp;
 class GrGlyph;
 class GrStrikeCache;
 
@@ -263,6 +264,12 @@ public:
 
     // SubRun for paths
     SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
+
+    std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+    makeAtlasTextOp(const GrClip* clip,
+                    const SkMatrixProvider& viewMatrix,
+                    const SkGlyphRunList& glyphRunList,
+                    GrRenderTargetContext* rtc);
 
     // TODO when this object is more internal, drop the privacy
     void resetBulkUseToken();

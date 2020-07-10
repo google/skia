@@ -509,7 +509,7 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
 
     std::unique_ptr<GrDrawOp> op;
     std::tie(std::ignore, op) =
-            rtc->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, blob->firstSubRun());
+            blob->firstSubRun()->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
     return op;
 }
 
