@@ -20,8 +20,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "tools/ToolUtils.h"
@@ -72,8 +72,8 @@ protected:
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
-            if (auto ctx = canvas->getGrContext()) {
-                auto img = ctx->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
+            if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
+                auto img = direct->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
                 canvas->drawImage(img, 0, 0);
             }
         }

@@ -272,7 +272,8 @@ protected:
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
-        GrSurfaceProxyView view = as_IB(image)->refView(canvas->getGrContext(), GrMipMapped::kNo);
+        GrSurfaceProxyView view = as_IB(image)->refView(canvas->recordingContext(),
+                                                        GrMipMapped::kNo);
         if (!view) {
             // show placeholder if we have no texture
             SkPaint paint;
