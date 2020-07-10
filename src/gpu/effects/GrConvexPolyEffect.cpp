@@ -197,9 +197,7 @@ GrConvexPolyEffect::GrConvexPolyEffect(std::unique_ptr<GrFragmentProcessor> inpu
         fEdges[3 * i + 2] += SK_ScalarHalf;
     }
 
-    if (inputFP != nullptr) {
-        this->registerChild(std::move(inputFP));
-    }
+    this->registerChild(std::move(inputFP));
 }
 
 GrConvexPolyEffect::GrConvexPolyEffect(const GrConvexPolyEffect& that)
