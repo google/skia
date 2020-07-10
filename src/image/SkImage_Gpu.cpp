@@ -755,13 +755,15 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
                                             sk_sp<SkImage> image,
                                             GrBackendTexture* backendTexture,
                                             BackendTextureReleaseProc* releaseProc) {
-    if (!image || !ctx || !backendTexture || !releaseProc) {
+    // TODO: Elevate direct context requirement to public API.
+    auto direct = GrAsDirectContext(ctx);
+    if (!image || !direct || !backendTexture || !releaseProc) {
         return false;
     }
 
     // Ensure we have a texture backed image.
     if (!image->isTextureBacked()) {
-        image = image->makeTextureImage(ctx);
+        image = image->makeTextureImage(direct);
         if (!image) {
             return false;
         }
@@ -774,19 +776,19 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
     }
 
     // If the image's context doesn't match the provided context, fail.
-    if (texture->getContext() != ctx) {
+    if (texture->getContext() != direct) {
         return false;
     }
 
     // Flush any pending IO on the texture.
-    ctx->priv().flushSurface(as_IB(image)->peekProxy());
+    direct->priv().flushSurface(as_IB(image)->peekProxy());
 
     // We must make a copy of the image if the image is not unique, if the GrTexture owned by the
     // image is not unique, or if the texture wraps an external object.
     if (!image->unique() || !texture->unique() ||
         texture->resourcePriv().refsWrappedObjects()) {
         // onMakeSubset will always copy the image.
-        image = as_IB(image)->onMakeSubset(ctx, image->bounds());
+        image = as_IB(image)->onMakeSubset(image->bounds(), direct);
         if (!image) {
             return false;
         }
@@ -797,7 +799,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
         }
 
         // Flush to ensure that the copy is completed before we return the texture.
-        ctx->priv().flushSurface(as_IB(image)->peekProxy());
+        direct->priv().flushSurface(as_IB(image)->peekProxy());
     }
 
     SkASSERT(!texture->resourcePriv().refsWrappedObjects());
