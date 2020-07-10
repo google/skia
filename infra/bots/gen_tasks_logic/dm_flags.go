@@ -714,6 +714,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	badSerializeGMs = append(badSerializeGMs, "makecolorspace")
 	badSerializeGMs = append(badSerializeGMs, "readpixels")
 	badSerializeGMs = append(badSerializeGMs, "draw_image_set_rect_to_rect")
+	badSerializeGMs = append(badSerializeGMs, "draw_image_set_alpha_only")
 	badSerializeGMs = append(badSerializeGMs, "compositor_quads_shader")
 	badSerializeGMs = append(badSerializeGMs, "wacky_yuv_formats_qtr")
 

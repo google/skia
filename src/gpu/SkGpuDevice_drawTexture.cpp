@@ -319,6 +319,17 @@ static bool can_use_draw_texture(const SkPaint& paint) {
             !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality);
 }
 
+static SkPMColor4f texture_color(SkColor4f paintColor, float entryAlpha, GrColorType srcColorType,
+                                 const GrColorInfo& dstColorInfo) {
+    paintColor.fA *= entryAlpha;
+    if (GrColorTypeIsAlphaOnly(srcColorType)) {
+        return SkColor4fPrepForDst(paintColor, dstColorInfo).premul();
+    } else {
+        float paintAlpha = SkTPin(paintColor.fA, 0.f, 1.f);
+        return { paintAlpha, paintAlpha, paintAlpha, paintAlpha };
+    }
+}
+
 // Assumes srcRect and dstRect have already been optimized to fit the proxy
 static void draw_texture(GrRenderTargetContext* rtc, const GrClip* clip, const SkMatrix& ctm,
                          const SkPaint& paint, const SkRect& srcRect, const SkRect& dstRect,
@@ -355,14 +366,8 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip* clip, const S
             constraint = SkCanvas::kStrict_SrcRectConstraint;
         }
     }
-    SkPMColor4f color;
-    if (GrColorTypeIsAlphaOnly(srcColorInfo.colorType())) {
-        color = SkColor4fPrepForDst(paint.getColor4f(), dstInfo).premul();
-    } else {
-        float paintAlpha = paint.getColor4f().fA;
-        color = { paintAlpha, paintAlpha, paintAlpha, paintAlpha };
-    }
 
+    SkPMColor4f color = texture_color(paint.getColor4f(), 1.f, srcColorInfo.colorType(), dstInfo);
     if (dstClip) {
         // Get source coords corresponding to dstClip
         SkPoint srcQuad[4];
@@ -845,7 +850,9 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         textures[i].fDstClipQuad = clip;
         textures[i].fPreViewMatrix =
                 set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex;
-        textures[i].fAlpha = set[i].fAlpha * paint.getAlphaf();
+        textures[i].fColor = texture_color(paint.getColor4f(), set[i].fAlpha,
+                                           SkColorTypeToGrColorType(image->colorType()),
+                                           fRenderTargetContext->colorInfo());
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
 
         if (n > 0 &&

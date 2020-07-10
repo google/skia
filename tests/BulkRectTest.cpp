@@ -100,7 +100,7 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
         set[i].fDstRect = SkRect::MakeWH(100.5f, 100.5f); // prevent the int non-AA optimization
         set[i].fDstClipQuad = nullptr;
         set[i].fPreViewMatrix = nullptr;
-        set[i].fAlpha = 1.0f;
+        set[i].fColor = {1.f, 1.f, 1.f, 1.f};
         set[i].fAAFlags = perQuadAA(i);
     }
 

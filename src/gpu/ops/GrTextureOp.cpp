@@ -607,9 +607,7 @@ private:
 
             // Always append a quad (or 2 if perspective clipped), it just may refer back to a prior
             // ViewCountPair (this frequently happens when Chrome draws 9-patches).
-            float alpha = SkTPin(set[q].fAlpha, 0.f, 1.f);
-            fViewCountPairs[p].fQuadCnt += this->appendQuad(
-                    &quad, {alpha, alpha, alpha, alpha}, subset);
+            fViewCountPairs[p].fQuadCnt += this->appendQuad(&quad, set[q].fColor, subset);
         }
         // The # of proxy switches should match what was provided (+1 because we incremented p
         // when a new proxy was encountered).
@@ -1157,7 +1155,6 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
         // automatically creates the appropriate GrFillRectOp to emulate GrTextureOp.
         SkMatrix ctm;
         for (int i = 0; i < cnt; ++i) {
-            float alpha = set[i].fAlpha;
             ctm = viewMatrix;
             if (set[i].fPreViewMatrix) {
                 ctm.preConcat(*set[i].fPreViewMatrix);
@@ -1180,7 +1177,7 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
                     ? &set[i].fSrcRect : nullptr;
 
             auto op = Make(context, set[i].fProxyView, set[i].fSrcAlphaType, textureColorSpaceXform,
-                           filter, {alpha, alpha, alpha, alpha}, saturate, blendMode, aaType,
+                           filter, set[i].fColor, saturate, blendMode, aaType,
                            &quad, subset);
             rtc->addDrawOp(clip, std::move(op));
         }
