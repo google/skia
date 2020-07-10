@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fb36377_b1e123df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12809
+      },
+      "writtenOn": "2020-07-10T20:15:31Z",
+      "side": 1,
+      "message": "I didn\u0027t see any failed jobs on https://skia-review.googlesource.com/c/skia/+/301676. Is there a way i can test this locally ?",
+      "revId": "67db194bdc08a5cdf37da2eef89955d96f533296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
