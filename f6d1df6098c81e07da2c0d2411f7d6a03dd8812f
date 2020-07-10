@@ -87,6 +87,24 @@
       "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "620c2c30_1cc82f21",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T20:08:15Z",
+      "side": 1,
+      "message": "Okay as you can see in the latest change I just assert that the buffer is already mapped when map() is called. This should be safe since we either create the buffer mapped and its the first use, or we used the async map to know when its safe to use the buffer in general.",
+      "parentUuid": "d46a980e_6f56be50",
+      "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

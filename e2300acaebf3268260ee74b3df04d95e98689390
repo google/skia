@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73c8d3af_97ad8b8e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T20:08:15Z",
+      "side": 1,
+      "message": "Okay I merged the classes back together, now create the xfer buffers mapped, and got rid of the MappedState enum.",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21c3e253_f30b78a7",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T20:08:15Z",
+      "side": 1,
+      "message": "Notice that MappedState is gone here and we just used isMapped, which is returns whether fMapPtr is null or not. In the follow on change for the staging buffers, as long as we don\u0027t push onto the busy list till after we map then there is no need for the pending state there. However, this does mean that there is no check for someone calling mapWriteAsync twice in a row before the first call finishes. Is that an issue in dawn? Will dawn validation itself catch that if it ever happens?",
+      "range": {
+        "startLine": 123,
+        "startChar": 4,
+        "endLine": 123,
+        "endChar": 32
+      },
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
