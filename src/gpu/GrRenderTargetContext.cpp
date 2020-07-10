@@ -424,6 +424,61 @@ static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
     return canonicalColor;
 }
 
+void GrRenderTargetContext::drawTextPaths(const GrClip* clip,
+                                          const SkMatrixProvider& viewMatrix,
+                                          const SkGlyphRunList& glyphRunList,
+                                          GrTextBlob::SubRun* subRun) {
+    SkASSERT(!subRun->paths().empty());
+    SkPoint drawOrigin = glyphRunList.origin();
+    const SkPaint& drawPaint = glyphRunList.paint();
+    SkPaint runPaint{drawPaint};
+    runPaint.setAntiAlias(subRun->isAntiAliased());
+    // If there are shaders, blurs or styles, the path must be scaled into source
+    // space independently of the CTM. This allows the CTM to be correct for the
+    // different effects.
+    GrStyle style(runPaint);
+
+    bool needsExactCTM = runPaint.getShader()
+                         || style.applies()
+                         || runPaint.getMaskFilter();
+
+    // Calculate the matrix that maps the path glyphs from their size in the strike to
+    // the graphics source space.
+    SkScalar scale = subRun->strikeSpec().strikeToSourceRatio();
+    SkMatrix strikeToSource = SkMatrix::Scale(scale, scale);
+    strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
+    if (!needsExactCTM) {
+        for (const auto& pathPos : subRun->paths()) {
+            const SkPath& path = pathPos.fPath;
+            const SkPoint pos = pathPos.fOrigin;  // Transform the glyph to source space.
+            SkMatrix pathMatrix = strikeToSource;
+            pathMatrix.postTranslate(pos.x(), pos.y());
+            SkPreConcatMatrixProvider strikeToDevice(viewMatrix, pathMatrix);
+
+            GrStyledShape shape(path, drawPaint);
+            GrBlurUtils::drawShapeWithMaskFilter(
+                    this->fContext, this, clip, runPaint, strikeToDevice, shape);
+        }
+    } else {
+        // Transform the path to device because the deviceMatrix must be unchanged to
+        // draw effect, filter or shader paths.
+        for (const auto& pathPos : subRun->paths()) {
+            const SkPath& path = pathPos.fPath;
+            const SkPoint pos = pathPos.fOrigin;
+            // Transform the glyph to source space.
+            SkMatrix pathMatrix = strikeToSource;
+            pathMatrix.postTranslate(pos.x(), pos.y());
+
+            SkPath deviceOutline;
+            path.transform(pathMatrix, &deviceOutline);
+            deviceOutline.setIsVolatile(true);
+            GrStyledShape shape(deviceOutline, drawPaint);
+            GrBlurUtils::drawShapeWithMaskFilter(
+                    this->fContext, this, clip, runPaint, viewMatrix, shape);
+        }
+    }
+}
+
 void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
                                              const SkMatrixProvider& matrixProvider,
                                              const SkGlyphRunList& glyphRunList) {
@@ -505,53 +560,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
 
     for (GrTextBlob::SubRun* subRun : blob->subRunList()) {
         if (subRun->drawAsPaths()) {
-            SkASSERT(!subRun->paths().empty());
-            SkPaint runPaint{blobPaint};
-            runPaint.setAntiAlias(subRun->isAntiAliased());
-            // If there are shaders, blurs or styles, the path must be scaled into source
-            // space independently of the CTM. This allows the CTM to be correct for the
-            // different effects.
-            GrStyle style(runPaint);
-
-            bool needsExactCTM = runPaint.getShader()
-                                 || style.applies()
-                                 || runPaint.getMaskFilter();
-
-            // Calculate the matrix that maps the path glyphs from their size in the strike to
-            // the graphics source space.
-            SkScalar scale = subRun->strikeSpec().strikeToSourceRatio();
-            SkMatrix strikeToSource = SkMatrix::Scale(scale, scale);
-            strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
-            if (!needsExactCTM) {
-                for (const auto& pathPos : subRun->paths()) {
-                    const SkPath& path = pathPos.fPath;
-                    const SkPoint pos = pathPos.fOrigin;  // Transform the glyph to source space.
-                    SkMatrix pathMatrix = strikeToSource;
-                    pathMatrix.postTranslate(pos.x(), pos.y());
-                    SkPreConcatMatrixProvider strikeToDevice(matrixProvider, pathMatrix);
-
-                    GrStyledShape shape(path, blobPaint);
-                    GrBlurUtils::drawShapeWithMaskFilter(
-                            this->fContext, this, clip, runPaint, strikeToDevice, shape);
-                }
-            } else {
-                // Transform the path to device because the deviceMatrix must be unchanged to
-                // draw effect, filter or shader paths.
-                for (const auto& pathPos : subRun->paths()) {
-                    const SkPath& path = pathPos.fPath;
-                    const SkPoint pos = pathPos.fOrigin;
-                    // Transform the glyph to source space.
-                    SkMatrix pathMatrix = strikeToSource;
-                    pathMatrix.postTranslate(pos.x(), pos.y());
-
-                    SkPath deviceOutline;
-                    path.transform(pathMatrix, &deviceOutline);
-                    deviceOutline.setIsVolatile(true);
-                    GrStyledShape shape(deviceOutline, blobPaint);
-                    GrBlurUtils::drawShapeWithMaskFilter(
-                            this->fContext, this, clip, runPaint, matrixProvider, shape);
-                }
-            }
+            this->drawTextPaths(clip, matrixProvider, glyphRunList, subRun);
         } else {
             // Handle the mask and distance field cases.
             SkASSERT(subRun->glyphCount() != 0);

@@ -22,6 +22,7 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/text/GrTextBlob.h"
 
 class GrBackendSemaphore;
 class GrClip;
@@ -509,6 +510,13 @@ public:
                           GrSamplerState::Filter,
                           std::unique_ptr<SkLatticeIter>,
                           const SkRect& dst);
+    /**
+     * Draw the paths for text.
+     */
+    void drawTextPaths(const GrClip*,
+                       const SkMatrixProvider& viewMatrix,
+                       const SkGlyphRunList& glyphRunList,
+                       GrTextBlob::SubRun* subRun);
 
     /**
      * Draws the src texture with no matrix. The dstRect is the dstPoint with the width and height
