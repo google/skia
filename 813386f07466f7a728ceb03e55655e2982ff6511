@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac46c5c3_1cbc24e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-10T00:14:22Z",
+      "side": 1,
+      "message": "lgtm, did you also inspect some of the final glsl to see if that makes sense as well? Definitely much simpler now!",
+      "revId": "813386f07466f7a728ceb03e55655e2982ff6511",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
