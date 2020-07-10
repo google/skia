@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "b3da5a04_65fb4f92",
+        "filename": "src/gpu/GrStagingBufferManager.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88144a3e_18816640",
+      "range": {
+        "startLine": 48,
+        "startChar": 52,
+        "endLine": 48,
+        "endChar": 54
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87e16a55_9032d297",
         "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
         "patchSetId": 7
@@ -154,6 +178,30 @@
     },
     {
       "key": {
+        "uuid": "b358eb79_f7e448f6",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:16:34Z",
+      "side": 1,
+      "message": "Okay I can move it back to all being in one class. I\u0027ve structured the change so this is independent of what we pick here. The changes to GrDawnBuffer are all on the dependent change here, https://skia-review.googlesource.com/c/skia/+/300199/8. So we can move this conversation there.",
+      "parentUuid": "dde32a1d_60a7332f",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 41
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b78c9a0_58845096",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 7
@@ -174,6 +222,30 @@
       "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd31397a_83a0b5a8",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b78c9a0_58845096",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 5
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -200,6 +272,30 @@
     },
     {
       "key": {
+        "uuid": "327d05bb_40d209ea",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da6ce03f_62c16705",
+      "range": {
+        "startLine": 537,
+        "startChar": 0,
+        "endLine": 542,
+        "endChar": 5
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2df8b40b_a4618436",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 7
@@ -220,6 +316,30 @@
       "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31ea379a_938e6434",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2df8b40b_a4618436",
+      "range": {
+        "startLine": 766,
+        "startChar": 3,
+        "endLine": 769,
+        "endChar": 5
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -293,6 +413,30 @@
     },
     {
       "key": {
+        "uuid": "a98f2505_b2eca444",
+        "filename": "src/gpu/dawn/GrDawnRingBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed23db8d_36a8d5a8",
+      "range": {
+        "startLine": 15,
+        "startChar": 29,
+        "endLine": 15,
+        "endChar": 31
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a10397e_0b1e0109",
         "filename": "src/gpu/dawn/GrDawnStagingBuffer.h",
         "patchSetId": 7
@@ -337,6 +481,30 @@
       "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8269a49_5f8416b7",
+        "filename": "src/gpu/dawn/GrDawnStagingBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96eb921d_2477e8d5",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 26
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
