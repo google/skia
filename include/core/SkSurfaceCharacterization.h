@@ -21,7 +21,6 @@ class SkColorSpace;
 
 #if SK_SUPPORT_GPU
 // TODO: remove the GrContext.h include once Flutter is updated
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 
 /** \class SkSurfaceCharacterization

@@ -28,7 +28,7 @@
 #include "src/shaders/SkImageShader.h"
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
 #include "include/gpu/GrBackendSurface.h"

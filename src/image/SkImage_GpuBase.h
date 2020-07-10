@@ -11,11 +11,12 @@
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/image/SkImage_Base.h"
 
 class GrColorSpaceXform;
+class GrContext;
+class GrRenderTargetContext;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
