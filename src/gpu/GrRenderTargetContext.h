@@ -519,16 +519,6 @@ public:
                        GrTextBlob::SubRun* subRun);
 
     /**
-     * Make the AtlasTextOp - returns the op and the original clip or nullptr for the clip if the
-     *                        op is going to clip geometrically.
-     */
-    std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
-    makeAtlasTextOp(const GrClip*,
-                    const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList& glyphRunList,
-                    GrTextBlob::SubRun* subRun);
-
-    /**
      * Draw the text specified by the SkGlyphRunList.
      *
      * @param viewMatrix      transformationMatrix

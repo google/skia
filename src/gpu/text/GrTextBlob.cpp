@@ -7,6 +7,7 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixPriv.h"
@@ -15,7 +16,13 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrClip.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
@@ -57,6 +64,130 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
         , fStrikeSpec{strikeSpec}
         , fVertexBounds{SkRect::MakeEmpty()}
         , fVertexData{SkSpan<VertexData>{}} { }
+
+static SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
+    SkColor4f c = paint.getColor4f();
+    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
+        c = xform->apply(c);
+    }
+    if (auto* cf = paint.getColorFilter()) {
+        c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
+    }
+    return c.premul();
+}
+
+std::tuple<const GrClip*, std::unique_ptr<GrDrawOp> >
+GrTextBlob::SubRun::makeAtlasTextOp(const GrClip* clip,
+                                    const SkMatrixProvider& viewMatrix,
+                                    const SkGlyphRunList& glyphRunList,
+                                    GrRenderTargetContext* rtc) {
+    SkASSERT(this->glyphCount() != 0);
+
+    SkPoint drawOrigin = glyphRunList.origin();
+    const SkPaint& drawPaint = glyphRunList.paint();
+    const SkMatrix& drawMatrix = viewMatrix.localToDevice();
+    GrRecordingContext* context = rtc->priv().getContext();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    const GrColorInfo& colorInfo = rtc->colorInfo();
+
+    // This is the color the op will use to draw.
+    SkPMColor4f drawingColor = generate_filtered_color(drawPaint, colorInfo);
+
+    GrPaint grPaint;
+    if (this->maskFormat() == kARGB_GrMaskFormat) {
+        SkPaintToGrPaintWithPrimitiveColor(
+                context, colorInfo, drawPaint, viewMatrix, &grPaint);
+    } else {
+        SkPaintToGrPaint(context, colorInfo, drawPaint, viewMatrix, &grPaint);
+    }
+
+    // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
+    // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
+    std::unique_ptr<GrDrawOp> op;
+    if (!this->drawAsDistanceFields()) {
+        SkIRect clipRect = SkIRect::MakeEmpty();
+        if (!this->needsTransform()) {
+            // We only need to do clipping work if the SubRun isn't contained by the clip
+            SkRect subRunBounds = this->deviceRect(drawMatrix, drawOrigin);
+            SkRect renderTargetBounds = SkRect::MakeWH(rtc->width(), rtc->height());
+            if (clip == nullptr && !renderTargetBounds.intersects(subRunBounds)) {
+                // If the SubRun is completely outside, don't add an op for it.
+                return {nullptr, nullptr};
+            } else if (clip != nullptr) {
+                GrClip::PreClipResult result = clip->preApply(subRunBounds);
+                if (result.fEffect == GrClip::Effect::kClipped) {
+                    if (result.fIsRRect && result.fRRect.isRect() &&
+                        result.fAA == GrAA::kNo) {
+                        // Clip geometrically during onPrepare using clipRect.
+                        result.fRRect.getBounds().round(&clipRect);
+                        clip = nullptr;
+                    }
+                } else if (result.fEffect == GrClip::Effect::kClippedOut) {
+                    return {nullptr, nullptr};
+                }
+            }
+        }
+
+        if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
+
+        GrAtlasTextOp::MaskType maskType = [&]() {
+            switch (this->maskFormat()) {
+                case kA8_GrMaskFormat: return GrAtlasTextOp::kGrayscaleCoverageMask_MaskType;
+                case kA565_GrMaskFormat: return GrAtlasTextOp::kLCDCoverageMask_MaskType;
+                case kARGB_GrMaskFormat: return GrAtlasTextOp::kColorBitmapMask_MaskType;
+                    // Needed to placate some compilers.
+                default: return GrAtlasTextOp::kGrayscaleCoverageMask_MaskType;
+            }
+        }();
+
+        op = pool->allocate<GrAtlasTextOp>(maskType,
+                                           std::move(grPaint),
+                                           this,
+                                           drawMatrix,
+                                           drawOrigin,
+                                           clipRect,
+                                           drawingColor,
+                                           0,
+                                           false,
+                                           0);
+    } else {
+        const SkSurfaceProps& props = rtc->surfaceProps();
+        bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
+        bool isLCD = this->hasUseLCDText() && SkPixelGeometryIsH(props.pixelGeometry());
+        using MT = GrAtlasTextOp::MaskType;
+        MT maskType = !this->isAntiAliased() ? MT::kAliasedDistanceField_MaskType
+                                               : isLCD ? (isBGR ? MT::kLCDBGRDistanceField_MaskType
+                                                                : MT::kLCDDistanceField_MaskType)
+                                                       : MT::kGrayscaleDistanceField_MaskType;
+
+        bool useGammaCorrectDistanceTable = colorInfo.isLinearlyBlended();
+        uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+        DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+        DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
+        DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
+        DFGPFlags |= MT::kAliasedDistanceField_MaskType == maskType ?
+                     kAliased_DistanceFieldEffectFlag : 0;
+
+        if (isLCD) {
+            DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
+            DFGPFlags |= MT::kLCDBGRDistanceField_MaskType == maskType ?
+                         kBGR_DistanceFieldEffectFlag : 0;
+        }
+
+        op = pool->allocate<GrAtlasTextOp>(maskType,
+                                           std::move(grPaint),
+                                           this,
+                                           drawMatrix,
+                                           drawOrigin,
+                                           SkIRect::MakeEmpty(),
+                                           drawingColor,
+                                           SkPaintPriv::ComputeLuminanceColor(drawPaint),
+                                           useGammaCorrectDistanceTable,
+                                           DFGPFlags);
+    }
+
+    return {clip, std::move(op)};
+}
 
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 

@@ -47,7 +47,6 @@
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
-#include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
@@ -480,137 +479,6 @@ void GrRenderTargetContext::drawTextPaths(const GrClip* clip,
     }
 }
 
-static SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
-    SkColor4f c = paint.getColor4f();
-    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
-        c = xform->apply(c);
-    }
-    if (auto* cf = paint.getColorFilter()) {
-        c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
-    }
-    return c.premul();
-}
-
-std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
-GrRenderTargetContext::makeAtlasTextOp(const GrClip* clip,
-                                       const SkMatrixProvider& viewMatrix,
-                                       const SkGlyphRunList& glyphRunList,
-                                       GrTextBlob::SubRun* subRun) {
-    SkASSERT(subRun->glyphCount() != 0);
-
-    SkPoint drawOrigin = glyphRunList.origin();
-    const SkPaint& drawPaint = glyphRunList.paint();
-    const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-    GrRecordingContext* context = this->fContext;
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-    const GrColorInfo& colorInfo = this->colorInfo();
-
-    // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
-    // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
-    std::unique_ptr<GrDrawOp> op;
-    if (!subRun->drawAsDistanceFields()) {
-        SkIRect clipRect = SkIRect::MakeEmpty();
-        if (!subRun->needsTransform()) {
-            // We only need to do clipping work if the SubRun isn't contained by the clip
-            SkRect subRunBounds = subRun->deviceRect(drawMatrix, drawOrigin);
-            SkRect renderTargetBounds = SkRect::MakeWH(this->width(), this->height());
-            if (clip == nullptr && !renderTargetBounds.intersects(subRunBounds)) {
-                // If the SubRun is completely outside, don't add an op for it.
-                return {nullptr, nullptr};
-            } else if (clip != nullptr) {
-                GrClip::PreClipResult result = clip->preApply(subRunBounds);
-                if (result.fEffect == GrClip::Effect::kClipped) {
-                    if (result.fIsRRect && result.fRRect.isRect() &&
-                        result.fAA == GrAA::kNo) {
-                        // Clip geometrically during onPrepare using clipRect.
-                        result.fRRect.getBounds().round(&clipRect);
-                        clip = nullptr;
-                    }
-                } else if (result.fEffect == GrClip::Effect::kClippedOut) {
-                    return {nullptr, nullptr};
-                }
-            }
-        }
-
-        if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
-
-        // Produce the Bitmap Op.
-        GrPaint grPaint;
-        if (kARGB_GrMaskFormat == subRun->maskFormat()) {
-            SkPaintToGrPaintWithPrimitiveColor(
-                    context, colorInfo, drawPaint, viewMatrix, &grPaint);
-        } else {
-            SkPaintToGrPaint(context, colorInfo, drawPaint, viewMatrix, &grPaint);
-        }
-
-        // This is the color the op will use to draw.
-        SkPMColor4f drawingColor = generate_filtered_color(drawPaint, colorInfo);
-
-        GrAtlasTextOp::MaskType maskType = [&]() {
-            switch (subRun->maskFormat()) {
-                case kA8_GrMaskFormat: return GrAtlasTextOp::kGrayscaleCoverageMask_MaskType;
-                case kA565_GrMaskFormat: return GrAtlasTextOp::kLCDCoverageMask_MaskType;
-                case kARGB_GrMaskFormat: return GrAtlasTextOp::kColorBitmapMask_MaskType;
-                    // Needed to placate some compilers.
-                default: return GrAtlasTextOp::kGrayscaleCoverageMask_MaskType;
-            }
-        }();
-
-        op = pool->allocate<GrAtlasTextOp>(maskType,
-                                           std::move(grPaint),
-                                           subRun,
-                                           drawMatrix,
-                                           drawOrigin,
-                                           clipRect,
-                                           drawingColor,
-                                           0,
-                                           false,
-                                           0);
-    } else {
-        GrPaint grPaint;
-        SkPaintToGrPaint(context, colorInfo, drawPaint, viewMatrix, &grPaint);
-
-        // This is the color the op will use to draw.
-        SkPMColor4f drawingColor = generate_filtered_color(drawPaint, colorInfo);
-
-        const SkSurfaceProps& props = this->surfaceProps();
-        bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
-        bool isLCD = subRun->hasUseLCDText() && SkPixelGeometryIsH(props.pixelGeometry());
-        using MT = GrAtlasTextOp::MaskType;
-        MT maskType = !subRun->isAntiAliased() ? MT::kAliasedDistanceField_MaskType
-                                               : isLCD ? (isBGR ? MT::kLCDBGRDistanceField_MaskType
-                                                                : MT::kLCDDistanceField_MaskType)
-                                                       : MT::kGrayscaleDistanceField_MaskType;
-
-        bool useGammaCorrectDistanceTable = colorInfo.isLinearlyBlended();
-        uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-        DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-        DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
-        DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
-        DFGPFlags |= MT::kAliasedDistanceField_MaskType == maskType ?
-                     kAliased_DistanceFieldEffectFlag : 0;
-
-        if (isLCD) {
-            DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
-            DFGPFlags |= MT::kLCDBGRDistanceField_MaskType == maskType ?
-                         kBGR_DistanceFieldEffectFlag : 0;
-        }
-
-        op = pool->allocate<GrAtlasTextOp>(maskType,
-                                             std::move(grPaint),
-                                             subRun,
-                                             drawMatrix,
-                                             drawOrigin,
-                                             SkIRect::MakeEmpty(),
-                                             drawingColor,
-                                             SkPaintPriv::ComputeLuminanceColor(drawPaint),
-                                             useGammaCorrectDistanceTable,
-                                             DFGPFlags);
-    }
-
-    return {clip, std::move(op)};
-}
-
 void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
                                              const SkMatrixProvider& viewMatrix,
                                              const SkGlyphRunList& glyphRunList) {
@@ -694,7 +562,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         if (subRun->drawAsPaths()) {
             this->drawTextPaths(clip, viewMatrix, glyphRunList, subRun);
         } else {
-            auto [drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, subRun);
+            auto [drawingClip, op] = subRun->makeAtlasTextOp(clip, viewMatrix, glyphRunList, this);
             if (op != nullptr) {
                 this->addDrawOp(drawingClip, std::move(op));
             }
