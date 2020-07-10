@@ -235,10 +235,6 @@ BASE_SRCS_ALL = struct(
         # Conflicting dependencies among Lua versions. See cl/107087297.
         "src/utils/SkLua*",
 
-        # Exclude all GL specific files
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
-
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
 
@@ -270,8 +266,6 @@ def codec_srcs(limited):
 
 GL_SRCS_UNIX = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
         "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
     ],
     exclude = [],
@@ -302,8 +296,6 @@ PORTS_SRCS_UNIX = struct(
 
 GL_SRCS_ANDROID = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
         "src/gpu/gl/android/*.cpp",
     ],
     exclude = [],
@@ -335,8 +327,6 @@ PORTS_SRCS_ANDROID = struct(
 
 GL_SRCS_IOS = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
         "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp",
     ],
     exclude = [],
@@ -372,8 +362,6 @@ PORTS_SRCS_IOS = struct(
 
 GL_SRCS_WASM = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
         "src/gpu/gl/GrGLMakeNativeInterface_egl.cpp",
         "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
     ],
@@ -415,7 +403,7 @@ PORTS_SRCS_WASM = struct(
 
 GL_SRCS_FUCHSIA = struct(
     include = [
-        "src/gpu/vk/*",
+        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
     ],
     exclude = [],
 )
