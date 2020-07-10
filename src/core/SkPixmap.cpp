@@ -243,7 +243,6 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) c
                                                  SkTileMode::kClamp,
                                                  SkTileMode::kClamp,
                                                  &scale,
-                                                 (SkImageShader::FilterEnum)quality,
                                                  clampAsIfUnpremul);
 
     sk_sp<SkSurface> surface = SkSurface::MakeRasterDirect(dst.info(),
@@ -255,7 +254,7 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) c
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setFilterQuality(quality);
+    paint.setFilterQuality(quality);    // TODO: use filteroptions on shader
     paint.setShader(std::move(shader));
     surface->getCanvas()->drawPaint(paint);
     return true;

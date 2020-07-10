@@ -17,22 +17,10 @@ class SkImageStageUpdater;
 
 class SkImageShader : public SkShaderBase {
 public:
-    enum FilterEnum {   // first 4 entries match SkFilterQuality
-        kNone,
-        kLow,
-        kMedium,
-        kHigh,
-        // this is the special value for backward compatibility
-        kInheritFromPaint,
-        // this signals we should use the new SkFilterOptions
-        kUseFilterOptions,
-    };
-
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
                                 SkTileMode tmx,
                                 SkTileMode tmy,
                                 const SkMatrix* localMatrix,
-                                FilterEnum,
                                 bool clampAsIfUnpremul = false);
 
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
@@ -54,7 +42,6 @@ private:
                   SkTileMode tmx,
                   SkTileMode tmy,
                   const SkMatrix* localMatrix,
-                  FilterEnum,
                   bool clampAsIfUnpremul);
     SkImageShader(sk_sp<SkImage>,
                   SkTileMode tmx,
@@ -79,22 +66,17 @@ private:
     bool doStages(const SkStageRec&, SkImageStageUpdater* = nullptr) const;
 
     SkFilterQuality resolveFiltering(SkFilterQuality paintQuality) const {
-        switch (fFilterEnum) {
-            case kUseFilterOptions: return kNone_SkFilterQuality;   // TODO
-            case kInheritFromPaint: return paintQuality;
-            default: break;
-        }
-        return (SkFilterQuality)fFilterEnum;
+        return paintQuality;
     }
 
     sk_sp<SkImage>   fImage;
     const SkTileMode fTileModeX;
     const SkTileMode fTileModeY;
-    const FilterEnum fFilterEnum;
+    SkFilterOptions  fFilterOptions;
+    const bool       fUseFilterOptions;
     const bool       fClampAsIfUnpremul;
 
     // only use this if fFilterEnum == kUseFilterOptions
-    SkFilterOptions  fFilterOptions;
 
     friend class SkShaderBase;
     typedef SkShaderBase INHERITED;
