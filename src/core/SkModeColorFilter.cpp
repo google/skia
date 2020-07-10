@@ -99,9 +99,7 @@ GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProc
 
     SkDEBUGCODE(const bool fpHasConstIO = !inputFP || inputFP->hasConstantOutputForConstantInput();)
 
-    auto colorFP = GrConstColorProcessor::Make(
-            /*inputFP=*/nullptr, SkColorToPMColor4f(fColor, dstColorInfo),
-            GrConstColorProcessor::InputMode::kIgnore);
+    auto colorFP = GrConstColorProcessor::Make(SkColorToPMColor4f(fColor, dstColorInfo));
     auto xferFP = GrXfermodeFragmentProcessor::Make(
             std::move(colorFP), std::move(inputFP), fMode,
             GrXfermodeFragmentProcessor::ComposeBehavior::kSkModeBehavior);

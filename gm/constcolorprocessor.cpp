@@ -37,6 +37,8 @@
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
+#include "src/gpu/effects/generated/GrModulateAlphaEffect.h"
+#include "src/gpu/effects/generated/GrModulateRGBAEffect.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/ToolUtils.h"
@@ -87,18 +89,17 @@ protected:
         };
 
         const char* kModeStrs[] {
-            "kIgnore",
-            "kModulateRGBA",
-            "kModulateA",
+            "ConstColor",
+            "ModulateRGBA",
+            "ModulateAlpha",
         };
-        static_assert(SK_ARRAY_COUNT(kModeStrs) == GrConstColorProcessor::kInputModeCnt);
 
         SkScalar y = kPad;
         SkScalar x = kPad;
         SkScalar maxW = 0;
         for (size_t paintType = 0; paintType < SK_ARRAY_COUNT(kPaintColors) + 1; ++paintType) {
             for (size_t procColor = 0; procColor < SK_ARRAY_COUNT(kColors); ++procColor) {
-                for (int m = 0; m < GrConstColorProcessor::kInputModeCnt; ++m) {
+                for (int mode = 0; mode < 3; ++mode) {
                     // translate by x,y for the canvas draws and the test target draws.
                     canvas->save();
                     canvas->translate(x, y);
@@ -115,15 +116,29 @@ protected:
                         baseFP = as_SB(fShader)->asFragmentProcessor(args);
                     } else {
                         baseFP = GrConstColorProcessor::Make(
-                                /*inputFP=*/nullptr,
-                                SkPMColor4f::FromBytes_RGBA(kPaintColors[paintType]),
-                                GrConstColorProcessor::InputMode::kIgnore);
+                                SkPMColor4f::FromBytes_RGBA(kPaintColors[paintType]));
                     }
 
                     // Layer a const-color FP on top of the base layer, using various modes/colors.
-                    auto constColorFP = GrConstColorProcessor::Make(
-                            std::move(baseFP), SkPMColor4f::FromBytes_RGBA(kColors[procColor]),
-                            GrConstColorProcessor::InputMode(m));
+                    std::unique_ptr<GrFragmentProcessor> constColorFP;
+                    switch (mode) {
+                        case 0:
+                            constColorFP = GrConstColorProcessor::Make(
+                                    SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
+                            break;
+
+                        case 1:
+                            constColorFP = GrModulateRGBAEffect::Make(
+                                    std::move(baseFP),
+                                    SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
+                            break;
+
+                        case 2:
+                            constColorFP = GrModulateAlphaEffect::Make(
+                                    std::move(baseFP),
+                                    SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
+                            break;
+                    }
 
                     // Render the FP tree.
                     if (auto op = sk_gpu_test::test_ops::MakeRect(context,
@@ -150,7 +165,7 @@ protected:
                         inputLabel.appendf("0x%08x", kPaintColors[paintType]);
                     }
                     SkString procLabel;
-                    procLabel.printf("Proc: [0x%08x, %s]", kColors[procColor], kModeStrs[m]);
+                    procLabel.printf("Proc: [0x%08x, %s]", kColors[procColor], kModeStrs[mode]);
 
                     SkRect inputLabelBounds;
                     // get the bounds of the text in order to position it
