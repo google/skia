@@ -29,6 +29,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMathPriv.h"
 #include "tools/ToolUtils.h"
@@ -133,7 +134,8 @@ static void imagesubsetproc(SkCanvas* canvas, SkImage* image, const SkBitmap& bm
         return;
     }
 
-    if (sk_sp<SkImage> subset = image->makeSubset(srcR)) {
+    auto direct = GrAsDirectContext(canvas->recordingContext());
+    if (sk_sp<SkImage> subset = image->makeSubset(srcR, direct)) {
         canvas->drawImageRect(subset, dstR, paint);
     }
 }
