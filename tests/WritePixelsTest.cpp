@@ -390,7 +390,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
                 const SkColorType ct = gSrcConfigs[c].fColorType;
                 const SkAlphaType at = gSrcConfigs[c].fAlphaType;
 
-                bool isGPU = SkToBool(surface->getCanvas()->getGrContext());
+                bool isGPU = SkToBool(surface->getCanvas()->recordingContext());
                 fill_surface(surface);
                 SkBitmap bmp;
                 REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
