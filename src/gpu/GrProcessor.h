@@ -112,6 +112,7 @@ public:
         kGrFillRRectOp_Processor_ClassID,
         kGrGaussianConvolutionFragmentProcessor_ClassID,
         kGrGSCoverageProcessor_ClassID,
+        kGrHighContrastFilterEffect_ClassID,
         kGrHSLToRGBFilterEffect_ClassID,
         kGrImprovedPerlinNoiseEffect_ClassID,
         kGrLinearGradientLayout_ClassID,
