@@ -34,12 +34,12 @@
 
 // Makes a set of m x n tiled images to be drawn with SkCanvas::experimental_drawImageSetV1().
 static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor colors[4],
-                             SkCanvas::ImageSetEntry set[]) {
+                             SkCanvas::ImageSetEntry set[], const SkColor bgColor=SK_ColorLTGRAY) {
     const int w = tileW * m;
     const int h = tileH * n;
     auto surf = SkSurface::MakeRaster(
             SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    surf->getCanvas()->clear(SK_ColorLTGRAY);
+    surf->getCanvas()->clear(bgColor);
 
     static constexpr SkScalar kStripeW = 10;
     static constexpr SkScalar kStripeSpacing = 30;
@@ -288,7 +288,68 @@ private:
     SkCanvas::ImageSetEntry fSet[kM * kN];
 };
 
+// This GM exercises alpha-only and color textures being combined correctly with the paint's color.
+class DrawImageSetAlphaOnlyGM : public GM {
+private:
+    SkString onShortName() override { return SkString("draw_image_set_alpha_only"); }
+    SkISize onISize() override { return {kM*kTileW, 2*kN*kTileH}; }
+    void onOnceBeforeDraw() override {
+        static constexpr SkColor kColors[] = {SK_ColorBLUE, SK_ColorTRANSPARENT,
+                                              SK_ColorRED,  SK_ColorTRANSPARENT};
+        static constexpr SkColor kBGColor = SkColorSetARGB(128, 128, 128, 128);
+        make_image_tiles(kTileW, kTileH, kM, kN, kColors, fSet, kBGColor);
+
+        // Modify the alpha of the entries, decreasing by column, and convert even rows to
+        // alpha-only textures.
+        sk_sp<SkColorSpace> alphaSpace = SkColorSpace::MakeSRGB();
+        for (int y = 0; y < kN; ++y) {
+            for (int x = 0; x < kM; ++x) {
+                int i = y * kM + x;
+                fSet[i].fAlpha = (kM - x) / (float) kM;
+                if (y % 2 == 0) {
+                    fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
+                            kAlpha_8_SkColorType, alphaSpace);
+                }
+            }
+        }
+
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        ToolUtils::draw_checkerboard(canvas, SK_ColorGRAY, SK_ColorDKGRAY, 25);
+
+        SkPaint paint;
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        paint.setBlendMode(SkBlendMode::kSrcOver);
+        paint.setColor4f({0.2f, 0.8f, 0.4f, 1.f}); // colorizes even rows, no effect on odd rows
+
+        // Top rows use experimental edge set API
+        canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, &paint,
+                                                SkCanvas::kFast_SrcRectConstraint);
+
+        canvas->translate(0.f, kN * kTileH);
+
+        // Bottom rows draw each image from the set using the regular API
+        for (int y = 0; y < kN; ++y) {
+            for (int x = 0; x < kM; ++x) {
+                int i = y * kM + x;
+                SkPaint entryPaint = paint;
+                entryPaint.setAlphaf(fSet[i].fAlpha * paint.getAlphaf());
+                canvas->drawImageRect(fSet[i].fImage.get(), fSet[i].fSrcRect, fSet[i].fDstRect,
+                                      &entryPaint, SkCanvas::kFast_SrcRectConstraint);
+            }
+        }
+    }
+
+    static constexpr int kM = 4;
+    static constexpr int kN = 4;
+    static constexpr int kTileW = 50;
+    static constexpr int kTileH = 50;
+    SkCanvas::ImageSetEntry fSet[kM * kN];
+};
+
 DEF_GM(return new DrawImageSetGM();)
 DEF_GM(return new DrawImageSetRectToRectGM();)
+DEF_GM(return new DrawImageSetAlphaOnlyGM();)
 
 }  // namespace skiagm
