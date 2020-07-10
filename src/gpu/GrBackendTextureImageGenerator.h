@@ -36,9 +36,12 @@ public:
     ~GrBackendTextureImageGenerator() override;
 
 protected:
-    // NOTE: We would like to validate that the owning context hasn't been abandoned, but we can't
-    // do that safely (we might be on another thread). So assume everything is fine.
-    bool onIsValid(GrContext*) const override { return true; }
+    bool onIsValid(GrRecordingContext* context) const override {
+        if (context && context->abandoned()) {
+            return false;
+        }
+        return true;
+    }
 
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
                                          GrMipMapped mipMapped, GrImageTexGenPolicy) override;

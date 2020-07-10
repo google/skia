@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    bool onIsValid(GrContext*) const override;
+    bool onIsValid(GrRecordingContext*) const override;
 
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
                                          GrMipMapped, GrImageTexGenPolicy) override;
