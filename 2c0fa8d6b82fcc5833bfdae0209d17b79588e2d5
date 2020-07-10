@@ -202,6 +202,30 @@
     },
     {
       "key": {
+        "uuid": "1094446c_caaadd8b",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T20:13:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b358eb79_f7e448f6",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 41
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b78c9a0_58845096",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 7
@@ -387,6 +411,30 @@
       "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcc08f9b_c86a3ae6",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T20:13:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0908997d_68da0d28",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 48
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

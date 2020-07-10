@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "c18951b2_2771ebcd",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T20:13:33Z",
+      "side": 1,
+      "message": "Mapped state has been removed",
+      "parentUuid": "d80cba61_8a7a9e29",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "86543925_b6dc868d",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 9
@@ -142,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "34466fa4_61db58dc",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 767,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T20:13:33Z",
+      "side": 1,
+      "message": "Changed to detaching into a temp vector and then mapping and moving them to busy all at once after the submit call. This approach allowed us to also get rid of the need for MappedState enum.",
+      "parentUuid": "80f7fd2c_ab5bdd33",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a1147950_b14f3add",
         "filename": "src/gpu/dawn/GrDawnGpu.h",
         "patchSetId": 9
@@ -174,6 +210,24 @@
       "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "383b211f_37dafe30",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T20:13:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3072a878_5529455f",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
