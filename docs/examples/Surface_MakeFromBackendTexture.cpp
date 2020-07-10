@@ -7,7 +7,7 @@ REG_FIDDLE(Surface_MakeFromBackendTexture, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setTextSize(32);
-    GrContext* context = canvas->getGrContext();
+    auto context = canvas->recordingContext();
     if (!context) {
          canvas->drawString("GPU only!", 20, 40, paint);
          return;

@@ -7,7 +7,7 @@ REG_FIDDLE(Surface_MakeRenderTarget, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setTextSize(32);
-    GrContext* context = canvas->getGrContext();
+    auto context = canvas->getGrContext();
     if (!context) {
          canvas->drawString("GPU only!", 20, 40, paint);
          return;

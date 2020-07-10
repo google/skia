@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
         paint.setTextSize(32);
         surfaceCanvas->drawString("Pest", 0, 25, paint);
     };
-    GrContext* context = canvas->getGrContext();
+    auto context = canvas->recordingContext();
     SkImageInfo info = SkImageInfo::MakeN32(128, 64, kOpaque_SkAlphaType);
     int y = 0;
     for (auto geometry : { kRGB_H_SkPixelGeometry, kBGR_H_SkPixelGeometry,
