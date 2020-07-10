@@ -241,6 +241,30 @@
     },
     {
       "key": {
+        "uuid": "04adcf44_a081ca1c",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-10T11:26:33Z",
+      "side": 1,
+      "message": "I think shader with children would probably be better as its own separate fuzzer, for code cleanliness. Don\u0027t worry about implementing it in this CL.",
+      "parentUuid": "c5d3de30_ca127cac",
+      "range": {
+        "startLine": 43,
+        "startChar": 51,
+        "endLine": 43,
+        "endChar": 62
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "51f45761_826a5d2d",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 11
