@@ -19,6 +19,74 @@
     },
     {
       "key": {
+        "uuid": "04ae88d0_291a9857",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T21:33:06Z",
+      "side": 1,
+      "message": "This is much cleaner, thanks!",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ccb99992_7619eb7e",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T21:33:06Z",
+      "side": 1,
+      "message": "Hmm. I\u0027ve never tried CreateBufferMapped for MapRead buffers. Should work, just never thought about it before. 😊",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07f7bd64_3c629c47",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T21:33:06Z",
+      "side": 1,
+      "message": "Does a static_cast not work here?",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fc1a9bd_12830b4a",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T21:33:06Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "21c3e253_f30b78a7",
         "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
         "patchSetId": 9
@@ -36,6 +104,47 @@
         "endLine": 123,
         "endChar": 32
       },
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "290c6d4c_9e0b0889",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T21:33:06Z",
+      "side": 1,
+      "message": "Yes, I believe Dawn will catch it in validation; see \n\nhttps://source.chromium.org/chromium/chromium/src/+/master:third_party/dawn/src/dawn_native/Buffer.cpp;l\u003d421",
+      "parentUuid": "21c3e253_f30b78a7",
+      "range": {
+        "startLine": 123,
+        "startChar": 4,
+        "endLine": 123,
+        "endChar": 32
+      },
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb544e24_b8f68c5f",
+        "filename": "src/gpu/dawn/GrDawnBuffer.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T21:33:06Z",
+      "side": 1,
+      "message": "Nit: I\u0027d prefer these were kept up above with the other overrides.",
       "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
