@@ -49,6 +49,7 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
 }
 
 void VulkanWindowContext::initializeContext() {
+    SkASSERT(!fContext);
     // any config code here (particularly for msaa)?
 
     PFN_vkGetInstanceProcAddr getInstanceProc = fGetInstanceProcAddr;
@@ -117,7 +118,9 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(QueuePresentKHR);
     GET_DEV_PROC(GetDeviceQueue);
 
-    fContext = GrContext::MakeVulkan(backendContext, fDisplayParams.fGrContextOptions);
+    // CONTEXT TODO: MakeVulkan should return an sk_sp<GrDirectContext>
+    auto tmp = GrContext::MakeVulkan(backendContext, fDisplayParams.fGrContextOptions);
+    fContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
 
     fSurface = fCreateVkSurfaceFn(fInstance);
     if (VK_NULL_HANDLE == fSurface) {
