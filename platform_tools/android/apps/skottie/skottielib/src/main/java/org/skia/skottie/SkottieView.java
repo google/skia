@@ -64,6 +64,19 @@ public class SkottieView extends FrameLayout {
         return mAnimation;
     }
 
+    // a float from 0 to 1 detailing the percent into the animation
+    public void seek(float progress) {
+        mAnimation.setProgress(progress);
+    }
+
+    public void play() {
+        mAnimation.resume();
+    }
+
+    public void pause() {
+        mAnimation.pause();
+    }
+
     // Builder accessed by user to generate SkottieViews
     public static class SkottieViewBuilder {
         protected AttributeSet attrs;

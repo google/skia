@@ -26,5 +26,17 @@ public interface SkottieAnimation extends Animatable {
      * @return animation progress.
      */
     @FloatRange(from = 0, to = 1) float getProgress();
+
+    /**
+     * Stops SkottieAnimation playback without destroying surface
+     */
+    void pause();
+
+    /**
+     * Resumes SkottieAnimation from when it was paused.
+     *
+     * @return Animation duration in milliseconds.
+     */
+    void resume();
 }
 

@@ -223,8 +223,16 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
 
     private void createLayout() {
         setContentView(R.layout.main_layout);
-        Button button1 = (Button)findViewById(R.id.open_lottie);
-        button1.setOnClickListener(this);
+        Button open = (Button)findViewById(R.id.open_lottie);
+        open.setOnClickListener(this);
+
+        Button play = (Button)findViewById(R.id.play);
+        play.setOnClickListener(this);
+        Button  pause = (Button)findViewById(R.id.pause);
+        pause.setOnClickListener(this);
+        Button reset = (Button)findViewById(R.id.reset);
+        reset.setOnClickListener(this);
+
         mGrid = (GridLayout)findViewById(R.id.grid_lotties);
         mGrid.setBackgroundColor(Color.LTGRAY);
 
@@ -247,10 +255,30 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        Intent intent = new Intent();
-        intent.setType("application/json");
-        Intent i = Intent.createChooser(intent, "View Default File Manager");
-        startActivityForResult(i, PICK_FILE_REQUEST);
+        switch(view.getId()) {
+            case R.id.open_lottie:
+                Intent intent = new Intent();
+                intent.setType("application/json");
+                Intent i = Intent.createChooser(intent, "View Default File Manager");
+                startActivityForResult(i, PICK_FILE_REQUEST);
+                break;
+            case R.id.play:
+                for (SkottieView anim : mAnimations) {
+                    anim.play();
+                }
+                break;
+            case R.id.pause:
+                for (SkottieView anim : mAnimations) {
+                    anim.pause();
+                }
+                break;
+            case R.id.reset:
+                for (SkottieView anim : mAnimations) {
+                    anim.seek(0f);
+                }
+                break;
+        }
+
     }
 
     @Override
