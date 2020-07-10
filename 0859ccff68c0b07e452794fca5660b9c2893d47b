@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69bc00b9_91fea7c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-10T18:15:18Z",
+      "side": 1,
+      "message": "Small change I ran across while setting up D3D compressed code.",
+      "revId": "0859ccff68c0b07e452794fca5660b9c2893d47b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
