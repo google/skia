@@ -4,8 +4,12 @@
 // HASH=c4ea949e5fa5a0630dcb6b0204bd498f
 REG_FIDDLE(Canvas_getGrContext, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
-    if (canvas->getGrContext()) {
-         canvas->clear(SK_ColorRED);
+    if (auto context = canvas->recordingContext()) {
+         if (context->asDirectContext()) {
+             canvas->clear(SK_ColorRED);
+         } else {
+             canvas->clear(SK_ColorGREEN);
+         }
     } else {
          canvas->clear(SK_ColorBLUE);
     }
