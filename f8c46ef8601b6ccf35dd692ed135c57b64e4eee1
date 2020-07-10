@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a537eacd_382b1f87",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-10T19:33:07Z",
+      "side": 1,
+      "message": "This is a step towards:\n1) Giving the user more control over how they want to use their SkottieViews\n2) Getting a correctness activity running\n\nWhile everything works, pausing is a little janky, but it still works as intended. The important thing for the correctness activity (pausing playback, then seeking) seems to be working just fine.",
+      "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
