@@ -43,6 +43,9 @@ public:
     // the base level. So index 0 represents mipmap level 1.
     static SkISize ComputeLevelSize(int baseWidth, int baseHeight, int level);
 
+    // Computes the fractional level based on the scaling in X and Y.
+    static float ComputeLevel(SkSize scaleSize);
+
     // We use a block of (possibly discardable) memory to hold an array of Level structs, followed
     // by the pixel data for each level. On 32-bit platforms, Level would naturally be 4 byte
     // aligned, so the pixel data could end up with 4 byte alignment. If the pixel data is F16,
@@ -52,7 +55,7 @@ public:
         SkSize      fScale; // < 1.0
     };
 
-    bool extractLevel(const SkSize& scale, Level*) const;
+    bool extractLevel(SkSize scale, Level*) const;
 
     // countLevels returns the number of mipmap levels generated (which does not
     // include the base mipmap level).
