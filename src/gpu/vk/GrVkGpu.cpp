@@ -1279,28 +1279,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture& beTex,
                                                          GrWrapOwnership ownership,
                                                          GrWrapCacheable cacheable) {
-    GrVkImageInfo imageInfo;
-    if (!beTex.getVkImageInfo(&imageInfo)) {
-        return nullptr;
-    }
-
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership,
-                          this->queueIndex())) {
-        return nullptr;
-    }
-
-    if (!check_tex_image_info(this->vkCaps(), imageInfo)) {
-        return nullptr;
-    }
-
-    if (beTex.isProtected() && (fProtectedContext == GrProtected::kNo)) {
-        return nullptr;
-    }
-
-    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = beTex.getMutableState();
-    SkASSERT(mutableState);
-    return GrVkTexture::MakeWrappedTexture(this, beTex.dimensions(), ownership, cacheable,
-                                           kRead_GrIOType, imageInfo, std::move(mutableState));
+    return this->onWrapBackendTexture(beTex, ownership, cacheable, kRead_GrIOType);
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -1766,36 +1745,8 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
 GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
         SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
         GrProtected isProtected) {
-    this->handleDirtyContext();
-
-    const GrVkCaps& caps = this->vkCaps();
-
-    if (fProtectedContext != isProtected) {
-        return {};
-    }
-
-    VkFormat vkFormat;
-    if (!format.asVkFormat(&vkFormat)) {
-        return {};
-    }
-
-    // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
-    if (!caps.isVkFormatTexturable(vkFormat)) {
-        return {};
-    }
-
-    if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
-        return {};
-    }
-
-    GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
-                                              GrRenderable::kNo, mipMapped,
-                                              &info, isProtected)) {
-        return {};
-    }
-
-    return GrBackendTexture(dimensions.width(), dimensions.height(), info);
+    return this->onCreateBackendTexture(dimensions, format, GrRenderable::kNo, mipMapped,
+                                        isProtected);
 }
 
 bool GrVkGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
