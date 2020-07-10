@@ -31,6 +31,11 @@ namespace skottie {
 using ColorPropertyValue   = SkColor;
 using OpacityPropertyValue = float;
 
+enum class TextPaintOrder : uint8_t {
+    kFillStroke,
+    kStrokeFill,
+};
+
 struct TextPropertyValue {
     sk_sp<SkTypeface>    fTypeface;
     SkString             fText;
@@ -44,6 +49,7 @@ struct TextPropertyValue {
     SkRect               fBox         = SkRect::MakeEmpty();
     SkColor              fFillColor   = SK_ColorTRANSPARENT,
                          fStrokeColor = SK_ColorTRANSPARENT;
+    TextPaintOrder       fPaintOrder  = TextPaintOrder::kFillStroke;
     bool                 fHasFill     = false,
                          fHasStroke   = false;
 

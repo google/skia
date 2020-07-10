@@ -324,6 +324,7 @@ DEF_TEST(Skottie_Properties, reporter) {
       SkRect::MakeEmpty(),
       SK_ColorTRANSPARENT,
       SK_ColorTRANSPARENT,
+      TextPaintOrder::kFillStroke,
       false,
       false
     }));
