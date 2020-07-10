@@ -130,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "dde32a1d_60a7332f",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T18:05:15Z",
+      "side": 1,
+      "message": "I actually would prefer it stay in one class (Option 2).\n\nEven though Dawn does currently require that only transfer buffers can be mapped, there may be extensions in the future to allow mappable GPU-side buffers. (There\u0027s been a lot of pressure from Intel and other UMA architecture folks to add it, as you can imagine). It would be nice to be able to support that cleanly.",
+      "parentUuid": "9e0a3932_3ba40bba",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 41
+      },
+      "revId": "2c0fa8d6b82fcc5833bfdae0209d17b79588e2d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b78c9a0_58845096",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 7

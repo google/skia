@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d52cac74_d1369149",
+        "filename": "src/gpu/GrStagingBufferManager.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T18:05:15Z",
+      "side": 1,
+      "message": "Dawn has a special call to allocate an already-mapped buffer (Device::CreateBufferMapped()), to avoid having to spin in a Tick() call for a buffer to be mapped.\n\nSo in the original implementation, GrDawnGpu::createStagingBuffer() calls that to ensure that allocation of new buffers is done quickly. Does that still occur in this new implementation?",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89109434_72825912",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T18:05:15Z",
+      "side": 1,
+      "message": "If the only map states we need to check against are \"mapped\" or \"not mapped\", could we just have an \"isMapped() { return fMapPtr !\u003d nullptr; }\" ?\n\n(The only place I could find that checks for Pending is an assert in the other CL, in a piece of code I\u0027d like to remove :) )\n\nActually, could we have the map callback simply remove its buffer from the busy list when the callback is called? Then we could remove this function altogether.\n\nAs you point out, they should be removed in the order they were added, so even though we\u0027ll have to iterate to find which one to remove, it\u0027s likely going to be the first one in the list anyway.",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86543925_b6dc868d",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T18:05:15Z",
+      "side": 1,
+      "message": "Is there a reason we have to do the detach here?\n\nIf we moved it down to mapStagingBuffers(), we could call mapWriteAsync() and add it to the busy list in one step. Then we wouldn\u0027t need to rely on the ordering of buffers in the busy list to know which ones to map.\n\nWould that break something?",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71c21b00_46d938a9",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 767,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T18:05:15Z",
+      "side": 1,
+      "message": "This seems a bit fragile, TBH. I\u0027d rather just do the add-to-busy and mapWriteAsync() in one step, if possible (see above).",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1147950_b14f3add",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-10T18:05:15Z",
+      "side": 1,
+      "message": "Is this used anywhere?",
+      "revId": "f6d4a4eeb224d78f23a90d479472e7b31dc86683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
