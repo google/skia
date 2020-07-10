@@ -47,19 +47,18 @@ public:
                         break;
                     case SkSL::Compiler::FormatArg::Kind::kChildProcessor: {
                         SkSL::String coords = this->expandFormatArgs(arg.fCoords, args, fmtArg);
-                        result += this->invokeChild(arg.fIndex, args, coords).c_str();
+                        result += this->invokeChild(arg.fIndex, args.fInputColor, args, coords)
+                                          .c_str();
                         break;
                     }
                     case SkSL::Compiler::FormatArg::Kind::kChildProcessorWithMatrix: {
                         const auto& fp(args.fFp.cast<GrSkSLFP>());
-                        const auto& sampleUsages(fp.fEffect->fSampleUsages);
-
-                        SkASSERT((size_t)arg.fIndex < sampleUsages.size());
-                        const SkSL::SampleUsage& sampleUsage(sampleUsages[arg.fIndex]);
+                        SkASSERT((size_t)arg.fIndex < fp.fEffect->fSampleUsages.size());
+                        const SkSL::SampleUsage& sampleUsage(fp.fEffect->fSampleUsages[arg.fIndex]);
 
                         SkSL::String coords = this->expandFormatArgs(arg.fCoords, args, fmtArg);
                         result += this->invokeChildWithMatrix(
-                                              arg.fIndex, args,
+                                              arg.fIndex, args.fInputColor, args,
                                               sampleUsage.hasUniformMatrix() ? "" : coords)
                                           .c_str();
                         break;
@@ -192,6 +191,8 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
     }
+
+    this->cloneAndRegisterAllChildProcessors(other);
 }
 
 const char* GrSkSLFP::name() const {
@@ -199,8 +200,8 @@ const char* GrSkSLFP::name() const {
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
-    int childIndex = this->numChildProcessors();
-    SkASSERT((size_t)childIndex < fEffect->fSampleUsages.size());
+    size_t childIndex = this->numChildProcessors();
+    SkASSERT(childIndex < fEffect->fSampleUsages.size());
     this->registerChild(std::move(child), fEffect->fSampleUsages[childIndex]);
 }
 
@@ -245,11 +246,7 @@ bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
-    std::unique_ptr<GrSkSLFP> result(new GrSkSLFP(*this));
-    for (int i = 0; i < this->numChildProcessors(); ++i) {
-        result->addChild(this->childProcessor(i)->clone());
-    }
-    return std::unique_ptr<GrFragmentProcessor>(result.release());
+    return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(*this));
 }
 
 /**************************************************************************************************/
