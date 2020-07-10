@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9bbca05c_7989779f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T15:27:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35d3b3ad_079d68a3",
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8a286dc_f2dcc5a5",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 11
@@ -345,6 +363,24 @@
       "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4aa78a3a_bc1041a8",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T15:27:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e400e08_7823a0c2",
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
