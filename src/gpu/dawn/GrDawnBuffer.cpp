@@ -6,7 +6,6 @@
  */
 
 #include "src/gpu/dawn/GrDawnBuffer.h"
-#include "src/gpu/dawn/GrDawnStagingBuffer.h"
 
 #include "src/gpu/dawn/GrDawnGpu.h"
 
@@ -63,10 +62,12 @@ void GrDawnBuffer::onMap() {
     }
 
     if (fMappable == Mappable::kNot) {
-        GrStagingBuffer::Slice slice = getGpu()->allocateStagingBufferSlice(this->size());
-        fStagingBuffer = static_cast<GrDawnStagingBuffer*>(slice.fBuffer)->buffer();
+        GrStagingBufferManager::Slice slice =
+                this->getDawnGpu()->stagingBufferManager()->allocateStagingBufferSlice(
+                        this->size());
+        fStagingBuffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
         fStagingOffset = slice.fOffset;
-        fMapPtr = slice.fData;
+        fMapPtr = slice.fOffsetMapPtr;
     } else {
         // We always create this buffers mapped or if they've been used on the gpu before we use the
         // async map callback to know when it is safe to reuse them. Thus by the time we get here

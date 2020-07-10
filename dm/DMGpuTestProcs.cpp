@@ -27,6 +27,9 @@ bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
 bool IsDirect3DContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return GrBackendApi::kDirect3D == GrContextFactory::ContextTypeBackend(type);
 }
+bool IsDawnContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return GrBackendApi::kDawn == GrContextFactory::ContextTypeBackend(type);
+}
 bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
 }
