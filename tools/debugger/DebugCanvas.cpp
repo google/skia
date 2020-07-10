@@ -18,7 +18,7 @@
 
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrAuditTrail.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 
 #include <string>
@@ -228,7 +228,7 @@ DrawCommand* DebugCanvas::getDrawCommandAt(int index) {
 
 GrAuditTrail* DebugCanvas::getAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at  = nullptr;
-    GrContext*    ctx = canvas->getGrContext();
+    auto ctx = canvas->recordingContext();
     if (ctx) {
         at = ctx->priv().auditTrail();
     }

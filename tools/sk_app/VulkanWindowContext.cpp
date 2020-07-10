@@ -117,7 +117,9 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(QueuePresentKHR);
     GET_DEV_PROC(GetDeviceQueue);
 
-    fContext = GrContext::MakeVulkan(backendContext, fDisplayParams.fGrContextOptions);
+    // CONTEXT TODO: MakeVulkan should return an sk_sp<GrDirectContext>
+    auto tmp = GrContext::MakeVulkan(backendContext, fDisplayParams.fGrContextOptions);
+    fContext1 = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
 
     fSurface = fCreateVkSurfaceFn(fInstance);
     if (VK_NULL_HANDLE == fSurface) {
@@ -350,14 +352,14 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType,
             GrBackendRenderTarget backendRT(fWidth, fHeight, fSampleCount, info);
 
             fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(
-                    fContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, colorType,
+                    fContext1.get(), backendRT, kTopLeft_GrSurfaceOrigin, colorType,
                     fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
         } else {
             GrBackendTexture backendTexture(fWidth, fHeight, info);
 
             // We don't set the sampled usage bit on the swapchain so this can't be a GrTexture.
             fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(
-                    fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
+                    fContext1.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
                     colorType, fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
 
         }
@@ -429,7 +431,7 @@ void VulkanWindowContext::destroyContext() {
         }
     }
 
-    fContext.reset();
+    fContext1.reset();
     fInterface.reset();
 
     if (VK_NULL_HANDLE != fDevice) {

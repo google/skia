@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
@@ -21,18 +21,21 @@
 namespace sk_app {
 
 GLWindowContext::GLWindowContext(const DisplayParams& params)
-    : WindowContext(params)
-    , fBackendContext(nullptr)
-    , fSurface(nullptr) {
+        : WindowContext(params)
+        , fBackendContext(nullptr)
+        , fSurface(nullptr) {
     fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
 }
 
 void GLWindowContext::initializeContext() {
-    SkASSERT(!fContext);
+    SkASSERT(!fContext1);
 
     fBackendContext = this->onInitializeContext();
-    fContext = GrContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
-    if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
+
+    // CONTEXT TODO: MakeGL should return an sk_sp<GrDirectContext>
+    auto tmp = GrContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
+    fContext1 = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+    if (!fContext1 && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();
         return;
@@ -42,10 +45,10 @@ void GLWindowContext::initializeContext() {
 void GLWindowContext::destroyContext() {
     fSurface.reset(nullptr);
 
-    if (fContext) {
+    if (fContext1) {
         // in case we have outstanding refs to this guy (lua?)
-        fContext->abandonContext();
-        fContext.reset();
+        fContext1->abandonContext();
+        fContext1.reset();
     }
 
     fBackendContext.reset(nullptr);
@@ -55,7 +58,7 @@ void GLWindowContext::destroyContext() {
 
 sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
     if (nullptr == fSurface) {
-        if (fContext) {
+        if (fContext1) {
             GrGLint buffer;
             GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
 
@@ -69,7 +72,7 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
                                             fStencilBits,
                                             fbInfo);
 
-            fSurface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
+            fSurface = SkSurface::MakeFromBackendRenderTarget(fContext1.get(), backendRT,
                                                               kBottomLeft_GrSurfaceOrigin,
                                                               kRGBA_8888_SkColorType,
                                                               fDisplayParams.fColorSpace,
