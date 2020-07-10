@@ -195,7 +195,7 @@ GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
     return as_IB(this)->onGetBackendTexture(flushPendingGrContextIO, origin);
 }
 
-bool SkImage::isValid(GrContext* context) const {
+bool SkImage::isValid(GrRecordingContext* context) const {
     if (context && context->abandoned()) {
         return false;
     }
@@ -220,7 +220,7 @@ GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
     return GrBackendTexture(); // invalid
 }
 
-bool SkImage::isValid(GrContext* context) const {
+bool SkImage::isValid(GrRecordingContext* context) const {
     if (context) {
         return false;
     }
