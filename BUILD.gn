@@ -2082,6 +2082,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp",
       "fuzz/oss_fuzz/FuzzSVG.cpp",
       "fuzz/oss_fuzz/FuzzSkDescriptorDeserialize.cpp",
+      "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/DebugCanvas.cpp",
