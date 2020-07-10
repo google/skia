@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68605b05_12bad37a",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T21:48:36Z",
+      "side": 1,
+      "message": "I made this an || here instead of just doing !\u003d kWriteOnly. I figured if things are changing an more things are mappable its better to be explicit about which things we don\u0027t want to map at creation.",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 71
+      },
+      "revId": "9b411e4a6f9812811744966e5d04ff6e6339b5f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

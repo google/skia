@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "a232ccc5_6cf1ed3b",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T21:48:36Z",
+      "side": 1,
+      "message": "Hmmmm should work but seems a little strange to map those early. I\u0027ll move those back to normal create. However we do need to be careful if we start using GrGpuBuffers for readPixels then we\u0027ll want to make sure all the mapping happens as we want, as in use the direct asyncMap. The current asserts in onMap should tell us if we ever do something wrong in that regard.",
+      "parentUuid": "ccb99992_7619eb7e",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "07f7bd64_3c629c47",
         "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
         "patchSetId": 9
@@ -70,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "05c0d6b4_7ea11c69",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T21:48:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07f7bd64_3c629c47",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fc1a9bd_12830b4a",
         "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
         "patchSetId": 9
@@ -84,6 +120,24 @@
       "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34b4e7d1_b3046a2f",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T21:48:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fc1a9bd_12830b4a",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +188,30 @@
     },
     {
       "key": {
+        "uuid": "74fa569c_468a7144",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T21:48:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "290c6d4c_9e0b0889",
+      "range": {
+        "startLine": 123,
+        "startChar": 4,
+        "endLine": 123,
+        "endChar": 32
+      },
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb544e24_b8f68c5f",
         "filename": "src/gpu/dawn/GrDawnBuffer.h",
         "patchSetId": 9
@@ -148,6 +226,24 @@
       "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "907566ac_8f8fbe93",
+        "filename": "src/gpu/dawn/GrDawnBuffer.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T21:48:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb544e24_b8f68c5f",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
