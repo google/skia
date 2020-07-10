@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18ae650d_3c5a1cdb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-10T02:10:58Z",
+      "side": 1,
+      "message": "But why?",
+      "revId": "df9a02533c7b9e3fe2505ad0a501012af887d02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c4e388e_93e3aecf",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-10T02:10:58Z",
+      "side": 1,
+      "message": "I kind of would have suspected **/* here given the comment?",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 23
+      },
+      "revId": "df9a02533c7b9e3fe2505ad0a501012af887d02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
