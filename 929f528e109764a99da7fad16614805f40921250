@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b293d1f_9e8cb12f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-10T18:16:33Z",
+      "side": 1,
+      "message": "Seems to be passing CQ dry run, so marking this ready for review. The new bench with this patch goes from ~3.3sec locally to 90ms. The original fuzzer report similarly goes from 3m30sec to about 15 sec.\n\nDefinitely happy to find alternative solutions as well, but this does seem to solve the issue at hand.",
+      "revId": "929f528e109764a99da7fad16614805f40921250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
