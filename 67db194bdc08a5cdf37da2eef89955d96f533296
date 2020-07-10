@@ -16,6 +16,23 @@
       "revId": "67db194bdc08a5cdf37da2eef89955d96f533296",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afa5ca81_3d6e4062",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-10T21:21:19Z",
+      "side": 1,
+      "message": "The job that failed is hard to run locally. I can look into it more next week\n",
+      "revId": "67db194bdc08a5cdf37da2eef89955d96f533296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
