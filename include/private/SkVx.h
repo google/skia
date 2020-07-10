@@ -270,13 +270,6 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
 // Some operations we want are not expressible with Clang/GCC vector
 // extensions, so we implement them using the recursive approach.
 
-// N == 1 scalar implementations.
-SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<1,T>& e) {
-    auto t_bits = bit_pun<M<T>>(t),
-         e_bits = bit_pun<M<T>>(e);
-    return bit_pun<T>( (cond.val & t_bits) | (~cond.val & e_bits) );
-}
-
 SIT bool any(const Vec<1,T>& x) { return x.val != 0; }
 SIT bool all(const Vec<1,T>& x) { return x.val != 0; }
 
@@ -305,12 +298,6 @@ SIT Vec<1,T> rsqrt(const Vec<1,T>& x) { return rcp(sqrt(x)); }
 SIT Vec<1,T>   mad(const Vec<1,T>& f,
                    const Vec<1,T>& m,
                    const Vec<1,T>& a) { return f*m+a; }
-
-// All default N != 1 implementations just recurse on lo and hi halves.
-SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
-    return join(if_then_else(cond.lo, t.lo, e.lo),
-                if_then_else(cond.hi, t.hi, e.hi));
-}
 
 SINT bool any(const Vec<N,T>& x) { return any(x.lo) || any(x.hi); }
 SINT bool all(const Vec<N,T>& x) { return all(x.lo) && all(x.hi); }
@@ -456,6 +443,39 @@ static inline Vec<N,float> fract(const Vec<N,float>& x) {
     return x - floor(x);
 }
 
+// cond ? t : f ~~~> (cond & t) | (~cond & f)
+SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
+    // Specializations inline here so they can be hit by recursive case below.
+    // (Might adopt this pattern more widely...)
+#if defined(__AVX__)
+    if constexpr (N == 8 && sizeof(T) == 4) {
+        return bit_pun<Vec<8,T>>(_mm256_blendv_ps(bit_pun<__m256>(e),
+                                                  bit_pun<__m256>(t),
+                                                  bit_pun<__m256>(cond)));
+    }
+#endif
+#if defined(__SSE4_1__)
+    if constexpr (N == 4 && sizeof(T) == 4) {
+        return bit_pun<Vec<4,T>>(_mm_blendv_ps(bit_pun<__m128>(e),
+                                               bit_pun<__m128>(t),
+                                               bit_pun<__m128>(cond)));
+    }
+#endif
+#if defined(__ARM_NEON)
+    if constexpr (N == 4 && sizeof(T) == 4) {
+        return bit_pun<Vec<4,T>>(vbslq_f32(bit_pun< uint32x4_t>(cond),
+                                           bit_pun<float32x4_t>(t),
+                                           bit_pun<float32x4_t>(e)));
+    }
+#endif
+    // Recurse down for large N (e.g. 8,16), trying to hit one of the specializations above.
+    if constexpr (N > 4) {
+        return join(if_then_else(cond.lo, t.lo, e.lo),
+                    if_then_else(cond.hi, t.hi, e.hi));
+    }
+    return bit_pun<Vec<N,T>>(( cond & bit_pun<Vec<N,M<T>>>(t)) |
+                             (~cond & bit_pun<Vec<N,M<T>>>(e)) );
+}
 
 // div255(x) = (x + 127) / 255 is a bit-exact rounding divide-by-255, packing down to 8-bit.
 template <int N>
@@ -553,33 +573,6 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
         }
         static inline Vec<2,int> lrint(const Vec<2,float>& x) {
             return shuffle<0,1>(lrint(shuffle<0,1,0,1>(x)));
-        }
-    #endif
-
-    #if defined(__SSE4_1__)
-        static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
-                                                const Vec<4,float>& t,
-                                                const Vec<4,float>& e) {
-            return bit_pun<Vec<4,float>>(_mm_blendv_ps(bit_pun<__m128>(e),
-                                                       bit_pun<__m128>(t),
-                                                       bit_pun<__m128>(c)));
-        }
-    #elif defined(__SSE__)
-        static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
-                                                const Vec<4,float>& t,
-                                                const Vec<4,float>& e) {
-            return bit_pun<Vec<4,float>>(_mm_or_ps(_mm_and_ps   (bit_pun<__m128>(c),
-                                                                 bit_pun<__m128>(t)),
-                                                   _mm_andnot_ps(bit_pun<__m128>(c),
-                                                                 bit_pun<__m128>(e))));
-        }
-    #elif defined(__ARM_NEON)
-        static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
-                                                const Vec<4,float>& t,
-                                                const Vec<4,float>& e) {
-            return bit_pun<Vec<4,float>>(vbslq_f32(bit_pun<uint32x4_t> (c),
-                                                   bit_pun<float32x4_t>(t),
-                                                   bit_pun<float32x4_t>(e)));
         }
     #endif
 
