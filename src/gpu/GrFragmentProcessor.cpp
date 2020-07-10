@@ -107,9 +107,13 @@ bool GrFragmentProcessor::isInstantiated() const {
 
 int GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> child,
                                        SkSL::SampleUsage sampleUsage) {
+    if (!child) {
+        return -1;
+    }
+
     // The child should not have been attached to another FP already and not had any sampling
     // strategy set on it.
-    SkASSERT(child && !child->fParent && !child->sampleUsage().isSampled() &&
+    SkASSERT(!child->fParent && !child->sampleUsage().isSampled() &&
              !child->isSampledWithExplicitCoords() && !child->hasPerspectiveTransform());
 
     // If a child is sampled directly (sample(child)), and with a single uniform matrix, we need to

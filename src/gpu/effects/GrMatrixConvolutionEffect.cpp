@@ -293,9 +293,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentP
         , fBias(SkScalarToFloat(bias) / 255.0f)
         , fConvolveAlpha(convolveAlpha) {
     this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
-    if (kernelFP) {
-        this->registerChild(std::move(kernelFP), SkSL::SampleUsage::Explicit());
-    }
+    this->registerChild(std::move(kernelFP), SkSL::SampleUsage::Explicit());
     fKernelOffset = {static_cast<float>(kernelOffset.x()),
                      static_cast<float>(kernelOffset.y())};
     this->setUsesSampleCoordsDirectly();

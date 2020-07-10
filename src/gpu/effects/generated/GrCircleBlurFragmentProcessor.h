@@ -46,10 +46,7 @@ private:
             , circleRect(circleRect)
             , solidRadius(solidRadius)
             , textureRadius(textureRadius) {
-        if (inputFP) {
-            inputFP_index =
-                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        }
+        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(blurProfile);
         blurProfile_index =
                 this->registerChild(std::move(blurProfile), SkSL::SampleUsage::Explicit());

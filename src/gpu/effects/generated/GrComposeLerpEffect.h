@@ -36,12 +36,8 @@ private:
                         std::unique_ptr<GrFragmentProcessor> child2,
                         float weight)
             : INHERITED(kGrComposeLerpEffect_ClassID, kNone_OptimizationFlags), weight(weight) {
-        if (child1) {
-            child1_index = this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());
-        }
-        if (child2) {
-            child2_index = this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());
-        }
+        child1_index = this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());
+        child2_index = this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -300,9 +300,7 @@ ColorTableEffect::ColorTableEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
         : INHERITED(kColorTableEffect_ClassID, kNone_OptimizationFlags) {
     this->registerChild(GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType),
                         SkSL::SampleUsage::Explicit());
-    if (inputFP) {
-        this->registerChild(std::move(inputFP));
-    }
+    this->registerChild(std::move(inputFP));
 }
 
 ColorTableEffect::ColorTableEffect(const ColorTableEffect& that)

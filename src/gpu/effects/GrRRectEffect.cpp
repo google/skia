@@ -104,9 +104,7 @@ CircularRRectEffect::CircularRRectEffect(std::unique_ptr<GrFragmentProcessor> in
         , fRRect(rrect)
         , fEdgeType(edgeType)
         , fCircularCornerFlags(circularCornerFlags) {
-    if (inputFP != nullptr) {
-        this->registerChild(std::move(inputFP));
-    }
+    this->registerChild(std::move(inputFP));
 }
 
 CircularRRectEffect::CircularRRectEffect(const CircularRRectEffect& that)
@@ -462,9 +460,7 @@ EllipticalRRectEffect::EllipticalRRectEffect(std::unique_ptr<GrFragmentProcessor
                   kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRRect(rrect)
         , fEdgeType(edgeType) {
-    if (inputFP != nullptr) {
-        this->registerChild(std::move(inputFP));
-    }
+    this->registerChild(std::move(inputFP));
 }
 
 EllipticalRRectEffect::EllipticalRRectEffect(const EllipticalRRectEffect& that)

@@ -270,9 +270,7 @@ void HCodeGenerator::writeConstructor() {
         if (param->fType.kind() == Type::kSampler_Kind) {
             ++samplerCount;
         } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-            if (param->fType.kind() == Type::kNullable_Kind) {
-                this->writef("        if (%s) {\n", String(param->fName).c_str());
-            } else {
+            if (param->fType.kind() != Type::kNullable_Kind) {
                 this->writef("        SkASSERT(%s);", String(param->fName).c_str());
             }
 
@@ -290,14 +288,10 @@ void HCodeGenerator::writeConstructor() {
             }
             std::string usageArg = usage.constructor(std::move(perspExpression));
 
-            this->writef("            %s_index = this->registerChild(std::move(%s), %s);",
+            this->writef("        %s_index = this->registerChild(std::move(%s), %s);",
                          FieldName(String(param->fName).c_str()).c_str(),
                          String(param->fName).c_str(),
                          usageArg.c_str());
-
-            if (param->fType.kind() == Type::kNullable_Kind) {
-                this->writef("       }");
-            }
         }
     }
     if (samplerCount) {

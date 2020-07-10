@@ -91,9 +91,7 @@ GrColorSpaceXformEffect::GrColorSpaceXformEffect(std::unique_ptr<GrFragmentProce
                                                  sk_sp<GrColorSpaceXform> colorXform)
         : INHERITED(kGrColorSpaceXformEffect_ClassID, OptFlags(child.get()))
         , fColorXform(std::move(colorXform)) {
-    if (child) {
-        this->registerChild(std::move(child));
-    }
+    this->registerChild(std::move(child));
 }
 
 GrColorSpaceXformEffect::GrColorSpaceXformEffect(const GrColorSpaceXformEffect& that)

@@ -45,10 +45,7 @@ private:
                                                          : kNone_OptimizationFlags))
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
-        if (inputFP) {
-            inputFP_index =
-                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        }
+        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(maskFP);
         maskFP_index = this->registerChild(std::move(maskFP), SkSL::SampleUsage::PassThrough());
     }
