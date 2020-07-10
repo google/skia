@@ -2,7 +2,7 @@
   {
     "cmd": [
       "python",
-      "[START_DIR]/skia/infra/bots/g3_compile/trigger_wait_g3_task.py",
+      "[START_DIR]/skia/infra/bots/g3_canary/trigger_wait_g3_task.py",
       "--issue",
       "456789",
       "--patchset",
@@ -17,7 +17,7 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "Trigger and wait for g3 compile task",
+    "name": "Trigger and wait for g3 canary task",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
     ]
@@ -44,7 +44,7 @@
   {
     "failure": {
       "failure": {},
-      "humanReason": "Step('Trigger and wait for g3 compile task') (retcode: 1)"
+      "humanReason": "Step('Trigger and wait for g3 canary task') (retcode: 1)"
     },
     "name": "$result"
   }
