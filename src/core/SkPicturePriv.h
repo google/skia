@@ -99,11 +99,12 @@ public:
         kEdgeAAQuadColor4f_Version          = 73,
         kMorphologyTakesScalar_Version      = 74,
         kVerticesUseReadBuffer_Version      = 75,
-        kFilteringInImageShader_Version     = 76,
+        kFilterEnumInImageShader_Version    = 76,
+        kFilterOptionsInImageShader_Version = 77,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kTileModeInBlurImageFilter_Version,
-        kCurrent_Version = kFilteringInImageShader_Version
+        kCurrent_Version = kFilterOptionsInImageShader_Version
     };
 
     static_assert(kMin_Version <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
