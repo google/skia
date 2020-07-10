@@ -47,7 +47,8 @@ public:
                         break;
                     case SkSL::Compiler::FormatArg::Kind::kChildProcessor: {
                         SkSL::String coords = this->expandFormatArgs(arg.fCoords, args, fmtArg);
-                        result += this->invokeChild(arg.fIndex, args, coords).c_str();
+                        result += this->invokeChild(arg.fIndex, args.fInputColor, args, coords)
+                                          .c_str();
                         break;
                     }
                     case SkSL::Compiler::FormatArg::Kind::kChildProcessorWithMatrix: {
@@ -59,7 +60,7 @@ public:
 
                         SkSL::String coords = this->expandFormatArgs(arg.fCoords, args, fmtArg);
                         result += this->invokeChildWithMatrix(
-                                              arg.fIndex, args,
+                                              arg.fIndex, args.fInputColor, args,
                                               sampleUsage.hasUniformMatrix() ? "" : coords)
                                           .c_str();
                         break;
@@ -94,7 +95,9 @@ public:
         // We need to ensure that we emit each child's helper function at least once.
         // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
         for (int i = 0; i < this->numChildProcessors(); ++i) {
-            this->emitChildFunction(i, args);
+            if (this->childProcessor(i)) {
+                this->emitChildFunction(i, args);
+            }
         }
         for (const auto& f : fArgs.fFunctions) {
             fFunctionNames.emplace_back();
@@ -192,6 +195,8 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
     }
+
+    this->cloneAndRegisterAllChildProcessors(other);
 }
 
 const char* GrSkSLFP::name() const {
@@ -245,11 +250,7 @@ bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
-    std::unique_ptr<GrSkSLFP> result(new GrSkSLFP(*this));
-    for (int i = 0; i < this->numChildProcessors(); ++i) {
-        result->addChild(this->childProcessor(i)->clone());
-    }
-    return std::unique_ptr<GrFragmentProcessor>(result.release());
+    return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(*this));
 }
 
 /**************************************************************************************************/

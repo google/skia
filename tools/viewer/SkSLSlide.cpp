@@ -53,6 +53,8 @@ void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
 
     sk_sp<SkShader> shader;
 
+    fShaders.push_back(std::make_pair("Null", nullptr));
+
     shader = SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp);
     fShaders.push_back(std::make_pair("Linear Gradient", shader));
 
@@ -90,11 +92,6 @@ bool SkSLSlide::rebuild() {
         memset(fInputs.get() + oldSize, 0, effect->inputSize() - oldSize);
     }
     fChildren.resize_back(effect->children().count());
-    for (auto& c : fChildren) {
-        if (!c) {
-            c = fShaders[0].second;
-        }
-    }
 
     fEffect = effect;
     fCodeIsDirty = false;
@@ -180,6 +177,9 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         }
     }
 
+    static SkColor4f gPaintColor { 1.0f, 1.0f, 1.0f , 1.0f };
+    ImGui::ColorEdit4("Paint Color", gPaintColor.vec());
+
     ImGui::End();
 
     auto inputs = SkData::MakeWithoutCopy(fInputs.get(), fEffect->inputSize());
@@ -187,6 +187,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
                                       nullptr, false);
 
     SkPaint p;
+    p.setColor4f(gPaintColor);
     p.setShader(std::move(shader));
     canvas->drawRect({ 0, 0, 256, 256 }, p);
 }
