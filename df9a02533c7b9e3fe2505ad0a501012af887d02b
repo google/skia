@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "08f1b1c9_cec62654",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12089
+      },
+      "writtenOn": "2020-07-10T08:11:19Z",
+      "side": 1,
+      "message": "This change is required because Fuchsia do not support GL and supports only vulkan. These changes reflect the build rules from skia/BUILD.gn. See the gl files excluded when the vulkan is enabled in the file skia/gn/gpu.gni defined as \u0027skia_gl_gpu_sources\u0027.",
+      "parentUuid": "18ae650d_3c5a1cdb",
+      "revId": "df9a02533c7b9e3fe2505ad0a501012af887d02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c4e388e_93e3aecf",
         "filename": "public.bzl",
         "patchSetId": 1
@@ -63,6 +81,30 @@
       "revId": "df9a02533c7b9e3fe2505ad0a501012af887d02b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b18f9694_ac7c07e1",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 12089
+      },
+      "writtenOn": "2020-07-10T08:11:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "325a8a5f_300addf4",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 23
+      },
+      "revId": "df9a02533c7b9e3fe2505ad0a501012af887d02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
