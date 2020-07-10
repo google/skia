@@ -107,7 +107,7 @@ public:
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
-    bool onIsValid(GrContext* context) const override { return true; }
+    bool onIsValid(GrRecordingContext* context) const override { return true; }
     void notifyAddedToRasterCache() const override {
         // We explicitly DON'T want to call INHERITED::notifyAddedToRasterCache. That ties the
         // lifetime of derived/cached resources to the image. In this case, we only want cached
