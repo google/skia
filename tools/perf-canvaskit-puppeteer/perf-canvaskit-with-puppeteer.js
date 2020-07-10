@@ -186,6 +186,7 @@ async function driveBrowser() {
       // Chrome instance will be used instead of puppeteer spinning up a new one.
       '--disable-frame-rate-limit',
       '--disable-gpu-vsync',
+      '--enable-features=WebAssemblySimd'
   ];
   if (options.use_gpu) {
     browser_args.push('--ignore-gpu-blacklist');
@@ -194,7 +195,11 @@ async function driveBrowser() {
   }
   console.log("Running with headless: " + headless + " args: " + browser_args);
   try {
-    browser = await puppeteer.launch({headless: headless, args: browser_args});
+    browser = await puppeteer.launch({
+      headless: headless,
+      args: browser_args,
+      executablePath: '/applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
+    });
     page = await browser.newPage();
     await page.setViewport(viewPort);
   } catch (e) {
@@ -252,7 +257,7 @@ async function driveBrowser() {
     } else {
       const perfResults = await page.evaluate('window._perfData');
       console.debug('Perf results: ', perfResults);
-      fs.writeFileSync(options.output, JSON.stringify(perfResults));
+      fs.appendFileSync(options.output, ',"' + options.input_skp + '": ' + JSON.stringify(perfResults));
     }
 
   } catch(e) {

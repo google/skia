@@ -48,10 +48,9 @@ elif [[ $@ == *profiling* ]]; then
   RELEASE_CONF+=" --profiling-funcs --closure 0"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
 elif [[ $@ == *simd* ]]; then
-  echo "Building a Debug build with SIMD operations"
-  EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 -msimd128 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
-                --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
+  echo "Building with SIMD operations"
+  RELEASE_CONF="-msimd128"
+  EXTRA_CFLAGS+=" \"-msimd128\""
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_experimental_simd"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
@@ -258,7 +257,6 @@ echo "Compiling bitcode"
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
