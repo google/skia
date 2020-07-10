@@ -46,6 +46,7 @@ bench_sources = [
   "$_bench/DrawBitmapAABench.cpp",
   "$_bench/EncodeBench.cpp",
   "$_bench/FSRectBench.cpp",
+  "$_bench/FilteringBench.cpp",
   "$_bench/FontCacheBench.cpp",
   "$_bench/GMBench.cpp",
   "$_bench/GameBench.cpp",

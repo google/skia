@@ -26,6 +26,7 @@ class SkData;
 class SkCanvas;
 class SkImageFilter;
 class SkImageGenerator;
+class SkM44;
 class SkPaint;
 class SkPicture;
 class SkSurface;
@@ -34,6 +35,22 @@ class GrContext;
 class GrContextThreadSafeProxy;
 
 struct SkYUVAIndex;
+
+enum class SkSamplingMode {
+    kNearest,   // single sample point (nearest neighbor)
+    kLinear,    // interporate between 2x2 sample points (bilinear interpolation)
+};
+
+enum class SkMipmapMode {
+    kNone,      // ignore mipmap levels, sample from the "base"
+    kNearest,   // sample from the nearest level
+    kLinear,    // interpolate between the two nearest levels
+};
+
+struct SkFilterOptions {
+    SkSamplingMode  fSampling;
+    SkMipmapMode    fMipmap;
+};
 
 /** \class SkImage
     SkImage describes a two dimensional array of pixels to draw. The pixels may be
@@ -769,6 +786,9 @@ public:
         @return  true if SkAlphaType is kOpaque_SkAlphaType
     */
     bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
+
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkFilterOptions&,
+                               const SkMatrix* localMatrix = nullptr) const;
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkTileMode rules to fill drawn area outside SkImage. localMatrix permits
