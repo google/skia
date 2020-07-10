@@ -16,6 +16,24 @@
       "revId": "d744f23f66b536263ed53e2916cd5ee3be3bf293",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45e5f570_0e44f74e",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T13:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "993debb5_55ff24a6",
+      "revId": "d744f23f66b536263ed53e2916cd5ee3be3bf293",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

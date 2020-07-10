@@ -289,6 +289,30 @@
     },
     {
       "key": {
+        "uuid": "3cf67dba_2018aa69",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T13:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a03d92f_30111c9f",
+      "range": {
+        "startLine": 43,
+        "startChar": 72,
+        "endLine": 43,
+        "endChar": 76
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51f45761_826a5d2d",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 11
@@ -300,6 +324,24 @@
       "writtenOn": "2020-07-09T19:37:48Z",
       "side": 1,
       "message": "This is good for now. In a future CL, can we also run this fuzzer with a GPU surface (which will exercise other code-paths)?",
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e400e08_7823a0c2",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T13:48:41Z",
+      "side": 1,
+      "message": "I think yes. Like to replace MakeRasterN32Premul with MakeRenderTarget. The fuzzers I have seen draw one on one canvas each time, so we can use a random bytes to determine whether to draw on  GPU canvas or CPU.",
+      "parentUuid": "51f45761_826a5d2d",
       "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
