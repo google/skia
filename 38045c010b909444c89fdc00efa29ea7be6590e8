@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "895b4e00_3d485ebf",
+        "filename": "src/gpu/effects/GrHighContrastFilterEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-10T17:28:44Z",
+      "side": 1,
+      "message": "Seems like this could be kPreservesOpaqueInput (\u0026 ChildFlags). Technically kConstantOutputForConstantInput, too, although that would be much harder to implement, so not worth it?",
+      "revId": "38045c010b909444c89fdc00efa29ea7be6590e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
