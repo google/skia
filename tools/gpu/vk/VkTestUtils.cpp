@@ -37,13 +37,13 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
     static PFN_vkGetInstanceProcAddr localInstProc = nullptr;
     static PFN_vkGetDeviceProcAddr localDevProc = nullptr;
     if (!vkLib) {
-        vkLib = DynamicLoadLibrary(SK_GPU_TOOLS_VK_LIBRARY_NAME);
+        vkLib = SkLoadDynamicLibrary(SK_GPU_TOOLS_VK_LIBRARY_NAME);
         if (!vkLib) {
             return false;
         }
-        localInstProc = (PFN_vkGetInstanceProcAddr) GetProcedureAddress(vkLib,
+        localInstProc = (PFN_vkGetInstanceProcAddr) SkGetProcedureAddress(vkLib,
                                                                         "vkGetInstanceProcAddr");
-        localDevProc = (PFN_vkGetDeviceProcAddr) GetProcedureAddress(vkLib,
+        localDevProc = (PFN_vkGetDeviceProcAddr) SkGetProcedureAddress(vkLib,
                                                                      "vkGetDeviceProcAddr");
     }
     if (!localInstProc || !localDevProc) {

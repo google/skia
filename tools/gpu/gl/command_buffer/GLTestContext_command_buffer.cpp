@@ -92,21 +92,21 @@ static void load_command_buffer_functions() {
 #else
         "libcommand_buffer_gles2.so";
 #endif // defined _WIN32
-        gLibrary = DynamicLoadLibrary(libName);
+        gLibrary = SkLoadDynamicLibrary(libName);
         if (gLibrary) {
-            gfGetDisplay = (GetDisplayProc)GetProcedureAddress(gLibrary, "eglGetDisplay");
-            gfInitialize = (InitializeProc)GetProcedureAddress(gLibrary, "eglInitialize");
-            gfTerminate = (TerminateProc)GetProcedureAddress(gLibrary, "eglTerminate");
-            gfChooseConfig = (ChooseConfigProc)GetProcedureAddress(gLibrary, "eglChooseConfig");
-            gfGetConfigAttrib = (GetConfigAttrib)GetProcedureAddress(gLibrary, "eglGetConfigAttrib");
-            gfCreateWindowSurface = (CreateWindowSurfaceProc)GetProcedureAddress(gLibrary, "eglCreateWindowSurface");
-            gfCreatePbufferSurface = (CreatePbufferSurfaceProc)GetProcedureAddress(gLibrary, "eglCreatePbufferSurface");
-            gfDestroySurface = (DestroySurfaceProc)GetProcedureAddress(gLibrary, "eglDestroySurface");
-            gfCreateContext = (CreateContextProc)GetProcedureAddress(gLibrary, "eglCreateContext");
-            gfDestroyContext = (DestroyContextProc)GetProcedureAddress(gLibrary, "eglDestroyContext");
-            gfMakeCurrent = (MakeCurrentProc)GetProcedureAddress(gLibrary, "eglMakeCurrent");
-            gfSwapBuffers = (SwapBuffersProc)GetProcedureAddress(gLibrary, "eglSwapBuffers");
-            gfGetProcAddress = (GetProcAddressProc)GetProcedureAddress(gLibrary, "eglGetProcAddress");
+            gfGetDisplay = (GetDisplayProc)SkGetProcedureAddress(gLibrary, "eglGetDisplay");
+            gfInitialize = (InitializeProc)SkGetProcedureAddress(gLibrary, "eglInitialize");
+            gfTerminate = (TerminateProc)SkGetProcedureAddress(gLibrary, "eglTerminate");
+            gfChooseConfig = (ChooseConfigProc)SkGetProcedureAddress(gLibrary, "eglChooseConfig");
+            gfGetConfigAttrib = (GetConfigAttrib)SkGetProcedureAddress(gLibrary, "eglGetConfigAttrib");
+            gfCreateWindowSurface = (CreateWindowSurfaceProc)SkGetProcedureAddress(gLibrary, "eglCreateWindowSurface");
+            gfCreatePbufferSurface = (CreatePbufferSurfaceProc)SkGetProcedureAddress(gLibrary, "eglCreatePbufferSurface");
+            gfDestroySurface = (DestroySurfaceProc)SkGetProcedureAddress(gLibrary, "eglDestroySurface");
+            gfCreateContext = (CreateContextProc)SkGetProcedureAddress(gLibrary, "eglCreateContext");
+            gfDestroyContext = (DestroyContextProc)SkGetProcedureAddress(gLibrary, "eglDestroyContext");
+            gfMakeCurrent = (MakeCurrentProc)SkGetProcedureAddress(gLibrary, "eglMakeCurrent");
+            gfSwapBuffers = (SwapBuffersProc)SkGetProcedureAddress(gLibrary, "eglSwapBuffers");
+            gfGetProcAddress = (GetProcAddressProc)SkGetProcedureAddress(gLibrary, "eglGetProcAddress");
 
             gfFunctionsLoadedSuccessfully =
                     gfGetDisplay && gfInitialize && gfTerminate && gfChooseConfig &&

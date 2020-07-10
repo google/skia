@@ -63,7 +63,7 @@ wgpu::Device DawnVulkanWindowContext_xlib::onInitializeContext() {
         return nullptr;
     }
 
-    void *vkLib = DynamicLoadLibrary("libvulkan.so.1");
+    void *vkLib = SkLoadDynamicLibrary("libvulkan.so.1");
     if (!vkLib) {
         return nullptr;
     }
@@ -72,7 +72,7 @@ wgpu::Device DawnVulkanWindowContext_xlib::onInitializeContext() {
         return nullptr;
     }
     auto createXcbSurfaceKHR =
-        reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(GetProcedureAddress(vkLib,
+        reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(SkGetProcedureAddress(vkLib,
                                                                         "vkCreateXcbSurfaceKHR"));
     if (!createXcbSurfaceKHR) {
         printf("couldn't get extensions :(\n");
