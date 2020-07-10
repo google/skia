@@ -954,6 +954,11 @@ optional("sksl_interpreter") {
 optional("skvm_jit") {
   enabled = skia_enable_skvm_jit
   public_defines = [ "SKVM_JIT" ]
+  if (skia_vtune_path != "") {
+    public_defines += [ "SKVM_JIT_VTUNE" ]
+    public_include_dirs = [ "$skia_vtune_path/include" ]
+    libs = [ "$skia_vtune_path/lib64/jitprofiling.lib" ]
+  }
 }
 
 if (skia_enable_gpu && skia_generate_workarounds) {
