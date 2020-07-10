@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8b4a4f22_50d0137a",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:25:45Z",
+      "side": 1,
+      "message": "the base class unmap sets fMapPtr to null.",
+      "parentUuid": "52330536_e11a3253",
+      "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6b255831_28c653b8",
         "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2020-07-10T17:27:52Z",
       "side": 1,
       "message": "Technically, this should be safe, but I\u0027m a little concerned about allowing for \"blocking\" writeable buffers. Unless there\u0027s use case that needs them, it\u0027s just inviting jank. For example, if someone removed the mapWriteAsync() calls from from onSubmitToGpu(), tests would likely still pass thanks to this \"seatbelt\", but performance would be terrible.\n\nIMHO, we should just assert that the buffer is already in the mapped state, the callback has been called and the pointer is non-null.",
+      "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1da09fee_c758f2fa",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-10T18:25:45Z",
+      "side": 1,
+      "message": "But we don\u0027t want to always want to depend on calling the specially dawn buffer mapWriteAsync outside of the buffer. For example if at some point we have general ganesh code that wants to create a buffer of kXferCpuToGpu we want map to work.\n\nI guess I don\u0027t really see where the extra jank would come from. If it is a newly created buffer I would expect to be able to map that buffer right away in dawn. I hope that tick has very minimal overhead. If it is a buffer we\u0027ve used previously on the GPU we don\u0027t call this map function unless we already know it has finished on the GPU. So again the buffer should already be mapped or be able to be mapped quickly. IMO the dawn implementation should immediately call the map callback function during the MapWriteAsync call if the buffer isn\u0027t busy. Thus we should never have to call Tick.\n\nIf the above is true I am happy to remove the while loop below and just assert by the time we get there fMapPtr is valid, since that is how we should be using these.",
+      "parentUuid": "6b255831_28c653b8",
       "revId": "f6d1df6098c81e07da2c0d2411f7d6a03dd8812f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
