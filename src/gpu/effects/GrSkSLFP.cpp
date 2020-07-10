@@ -199,9 +199,10 @@ const char* GrSkSLFP::name() const {
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
-    int childIndex = this->numChildProcessors();
-    SkASSERT((size_t)childIndex < fEffect->fSampleUsages.size());
-    this->registerChild(std::move(child), fEffect->fSampleUsages[childIndex]);
+    size_t childSlot = fChildIndices.size();
+    SkASSERT(childSlot < fEffect->fSampleUsages.size());
+    fChildIndices.push_back(
+            this->registerChild(std::move(child), fEffect->fSampleUsages[childSlot]));
 }
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {

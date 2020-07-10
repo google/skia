@@ -97,6 +97,11 @@ private:
     const char*            fName;
     sk_sp<SkData>          fInputs;
 
+    // For each child "slot" (eg, 'in fragmentProcessor' in our effect), this has the index of the
+    // actual child FP that was registered, or -1 if that child was left unbound (in which case
+    // sampling it should return the input color).
+    std::vector<int>       fChildIndices;
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
