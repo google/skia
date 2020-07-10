@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "045e1a53_2db7b137",
+        "filename": "src/core/SkImageGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-10T18:08:00Z",
+      "side": 1,
+      "message": "w/o the header we get a \"\u0027static_cast\u0027: cannot convert from \u0027GrContext *\u0027 to \u0027GrRecordingContext *\u0027\" error",
+      "parentUuid": "40df4434_f61dbf73",
+      "range": {
+        "startLine": 14,
+        "startChar": 22,
+        "endLine": 14,
+        "endChar": 37
+      },
+      "revId": "60fadf1c5425c3bab23d1077e68b2d656edaf78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "11136a01_be8d198f",
         "filename": "src/image/SkImage.cpp",
         "patchSetId": 10
@@ -53,6 +77,30 @@
       "writtenOn": "2020-07-10T16:57:21Z",
       "side": 1,
       "message": "same q",
+      "range": {
+        "startLine": 31,
+        "startChar": 22,
+        "endLine": 31,
+        "endChar": 37
+      },
+      "revId": "60fadf1c5425c3bab23d1077e68b2d656edaf78b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b46ffbcb_1c4291a5",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-10T18:08:00Z",
+      "side": 1,
+      "message": "This file uses GrContext::submit, etc so it needs GrContext.h included somehow. Since that header is going away and GrDirectContext.h includes it I\u0027ve been preemptively switching to GrDirectContext.h",
+      "parentUuid": "11136a01_be8d198f",
       "range": {
         "startLine": 31,
         "startChar": 22,
