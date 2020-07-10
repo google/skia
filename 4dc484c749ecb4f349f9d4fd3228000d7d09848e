@@ -265,6 +265,30 @@
     },
     {
       "key": {
+        "uuid": "6ff0c902_1029030e",
+        "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-10T11:58:16Z",
+      "side": 1,
+      "message": "Got it, I will submit this cl.\nIf I am going to implement the fuzzer in another CL, I think it may be good to pass in the fuzzer in fuzz.h instead of sk_sp\u003cSKData\u003e in this fuzzer as we can make use of make_fuzz_shader() in FuzzCanvas to fuzz a valid shader.",
+      "parentUuid": "04adcf44_a081ca1c",
+      "range": {
+        "startLine": 43,
+        "startChar": 51,
+        "endLine": 43,
+        "endChar": 62
+      },
+      "revId": "4dc484c749ecb4f349f9d4fd3228000d7d09848e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51f45761_826a5d2d",
         "filename": "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "patchSetId": 11
