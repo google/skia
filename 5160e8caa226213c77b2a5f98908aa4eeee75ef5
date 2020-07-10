@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdabe0ad_4f0729c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12089
+      },
+      "writtenOn": "2020-07-10T15:25:23Z",
+      "side": 1,
+      "message": "I know the issue. Is this failed in Google3 ?",
+      "revId": "5160e8caa226213c77b2a5f98908aa4eeee75ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
