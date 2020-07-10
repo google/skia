@@ -46,10 +46,7 @@ private:
                                 (kConstantOutputForConstantInput_OptimizationFlag |
                                  kPreservesOpaqueInput_OptimizationFlag))
             , clampToPremul(clampToPremul) {
-        if (inputFP) {
-            inputFP_index =
-                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        }
+        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -84,12 +84,8 @@ private:
             fComposeBehavior = (src && dst) ? ComposeBehavior::kComposeTwoBehavior
                                             : ComposeBehavior::kComposeOneBehavior;
         }
-        if (src != nullptr) {
-            fSrcFPIndex = this->registerChild(std::move(src));
-        }
-        if (dst != nullptr) {
-            fDstFPIndex = this->registerChild(std::move(dst));
-        }
+        fSrcFPIndex = this->registerChild(std::move(src));
+        fDstFPIndex = this->registerChild(std::move(dst));
     }
 
     ComposeFragmentProcessor(const ComposeFragmentProcessor& that)

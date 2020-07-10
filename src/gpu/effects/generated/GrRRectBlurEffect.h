@@ -137,10 +137,7 @@ private:
             , sigma(sigma)
             , rect(rect)
             , cornerRadius(cornerRadius) {
-        if (inputFP) {
-            inputFP_index =
-                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        }
+        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(ninePatchFP);
         ninePatchFP_index =
                 this->registerChild(std::move(ninePatchFP), SkSL::SampleUsage::Explicit());

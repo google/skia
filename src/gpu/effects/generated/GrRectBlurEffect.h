@@ -143,10 +143,7 @@ private:
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
             , isFast(isFast) {
-        if (inputFP) {
-            inputFP_index =
-                    this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        }
+        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(integral);
         integral_index = this->registerChild(std::move(integral), SkSL::SampleUsage::Explicit());
     }
