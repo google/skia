@@ -14,6 +14,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTo.h"
 
+syntax error
+
 class SkColorFilter;
 class SkColorSpace;
 struct SkRect;
