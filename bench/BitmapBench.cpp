@@ -73,7 +73,7 @@ protected:
         this->onDrawIntoBitmap(bm);
 
         fBitmap = bm;
-        fBitmap.setIsVolatile(fIsVolatile);
+    //    fBitmap.setIsVolatile(fIsVolatile);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {

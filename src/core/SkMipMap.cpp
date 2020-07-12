@@ -395,6 +395,8 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return SkTo<int32_t>(size);
 }
 
+#include "src/core/SkUtils.h"
+
 SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
@@ -589,6 +591,9 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     // large as 8 (for F16 pixels). See the comment on SkMipMap::Level.
     SkASSERT(SkIsAlign8((uintptr_t)addr));
 
+    const SkColor colors[] = {
+        SK_ColorBLUE, SK_ColorGREEN, SK_ColorRED, SK_ColorMAGENTA
+    };
     for (int i = 0; i < countLevels; ++i) {
         FilterProc* proc;
         if (height & 1) {
@@ -638,6 +643,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         const size_t srcRB = srcPM.rowBytes();
         for (int y = 0; y < height; y++) {
             proc(dstBasePtr, srcBasePtr, srcRB, width);
+            sk_memset32((uint32_t*)dstBasePtr, colors[i&3], width);
             srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
             dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
         }
