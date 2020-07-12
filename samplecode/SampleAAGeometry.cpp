@@ -1315,7 +1315,7 @@ public:
 
     static uint8_t* set_up_dist_map(const SkImageInfo& imageInfo, SkBitmap* distMap) {
         distMap->setInfo(imageInfo);
-        distMap->setIsVolatile(true);
+   //     distMap->setIsVolatile(true);
         SkAssertResult(distMap->tryAllocPixels());
         SkASSERT((int) distMap->rowBytes() == imageInfo.width());
         return distMap->getAddr8(0, 0);

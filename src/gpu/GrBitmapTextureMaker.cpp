@@ -46,7 +46,7 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context,
         , fBudgeted(cachePolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                             ? SkBudgeted::kNo
                             : SkBudgeted::kYes) {
-    if (!bitmap.isVolatile() && cachePolicy == GrImageTexGenPolicy::kDraw) {
+    if (/*!bitmap.isVolatile() && */ cachePolicy == GrImageTexGenPolicy::kDraw) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
                                            bitmap.height());

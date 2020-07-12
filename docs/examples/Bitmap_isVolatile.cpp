@@ -7,10 +7,10 @@ void draw(SkCanvas* canvas) {
     SkBitmap original;
     SkImageInfo info = SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
     if (original.tryAllocPixels(info)) {
-        original.setIsVolatile(true);
+    //    original.setIsVolatile(true);
         SkBitmap copy;
         original.extractSubset(&copy, {5, 10, 15, 20});
-        SkDebugf("original is " "%s" "volatile\n", original.isVolatile() ? "" : "not ");
+   //     SkDebugf("original is " "%s" "volatile\n", original.isVolatile() ? "" : "not ");
         SkDebugf("copy is " "%s" "volatile\n", copy.isImmutable() ? "" : "not ");
     }
 }
