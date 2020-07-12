@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56b68ed3_d476a007",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-12T19:16:59Z",
+      "side": 1,
+      "message": "Looks like this broke the G3 roller: cl/320854122\nI noticed because I was watching my fix in that roller",
+      "revId": "1434ce1aa94da1944056332e3287a320b8408144",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
