@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c55f752_05d77ecb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-12T16:48:05Z",
+      "side": 1,
+      "message": "Michael, can we remove these references from chrome?",
+      "revId": "4a18f8cdcb861a8b94d0fc185bd1aff84e0b4c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
