@@ -303,6 +303,7 @@ public:
         return SkAlphaTypeIsOpaque(this->alphaType());
     }
 
+private:
     /** Provides a hint to caller that pixels should not be cached. Only true if
         setIsVolatile() has been called to mark as volatile.
 
@@ -326,6 +327,7 @@ public:
         example: https://fiddle.skia.org/c/@Bitmap_setIsVolatile
     */
     void setIsVolatile(bool isVolatile);
+public:
 
     /** Resets to its initial state; all fields are set to zero, as if SkBitmap had
         been initialized by SkBitmap().
