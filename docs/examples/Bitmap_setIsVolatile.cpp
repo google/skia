@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     canvas->drawBitmap(bitmap, 0, 0);
     *(SkPMColor*) bitmap.getPixels() = SkPreMultiplyColor(SK_ColorBLUE);
     canvas->drawBitmap(bitmap, 2, 0);
-    bitmap.setIsVolatile(true);
+ //   bitmap.setIsVolatile(true);
     *(SkPMColor*) bitmap.getPixels() = SkPreMultiplyColor(SK_ColorGREEN);
     canvas->drawBitmap(bitmap, 4, 0);
 }

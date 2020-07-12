@@ -303,30 +303,6 @@ public:
         return SkAlphaTypeIsOpaque(this->alphaType());
     }
 
-    /** Provides a hint to caller that pixels should not be cached. Only true if
-        setIsVolatile() has been called to mark as volatile.
-
-        Volatile state is not shared by other bitmaps sharing the same SkPixelRef.
-
-        @return  true if marked volatile
-
-        example: https://fiddle.skia.org/c/@Bitmap_isVolatile
-    */
-    bool isVolatile() const;
-
-    /** Sets if pixels should be read from SkPixelRef on every access. SkBitmap are not
-        volatile by default; a GPU back end may upload pixel values expecting them to be
-        accessed repeatedly. Marking temporary SkBitmap as volatile provides a hint to
-        SkBaseDevice that the SkBitmap pixels should not be cached. This can
-        improve performance by avoiding overhead and reducing resource
-        consumption on SkBaseDevice.
-
-        @param isVolatile  true if backing pixels are temporary
-
-        example: https://fiddle.skia.org/c/@Bitmap_setIsVolatile
-    */
-    void setIsVolatile(bool isVolatile);
-
     /** Resets to its initial state; all fields are set to zero, as if SkBitmap had
         been initialized by SkBitmap().
 
@@ -1188,13 +1164,8 @@ public:
     };
 
 private:
-    enum Flags {
-        kImageIsVolatile_Flag   = 0x02,
-    };
-
     sk_sp<SkPixelRef>   fPixelRef;
     SkPixmap            fPixmap;
-    uint8_t             fFlags;
 
     friend class SkReadBuffer;        // unflatten
 };
