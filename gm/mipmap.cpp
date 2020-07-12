@@ -152,3 +152,36 @@ DEF_SIMPLE_GM(mipmap_gray8_srgb, canvas, 260, 230) {
     canvas->translate(0, limg->height() + 10.0f);
     show_mips_only(canvas, simg.get());
 }
+
+class MipBuilderGM : public skiagm::GM {
+    SkString onShortName() override { return SkString("mipbuilder"); }
+
+    SkISize onISize() override { return {640, 572}; }
+
+    void onOnceBeforeDraw() override {
+        SkColor colors[] = {
+            SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorMAGENTA
+        };
+        fImg0 = make(nullptr);
+        SkMipmapBuilder builder(fImg0->imageInfo());
+        for (int i = 0; i < builder.countLevels(); ++i) {
+            auto pixm = builder.level(i);
+            auto surf = SkSurface::MakeRasterDirect(pixm);
+            surf->getCanvas()->drawColor(colors[i&3]);
+        }
+        fImg1 = fImg0->makeWithMipmaps(builder.detach());
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        canvas->drawImage(fImg0, 0, 0, &paint);
+        paint.setFilterQuality(kMedium_SkFilterQuality);
+        canvas->drawImage(fImg1, fImg0->width() + 4, 0, &paint);
+    }
+
+private:
+    sk_sp<SkImage> fImg0, fImg1;
+
+    typedef GM INHERITED;
+};
+DEF_GM(return new MipBuilderGM;)
