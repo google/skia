@@ -28,7 +28,6 @@
     #include "include/effects/SkOverdrawColorFilter.h"
     #include "include/effects/SkPerlinNoiseShader.h"
     #include "include/effects/SkRuntimeEffect.h"
-    #include "include/effects/SkShaderMaskFilter.h"
     #include "include/effects/SkTableColorFilter.h"
     #include "src/core/SkColorFilter_Matrix.h"
     #include "src/core/SkRecordedDrawable.h"
@@ -84,7 +83,6 @@
         // Mask filters.
         SK_REGISTER_FLATTENABLE(SkEmbossMaskFilter);
         SkMaskFilter::RegisterFlattenables();
-        SkShaderMaskFilter::RegisterFlattenables();
 
         // Path effects.
         SK_REGISTER_FLATTENABLE(SkCornerPathEffect);

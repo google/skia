@@ -27,7 +27,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/effects/SkShaderMaskFilter.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -251,7 +250,7 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     static constexpr SkScalar kPos[] = { 0.4f, 0.9f };
     sk_sp<SkShader> alphaMaskShader = SkGradientShader::MakeRadial(
             {128.f, 128.f}, 128.f, kAlphas, kPos, 2, SkTileMode::kClamp);
-    sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(alphaMaskShader);
+    sk_sp<SkMaskFilter> maskFilter = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 3.0f);
 
     // If edge detector sees the mask filter, it'll have alpha and then blend with the original
     // image; otherwise the mask filter will apply late (incorrectly) and none of the original

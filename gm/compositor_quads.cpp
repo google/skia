@@ -35,7 +35,6 @@
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/effects/SkShaderMaskFilter.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLineClipper.h"
 #include "tools/Resources.h"
@@ -1039,7 +1038,6 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
     auto alphaGradient = SkGradientShader::MakeRadial(
             {0.5f * kTileWidth * kColCount, 0.5f * kTileHeight * kRowCount},
             0.25f * kTileWidth * kColCount, kAlphas, nullptr, 2, SkTileMode::kClamp);
-    sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(std::move(alphaGradient));
 
     SkTArray<sk_sp<ClipTileRenderer>> renderers;
     renderers.push_back(TextureSetRenderer::MakeAlpha(mandrill, 0.5f));
@@ -1049,8 +1047,6 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
     renderers.push_back(TextureSetRenderer::MakeImageFilter("Dilate", mandrill,
                                                             std::move(imageFilter)));
 
-    renderers.push_back(TextureSetRenderer::MakeMaskFilter("Shader", mandrill,
-                                                           std::move(maskFilter)));
     // NOTE: blur mask filters do work (tested locally), but visually they don't make much
     // sense, since each quad is blurred independently
     return renderers;

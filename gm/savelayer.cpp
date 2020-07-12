@@ -33,7 +33,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/effects/SkShaderMaskFilter.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
 #include "tools/Resources.h"
