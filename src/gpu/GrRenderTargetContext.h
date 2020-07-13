@@ -473,6 +473,7 @@ public:
                   const SkMatrix& viewMatrix,
                   const SkRect& oval,
                   const GrStyle& style);
+
     /**
      * Draws a partial arc of an oval.
      *
@@ -510,13 +511,6 @@ public:
                           GrSamplerState::Filter,
                           std::unique_ptr<SkLatticeIter>,
                           const SkRect& dst);
-    /**
-     * Draw the paths for text.
-     */
-    void drawTextPaths(const GrClip*,
-                       const SkMatrixProvider& viewMatrix,
-                       const SkGlyphRunList& glyphRunList,
-                       GrTextBlob::SubRun* subRun);
 
     /**
      * Draw the text specified by the SkGlyphRunList.
