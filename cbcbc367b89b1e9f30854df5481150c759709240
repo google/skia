@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01318aa5_6ceae5bd",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-13T14:57:21Z",
+      "side": 1,
+      "message": "this should be mBackingView.  We add the \u0027m\u0027 prefix to indicate it is a member variable of the class.",
+      "range": {
+        "startLine": 28,
+        "startChar": 17,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d89bc9c9_50a03bf5",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-13T14:57:21Z",
+      "side": 1,
+      "message": "you should also throw an exception if the color is not opaque.",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95f44cc7_d32837cc",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-13T14:57:21Z",
+      "side": 1,
+      "message": "nit: line length is too long.  Keep all lines under 100 characters.",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33fd35a1_e9509238",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-13T14:57:21Z",
+      "side": 1,
+      "message": "why do you catch the exception and not let it crash the app?",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df06c2f8_fbdbdb11",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-13T14:57:21Z",
+      "side": 1,
+      "message": "initBackingView seems like a better name as I\u0027m not sure where the array fits into the picture?",
+      "range": {
+        "startLine": 73,
+        "startChar": 17,
+        "endLine": 73,
+        "endChar": 33
+      },
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d7e8887_4cc86147",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/res/values/attrs.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-13T14:57:21Z",
+      "side": 1,
+      "message": "this is fine for now, but after we get this working end-to-end I think we will want to consider different options for how this and the builder API.",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
