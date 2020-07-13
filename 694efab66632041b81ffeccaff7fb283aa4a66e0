@@ -84,6 +84,24 @@
       "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5866bef7_77094d2b",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 2100,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-13T15:27:44Z",
+      "side": 1,
+      "message": "Just to follow up, I realized that it would require making the stagingBuffers (\"soon-to-be-busy\" list) in GrDawnGpu a member var, instead of a local. So that\u0027s one downside. Anyway, LMKWYT.",
+      "parentUuid": "e2c77327_02c49f1b",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
