@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efcf2f13_510fe127",
+        "filename": "include/gpu/GrDirectContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-13T20:01:29Z",
+      "side": 1,
+      "message": "It\u0027s a little weird that we always have this one compiled in but the other only exist if the corresponding macro is defined. Not sure if there is a reason, but maybe we could take this opportunity to make it consistent?",
+      "revId": "3d38b98f46934a259fe30e7fbac8492b219ddac9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
