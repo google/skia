@@ -40,6 +40,7 @@
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/ToolUtils.h"
+#include "tools/gpu/TestOps.h"
 
 #include <utility>
 
@@ -78,10 +79,10 @@ protected:
             0x00000000,
         };
 
-        constexpr SkColor kPaintColors[] = {
+        constexpr GrColor kPaintColors[] = {
             0xFFFFFFFF,
-            0xFFFF0000,
-            0x80FF0000,
+            0xFF0000FF,
+            0x80000080,
             0x00000000,
         };
 
@@ -101,30 +102,37 @@ protected:
                     // translate by x,y for the canvas draws and the test target draws.
                     canvas->save();
                     canvas->translate(x, y);
-                    const SkMatrix viewMatrix = SkMatrix::Translate(x, y);
-                    SkSimpleMatrixProvider matrixProvider(viewMatrix);
 
                     // rect to draw
                     SkRect renderRect = SkRect::MakeXYWH(0, 0, kRectSize, kRectSize);
 
-                    GrPaint grPaint;
-                    SkPaint skPaint;
+                    // Create a base-layer FP for the const color processor to draw on top of.
+                    std::unique_ptr<GrFragmentProcessor> baseFP;
                     if (paintType >= SK_ARRAY_COUNT(kPaintColors)) {
-                        skPaint.setShader(fShader);
+                        GrColorInfo colorInfo;
+                        GrFPArgs args(context, SkSimpleMatrixProvider(SkMatrix::I()),
+                                      kHigh_SkFilterQuality, &colorInfo);
+                        baseFP = as_SB(fShader)->asFragmentProcessor(args);
                     } else {
-                        skPaint.setColor(kPaintColors[paintType]);
+                        baseFP = GrConstColorProcessor::Make(
+                                /*inputFP=*/nullptr,
+                                SkPMColor4f::FromBytes_RGBA(kPaintColors[paintType]),
+                                GrConstColorProcessor::InputMode::kIgnore);
                     }
-                    SkAssertResult(SkPaintToGrPaint(context, renderTargetContext->colorInfo(),
-                                                    skPaint, matrixProvider, &grPaint));
 
-                    GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
-                    SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(kColors[procColor]);
-                    auto fp = GrConstColorProcessor::Make(/*inputFP=*/nullptr, color, mode);
+                    // Layer a const-color FP on top of the base layer, using various modes/colors.
+                    auto constColorFP = GrConstColorProcessor::Make(
+                            std::move(baseFP), SkPMColor4f::FromBytes_RGBA(kColors[procColor]),
+                            GrConstColorProcessor::InputMode(m));
 
-                    grPaint.addColorFragmentProcessor(std::move(fp));
-                    renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
-                                                        viewMatrix, renderRect));
+                    // Render the FP tree.
+                    if (auto op = sk_gpu_test::test_ops::MakeRect(context,
+                                                                  std::move(constColorFP),
+                                                                  renderRect.makeOffset(x, y),
+                                                                  renderRect,
+                                                                  SkMatrix::I())) {
+                        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                    }
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.
@@ -184,7 +192,7 @@ protected:
     }
 
 private:
-    // Use this as a way of generating and input FP
+    // Use this as a way of generating an input FP
     sk_sp<SkShader> fShader;
 
     static constexpr SkScalar       kPad = 10.f;
