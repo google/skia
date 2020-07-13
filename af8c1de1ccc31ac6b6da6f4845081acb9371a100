@@ -22,6 +22,30 @@
       "revId": "af8c1de1ccc31ac6b6da6f4845081acb9371a100",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "641f7af9_cfad4b85",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-13T21:08:58Z",
+      "side": 1,
+      "message": "Good idea -- I\u0027ll see if I can pull in the MSAA texture creation code in RT and TRT as well, and move it into GrD3DUtil.\n\nI\u0027m also seeing a lot of \"Figure out buffer size; create buffer; map and fill buffer; unmap buffer; kick off transfer to texture\" patterns -- I may try to unify those but I\u0027d rather do it in a different CL.",
+      "parentUuid": "e90db27e_e5f7ff70",
+      "range": {
+        "startLine": 305,
+        "startChar": 1,
+        "endLine": 341,
+        "endChar": 5
+      },
+      "revId": "af8c1de1ccc31ac6b6da6f4845081acb9371a100",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
