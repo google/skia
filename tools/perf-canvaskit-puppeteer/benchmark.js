@@ -71,6 +71,11 @@ function startTimingFrames(drawFn, surface, warmupFrames, maxFrames, timeoutMill
       window._perfData.total_frame_ms = Array.from(totalFrame).slice(0, idx);
       window._perfData.with_flush_ms = Array.from(withFlush).slice(0, idx);
       window._perfData.without_flush_ms = Array.from(withoutFlush).slice(0, idx);
+      const total_frame_ms = window._perfData.total_frame_ms;
+      window._perfData.total_frame_ms_average =
+        total_frame_ms.reduce((a, b) => a + b, 0) / total_frame_ms.length;
+      window._perfData.total_frame_ms_median =
+        total_frame_ms.sort((a,b) => a-b)[(total_frame_ms.length/2)|0]
       window._perfDone = true;
       return;
     }
@@ -78,7 +83,7 @@ function startTimingFrames(drawFn, surface, warmupFrames, maxFrames, timeoutMill
     // We can fill out this frame's intermediate steps.
     withFlush[idx] = end - start;
     withoutFlush[idx] = afterDraw - start;
-    
+
     if (timeoutMillis && ((beginTest + timeoutMillis) < performance.now())) {
       console.log('test aborted due to timeout');
       return;
