@@ -55,13 +55,7 @@ public:
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
-
         str.appendf("Mode: %s", SkBlendMode_Name(fMode));
-
-        for (int i = 0; i < this->numChildProcessors(); ++i) {
-            str.appendf(" [%s %s]",
-                        this->childProcessor(i).name(), this->childProcessor(i).dumpInfo().c_str());
-        }
         return str;
     }
 #endif
@@ -190,30 +184,30 @@ private:
     }
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
-        const auto* src = (fSrcFPIndex >= 0) ? &this->childProcessor(fSrcFPIndex) : nullptr;
-        const auto* dst = (fDstFPIndex >= 0) ? &this->childProcessor(fDstFPIndex) : nullptr;
+        const auto* src = this->childProcessor(fSrcFPIndex);
+        const auto* dst = this->childProcessor(fDstFPIndex);
 
         switch (fComposeBehavior) {
             case ComposeBehavior::kComposeOneBehavior: {
-                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(*src, SK_PMColor4fWHITE)
+                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(src, SK_PMColor4fWHITE)
                                            : input;
-                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(*dst, SK_PMColor4fWHITE)
+                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(dst, SK_PMColor4fWHITE)
                                            : input;
                 return SkBlendMode_Apply(fMode, srcColor, dstColor);
             }
 
             case ComposeBehavior::kComposeTwoBehavior: {
                 SkPMColor4f opaqueInput = { input.fR, input.fG, input.fB, 1 };
-                SkPMColor4f srcColor = ConstantOutputForConstantInput(*src, opaqueInput);
-                SkPMColor4f dstColor = ConstantOutputForConstantInput(*dst, opaqueInput);
+                SkPMColor4f srcColor = ConstantOutputForConstantInput(src, opaqueInput);
+                SkPMColor4f dstColor = ConstantOutputForConstantInput(dst, opaqueInput);
                 SkPMColor4f result = SkBlendMode_Apply(fMode, srcColor, dstColor);
                 return result * input.fA;
             }
 
             case ComposeBehavior::kSkModeBehavior: {
-                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(*src, SK_PMColor4fWHITE)
+                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(src, SK_PMColor4fWHITE)
                                            : input;
-                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(*dst, input)
+                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(dst, input)
                                            : input;
                 return SkBlendMode_Apply(fMode, srcColor, dstColor);
             }
@@ -295,10 +289,10 @@ void GLComposeFragmentProcessor::emitCode(EmitArgs& args) {
     switch (behavior) {
         case ComposeBehavior::kComposeOneBehavior:
             // Compose-one operations historically leave the alpha on the input color.
-            srcColor = (srcFPIndex >= 0) ? this->invokeChild(srcFPIndex, args)
-                                         : SkString(args.fInputColor);
-            dstColor = (dstFPIndex >= 0) ? this->invokeChild(dstFPIndex, args)
-                                         : SkString(args.fInputColor);
+            srcColor = cs.childProcessor(srcFPIndex) ? this->invokeChild(srcFPIndex, args)
+                                                     : SkString(args.fInputColor);
+            dstColor = cs.childProcessor(dstFPIndex) ? this->invokeChild(dstFPIndex, args)
+                                                     : SkString(args.fInputColor);
             break;
 
         case ComposeBehavior::kComposeTwoBehavior:
@@ -310,10 +304,11 @@ void GLComposeFragmentProcessor::emitCode(EmitArgs& args) {
 
         case ComposeBehavior::kSkModeBehavior:
             // SkModeColorFilter operations act like ComposeOne, but pass the input color to dst.
-            srcColor = (srcFPIndex >= 0) ? this->invokeChild(srcFPIndex, args)
-                                         : SkString(args.fInputColor);
-            dstColor = (dstFPIndex >= 0) ? this->invokeChild(dstFPIndex, args.fInputColor, args)
-                                         : SkString(args.fInputColor);
+            srcColor = cs.childProcessor(srcFPIndex) ? this->invokeChild(srcFPIndex, args)
+                                                     : SkString(args.fInputColor);
+            dstColor = cs.childProcessor(dstFPIndex)
+                               ? this->invokeChild(dstFPIndex, args.fInputColor, args)
+                               : SkString(args.fInputColor);
             break;
 
         default:

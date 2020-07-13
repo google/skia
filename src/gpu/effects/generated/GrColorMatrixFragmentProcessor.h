@@ -19,9 +19,7 @@
 class GrColorMatrixFragmentProcessor : public GrFragmentProcessor {
 public:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
-        SkPMColor4f input = this->numChildProcessors() ? ConstantOutputForConstantInput(
-                                                                 this->childProcessor(0), inColor)
-                                                       : inColor;
+        SkPMColor4f input = ConstantOutputForConstantInput(this->childProcessor(0), inColor);
         SkColor4f color;
         if (unpremulInput) {
             color = input.unpremul();

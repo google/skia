@@ -98,7 +98,7 @@ GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         , useUniform(src.useUniform)
         , uniformColor(src.uniformColor)
         , literalColor(src.literalColor) {
-    { fp_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp_index)); }
+    fp_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrOverrideInputFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrOverrideInputFragmentProcessor(*this));

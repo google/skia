@@ -65,7 +65,7 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const
 GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffect& src)
         : INHERITED(kGrConfigConversionEffect_ClassID, src.optimizationFlags())
         , pmConversion(src.pmConversion) {
-    { inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index)); }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(*this));

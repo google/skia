@@ -40,7 +40,7 @@ public:
                                                 "v");
         SkString _input585(args.fInputColor);
         SkString _sample585;
-        if (_outer.inputFP_index >= 0) {
+        if (_outer.childProcessor(_outer.inputFP_index)) {
             _sample585 = this->invokeChild(_outer.inputFP_index, _input585.c_str(), args);
         } else {
             _sample585.swap(_input585);
@@ -123,9 +123,7 @@ GrColorMatrixFragmentProcessor::GrColorMatrixFragmentProcessor(
         , unpremulInput(src.unpremulInput)
         , clampRGBOutput(src.clampRGBOutput)
         , premulOutput(src.premulOutput) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(*this));

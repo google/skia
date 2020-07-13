@@ -141,7 +141,7 @@ GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         , yInvZoom(src.yInvZoom)
         , xInvInset(src.xInvInset)
         , yInvInset(src.yInvInset) {
-    { src_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.src_index)); }
+    src_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.src_index));
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {

@@ -71,7 +71,7 @@ bool GrDitherEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)
         : INHERITED(kGrDitherEffect_ClassID, src.optimizationFlags()), range(src.range) {
-    { inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index)); }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrDitherEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(*this));

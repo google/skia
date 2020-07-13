@@ -306,7 +306,7 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar));
         SkString _input13941(args.fInputColor);
         SkString _sample13941;
-        if (_outer.inputFP_index >= 0) {
+        if (_outer.childProcessor(_outer.inputFP_index)) {
             _sample13941 = this->invokeChild(_outer.inputFP_index, _input13941.c_str(), args);
         } else {
             _sample13941.swap(_input13941);
@@ -362,13 +362,9 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
         , circleRect(src.circleRect)
         , solidRadius(src.solidRadius)
         , textureRadius(src.textureRadius) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
-    {
-        blurProfile_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.blurProfile_index));
-    }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    blurProfile_index =
+            this->cloneAndRegisterChildProcessor(src.childProcessor(src.blurProfile_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(*this));

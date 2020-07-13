@@ -96,7 +96,7 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
         SkString _input9600(args.fInputColor);
         SkString _sample9600;
-        if (_outer.inputFP_index >= 0) {
+        if (_outer.childProcessor(_outer.inputFP_index)) {
             _sample9600 = this->invokeChild(_outer.inputFP_index, _input9600.c_str(), args);
         } else {
             _sample9600.swap(_input9600);
@@ -160,13 +160,9 @@ GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
         , sigma(src.sigma)
         , rect(src.rect)
         , cornerRadius(src.cornerRadius) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
-    {
-        ninePatchFP_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.ninePatchFP_index));
-    }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    ninePatchFP_index =
+            this->cloneAndRegisterChildProcessor(src.childProcessor(src.ninePatchFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRRectBlurEffect(*this));

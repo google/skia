@@ -705,7 +705,7 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
          /*expectedCPP=*/{
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(if (%s) {)SkSL\"\n"
-            ", (_outer.childProcessor(_outer.child_index).preservesOpaqueInput() ? \"true\" : \"false\"));",
+            ", (_outer.childProcessor(_outer.child_index)->preservesOpaqueInput() ? \"true\" : \"false\"));",
             "SkString _input161(args.fInputColor);",
             "SkString _sample161;",
             "_sample161 = this->invokeChild(_outer.child_index, _input161.c_str(), args);",
@@ -739,7 +739,7 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
             "child_index = this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "opaque = _outer.childProcessor(_outer.child_index).preservesOpaqueInput();",
+            "opaque = _outer.childProcessor(_outer.child_index)->preservesOpaqueInput();",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(bool opaque = %s;\n"
             "if (opaque) {)SkSL\"\n"
@@ -775,9 +775,8 @@ DEF_TEST(SkSLFPNullableChildProcessor, r) {
          /*expectedCPP=*/{
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(if (%s) {)SkSL\"\n"
-            ", _outer.child_index >= 0 ? \"true\" : \"false\");",
+            ", _outer.childProcessor(_outer.child_index) ? \"true\" : \"false\");",
             "SkString _sample149;",
-            "if (_outer.child_index >= 0) {",
             "_sample149 = this->invokeChild(_outer.child_index, args);",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(\n"

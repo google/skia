@@ -93,19 +93,19 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         SkASSERT(var->fType.kind() == Type::kNullable_Kind &&
                  var->fType.componentType() == *fContext.fFragmentProcessor_Type);
         this->write("%s");
-        const char* op;
+        const char* op = "";
         switch (b.fOperator) {
             case Token::Kind::TK_EQEQ:
-                op = "<";
+                op = "!";
                 break;
             case Token::Kind::TK_NEQ:
-                op = ">=";
+                op = "";
                 break;
             default:
                 SkASSERT(false);
         }
-        fFormatArgs.push_back("_outer." + String(var->fName) + "_index " + op + " 0 ? \"true\" "
-                              ": \"false\"");
+        fFormatArgs.push_back(String(op) + "_outer.childProcessor(_outer." + String(var->fName) +
+                              "_index) ? \"true\" : \"false\"");
     } else {
         INHERITED::writeBinaryExpression(b, parentPrecedence);
     }
@@ -357,7 +357,7 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
 
         const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fFieldIndex];
         const Variable& var = ((const VariableReference&) *access.fBase).fVariable;
-        String cppAccess = String::printf("_outer.childProcessor(_outer.%s_index).%s()",
+        String cppAccess = String::printf("_outer.childProcessor(_outer.%s_index)->%s()",
                                           String(var.fName).c_str(),
                                           String(field.fName).c_str());
 
@@ -457,7 +457,8 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         addExtraEmitCodeLine("SkString " + childName + ";");
 
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
-            addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
+            addExtraEmitCodeLine("if (_outer.childProcessor(_outer." + String(child.fName) +
+                                 "_index)) {\n    ");
         }
         addExtraEmitCodeLine(childName + " = this->" + invokeFunction + "(_outer." +
                              String(child.fName) + "_index" + inputColor + ", args" +
@@ -1115,14 +1116,8 @@ void CPPCodeGenerator::writeClone() {
                 ++samplerCount;
             } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
                 String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
-                if (param->fType.kind() == Type::kNullable_Kind) {
-                    this->writef("    if (src.%s_index >= 0) {\n", fieldName.c_str());
-                } else {
-                    this->write("    {\n");
-                }
                 this->writef("        %s_index = this->cloneAndRegisterChildProcessor("
-                                                     "src.childProcessor(src.%s_index));\n"
-                             "    }\n",
+                                                     "src.childProcessor(src.%s_index));\n",
                              fieldName.c_str(), fieldName.c_str());
             }
         }
