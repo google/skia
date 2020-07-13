@@ -1190,6 +1190,34 @@ namespace skvm {
         return {};
     }
 
+    bool Builder::store(PixelFormat f, Arg ptr, Color c) {
+        // Detect a grayscale PixelFormat: r,g,b bit counts and shifts all equal.
+        if (f.r_bits  == f.g_bits  && f.g_bits  == f.b_bits &&
+            f.r_shift == f.g_shift && f.g_shift == f.b_shift) {
+
+            // TODO: pull these coefficients from an SkColorSpace?  This is sRGB luma/luminance.
+            c.r = c.r * 0.2126f
+                + c.g * 0.7152f
+                + c.b * 0.0722f;
+            f.g_bits = f.b_bits = 0;
+        }
+
+        I32 bits = splat(0);
+        if (f.r_bits) { bits = pack(bits, to_unorm(f.r_bits, c.r), f.r_shift); }
+        if (f.g_bits) { bits = pack(bits, to_unorm(f.g_bits, c.g), f.g_shift); }
+        if (f.b_bits) { bits = pack(bits, to_unorm(f.b_bits, c.b), f.b_shift); }
+        if (f.a_bits) { bits = pack(bits, to_unorm(f.a_bits, c.a), f.a_shift); }
+
+        switch (byte_size(f)) {
+            case 1: store8 (ptr, bits); return true;
+            case 2: store16(ptr, bits); return true;
+            case 4: store32(ptr, bits); return true;
+            // TODO: 8,16
+            default: SkUNREACHABLE;
+        }
+        return false;
+    }
+
     void Builder::unpremul(F32* r, F32* g, F32* b, F32 a) {
         skvm::F32 invA = 1.0f / a,
                   inf  = bit_cast(splat(0x7f800000));
