@@ -46,12 +46,11 @@ sk_sp<SkData> SkCodecImageGenerator::onRefEncodedData() {
     return fData;
 }
 
-bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* requestPixels,
-                                        size_t requestRowBytes, const Options&) {
-    SkPixmap dst(requestInfo, requestPixels, requestRowBytes);
+bool SkCodecImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const SkCodec::Options* options) {
+    SkPixmap dst(info, pixels, rowBytes);
 
-    auto decode = [this](const SkPixmap& pm) {
-        SkCodec::Result result = fCodec->getPixels(pm);
+    auto decode = [this, options](const SkPixmap& pm) {
+        SkCodec::Result result = fCodec->getPixels(pm, options);
         switch (result) {
             case SkCodec::kSuccess:
             case SkCodec::kIncompleteInput:
@@ -63,6 +62,11 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* re
     };
 
     return SkPixmapPriv::Orient(dst, fCodec->getOrigin(), decode);
+}
+
+bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* requestPixels,
+                                        size_t requestRowBytes, const Options& options) {
+    return this->getPixels(requestInfo, requestPixels, requestRowBytes, nullptr);
 }
 
 bool SkCodecImageGenerator::onQueryYUVA8(SkYUVASizeInfo* sizeInfo,
