@@ -99,8 +99,8 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
     }
 
     // Sort commands for current mode:
-    SkTQSort(fCommands.begin(), fCommands.end() - 1,
-             kAlphabetical_HelpMode == fHelpMode ? compareCommandKey : compareCommandGroup);
+    std::stable_sort(fCommands.begin(), fCommands.end(),
+                     kAlphabetical_HelpMode == fHelpMode ? compareCommandKey : compareCommandGroup);
 
     SkFont font;
     font.setSize(16);
