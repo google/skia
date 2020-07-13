@@ -129,8 +129,6 @@ public:
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
             const SkStrikeSpec& strikeSpec);
 
-    SubRun* firstSubRun() const;
-
     bool forceWForDistanceFields() const;
 
     const SkTInternalLList<SubRun>& subRunList() const { return fSubRunList; }

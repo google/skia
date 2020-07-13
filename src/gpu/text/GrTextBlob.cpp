@@ -763,8 +763,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
     this->addMultiMaskFormat(SubRun::MakeTransformedMask, drawables, strikeSpec);
 }
 
-auto GrTextBlob::firstSubRun() const -> SubRun* { return fSubRunList.head(); }
-
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
                                                  GrTextBlob::SubRun* subRun,
