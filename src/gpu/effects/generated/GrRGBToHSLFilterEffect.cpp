@@ -25,7 +25,7 @@ public:
         (void)_outer;
         SkString _input1173(args.fInputColor);
         SkString _sample1173;
-        if (_outer.inputFP_index >= 0) {
+        if (_outer.childProcessor(_outer.inputFP_index)) {
             _sample1173 = this->invokeChild(_outer.inputFP_index, _input1173.c_str(), args);
         } else {
             _sample1173.swap(_input1173);
@@ -62,9 +62,7 @@ bool GrRGBToHSLFilterEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrRGBToHSLFilterEffect::GrRGBToHSLFilterEffect(const GrRGBToHSLFilterEffect& src)
         : INHERITED(kGrRGBToHSLFilterEffect_ClassID, src.optimizationFlags()) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrRGBToHSLFilterEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRGBToHSLFilterEffect(*this));

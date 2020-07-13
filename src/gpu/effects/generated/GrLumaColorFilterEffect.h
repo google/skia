@@ -21,10 +21,7 @@ public:
 #include "include/private/SkColorData.h"
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
-        SkPMColor4f input = this->numChildProcessors()
-                                    ? ConstantOutputForConstantInput(
-                                              this->childProcessor(inputFP_index), inColor)
-                                    : inColor;
+        SkPMColor4f input = ConstantOutputForConstantInput(this->childProcessor(0), inColor);
         float luma = SK_ITU_BT709_LUM_COEFF_R * input.fR + SK_ITU_BT709_LUM_COEFF_G * input.fG +
                      SK_ITU_BT709_LUM_COEFF_B * input.fB;
         return {0, 0, 0, SkTPin(luma, 0.0f, 1.0f)};

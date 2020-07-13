@@ -47,8 +47,8 @@ if (!%s && t.y < 0.0) {
     %s = %s;
 } else {)SkSL",
                 _sample1099.c_str(),
-                (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
-                                                                                       : "false"),
+                (_outer.childProcessor(_outer.gradLayout_index)->preservesOpaqueInput() ? "true"
+                                                                                        : "false"),
                 args.fOutputColor, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(leftBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
@@ -111,14 +111,9 @@ GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& 
         , rightBorderColor(src.rightBorderColor)
         , makePremul(src.makePremul)
         , colorsAreOpaque(src.colorsAreOpaque) {
-    {
-        colorizer_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.colorizer_index));
-    }
-    {
-        gradLayout_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.gradLayout_index));
-    }
+    colorizer_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.colorizer_index));
+    gradLayout_index =
+            this->cloneAndRegisterChildProcessor(src.childProcessor(src.gradLayout_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrClampedGradientEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrClampedGradientEffect(*this));

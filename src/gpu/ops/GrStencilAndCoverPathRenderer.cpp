@@ -36,7 +36,7 @@ static bool has_matrix(const GrFragmentProcessor& fp) {
         return true;
     }
     for (int i = fp.numChildProcessors() - 1; i >= 0; --i) {
-        if (has_matrix(fp.childProcessor(i))) {
+        if (fp.childProcessor(i) && has_matrix(*fp.childProcessor(i))) {
             return true;
         }
     }

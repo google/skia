@@ -110,7 +110,7 @@ public:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
-        return Make(this->childProcessor(0).clone());
+        return Make(this->childProcessor(0)->clone());
     }
 
 private:
@@ -187,7 +187,7 @@ static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorT
                 if (!fp) {
                     return nullptr;
                 }
-                if (0 == fp->numChildProcessors()) {
+                if (0 == fp->numNonNullChildProcessors()) {
                     break;
                 }
             }

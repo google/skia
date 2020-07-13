@@ -50,7 +50,7 @@ bool GrDeviceSpaceEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrDeviceSpaceEffect::GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src)
         : INHERITED(kGrDeviceSpaceEffect_ClassID, src.optimizationFlags()) {
-    { fp_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp_index)); }
+    fp_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(*this));

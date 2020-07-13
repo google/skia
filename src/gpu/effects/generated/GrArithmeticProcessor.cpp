@@ -31,7 +31,7 @@ public:
                                                 "k");
         SkString _input385(args.fInputColor);
         SkString _sample385;
-        if (_outer.srcFP_index >= 0) {
+        if (_outer.childProcessor(_outer.srcFP_index)) {
             _sample385 = this->invokeChild(_outer.srcFP_index, _input385.c_str(), args);
         } else {
             _sample385.swap(_input385);
@@ -82,10 +82,8 @@ GrArithmeticProcessor::GrArithmeticProcessor(const GrArithmeticProcessor& src)
         : INHERITED(kGrArithmeticProcessor_ClassID, src.optimizationFlags())
         , k(src.k)
         , enforcePMColor(src.enforcePMColor) {
-    if (src.srcFP_index >= 0) {
-        srcFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.srcFP_index));
-    }
-    { dstFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.dstFP_index)); }
+    srcFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.srcFP_index));
+    dstFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.dstFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrArithmeticProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrArithmeticProcessor(*this));

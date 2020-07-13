@@ -51,10 +51,7 @@ bool GrTextureGradientColorizer::onIsEqual(const GrFragmentProcessor& other) con
 }
 GrTextureGradientColorizer::GrTextureGradientColorizer(const GrTextureGradientColorizer& src)
         : INHERITED(kGrTextureGradientColorizer_ClassID, src.optimizationFlags()) {
-    {
-        textureFP_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.textureFP_index));
-    }
+    textureFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.textureFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrTextureGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTextureGradientColorizer(*this));

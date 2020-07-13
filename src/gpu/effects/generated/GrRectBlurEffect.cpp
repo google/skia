@@ -103,7 +103,7 @@ half xCoverage, yCoverage;
                 _sample8763.c_str(), _sample8826.c_str());
         SkString _input8895(args.fInputColor);
         SkString _sample8895;
-        if (_outer.inputFP_index >= 0) {
+        if (_outer.childProcessor(_outer.inputFP_index)) {
             _sample8895 = this->invokeChild(_outer.inputFP_index, _input8895.c_str(), args);
         } else {
             _sample8895.swap(_input8895);
@@ -158,13 +158,8 @@ GrRectBlurEffect::GrRectBlurEffect(const GrRectBlurEffect& src)
         : INHERITED(kGrRectBlurEffect_ClassID, src.optimizationFlags())
         , rect(src.rect)
         , isFast(src.isFast) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
-    {
-        integral_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.integral_index));
-    }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    integral_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.integral_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(*this));

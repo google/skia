@@ -34,7 +34,7 @@ public:
                                                              kHalf_GrSLType, "outerThreshold");
         SkString _input515(args.fInputColor);
         SkString _sample515;
-        if (_outer.inputFP_index >= 0) {
+        if (_outer.childProcessor(_outer.inputFP_index)) {
             _sample515 = this->invokeChild(_outer.inputFP_index, _input515.c_str(), args);
         } else {
             _sample515.swap(_input515);
@@ -97,10 +97,8 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, src.optimizationFlags())
         , innerThreshold(src.innerThreshold)
         , outerThreshold(src.outerThreshold) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
-    { maskFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.maskFP_index)); }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
+    maskFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.maskFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));

@@ -82,7 +82,7 @@ half alpha;
                 (int)_outer.edgeType);
         SkString _input4481(args.fInputColor);
         SkString _sample4481;
-        if (_outer.inputFP_index >= 0) {
+        if (_outer.childProcessor(_outer.inputFP_index)) {
             _sample4481 = this->invokeChild(_outer.inputFP_index, _input4481.c_str(), args);
         } else {
             _sample4481.swap(_input4481);
@@ -161,9 +161,7 @@ GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
         , edgeType(src.edgeType)
         , center(src.center)
         , radii(src.radii) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
+    inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(*this));

@@ -47,8 +47,8 @@ if (!%s && t.y < 0.0) {
         t.x = fract(t.x);
     })SkSL",
                 _sample453.c_str(),
-                (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
-                                                                                       : "false"),
+                (_outer.childProcessor(_outer.gradLayout_index)->preservesOpaqueInput() ? "true"
+                                                                                        : "false"),
                 args.fOutputColor, (_outer.mirror ? "true" : "false"));
         SkString _input1464("t");
         SkString _sample1464;
@@ -90,14 +90,9 @@ GrTiledGradientEffect::GrTiledGradientEffect(const GrTiledGradientEffect& src)
         , mirror(src.mirror)
         , makePremul(src.makePremul)
         , colorsAreOpaque(src.colorsAreOpaque) {
-    {
-        colorizer_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.colorizer_index));
-    }
-    {
-        gradLayout_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.gradLayout_index));
-    }
+    colorizer_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.colorizer_index));
+    gradLayout_index =
+            this->cloneAndRegisterChildProcessor(src.childProcessor(src.gradLayout_index));
 }
 std::unique_ptr<GrFragmentProcessor> GrTiledGradientEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTiledGradientEffect(*this));

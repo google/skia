@@ -60,10 +60,6 @@ public:
 
     GrClipEdgeType getEdgeType() const { return fEdgeType; }
 
-    bool hasInputFP() const {
-        return this->numChildProcessors() > 0;
-    }
-
 private:
     CircularRRectEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                         GrClipEdgeType, uint32_t circularCornerFlags, const SkRRect&);
@@ -300,9 +296,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("alpha = 1.0 - alpha;");
     }
 
-    SkString inputSample = crre.hasInputFP()
-                ? this->invokeChild(/*childIndex=*/0, args.fInputColor, args)
-                : SkString(args.fInputColor);
+    SkString inputSample = this->invokeChild(/*childIndex=*/0, args.fInputColor, args);
 
     fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, inputSample.c_str());
 }
@@ -420,10 +414,6 @@ public:
     const SkRRect& getRRect() const { return fRRect; }
 
     GrClipEdgeType getEdgeType() const { return fEdgeType; }
-
-    bool hasInputFP() const {
-        return this->numChildProcessors() > 0;
-    }
 
 private:
     EllipticalRRectEffect(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType, const SkRRect&);
@@ -633,9 +623,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("half alpha = clamp(0.5 + approx_dist, 0.0, 1.0);");
     }
 
-    SkString inputSample = erre.hasInputFP()
-                ? this->invokeChild(/*childIndex=*/0, args.fInputColor, args)
-                : SkString(args.fInputColor);
+    SkString inputSample = this->invokeChild(/*childIndex=*/0, args.fInputColor, args);
 
     fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, inputSample.c_str());
 }
