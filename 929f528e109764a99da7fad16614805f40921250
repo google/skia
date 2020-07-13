@@ -16,6 +16,23 @@
       "revId": "929f528e109764a99da7fad16614805f40921250",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0151b85f_abbbef16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-13T14:14:27Z",
+      "side": 1,
+      "message": "LGTM, but deferring to Mike who actually understands this code 😊",
+      "revId": "929f528e109764a99da7fad16614805f40921250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
