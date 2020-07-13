@@ -50,6 +50,24 @@
       "revId": "929f528e109764a99da7fad16614805f40921250",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a3fe6fc_0b230bfd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-13T18:55:03Z",
+      "side": 1,
+      "message": "Correction, max for cubics is 47. The 34 measurement was with this CL applied.",
+      "parentUuid": "16a97d85_b320870f",
+      "revId": "929f528e109764a99da7fad16614805f40921250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
