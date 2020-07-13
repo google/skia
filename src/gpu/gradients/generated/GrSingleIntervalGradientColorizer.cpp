@@ -79,7 +79,9 @@ GrSingleIntervalGradientColorizer::GrSingleIntervalGradientColorizer(
         const GrSingleIntervalGradientColorizer& src)
         : INHERITED(kGrSingleIntervalGradientColorizer_ClassID, src.optimizationFlags())
         , start(src.start)
-        , end(src.end) {}
+        , end(src.end) {
+    this->cloneAndRegisterAllChildProcessors(src);
+}
 std::unique_ptr<GrFragmentProcessor> GrSingleIntervalGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrSingleIntervalGradientColorizer(*this));
 }

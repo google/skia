@@ -247,7 +247,7 @@ bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
     std::unique_ptr<GrSkSLFP> result(new GrSkSLFP(*this));
     for (int i = 0; i < this->numChildProcessors(); ++i) {
-        result->addChild(this->childProcessor(i).clone());
+        result->addChild(this->childProcessor(i)->clone());
     }
     return std::unique_ptr<GrFragmentProcessor>(result.release());
 }

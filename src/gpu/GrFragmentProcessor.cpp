@@ -31,7 +31,12 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
         return false;
     }
     for (int i = 0; i < this->numChildProcessors(); ++i) {
-        if (!this->childProcessor(i).isEqual(that.childProcessor(i))) {
+        auto thisChild = this->childProcessor(i),
+             thatChild = that .childProcessor(i);
+        if (SkToBool(thisChild) != SkToBool(thatChild)) {
+            return false;
+        }
+        if (thisChild && !thisChild->isEqual(*thatChild)) {
             return false;
         }
     }
@@ -51,7 +56,9 @@ void GrFragmentProcessor::visitTextureEffects(
         func(*te);
     }
     for (auto& child : fChildProcessors) {
-        child->visitTextureEffects(func);
+        if (child) {
+            child->visitTextureEffects(func);
+        }
     }
 }
 
@@ -73,7 +80,8 @@ GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
     GrGLSLFragmentProcessor* glFragProc = this->onCreateGLSLInstance();
     glFragProc->fChildProcessors.push_back_n(fChildProcessors.count());
     for (int i = 0; i < fChildProcessors.count(); ++i) {
-        glFragProc->fChildProcessors[i] = fChildProcessors[i]->createGLSLInstance();
+        glFragProc->fChildProcessors[i] =
+                fChildProcessors[i] ? fChildProcessors[i]->createGLSLInstance() : nullptr;
     }
     return glFragProc;
 }
@@ -83,14 +91,21 @@ void GrFragmentProcessor::addAndPushFlagToChildren(PrivateFlags flag) {
     if (!(fFlags & flag)) {
         fFlags |= flag;
         for (auto& child : fChildProcessors) {
-            child->addAndPushFlagToChildren(flag);
+            if (child) {
+                child->addAndPushFlagToChildren(flag);
+            }
         }
     }
 #ifdef SK_DEBUG
     for (auto& child : fChildProcessors) {
-        SkASSERT(child->fFlags & flag);
+        SkASSERT(!child || (child->fFlags & flag));
     }
 #endif
+}
+
+int GrFragmentProcessor::numNonNullChildProcessors() const {
+    return std::count_if(fChildProcessors.begin(), fChildProcessors.end(),
+                         [](const auto& c) { return c != nullptr; });
 }
 
 #ifdef SK_DEBUG
@@ -105,10 +120,11 @@ bool GrFragmentProcessor::isInstantiated() const {
 }
 #endif
 
-int GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> child,
-                                       SkSL::SampleUsage sampleUsage) {
+void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> child,
+                                        SkSL::SampleUsage sampleUsage) {
     if (!child) {
-        return -1;
+        fChildProcessors.push_back(nullptr);
+        return;
     }
 
     // The child should not have been attached to another FP already and not had any sampling
@@ -156,7 +172,6 @@ int GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chil
 
     fRequestedFeatures |= child->fRequestedFeatures;
 
-    int index = fChildProcessors.count();
     // Record that the child is attached to us; this FP is the source of any uniform data needed
     // to evaluate the child sample matrix.
     child->fParent = this;
@@ -165,17 +180,15 @@ int GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chil
     // Sanity check: our sample strategy comes from a parent we shouldn't have yet.
     SkASSERT(!this->isSampledWithExplicitCoords() && !this->hasPerspectiveTransform() &&
              !fUsage.isSampled() && !fParent);
-    return index;
-}
-
-int GrFragmentProcessor::cloneAndRegisterChildProcessor(const GrFragmentProcessor& fp) {
-    std::unique_ptr<GrFragmentProcessor> clone = fp.clone();
-    return this->registerChild(std::move(clone), fp.sampleUsage());
 }
 
 void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src) {
     for (int i = 0; i < src.numChildProcessors(); ++i) {
-        this->cloneAndRegisterChildProcessor(src.childProcessor(i));
+        if (auto fp = src.childProcessor(i)) {
+            this->registerChild(fp->clone(), fp->sampleUsage());
+        } else {
+            this->registerChild(nullptr);
+        }
     }
 }
 
@@ -233,7 +246,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
         const GrSwizzle& swizzle() const { return fSwizzle; }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override {
-            return Make(this->childProcessor(0).clone(), fSwizzle);
+            return Make(this->childProcessor(0)->clone(), fSwizzle);
         }
 
     private:
@@ -300,7 +313,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
         const char* name() const override { return "Premultiply"; }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override {
-            return Make(this->childProcessor(0).clone());
+            return Make(this->childProcessor(0)->clone());
         }
 
     private:
@@ -378,8 +391,12 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
         std::unique_ptr<GrFragmentProcessor> clone() const override {
             SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> children(this->numChildProcessors());
             for (int i = 0; i < this->numChildProcessors(); ++i) {
-                if (!children.push_back(this->childProcessor(i).clone())) {
-                    return nullptr;
+                if (this->childProcessor(i)) {
+                    if (!children.push_back(this->childProcessor(i)->clone())) {
+                        return nullptr;
+                    }
+                } else {
+                    children.push_back(nullptr);
                 }
             }
             return Make(children.begin(), this->numChildProcessors());
@@ -484,7 +501,9 @@ GrFragmentProcessor::CIter& GrFragmentProcessor::CIter::operator++() {
     const GrFragmentProcessor* back = fFPStack.back();
     fFPStack.pop_back();
     for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(&back->childProcessor(i));
+        if (auto child = back->childProcessor(i)) {
+            fFPStack.push_back(child);
+        }
     }
     return *this;
 }

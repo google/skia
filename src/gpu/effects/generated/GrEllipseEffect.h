@@ -43,7 +43,6 @@ public:
     GrEllipseEffect(const GrEllipseEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "EllipseEffect"; }
-    int inputFP_index = -1;
     GrClipEdgeType edgeType;
     SkPoint center;
     SkPoint radii;
@@ -60,7 +59,7 @@ private:
             , edgeType(edgeType)
             , center(center)
             , radii(radii) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -28,8 +28,6 @@ public:
     GrAlphaThresholdFragmentProcessor(const GrAlphaThresholdFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AlphaThresholdFragmentProcessor"; }
-    int inputFP_index = -1;
-    int maskFP_index = -1;
     float innerThreshold;
     float outerThreshold;
 
@@ -45,9 +43,9 @@ private:
                                                          : kNone_OptimizationFlags))
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(maskFP);
-        maskFP_index = this->registerChild(std::move(maskFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(maskFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

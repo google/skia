@@ -33,16 +33,10 @@ public:
         outerThresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf_GrSLType, "outerThreshold");
         SkString _input515(args.fInputColor);
-        SkString _sample515;
-        if (_outer.inputFP_index >= 0) {
-            _sample515 = this->invokeChild(_outer.inputFP_index, _input515.c_str(), args);
-        } else {
-            _sample515.swap(_input515);
-        }
+        SkString _sample515 = this->invokeChild(0, _input515.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 color = %s;)SkSL", _sample515.c_str());
-        SkString _sample567;
-        _sample567 = this->invokeChild(_outer.maskFP_index, args);
+        SkString _sample567 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 mask_color = %s;
@@ -97,10 +91,7 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, src.optimizationFlags())
         , innerThreshold(src.innerThreshold)
         , outerThreshold(src.outerThreshold) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
-    { maskFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.maskFP_index)); }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));

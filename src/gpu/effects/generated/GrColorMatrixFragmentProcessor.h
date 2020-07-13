@@ -19,9 +19,7 @@
 class GrColorMatrixFragmentProcessor : public GrFragmentProcessor {
 public:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
-        SkPMColor4f input = this->numChildProcessors() ? ConstantOutputForConstantInput(
-                                                                 this->childProcessor(0), inColor)
-                                                       : inColor;
+        SkPMColor4f input = ConstantOutputForConstantInput(this->childProcessor(0), inColor);
         SkColor4f color;
         if (unpremulInput) {
             color = input.unpremul();
@@ -61,7 +59,6 @@ public:
     GrColorMatrixFragmentProcessor(const GrColorMatrixFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ColorMatrixFragmentProcessor"; }
-    int inputFP_index = -1;
     SkM44 m;
     SkV4 v;
     bool unpremulInput;
@@ -84,7 +81,7 @@ private:
             , unpremulInput(unpremulInput)
             , clampRGBOutput(clampRGBOutput)
             , premulOutput(premulOutput) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

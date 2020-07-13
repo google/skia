@@ -48,12 +48,7 @@ return t < 0.16666666666666666 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0
 )SkSL",
                                   &HSLToRGB_name);
         SkString _input896(args.fInputColor);
-        SkString _sample896;
-        if (_outer.inputFP_index >= 0) {
-            _sample896 = this->invokeChild(_outer.inputFP_index, _input896.c_str(), args);
-        } else {
-            _sample896.swap(_input896);
-        }
+        SkString _sample896 = this->invokeChild(0, _input896.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inColor = %s;
@@ -163,9 +158,7 @@ GrHighContrastFilterEffect::GrHighContrastFilterEffect(const GrHighContrastFilte
         , invertBrightness(src.invertBrightness)
         , invertLightness(src.invertLightness)
         , linearize(src.linearize) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrHighContrastFilterEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrHighContrastFilterEffect(*this));

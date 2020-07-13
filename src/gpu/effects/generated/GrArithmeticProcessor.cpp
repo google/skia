@@ -30,16 +30,10 @@ public:
         kVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                 "k");
         SkString _input385(args.fInputColor);
-        SkString _sample385;
-        if (_outer.srcFP_index >= 0) {
-            _sample385 = this->invokeChild(_outer.srcFP_index, _input385.c_str(), args);
-        } else {
-            _sample385.swap(_input385);
-        }
+        SkString _sample385 = this->invokeChild(0, _input385.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 src = %s;)SkSL", _sample385.c_str());
-        SkString _sample428;
-        _sample428 = this->invokeChild(_outer.dstFP_index, args);
+        SkString _sample428 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 dst = %s;
@@ -82,10 +76,7 @@ GrArithmeticProcessor::GrArithmeticProcessor(const GrArithmeticProcessor& src)
         : INHERITED(kGrArithmeticProcessor_ClassID, src.optimizationFlags())
         , k(src.k)
         , enforcePMColor(src.enforcePMColor) {
-    if (src.srcFP_index >= 0) {
-        srcFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.srcFP_index));
-    }
-    { dstFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.dstFP_index)); }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrArithmeticProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrArithmeticProcessor(*this));

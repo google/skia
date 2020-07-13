@@ -60,6 +60,8 @@ private:
 class GrProcessor {
 public:
     enum ClassID {
+        kNull_ClassID,  // Reserved ID for missing (null) processors
+
         kBigKeyProcessor_ClassID,
         kBlockInputFragmentProcessor_ClassID,
         kButtCapStrokedCircleGeometryProcessor_ClassID,

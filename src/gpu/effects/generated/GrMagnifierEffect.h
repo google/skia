@@ -31,7 +31,6 @@ public:
     GrMagnifierEffect(const GrMagnifierEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MagnifierEffect"; }
-    int src_index = -1;
     SkIRect bounds;
     SkRect srcRect;
     float xInvZoom;
@@ -56,7 +55,7 @@ private:
             , yInvInset(yInvInset) {
         this->setUsesSampleCoordsDirectly();
         SkASSERT(src);
-        src_index = this->registerChild(std::move(src), SkSL::SampleUsage::Explicit());
+        this->registerChild(std::move(src), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

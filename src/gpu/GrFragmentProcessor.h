@@ -123,17 +123,22 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
         this->onGetGLSLProcessorKey(caps, b);
-        for (int i = 0; i < fChildProcessors.count(); ++i) {
-            fChildProcessors[i]->getGLSLProcessorKey(caps, b);
+        for (const auto& child : fChildProcessors) {
+            if (child) {
+                child->getGLSLProcessorKey(caps, b);
+            }
         }
     }
 
     int numVaryingCoordsUsed() const { return this->usesVaryingCoordsDirectly() ? 1 : 0; }
 
     int numChildProcessors() const { return fChildProcessors.count(); }
+    int numNonNullChildProcessors() const;
 
-    GrFragmentProcessor& childProcessor(int index) { return *fChildProcessors[index]; }
-    const GrFragmentProcessor& childProcessor(int index) const { return *fChildProcessors[index]; }
+    GrFragmentProcessor* childProcessor(int index) { return fChildProcessors[index].get(); }
+    const GrFragmentProcessor* childProcessor(int index) const {
+        return fChildProcessors[index].get();
+    }
 
     SkDEBUGCODE(bool isInstantiated() const;)
 
@@ -331,7 +336,7 @@ protected:
 
     /** Useful when you can't call fp->optimizationFlags() on a base class object from a subclass.*/
     static OptimizationFlags ProcessorOptimizationFlags(const GrFragmentProcessor* fp) {
-        return fp->optimizationFlags();
+        return fp ? fp->optimizationFlags() : kAll_OptimizationFlags;
     }
 
     /**
@@ -339,10 +344,14 @@ protected:
      * constantOutputForConstantInput. It must only be called when
      * hasConstantOutputForConstantInput() is known to be true.
      */
-    static SkPMColor4f ConstantOutputForConstantInput(const GrFragmentProcessor& fp,
+    static SkPMColor4f ConstantOutputForConstantInput(const GrFragmentProcessor* fp,
                                                       const SkPMColor4f& input) {
-        SkASSERT(fp.hasConstantOutputForConstantInput());
-        return fp.constantOutputForConstantInput(input);
+        if (fp) {
+            SkASSERT(fp->hasConstantOutputForConstantInput());
+            return fp->constantOutputForConstantInput(input);
+        } else {
+            return input;
+        }
     }
 
     /**
@@ -356,15 +365,8 @@ protected:
      *
      * The SampleUsage parameter describes all of the ways that the child is sampled by the parent.
      */
-    int registerChild(std::unique_ptr<GrFragmentProcessor> child,
-                      SkSL::SampleUsage sampleUsage = SkSL::SampleUsage::PassThrough());
-
-    /**
-     * This method takes an existing fragment processor, clones it, registers it as a child of this
-     * fragment processor, and returns its child index. It also takes care of any boilerplate in the
-     * cloning process.
-     */
-    int cloneAndRegisterChildProcessor(const GrFragmentProcessor& fp);
+    void registerChild(std::unique_ptr<GrFragmentProcessor> child,
+                       SkSL::SampleUsage sampleUsage = SkSL::SampleUsage::PassThrough());
 
     /**
      * This method takes an existing fragment processor, clones all of its children, and registers

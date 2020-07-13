@@ -27,11 +27,9 @@ public:
     GrCircleBlurFragmentProcessor(const GrCircleBlurFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleBlurFragmentProcessor"; }
-    int inputFP_index = -1;
     SkRect circleRect;
     float solidRadius;
     float textureRadius;
-    int blurProfile_index = -1;
 
 private:
     GrCircleBlurFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -46,10 +44,9 @@ private:
             , circleRect(circleRect)
             , solidRadius(solidRadius)
             , textureRadius(textureRadius) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(blurProfile);
-        blurProfile_index =
-                this->registerChild(std::move(blurProfile), SkSL::SampleUsage::Explicit());
+        this->registerChild(std::move(blurProfile), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

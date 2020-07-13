@@ -31,10 +31,7 @@ GrCCClipProcessor::GrCCClipProcessor(std::unique_ptr<GrFragmentProcessor> inputF
     auto view = make_view(caps, clipPath->atlasLazyProxy(), fIsCoverageCount);
     auto texEffect = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
     this->registerChild(std::move(texEffect), SkSL::SampleUsage::Explicit());
-
-    if (inputFP != nullptr) {
-        this->registerChild(std::move(inputFP));
-    }
+    this->registerChild(std::move(inputFP));
 }
 
 GrCCClipProcessor::GrCCClipProcessor(const GrCCClipProcessor& that)
@@ -64,12 +61,6 @@ bool GrCCClipProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
            that.fClipPath->deviceSpacePath().getFillType() ==
                    fClipPath->deviceSpacePath().getFillType() &&
            that.fIsCoverageCount == fIsCoverageCount && that.fMustCheckBounds == fMustCheckBounds;
-}
-
-bool GrCCClipProcessor::hasInputFP() const {
-    // We always have a `texEffect`, and this accounts for one child.
-    // The second child will be the input FP, if we have one.
-    return this->numChildProcessors() > 1;
 }
 
 class GrCCClipProcessor::Impl : public GrGLSLFragmentProcessor {
@@ -123,9 +114,7 @@ public:
         }
 
         constexpr int kInputFPIndex = 1;
-        SkString inputColor = proc.hasInputFP()
-            ? this->invokeChild(kInputFPIndex, args.fInputColor, args)
-            : SkString(args.fInputColor);
+        SkString inputColor = this->invokeChild(kInputFPIndex, args.fInputColor, args);
 
         f->codeAppendf("%s = %s * coverage;", args.fOutputColor, inputColor.c_str());
     }
