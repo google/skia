@@ -9,7 +9,7 @@
 
 #ifdef SK_DIRECT3D
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tools/gpu/d3d/D3DTestUtils.h"
 
 namespace {
@@ -40,8 +40,8 @@ public:
 
     void finish() override {}
 
-    sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
-        return GrContext::MakeDirect3D(fD3D, options);
+    sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
+        return GrDirectContext::MakeDirect3D(fD3D, options);
     }
 
 protected:

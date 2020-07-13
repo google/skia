@@ -46,7 +46,7 @@ double frame;    // A value in [0, 1] of where we are in the animation.
 // Global used by the local impl of SkDebugf.
 std::ostringstream gTextOutput;
 
-// Global to record the GL driver info via create_grcontext().
+// Global to record the GL driver info via create_direct_context().
 std::ostringstream gGLDriverInfo;
 
 void SkDebugf(const char * fmt, ...) {
@@ -294,16 +294,16 @@ int main(int argc, char** argv) {
 #ifdef SK_GL
     if (options.gpu) {
         std::unique_ptr<sk_gpu_test::GLTestContext> glContext;
-        sk_sp<GrContext> grContext = create_grcontext(gGLDriverInfo, &glContext);
-        if (!grContext) {
+        sk_sp<GrDirectContext> direct = create_direct_context(gGLDriverInfo, &glContext);
+        if (!direct) {
             fputs("Unable to get GrContext.\n", stderr);
         } else {
-            if (!setup_backend_objects(grContext.get(), source, options)) {
+            if (!setup_backend_objects(direct.get(), source, options)) {
                 fputs("Unable to create backend objects.\n", stderr);
                 exit(1);
             }
 
-            auto surface = SkSurface::MakeRenderTarget(grContext.get(), SkBudgeted::kNo, info);
+            auto surface = SkSurface::MakeRenderTarget(direct.get(), SkBudgeted::kNo, info);
             if (!surface) {
                 fputs("Unable to get render surface.\n", stderr);
                 exit(1);

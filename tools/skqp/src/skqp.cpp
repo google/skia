@@ -13,8 +13,8 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
@@ -186,7 +186,7 @@ static std::vector<SkQP::SkiaBackend> get_backends() {
         std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend);
         if (testCtx) {
             testCtx->makeCurrent();
-            if (nullptr != testCtx->makeGrContext(context_options())) {
+            if (nullptr != testCtx->makeContext(context_options())) {
                 result.push_back(backend);
             }
         }
@@ -203,7 +203,7 @@ static void print_backend_info(const char* dstPath,
     for (SkQP::SkiaBackend backend : backends) {
         if (std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend)) {
             testCtx->makeCurrent();
-            if (sk_sp<GrContext> ctx = testCtx->makeGrContext(context_options())) {
+            if (sk_sp<GrDirectContext> ctx = testCtx->makeContext(context_options())) {
                 SkString info = ctx->dump();
                 // remove null
                 out.write(info.c_str(), info.size());
@@ -292,7 +292,7 @@ std::tuple<SkQP::RenderOutcome, std::string> SkQP::evaluateGM(SkQP::SkiaBackend 
     const SkSurfaceProps props(0, SkSurfaceProps::kLegacyFontHost_InitType);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(
-            testCtx->makeGrContext(context_options(gm.get())).get(),
+            testCtx->makeContext(context_options(gm.get())).get(),
             SkBudgeted::kNo, info, 0, &props);
     if (!surf) {
         return std::make_tuple(kError, "Skia Failure: gr-context");

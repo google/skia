@@ -65,7 +65,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     if (!glCtx1) {
         return;
     }
-    sk_sp<GrContext> context1 = GrContext::MakeGL(sk_ref_sp(glCtx1->gl()));
+    sk_sp<GrDirectContext> context1 = GrDirectContext::MakeGL(sk_ref_sp(glCtx1->gl()));
     GrBackendTexture backendTexture1;
     GrEGLImage image = GR_EGL_NO_IMAGE;
     GrGLTextureInfo externalTexture;

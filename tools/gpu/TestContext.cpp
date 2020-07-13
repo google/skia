@@ -21,7 +21,7 @@ TestContext::~TestContext() {
     SkASSERT(!fGpuTimer);
 }
 
-sk_sp<GrContext> TestContext::makeGrContext(const GrContextOptions&) {
+sk_sp<GrDirectContext> TestContext::makeContext(const GrContextOptions&) {
     return nullptr;
 }
 

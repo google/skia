@@ -47,9 +47,7 @@ public:
         GrContextOptions ctxOptions;
         ctxOptions.fGpuPathRenderers = GpuPathRenderers::kTessellation;
 
-        // CONTEXT TODO: MakeMock should return an sk_sp<GrDirectContext>
-        auto tmp = GrContext::MakeMock(&mockOptions, ctxOptions);
-        fMockContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+        fMockContext = GrDirectContext::MakeMock(&mockOptions, ctxOptions);
     }
     const GrDirectContext* mockContext() const { return fMockContext.get(); }
     const GrCaps& caps() const override { return *fMockContext->priv().caps(); }

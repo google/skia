@@ -117,16 +117,35 @@ bool GrDirectContext::init() {
 }
 
 #ifdef SK_GL
+/*************************************************************************************************/
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface) {
+    return GrDirectContext::MakeGL(std::move(glInterface));
+}
+
+sk_sp<GrContext> GrContext::MakeGL(const GrContextOptions& options) {
+    return GrDirectContext::MakeGL(options);
+}
+
+sk_sp<GrContext> GrContext::MakeGL() {
+    return GrDirectContext::MakeGL();
+}
+
+sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
+                                   const GrContextOptions& options) {
+    return GrDirectContext::MakeGL(std::move(glInterface), options);
+}
+
+/*************************************************************************************************/
+sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface) {
     GrContextOptions defaultOptions;
     return MakeGL(std::move(glInterface), defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeGL(const GrContextOptions& options) {
+sk_sp<GrDirectContext> GrDirectContext::MakeGL(const GrContextOptions& options) {
     return MakeGL(nullptr, options);
 }
 
-sk_sp<GrContext> GrContext::MakeGL() {
+sk_sp<GrDirectContext> GrDirectContext::MakeGL() {
     GrContextOptions defaultOptions;
     return MakeGL(nullptr, defaultOptions);
 }
@@ -160,10 +179,9 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 }
 #endif
 
-// CONTEXT TODO: Make* functions should return an sk_sp<GrDirectContext>
-sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
-                                   const GrContextOptions& options) {
-    auto direct = new GrDirectContext(GrBackendApi::kOpenGL, options);
+sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
+                                               const GrContextOptions& options) {
+    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kOpenGL, options));
 #if GR_TEST_UTILS
     if (options.fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);
@@ -176,113 +194,157 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
         glInterface = std::move(copy);
     }
 #endif
-    direct->fGpu = GrGLGpu::Make(std::move(glInterface), options, direct);
-    sk_sp<GrContext> context(direct);
-    if (!context->init()) {
+    direct->fGpu = GrGLGpu::Make(std::move(glInterface), options, direct.get());
+    if (!direct->init()) {
         return nullptr;
     }
-    return context;
+    return direct;
 }
 #endif
 
+/*************************************************************************************************/
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
-    GrContextOptions defaultOptions;
-    return MakeMock(mockOptions, defaultOptions);
+    return GrDirectContext::MakeMock(mockOptions);
 }
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
-    auto direct = new GrDirectContext(GrBackendApi::kMock, options);
+    return GrDirectContext::MakeMock(mockOptions, options);
+}
 
-    direct->fGpu = GrMockGpu::Make(mockOptions, options, direct);
-    sk_sp<GrContext> context(direct);
-    if (!context->init()) {
+/*************************************************************************************************/
+sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOptions) {
+    GrContextOptions defaultOptions;
+    return MakeMock(mockOptions, defaultOptions);
+}
+
+sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOptions,
+                                                 const GrContextOptions& options) {
+    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMock, options));
+
+    direct->fGpu = GrMockGpu::Make(mockOptions, options, direct.get());
+    if (!direct->init()) {
         return nullptr;
     }
 
-    return context;
+    return direct;
 }
 
-sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext) {
 #ifdef SK_VULKAN
-    GrContextOptions defaultOptions;
-    return MakeVulkan(backendContext, defaultOptions);
-#else
-    return nullptr;
-#endif
+/*************************************************************************************************/
+sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext) {
+    return GrDirectContext::MakeVulkan(backendContext);
 }
 
 sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                        const GrContextOptions& options) {
-#ifdef SK_VULKAN
-    auto direct = new GrDirectContext(GrBackendApi::kVulkan, options);
+    return GrDirectContext::MakeVulkan(backendContext, options);
+}
 
-    direct->fGpu = GrVkGpu::Make(backendContext, options, direct);
-    sk_sp<GrContext> context(direct);
-    if (!context->init()) {
+/*************************************************************************************************/
+sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext) {
+    GrContextOptions defaultOptions;
+    return MakeVulkan(backendContext, defaultOptions);
+}
+
+sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext,
+                                                   const GrContextOptions& options) {
+    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kVulkan, options));
+
+    direct->fGpu = GrVkGpu::Make(backendContext, options, direct.get());
+    if (!direct->init()) {
         return nullptr;
     }
 
-    return context;
-#else
-    return nullptr;
-#endif
+    return direct;
 }
+#endif
 
 #ifdef SK_METAL
+/*************************************************************************************************/
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
+    return GrDirectContext::MakeMetal(device, queue);
+}
+
+sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
+    return GrDirectContext::MakeMetal(device, queue, options);
+}
+
+/*************************************************************************************************/
+sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue) {
     GrContextOptions defaultOptions;
     return MakeMetal(device, queue, defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    auto direct = new GrDirectContext(GrBackendApi::kMetal, options);
+sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue,
+                                                  const GrContextOptions& options) {
+    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMetal, options));
 
-    direct->fGpu = GrMtlTrampoline::MakeGpu(direct, options, device, queue);
-    sk_sp<GrContext> context(direct);
-    if (!context->init()) {
+    direct->fGpu = GrMtlTrampoline::MakeGpu(direct.get(), options, device, queue);
+    if (!direct->init()) {
         return nullptr;
     }
 
-    return context;
+    return direct;
 }
 #endif
 
 #ifdef SK_DIRECT3D
+/*************************************************************************************************/
 sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendContext) {
-    GrContextOptions defaultOptions;
-    return MakeDirect3D(backendContext, defaultOptions);
+    return GrDirectContext::MakeDirect3D(backendContext);
 }
 
 sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
                                          const GrContextOptions& options) {
-    auto direct = new GrDirectContext(GrBackendApi::kDirect3D, options);
+    return GrDirectContext::MakeDirect3D(backendContext, options);
+}
 
-    direct->fGpu = GrD3DGpu::Make(backendContext, options, direct);
-    sk_sp<GrContext> context(direct);
-    if (!context->init()) {
+/*************************************************************************************************/
+sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& backendContext) {
+    GrContextOptions defaultOptions;
+    return MakeDirect3D(backendContext, defaultOptions);
+}
+
+sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
+                                                     const GrContextOptions& options) {
+    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kDirect3D, options));
+
+    direct->fGpu = GrD3DGpu::Make(backendContext, options, direct.get());
+    if (!direct->init()) {
         return nullptr;
     }
 
-    return context;
+    return direct;
 }
 #endif
 
 #ifdef SK_DAWN
+/*************************************************************************************************/
 sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
+    return GrDirectContext::MakeDawn(device);
+}
+
+sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContextOptions& options) {
+    return GrDirectContext::MakeDawn(device, options);
+}
+
+/*************************************************************************************************/
+sk_sp<GrDirectContext> GrDirectContext::MakeDawn(const wgpu::Device& device) {
     GrContextOptions defaultOptions;
     return MakeDawn(device, defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContextOptions& options) {
-    auto direct = new GrDirectContext(GrBackendApi::kDawn, options);
+sk_sp<GrDirectContext> GrDirectContext::MakeDawn(const wgpu::Device& device,
+                                                 const GrContextOptions& options) {
+    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kDawn, options));
 
-    direct->fGpu = GrDawnGpu::Make(device, options, direct);
-    sk_sp<GrContext> context(direct);
-    if (!context->init()) {
+    direct->fGpu = GrDawnGpu::Make(device, options, direct.get());
+    if (!direct->init()) {
         return nullptr;
     }
 
-    return context;
+    return direct;
 }
+
 #endif

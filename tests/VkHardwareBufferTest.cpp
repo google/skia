@@ -576,11 +576,7 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     ACQUIRE_DEVICE_VK_PROC(ImportSemaphoreFdKHR);
     ACQUIRE_DEVICE_VK_PROC(DestroySemaphore);
 
-    // CONTEXT TODO: MakeVulkan should return an sk_sp<GrDirectContext>
-    auto tmp = GrContext::MakeVulkan(fBackendContext);
-    if (tmp) {
-        fDirectContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
-    }
+    fDirectContext = GrDirectContext::MakeVulkan(fBackendContext);
     REPORTER_ASSERT(reporter, fDirectContext.get());
     if (!fDirectContext) {
         return false;

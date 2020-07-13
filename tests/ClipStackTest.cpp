@@ -1064,7 +1064,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter, bool enableCli
             }
         }
 
-        auto context = GrContext::MakeMock(nullptr);
+        sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
         const GrCaps* caps = context->priv().caps();
 
         // Zero the memory we will new the GrReducedClip into. This ensures the elements gen ID
@@ -1139,7 +1139,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
                        kReplace_SkClipOp, true);
         SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
-        auto context = GrContext::MakeMock(nullptr);
+        sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
         const GrCaps* caps = context->priv().caps();
 
         SkAlignedSTStorage<1, GrReducedClip> storage;
@@ -1228,7 +1228,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
 
 #undef XYWH
 #undef IXYWH
-        auto context = GrContext::MakeMock(nullptr);
+        sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
         const GrCaps* caps = context->priv().caps();
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(testCases); ++i) {
@@ -1255,7 +1255,7 @@ static void test_reduced_clip_stack_no_aa_crash(skiatest::Reporter* reporter) {
     stack.clipDevRect(SkIRect::MakeXYWH(0, 0, 50, 50), kReplace_SkClipOp);
     SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
-    auto context = GrContext::MakeMock(nullptr);
+    sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
     const GrCaps* caps = context->priv().caps();
 
     // At the time, this would crash.
@@ -1274,7 +1274,7 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
                           const SkClipStack& stack, const SkMatrix& queryXform,
                           const SkRect& preXformQuery, ClipMethod expectedMethod,
                           int numExpectedElems = 0) {
-    auto context = GrContext::MakeMock(nullptr);
+    sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
     const GrCaps* caps = context->priv().caps();
 
     SkRect queryBounds;
@@ -1436,7 +1436,7 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     SkClipStack pathStack;
     pathStack.clipPath(clipPath, SkMatrix::I(), kIntersect_SkClipOp, true);
 
-    auto context = GrContext::MakeMock(nullptr);
+    sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
     const GrCaps* caps = context->priv().caps();
 
     for (const SkClipStack& stack : {rectStack, pathStack}) {

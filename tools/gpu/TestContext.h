@@ -16,7 +16,6 @@
 #include "src/core/SkScopeExit.h"
 #include "tools/gpu/FenceSync.h"
 
-class GrContext;
 class GrDirectContext;
 struct GrContextOptions;
 
@@ -63,7 +62,7 @@ public:
 
     virtual GrBackendApi backend() = 0;
 
-    virtual sk_sp<GrContext> makeGrContext(const GrContextOptions&);
+    virtual sk_sp<GrDirectContext> makeContext(const GrContextOptions&);
 
     /**
      * This will flush work to the GPU. Additionally, if the platform supports fence syncs, we will

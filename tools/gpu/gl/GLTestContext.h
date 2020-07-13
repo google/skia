@@ -66,7 +66,7 @@ public:
         }
     }
 
-    sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override;
+    sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override;
 
 protected:
     GLTestContext();

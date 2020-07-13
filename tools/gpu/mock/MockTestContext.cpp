@@ -10,7 +10,7 @@
 
 #include "tools/gpu/mock/MockTestContext.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 namespace {
 
@@ -24,8 +24,8 @@ public:
     void testAbandon() override {}
     void finish() override {}
 
-    sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
-        return GrContext::MakeMock(nullptr, options);
+    sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
+        return GrDirectContext::MakeMock(nullptr, options);
     }
 
 protected:

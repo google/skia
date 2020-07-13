@@ -59,6 +59,7 @@ public:
     static sk_sp<GrContext> MakeGL();
 #endif
 
+#ifdef SK_VULKAN
     /**
      * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive until the returned
      * GrContext is destroyed. This also means that any objects created with this GrContext (e.g.
@@ -68,6 +69,7 @@ public:
      */
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&);
+#endif
 
 #ifdef SK_METAL
     /**
@@ -734,6 +736,8 @@ protected:
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
 private:
+    friend class GrDirectContext; // for access to fGpu
+
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
