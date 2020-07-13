@@ -307,9 +307,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     sk_sp<GrDirectContext> grCtx;
     {
         auto restore = testCtx->makeCurrentAndAutoRestore();
-        // CONTEXT TODO: makeGrContext should return an sk_sp<GrDirectContext>
-        auto tmp = testCtx->makeGrContext(grOptions);
-        grCtx = sk_ref_sp(GrAsDirectContext(tmp.get()));
+        grCtx = testCtx->makeContext(grOptions);
     }
     if (!grCtx.get()) {
         return ContextInfo();
