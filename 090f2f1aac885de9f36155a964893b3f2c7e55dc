@@ -16,6 +16,24 @@
       "revId": "090f2f1aac885de9f36155a964893b3f2c7e55dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0dab8e31_f011644f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-13T17:08:10Z",
+      "side": 1,
+      "message": "I wondered the same thing - we have a benchmark that compares them (as well as our own impl of intro-sort!?), and C qsort. It looks like it\u0027s all fairly old code, we can probably ditch it.",
+      "parentUuid": "f27d6d46_8650088e",
+      "revId": "090f2f1aac885de9f36155a964893b3f2c7e55dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
