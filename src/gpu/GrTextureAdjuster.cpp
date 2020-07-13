@@ -94,27 +94,12 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkASSERT(view.asTextureProxy());
 
-    SkRect domain;
-    DomainMode domainMode =
-        DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                            view.proxy(), filterOrNullForBicubic, &domain);
-    if (kTightCopy_DomainMode == domainMode) {
-        // TODO: Copy the texture and adjust the texture matrix (both parts need to consider
-        // non-int constraint rect)
-        // For now: treat as bilerp and ignore what goes on above level 0.
-
-        // We only expect MIP maps to require a tight copy.
-        SkASSERT(filterOrNullForBicubic &&
-                 GrSamplerState::Filter::kMipMap == *filterOrNullForBicubic);
-        static const GrSamplerState::Filter kBilerp = GrSamplerState::Filter::kBilerp;
-        domainMode =
-            DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                                view.proxy(), &kBilerp, &domain);
-        SkASSERT(kTightCopy_DomainMode != domainMode);
-    }
-    SkASSERT(kNoDomain_DomainMode == domainMode ||
-             (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
-    return this->createFragmentProcessorForSubsetAndFilter(std::move(view), textureMatrix,
-                                                           domainMode, domain, wrapX, wrapY,
+    return this->createFragmentProcessorForSubsetAndFilter(std::move(view),
+                                                           textureMatrix,
+                                                           coordsLimitedToConstraintRect,
+                                                           filterConstraint,
+                                                           constraintRect,
+                                                           wrapX,
+                                                           wrapY,
                                                            filterOrNullForBicubic);
 }

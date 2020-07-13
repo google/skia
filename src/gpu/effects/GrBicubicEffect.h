@@ -75,6 +75,21 @@ public:
                                                            const GrCaps&);
 
     /**
+     * Same as above but provides a known 'domain' that bounds the coords at which bicubic sampling
+     * occurs. Note that this is a bound on the coords after transformed by the matrix parameter.
+     */
+    static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView view,
+                                                           SkAlphaType,
+                                                           const SkMatrix&,
+                                                           const GrSamplerState::WrapMode wrapX,
+                                                           const GrSamplerState::WrapMode wrapY,
+                                                           const SkRect& subset,
+                                                           const SkRect& domain,
+                                                           Kernel,
+                                                           Direction,
+                                                           const GrCaps&);
+
+    /**
      * Make a bicubic filter of a another fragment processor. The bicubic filter assumes that the
      * discrete samples of the provided processor are at half-integer coords.
      */
