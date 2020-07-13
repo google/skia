@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkMathPriv.h"
 #include "src/gpu/mock/GrMockBuffer.h"
 #include "src/gpu/mock/GrMockCaps.h"
 #include "src/gpu/mock/GrMockGpu.h"
