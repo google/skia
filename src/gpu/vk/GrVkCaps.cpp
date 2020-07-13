@@ -401,6 +401,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initFormatTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
+    if (contextOptions.fMaxPerSubmitCachedVulkanSecondaryCommandBuffers >= 0) {
+        fMaxPerPoolCachedSecondaryCommandBuffers =
+                contextOptions.fMaxPerSubmitCachedVulkanSecondaryCommandBuffers;
+    }
+
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(properties);
     }
