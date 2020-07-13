@@ -1754,13 +1754,12 @@ struct SkClosestSect {
     }
 
     void finish(SkIntersections* intersections) const {
-        SkSTArray<SkDCubic::kMaxIntersections * 3,
-                const SkClosestRecord*, true> closestPtrs;
+        SkSTArray<SkDCubic::kMaxIntersections * 3, const SkClosestRecord*, true> closestPtrs;
         for (int index = 0; index < fUsed; ++index) {
             closestPtrs.push_back(&fClosest[index]);
         }
-        SkTQSort<const SkClosestRecord >(closestPtrs.begin(), closestPtrs.end()
-                - 1);
+        std::sort(closestPtrs.begin(), closestPtrs.end(),
+                  [](const SkClosestRecord* a, const SkClosestRecord* b) { return *a < *b; });
         for (int index = 0; index < fUsed; ++index) {
             const SkClosestRecord* test = closestPtrs[index];
             test->addIntersection(intersections);
