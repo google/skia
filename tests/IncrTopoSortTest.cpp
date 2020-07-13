@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkTSort.h"
 #include "tests/Test.h"
 
 #include "tools/ToolUtils.h"
@@ -45,10 +44,6 @@ public:
             REPORTER_ASSERT(reporter, this->indexInSort() < dependent->indexInSort());
         }
         REPORTER_ASSERT(reporter, !fVisited); // this flag should only be true w/in depEdges()
-    }
-
-    static bool CompareIndicesGT(Node* const& a, Node* const& b) {
-        return a->indexInSort() > b->indexInSort();
     }
 
     int numDependents() const { return fNodesThatDependOnMe.count(); }
@@ -143,8 +138,8 @@ public:
         // Sort the remaining dependencies into descending order based on their indices in the
         // sort. This means that we will be proceeding from right to left in the sort when
         // correcting the order.
-        // TODO: QSort is waaay overkill here!
-        SkTQSort<Node*>(dependedOn->begin(), dependedOn->end() - 1, Node::CompareIndicesGT);
+        std::sort(dependedOn->begin(), dependedOn->end(),
+                  [](const Node* a, const Node* b) { return a->indexInSort() > b->indexInSort(); });
 
         // TODO: although this is the general algorithm, I think this can be simplified for our
         // use case (i.e., the same dependent for all the new edges).

@@ -6,7 +6,6 @@
  */
 
 #include "include/utils/SkRandom.h"
-#include "src/core/SkTSort.h"
 #include "tests/Test.h"
 
 static bool anderson_darling_test(double p[32]) {
@@ -15,7 +14,7 @@ static bool anderson_darling_test(double p[32]) {
     const double kADMax32 = 3.89;         // p-value of ~0.99
 
     // sort p values
-    SkTQSort<double>(p, p + 31);
+    std::sort(p, p + 32);
 
     // and compute Anderson-Darling statistic to ensure these are uniform
     double s = 0.0;
