@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "baf18417_a8771bc6",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-13T20:27:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01318aa5_6ceae5bd",
+      "range": {
+        "startLine": 28,
+        "startChar": 17,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d89bc9c9_50a03bf5",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2020-07-13T14:57:21Z",
       "side": 1,
       "message": "you should also throw an exception if the color is not opaque.",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e7b2904_63b22159",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-13T20:27:17Z",
+      "side": 1,
+      "message": "I made a hacky solution that I\u0027m not the biggest fan of, is it necessarily true that if the hex value of a color is larger than 6, they specified an alpha channel?",
+      "parentUuid": "d89bc9c9_50a03bf5",
       "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "875736a1_591098b7",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-13T20:27:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95f44cc7_d32837cc",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33fd35a1_e9509238",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
         "patchSetId": 1
@@ -73,6 +133,24 @@
       "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f5a8c1b_4fadd21c",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-13T20:27:17Z",
+      "side": 1,
+      "message": "Was thinking for the sake of logging it was nice to call log.e() from the same place, but we can just throw the exception and crash it instead. Pretty sure that\u0027s what other android views do anyway. Done.",
+      "parentUuid": "33fd35a1_e9509238",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "e13e1cdf_b74f9ec0",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-13T20:27:17Z",
+      "side": 1,
+      "message": "Oops, it sure doesn\u0027t. My fingers acted on their own. Done.",
+      "parentUuid": "df06c2f8_fbdbdb11",
+      "range": {
+        "startLine": 73,
+        "startChar": 17,
+        "endLine": 73,
+        "endChar": 33
+      },
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d7e8887_4cc86147",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/res/values/attrs.xml",
         "patchSetId": 1
@@ -113,6 +215,24 @@
       "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c099103e_bbae738c",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/res/values/attrs.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-13T20:27:17Z",
+      "side": 1,
+      "message": "I agree, as I was writing up this CL I wasn\u0027t too sure about how well they work together. We can revisit this.",
+      "parentUuid": "5d7e8887_4cc86147",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
