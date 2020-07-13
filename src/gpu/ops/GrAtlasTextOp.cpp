@@ -501,13 +501,13 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
             glyphRunList, drawMatrix, rtc->surfaceProps(),
             contextPriv.caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
-    if (!blob->firstSubRun()) {
+    if (!blob->subRunList().head()) {
         return nullptr;
     }
 
     std::unique_ptr<GrDrawOp> op;
     std::tie(std::ignore, op) =
-            blob->firstSubRun()->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
+            blob->subRunList().head()->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
     return op;
 }
 
