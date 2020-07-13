@@ -48,12 +48,9 @@ class SK_API SkBitmap {
 public:
     class SK_API Allocator;
 
-    // temporary, waiting to update call-sites
-    bool isVolatile() const { return false; }
-
     /** Creates an empty SkBitmap without pixels, with kUnknown_SkColorType,
         kUnknown_SkAlphaType, and with a width and height of zero. SkPixelRef origin is
-        set to (0, 0). SkBitmap is not volatile.
+        set to (0, 0).
 
         Use setInfo() to associate SkColorType, SkAlphaType, width, and height
         after SkBitmap has been created.
@@ -902,8 +899,7 @@ public:
 
         subset may be larger than bounds(). Any area outside of bounds() is ignored.
 
-        Any contents of dst are discarded. isVolatile() setting is copied to dst.
-        dst is set to colorType(), alphaType(), and colorSpace().
+        Any contents of dst are discarded.
 
         Return false if:
         - dst is nullptr
