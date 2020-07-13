@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9cfe25e5_e9d2a298",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-13T16:56:34Z",
+      "side": 1,
+      "message": "I think it\u0027s ok, but boy is it difficult to reason about computeTypeMask (like for instance the way it deals with -0.f and the way it collapses the tests for scale/skew). It should probably have more explicit tests. In any event, it kinda looks like this should work.",
+      "revId": "14798a4a1da6428a34aef85d0fa41a287acbe2be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
