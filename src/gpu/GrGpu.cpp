@@ -673,7 +673,11 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
                     info.fSignalSemaphores[i],
                     GrResourceProvider::SemaphoreWrapType::kWillSignal,
                     kBorrow_GrWrapOwnership);
-                this->insertSemaphore(semaphores[i].get());
+                // If we failed to wrap the semaphore it means the client didn't give us a valid
+                // semaphore to begin with. Therefore, it is fine to not signal it.
+                if (semaphores[i]) {
+                    this->insertSemaphore(semaphores[i].get());
+                }
             } else {
                 semaphores[i] = resourceProvider->makeSemaphore(false);
                 if (semaphores[i]) {

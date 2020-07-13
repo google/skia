@@ -1352,6 +1352,7 @@ std::unique_ptr<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(
 
 void GrMtlGpu::insertSemaphore(GrSemaphore* semaphore) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
+        SkASSERT(semaphore);
         GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore);
 
         this->commandBuffer()->encodeSignalEvent(mtlSem->event(), mtlSem->value());
@@ -1360,6 +1361,7 @@ void GrMtlGpu::insertSemaphore(GrSemaphore* semaphore) {
 
 void GrMtlGpu::waitSemaphore(GrSemaphore* semaphore) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
+        SkASSERT(semaphore);
         GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore);
 
         this->commandBuffer()->encodeWaitForEvent(mtlSem->event(), mtlSem->value());
