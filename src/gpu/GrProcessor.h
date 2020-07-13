@@ -121,7 +121,6 @@ public:
         kGrMatrixConvolutionEffect_ClassID,
         kGrMatrixEffect_ClassID,
         kGrMeshTestProcessor_ClassID,
-        kGrModulateAlphaEffect_ClassID,
         kGrModulateRGBAEffect_ClassID,
         kGrMorphologyEffect_ClassID,
         kGrMixerEffect_ClassID,
