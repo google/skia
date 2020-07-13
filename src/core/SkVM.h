@@ -504,6 +504,12 @@ namespace skvm {
         }
     };
 
+    struct PixelFormat {
+        int r_bits,  g_bits,  b_bits,  a_bits,
+            r_shift, g_shift, b_shift, a_shift;
+    };
+    bool SkColorType_to_PixelFormat(SkColorType, PixelFormat*);
+
     SK_BEGIN_REQUIRE_DENSE
     struct Instruction {
         Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
@@ -711,9 +717,7 @@ namespace skvm {
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
         I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> round(x * 255)
 
-        Color unpack_1010102(I32 rgba);
-        Color unpack_8888   (I32 rgba);
-        Color unpack_565    (I32 bgr );  // bottom 16 bits
+        Color unpack_unorm(PixelFormat, I32);
 
         void   premul(F32* r, F32* g, F32* b, F32 a);
         void unpremul(F32* r, F32* g, F32* b, F32 a);
@@ -1033,9 +1037,7 @@ namespace skvm {
     static inline F32 from_unorm(int bits, I32 x) { return x->from_unorm(bits,x); }
     static inline I32   to_unorm(int bits, F32 x) { return x->  to_unorm(bits,x); }
 
-    static inline  Color unpack_1010102(I32 rgba) { return rgba->unpack_1010102(rgba); }
-    static inline  Color unpack_8888   (I32 rgba) { return rgba->unpack_8888   (rgba); }
-    static inline  Color unpack_565    (I32 bgr ) { return bgr ->unpack_565    (bgr ); }
+    static inline  Color unpack_unorm(PixelFormat f, I32 x) { return x->unpack_unorm(f,x); }
 
     static inline void   premul(F32* r, F32* g, F32* b, F32 a) { a->  premul(r,g,b,a); }
     static inline void unpremul(F32* r, F32* g, F32* b, F32 a) { a->unpremul(r,g,b,a); }
