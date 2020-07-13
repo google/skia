@@ -32,16 +32,16 @@ struct SkRect;
  */
 class GrTextureProducer : public SkNoncopyable {
 public:
-    virtual ~GrTextureProducer() {}
+    virtual ~GrTextureProducer() = default;
 
     enum FilterConstraint {
         kYes_FilterConstraint,
         kNo_FilterConstraint,
     };
 
-    /**
+   /**
      * Helper for creating a fragment processor to sample the texture with a given filtering mode.
-     * It attempts to avoid making texture copies or using domains whenever possible.
+     * It attempts to avoid making texture copies or using shader tiling whenever possible.
      *
      * @param textureMatrix                    Matrix used to access the texture. It is applied to
      *                                         the local coords. The post-transformed coords should
@@ -89,29 +89,15 @@ public:
     virtual bool isPlanar() const { return false; }
 
 protected:
-    friend class GrTextureProducer_TestAccess;
-
     GrTextureProducer(GrRecordingContext* context, const GrImageInfo& imageInfo)
             : fContext(context), fImageInfo(imageInfo) {}
-
-    enum DomainMode {
-        kNoDomain_DomainMode,
-        kDomain_DomainMode,
-        kTightCopy_DomainMode
-    };
-
-    static DomainMode DetermineDomainMode(const SkRect& constraintRect,
-                                          FilterConstraint filterConstraint,
-                                          bool coordsLimitedToConstraintRect,
-                                          GrSurfaceProxy*,
-                                          const GrSamplerState::Filter* filterModeOrNullForBicubic,
-                                          SkRect* domainRect);
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForSubsetAndFilter(
             GrSurfaceProxyView view,
             const SkMatrix& textureMatrix,
-            DomainMode,
-            const SkRect& domain,
+            bool coordsLimitedToConstraintRect,
+            FilterConstraint filterConstraint,
+            const SkRect& constraintRect,
             GrSamplerState::WrapMode wrapX,
             GrSamplerState::WrapMode wrapY,
             const GrSamplerState::Filter* filterOrNullForBicubic);
