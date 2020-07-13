@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e90db27e_e5f7ff70",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-13T20:42:53Z",
+      "side": 1,
+      "message": "Looks like this chunk of code can be shared with onCreateTexture (modulo compressed asserts). Maybe pull it into a shared helper function.",
+      "range": {
+        "startLine": 305,
+        "startChar": 1,
+        "endLine": 341,
+        "endChar": 5
+      },
+      "revId": "af8c1de1ccc31ac6b6da6f4845081acb9371a100",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
