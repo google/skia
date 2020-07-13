@@ -1,24 +1,30 @@
 /*
- * Copyright 2018 Google Inc.
+ * Copyright 2020 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
+in fragmentProcessor? inputFP;
 layout(ctype=SkPMColor4f, tracked) in uniform half4 color;
 
 @optimizationFlags {
-    (kConstantOutputForConstantInput_OptimizationFlag |
-     (color.isOpaque() ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags))
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+            (kConstantOutputForConstantInput_OptimizationFlag |
+             kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+             (color.isOpaque() ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags))
 }
 
 void main() {
-    sk_OutColor = color;
+    sk_OutColor = color * sample(inputFP, sk_InColor);
 }
 
 @class {
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
-        return color;
+        SkPMColor4f input = this->numChildProcessors()
+            ? ConstantOutputForConstantInput(this->childProcessor(inputFP_index), inColor)
+            : inColor;
+        return color * input;
     }
 }
 
@@ -42,5 +48,5 @@ void main() {
             color = SkPMColor4f::FromBytes_RGBA(c | (c << 8) | (c << 16) | (c << 24));
             break;
     }
-    return GrConstColorProcessor::Make(color);
+    return GrModulateRGBAEffect::Make(/*inputFP=*/nullptr, color);
 }
