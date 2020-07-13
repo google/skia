@@ -1115,29 +1115,79 @@ namespace skvm {
         return round(mul(x, limit));
     }
 
-    Color Builder::unpack_1010102(I32 rgba) {
+    bool SkColorType_to_PixelFormat(SkColorType ct, PixelFormat* f) {
+        switch (ct) {
+            case kUnknown_SkColorType: SkASSERT(false); return false;
+
+            // TODO: float and >32-bit formats
+            case kRGBA_F16Norm_SkColorType:
+            case kRGBA_F16_SkColorType:
+            case kRGBA_F32_SkColorType:
+            case kA16_float_SkColorType:
+            case kR16G16_float_SkColorType:
+            case kR16G16B16A16_unorm_SkColorType: return false;
+
+            case kAlpha_8_SkColorType: *f = {0,0,0,8, 0,0,0,0}; return true;
+            case kGray_8_SkColorType:  *f = {8,8,8,0, 0,0,0,0}; return true;  // Gray is subtle!
+
+            case kRGB_565_SkColorType:   *f = {5,6,5,0, 11,5,0,0}; return true;  // Yes, it's BGR.
+            case kARGB_4444_SkColorType: *f = {4,4,4,4, 12,8,4,0}; return true;  // Yes, it's ABGR.
+
+            case kRGBA_8888_SkColorType:  *f = {8,8,8,8,  0,8,16,24}; return true;
+            case kRGB_888x_SkColorType:   *f = {8,8,8,0,  0,8,16,32}; return true;  // N.B. 4-byte.
+            case kBGRA_8888_SkColorType:  *f = {8,8,8,8, 16,8, 0,24}; return true;
+
+            case kRGBA_1010102_SkColorType: *f = {10,10,10,2,  0,10,20,30}; return true;
+            case kBGRA_1010102_SkColorType: *f = {10,10,10,2, 20,10, 0,30}; return true;
+            case kRGB_101010x_SkColorType:  *f = {10,10,10,0,  0,10,20, 0}; return true;
+            case kBGR_101010x_SkColorType:  *f = {10,10,10,0, 20,10, 0, 0}; return true;
+
+            case kR8G8_unorm_SkColorType:   *f = { 8, 8,0, 0, 0, 8,0,0}; return true;
+            case kR16G16_unorm_SkColorType: *f = {16,16,0, 0, 0,16,0,0}; return true;
+            case kA16_unorm_SkColorType:    *f = { 0, 0,0,16, 0, 0,0,0}; return true;
+        }
+        return false;
+    }
+
+    static Color unpack_unorm(PixelFormat f, I32 x) {
         return {
-            from_unorm(10, extract(rgba,  0, 0x3ff)),
-            from_unorm(10, extract(rgba, 10, 0x3ff)),
-            from_unorm(10, extract(rgba, 20, 0x3ff)),
-            from_unorm( 2, extract(rgba, 30, 0x3  )),
+            f.r_bits ? from_unorm(f.r_bits, extract(x, f.r_shift, (1<<f.r_bits)-1)) : x->splat(0.f),
+            f.g_bits ? from_unorm(f.g_bits, extract(x, f.g_shift, (1<<f.g_bits)-1)) : x->splat(0.f),
+            f.b_bits ? from_unorm(f.b_bits, extract(x, f.b_shift, (1<<f.b_bits)-1)) : x->splat(0.f),
+            f.a_bits ? from_unorm(f.a_bits, extract(x, f.a_shift, (1<<f.a_bits)-1)) : x->splat(1.f),
         };
     }
-    Color Builder::unpack_8888(I32 rgba) {
-        return {
-            from_unorm(8, extract(rgba,  0, 0xff)),
-            from_unorm(8, extract(rgba,  8, 0xff)),
-            from_unorm(8, extract(rgba, 16, 0xff)),
-            from_unorm(8, extract(rgba, 24, 0xff)),
-        };
+
+    static int byte_size(PixelFormat f) {
+        // What's the highest bit we read?
+        int bits = std::max(f.r_bits + f.r_shift,
+                   std::max(f.g_bits + f.g_shift,
+                   std::max(f.b_bits + f.b_shift,
+                            f.a_bits + f.a_shift)));
+        // Round up to bytes.
+        return (bits + 7) / 8;
     }
-    Color Builder::unpack_565(I32 bgr) {
-        return {
-            from_unorm(5, extract(bgr, 11, 0b011'111)),
-            from_unorm(6, extract(bgr,  5, 0b111'111)),
-            from_unorm(5, extract(bgr,  0, 0b011'111)),
-            splat(1.0f),
-        };
+
+    Color Builder::load(PixelFormat f, Arg ptr) {
+        switch (byte_size(f)) {
+            case 1: return unpack_unorm(f, load8 (ptr));
+            case 2: return unpack_unorm(f, load16(ptr));
+            case 4: return unpack_unorm(f, load32(ptr));
+            // TODO: 8,16
+            default: SkUNREACHABLE;
+        }
+        return {};
+    }
+
+    Color Builder::gather(PixelFormat f, Arg ptr, int offset, I32 index) {
+        switch (byte_size(f)) {
+            case 1: return unpack_unorm(f, gather8 (ptr, offset, index));
+            case 2: return unpack_unorm(f, gather16(ptr, offset, index));
+            case 4: return unpack_unorm(f, gather32(ptr, offset, index));
+            // TODO: 8,16
+            default: SkUNREACHABLE;
+        }
+        return {};
     }
 
     void Builder::unpremul(F32* r, F32* g, F32* b, F32 a) {
