@@ -37,7 +37,6 @@
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
-#include "src/gpu/effects/generated/GrModulateAlphaEffect.h"
 #include "src/gpu/effects/generated/GrModulateRGBAEffect.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
@@ -138,9 +137,8 @@ protected:
                         break;
 
                     case TestMode::kModulateAlpha:
-                        colorFP = GrModulateAlphaEffect::Make(
-                                std::move(baseFP),
-                                SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
+                        colorFP = GrFragmentProcessor::ModulateAlpha(
+                                std::move(baseFP), SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
                         break;
                 }
 
