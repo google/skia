@@ -58,12 +58,7 @@ half alpha;
                 args.fUniformHandler->getUniformCStr(rectUniformVar), (int)_outer.edgeType,
                 (int)_outer.edgeType);
         SkString _input1677(args.fInputColor);
-        SkString _sample1677;
-        if (_outer.inputFP_index >= 0) {
-            _sample1677 = this->invokeChild(_outer.inputFP_index, _input1677.c_str(), args);
-        } else {
-            _sample1677.swap(_input1677);
-        }
+        SkString _sample1677 = this->invokeChild(0, _input1677.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
@@ -110,9 +105,7 @@ GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
         : INHERITED(kGrAARectEffect_ClassID, src.optimizationFlags())
         , edgeType(src.edgeType)
         , rect(src.rect) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAARectEffect(*this));

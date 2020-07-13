@@ -170,6 +170,7 @@ bool GrTest::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrTest::GrTest(const GrTest& src)
 : INHERITED(kGrTest_ClassID, src.optimizationFlags()) {
+        this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTest(*this));
@@ -543,20 +544,17 @@ DEF_TEST(SkSLFPChildProcessors, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child1_index = this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());",
-            "child2_index = this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
+            "this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());",
+            "this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "SkString _sample149;\n",
-            "_sample149 = this->invokeChild(_outer.child1_index, args);\n",
-            "SkString _sample166;\n",
-            "_sample166 = this->invokeChild(_outer.child2_index, args);\n",
+            "SkString _sample149 = this->invokeChild(0, args);\n",
+            "SkString _sample166 = this->invokeChild(1, args);\n",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(%s = %s * %s;\n"
             ")SkSL\"\n"
             ", args.fOutputColor, _sample149.c_str(), _sample166.c_str());",
-            "child1_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child1_index));",
-            "child2_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child2_index));",
+            "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
 
@@ -574,22 +572,19 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child1_index = this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());",
-            "child2_index = this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
+            "this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());",
+            "this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
             "SkString _input198(\"childIn\");",
-            "SkString _sample198;",
-            "_sample198 = this->invokeChild(_outer.child1_index, _input198.c_str(), args);",
+            "SkString _sample198 = this->invokeChild(0, _input198.c_str(), args);",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(\n"
             "half4 childOut1 = %s;)SkSL\"\n"
             ", _sample198.c_str());",
             "SkString _input258(\"childOut1\");",
-            "SkString _sample258;",
-            "_sample258 = this->invokeChild(_outer.child2_index, _input258.c_str(), args);",
-            "child1_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child1_index));",
-            "child2_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child2_index));",
+            "SkString _sample258 = this->invokeChild(1, _input258.c_str(), args);",
+            "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
 
@@ -603,17 +598,16 @@ DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child_index = this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());",
+            "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());",
          },
          /*expectedCPP=*/{
             "SkString _input106 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
-            "SkString _sample106;",
-            "_sample106 = this->invokeChild(_outer.child_index, _input106.c_str(), args);",
+            "SkString _sample106 = this->invokeChild(0, _input106.c_str(), args);",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(%s = %s;\n"
             ")SkSL\"\n"
             ", args.fOutputColor, _sample106.c_str());",
-            "child_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child_index));",
+            "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
 
@@ -628,22 +622,19 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child1_index = this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());",
-            "child2_index = this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
+            "this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());",
+            "this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
             "SkString _input177 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
-            "SkString _sample177;",
-            "_sample177 = this->invokeChild(_outer.child1_index, _input177.c_str(), args);",
+            "SkString _sample177 = this->invokeChild(0, _input177.c_str(), args);",
             "SkString _input149 = SkStringPrintf(\"%s * %s\", args.fInputColor, _sample177.c_str());",
-            "SkString _sample149;",
-            "_sample149 = this->invokeChild(_outer.child2_index, _input149.c_str(), args);",
+            "SkString _sample149 = this->invokeChild(1, _input149.c_str(), args);",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(%s = %s;\n"
             ")SkSL\"\n"
             ", args.fOutputColor, _sample149.c_str());",
-            "child1_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child1_index));",
-            "child2_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child2_index));",
+            "this->cloneAndRegisterAllChildProcessors(src);",
             });
 }
 
@@ -662,7 +653,7 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child_index = this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
+            "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
             "hasCap = sk_Caps.externalTextureSupport;",
@@ -672,8 +663,7 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
             "if (hasCap) {)SkSL\"\n"
             ", (hasCap ? \"true\" : \"false\"));",
             "SkString _input200(args.fInputColor);",
-            "SkString _sample200;",
-            "_sample200 = this->invokeChild(_outer.child_index, _input200.c_str(), args);",
+            "SkString _sample200 = this->invokeChild(0, _input200.c_str(), args);",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(\n"
             "    %s = %s;\n"
@@ -682,7 +672,7 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
             "}\n"
             ")SkSL\"\n"
             ", args.fOutputColor, _sample200.c_str(), args.fOutputColor);",
-            "child_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child_index));",
+            "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
 
@@ -700,15 +690,14 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "child_index = this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
+            "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(if (%s) {)SkSL\"\n"
-            ", (_outer.childProcessor(_outer.child_index).preservesOpaqueInput() ? \"true\" : \"false\"));",
+            ", (_outer.childProcessor(0)->preservesOpaqueInput() ? \"true\" : \"false\"));",
             "SkString _input161(args.fInputColor);",
-            "SkString _sample161;",
-            "_sample161 = this->invokeChild(_outer.child_index, _input161.c_str(), args);",
+            "SkString _sample161 = this->invokeChild(0, _input161.c_str(), args);",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(\n"
             "    %s = %s;\n"
@@ -717,7 +706,7 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
             "}\n"
             ")SkSL\"\n"
             ", args.fOutputColor, _sample161.c_str(), args.fOutputColor);",
-            "child_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child_index));",
+            "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
 
@@ -736,16 +725,15 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
          }
          )__SkSL__",
          /*expectedH=*/{
-            "child_index = this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
+            "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "opaque = _outer.childProcessor(_outer.child_index).preservesOpaqueInput();",
+            "opaque = _outer.childProcessor(0)->preservesOpaqueInput();",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(bool opaque = %s;\n"
             "if (opaque) {)SkSL\"\n"
             ", (opaque ? \"true\" : \"false\"));",
-            "SkString _sample196;",
-            "_sample196 = this->invokeChild(_outer.child_index, args);",
+            "SkString _sample196 = this->invokeChild(0, args);",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(\n"
             "    %s = %s;\n"
@@ -754,7 +742,7 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
             "}\n"
             ")SkSL\"\n"
             ", args.fOutputColor, _sample196.c_str(), args.fOutputColor);",
-            "child_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.child_index));",
+            "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
 
@@ -775,10 +763,8 @@ DEF_TEST(SkSLFPNullableChildProcessor, r) {
          /*expectedCPP=*/{
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(if (%s) {)SkSL\"\n"
-            ", _outer.child_index >= 0 ? \"true\" : \"false\");",
-            "SkString _sample149;",
-            "if (_outer.child_index >= 0) {",
-            "_sample149 = this->invokeChild(_outer.child_index, args);",
+            ", _outer.childProcessor(0) ? \"true\" : \"false\");",
+            "SkString _sample149 = this->invokeChild(0, args);",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(\n"
             "    %s = %s;\n"
@@ -812,15 +798,13 @@ DEF_TEST(SkSLFPSampleCoords, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-             "child_index = this->registerChild(std::move(child), SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, \"\", false, true, true));",
+             "this->registerChild(std::move(child), SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, \"\", false, true, true));",
              "this->setUsesSampleCoordsDirectly();"
          },
          /*expectedCPP=*/{
-            "SkString _sample118;\n",
-            "_sample118 = this->invokeChild(_outer.child_index, args);\n",
-            "SkString _sample118;\n",
+            "SkString _sample118 = this->invokeChild(0, args);\n",
             "SkString _coords134 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);\n",
-            "_sample134 = this->invokeChild(_outer.child_index, args, _coords134.c_str());\n",
+            "SkString _sample134 = this->invokeChild(0, args, _coords134.c_str());\n",
             "fragBuilder->codeAppendf(\n"
             "R\"SkSL(%s = %s + %s;\n"
             ")SkSL\"\n"
@@ -872,7 +856,7 @@ DEF_TEST(SkSLFPMatrixSampleConstant, r) {
                     "SkSL::SampleUsage::UniformMatrix(\"float3x3(2.0)\", true));"
          },
          /*expectedCPP=*/{
-             "this->invokeChildWithMatrix(_outer.child_index, args)"
+             "this->invokeChildWithMatrix(0, args)"
          });
 }
 
@@ -892,7 +876,7 @@ DEF_TEST(SkSLFPMatrixSampleUniform, r) {
                     "SkSL::SampleUsage::UniformMatrix(\"matrix\", true));"
          },
          /*expectedCPP=*/{
-             "this->invokeChildWithMatrix(_outer.child_index, args)"
+             "this->invokeChildWithMatrix(0, args)"
          });
 }
 
@@ -912,7 +896,7 @@ DEF_TEST(SkSLFPMatrixSampleInUniform, r) {
                     "SkSL::SampleUsage::UniformMatrix(\"matrix\", matrix.hasPerspective()));"
          },
          /*expectedCPP=*/{
-             "this->invokeChildWithMatrix(_outer.child_index, args)"
+             "this->invokeChildWithMatrix(0, args)"
          });
 }
 
@@ -936,9 +920,9 @@ DEF_TEST(SkSLFPMatrixSampleMultipleInUniforms, r) {
          },
          /*expectedCPP=*/{
              "SkString _matrix191(args.fUniformHandler->getUniformCStr(matrixAVar));",
-             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix191.c_str());",
+             "this->invokeChildWithMatrix(0, args, _matrix191.c_str());",
              "SkString _matrix247(args.fUniformHandler->getUniformCStr(matrixBVar));",
-             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix247.c_str());"
+             "this->invokeChildWithMatrix(0, args, _matrix247.c_str());"
          });
 }
 
@@ -961,7 +945,7 @@ DEF_TEST(SkSLFPMatrixSampleConstUniformExpression, r) {
          /*expectedCPP=*/{
             "SkString _matrix145 = SkStringPrintf(\"0.5 * %s\", "
                     "args.fUniformHandler->getUniformCStr(matrixVar));",
-             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix145.c_str());"
+             "this->invokeChildWithMatrix(0, args, _matrix145.c_str());"
          });
 }
 
@@ -980,9 +964,9 @@ DEF_TEST(SkSLFPMatrixSampleConstantAndExplicitly, r) {
                     "SkSL::SampleUsage(SkSL::SampleUsage::Kind::kUniform, \"float3x3(0.5)\", true, true, false));"
          },
          /*expectedCPP=*/{
-             "this->invokeChildWithMatrix(_outer.child_index, args)",
+             "this->invokeChildWithMatrix(0, args)",
              "SkString _coords180 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
-             "this->invokeChild(_outer.child_index, args, _coords180.c_str())",
+             "this->invokeChild(0, args, _coords180.c_str())",
          });
 }
 
@@ -1003,8 +987,8 @@ DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
          },
          /*expectedCPP=*/{
              "SkString _matrix178(\"matrix\");",
-             "this->invokeChildWithMatrix(_outer.child_index, args, _matrix178.c_str())",
+             "this->invokeChildWithMatrix(0, args, _matrix178.c_str())",
              "SkString _coords232 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
-             "this->invokeChild(_outer.child_index, args, _coords232.c_str()",
+             "this->invokeChild(0, args, _coords232.c_str()",
          });
 }

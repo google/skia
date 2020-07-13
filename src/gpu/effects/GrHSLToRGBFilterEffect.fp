@@ -38,9 +38,7 @@ void main() {
     #include "include/private/SkNx.h"
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
-        SkPMColor4f c = this->numChildProcessors()
-                            ? ConstantOutputForConstantInput(this->childProcessor(0), inColor)
-                            : inColor;
+        SkPMColor4f c = ConstantOutputForConstantInput(this->childProcessor(0), inColor);
         const auto H = c[0],
                    S = c[1],
                    L = c[2],

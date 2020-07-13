@@ -81,12 +81,7 @@ half alpha;
                 scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
                 (int)_outer.edgeType);
         SkString _input4481(args.fInputColor);
-        SkString _sample4481;
-        if (_outer.inputFP_index >= 0) {
-            _sample4481 = this->invokeChild(_outer.inputFP_index, _input4481.c_str(), args);
-        } else {
-            _sample4481.swap(_input4481);
-        }
+        SkString _sample4481 = this->invokeChild(0, _input4481.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
@@ -161,9 +156,7 @@ GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
         , edgeType(src.edgeType)
         , center(src.center)
         , radii(src.radii) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(*this));

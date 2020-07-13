@@ -305,19 +305,13 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar));
         SkString _input13941(args.fInputColor);
-        SkString _sample13941;
-        if (_outer.inputFP_index >= 0) {
-            _sample13941 = this->invokeChild(_outer.inputFP_index, _input13941.c_str(), args);
-        } else {
-            _sample13941.swap(_input13941);
-        }
+        SkString _sample13941 = this->invokeChild(0, _input13941.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
                 _sample13941.c_str());
         SkString _coords14001("float2(half2(dist, 0.5))");
-        SkString _sample14001;
-        _sample14001 = this->invokeChild(_outer.blurProfile_index, args, _coords14001.c_str());
+        SkString _sample14001 = this->invokeChild(1, args, _coords14001.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s.w;
@@ -362,13 +356,7 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
         , circleRect(src.circleRect)
         , solidRadius(src.solidRadius)
         , textureRadius(src.textureRadius) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
-    {
-        blurProfile_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.blurProfile_index));
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(*this));

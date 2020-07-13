@@ -33,7 +33,6 @@ public:
     GrCircleEffect(const GrCircleEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleEffect"; }
-    int inputFP_index = -1;
     GrClipEdgeType edgeType;
     SkPoint center;
     float radius;
@@ -50,7 +49,7 @@ private:
             , edgeType(edgeType)
             , center(center)
             , radius(radius) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

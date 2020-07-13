@@ -118,11 +118,9 @@ public:
     GrRRectBlurEffect(const GrRRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RRectBlurEffect"; }
-    int inputFP_index = -1;
     float sigma;
     SkRect rect;
     float cornerRadius;
-    int ninePatchFP_index = -1;
 
 private:
     GrRRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -137,10 +135,9 @@ private:
             , sigma(sigma)
             , rect(rect)
             , cornerRadius(cornerRadius) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(ninePatchFP);
-        ninePatchFP_index =
-                this->registerChild(std::move(ninePatchFP), SkSL::SampleUsage::Explicit());
+        this->registerChild(std::move(ninePatchFP), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

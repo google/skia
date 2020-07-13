@@ -66,9 +66,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("\talpha = 1.0 - alpha;\n");
     }
 
-    SkString inputSample = cpe.hasInputFP()
-                ? this->invokeChild(/*childIndex=*/0, args.fInputColor, args)
-                : SkString(args.fInputColor);
+    SkString inputSample = this->invokeChild(/*childIndex=*/0, args.fInputColor, args);
 
     fragBuilder->codeAppendf("\t%s = %s * alpha;\n", args.fOutputColor, inputSample.c_str());
 }

@@ -26,12 +26,7 @@ public:
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
         SkString _input464(args.fInputColor);
-        SkString _sample464;
-        if (_outer.inputFP_index >= 0) {
-            _sample464 = this->invokeChild(_outer.inputFP_index, _input464.c_str(), args);
-        } else {
-            _sample464.swap(_input464);
-        }
+        SkString _sample464 = this->invokeChild(0, _input464.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 @if (%s) {
@@ -65,9 +60,7 @@ bool GrClampFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const
 GrClampFragmentProcessor::GrClampFragmentProcessor(const GrClampFragmentProcessor& src)
         : INHERITED(kGrClampFragmentProcessor_ClassID, src.optimizationFlags())
         , clampToPremul(src.clampToPremul) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrClampFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrClampFragmentProcessor(*this));

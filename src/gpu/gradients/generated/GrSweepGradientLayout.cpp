@@ -84,6 +84,7 @@ GrSweepGradientLayout::GrSweepGradientLayout(const GrSweepGradientLayout& src)
         : INHERITED(kGrSweepGradientLayout_ClassID, src.optimizationFlags())
         , bias(src.bias)
         , scale(src.scale) {
+    this->cloneAndRegisterAllChildProcessors(src);
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::clone() const {

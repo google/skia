@@ -64,9 +64,7 @@ public:
 
         fColorSpaceHelper.emitCode(uniformHandler, proc.colorXform());
 
-        SkString childColor = this->numChildProcessors()
-                     ? this->invokeChild(0, args.fInputColor, args)
-                     : SkString(args.fInputColor);
+        SkString childColor = this->invokeChild(0, args.fInputColor, args);
 
         SkString xformedColor;
         fragBuilder->appendColorGamutXform(&xformedColor, childColor.c_str(), &fColorSpaceHelper);
@@ -128,9 +126,7 @@ GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
 
 SkPMColor4f GrColorSpaceXformEffect::constantOutputForConstantInput(
         const SkPMColor4f& input) const {
-    const auto c0 = this->numChildProcessors()
-                            ? ConstantOutputForConstantInput(this->childProcessor(0), input)
-                            : input;
+    const auto c0 = ConstantOutputForConstantInput(this->childProcessor(0), input);
     return this->fColorXform->apply(c0.unpremul()).premul();
 }
 

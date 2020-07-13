@@ -53,7 +53,8 @@ private:
         int count() const { return (fFP->*COUNT)(); }
 
         BuilderInputProvider childInputs(int childIdx) const {
-            const GrFragmentProcessor* child = &fFP->childProcessor(childIdx);
+            const GrFragmentProcessor* child = fFP->childProcessor(childIdx);
+            SkASSERT(child);
             int numToSkip = 0;
             for (const auto& fp : GrFragmentProcessor::FPRange(*fFP)) {
                 if (&fp == child) {
