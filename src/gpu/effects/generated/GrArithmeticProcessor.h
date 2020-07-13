@@ -31,8 +31,6 @@ public:
     GrArithmeticProcessor(const GrArithmeticProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ArithmeticProcessor"; }
-    int srcFP_index = -1;
-    int dstFP_index = -1;
     SkV4 k;
     bool enforcePMColor;
 
@@ -44,9 +42,9 @@ private:
             : INHERITED(kGrArithmeticProcessor_ClassID, (OptimizationFlags)kNone_OptimizationFlags)
             , k(k)
             , enforcePMColor(enforcePMColor) {
-        srcFP_index = this->registerChild(std::move(srcFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(srcFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(dstFP);
-        dstFP_index = this->registerChild(std::move(dstFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(dstFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

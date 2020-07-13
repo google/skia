@@ -18,6 +18,7 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
 
 void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) {
     SkASSERT(childIndex >= 0);
+    SkASSERT(args.fFp.childProcessor(childIndex));
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     while (childIndex >= (int) fFunctionNames.size()) {
         fFunctionNames.emplace_back();
@@ -29,7 +30,7 @@ void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) 
         EmitArgs childArgs(fragBuilder,
                            args.fUniformHandler,
                            args.fShaderCaps,
-                           args.fFp.childProcessor(childIndex),
+                           *args.fFp.childProcessor(childIndex),
                            "_output",
                            "_input",
                            "_coords",
@@ -42,6 +43,11 @@ void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) 
 SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
                                               EmitArgs& args, SkSL::String skslCoords) {
     SkASSERT(childIndex >= 0);
+    const GrFragmentProcessor* childProc = args.fFp.childProcessor(childIndex);
+    if (!childProc) {
+        return SkString(inputColor);
+    }
+
     this->emitChildFunction(childIndex, args);
 
     if (skslCoords.empty()) {
@@ -49,9 +55,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
         skslCoords = args.fSampleCoord;
     }
 
-    const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
-
-    if (childProc.isSampledWithExplicitCoords()) {
+    if (childProc->isSampledWithExplicitCoords()) {
         // The child's function takes a half4 color and a float2 coordinate
         return SkStringPrintf("%s(%s, %s)", fFunctionNames[childIndex].c_str(),
                                             inputColor ? inputColor : "half4(1)",
@@ -62,7 +66,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
         // is _coords (a uniform matrix sample call would go through invokeChildWithMatrix, and if
         // a child was sampled with sample(matrix) and sample(), it should have been flagged as
         // variable and hit the branch above).
-        SkASSERT(skslCoords == args.fSampleCoord && !childProc.sampleUsage().hasMatrix());
+        SkASSERT(skslCoords == args.fSampleCoord && !childProc->sampleUsage().hasMatrix());
         return SkStringPrintf("%s(%s)", fFunctionNames[childIndex].c_str(),
                                         inputColor ? inputColor : "half4(1)");
     }
@@ -72,26 +76,30 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
                                                         EmitArgs& args,
                                                         SkSL::String skslMatrix) {
     SkASSERT(childIndex >= 0);
+    const GrFragmentProcessor* childProc = args.fFp.childProcessor(childIndex);
+    if (!childProc) {
+        return SkString(inputColor);
+    }
+
     this->emitChildFunction(childIndex, args);
 
-    const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
-    SkASSERT(childProc.sampleUsage().hasMatrix());
+    SkASSERT(childProc->sampleUsage().hasMatrix());
 
     // Since this is uniform, the provided sksl expression should exactly match the expression
     // stored on the FP, or it should match the mangled uniform name.
     if (skslMatrix.empty()) {
         // Empty matrix expression replaces with the sample matrix expression stored on the FP, but
         // that is only valid for uniform sampled FPs
-        SkASSERT(childProc.sampleUsage().hasUniformMatrix());
-        skslMatrix.assign(childProc.sampleUsage().fExpression);
+        SkASSERT(childProc->sampleUsage().hasUniformMatrix());
+        skslMatrix.assign(childProc->sampleUsage().fExpression);
     }
 
-    if (childProc.sampleUsage().hasUniformMatrix()) {
+    if (childProc->sampleUsage().hasUniformMatrix()) {
         // Attempt to resolve the uniform name from the raw name stored in the sample usage.
         // Since this is uniform, the provided expression better match what was given to the FP.
-        SkASSERT(childProc.sampleUsage().fExpression == skslMatrix);
+        SkASSERT(childProc->sampleUsage().fExpression == skslMatrix);
         GrShaderVar uniform = args.fUniformHandler->getUniformMapping(
-                args.fFp, SkString(childProc.sampleUsage().fExpression));
+                args.fFp, SkString(childProc->sampleUsage().fExpression));
         if (uniform.getType() != kVoid_GrSLType) {
             // Found the uniform, so replace the expression with the actual uniform name
             SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
@@ -108,10 +116,10 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
     //
     // In all other cases, we need to insert sksl to compute matrix * parent coords and then invoke
     // the function.
-    if (childProc.isSampledWithExplicitCoords()) {
+    if (childProc->isSampledWithExplicitCoords()) {
         // Only check perspective for this specific matrix transform, not the aggregate FP property.
         // Any parent perspective will have already been applied when evaluated in the FS.
-        if (childProc.sampleUsage().fHasPerspective) {
+        if (childProc->sampleUsage().fHasPerspective) {
             return SkStringPrintf("%s(%s, proj((%s) * %s.xy1))", fFunctionNames[childIndex].c_str(),
                                   inputColor ? inputColor : "half4(1)", skslMatrix.c_str(),
                                   args.fSampleCoord);
@@ -124,7 +132,7 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
     } else {
         // A variable matrix expression should mark the child as explicitly sampled. A no-op
         // matrix should match sample(color), not sample(color, matrix).
-        SkASSERT(childProc.sampleUsage().hasUniformMatrix());
+        SkASSERT(childProc->sampleUsage().hasUniformMatrix());
 
         // Since this is uniform and not explicitly sampled, it's transform has been promoted to
         // the vertex shader and the signature doesn't take a float2 coord.
@@ -175,7 +183,9 @@ GrGLSLFragmentProcessor::Iter& GrGLSLFragmentProcessor::Iter::operator++() {
     const GrGLSLFragmentProcessor* back = fFPStack.back();
     fFPStack.pop_back();
     for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(back->childProcessor(i));
+        if (auto child = back->childProcessor(i)) {
+            fFPStack.push_back(child);
+        }
     }
     return *this;
 }

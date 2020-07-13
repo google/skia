@@ -50,8 +50,8 @@ half d;
                 args.fUniformHandler->getUniformCStr(circleVar));
         SkString _input2509(args.fInputColor);
         SkString _sample2509;
-        if (_outer.inputFP_index >= 0) {
-            _sample2509 = this->invokeChild(_outer.inputFP_index, _input2509.c_str(), args);
+        if (_outer.childProcessor(0)) {
+            _sample2509 = this->invokeChild(0, _input2509.c_str(), args);
         } else {
             _sample2509.swap(_input2509);
         }
@@ -121,9 +121,7 @@ GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)
         , edgeType(src.edgeType)
         , center(src.center)
         , radius(src.radius) {
-    if (src.inputFP_index >= 0) {
-        inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index));
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(*this));

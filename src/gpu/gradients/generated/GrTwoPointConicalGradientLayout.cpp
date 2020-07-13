@@ -178,6 +178,7 @@ GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
         , isSwapped(src.isSwapped)
         , isNativelyFocal(src.isNativelyFocal)
         , focalParams(src.focalParams) {
+    this->cloneAndRegisterAllChildProcessors(src);
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::clone() const {

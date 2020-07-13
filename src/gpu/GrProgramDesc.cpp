@@ -148,8 +148,10 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                         const GrCaps& caps,
                                         GrProcessorKeyBuilder* b) {
     for (int i = 0; i < fp.numChildProcessors(); ++i) {
-        if (!gen_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), caps, b)) {
-            return false;
+        if (auto child = fp.childProcessor(i)) {
+            if (!gen_frag_proc_and_meta_keys(primProc, *child, caps, b)) {
+                return false;
+            }
         }
     }
 

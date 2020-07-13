@@ -60,7 +60,9 @@ bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)
-        : INHERITED(kGrConstColorProcessor_ClassID, src.optimizationFlags()), color(src.color) {}
+        : INHERITED(kGrConstColorProcessor_ClassID, src.optimizationFlags()), color(src.color) {
+    this->cloneAndRegisterAllChildProcessors(src);
+}
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(*this));
 }

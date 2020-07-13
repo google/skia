@@ -28,7 +28,7 @@ public:
 
         fragBuilder->forceHighPrecision();
         SkString _sample5730;
-        _sample5730 = this->invokeChild(_outer.inputFP_index, args);
+        _sample5730 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(%s = floor(%s * 255.0 + 0.5) / 255.0;
 @switch (%d) {
@@ -65,7 +65,7 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const
 GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffect& src)
         : INHERITED(kGrConfigConversionEffect_ClassID, src.optimizationFlags())
         , pmConversion(src.pmConversion) {
-    { inputFP_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.inputFP_index)); }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(*this));

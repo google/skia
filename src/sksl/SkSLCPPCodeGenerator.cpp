@@ -93,19 +93,20 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         SkASSERT(var->fType.kind() == Type::kNullable_Kind &&
                  var->fType.componentType() == *fContext.fFragmentProcessor_Type);
         this->write("%s");
-        const char* op;
+        const char* op = "";
         switch (b.fOperator) {
             case Token::Kind::TK_EQEQ:
-                op = "<";
+                op = "!";
                 break;
             case Token::Kind::TK_NEQ:
-                op = ">=";
+                op = "";
                 break;
             default:
                 SkASSERT(false);
         }
-        fFormatArgs.push_back("_outer." + String(var->fName) + "_index " + op + " 0 ? \"true\" "
-                              ": \"false\"");
+        int childIndex = this->getChildFPIndex(*var);
+        fFormatArgs.push_back(String(op) + "_outer.childProcessor(" + to_string(childIndex) +
+                              ") ? \"true\" : \"false\"");
     } else {
         INHERITED::writeBinaryExpression(b, parentPrecedence);
     }
@@ -357,8 +358,8 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
 
         const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fFieldIndex];
         const Variable& var = ((const VariableReference&) *access.fBase).fVariable;
-        String cppAccess = String::printf("_outer.childProcessor(_outer.%s_index).%s()",
-                                          String(var.fName).c_str(),
+        String cppAccess = String::printf("_outer.childProcessor(%d)->%s()",
+                                          this->getChildFPIndex(var),
                                           String(field.fName).c_str());
 
         if (fCPPMode) {
@@ -456,12 +457,12 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         String childName = "_sample" + to_string(c.fOffset);
         addExtraEmitCodeLine("SkString " + childName + ";");
 
+        String childIndexStr = to_string(this->getChildFPIndex(child));
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
-            addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
+            addExtraEmitCodeLine("if (_outer.childProcessor(" + childIndexStr + ")) {\n    ");
         }
-        addExtraEmitCodeLine(childName + " = this->" + invokeFunction + "(_outer." +
-                             String(child.fName) + "_index" + inputColor + ", args" +
-                             inputCoord + ");");
+        addExtraEmitCodeLine(childName + " = this->" + invokeFunction + "(" + childIndexStr +
+                             inputColor + ", args" + inputCoord + ");");
 
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             // Null FPs are not emitted, but their output can still be referenced in dependent
@@ -1109,21 +1110,11 @@ void CPPCodeGenerator::writeClone() {
             }
         }
         this->writef(" {\n");
+        this->writef("        this->cloneAndRegisterAllChildProcessors(src);\n");
         int samplerCount = 0;
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->fType.kind() == Type::kSampler_Kind) {
                 ++samplerCount;
-            } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-                String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
-                if (param->fType.kind() == Type::kNullable_Kind) {
-                    this->writef("    if (src.%s_index >= 0) {\n", fieldName.c_str());
-                } else {
-                    this->write("    {\n");
-                }
-                this->writef("        %s_index = this->cloneAndRegisterChildProcessor("
-                                                     "src.childProcessor(src.%s_index));\n"
-                             "    }\n",
-                             fieldName.c_str(), fieldName.c_str());
             }
         }
         if (samplerCount) {
