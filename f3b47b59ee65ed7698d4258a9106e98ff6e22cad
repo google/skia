@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85b81af5_de3f7a75",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-13T16:13:17Z",
+      "side": 1,
+      "message": "passed ?",
+      "range": {
+        "startLine": 670,
+        "startChar": 33,
+        "endLine": 670,
+        "endChar": 37
+      },
+      "revId": "f3b47b59ee65ed7698d4258a9106e98ff6e22cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
