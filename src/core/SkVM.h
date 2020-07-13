@@ -718,6 +718,7 @@ namespace skvm {
         I32   to_unorm(int bits, F32);   // E.g.   to_unorm(8, x) -> round(x * 255)
 
         Color   load(PixelFormat, Arg ptr);
+        bool   store(PixelFormat, Arg ptr, Color);
         Color gather(PixelFormat, Arg ptr, int offset, I32 index);
         Color gather(PixelFormat f, Uniform u, I32 index) {
             return gather(f, u.ptr, u.offset, index);
@@ -1041,6 +1042,7 @@ namespace skvm {
     static inline F32 from_unorm(int bits, I32 x) { return x->from_unorm(bits,x); }
     static inline I32   to_unorm(int bits, F32 x) { return x->  to_unorm(bits,x); }
 
+    static inline bool store(PixelFormat f, Arg p, Color c) { return c->store(f,p,c); }
     static inline Color gather(PixelFormat f, Arg p, int off, I32 ix) {
         return ix->gather(f,p,off,ix);
     }
