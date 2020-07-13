@@ -656,8 +656,10 @@ bool GrTextBlob::canReuse(const SkPaint& paint,
                           const SkMaskFilterBase::BlurRec& blurRec,
                           const SkMatrix& drawMatrix,
                           SkPoint drawOrigin) {
-    // A singular matrix will create a GrTextBlob with no subRuns. Assume that, and just regenerate.
-    if (fSubRunList.isEmpty()) {
+    // A singular matrix will create a GrTextBlob with no SubRuns, but unknown glyphs can
+    // also cause empty runs. If there are no subRuns, and the matrix is complicated, then
+    // regenerate.
+    if (fSubRunList.isEmpty() && !fInitialMatrix.rectStaysRect()) {
         return false;
     }
 
