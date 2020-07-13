@@ -22,6 +22,30 @@
       "revId": "d64131459f428305a17da38ba9c8656570a80599",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd7307d4_bedfbd87",
+        "filename": "gm/constcolorprocessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-13T13:44:05Z",
+      "side": 1,
+      "message": "Good catch!! Done.",
+      "parentUuid": "c40fe65c_7961571f",
+      "range": {
+        "startLine": 119,
+        "startChar": 32,
+        "endLine": 119,
+        "endChar": 85
+      },
+      "revId": "d64131459f428305a17da38ba9c8656570a80599",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
