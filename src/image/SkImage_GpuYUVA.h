@@ -9,10 +9,10 @@
 #define SkImage_GpuYUVA_DEFINED
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_GpuBase.h"
 
+class GrContext;
 class GrTexture;
 struct SkYUVASizeInfo;
 
