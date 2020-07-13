@@ -89,9 +89,9 @@ extern DrawOptions GetDrawOptions();
 extern void SkDebugf(const char * format, ...);
 extern void draw(SkCanvas*);
 
-// There are different implementations of create_grcontext() for EGL, Mesa,
+// There are different implementations of create_direct_context() for EGL, Mesa,
 // and a fallback to a null context.
-extern sk_sp<GrContext> create_grcontext(std::ostringstream& driverinfo,
-                                         std::unique_ptr<sk_gpu_test::GLTestContext>* glContext);
+extern sk_sp<GrDirectContext> create_direct_context(std::ostringstream& driverinfo,
+                                                    std::unique_ptr<sk_gpu_test::GLTestContext>*);
 
 #endif  // fiddle_main_DEFINED

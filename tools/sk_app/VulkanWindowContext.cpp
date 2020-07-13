@@ -118,9 +118,7 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(QueuePresentKHR);
     GET_DEV_PROC(GetDeviceQueue);
 
-    // CONTEXT TODO: MakeVulkan should return an sk_sp<GrDirectContext>
-    auto tmp = GrContext::MakeVulkan(backendContext, fDisplayParams.fGrContextOptions);
-    fContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+    fContext = GrDirectContext::MakeVulkan(backendContext, fDisplayParams.fGrContextOptions);
 
     fSurface = fCreateVkSurfaceFn(fInstance);
     if (VK_NULL_HANDLE == fSurface) {

@@ -7,8 +7,8 @@
 
 #include "tools/gpu/mtl/MtlTestContext.h"
 
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "src/gpu/mtl/GrMtlUtil.h"
 
@@ -58,10 +58,10 @@ public:
 
     void finish() override {}
 
-    sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
-        return GrContext::MakeMetal((__bridge void*)fDevice,
-                                    (__bridge void*)fQueue,
-                                    options);
+    sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
+        return GrDirectContext::MakeMetal((__bridge void*)fDevice,
+                                          (__bridge void*)fQueue,
+                                          options);
     }
 
     id<MTLDevice> device() { return fDevice; }

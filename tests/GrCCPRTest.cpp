@@ -157,7 +157,7 @@ public:
 
         this->customizeOptions(&mockOptions, &ctxOptions);
 
-        sk_sp<GrContext> mockContext = GrContext::MakeMock(&mockOptions, ctxOptions);
+        sk_sp<GrDirectContext> mockContext = GrDirectContext::MakeMock(&mockOptions, ctxOptions);
         if (!mockContext) {
             ERRORF(reporter, "could not create mock context");
             return;
