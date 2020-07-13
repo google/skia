@@ -82,9 +82,7 @@ void D3D12WindowContext::initializeContext() {
     fDevice = backendContext.fDevice;
     fQueue = backendContext.fQueue;
 
-    // CONTEXT TODO: MakeDirect3D should return an sk_sp<GrDirectContext>
-    auto tmp = GrContext::MakeDirect3D(backendContext, fDisplayParams.fGrContextOptions);
-    fContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+    fContext = GrDirectContext::MakeDirect3D(backendContext, fDisplayParams.fGrContextOptions);
     SkASSERT(fContext);
 
     // Make the swapchain

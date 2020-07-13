@@ -7,7 +7,7 @@
 
 #include "tools/gpu/gl/GLTestContext.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include "tools/gpu/GpuTimer.h"
 
@@ -222,9 +222,9 @@ void GLTestContext::finish() {
 #endif
 }
 
-sk_sp<GrContext> GLTestContext::makeGrContext(const GrContextOptions& options) {
+sk_sp<GrDirectContext> GLTestContext::makeContext(const GrContextOptions& options) {
 #ifdef SK_GL
-    return GrContext::MakeGL(fGL, options);
+    return GrDirectContext::MakeGL(fGL, options);
 #else
     return nullptr;
 #endif
