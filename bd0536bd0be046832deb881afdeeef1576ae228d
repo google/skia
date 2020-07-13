@@ -187,6 +187,52 @@
     },
     {
       "key": {
+        "uuid": "a478d316_59935a99",
+        "filename": "demos.skia.org/demos/path_tesselation/main.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-13T22:11:42Z",
+      "side": 1,
+      "message": "I think this method will be too slow to be useful. Do we ever need to use this instead if the WebGL one?",
+      "range": {
+        "startLine": 212,
+        "startChar": 13,
+        "endLine": 212,
+        "endChar": 20
+      },
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d987a45a_7fd728b7",
+        "filename": "demos.skia.org/demos/path_tesselation/main.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-13T22:11:42Z",
+      "side": 1,
+      "message": "I think CanvasKit is the wrong name. What about...\n\nWebGLPointsAnimator\nGpGpuPointsAnimator",
+      "range": {
+        "startLine": 236,
+        "startChar": 15,
+        "endLine": 236,
+        "endChar": 16
+      },
+      "revId": "bd0536bd0be046832deb881afdeeef1576ae228d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "52db8b1a_a2d0424e",
         "filename": "demos.skia.org/demos/path_tesselation/path_tools.js",
         "patchSetId": 1
