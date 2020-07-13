@@ -30,18 +30,6 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         GrSamplerState::WrapMode wrapX,
         GrSamplerState::WrapMode wrapY,
         const GrSamplerState::Filter* filterOrNullForBicubic) {
-    const GrSamplerState::Filter* fmForDetermineDomain = filterOrNullForBicubic;
-    if (filterOrNullForBicubic && GrSamplerState::Filter::kMipMap == *filterOrNullForBicubic &&
-        kYes_FilterConstraint == filterConstraint) {
-        // TODO: Here we should force a copy restricted to the constraintRect since MIP maps will
-        // read outside the constraint rect. However, as in the adjuster case, we aren't currently
-        // doing that.
-        // We instead we compute the domain as though were bilerping which is only correct if we
-        // only sample level 0.
-        static const GrSamplerState::Filter kBilerp = GrSamplerState::Filter::kBilerp;
-        fmForDetermineDomain = &kBilerp;
-    }
-
     GrSurfaceProxyView view;
     if (filterOrNullForBicubic) {
         view = this->view(*filterOrNullForBicubic);
@@ -52,12 +40,12 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         return nullptr;
     }
 
-    SkRect domain;
-    DomainMode domainMode =
-        DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                            view.proxy(), fmForDetermineDomain, &domain);
-    SkASSERT(kTightCopy_DomainMode != domainMode);
-    return this->createFragmentProcessorForSubsetAndFilter(std::move(view), textureMatrix,
-                                                           domainMode, domain, wrapX, wrapY,
+    return this->createFragmentProcessorForSubsetAndFilter(std::move(view),
+                                                           textureMatrix,
+                                                           coordsLimitedToConstraintRect,
+                                                           filterConstraint,
+                                                           constraintRect,
+                                                           wrapX,
+                                                           wrapY,
                                                            filterOrNullForBicubic);
 }
