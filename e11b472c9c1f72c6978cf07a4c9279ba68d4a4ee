@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6e94f90_e99ed7ae",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-13T22:21:22Z",
+      "side": 1,
+      "message": "I\u0027m anecdotally not really seeing such dramatic differences between std::sort() and SkTQSort when running `nanobench -m sort_`, but I\u0027d agree that SkTHeapSort and qsort() look made pretty well moot by the other two.  Not to say I wouldn\u0027t like to see what happens if we try this CL... nice to delete code, especially with those unusual inclusive right boundaries.\n\nIf you used perf to do your analysis across the various platforms you tested, it might be neat to link to your findings?  There\u0027s a ton of variables here to control for, standard libaries, compilers, optimization settings, CPU macro and microarchitecture, etc.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 23
+      },
+      "revId": "e11b472c9c1f72c6978cf07a4c9279ba68d4a4ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
