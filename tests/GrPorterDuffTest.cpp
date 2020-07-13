@@ -32,7 +32,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
 DEF_GPUTEST(GrPorterDuff, reporter, /*ctxInfo*/) {
     GrMockOptions mockOptions;
     mockOptions.fDualSourceBlendingSupport = true;
-    auto context = GrContext::MakeMock(&mockOptions, GrContextOptions());
+    sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&mockOptions, GrContextOptions());
     const GrCaps& caps = *context->priv().getGpu()->caps();
 
     if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
