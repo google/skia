@@ -37,7 +37,6 @@
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
-#include "src/gpu/effects/generated/GrModulateRGBAEffect.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/ToolUtils.h"
@@ -47,7 +46,7 @@
 
 namespace skiagm {
 /**
- * This GM directly exercises GrConstColorProcessor, GrModulateRGBAEffect and GrModulateAlphaEffect.
+ * This GM directly exercises GrConstColorProcessor, ModulateRGBA and ModulateAlpha.
  */
 class ColorProcessor : public GpuGM {
 public:
@@ -131,9 +130,8 @@ protected:
                         break;
 
                     case TestMode::kModulateRGBA:
-                        colorFP = GrModulateRGBAEffect::Make(
-                                std::move(baseFP),
-                                SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
+                        colorFP = GrFragmentProcessor::ModulateRGBA(
+                                std::move(baseFP), SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
                         break;
 
                     case TestMode::kModulateAlpha:
