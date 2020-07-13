@@ -246,11 +246,8 @@ public:
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target);
 
-    // TODO when this object is more internal, drop the privacy
-    void resetBulkUseToken();
-    GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
-
     GrMaskFormat maskFormat() const;
+    bool needsTransform() const;
 
     size_t vertexStride() const;
     size_t quadOffset(size_t index) const;
@@ -261,26 +258,13 @@ public:
 
     int glyphCount() const;
 
-    bool drawAsDistanceFields() const;
-    bool needsTransform() const;
-    bool needsPadding() const;
-    int atlasPadding() const;
-    SkSpan<const VertexData> vertexData() const;
-
-
     // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
     void prepareGrGlyphs(GrStrikeCache*);
-    // has 'prepareGrGlyphs' been called (i.e., can the GrGlyphs be accessed) ?
-    SkDEBUGCODE(bool isPrepared() const { return SkToBool(fStrike); })
 
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
     GrGlyph* grGlyph(int i) const;
-
-    // df properties
-    bool hasUseLCDText() const;
-    bool isAntiAliased() const;
 
     const SkStrikeSpec& strikeSpec() const;
 
@@ -306,11 +290,6 @@ public:
                                        SkArenaAlloc* alloc);
 
     GrTextBlob* fBlob;
-    uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
-
-    bool drawAsPaths() const;
-
-    SkSpan<const PathGlyph> paths() const { return SkMakeSpan(fPaths); }
 
 private:
     struct AtlasPt {
@@ -351,9 +330,25 @@ private:
     bool hasW() const;
     void setUseLCDText(bool useLCDText);
     void setAntiAliased(bool antiAliased);
+    SkSpan<const PathGlyph> paths() const { return SkMakeSpan(fPaths); }
+    bool drawAsPaths() const;
+
+    // df properties
+    bool hasUseLCDText() const;
+    bool isAntiAliased() const;
+
+    bool drawAsDistanceFields() const;
+    bool needsPadding() const;
+    int atlasPadding() const;
+    SkSpan<const VertexData> vertexData() const;
+
+    // has 'prepareGrGlyphs' been called (i.e., can the GrGlyphs be accessed) ?
+    SkDEBUGCODE(bool isPrepared() const { return SkToBool(fStrike); })
+
+    void resetBulkUseToken();
+    GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob::SubRun);
-
     const SubRunType fType;
     const GrMaskFormat fMaskFormat;
     bool fUseLCDText{false};
@@ -368,6 +363,7 @@ private:
     const SkRect fVertexBounds;
     const SkSpan<VertexData> fVertexData;
     std::vector<PathGlyph> fPaths;
+    uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
 };  // SubRun
 
 #endif  // GrTextBlob_DEFINED
