@@ -832,37 +832,6 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
         , fFullAtlasManager(fullAtlasManager)
         , fSubRun(subRun) { }
 
-std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
-        const int begin, const int end) {
-
-    SkASSERT(fSubRun->isPrepared());
-
-    SkBulkGlyphMetricsAndImages metricsAndImages{fSubRun->strikeSpec()};
-
-    // Update the atlas information in the GrStrike.
-    auto tokenTracker = fUploadTarget->tokenTracker();
-    auto vertexData = fSubRun->vertexData().subspan(begin, end - begin);
-    int glyphsPlacedInAtlas = 0;
-    for (auto [glyph, pos, rect] : vertexData) {
-        GrGlyph* grGlyph = glyph.grGlyph;
-        SkASSERT(grGlyph != nullptr);
-
-        if (!fFullAtlasManager->hasGlyph(fSubRun->maskFormat(), grGlyph)) {
-            const SkGlyph& skGlyph = *metricsAndImages.glyph(grGlyph->fPackedID);
-            auto code = fFullAtlasManager->addGlyphToAtlas(
-                    skGlyph, fSubRun->atlasPadding(), grGlyph, fResourceProvider, fUploadTarget);
-            if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
-                return {code != GrDrawOpAtlas::ErrorCode::kError, glyphsPlacedInAtlas};
-            }
-        }
-        fFullAtlasManager->addGlyphToBulkAndSetUseToken(
-                fSubRun->bulkUseToken(), fSubRun->maskFormat(), grGlyph,
-                tokenTracker->nextDrawToken());
-        glyphsPlacedInAtlas++;
-    }
-
-    return {true, glyphsPlacedInAtlas};
-}
 
 std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int end) {
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
@@ -871,7 +840,35 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
         // Calculate the texture coordinates for the vertexes during first use (fAtlasGeneration
         // is set to kInvalidAtlasGeneration) or the atlas has changed in subsequent calls..
         fSubRun->resetBulkUseToken();
-        auto [success, glyphsPlacedInAtlas] = this->updateTextureCoordinates(begin, end);
+
+        SkASSERT(fSubRun->isPrepared());
+
+        SkBulkGlyphMetricsAndImages metricsAndImages{fSubRun->strikeSpec()};
+
+        // Update the atlas information in the GrStrike.
+        auto tokenTracker = fUploadTarget->tokenTracker();
+        auto vertexData = fSubRun->vertexData().subspan(begin, end - begin);
+        int glyphsPlacedInAtlas = 0;
+        bool success = true;
+        for (auto [glyph, pos, rect] : vertexData) {
+            GrGlyph* grGlyph = glyph.grGlyph;
+            SkASSERT(grGlyph != nullptr);
+
+            if (!fFullAtlasManager->hasGlyph(fSubRun->maskFormat(), grGlyph)) {
+                const SkGlyph& skGlyph = *metricsAndImages.glyph(grGlyph->fPackedID);
+                auto code = fFullAtlasManager->addGlyphToAtlas(
+                        skGlyph, fSubRun->atlasPadding(), grGlyph,
+                        fResourceProvider, fUploadTarget);
+                if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
+                    success = code != GrDrawOpAtlas::ErrorCode::kError;
+                    break;
+                }
+            }
+            fFullAtlasManager->addGlyphToBulkAndSetUseToken(
+                    fSubRun->bulkUseToken(), fSubRun->maskFormat(), grGlyph,
+                    tokenTracker->nextDrawToken());
+            glyphsPlacedInAtlas++;
+        }
 
         // Update atlas generation if there are no more glyphs to put in the atlas.
         if (success && begin + glyphsPlacedInAtlas == fSubRun->glyphCount()) {

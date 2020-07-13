@@ -219,8 +219,6 @@ public:
     std::tuple<bool, int> regenerate(int begin, int end);
 
 private:
-    // Return {success, number of glyphs regenerated}
-    std::tuple<bool, int> updateTextureCoordinates(int begin, int end);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
