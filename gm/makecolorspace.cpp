@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkImagePriv.h"
 #include "tools/Resources.h"
 
@@ -34,8 +35,9 @@ sk_sp<SkImage> make_raster_image(const char* path) {
     return SkImage::MakeFromBitmap(bitmap);
 }
 
-sk_sp<SkImage> make_color_space(sk_sp<SkImage> orig, sk_sp<SkColorSpace> colorSpace) {
-    sk_sp<SkImage> xform = orig->makeColorSpace(colorSpace);
+sk_sp<SkImage> make_color_space(
+        sk_sp<SkImage> orig, sk_sp<SkColorSpace> colorSpace, GrDirectContext* direct) {
+    sk_sp<SkImage> xform = orig->makeColorSpace(colorSpace, direct);
 
     // Assign an sRGB color space on the xformed image, so we can see the effects of the xform
     // when we draw.
@@ -58,23 +60,24 @@ DEF_SIMPLE_GM_CAN_FAIL(makecolorspace, canvas, errorMsg, 128 * 3, 128 * 4) {
         *errorMsg = "Failed to load images. Did you forget to set the resourcePath?";
         return skiagm::DrawResult::kFail;
     }
+    auto direct = GrAsDirectContext(canvas->recordingContext());
     canvas->drawImage(opaqueImage, 0.0f, 0.0f);
-    canvas->drawImage(make_color_space(opaqueImage, wideGamut), 128.0f, 0.0f);
-    canvas->drawImage(make_color_space(opaqueImage, wideGamutLinear), 256.0f, 0.0f);
+    canvas->drawImage(make_color_space(opaqueImage, wideGamut, direct), 128.0f, 0.0f);
+    canvas->drawImage(make_color_space(opaqueImage, wideGamutLinear, direct), 256.0f, 0.0f);
     canvas->drawImage(premulImage, 0.0f, 128.0f);
-    canvas->drawImage(make_color_space(premulImage, wideGamut), 128.0f, 128.0f);
-    canvas->drawImage(make_color_space(premulImage, wideGamutLinear), 256.0f, 128.0f);
+    canvas->drawImage(make_color_space(premulImage, wideGamut, direct), 128.0f, 128.0f);
+    canvas->drawImage(make_color_space(premulImage, wideGamutLinear, direct), 256.0f, 128.0f);
     canvas->translate(0.0f, 256.0f);
 
     // Raster images
     opaqueImage = make_raster_image("images/mandrill_128.png");
     premulImage = make_raster_image("images/color_wheel.png");
     canvas->drawImage(opaqueImage, 0.0f, 0.0f);
-    canvas->drawImage(make_color_space(opaqueImage, wideGamut), 128.0f, 0.0f);
-    canvas->drawImage(make_color_space(opaqueImage, wideGamutLinear), 256.0f, 0.0f);
+    canvas->drawImage(make_color_space(opaqueImage, wideGamut, direct), 128.0f, 0.0f);
+    canvas->drawImage(make_color_space(opaqueImage, wideGamutLinear, direct), 256.0f, 0.0f);
     canvas->drawImage(premulImage, 0.0f, 128.0f);
-    canvas->drawImage(make_color_space(premulImage, wideGamut), 128.0f, 128.0f);
-    canvas->drawImage(make_color_space(premulImage, wideGamutLinear), 256.0f, 128.0f);
+    canvas->drawImage(make_color_space(premulImage, wideGamut, direct), 128.0f, 128.0f);
+    canvas->drawImage(make_color_space(premulImage, wideGamutLinear, direct), 256.0f, 128.0f);
     return skiagm::DrawResult::kOk;
 }
 
@@ -86,6 +89,7 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
     auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
 
     // Use the lazy images on the first iteration, and concrete (raster/GPU) images on the second
+    auto direct = GrAsDirectContext(canvas->recordingContext());
     for (bool lazy : {true, false}) {
         for (int j = 0; j < 2; ++j) {
             const SkImage* image = images[j].get();
@@ -103,7 +107,8 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
 
             // 565 in a wide color space (should be visibly quantized). Fails with the color_wheel,
             // because of the codec issues mentioned above.
-            auto image565 = image->makeColorTypeAndColorSpace(kRGB_565_SkColorType, rec2020);
+            auto image565 = image->makeColorTypeAndColorSpace(kRGB_565_SkColorType,
+                                                              rec2020, direct);
             if (!lazy || image565->makeRasterImage()) {
                 canvas->drawImage(image565, 128, 0);
             }
@@ -111,14 +116,13 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
             // Grayscale in the original color space. This fails in even more cases, due to the
             // above opaque issue, and because Ganesh doesn't support drawing to gray, at all.
             auto imageGray = image->makeColorTypeAndColorSpace(kGray_8_SkColorType,
-                                                               image->refColorSpace());
+                                                               image->refColorSpace(),
+                                                               direct);
             if (!lazy || imageGray->makeRasterImage()) {
                 canvas->drawImage(imageGray, 256, 0);
             }
 
-            images[j] = canvas->getGrContext()
-                    ? image->makeTextureImage(canvas->getGrContext())
-                    : image->makeRasterImage();
+            images[j] = direct ? image->makeTextureImage(direct) : image->makeRasterImage();
 
             canvas->translate(0, 128);
         }
@@ -150,7 +154,8 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     // Lazy images
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(spin)->reinterpretColorSpace(srgb), 256.0f, 0.0f);
+    canvas->drawImage(image->makeColorSpace(spin, nullptr)->reinterpretColorSpace(srgb),
+                      256.0f, 0.0f);
 
     canvas->translate(0.0f, 128.0f);
 
@@ -158,18 +163,21 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     image = image->makeRasterImage();
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(spin)->reinterpretColorSpace(srgb), 256.0f, 0.0f);
+    canvas->drawImage(image->makeColorSpace(spin, nullptr)->reinterpretColorSpace(srgb),
+                      256.0f, 0.0f);
 
     canvas->translate(0.0f, 128.0f);
 
     // GPU images
-    if (auto gpuImage = image->makeTextureImage(canvas->getGrContext())) {
+    auto direct = GrAsDirectContext(canvas->recordingContext());
+    if (auto gpuImage = image->makeTextureImage(direct)) {
         image = gpuImage;
     }
 
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(spin)->reinterpretColorSpace(srgb), 256.0f, 0.0f);
+    canvas->drawImage(image->makeColorSpace(spin, direct)->reinterpretColorSpace(srgb),
+                      256.0f, 0.0f);
 
     return skiagm::DrawResult::kOk;
 }
