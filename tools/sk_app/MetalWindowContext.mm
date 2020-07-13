@@ -48,10 +48,8 @@ void MetalWindowContext::initializeContext() {
 
     fValid = this->onInitializeContext();
 
-    // CONTEXT TODO: MakeMetal should return an sk_sp<GrDirectContext>
-    auto tmp = GrContext::MakeMetal((__bridge void*)fDevice, (__bridge void*)fQueue,
-                                    fDisplayParams.fGrContextOptions);
-    fContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+    fContext = GrDirectContext::MakeMetal((__bridge void*)fDevice, (__bridge void*)fQueue,
+                                          fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();

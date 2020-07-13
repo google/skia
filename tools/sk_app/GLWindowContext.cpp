@@ -32,9 +32,7 @@ void GLWindowContext::initializeContext() {
 
     fBackendContext = this->onInitializeContext();
 
-    // CONTEXT TODO: MakeGL should return an sk_sp<GrDirectContext>
-    auto tmp = GrContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
-    fContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+    fContext = GrDirectContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();

@@ -170,7 +170,7 @@ private:
  * painter's order.
  */
 DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
-    auto context = GrContext::MakeMock(nullptr);
+    sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
     SkASSERT(context);
     static constexpr SkISize kDims = {kNumOps + 1, 1};
 

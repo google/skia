@@ -77,11 +77,7 @@ bool VkTestHelper::init() {
     ACQUIRE_DEVICE_VK_PROC(FlushMappedMemoryRanges)
     ACQUIRE_DEVICE_VK_PROC(GetImageSubresourceLayout)
 
-    // CONTEXT TODO: MakeVulkan should return an sk_sp<GrDirectContext>
-    auto tmp = GrContext::MakeVulkan(fBackendContext);
-    if (tmp) {
-        fDirectContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
-    }
+    fDirectContext = GrDirectContext::MakeVulkan(fBackendContext);
     if (!fDirectContext) {
         return false;
     }
