@@ -37,9 +37,7 @@ void DawnWindowContext::initializeContext(int width, int height) {
     fHeight = height;
     fDevice = onInitializeContext();
 
-    // CONTEXT TODO: MakeDawn should return an sk_sp<GrDirectContext>
-    auto tmp = GrContext::MakeDawn(fDevice, fDisplayParams.fGrContextOptions);
-    fContext = sk_ref_sp<GrDirectContext>(tmp->asDirectContext());
+    fContext = GrDirectContext::MakeDawn(fDevice, fDisplayParams.fGrContextOptions);
     if (!fContext) {
         return;
     }

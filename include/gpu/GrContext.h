@@ -701,6 +701,8 @@ protected:
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
 private:
+    friend class GrDirectContext; // for access to fGpu
+
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
