@@ -126,9 +126,7 @@ public:
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
-    int inputFP_index = -1;
     SkRect rect;
-    int integral_index = -1;
     bool isFast;
 
 private:
@@ -143,9 +141,9 @@ private:
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
             , isFast(isFast) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(integral);
-        integral_index = this->registerChild(std::move(integral), SkSL::SampleUsage::Explicit());
+        this->registerChild(std::move(integral), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -22,9 +22,7 @@ public:
 #include "include/private/SkNx.h"
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
-        SkPMColor4f c = this->numChildProcessors()
-                                ? ConstantOutputForConstantInput(this->childProcessor(0), inColor)
-                                : inColor;
+        SkPMColor4f c = ConstantOutputForConstantInput(this->childProcessor(0), inColor);
         const auto H = c[0], S = c[1], L = c[2], C = (1 - std::abs(2 * L - 1)) * S;
 
         const auto p = H + Sk4f(0, 2 / 3.f, 1 / 3.f, 0),
@@ -40,7 +38,6 @@ public:
     GrHSLToRGBFilterEffect(const GrHSLToRGBFilterEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "HSLToRGBFilterEffect"; }
-    int inputFP_index = -1;
 
 private:
     GrHSLToRGBFilterEffect(std::unique_ptr<GrFragmentProcessor> inputFP)
@@ -49,7 +46,7 @@ private:
                                                     : kAll_OptimizationFlags) &
                                 (kConstantOutputForConstantInput_OptimizationFlag |
                                  kPreservesOpaqueInput_OptimizationFlag)) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

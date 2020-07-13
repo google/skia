@@ -70,8 +70,7 @@ if (delta.x < 2.0 && delta.y < 2.0) {
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
         SkString _coords1043 = SkStringPrintf("mix(%s, zoom_coord, weight)", args.fSampleCoord);
-        SkString _sample1043;
-        _sample1043 = this->invokeChild(_outer.src_index, args, _coords1043.c_str());
+        SkString _sample1043 = this->invokeChild(0, args, _coords1043.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = %s;
@@ -141,7 +140,7 @@ GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         , yInvZoom(src.yInvZoom)
         , xInvInset(src.xInvInset)
         , yInvInset(src.yInvInset) {
-    { src_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.src_index)); }
+    this->cloneAndRegisterAllChildProcessors(src);
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {

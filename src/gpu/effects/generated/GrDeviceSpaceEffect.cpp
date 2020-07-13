@@ -25,9 +25,7 @@ public:
         (void)_outer;
         SkString _input203(args.fInputColor);
         SkString _coords203("sk_FragCoord.xy");
-        SkString _sample203;
-        _sample203 =
-                this->invokeChild(_outer.fp_index, _input203.c_str(), args, _coords203.c_str());
+        SkString _sample203 = this->invokeChild(0, _input203.c_str(), args, _coords203.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(%s = %s;
 )SkSL",
@@ -50,7 +48,7 @@ bool GrDeviceSpaceEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrDeviceSpaceEffect::GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src)
         : INHERITED(kGrDeviceSpaceEffect_ClassID, src.optimizationFlags()) {
-    { fp_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp_index)); }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(*this));

@@ -26,8 +26,7 @@ public:
         fragBuilder->codeAppendf(
                 R"SkSL(half2 coord = half2(%s.x, 0.5);)SkSL", args.fInputColor);
         SkString _coords327("float2(coord)");
-        SkString _sample327;
-        _sample327 = this->invokeChild(_outer.textureFP_index, args, _coords327.c_str());
+        SkString _sample327 = this->invokeChild(0, args, _coords327.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = %s;
@@ -51,10 +50,7 @@ bool GrTextureGradientColorizer::onIsEqual(const GrFragmentProcessor& other) con
 }
 GrTextureGradientColorizer::GrTextureGradientColorizer(const GrTextureGradientColorizer& src)
         : INHERITED(kGrTextureGradientColorizer_ClassID, src.optimizationFlags()) {
-    {
-        textureFP_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.textureFP_index));
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrTextureGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTextureGradientColorizer(*this));

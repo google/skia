@@ -129,7 +129,9 @@ GrDualIntervalGradientColorizer::GrDualIntervalGradientColorizer(
         , bias01(src.bias01)
         , scale23(src.scale23)
         , bias23(src.bias23)
-        , threshold(src.threshold) {}
+        , threshold(src.threshold) {
+    this->cloneAndRegisterAllChildProcessors(src);
+}
 std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(*this));
 }

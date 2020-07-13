@@ -35,8 +35,7 @@ public:
                                                               kHalf4_GrSLType, "leftBorderColor");
         rightBorderColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "rightBorderColor");
-        SkString _sample1099;
-        _sample1099 = this->invokeChild(_outer.gradLayout_index, args);
+        SkString _sample1099 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 t = %s;
 if (!%s && t.y < 0.0) {
@@ -47,14 +46,12 @@ if (!%s && t.y < 0.0) {
     %s = %s;
 } else {)SkSL",
                 _sample1099.c_str(),
-                (_outer.childProcessor(_outer.gradLayout_index).preservesOpaqueInput() ? "true"
-                                                                                       : "false"),
+                (_outer.childProcessor(1)->preservesOpaqueInput() ? "true" : "false"),
                 args.fOutputColor, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(leftBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
         SkString _input1767("t");
-        SkString _sample1767;
-        _sample1767 = this->invokeChild(_outer.colorizer_index, _input1767.c_str(), args);
+        SkString _sample1767 = this->invokeChild(0, _input1767.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
     %s = %s;
@@ -111,14 +108,7 @@ GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& 
         , rightBorderColor(src.rightBorderColor)
         , makePremul(src.makePremul)
         , colorsAreOpaque(src.colorsAreOpaque) {
-    {
-        colorizer_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.colorizer_index));
-    }
-    {
-        gradLayout_index =
-                this->cloneAndRegisterChildProcessor(src.childProcessor(src.gradLayout_index));
-    }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrClampedGradientEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrClampedGradientEffect(*this));

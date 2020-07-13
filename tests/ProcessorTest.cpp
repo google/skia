@@ -710,9 +710,11 @@ static void describe_fp_children(const GrFragmentProcessor& fp,
                                  std::string indent,
                                  SkString* text) {
     for (int index = 0; index < fp.numChildProcessors(); ++index) {
-        const GrFragmentProcessor& childFP = fp.childProcessor(index);
-        text->appendf("\n%s(#%d) -> %s", indent.c_str(), index, childFP.name());
-        describe_fp_children(childFP, indent + "\t", text);
+        const GrFragmentProcessor* childFP = fp.childProcessor(index);
+        text->appendf("\n%s(#%d) -> %s", indent.c_str(), index, childFP ? childFP->name() : "null");
+        if (childFP) {
+            describe_fp_children(*childFP, indent + "\t", text);
+        }
     }
 }
 

@@ -47,8 +47,7 @@ public:
                 _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
                 _outer.literalColor.fA);
         SkString _input1992("constColor");
-        SkString _sample1992;
-        _sample1992 = this->invokeChild(_outer.fp_index, _input1992.c_str(), args);
+        SkString _sample1992 = this->invokeChild(0, _input1992.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = %s;
@@ -98,7 +97,7 @@ GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         , useUniform(src.useUniform)
         , uniformColor(src.uniformColor)
         , literalColor(src.literalColor) {
-    { fp_index = this->cloneAndRegisterChildProcessor(src.childProcessor(src.fp_index)); }
+    this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrOverrideInputFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrOverrideInputFragmentProcessor(*this));

@@ -19,15 +19,9 @@
 class GrMixerEffect : public GrFragmentProcessor {
 public:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& in) const override {
-        const SkPMColor4f inColor =
-                (inputFP_index >= 0)
-                        ? ConstantOutputForConstantInput(this->childProcessor(inputFP_index), in)
-                        : in;
-        const SkPMColor4f c0 =
-                ConstantOutputForConstantInput(this->childProcessor(fp0_index), inColor);
-        const SkPMColor4f c1 = (fp1_index >= 0) ? ConstantOutputForConstantInput(
-                                                          this->childProcessor(fp1_index), inColor)
-                                                : inColor;
+        const SkPMColor4f inColor = ConstantOutputForConstantInput(this->childProcessor(0), in);
+        const SkPMColor4f c0 = ConstantOutputForConstantInput(this->childProcessor(1), inColor);
+        const SkPMColor4f c1 = ConstantOutputForConstantInput(this->childProcessor(2), inColor);
         return {c0.fR + (c1.fR - c0.fR) * weight, c0.fG + (c1.fG - c0.fG) * weight,
                 c0.fB + (c1.fB - c0.fB) * weight, c0.fA + (c1.fA - c0.fA) * weight};
     }
@@ -41,9 +35,6 @@ public:
     GrMixerEffect(const GrMixerEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MixerEffect"; }
-    int inputFP_index = -1;
-    int fp0_index = -1;
-    int fp1_index = -1;
     float weight;
 
 private:
@@ -52,16 +43,14 @@ private:
                   std::unique_ptr<GrFragmentProcessor> fp1,
                   float weight)
             : INHERITED(kGrMixerEffect_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
-                                (fp1 ? ProcessorOptimizationFlags(fp1.get())
-                                     : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
+                                ProcessorOptimizationFlags(fp1.get()) &
                                 ProcessorOptimizationFlags(fp0.get()))
             , weight(weight) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(fp0);
-        fp0_index = this->registerChild(std::move(fp0), SkSL::SampleUsage::PassThrough());
-        fp1_index = this->registerChild(std::move(fp1), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(fp0), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(fp1), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

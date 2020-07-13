@@ -114,7 +114,7 @@ std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcesso
     do {
         fp = GrFragmentProcessorTestFactory::Make(data);
         SkASSERT(fp);
-    } while (fp->numChildProcessors() != 0);
+    } while (fp->numNonNullChildProcessors() != 0);
     return fp;
 }
 #endif

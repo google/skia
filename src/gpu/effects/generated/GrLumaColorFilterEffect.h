@@ -21,10 +21,7 @@ public:
 #include "include/private/SkColorData.h"
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
-        SkPMColor4f input = this->numChildProcessors()
-                                    ? ConstantOutputForConstantInput(
-                                              this->childProcessor(inputFP_index), inColor)
-                                    : inColor;
+        SkPMColor4f input = ConstantOutputForConstantInput(this->childProcessor(0), inColor);
         float luma = SK_ITU_BT709_LUM_COEFF_R * input.fR + SK_ITU_BT709_LUM_COEFF_G * input.fG +
                      SK_ITU_BT709_LUM_COEFF_B * input.fB;
         return {0, 0, 0, SkTPin(luma, 0.0f, 1.0f)};
@@ -36,7 +33,6 @@ public:
     GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "LumaColorFilterEffect"; }
-    int inputFP_index = -1;
 
 private:
     GrLumaColorFilterEffect(std::unique_ptr<GrFragmentProcessor> inputFP)
@@ -44,7 +40,7 @@ private:
                         (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
                                                     : kAll_OptimizationFlags) &
                                 kConstantOutputForConstantInput_OptimizationFlag) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

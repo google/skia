@@ -269,12 +269,6 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(*this));
     }
 
-    bool hasInputFP() const {
-        // We always have a texture-effect child processor at index 0.
-        // If we have an input FP, it will be at child index 1.
-        return this->numChildProcessors() > 1;
-    }
-
     static constexpr int kTexEffectFPIndex = 0;
     static constexpr int kInputFPIndex = 1;
 
@@ -312,11 +306,8 @@ GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {
     class Impl : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
-            const ColorTableEffect& proc = args.fFp.cast<ColorTableEffect>();
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            SkString inputColor = proc.hasInputFP()
-                         ? this->invokeChild(kInputFPIndex, args.fInputColor, args)
-                         : SkString(args.fInputColor);
+            SkString inputColor = this->invokeChild(kInputFPIndex, args.fInputColor, args);
             SkString a = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.a, 0.5)");
             SkString r = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.r, 1.5)");
             SkString g = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.g, 2.5)");

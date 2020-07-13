@@ -27,14 +27,13 @@ public:
     GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
-    int inputFP_index = -1;
     Mode mode;
 
 private:
     GrBlurredEdgeFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, Mode mode)
             : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , mode(mode) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

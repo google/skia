@@ -44,7 +44,6 @@ public:
     GrOverrideInputFragmentProcessor(const GrOverrideInputFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "OverrideInputFragmentProcessor"; }
-    int fp_index = -1;
     bool useUniform;
     SkPMColor4f uniformColor;
     SkPMColor4f literalColor;
@@ -60,7 +59,7 @@ private:
             , uniformColor(uniformColor)
             , literalColor(literalColor) {
         SkASSERT(fp);
-        fp_index = this->registerChild(std::move(fp), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(fp), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -55,13 +55,7 @@ public:
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
-
         str.appendf("Mode: %s", SkBlendMode_Name(fMode));
-
-        for (int i = 0; i < this->numChildProcessors(); ++i) {
-            str.appendf(" [%s %s]",
-                        this->childProcessor(i).name(), this->childProcessor(i).dumpInfo().c_str());
-        }
         return str;
     }
 #endif
@@ -70,8 +64,6 @@ public:
 
     SkBlendMode getMode() const { return fMode; }
     ComposeBehavior composeBehavior() const { return fComposeBehavior; }
-    int srcFPIndex() const { return fSrcFPIndex; }
-    int dstFPIndex() const { return fDstFPIndex; }
 
 private:
     ComposeFragmentProcessor(std::unique_ptr<GrFragmentProcessor> src,
@@ -84,16 +76,14 @@ private:
             fComposeBehavior = (src && dst) ? ComposeBehavior::kComposeTwoBehavior
                                             : ComposeBehavior::kComposeOneBehavior;
         }
-        fSrcFPIndex = this->registerChild(std::move(src));
-        fDstFPIndex = this->registerChild(std::move(dst));
+        this->registerChild(std::move(src));
+        this->registerChild(std::move(dst));
     }
 
     ComposeFragmentProcessor(const ComposeFragmentProcessor& that)
             : INHERITED(kComposeFragmentProcessor_ClassID, ProcessorOptimizationFlags(&that))
             , fMode(that.fMode)
-            , fComposeBehavior(that.fComposeBehavior)
-            , fSrcFPIndex(that.fSrcFPIndex)
-            , fDstFPIndex(that.fDstFPIndex) {
+            , fComposeBehavior(that.fComposeBehavior) {
         this->cloneAndRegisterAllChildProcessors(that);
     }
 
@@ -190,30 +180,30 @@ private:
     }
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
-        const auto* src = (fSrcFPIndex >= 0) ? &this->childProcessor(fSrcFPIndex) : nullptr;
-        const auto* dst = (fDstFPIndex >= 0) ? &this->childProcessor(fDstFPIndex) : nullptr;
+        const auto* src = this->childProcessor(0);
+        const auto* dst = this->childProcessor(1);
 
         switch (fComposeBehavior) {
             case ComposeBehavior::kComposeOneBehavior: {
-                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(*src, SK_PMColor4fWHITE)
+                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(src, SK_PMColor4fWHITE)
                                            : input;
-                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(*dst, SK_PMColor4fWHITE)
+                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(dst, SK_PMColor4fWHITE)
                                            : input;
                 return SkBlendMode_Apply(fMode, srcColor, dstColor);
             }
 
             case ComposeBehavior::kComposeTwoBehavior: {
                 SkPMColor4f opaqueInput = { input.fR, input.fG, input.fB, 1 };
-                SkPMColor4f srcColor = ConstantOutputForConstantInput(*src, opaqueInput);
-                SkPMColor4f dstColor = ConstantOutputForConstantInput(*dst, opaqueInput);
+                SkPMColor4f srcColor = ConstantOutputForConstantInput(src, opaqueInput);
+                SkPMColor4f dstColor = ConstantOutputForConstantInput(dst, opaqueInput);
                 SkPMColor4f result = SkBlendMode_Apply(fMode, srcColor, dstColor);
                 return result * input.fA;
             }
 
             case ComposeBehavior::kSkModeBehavior: {
-                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(*src, SK_PMColor4fWHITE)
+                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(src, SK_PMColor4fWHITE)
                                            : input;
-                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(*dst, input)
+                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(dst, input)
                                            : input;
                 return SkBlendMode_Apply(fMode, srcColor, dstColor);
             }
@@ -228,8 +218,6 @@ private:
 
     SkBlendMode fMode;
     ComposeBehavior fComposeBehavior;
-    int fSrcFPIndex = -1;
-    int fDstFPIndex = -1;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
@@ -284,8 +272,6 @@ void GLComposeFragmentProcessor::emitCode(EmitArgs& args) {
     const ComposeFragmentProcessor& cs = args.fFp.cast<ComposeFragmentProcessor>();
     SkBlendMode mode = cs.getMode();
     ComposeBehavior behavior = cs.composeBehavior();
-    int srcFPIndex = cs.srcFPIndex();
-    int dstFPIndex = cs.dstFPIndex();
 
     // Load the input color and make an opaque copy if needed.
     fragBuilder->codeAppendf("// %s Xfer Mode: %s\n",
@@ -295,25 +281,25 @@ void GLComposeFragmentProcessor::emitCode(EmitArgs& args) {
     switch (behavior) {
         case ComposeBehavior::kComposeOneBehavior:
             // Compose-one operations historically leave the alpha on the input color.
-            srcColor = (srcFPIndex >= 0) ? this->invokeChild(srcFPIndex, args)
-                                         : SkString(args.fInputColor);
-            dstColor = (dstFPIndex >= 0) ? this->invokeChild(dstFPIndex, args)
-                                         : SkString(args.fInputColor);
+            srcColor = cs.childProcessor(0) ? this->invokeChild(0, args)
+                                            : SkString(args.fInputColor);
+            dstColor = cs.childProcessor(1) ? this->invokeChild(1, args)
+                                            : SkString(args.fInputColor);
             break;
 
         case ComposeBehavior::kComposeTwoBehavior:
             // Compose-two operations historically have forced the input color to opaque.
             fragBuilder->codeAppendf("half4 inputOpaque = %s.rgb1;\n", args.fInputColor);
-            srcColor = this->invokeChild(srcFPIndex, "inputOpaque", args);
-            dstColor = this->invokeChild(dstFPIndex, "inputOpaque", args);
+            srcColor = this->invokeChild(0, "inputOpaque", args);
+            dstColor = this->invokeChild(1, "inputOpaque", args);
             break;
 
         case ComposeBehavior::kSkModeBehavior:
             // SkModeColorFilter operations act like ComposeOne, but pass the input color to dst.
-            srcColor = (srcFPIndex >= 0) ? this->invokeChild(srcFPIndex, args)
-                                         : SkString(args.fInputColor);
-            dstColor = (dstFPIndex >= 0) ? this->invokeChild(dstFPIndex, args.fInputColor, args)
-                                         : SkString(args.fInputColor);
+            srcColor = cs.childProcessor(0) ? this->invokeChild(0, args)
+                                            : SkString(args.fInputColor);
+            dstColor = cs.childProcessor(1) ? this->invokeChild(1, args.fInputColor, args)
+                                            : SkString(args.fInputColor);
             break;
 
         default:

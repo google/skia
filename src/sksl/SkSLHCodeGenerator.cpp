@@ -288,8 +288,7 @@ void HCodeGenerator::writeConstructor() {
             }
             std::string usageArg = usage.constructor(std::move(perspExpression));
 
-            this->writef("        %s_index = this->registerChild(std::move(%s), %s);",
-                         FieldName(String(param->fName).c_str()).c_str(),
+            this->writef("        this->registerChild(std::move(%s), %s);",
                          String(param->fName).c_str(),
                          usageArg.c_str());
         }
@@ -305,7 +304,7 @@ void HCodeGenerator::writeFields() {
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String name = FieldName(String(param->fName).c_str());
         if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-            this->writef("    int %s_index = -1;\n", name.c_str());
+            // Don't need to write any fields, FPs are held as children
         } else {
             this->writef("    %s %s;\n", FieldType(fContext, param->fType,
                                                    param->fModifiers.fLayout).c_str(),

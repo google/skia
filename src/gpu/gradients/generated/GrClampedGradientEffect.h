@@ -32,8 +32,6 @@ public:
     GrClampedGradientEffect(const GrClampedGradientEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ClampedGradientEffect"; }
-    int colorizer_index = -1;
-    int gradLayout_index = -1;
     SkPMColor4f leftBorderColor;
     SkPMColor4f rightBorderColor;
     bool makePremul;
@@ -56,11 +54,9 @@ private:
             , makePremul(makePremul)
             , colorsAreOpaque(colorsAreOpaque) {
         SkASSERT(colorizer);
-        colorizer_index =
-                this->registerChild(std::move(colorizer), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(colorizer), SkSL::SampleUsage::PassThrough());
         SkASSERT(gradLayout);
-        gradLayout_index =
-                this->registerChild(std::move(gradLayout), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(gradLayout), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

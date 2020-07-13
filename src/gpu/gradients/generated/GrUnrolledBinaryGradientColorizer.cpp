@@ -336,7 +336,9 @@ GrUnrolledBinaryGradientColorizer::GrUnrolledBinaryGradientColorizer(
         , bias12_13(src.bias12_13)
         , bias14_15(src.bias14_15)
         , thresholds1_7(src.thresholds1_7)
-        , thresholds9_13(src.thresholds9_13) {}
+        , thresholds9_13(src.thresholds9_13) {
+    this->cloneAndRegisterAllChildProcessors(src);
+}
 std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrUnrolledBinaryGradientColorizer(*this));
 }

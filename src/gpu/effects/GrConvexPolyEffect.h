@@ -69,8 +69,6 @@ public:
 
     const SkScalar* getEdges() const { return fEdges; }
 
-    bool hasInputFP() const { return numChildProcessors() > 0; }
-
 private:
     GrConvexPolyEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                        GrClipEdgeType edgeType,

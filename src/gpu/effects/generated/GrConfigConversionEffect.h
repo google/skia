@@ -37,7 +37,6 @@ public:
     GrConfigConversionEffect(const GrConfigConversionEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ConfigConversionEffect"; }
-    int inputFP_index = -1;
     PMConversion pmConversion;
 
 private:
@@ -46,7 +45,7 @@ private:
             : INHERITED(kGrConfigConversionEffect_ClassID, kNone_OptimizationFlags)
             , pmConversion(pmConversion) {
         SkASSERT(inputFP);
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

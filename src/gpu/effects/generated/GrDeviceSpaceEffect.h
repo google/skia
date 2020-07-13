@@ -28,14 +28,13 @@ public:
     GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DeviceSpaceEffect"; }
-    int fp_index = -1;
 
 private:
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp)
             : INHERITED(kGrDeviceSpaceEffect_ClassID,
                         (OptimizationFlags)ProcessorOptimizationFlags(fp.get())) {
         SkASSERT(fp);
-        fp_index = this->registerChild(std::move(fp), SkSL::SampleUsage::Explicit());
+        this->registerChild(std::move(fp), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

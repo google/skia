@@ -46,6 +46,7 @@ bool GrLinearGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrLinearGradientLayout::GrLinearGradientLayout(const GrLinearGradientLayout& src)
         : INHERITED(kGrLinearGradientLayout_ClassID, src.optimizationFlags()) {
+    this->cloneAndRegisterAllChildProcessors(src);
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::clone() const {

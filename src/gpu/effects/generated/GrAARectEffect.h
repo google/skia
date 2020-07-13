@@ -27,7 +27,6 @@ public:
     GrAARectEffect(const GrAARectEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AARectEffect"; }
-    int inputFP_index = -1;
     GrClipEdgeType edgeType;
     SkRect rect;
 
@@ -41,7 +40,7 @@ private:
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , edgeType(edgeType)
             , rect(rect) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

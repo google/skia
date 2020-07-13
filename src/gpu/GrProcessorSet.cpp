@@ -87,10 +87,11 @@ SkString dump_fragment_processor_tree(const GrFragmentProcessor* fp, int indentC
     for (int i = 0; i < indentCnt; ++i) {
         indentString.append("    ");
     }
-    result.appendf("%s%s %s \n", indentString.c_str(), fp->name(), fp->dumpInfo().c_str());
-    if (fp->numChildProcessors()) {
+    result.appendf("%s%s %s \n", indentString.c_str(), fp ? fp->name() : "null",
+                   fp ? fp->dumpInfo().c_str() : "");
+    if (fp && fp->numChildProcessors()) {
         for (int i = 0; i < fp->numChildProcessors(); ++i) {
-            result += dump_fragment_processor_tree(&fp->childProcessor(i), indentCnt + 1);
+            result += dump_fragment_processor_tree(fp->childProcessor(i), indentCnt + 1);
         }
     }
     return result;
