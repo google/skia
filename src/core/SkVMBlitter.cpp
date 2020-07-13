@@ -159,18 +159,9 @@ namespace {
             }
         }
 
-        switch (params.dst.colorType()) {
-            default: *ok = false;
-                     break;
-
-            case kRGB_565_SkColorType:
-            case kRGB_888x_SkColorType:
-            case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType:
-            case kRGBA_1010102_SkColorType:
-            case kBGRA_1010102_SkColorType:
-            case kRGB_101010x_SkColorType:
-            case kBGR_101010x_SkColorType:  break;
+        skvm::PixelFormat unused;
+        if (!SkColorType_to_PixelFormat(params.dst.colorType(), &unused)) {
+            *ok = false;
         }
 
         return {
@@ -359,36 +350,7 @@ namespace {
             src.a = clamp01(src.a);
         }
 
-        // Store back to the destination.
-        // TODO: use PixelFormat like we do for unpacking.
-        switch (params.dst.colorType()) {
-            default: SkUNREACHABLE;
-
-            case kRGB_565_SkColorType:
-                store16(dst_ptr, pack(pack(to_unorm(5,src.b),
-                                           to_unorm(6,src.g), 5),
-                                           to_unorm(5,src.r),11));
-                break;
-
-            case kBGRA_8888_SkColorType: std::swap(src.r, src.b);  [[fallthrough]];
-            case  kRGB_888x_SkColorType:                           [[fallthrough]];
-            case kRGBA_8888_SkColorType:
-                 store32(dst_ptr, pack(pack(to_unorm(8, src.r),
-                                            to_unorm(8, src.g), 8),
-                                       pack(to_unorm(8, src.b),
-                                            to_unorm(8, src.a), 8), 16));
-                 break;
-
-            case  kBGR_101010x_SkColorType:                          [[fallthrough]];
-            case kBGRA_1010102_SkColorType: std::swap(src.r, src.b); [[fallthrough]];
-            case  kRGB_101010x_SkColorType:                          [[fallthrough]];
-            case kRGBA_1010102_SkColorType:
-                 store32(dst_ptr, pack(pack(to_unorm(10, src.r),
-                                            to_unorm(10, src.g), 10),
-                                       pack(to_unorm(10, src.b),
-                                            to_unorm( 2, src.a), 10), 20));
-                 break;
-        }
+        SkAssertResult(store(pixelFormat, dst_ptr, src));
     }
 
 
