@@ -458,9 +458,13 @@ PORTS_SRCS_FUCHSIA = struct(
 
 GL_SRCS_MACOS = struct(
     include = [
+        "src/gpu/gl/*",
+        "src/gpu/gl/builders/*",
         "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp",
     ],
-    exclude = [],
+    exclude = [
+        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+    ],
 )
 PORTS_SRCS_MACOS = PORTS_SRCS_IOS
 
