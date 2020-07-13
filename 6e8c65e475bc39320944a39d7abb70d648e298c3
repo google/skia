@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54e0300a_8360739f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-13T13:46:31Z",
+      "side": 1,
+      "message": "lgtm. It seems like we can eliminate ModulateAlpha and ModulateRGBA if we solve skbug.com/10457. ModulateRGBA is SkBlendMode::kModulate and ModulateAlpha is either kDstIn or kSrcIn.",
+      "revId": "6e8c65e475bc39320944a39d7abb70d648e298c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
