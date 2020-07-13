@@ -339,8 +339,7 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::Make(
         SkBlendMode mode, ComposeBehavior behavior) {
     switch (mode) {
         case SkBlendMode::kClear:
-            return GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fTRANSPARENT,
-                                               GrConstColorProcessor::InputMode::kIgnore);
+            return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT);
         case SkBlendMode::kSrc:
             return GrFragmentProcessor::OverrideInput(std::move(src), SK_PMColor4fWHITE,
                                                       /*useUniform=*/false);
