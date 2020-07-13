@@ -747,6 +747,9 @@ public:
         }
 
         ctx->fn = ctx->byteCode->getFunction("main");
+        if (!ctx->fn) {
+            return false;
+        }
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         return true;
     }
@@ -957,6 +960,9 @@ public:
             return false;
         }
         ctx->fn = ctx->byteCode->getFunction("main");
+        if (!ctx->fn) {
+            return false;
+        }
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
         rec.fPipeline->append_matrix(rec.fAlloc, inverse);
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
