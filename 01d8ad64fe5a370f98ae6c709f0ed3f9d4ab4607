@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fa5bee3_cf4fbe36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-13T16:11:11Z",
+      "side": 1,
+      "message": "Post-landing LGTM. Sorry I missed this; thanks for the cleanup!",
+      "revId": "01d8ad64fe5a370f98ae6c709f0ed3f9d4ab4607",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
