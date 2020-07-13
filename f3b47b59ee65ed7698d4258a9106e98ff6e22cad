@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ff04a8ec_097139b1",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-13T16:40:16Z",
+      "side": 1,
+      "message": "Worth commenting on what happens to mip mapped textures? (I assume we overwrite all the levels).",
+      "range": {
+        "startLine": 651,
+        "startChar": 0,
+        "endLine": 656,
+        "endChar": 63
+      },
+      "revId": "f3b47b59ee65ed7698d4258a9106e98ff6e22cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "85b81af5_de3f7a75",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 2
