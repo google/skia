@@ -714,12 +714,7 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
         SkPoint offset;
         reader.readPoint(&offset);
         SkFont font;
-        if (reader.isVersionLT(SkPicturePriv::kSerializeFonts_Version)) {
-            SkPaint paint;
-            reader.readPaint(&paint, &font);
-        } else {
-            SkFontPriv::Unflatten(&font, reader);
-        }
+        SkFontPriv::Unflatten(&font, reader);
 
         // Compute the expected size of the buffer and ensure we have enough to deserialize
         // a run before allocating it.

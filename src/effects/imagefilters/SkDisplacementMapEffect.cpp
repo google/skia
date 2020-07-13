@@ -160,18 +160,9 @@ void SkDisplacementMapEffect::RegisterFlattenables() {
 sk_sp<SkFlattenable> SkDisplacementMapEffectImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
 
-    SkColorChannel xsel, ysel;
-    if (buffer.isVersionLT(SkPicturePriv::kCleanupImageFilterEnums_Version)) {
-        xsel = convert_channel_type(buffer.read32LE(
-                SkDisplacementMapEffect::kLast_ChannelSelectorType));
-        ysel = convert_channel_type(buffer.read32LE(
-                SkDisplacementMapEffect::kLast_ChannelSelectorType));
-    } else {
-        xsel = buffer.read32LE(SkColorChannel::kLastEnum);
-        ysel = buffer.read32LE(SkColorChannel::kLastEnum);
-    }
-
-    SkScalar scale = buffer.readScalar();
+    SkColorChannel xsel = buffer.read32LE(SkColorChannel::kLastEnum);
+    SkColorChannel ysel = buffer.read32LE(SkColorChannel::kLastEnum);
+    SkScalar      scale = buffer.readScalar();
 
     return SkDisplacementMapEffect::Make(xsel, ysel, scale, common.getInput(0), common.getInput(1),
                                          &common.cropRect());
