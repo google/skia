@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2205bbce_d7cc691a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-13T15:25:39Z",
+      "side": 1,
+      "message": "Thanks for this rewrite; this is much cleaner!",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4b8ee74_c2939eda",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-13T15:25:39Z",
+      "side": 1,
+      "message": "Naming nit: technically it\u0027s not moving them to the busy list yet. Maybe this lambda should be \"appendStagingBuffer\" or something. (Or it could be written in-place, in which case you wouldn\u0027t need to name it. :) )",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f4d77c4_2241ecd6",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-13T15:25:39Z",
+      "side": 1,
+      "message": "Nit: I think this could be:\n\nif (syncCpu) {\n  this-\u003ewaitOnAllBusyStagingBuffers();\n} else {\n  this-\u003echeckForCompletedStagingBuffers();\n}\n\nAlso, I\u0027m probably forgetting something, but where did this code used to be called? I don\u0027t see  anything similar in the old implementation.",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7469c735_4284a2b9",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-13T15:25:39Z",
+      "side": 1,
+      "message": "Nit: maybe \"..AndMapAsync\"?",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2c77327_02c49f1b",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 2100,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-13T15:25:39Z",
+      "side": 1,
+      "message": "Just a thought: if every backend that has a staging manager makes a similar check (hasBuffers, detachBuffers, etc), maybe we could generalize this code up in GrGpu::submitToGpu(), and just have an \"onDetachStagingBuffer\" virtual on GrGpu instead of a callback? The contract would be that the virtual also transfers ownership. WDYT?",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
