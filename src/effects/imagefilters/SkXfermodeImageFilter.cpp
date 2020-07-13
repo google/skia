@@ -268,8 +268,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
                                            background->alphaType(), ctx.colorSpace(),
                                            kPremul_SkAlphaType);
     } else {
-        fp = GrConstColorProcessor::Make(/*inputFP=*/nullptr, SK_PMColor4fTRANSPARENT,
-                                         GrConstColorProcessor::InputMode::kIgnore);
+        fp = GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT);
     }
 
     if (foregroundView.asTextureProxy()) {
