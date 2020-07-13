@@ -180,6 +180,29 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
             new GrBicubicEffect(std::move(fp), kernel, direction, clamp)));
 }
 
+std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
+        GrSurfaceProxyView view,
+        SkAlphaType alphaType,
+        const SkMatrix& matrix,
+        const GrSamplerState::WrapMode wrapX,
+        const GrSamplerState::WrapMode wrapY,
+        const SkRect& subset,
+        const SkRect& domain,
+        Kernel kernel,
+        Direction direction,
+        const GrCaps& caps) {
+    auto lowerBound = [](float x) { return std::floor(x - 1.5f) + 0.5f; };
+    auto upperBound = [](float x) { return std::floor(x + 1.5f) - 0.5f; };
+    if (lowerBound(domain.fLeft)   < subset.fLeft  ||
+        upperBound(domain.fRight)  > subset.fRight ||
+        lowerBound(domain.fTop)    < subset.fTop   ||
+        upperBound(domain.fBottom) > subset.fBottom)
+        return MakeSubset(
+                std::move(view), alphaType, matrix, wrapX, wrapY, subset, kernel, direction, caps);
+    }
+    return Make(std::move(view), alphaType, matrix, wrapX, wrapY, kernel, direction, caps);
+}
+
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
