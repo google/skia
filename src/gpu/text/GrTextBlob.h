@@ -272,6 +272,11 @@ public:
                    const SkGlyphRunList& glyphRunList,
                    GrRenderTargetContext* rtc);
 
+    void draw(const GrClip* clip,
+              const SkMatrixProvider& viewMatrix,
+              const SkGlyphRunList& glyphRunList,
+              GrRenderTargetContext* rtc);
+
     // TODO when this object is more internal, drop the privacy
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();

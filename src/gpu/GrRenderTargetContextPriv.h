@@ -110,6 +110,10 @@ public:
         return fRenderTargetContext->asRenderTargetProxy()->refsWrappedObjects();
     }
 
+    void addDrawOp(const GrClip* clip, std::unique_ptr<GrDrawOp> op) {
+        fRenderTargetContext->addDrawOp(clip, std::move(op));
+    }
+
 private:
     explicit GrRenderTargetContextPriv(GrRenderTargetContext* renderTargetContext)
         : fRenderTargetContext(renderTargetContext) {}

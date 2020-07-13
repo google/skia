@@ -504,14 +504,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
     }
 
     for (GrTextBlob::SubRun* subRun : blob->subRunList()) {
-        if (subRun->drawAsPaths()) {
-            subRun->drawPaths(clip, viewMatrix, glyphRunList, this);
-        } else {
-            auto [drawingClip, op] = subRun->makeAtlasTextOp(clip, viewMatrix, glyphRunList, this);
-            if (op != nullptr) {
-                this->addDrawOp(drawingClip, std::move(op));
-            }
-        }
+        subRun->draw(clip, viewMatrix, glyphRunList, this);
     }
 }
 
