@@ -42,6 +42,7 @@ func main() {
 		modelTrace         = flag.String("model_trace", "", "Description of host machine.")
 		cpuOrGPUTrace      = flag.String("cpu_or_gpu_trace", "", "If this is a CPU or GPU configuration.")
 		cpuOrGPUValueTrace = flag.String("cpu_or_gpu_value_trace", "", "The hardware of this CPU/GPU")
+		webGLVersion       = flag.String("webgl_version", "", "Major WebGl version to use when creating gl drawing context. 1 or 2")
 
 		// Flags that may be required for certain configs
 		canvaskitBinPath = flag.String("canvaskit_bin_path", "", "The location of a canvaskit.js and canvaskit.wasm")
@@ -61,6 +62,7 @@ func main() {
 		"model":            *modelTrace,
 		perfKeyCpuOrGPU:    *cpuOrGPUTrace,
 		"cpu_or_gpu_value": *cpuOrGPUValueTrace,
+		"webgl_version":    *webGLVersion,
 	}
 
 	outputWithoutResults, err := makePerfObj(*gitHash, *taskID, os.Getenv("SWARMING_BOT_ID"), keys)
@@ -188,7 +190,11 @@ func benchSkottieFrames(ctx context.Context, perf perfJSONFormat, benchmarkPath,
 			}
 			if perf.Key[perfKeyCpuOrGPU] != "CPU" {
 				args = append(args, "--use_gpu")
+				if perf.Key["webgl_version"] == "1" {
+					args = append(args, "--query_params webgl1")
+				}
 			}
+
 			_, err := exec.RunCwd(ctx, benchmarkPath, args...)
 			if err != nil {
 				return skerr.Wrap(err)
@@ -242,7 +248,7 @@ func processSkottieFramesData(ctx context.Context, perf perfJSONFormat, benchmar
 			name := strings.TrimSuffix(filepath.Base(lottie), ".json")
 			config := "software"
 			if perf.Key[perfKeyCpuOrGPU] != "CPU" {
-				config = "webgl2"
+				config = "webgl" + perf.Key["webgl_version"]
 			}
 			b, err := os_steps.ReadFile(ctx, lottie)
 			if err != nil {
