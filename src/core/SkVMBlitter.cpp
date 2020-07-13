@@ -268,12 +268,14 @@ namespace {
                                        from_unorm(8, p->load8(p->varying<uint8_t>()));
                                        break;
 
-                case Coverage::MaskLCD16:
+                case Coverage::MaskLCD16: {
                     SkASSERT(dst_loaded);
-                    *cov = unpack_565(p->load16(p->varying<uint16_t>()));
+                    skvm::PixelFormat fmt;
+                    SkAssertResult(SkColorType_to_PixelFormat(kRGB_565_SkColorType, &fmt));
+                    *cov = p->load(fmt, p->varying<uint16_t>());
                     cov->a = select(src.a < dst.a, min(cov->r, min(cov->g, cov->b))
                                                  , max(cov->r, max(cov->g, cov->b)));
-                    break;
+                } break;
             }
 
             if (params.clip) {
@@ -310,28 +312,10 @@ namespace {
 
         // Load up the destination color.
         SkDEBUGCODE(dst_loaded = true;)
-        switch (params.dst.colorType()) {
-            default: SkUNREACHABLE;
-            case kRGB_565_SkColorType: dst = unpack_565(p->load16(dst_ptr));
-                                       break;
+        skvm::PixelFormat pixelFormat;
+        SkAssertResult(SkColorType_to_PixelFormat(params.dst.colorType(), &pixelFormat));
 
-            case  kRGB_888x_SkColorType: [[fallthrough]];
-            case kRGBA_8888_SkColorType: dst = unpack_8888(p->load32(dst_ptr));
-                                         break;
-
-            case kBGRA_8888_SkColorType: dst = unpack_8888(p->load32(dst_ptr));
-                                         std::swap(dst.r, dst.b);
-                                         break;
-
-            case  kRGB_101010x_SkColorType: [[fallthrough]];
-            case kRGBA_1010102_SkColorType: dst = unpack_1010102(p->load32(dst_ptr));
-                                            break;
-
-            case  kBGR_101010x_SkColorType: [[fallthrough]];
-            case kBGRA_1010102_SkColorType: dst = unpack_1010102(p->load32(dst_ptr));
-                                            std::swap(dst.r, dst.b);
-                                            break;
-        }
+        dst = p->load(pixelFormat, dst_ptr);
 
         // When a destination is known opaque, we may assume it both starts and stays fully
         // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
@@ -376,6 +360,7 @@ namespace {
         }
 
         // Store back to the destination.
+        // TODO: use PixelFormat like we do for unpacking.
         switch (params.dst.colorType()) {
             default: SkUNREACHABLE;
 
