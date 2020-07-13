@@ -9,7 +9,6 @@
 
 #include "include/private/SkMacros.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkTSort.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsBounds.h"
 #include "src/pathops/SkPathOpsRect.h"

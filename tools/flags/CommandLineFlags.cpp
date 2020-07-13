@@ -6,7 +6,6 @@
  */
 
 #include "include/private/SkTDArray.h"
-#include "src/core/SkTSort.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include <stdlib.h>
@@ -205,14 +204,6 @@ static void print_extended_help_for_flag(const SkFlagInfo* flag) {
     SkDebugf("\n");
 }
 
-namespace {
-struct CompareFlagsByName {
-    bool operator()(SkFlagInfo* a, SkFlagInfo* b) const {
-        return strcmp(a->name().c_str(), b->name().c_str()) < 0;
-    }
-};
-}  // namespace
-
 void CommandLineFlags::Parse(int argc, const char* const* argv) {
     // Only allow calling this function once.
     static bool gOnce;
@@ -250,7 +241,10 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                 for (SkFlagInfo* flag = CommandLineFlags::gHead; flag; flag = flag->next()) {
                     allFlags.push_back(flag);
                 }
-                SkTQSort(&allFlags[0], &allFlags[allFlags.count() - 1], CompareFlagsByName());
+                std::sort(&allFlags[0], &allFlags[allFlags.count()],
+                          [](const SkFlagInfo* a, const SkFlagInfo* b) {
+                              return strcmp(a->name().c_str(), b->name().c_str()) < 0;
+                          });
                 for (int i = 0; i < allFlags.count(); ++i) {
                     print_help_for_flag(allFlags[i]);
                     if (allFlags[i]->extendedHelp().size() > 0) {
