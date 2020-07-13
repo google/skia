@@ -244,6 +244,20 @@ void GrTextBlob::SubRun::drawPaths(const GrClip* clip,
     }
 }
 
+void GrTextBlob::SubRun::draw(const GrClip* clip,
+                              const SkMatrixProvider& viewMatrix,
+                              const SkGlyphRunList& glyphRunList,
+                              GrRenderTargetContext* rtc) {
+    if (this->drawAsPaths()) {
+        this->drawPaths(clip, viewMatrix, glyphRunList, rtc);
+    } else {
+        auto [drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
+        if (op != nullptr) {
+            rtc->priv().addDrawOp(drawingClip, std::move(op));
+        }
+    }
+}
+
 void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
