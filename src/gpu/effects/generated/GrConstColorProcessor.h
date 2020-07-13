@@ -18,62 +18,25 @@
 
 class GrConstColorProcessor : public GrFragmentProcessor {
 public:
-    enum class InputMode { kIgnore = 0, kLast = 2, kModulateA = 2, kModulateRGBA = 1 };
-
-    static const int kInputModeCnt = (int)InputMode::kLast + 1;
-
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
-        switch (mode) {
-            case InputMode::kIgnore: {
-                return color;
-            }
-            case InputMode::kModulateA: {
-                SkPMColor4f input = this->numChildProcessors()
-                                            ? ConstantOutputForConstantInput(
-                                                      this->childProcessor(inputFP_index), inColor)
-                                            : inColor;
-                return color * input.fA;
-            }
-            case InputMode::kModulateRGBA: {
-                SkPMColor4f input = this->numChildProcessors()
-                                            ? ConstantOutputForConstantInput(
-                                                      this->childProcessor(inputFP_index), inColor)
-                                            : inColor;
-                return color * input;
-            }
-        }
-        SkUNREACHABLE;
+        return color;
     }
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     SkPMColor4f color,
-                                                     InputMode mode) {
-        return std::unique_ptr<GrFragmentProcessor>(
-                new GrConstColorProcessor(std::move(inputFP), color, mode));
+    static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f color) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(color));
     }
     GrConstColorProcessor(const GrConstColorProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ConstColorProcessor"; }
-    int inputFP_index = -1;
     SkPMColor4f color;
-    InputMode mode;
 
 private:
-    GrConstColorProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
-                          SkPMColor4f color,
-                          InputMode mode)
-            : INHERITED(kGrConstColorProcessor_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
-                                (kConstantOutputForConstantInput_OptimizationFlag |
-                                 ((mode != InputMode::kIgnore)
-                                          ? kCompatibleWithCoverageAsAlpha_OptimizationFlag
-                                          : kNone_OptimizationFlags) |
-                                 ((color.isOpaque()) ? kPreservesOpaqueInput_OptimizationFlag
-                                                     : kNone_OptimizationFlags)))
-            , color(color)
-            , mode(mode) {
-        inputFP_index = this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-    }
+    GrConstColorProcessor(SkPMColor4f color)
+            : INHERITED(
+                      kGrConstColorProcessor_ClassID,
+                      (OptimizationFlags)(kConstantOutputForConstantInput_OptimizationFlag |
+                                          (color.isOpaque() ? kPreservesOpaqueInput_OptimizationFlag
+                                                            : kNone_OptimizationFlags)))
+            , color(color) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
