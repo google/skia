@@ -68,6 +68,23 @@
       "revId": "929f528e109764a99da7fad16614805f40921250",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fcfea3a_09bcf279",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-13T19:11:45Z",
+      "side": 1,
+      "message": "Histogram of depth -\u003e frequency for cubics:\n\n  depth 0: 15740\n  depth 1: 4494\n  depth 2: 4087\n  depth 3: 2427\n  depth 4: 2037\n  depth 5: 1738\n  depth 6: 1567\n  depth 7: 1486\n  depth 8: 1345\n  depth 9: 1388\n  depth 10: 1572\n  depth 11: 2079\n  depth 12: 2891\n  depth 13: 4126\n  depth 14: 6990\n  depth 15: 10614\n  depth 16: 15550\n  depth 17: 22142\n  depth 18: 31356\n  depth 19: 44600\n  depth 20: 63928\n  depth 21: 87466\n  depth 22: 122990\n  depth 23: 206918\n  depth 24: 300762\n  depth 25: 329661\n  depth 26: 61536\n  depth 27: 61350\n  depth 28: 65612\n  depth 29: 47894\n  depth 30: 48122\n  depth 31: 48386\n  depth 32: 48780\n  depth 33: 21898\n  depth 34: 7884\n  depth 35: 3928\n  depth 36: 1982\n  depth 37: 986\n  depth 38: 484\n  depth 39: 240\n  depth 40: 126\n  depth 41: 56\n  depth 42: 28\n  depth 43: 16\n  depth 44: 8\n  depth 45: 8\n  depth 46: 4\n",
+      "revId": "929f528e109764a99da7fad16614805f40921250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
