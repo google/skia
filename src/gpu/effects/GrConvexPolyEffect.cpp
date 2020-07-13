@@ -8,7 +8,6 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/generated/GrAARectEffect.h"
-#include "src/gpu/effects/generated/GrModulateRGBAEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -106,13 +105,15 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
     // skip the draw or omit the clip element.
     if (!SkPathPriv::CheapComputeFirstDirection(path, &dir)) {
         if (GrProcessorEdgeTypeIsInverseFill(type)) {
-            return GrFPSuccess(GrModulateRGBAEffect::Make(std::move(inputFP), SK_PMColor4fWHITE));
+            return GrFPSuccess(
+                    GrFragmentProcessor::ModulateRGBA(std::move(inputFP), SK_PMColor4fWHITE));
         }
         // This could use ConstColor instead of ModulateRGBA but it would trigger a debug print
         // about a coverage processor not being compatible with the alpha-as-coverage optimization.
         // We don't really care about this unlikely case so we just use ModulateRGBA to suppress
         // the print.
-        return GrFPSuccess(GrModulateRGBAEffect::Make(std::move(inputFP), SK_PMColor4fTRANSPARENT));
+        return GrFPSuccess(
+                GrFragmentProcessor::ModulateRGBA(std::move(inputFP), SK_PMColor4fTRANSPARENT));
     }
 
     SkScalar        edges[3 * kMaxEdges];
