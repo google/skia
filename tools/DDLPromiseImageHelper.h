@@ -22,6 +22,7 @@ class GrContext;
 class SkImage;
 class SkMipMap;
 class SkPicture;
+class SkTaskGroup;
 struct SkYUVAIndex;
 
 // This class acts as a proxy for a GrBackendTexture that backs an image.

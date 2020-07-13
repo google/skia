@@ -8,7 +8,6 @@
 #ifndef SkImage_Gpu_DEFINED
 #define SkImage_Gpu_DEFINED
 
-#include "include/gpu/GrContext.h"
 #include "src/core/SkImagePriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -16,6 +15,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/image/SkImage_GpuBase.h"
 
+class GrContext;
 class GrTexture;
 
 class SkBitmap;

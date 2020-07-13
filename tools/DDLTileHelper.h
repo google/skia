@@ -21,6 +21,7 @@ class SkDeferredDisplayListRecorder;
 class SkPicture;
 class SkSurface;
 class SkSurfaceCharacterization;
+class SkTaskGroup;
 
 class DDLTileHelper {
 public:
