@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb0c7051_3c247708",
+        "filename": "src/gpu/GrTextureProducer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-13T14:31:32Z",
+      "side": 0,
+      "message": "This was no longer true and we were getting double inset.",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 34
+      },
+      "revId": "d1ce4cb2beb839b055f9d7b72e0d72e3d1f3467c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaab74fd_c8e5a7ec",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-13T14:31:32Z",
+      "side": 0,
+      "message": "DDM() would detect when MIP mapping could cause bleed and return this value. However, we always either ignored it or rigged the params to DDM to avoid generating it. Now we don\u0027t pretend we\u0027re going to do anything about this (GrTextureEffect treats kMipMap identically to kBilerp).",
+      "range": {
+        "startLine": 100,
+        "startChar": 8,
+        "endLine": 100,
+        "endChar": 29
+      },
+      "revId": "d1ce4cb2beb839b055f9d7b72e0d72e3d1f3467c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
