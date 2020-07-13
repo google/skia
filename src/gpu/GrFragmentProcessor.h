@@ -48,6 +48,13 @@ public:
             std::unique_ptr<GrFragmentProcessor> child);
 
     /**
+     *  Returns a fragment processor that generates the passed-in color, modulated by the child's
+     *  alpha channel. (Pass a null FP to use the alpha from sk_InColor instead of a child FP.)
+     */
+    static std::unique_ptr<GrFragmentProcessor> ModulateAlpha(
+            std::unique_ptr<GrFragmentProcessor> child, const SkPMColor4f& color);
+
+    /**
      *  This assumes that the input color to the returned processor will be unpremul and that the
      *  passed processor (which becomes the returned processor's child) produces a premul output.
      *  The result of the returned processor is a premul of its input color modulated by the child
