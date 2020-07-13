@@ -89,11 +89,4 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-/**
- * Safely cast a base context to direct context.
- */
-static inline GrDirectContext* GrAsDirectContext(GrContext_Base* base) {
-    return base ? base->asDirectContext() : nullptr;
-}
-
 #endif

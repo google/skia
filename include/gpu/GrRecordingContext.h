@@ -217,4 +217,11 @@ private:
     typedef GrImageContext INHERITED;
 };
 
+/**
+ * Safely cast a possibly-null recording context to direct context.
+ */
+static inline GrDirectContext* GrAsDirectContext(GrRecordingContext* recording) {
+    return recording ? recording->asDirectContext() : nullptr;
+}
+
 #endif
