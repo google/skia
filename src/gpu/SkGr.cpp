@@ -45,7 +45,6 @@
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/effects/generated/GrDitherEffect.h"
-#include "src/gpu/effects/generated/GrModulateRGBAEffect.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -263,7 +262,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             if (1.0f != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
-                paintFP = GrModulateRGBAEffect::Make(
+                paintFP = GrFragmentProcessor::ModulateRGBA(
                         std::move(paintFP), {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
             }
         } else {
@@ -286,7 +285,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             if (1.0f != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
-                paintFP = GrModulateRGBAEffect::Make(
+                paintFP = GrFragmentProcessor::ModulateRGBA(
                         std::move(paintFP), {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
             }
         } else {
