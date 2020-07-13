@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f27d6d46_8650088e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-13T17:03:48Z",
+      "side": 1,
+      "message": "Broader question: does SkTQSort add value if we can assume the presence of std::sort? I\u0027d have assumed std::sort would more at least as efficient if not better--it won\u0027t have the pathological performance issues of a vanilla qsort (since it\u0027ll be using introsort), and it can inline simple comparators.",
+      "revId": "090f2f1aac885de9f36155a964893b3f2c7e55dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
