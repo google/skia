@@ -16,6 +16,23 @@
       "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f358a119_2e67592f",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-13T15:03:29Z",
+      "side": 1,
+      "message": "the SkottieAnimation class is already accessible publicly using getSkottieAnimation() so there isn\u0027t a need to add these 3 functions.",
+      "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
