@@ -140,7 +140,4 @@ private:
     char    fStorage[STORAGE+1];
 };
 
-// Helper when calling qsort with a compare proc that has typed its arguments
-#define SkCastForQSort(compare) reinterpret_cast<int (*)(const void*, const void*)>(compare)
-
 #endif
