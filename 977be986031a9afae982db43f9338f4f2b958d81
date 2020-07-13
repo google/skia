@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed676b64_1988d05d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-13T15:29:22Z",
+      "side": 1,
+      "message": "Kevin, can I see the charts of the perf results of these tryjobs?",
+      "revId": "977be986031a9afae982db43f9338f4f2b958d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
