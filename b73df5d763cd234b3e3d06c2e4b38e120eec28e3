@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53f5e437_719da896",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-13T18:10:03Z",
+      "side": 1,
+      "message": "Do we still need this then ?",
+      "revId": "b73df5d763cd234b3e3d06c2e4b38e120eec28e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
