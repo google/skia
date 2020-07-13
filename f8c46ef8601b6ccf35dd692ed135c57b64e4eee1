@@ -33,6 +33,24 @@
       "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b99e0875_f8738e51",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-13T20:29:19Z",
+      "side": 1,
+      "message": "I was thinking it would be a nice wrapper so it behaves similarly to a VideoView, but simplifying it would clean our library. Do we want the user to have to chain call getSkottieAnimation to access playback methods?",
+      "parentUuid": "f358a119_2e67592f",
+      "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
