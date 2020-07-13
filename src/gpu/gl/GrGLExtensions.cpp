@@ -117,8 +117,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
         eat_space_sep_strings(&fStrings, extensions);
     }
     if (!fStrings.empty()) {
-        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
-        SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
+        std::sort(fStrings.begin(), fStrings.end(), extension_compare);
     }
     fInitialized = true;
     return true;

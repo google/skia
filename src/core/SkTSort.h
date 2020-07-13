@@ -19,11 +19,6 @@ template <typename T> struct SkTCompareLT {
     bool operator()(const T a, const T b) const { return a < b; }
 };
 
-/* A comparison functor which performs the comparison '*a < *b'. */
-template <typename T> struct SkTPointerCompareLT {
-    bool operator()(const T* a, const T* b) const { return *a < *b; }
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /*  Sifts a broken heap. The input array is a heap from root to bottom
@@ -135,82 +130,5 @@ template <typename T, typename C> static void SkTInsertionSort(T* left, T* right
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-template <typename T, typename C>
-static T* SkTQSort_Partition(T* left, T* right, T* pivot, C lessThan) {
-    using std::swap;
-    T pivotValue = *pivot;
-    swap(*pivot, *right);
-    T* newPivot = left;
-    while (left < right) {
-        if (lessThan(*left, pivotValue)) {
-            swap(*left, *newPivot);
-            newPivot += 1;
-        }
-        left += 1;
-    }
-    swap(*newPivot, *right);
-    return newPivot;
-}
-
-/*  Intro Sort is a modified Quick Sort.
- *  When the region to be sorted is a small constant size it uses Insertion Sort.
- *  When depth becomes zero, it switches over to Heap Sort.
- *  This implementation recurses on the left region after pivoting and loops on the right,
- *    we already limit the stack depth by switching to heap sort,
- *    and cache locality on the data appears more important than saving a few stack frames.
- *
- *  @param depth at this recursion depth, switch to Heap Sort.
- *  @param left the beginning of the region to be sorted.
- *  @param right the end of the region to be sorted (inclusive).
- *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
- */
-template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right, C lessThan) {
-    while (true) {
-        if (right - left < 32) {
-            SkTInsertionSort(left, right, lessThan);
-            return;
-        }
-
-        if (depth == 0) {
-            SkTHeapSort<T>(left, right - left + 1, lessThan);
-            return;
-        }
-        --depth;
-
-        T* pivot = left + ((right - left) >> 1);
-        pivot = SkTQSort_Partition(left, right, pivot, lessThan);
-
-        SkTIntroSort(depth, left, pivot - 1, lessThan);
-        left = pivot + 1;
-    }
-}
-
-/** Sorts the region from left to right using comparator lessThan using a Quick Sort algorithm. Be
- *  sure to specialize swap if T has an efficient swap operation.
- *
- *  @param left the beginning of the region to be sorted.
- *  @param right the end of the region to be sorted (inclusive).
- *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
- */
-template <typename T, typename C> void SkTQSort(T* left, T* right, C lessThan) {
-    if (left >= right) {
-        return;
-    }
-    // Limit Intro Sort recursion depth to no more than 2 * ceil(log2(n)).
-    int depth = 2 * SkNextLog2(SkToU32(right - left));
-    SkTIntroSort(depth, left, right, lessThan);
-}
-
-/** Sorts the region from left to right using comparator '<' using a Quick Sort algorithm. */
-template <typename T> void SkTQSort(T* left, T* right) {
-    SkTQSort(left, right, SkTCompareLT<T>());
-}
-
-/** Sorts the region from left to right using comparator '* < *' using a Quick Sort algorithm. */
-template <typename T> void SkTQSort(T** left, T** right) {
-    SkTQSort(left, right, SkTPointerCompareLT<T>());
-}
 
 #endif
