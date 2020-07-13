@@ -9,6 +9,7 @@
 #define GrMockCaps_DEFINED
 
 #include "include/gpu/mock/GrMockTypes.h"
+#include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/SkGr.h"
 

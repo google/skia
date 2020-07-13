@@ -14,7 +14,6 @@
 #include "src/codec/SkIcoCodec.h"
 #include "src/codec/SkPngCodec.h"
 #include "src/core/SkStreamPriv.h"
-#include "src/core/SkTSort.h"
 
 /*
  * Checks the start of the stream to see if the image is an Ico or Cur
@@ -115,13 +114,8 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
     // increasing offset.  However, the specification does not indicate that
     // they must be stored in this order, so we will not trust that this is the
     // case.  Here we sort the embedded images by increasing offset.
-    struct EntryLessThan {
-        bool operator() (Entry a, Entry b) const {
-            return a.offset < b.offset;
-        }
-    };
-    EntryLessThan lessThan;
-    SkTQSort(directoryEntries, &directoryEntries[numImages - 1], lessThan);
+    std::sort(directoryEntries, directoryEntries + numImages,
+              [](const Entry& a, const Entry& b) { return a.offset < b.offset; });
 
     // Now will construct a candidate codec for each of the embedded images
     uint32_t bytesRead = kIcoDirectoryBytes + numImages * kIcoDirEntryBytes;

@@ -12,7 +12,6 @@
 #include "src/core/SkRegionPriv.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkScan.h"
-#include "src/core/SkTSort.h"
 
 // The rgnbuilder caller *seems* to pass short counts, possible often seens early failure, so
 // we may not want to promote this to a "std" routine just yet.
@@ -489,12 +488,6 @@ static int extract_path(Edge* edge, Edge* stop, SkPath* path) {
     return count;
 }
 
-struct EdgeLT {
-    bool operator()(const Edge& a, const Edge& b) const {
-        return (a.fX == b.fX) ? a.top() < b.top() : a.fX < b.fX;
-    }
-};
-
 bool SkRegion::getBoundaryPath(SkPath* path) const {
     // path could safely be nullptr if we're empty, but the caller shouldn't
     // *know* that
@@ -525,7 +518,9 @@ bool SkRegion::getBoundaryPath(SkPath* path) const {
     int count = edges.count();
     Edge* start = edges.begin();
     Edge* stop = start + count;
-    SkTQSort<Edge>(start, stop - 1, EdgeLT());
+    std::sort(start, stop, [](const Edge& a, const Edge& b) {
+        return (a.fX == b.fX) ? a.top() < b.top() : a.fX < b.fX;
+    });
 
     Edge* e;
     for (e = start; e != stop; e++) {

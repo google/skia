@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkTSort.h"
 #include "src/pathops/SkPathOpsBounds.h"
 #include "src/pathops/SkPathOpsConic.h"
 #include "src/pathops/SkPathOpsCubic.h"
@@ -77,7 +76,7 @@ static void toQuadraticTs(const SkDCubic* cubic, double precision, SkTArray<doub
         inflections += cubic->findMaxCurvature(&inflectT[inflections]);
         SkASSERT(inflections <= 5);
     }
-    SkTQSort<double>(inflectT, &inflectT[inflections - 1]);
+    std::sort(inflectT, inflectT + inflections);
     // OPTIMIZATION: is this filtering common enough that it needs to be pulled out into its
     // own subroutine?
     while (inflections && approximately_less_than_zero(inflectT[0])) {

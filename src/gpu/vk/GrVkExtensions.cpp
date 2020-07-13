@@ -11,7 +11,6 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 
 #include "src/core/SkTSearch.h"
-#include "src/core/SkTSort.h"
 
 // finds the index of ext in infos or a negative result if ext is not found.
 static int find_info(const SkTArray<GrVkExtensions::Info>& infos, const char ext[]) {
@@ -39,22 +38,20 @@ void GrVkExtensions::init(GrVkGetProc getProc,
                           const char* const* instanceExtensions,
                           uint32_t deviceExtensionCount,
                           const char* const* deviceExtensions) {
-    SkTLessFunctionToFunctorAdaptor<GrVkExtensions::Info, extension_compare> cmp;
-
     for (uint32_t i = 0; i < instanceExtensionCount; ++i) {
         const char* extension = instanceExtensions[i];
         // if not already in the list, add it
         if (find_info(fExtensions, extension) < 0) {
-            fExtensions.push_back() = Info(extension);
-            SkTQSort(&fExtensions.front(), &fExtensions.back(), cmp);
+            fExtensions.push_back(Info(extension));
+            std::stable_sort(fExtensions.begin(), fExtensions.end(), extension_compare);
         }
     }
     for (uint32_t i = 0; i < deviceExtensionCount; ++i) {
         const char* extension = deviceExtensions[i];
         // if not already in the list, add it
         if (find_info(fExtensions, extension) < 0) {
-            fExtensions.push_back() = Info(extension);
-            SkTQSort(&fExtensions.front(), &fExtensions.back(), cmp);
+            fExtensions.push_back(Info(extension));
+            std::stable_sort(fExtensions.begin(), fExtensions.end(), extension_compare);
         }
     }
     this->getSpecVersions(getProc, instance, physDev);
