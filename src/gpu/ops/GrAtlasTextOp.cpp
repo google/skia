@@ -216,8 +216,6 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         subRun->prepareGrGlyphs(target->strikeCache());
 
         // TODO4F: Preserve float colors
-        GrTextBlob::VertexRegenerator regenerator(resourceProvider, subRun,
-                                                  target->deferredUploadTarget(), atlasManager);
 
         // Where the subRun begins and ends relative to totalGlyphsRegened.
         int subRunBegin = totalGlyphsRegened;
@@ -230,7 +228,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             int drawBegin = totalGlyphsRegened - subRunBegin;
             // drawEnd is either the end of the subRun or the end of the current quad buffer.
             int drawEnd = std::min(subRunEnd, quadBufferEnd) - subRunBegin;
-            auto[ok, glyphsRegenerated] = regenerator.regenerate(drawBegin, drawEnd);
+            auto[ok, glyphsRegenerated] = subRun->regenerateAtlas(drawBegin, drawEnd, target);
 
             // There was a problem allocating the glyph in the atlas. Bail.
             if (!ok) {
