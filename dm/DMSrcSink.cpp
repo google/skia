@@ -1830,8 +1830,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // Care must be taken when using 'gpuThreadCtx' bc it moves between the gpu-thread and this
     // one. About all it can be consistently used for is GrCaps access and 'defaultBackendFormat'
     // calls.
-    constexpr int kNumDivisions = 3;
-    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions);
+    constexpr int kNumDivisions = 1;
+    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions, true);
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
@@ -1866,6 +1866,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
                                            // bit by which thread possesses the direct context.
                                            gpuThreadCtx->flush();
                                            gpuThreadCtx->submit(true);
+                                           gpuThreadCtx->checkAsyncWorkCompletion();
                                        });
 
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
@@ -2296,7 +2297,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
                 canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(direct, dstCharacterization, viewport, fNumDivisions);
+            DDLTileHelper tiles(direct, dstCharacterization, viewport, fNumDivisions, false);
 
             tiles.createBackendTextures(nullptr, direct);
 

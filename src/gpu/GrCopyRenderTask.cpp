@@ -55,7 +55,7 @@ GrCopyRenderTask::GrCopyRenderTask(GrDrawingManager* drawingMgr,
         , fSrcView(std::move(srcView))
         , fSrcRect(srcRect)
         , fDstPoint(dstPoint) {
-    this->addTarget(drawingMgr, dstView);
+    this->addTarget1(drawingMgr, dstView);
 }
 
 void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
@@ -64,13 +64,13 @@ void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // we read fSrcView and copy to target view.
     alloc->addInterval(fSrcView.proxy(), alloc->curOp(), alloc->curOp(),
                        GrResourceAllocator::ActualUse::kYes);
-    alloc->addInterval(this->target(0).proxy(), alloc->curOp(), alloc->curOp(),
+    alloc->addInterval(this->target1(0).proxy(), alloc->curOp(), alloc->curOp(),
                        GrResourceAllocator::ActualUse::kYes);
     alloc->incOps();
 }
 
 bool GrCopyRenderTask::onExecute(GrOpFlushState* flushState) {
-    GrSurfaceProxy* dstProxy = this->target(0).proxy();
+    GrSurfaceProxy* dstProxy = this->target1(0).proxy();
     GrSurfaceProxy* srcProxy = fSrcView.proxy();
     if (!srcProxy->isInstantiated() || !dstProxy->isInstantiated()) {
         return false;

@@ -34,7 +34,8 @@ public:
         void init(int id,
                   GrDirectContext*,
                   const SkSurfaceCharacterization& dstChar,
-                  const SkIRect& clip);
+                  const SkIRect& clip,
+                  const SkIRect& padding);
 
         // Convert the compressedPictureData into an SkPicture replacing each image-index
         // with a promise image.
@@ -61,10 +62,15 @@ public:
 
         int id() const { return fID; }
         SkIRect clipRect() const { return fClip; }
+        SkISize paddedRectSize() const {
+            return { fClip.width() + fPadRect.fLeft + fPadRect.fRight,
+                     fClip.height() + fPadRect.fTop + fPadRect.fBottom };
+        }
+        SkIVector padOffset() const { return { fPadRect.fLeft, fPadRect.fTop }; }
 
         SkDeferredDisplayList* ddl() { return fDisplayList.get(); }
 
-        sk_sp<SkImage> makePromiseImage(SkDeferredDisplayListRecorder*);
+        sk_sp<SkImage> makePromiseImageForDst(SkDeferredDisplayListRecorder*);
         void dropCallbackContext() { fCallbackContext.reset(); }
 
         static void CreateBackendTexture(GrDirectContext*, TileData*);
@@ -77,6 +83,7 @@ public:
 
         int                       fID = -1;
         SkIRect                   fClip;             // in the device space of the final SkSurface
+        SkIRect                   fPadRect;          // random padding for the output surface
         SkSurfaceCharacterization fCharacterization; // characterization for the tile's surface
 
         // The callback context holds (via its SkPromiseImageTexture) the backend texture
@@ -98,7 +105,8 @@ public:
     DDLTileHelper(GrDirectContext*,
                   const SkSurfaceCharacterization& dstChar,
                   const SkIRect& viewport,
-                  int numDivisions);
+                  int numDivisions,
+                  bool addRandomPaddingToDst);
 
     void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
 
