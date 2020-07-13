@@ -86,6 +86,24 @@
       "revId": "9b411e4a6f9812811744966e5d04ff6e6339b5f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a6d84ca_8c52325c",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-13T14:56:06Z",
+      "side": 1,
+      "message": "Not if we require read only buffers to use the direct mapAsycRead call. We already decided we want that requirement for write only buffers. Basically the code as is for both write and read make it so it is not safe for a generic caller in ganesh (outside the backends) to create a Xfer buffer and call map on it directly. I\u0027m fine with keeping that requirement for now since that isn\u0027t needed in dawn. Otherwise I think it is weird to support it for read xfer\u0027s and not write.\n\nIf we go back to the old version where we allow the map() call to actually trigger a map, I will reintroduce the whole pending concept since we now can get into a state where a direct map*Async() was call as well as a map().\n\nPersonally I say leave it like this is until you think you want more generality.",
+      "parentUuid": "3f501b1b_b6980f1d",
+      "revId": "9b411e4a6f9812811744966e5d04ff6e6339b5f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
