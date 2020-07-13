@@ -701,11 +701,6 @@ sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     uint32_t flags = buffer.read32LE(0x3);  // historically we only recorded 2 bits
     bool respectCTM = !(flags & 1); // historically we stored ignoreCTM in low bit
 
-    if (buffer.isVersionLT(SkPicturePriv::kRemoveOccluderFromBlurMaskFilter)) {
-        SkRect unused;
-        buffer.readRect(&unused);
-    }
-
     return SkMaskFilter::MakeBlur((SkBlurStyle)style, sigma, respectCTM);
 }
 

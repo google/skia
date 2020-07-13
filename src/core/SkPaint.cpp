@@ -340,74 +340,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     }
 }
 
-SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer, SkFont* font) {
-    SkSafeRange safe;
-
-    {
-        SkScalar sz = buffer.readScalar();
-        SkScalar sx = buffer.readScalar();
-        SkScalar kx = buffer.readScalar();
-        if (font) {
-            font->setSize(sz);
-            font->setScaleX(sx);
-            font->setSkewX(kx);
-        }
-    }
-
-    paint->setStrokeWidth(buffer.readScalar());
-    paint->setStrokeMiter(buffer.readScalar());
-    if (buffer.isVersionLT(SkPicturePriv::kFloat4PaintColor_Version)) {
-        paint->setColor(buffer.readColor());
-    } else {
-        SkColor4f color;
-        buffer.readColor4f(&color);
-        paint->setColor(color, sk_srgb_singleton());
-    }
-
-    unsigned flatFlags = unpack_paint_flags(paint, buffer.readUInt(), font);
-
-    uint32_t tmp = buffer.readUInt();
-    paint->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, SkPaint::kLast_Cap));
-    paint->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, SkPaint::kLast_Join));
-    paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kStrokeAndFill_Style));
-    paint->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
-
-    sk_sp<SkTypeface> tf;
-    if (flatFlags & kHasTypeface_FlatFlag) {
-        tf = buffer.readTypeface();
-    }
-    if (font) {
-        font->setTypeface(tf);
-    }
-
-    if (flatFlags & kHasEffects_FlatFlag) {
-        paint->setPathEffect(buffer.readPathEffect());
-        paint->setShader(buffer.readShader());
-        paint->setMaskFilter(buffer.readMaskFilter());
-        paint->setColorFilter(buffer.readColorFilter());
-        (void)buffer.read32();  // use to be SkRasterizer
-        (void)buffer.read32();  // used to be drawlooper
-        paint->setImageFilter(buffer.readImageFilter());
-    } else {
-        paint->setPathEffect(nullptr);
-        paint->setShader(nullptr);
-        paint->setMaskFilter(nullptr);
-        paint->setColorFilter(nullptr);
-        paint->setImageFilter(nullptr);
-    }
-
-    if (!buffer.validate(safe)) {
-        paint->reset();
-        return kFailed_ReadPaint;
-    }
-    return kSuccess_PaintAndFont;
-}
-
 SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, SkFont* font) {
-    if (buffer.isVersionLT(SkPicturePriv::kPaintDoesntSerializeFonts_Version)) {
-        return Unflatten_PreV68(paint, buffer, font);
-    }
-
     SkSafeRange safe;
 
     paint->setStrokeWidth(buffer.readScalar());
