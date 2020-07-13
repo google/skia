@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "573662a1_15c5f0c7",
+        "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-13T14:40:21Z",
+      "side": 1,
+      "message": "Yeah, thinking about it some more, I don\u0027t think there\u0027s anything useful you can do with a CreateBufferMapped MapRead buffer. Reading it will only give you garbage (or zero for WebGPU I suppose). All you can do is unmap, which defeats the purpose.\n\nI think for now we should just CreateBuffer MapRead buffers, and spin/Tick in the map as before.",
+      "parentUuid": "a232ccc5_6cf1ed3b",
+      "revId": "e2300acaebf3268260ee74b3df04d95e98689390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "07f7bd64_3c629c47",
         "filename": "src/gpu/dawn/GrDawnBuffer.cpp",
         "patchSetId": 9
