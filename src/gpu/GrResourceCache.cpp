@@ -11,10 +11,10 @@
 #include "include/private/GrSingleOwner.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkScopeExit.h"
-#include "src/core/SkTSort.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
@@ -689,8 +689,8 @@ uint32_t GrResourceCache::getNextTimestamp() {
                 fPurgeableQueue.pop();
             }
 
-            SkTQSort(fNonpurgeableResources.begin(), fNonpurgeableResources.end() - 1,
-                     CompareTimestamp);
+            std::sort(fNonpurgeableResources.begin(), fNonpurgeableResources.end(),
+                      CompareTimestamp);
 
             // Pick resources out of the purgeable and non-purgeable arrays based on lowest
             // timestamp and assign new timestamps.
