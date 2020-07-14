@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4228ddb_e3acb3ac",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 16
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-14T22:58:37Z",
+      "side": 1,
+      "message": "Nit: you probably want to update the CL description before submitting.",
+      "revId": "a5b4672178cb99b12f3a01fffd75b8ae474f0ffa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cac9d47_1e7d9e5f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-14T22:58:37Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "a5b4672178cb99b12f3a01fffd75b8ae474f0ffa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55c22620_ec7d3c4a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-14T22:58:37Z",
+      "side": 1,
+      "message": "It feels a little fragile that we have to remember to call this check function. I still feel like this would be better handled by having a buffer remove itself from the busy list during its callback. But that would introduce O(N^2) behaviour when removing N buffers, due to the fact that this is a list of smart ptrs. I guess the worst case is, we\u0027d just never recycle any staging buffers, and that would quickly become clear in performance and memory footprint. So let\u0027s go with this.",
+      "revId": "a5b4672178cb99b12f3a01fffd75b8ae474f0ffa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
