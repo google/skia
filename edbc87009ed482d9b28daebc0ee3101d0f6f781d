@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2057810d_2d025561",
+        "filename": "samplecode/SampleGlyphTransform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-14T13:06:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b826bf68_ee5ec6af",
+      "revId": "edbc87009ed482d9b28daebc0ee3101d0f6f781d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a87220ad_51e584dc",
         "filename": "src/image/SkImage_GpuYUVA.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "edbc87009ed482d9b28daebc0ee3101d0f6f781d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0e3783b_a66d83de",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-14T13:06:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a87220ad_51e584dc",
+      "range": {
+        "startLine": 208,
+        "startChar": 68,
+        "endLine": 208,
+        "endChar": 74
+      },
+      "revId": "edbc87009ed482d9b28daebc0ee3101d0f6f781d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
