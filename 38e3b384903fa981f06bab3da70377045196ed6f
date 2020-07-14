@@ -16,6 +16,23 @@
       "revId": "38e3b384903fa981f06bab3da70377045196ed6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e8ece54d_cff7e311",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-14T16:42:41Z",
+      "side": 1,
+      "message": "LGTM! I like how much this is able to clean up and consolidate logic, for instance, that the bicubic has a larger kernel and so the domain is different.\n\nI prefer the nomenclature of the new texture effect, with subset and domain, vs. filter-constraint and constraint rect, which appear to overload the use of constraint. But I think that would involve some tedious clean up in the GrTextureProducers to upgrade their language to match.\n\nI noticed that some of the GMs have a subtle edge difference now, but that seemed to be the double insetting that you mentioned.",
+      "revId": "38e3b384903fa981f06bab3da70377045196ed6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
