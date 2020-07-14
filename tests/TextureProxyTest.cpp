@@ -207,10 +207,10 @@ static void basic_test(GrContext* context,
 // Invalidation test
 
 // Test if invalidating unique ids operates as expected for texture proxies.
-static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) {
+static void invalidation_test(GrDirectContext* direct, skiatest::Reporter* reporter) {
 
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    GrResourceCache* cache = context->priv().getResourceCache();
+    GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
+    GrResourceCache* cache = direct->priv().getResourceCache();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 
     sk_sp<SkImage> rasterImg;
@@ -226,21 +226,21 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     }
 
-    sk_sp<SkImage> textureImg = rasterImg->makeTextureImage(context);
+    sk_sp<SkImage> textureImg = rasterImg->makeTextureImage(direct);
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     rasterImg = nullptr;        // this invalidates the uniqueKey
 
     // this forces the cache to respond to the inval msg
-    size_t maxBytes = context->getResourceCacheLimit();
-    context->setResourceCacheLimit(maxBytes-1);
+    size_t maxBytes = direct->getResourceCacheLimit();
+    direct->setResourceCacheLimit(maxBytes-1);
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     textureImg = nullptr;
-    context->priv().testingOnly_purgeAllUnlockedResources();
+    direct->priv().testingOnly_purgeAllUnlockedResources();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -288,9 +288,9 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    GrResourceCache* cache = context->priv().getResourceCache();
+    auto direct = ctxInfo.directContext();
+    GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
+    GrResourceCache* cache = direct->priv().getResourceCache();
 
     REPORTER_ASSERT(reporter, !proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -298,18 +298,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
         for (auto create : { deferred_tex, deferred_texRT, wrapped, wrapped_with_key }) {
             REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
-            basic_test(context, reporter, create(reporter, context, proxyProvider, fit));
+            basic_test(direct, reporter, create(reporter, direct, proxyProvider, fit));
         }
 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
         sk_sp<GrTexture> backingTex;
-        sk_sp<GrTextureProxy> proxy = create_wrapped_backend(context, fit, &backingTex);
-        basic_test(context, reporter, std::move(proxy));
+        sk_sp<GrTextureProxy> proxy = create_wrapped_backend(direct, fit, &backingTex);
+        basic_test(direct, reporter, std::move(proxy));
 
         backingTex = nullptr;
         cache->purgeAllUnlocked();
     }
 
-    invalidation_test(context, reporter);
-    invalidation_and_instantiation_test(context, reporter);
+    invalidation_test(direct, reporter);
+    invalidation_and_instantiation_test(direct, reporter);
 }
