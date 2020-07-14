@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "294e957d_4bbe3bf2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-14T20:12:01Z",
+      "side": 1,
+      "message": "LGTM!",
+      "revId": "2159bba98404f84b6902271fc855a15f26ac9fe2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0398df8_9fbb4f93",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-14T20:12:01Z",
+      "side": 1,
+      "message": "Once mipmaps are provided at creation time only, am I correct in understanding that GrTextureAdjuster reduces to a GrTextureMaker?",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 53
+      },
+      "revId": "2159bba98404f84b6902271fc855a15f26ac9fe2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
