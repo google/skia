@@ -118,6 +118,7 @@ typedef bool GrContextTypeFilterFn(GrContextFactoryContextType);
 extern bool IsGLContextType(GrContextFactoryContextType);
 extern bool IsVulkanContextType(GrContextFactoryContextType);
 extern bool IsMetalContextType(GrContextFactoryContextType);
+extern bool IsDawnContextType(GrContextFactoryContextType);
 extern bool IsDirect3DContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLOrMetalContextType(GrContextFactoryContextType);
@@ -217,6 +218,9 @@ static inline SkString reporter_string(const char* fmt, Args... args)  {
                                  reporter, context_info, nullptr)
 #define DEF_GPUTEST_FOR_D3D_CONTEXT(name, reporter, context_info)                           \
     DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsDirect3DContextType,                        \
+                             reporter, context_info, nullptr)
+#define DEF_GPUTEST_FOR_DAWN_CONTEXT(name, reporter, context_info)                          \
+    DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsDawnContextType,                            \
                              reporter, context_info, nullptr)
 
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                          \
