@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "8ace40cc_939e52f4",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-14T18:20:00Z",
+      "side": 1,
+      "message": "Moved to member function so moot now.",
+      "parentUuid": "b4b8ee74_c2939eda",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f4d77c4_2241ecd6",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 12
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "af34368e_63b318db",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-14T18:20:00Z",
+      "side": 1,
+      "message": "This was actually in as I was developing for a workaround in a test. I\u0027ve updated the test now so this isn\u0027t needed.",
+      "parentUuid": "4f4d77c4_2241ecd6",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7469c735_4284a2b9",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 12
@@ -67,6 +103,24 @@
       "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e0a6f0_3ce137d6",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-14T18:20:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7469c735_4284a2b9",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +153,24 @@
       "side": 1,
       "message": "Just to follow up, I realized that it would require making the stagingBuffers (\"soon-to-be-busy\" list) in GrDawnGpu a member var, instead of a local. So that\u0027s one downside. Anyway, LMKWYT.",
       "parentUuid": "e2c77327_02c49f1b",
+      "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04b20bac_78a16b10",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 2100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-14T18:20:00Z",
+      "side": 1,
+      "message": "I decided to do this. I think as we start having more backends use the staging manager the vast majority will be using it so might as well make the all in Grgpu for now.",
+      "parentUuid": "5866bef7_77094d2b",
       "revId": "694efab66632041b81ffeccaff7fb283aa4a66e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
