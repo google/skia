@@ -186,7 +186,7 @@ class DistanceLessThan {
 public:
     DistanceLessThan(double* distances) : fDistances(distances) { }
     double* fDistances;
-    bool operator()(const int one, const int two) {
+    bool operator()(const int one, const int two) const {
         return fDistances[one] < fDistances[two];
     }
 };

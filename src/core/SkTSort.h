@@ -14,16 +14,6 @@
 
 #include <utility>
 
-/* A comparison functor which performs the comparison 'a < b'. */
-template <typename T> struct SkTCompareLT {
-    bool operator()(const T a, const T b) const { return a < b; }
-};
-
-/* A comparison functor which performs the comparison '*a < *b'. */
-template <typename T> struct SkTPointerCompareLT {
-    bool operator()(const T* a, const T* b) const { return *a < *b; }
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /*  Sifts a broken heap. The input array is a heap from root to bottom
@@ -41,7 +31,7 @@ template <typename T> struct SkTPointerCompareLT {
  *  @param bottom the one based index in the array of the last entry in the heap.
  */
 template <typename T, typename C>
-void SkTHeapSort_SiftUp(T array[], size_t root, size_t bottom, C lessThan) {
+void SkTHeapSort_SiftUp(T array[], size_t root, size_t bottom, const C& lessThan) {
     T x = array[root-1];
     size_t start = root;
     size_t j = root << 1;
@@ -75,7 +65,7 @@ void SkTHeapSort_SiftUp(T array[], size_t root, size_t bottom, C lessThan) {
  *  @param bottom the one based index in the array of the last entry in the heap.
  */
 template <typename T, typename C>
-void SkTHeapSort_SiftDown(T array[], size_t root, size_t bottom, C lessThan) {
+void SkTHeapSort_SiftDown(T array[], size_t root, size_t bottom, const C& lessThan) {
     T x = array[root-1];
     size_t child = root << 1;
     while (child <= bottom) {
@@ -100,7 +90,7 @@ void SkTHeapSort_SiftDown(T array[], size_t root, size_t bottom, C lessThan) {
  *  @param count the number of elements in the array.
  *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
  */
-template <typename T, typename C> void SkTHeapSort(T array[], size_t count, C lessThan) {
+template <typename T, typename C> void SkTHeapSort(T array[], size_t count, const C& lessThan) {
     for (size_t i = count >> 1; i > 0; --i) {
         SkTHeapSort_SiftDown(array, i, count, lessThan);
     }
@@ -114,13 +104,14 @@ template <typename T, typename C> void SkTHeapSort(T array[], size_t count, C le
 
 /** Sorts the array of size count using comparator '<' using a Heap Sort algorithm. */
 template <typename T> void SkTHeapSort(T array[], size_t count) {
-    SkTHeapSort(array, count, SkTCompareLT<T>());
+    SkTHeapSort(array, count, [](const T& a, const T& b) { return a < b; });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 /** Sorts the array of size count using comparator lessThan using an Insertion Sort algorithm. */
-template <typename T, typename C> static void SkTInsertionSort(T* left, T* right, C lessThan) {
+template <typename T, typename C>
+static void SkTInsertionSort(T* left, T* right, const C& lessThan) {
     for (T* next = left + 1; next <= right; ++next) {
         if (!lessThan(*next, *(next - 1))) {
             continue;
@@ -138,7 +129,7 @@ template <typename T, typename C> static void SkTInsertionSort(T* left, T* right
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename T, typename C>
-static T* SkTQSort_Partition(T* left, T* right, T* pivot, C lessThan) {
+static T* SkTQSort_Partition(T* left, T* right, T* pivot, const C& lessThan) {
     using std::swap;
     T pivotValue = *pivot;
     swap(*pivot, *right);
@@ -166,7 +157,8 @@ static T* SkTQSort_Partition(T* left, T* right, T* pivot, C lessThan) {
  *  @param right the end of the region to be sorted (inclusive).
  *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
  */
-template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right, C lessThan) {
+template <typename T, typename C>
+void SkTIntroSort(int depth, T* left, T* right, const C& lessThan) {
     while (true) {
         if (right - left < 32) {
             SkTInsertionSort(left, right, lessThan);
@@ -194,7 +186,7 @@ template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right
  *  @param right the end of the region to be sorted (inclusive).
  *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
  */
-template <typename T, typename C> void SkTQSort(T* left, T* right, C lessThan) {
+template <typename T, typename C> void SkTQSort(T* left, T* right, const C& lessThan) {
     if (left >= right) {
         return;
     }
@@ -203,14 +195,14 @@ template <typename T, typename C> void SkTQSort(T* left, T* right, C lessThan) {
     SkTIntroSort(depth, left, right, lessThan);
 }
 
-/** Sorts the region from left to right using comparator '<' using a Quick Sort algorithm. */
+/** Sorts the region from left to right using comparator 'a < b' using a Quick Sort algorithm. */
 template <typename T> void SkTQSort(T* left, T* right) {
-    SkTQSort(left, right, SkTCompareLT<T>());
+    SkTQSort(left, right, [](const T& a, const T& b) { return a < b; });
 }
 
-/** Sorts the region from left to right using comparator '* < *' using a Quick Sort algorithm. */
+/** Sorts the region from left to right using comparator '*a < *b' using a Quick Sort algorithm. */
 template <typename T> void SkTQSort(T** left, T** right) {
-    SkTQSort(left, right, SkTPointerCompareLT<T>());
+    SkTQSort(left, right, [](const T* a, const T* b) { return *a < *b; });
 }
 
 #endif
