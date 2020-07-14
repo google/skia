@@ -35,7 +35,7 @@
 
 GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              GrPaint&& paint,
-                             GrTextBlob::SubRun* subrun,
+                             GrSubRun* subrun,
                              const SkMatrix& drawMatrix,
                              SkPoint drawOrigin,
                              const SkIRect& clipRect,

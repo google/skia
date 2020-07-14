@@ -29,6 +29,7 @@ class GrDeferredUploadTarget;
 class GrDrawOp;
 class GrGlyph;
 class GrStrikeCache;
+class GrSubRun;
 
 class SkMatrixProvider;
 class SkSurfaceProps;
@@ -55,8 +56,6 @@ class SkTextBlobRunIterator;
 //
 class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
 public:
-    class SubRun;
-
     struct Key {
         Key();
         uint32_t fUniqueID;
@@ -114,8 +113,6 @@ public:
     bool canReuse(const SkPaint& paint, const SkMaskFilterBase::BlurRec& blurRec,
                   const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
-    static const int kVerticesPerGlyph = 4;
-
     const Key& key() const;
     size_t size() const;
 
@@ -125,7 +122,7 @@ public:
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
             const SkStrikeSpec& strikeSpec);
 
-    const SkTInternalLList<SubRun>& subRunList() const { return fSubRunList; }
+    const SkTInternalLList<GrSubRun>& subRunList() const { return fSubRunList; }
 
 private:
     enum TextType {
@@ -144,7 +141,7 @@ private:
                SkPoint origin,
                SkColor initialLuminance);
 
-    void insertSubRun(SubRun* subRun);
+    void insertSubRun(GrSubRun* subRun);
 
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -187,14 +184,15 @@ private:
 
     uint8_t fTextType{0};
 
-    SkTInternalLList<SubRun> fSubRunList;
+    SkTInternalLList<GrSubRun> fSubRunList;
     SkArenaAlloc fAlloc;
 };
 
-// -- GrTextBlob::SubRun ---------------------------------------------------------------------------
+
+// -- GrSubRun -------------------------------------------------------------------------------------
 // Hold data to draw the different types of sub run. SubRuns are produced knowing all the
 // glyphs that are included in them.
-class GrTextBlob::SubRun {
+class GrSubRun {
     enum SubRunType {
         kDirectMask,
         kTransformedMask,
@@ -203,6 +201,7 @@ class GrTextBlob::SubRun {
     };
 
 public:
+    static constexpr int kVerticesPerGlyph = 4;
     struct VertexData {
         union {
             // Initially, filled with packed id, but changed to GrGlyph* in the onPrepare stage.
@@ -216,15 +215,15 @@ public:
     };
 
     // SubRun for masks
-    SubRun(SubRunType type,
-           GrTextBlob* textBlob,
-           const SkStrikeSpec& strikeSpec,
-           GrMaskFormat format,
-           SkRect vertexBounds,
-           const SkSpan<VertexData>& vertexData);
+    GrSubRun(SubRunType type,
+             GrTextBlob* textBlob,
+             const SkStrikeSpec& strikeSpec,
+             GrMaskFormat format,
+             SkRect vertexBounds,
+             const SkSpan<VertexData>& vertexData);
 
     // SubRun for paths
-    SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
+    GrSubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
 
     std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
     makeAtlasTextOp(const GrClip* clip,
@@ -266,26 +265,26 @@ public:
 
     const SkStrikeSpec& strikeSpec() const;
 
-    static SubRun* MakePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                             const SkFont& runFont,
-                             const SkStrikeSpec& strikeSpec,
-                             GrTextBlob* blob,
-                             SkArenaAlloc* alloc);
-    static SubRun* MakeSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkFont& runFont,
-                            const SkStrikeSpec& strikeSpec,
-                            GrTextBlob* blob,
-                            SkArenaAlloc* alloc);
-    static SubRun* MakeDirectMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                  const SkStrikeSpec& strikeSpec,
-                                  GrMaskFormat format,
-                                  GrTextBlob* blob,
-                                  SkArenaAlloc* alloc);
-    static SubRun* MakeTransformedMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                       const SkStrikeSpec& strikeSpec,
-                                       GrMaskFormat format,
-                                       GrTextBlob* blob,
-                                       SkArenaAlloc* alloc);
+    static GrSubRun* MakePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                               const SkFont& runFont,
+                               const SkStrikeSpec& strikeSpec,
+                               GrTextBlob* blob,
+                               SkArenaAlloc* alloc);
+    static GrSubRun* MakeSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              const SkFont& runFont,
+                              const SkStrikeSpec& strikeSpec,
+                              GrTextBlob* blob,
+                              SkArenaAlloc* alloc);
+    static GrSubRun* MakeDirectMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                    const SkStrikeSpec& strikeSpec,
+                                    GrMaskFormat format,
+                                    GrTextBlob* blob,
+                                    SkArenaAlloc* alloc);
+    static GrSubRun* MakeTransformedMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                         const SkStrikeSpec& strikeSpec,
+                                         GrMaskFormat format,
+                                         GrTextBlob* blob,
+                                         SkArenaAlloc* alloc);
 
     GrTextBlob* fBlob;
 
@@ -319,16 +318,16 @@ private:
         AtlasPt atlasPos;
     };
 
-    static SubRun* InitForAtlas(SubRunType type,
-                                const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                const SkStrikeSpec& strikeSpec,
-                                GrMaskFormat format,
-                                GrTextBlob* blob,
-                                SkArenaAlloc* alloc);
+    static GrSubRun* InitForAtlas(SubRunType type,
+                                  const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                  const SkStrikeSpec& strikeSpec,
+                                  GrMaskFormat format,
+                                  GrTextBlob* blob,
+                                  SkArenaAlloc* alloc);
     bool hasW() const;
     void setUseLCDText(bool useLCDText);
     void setAntiAliased(bool antiAliased);
-    SkSpan<const PathGlyph> paths() const { return SkMakeSpan(fPaths); }
+    SkSpan<const GrTextBlob::PathGlyph> paths() const { return SkMakeSpan(fPaths); }
     bool drawAsPaths() const;
 
     // df properties
@@ -346,7 +345,7 @@ private:
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
 
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob::SubRun);
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
     const SubRunType fType;
     const GrMaskFormat fMaskFormat;
     bool fUseLCDText{false};
@@ -360,7 +359,7 @@ private:
     // source space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
     const SkSpan<VertexData> fVertexData;
-    std::vector<PathGlyph> fPaths;
+    std::vector<GrTextBlob::PathGlyph> fPaths;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
 };  // SubRun
 
