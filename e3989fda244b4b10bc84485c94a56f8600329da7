@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f107aba0_3adb72cc",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-14T18:02:39Z",
+      "side": 1,
+      "message": "Keep these lined up ?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 27
+      },
+      "revId": "e3989fda244b4b10bc84485c94a56f8600329da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a1a902c_e990566d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-14T18:02:39Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027 ?",
+      "revId": "e3989fda244b4b10bc84485c94a56f8600329da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "222eaa71_4c654361",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-14T18:02:39Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027 ?",
+      "revId": "e3989fda244b4b10bc84485c94a56f8600329da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a98bb25f_566b3ee0",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-14T18:02:39Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027 ?",
+      "revId": "e3989fda244b4b10bc84485c94a56f8600329da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
