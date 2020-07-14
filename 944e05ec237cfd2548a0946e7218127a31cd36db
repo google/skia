@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "79a1cf71_6eb0a0cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-14T14:48:30Z",
+      "side": 1,
+      "message": "The new code uses \"Mipmap\" but all (or at least a lot of) the old code uses \"MipMap\"",
+      "revId": "944e05ec237cfd2548a0946e7218127a31cd36db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67603614_6bb719a3",
         "filename": "src/core/SkBitmapController.cpp",
         "patchSetId": 20
