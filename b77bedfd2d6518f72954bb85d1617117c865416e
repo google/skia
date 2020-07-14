@@ -34,6 +34,23 @@
       "revId": "b77bedfd2d6518f72954bb85d1617117c865416e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67e3c2a5_9c9259d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-14T13:35:45Z",
+      "side": 1,
+      "message": "Looking at gold fail",
+      "revId": "b77bedfd2d6518f72954bb85d1617117c865416e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
