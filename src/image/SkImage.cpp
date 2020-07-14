@@ -20,6 +20,7 @@
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkMipMap.h"
 #include "src/core/SkNextID.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/image/SkImage_Base.h"
@@ -648,4 +649,42 @@ void SkImage_unpinAsTexture(const SkImage* image, GrContext* ctx) {
 SkIRect SkImage_getSubset(const SkImage* image) {
     SkASSERT(image);
     return as_IB(image)->onGetSubset();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkMipmapBuilder::SkMipmapBuilder(const SkImageInfo& info) {
+    fMM = sk_sp<SkMipMap>(SkMipMap::Build({info, nullptr, 0}, nullptr, false));
+}
+
+SkMipmapBuilder::~SkMipmapBuilder() {}
+
+int SkMipmapBuilder::countLevels() const {
+    return fMM ? fMM->countLevels() : 0;
+}
+
+SkPixmap SkMipmapBuilder::level(int index) const {
+    SkPixmap pm;
+
+    SkMipMap::Level level;
+    if (fMM && fMM->getLevel(index, &level)) {
+        pm = level.fPixmap;
+    }
+    return pm;
+}
+
+sk_sp<SkMipMap> SkMipmapBuilder::detach() {
+    return std::move(fMM);
+}
+
+bool SkImage::hasMipmaps() const {
+    return as_IB(this)->onPeekMips() != nullptr;
+}
+
+sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipMap> data) const {
+    auto result = as_IB(this)->onMakeWithMipmaps(std::move(data));
+    if (!result) {
+        result = sk_ref_sp((const_cast<SkImage*>(this)));
+    }
+    return result;
 }

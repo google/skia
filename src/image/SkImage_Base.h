@@ -10,6 +10,7 @@
 
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
+#include "src/core/SkMipMap.h"
 #include <atomic>
 
 #if SK_SUPPORT_GPU
@@ -45,6 +46,12 @@ public:
 
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
+
+    virtual SkMipMap* onPeekMips() const { return nullptr; }
+
+    sk_sp<SkMipMap> refMips() const {
+        return sk_ref_sp(this->onPeekMips());
+    }
 
     /**
      * Default implementation does a rescale/read and then calls the callback.
@@ -127,6 +134,11 @@ public:
                                                         SkColorType, sk_sp<SkColorSpace>) const = 0;
 
     virtual sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const = 0;
+
+    // on failure, returns nullptr
+    virtual sk_sp<SkImage> onMakeWithMipmaps(sk_sp<SkMipMap>) const {
+        return nullptr;
+    }
 
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);
