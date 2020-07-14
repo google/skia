@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15ffc667_748a85f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-14T20:14:23Z",
+      "side": 1,
+      "message": "Part of weaning off Filter::kMipMap in favor of none/nearest/linear level of control.",
+      "revId": "a91bad7b8316c17415c1c63c5c7d2f16f1ed8085",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
