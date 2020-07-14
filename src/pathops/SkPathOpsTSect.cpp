@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkTSort.h"
 #include "src/pathops/SkPathOpsTSect.h"
 
 #define COINCIDENT_SPAN_COUNT 9

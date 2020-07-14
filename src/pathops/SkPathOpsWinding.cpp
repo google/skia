@@ -21,6 +21,7 @@
 
 // bestXY is initialized by caller with basePt
 
+#include "src/core/SkTSort.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkPathOpsCurve.h"

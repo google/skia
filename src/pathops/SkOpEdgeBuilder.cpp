@@ -6,6 +6,7 @@
  */
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkTSort.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
 #include "src/pathops/SkReduceOrder.h"
 
