@@ -72,14 +72,6 @@ public:
         bool operator==(const Key& other) const;
     };
 
-    // Any glyphs that can't be rendered with the base or override descriptor
-    // are rendered as paths
-    struct PathGlyph {
-        PathGlyph(const SkPath& path, SkPoint origin);
-        SkPath fPath;
-        SkPoint fOrigin;
-    };
-
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
 
     // Change memory management to handle the data after GrTextBlob, but in the same allocation
@@ -200,6 +192,34 @@ public:
 private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
 };
+// -- GrPathSubRun ---------------------------------------------------------------------------------
+class GrPathSubRun : public GrSubRun {
+    struct PathGlyph;
+
+public:
+    GrPathSubRun(bool isAntiAliased, const SkStrikeSpec& strikeSpec, SkSpan<PathGlyph> paths);
+
+    void draw(const GrClip* clip,
+              const SkMatrixProvider& viewMatrix,
+              const SkGlyphRunList& glyphRunList,
+              GrRenderTargetContext* rtc) override;
+
+    static GrSubRun* MakePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                               bool isAntiAliased,
+                               const SkStrikeSpec& strikeSpec,
+                               SkArenaAlloc* alloc);
+
+private:
+    struct PathGlyph {
+        PathGlyph(const SkPath& path, SkPoint origin);
+        SkPath fPath;
+        SkPoint fOrigin;
+    };
+
+    const bool fIsAntiAliased;
+    const SkStrikeSpec fStrikeSpec;
+    const SkSpan<const PathGlyph> fPaths;
+};
 
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
 // Hold data to draw the different types of sub run. SubRuns are produced knowing all the
@@ -208,7 +228,6 @@ class GrAtlasSubRun : public GrSubRun {
     enum SubRunType {
         kDirectMask,
         kTransformedMask,
-        kTransformedPath,
         kTransformedSDFT
     };
 
@@ -234,19 +253,11 @@ public:
                   SkRect vertexBounds,
                   const SkSpan<VertexData>& vertexData);
 
-    // SubRun for paths
-    GrAtlasSubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
-
     std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
                     GrRenderTargetContext* rtc);
-
-    void drawPaths(const GrClip* clip,
-                   const SkMatrixProvider& viewMatrix,
-                   const SkGlyphRunList& glyphRunList,
-                   GrRenderTargetContext* rtc);
 
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -276,12 +287,6 @@ public:
     GrGlyph* grGlyph(int i) const;
 
     const SkStrikeSpec& strikeSpec() const;
-
-    static GrSubRun* MakePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                               const SkFont& runFont,
-                               const SkStrikeSpec& strikeSpec,
-                               GrTextBlob* blob,
-                               SkArenaAlloc* alloc);
 
     static GrSubRun* MakeSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                               const SkFont& runFont,
@@ -342,8 +347,6 @@ private:
     bool hasW() const;
     void setUseLCDText(bool useLCDText);
     void setAntiAliased(bool antiAliased);
-    SkSpan<const GrTextBlob::PathGlyph> paths() const { return SkMakeSpan(fPaths); }
-    bool drawAsPaths() const;
 
     // df properties
     bool hasUseLCDText() const;
@@ -373,7 +376,6 @@ private:
     // source space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
     const SkSpan<VertexData> fVertexData;
-    std::vector<GrTextBlob::PathGlyph> fPaths;
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
 };  // SubRun
 
