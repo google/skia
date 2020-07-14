@@ -13,7 +13,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkScopeExit.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrClip.h"
@@ -98,7 +98,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     }
 
     for (int i = 0; i < fNumViews; ++i) {
-        int mipCount = SkMipMap::ComputeLevelCount(fViews[i].proxy()->width(),
+        int mipCount = SkMipmap::ComputeLevelCount(fViews[i].proxy()->width(),
                                                    fViews[i].proxy()->height());
         if (mipCount && GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
                                                     fViews[i].asTextureProxy(),

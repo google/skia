@@ -13,7 +13,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrCaps.h"
@@ -65,7 +65,7 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
         !caps->mipMapSupport()) {
         return false;
     }
-    return SkMipMap::ComputeLevelCount(texProxy->width(), texProxy->height()) > 0;
+    return SkMipmap::ComputeLevelCount(texProxy->width(), texProxy->height()) > 0;
 }
 
 static bool validate_texel_levels(SkISize dimensions, GrColorType texelColorType,
@@ -823,7 +823,7 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions,
                               const BackendTextureData* data) {
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     if (!data || data->type() == BackendTextureData::Type::kColor) {

@@ -30,7 +30,7 @@
 #include "src/gpu/dawn/GrDawnUtil.h"
 
 #include "src/core/SkAutoMalloc.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #if !defined(SK_BUILD_FOR_WIN)
@@ -327,7 +327,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     desc.size.width = dimensions.width();
