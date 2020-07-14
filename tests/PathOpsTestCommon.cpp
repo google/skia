@@ -77,7 +77,7 @@ static void toQuadraticTs(const SkDCubic* cubic, double precision, SkTArray<doub
         inflections += cubic->findMaxCurvature(&inflectT[inflections]);
         SkASSERT(inflections <= 5);
     }
-    SkTQSort<double>(inflectT, &inflectT[inflections - 1]);
+    SkTQSort<double>(inflectT, inflectT + inflections);
     // OPTIMIZATION: is this filtering common enough that it needs to be pulled out into its
     // own subroutine?
     while (inflections && approximately_less_than_zero(inflectT[0])) {
