@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2116ae85_1800ab3c",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-14T13:08:16Z",
+      "side": 1,
+      "message": "I think I might take out \"PerSubmit\"",
+      "range": {
+        "startLine": 237,
+        "startChar": 8,
+        "endLine": 237,
+        "endChar": 56
+      },
+      "revId": "5b009b09a05802c4aa7ea060a952b0dccbba58f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
