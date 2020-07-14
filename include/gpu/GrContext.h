@@ -533,7 +533,7 @@ public:
      * If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
      * the data for all the mipmap levels must be provided. In the mipmapped case all the
      * colortypes of the provided pixmaps must be the same. Additionally, all the miplevels
-     * must be sized correctly (please see SkMipMap::ComputeLevelSize and ComputeLevelCount).
+     * must be sized correctly (please see SkMipmap::ComputeLevelSize and ComputeLevelCount).
      * Note: the pixmap's alphatypes and colorspaces are ignored.
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
@@ -579,7 +579,7 @@ public:
      * If the backend texture is mip mapped, the data for all the mipmap levels must be provided.
      * In the mipmapped case all the colortypes of the provided pixmaps must be the same.
      * Additionally, all the miplevels must be sized correctly (please see
-     * SkMipMap::ComputeLevelSize and ComputeLevelCount).
+     * SkMipmap::ComputeLevelSize and ComputeLevelCount).
      * Note: the pixmap's alphatypes and colorspaces are ignored.
      * For the Vulkan backend after a successful update the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
@@ -633,7 +633,7 @@ public:
      * The finishedProc will always get called even if we failed to create the GrBackendTexture
      * If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
      * the data for all the mipmap levels must be provided. Additionally, all the miplevels
-     * must be sized correctly (please see SkMipMap::ComputeLevelSize and ComputeLevelCount).
+     * must be sized correctly (please see SkMipmap::ComputeLevelSize and ComputeLevelCount).
      * For the Vulkan backend the layout of the created VkImage will be:
      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
      */

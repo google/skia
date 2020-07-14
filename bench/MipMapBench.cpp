@@ -7,7 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 
 class MipMapBench: public Benchmark {
     SkBitmap fBitmap;
@@ -42,7 +42,7 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops * 4; i++) {
-            SkMipMap::Build(fBitmap, nullptr)->unref();
+            SkMipmap::Build(fBitmap, nullptr)->unref();
         }
     }
 

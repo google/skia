@@ -12,7 +12,7 @@
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
 

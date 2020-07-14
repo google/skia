@@ -14,7 +14,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
@@ -719,7 +719,7 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, SkTArray<VkBufferImageCopy>* reg
                               VkDeviceSize bufferOffset) {
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     regions->reserve(numMipLevels);
@@ -1124,7 +1124,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
     }
 
     // Compressed textures with MIP levels or multiple samples are not supported as of now.
@@ -1433,8 +1433,8 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     VkImageBlit blitRegion;
     memset(&blitRegion, 0, sizeof(VkImageBlit));
 
-    // SkMipMap doesn't include the base level in the level count so we have to add 1
-    uint32_t levelCount = SkMipMap::ComputeLevelCount(tex->width(), tex->height()) + 1;
+    // SkMipmap doesn't include the base level in the level count so we have to add 1
+    uint32_t levelCount = SkMipmap::ComputeLevelCount(tex->width(), tex->height()) + 1;
     SkASSERT(levelCount == vkTex->mipLevels());
 
     // change layout of the layers so we can write to them.
@@ -1579,7 +1579,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     VkImageUsageFlags usageFlags = 0;

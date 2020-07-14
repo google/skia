@@ -9,7 +9,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
@@ -77,7 +77,7 @@ static void check_compressed_mipmaps(GrContext* context, sk_sp<SkImage> img,
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(32, 32)+1;
+        numMipLevels = SkMipmap::ComputeLevelCount(32, 32)+1;
     }
 
     for (int i = 0, rectSize = 32; i < numMipLevels; ++i, rectSize /= 2) {
@@ -171,7 +171,7 @@ static std::unique_ptr<const char[]> make_compressed_data(SkImage::CompressionTy
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     SkTArray<size_t> mipMapOffsets(numMipLevels);
