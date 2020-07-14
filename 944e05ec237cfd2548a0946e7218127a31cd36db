@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8f1eec48_85e10500",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T14:50:29Z",
+      "side": 1,
+      "message": "(Not to start a scrap, I think the new code is right.)",
+      "parentUuid": "79a1cf71_6eb0a0cb",
+      "revId": "944e05ec237cfd2548a0946e7218127a31cd36db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67603614_6bb719a3",
         "filename": "src/core/SkBitmapController.cpp",
         "patchSetId": 20
