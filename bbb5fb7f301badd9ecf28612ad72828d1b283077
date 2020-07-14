@@ -22,6 +22,30 @@
       "revId": "bbb5fb7f301badd9ecf28612ad72828d1b283077",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d63713e_e7857e8e",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-14T22:41:51Z",
+      "side": 1,
+      "message": "Done. missed it because it didn\u0027t cause any build errors, I guess these are not getting used anywhere.",
+      "parentUuid": "de7b2fbe_bfeb9e99",
+      "range": {
+        "startLine": 690,
+        "startChar": 0,
+        "endLine": 695,
+        "endChar": 9
+      },
+      "revId": "bbb5fb7f301badd9ecf28612ad72828d1b283077",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
