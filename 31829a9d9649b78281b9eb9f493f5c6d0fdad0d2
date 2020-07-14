@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "844bf70c_ac60dde7",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:46:16Z",
+      "side": 1,
+      "message": "looks great to me.",
+      "range": {
+        "startLine": 484,
+        "startChar": 13,
+        "endLine": 484,
+        "endChar": 19
+      },
+      "revId": "31829a9d9649b78281b9eb9f493f5c6d0fdad0d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
