@@ -131,6 +131,18 @@ void GrBlockAllocator::releaseBlock(Block* block) {
 }
 
 void GrBlockAllocator::reset() {
+    for (Block* b : this->rblocks()) {
+        if (b == &fHead) {
+            // Reset metadata and cursor, tail points to the head block again
+            fTail = b;
+            b->fNext = nullptr;
+            b->fCursor = kDataStart;
+            b->fMetadata = 0;
+        } else {
+            delete b;
+        }
+    }
+
     // We can't use the RBlocks for-range since we're destroying the linked list as we go
     Block* toFree = fTail;
     while(toFree) {
