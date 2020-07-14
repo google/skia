@@ -225,6 +225,17 @@ struct SK_API GrContextOptions {
      */
     int  fInternalMultisampleCount = 4;
 
+    /**
+     * In Skia's vulkan backend a single GrContext submit equates to the submission of a single
+     * primary command buffer to the VkQueue. This value specifies how many vulkan secondary command
+     * buffers we will cache for reuse on a given primary command buffer. A single submit may use
+     * more than this many secondary command buffers, but after the primary command buffer is
+     * finished on the GPU it will only hold on to this many secondary command buffers for reuse.
+     *
+     * A value of -1 means we will pick a limit value internally.
+     */
+    int fMaxCachedVulkanSecondaryCommandBuffers = -1;
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.

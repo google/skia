@@ -45,7 +45,9 @@ GrVkCommandPool::GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool,
                                  GrVkPrimaryCommandBuffer* primaryCmdBuffer)
         : GrVkManagedResource(gpu)
         , fCommandPool(commandPool)
-        , fPrimaryCommandBuffer(primaryCmdBuffer) {
+        , fPrimaryCommandBuffer(primaryCmdBuffer)
+        , fMaxCachedSecondaryCommandBuffers(
+                gpu->vkCaps().maxPerPoolCachedSecondaryCommandBuffers()) {
 }
 
 std::unique_ptr<GrVkSecondaryCommandBuffer> GrVkCommandPool::findOrCreateSecondaryCommandBuffer(
@@ -62,7 +64,9 @@ std::unique_ptr<GrVkSecondaryCommandBuffer> GrVkCommandPool::findOrCreateSeconda
 
 void GrVkCommandPool::recycleSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer) {
     std::unique_ptr<GrVkSecondaryCommandBuffer> scb(buffer);
-    fAvailableSecondaryBuffers.push_back(std::move(scb));
+    if (fAvailableSecondaryBuffers.count() < fMaxCachedSecondaryCommandBuffers) {
+        fAvailableSecondaryBuffers.push_back(std::move(scb));
+    }
 }
 
 void GrVkCommandPool::close() {
