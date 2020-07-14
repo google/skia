@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "321baef0_cce372b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T19:32:11Z",
+      "side": 1,
+      "message": "Yeah, this one is definitely unexpected to me. The goal of this CL was specifically to keep the algorithm the same while fixing the ergonomics. \n\nI don\u0027t plan on submitting this CL if it changes outcomes on CPU side. I\u0027ll re-read the CL and make sure I didn\u0027t miss something.",
+      "parentUuid": "87d96684_b902c566",
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fd3a9257_c8b26150",
         "filename": "src/core/SkTSort.h",
         "patchSetId": 11
@@ -30,6 +48,30 @@
       "writtenOn": "2020-07-14T19:19:27Z",
       "side": 1,
       "message": "(lambdas are functors)",
+      "range": {
+        "startLine": 160,
+        "startChar": 30,
+        "endLine": 160,
+        "endChar": 37
+      },
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "951affbf_bb9cfdf5",
+        "filename": "src/core/SkTSort.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T19:32:11Z",
+      "side": 1,
+      "message": "Technically correct! :) Do you think I should remove the word lambda here?",
+      "parentUuid": "fd3a9257_c8b26150",
       "range": {
         "startLine": 160,
         "startChar": 30,
@@ -56,6 +98,24 @@
       "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "261a7cf0_e7582f2d",
+        "filename": "src/gpu/gl/GrGLExtensions.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T19:32:11Z",
+      "side": 1,
+      "message": "They\u0027ve removed an item from an already-sorted list using removeShuffle (because SkTArray doesn\u0027t allow erasing from the middle). Almost-perfectly-ordered data is a pathologically bad case for QSort and really efficient for insertion sort. But the \"best\" fix would be for SkTArray to support a proper `erase` method and then no sort would be needed at all.\n\n(In practice I doubt it matters either way since this is probably far off the hot path)",
+      "parentUuid": "d91cbc6e_d476b15a",
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

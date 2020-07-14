@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c06e0e20_23870732",
+        "filename": "tools/Stats.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T19:32:11Z",
+      "side": 0,
+      "message": "The original code triggered a warning on Android build. On the `memcpy` line, `n * sizeof(double)` can overflow the size of an int. I just rewrote it since there\u0027s no reason that it needed to be complex. No idea why this warning didn\u0027t bite us before though.",
+      "parentUuid": "d93540e9_88769f05",
+      "revId": "3d00a97bce7755b31d20d002eee4099da8547dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b5276d6_51440821",
         "filename": "tools/Stats.h",
         "patchSetId": 11
@@ -33,6 +51,24 @@
       "revId": "3d00a97bce7755b31d20d002eee4099da8547dc2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "957c1459_d78315d0",
+        "filename": "tools/Stats.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T19:32:11Z",
+      "side": 0,
+      "message": "Thanks for noticing this! Restored.",
+      "parentUuid": "0b5276d6_51440821",
+      "revId": "3d00a97bce7755b31d20d002eee4099da8547dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
