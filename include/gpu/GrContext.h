@@ -46,6 +46,8 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
+
+
 class SK_API GrContext : public GrRecordingContext {
 public:
 #ifndef SK_DISABLE_LEGACY_CONTEXT_FACTORIES

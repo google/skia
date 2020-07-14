@@ -184,9 +184,14 @@ void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCal
 
 bool GrContextPriv::validPMUPMConversionExists() {
     ASSERT_SINGLE_OWNER
+
+    // CONTEXT TODO: remove this downcast when this class becomes GrDirectContextPriv
+    auto direct = GrAsDirectContext(fContext);
+    SkASSERT(direct);
+
     if (!fContext->fDidTestPMConversions) {
         fContext->fPMUPMConversionsRoundTrip =
-                GrConfigConversionEffect::TestForPreservingPMConversions(fContext);
+                GrConfigConversionEffect::TestForPreservingPMConversions(direct);
         fContext->fDidTestPMConversions = true;
     }
 

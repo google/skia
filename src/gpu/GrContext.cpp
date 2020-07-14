@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkTraceMemoryDump.h"
@@ -464,7 +464,7 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
 }
 
 static GrBackendTexture create_and_update_backend_texture(
-        GrContext* context,
+        GrDirectContext* context,
         SkISize dimensions,
         const GrBackendFormat& backendFormat,
         GrMipMapped mipMapped,
