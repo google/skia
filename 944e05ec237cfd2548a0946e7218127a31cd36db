@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "77ba8ff8_30bc5b46",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-14T14:51:51Z",
+      "side": 1,
+      "message": "I don\u0027t particularly care either way. It just seems weird to have both in the public API.",
+      "parentUuid": "8f1eec48_85e10500",
+      "revId": "944e05ec237cfd2548a0946e7218127a31cd36db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67603614_6bb719a3",
         "filename": "src/core/SkBitmapController.cpp",
         "patchSetId": 20
