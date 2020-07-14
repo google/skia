@@ -55,9 +55,6 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     // TODO: implement
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
 
-    // TODO: Can re-enable when fillRectToRect draw with shader works
-    fAvoidWritePixelsFastPath = true;
-
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
     this->init(contextOptions, adapter, device);

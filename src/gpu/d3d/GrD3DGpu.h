@@ -227,6 +227,15 @@ private:
     void resolveTexture(GrSurface* dst, int32_t dstX, int32_t dstY,
                         GrD3DRenderTarget* src, const SkIRect& srcRect);
 
+    sk_sp<GrD3DTexture> createD3DTexture(SkISize,
+                                         DXGI_FORMAT,
+                                         GrRenderable,
+                                         int renderTargetSampleCnt,
+                                         SkBudgeted,
+                                         GrProtected,
+                                         int mipLevelCount,
+                                         GrMipMapsStatus);
+
     bool uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
                          GrColorType colorType, const GrMipLevel* texels, int mipLevelCount);
 
