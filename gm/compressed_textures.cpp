@@ -24,7 +24,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -108,7 +108,7 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
     sk_sp<SkData> tmp = SkData::MakeUninitialized(totalSize);
     char* pixels = (char*) tmp->writable_data();
 
-    int numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    int numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
 
     size_t offset = 0;
 
@@ -247,7 +247,7 @@ private:
         }
 
         SkISize levelDimensions = fImgDimensions;
-        int numMipLevels = SkMipMap::ComputeLevelCount(levelDimensions.width(),
+        int numMipLevels = SkMipmap::ComputeLevelCount(levelDimensions.width(),
                                                        levelDimensions.height()) + 1;
 
         SkPaint imagePaint;

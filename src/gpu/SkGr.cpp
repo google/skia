@@ -25,7 +25,7 @@
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMessageBus.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkTraceEvent.h"
