@@ -69,6 +69,24 @@
       "revId": "313c4b96451aea81ac88a796cd2fd16c9b6540ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b85bbb8_96499e8c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T19:40:30Z",
+      "side": 1,
+      "message": "I agree the code was getting very wordy. I moved all the boilerplate into another lambda, which should help.",
+      "parentUuid": "bd8500e9_51e26798",
+      "revId": "313c4b96451aea81ac88a796cd2fd16c9b6540ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
