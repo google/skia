@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09a64965_84ff9551",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T18:35:23Z",
+      "side": 1,
+      "message": "I want to add some tests (and fix up the CPU backend), but since I wrote a comment that turned into an essay about the next big change, I figured I\u0027d get the ball rolling.",
+      "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd084612_ab7a5d74",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T18:35:23Z",
+      "side": 1,
+      "message": "This (again) points back to the discussion about the default inputColor argument to sample/invokeChild. I think that args.fInputColor is a more sensible default in our future world, but that actually affects two behaviors (I think both are desirable, just want to point this out):\n\n1) What\u0027s returned if you sample a null child? Having this be the inputColor (and therefore, be args.fInputColor) makes sense to me.\n\n2) What\u0027s passed as the input color to non-null children? Today, our .fp files have a mix of sample(child, sk_InColor), sample(child), and a few sample(child, somethingElse). Well over half pass sk_InColor, which also argues for that being the defualt. Of the dozen or so calls to sample(child), most (all?) statically know that the child isn\u0027t going to use the input color, because it\u0027s always a texture effect storing a lookup table or similar. Even if that isn\u0027t the case, I think that being explicit about the child calls that want to block the input/default color will make more sense?\n\nShort version: I think that we can switch around the defaults here, but am I missing some compelling reason not to tie together what happens when you sample a null child, and what non-null children see as the input/default color?",
+      "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
