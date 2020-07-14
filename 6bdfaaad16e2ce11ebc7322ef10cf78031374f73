@@ -16,6 +16,23 @@
       "revId": "6bdfaaad16e2ce11ebc7322ef10cf78031374f73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7344422c_7943e970",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-14T16:03:38Z",
+      "side": 1,
+      "message": "I\u0027m fine with it, but the name GrSubRun doesn\u0027t seem to make it obvious what it is a partial run of. At this point since it\u0027s independent of the the text blob stuff, is this a GrGlyphRun? It seems like it is now an independent run of glyphs and it can provide information on how to draw them.",
+      "revId": "6bdfaaad16e2ce11ebc7322ef10cf78031374f73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
