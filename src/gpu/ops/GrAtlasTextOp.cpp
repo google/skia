@@ -35,7 +35,7 @@
 
 GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              GrPaint&& paint,
-                             GrSubRun* subrun,
+                             GrAtlasSubRun* subrun,
                              const SkMatrix& drawMatrix,
                              SkPoint drawOrigin,
                              const SkIRect& clipRect,
@@ -505,9 +505,9 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
         return nullptr;
     }
 
+    GrAtlasSubRun* subRun = static_cast<GrAtlasSubRun*>(blob->subRunList().head());
     std::unique_ptr<GrDrawOp> op;
-    std::tie(std::ignore, op) =
-            blob->subRunList().head()->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
+    std::tie(std::ignore, op) = subRun->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
     return op;
 }
 
