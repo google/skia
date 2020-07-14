@@ -188,11 +188,23 @@ private:
     SkArenaAlloc fAlloc;
 };
 
-
 // -- GrSubRun -------------------------------------------------------------------------------------
+class GrSubRun {
+public:
+    virtual ~GrSubRun() = default;
+    virtual void draw(const GrClip* clip,
+                      const SkMatrixProvider& viewMatrix,
+                      const SkGlyphRunList& glyphRunList,
+                      GrRenderTargetContext* rtc) = 0;
+
+private:
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
+};
+
+// -- GrAtlasSubRun --------------------------------------------------------------------------------
 // Hold data to draw the different types of sub run. SubRuns are produced knowing all the
 // glyphs that are included in them.
-class GrSubRun {
+class GrAtlasSubRun : public GrSubRun {
     enum SubRunType {
         kDirectMask,
         kTransformedMask,
@@ -215,15 +227,15 @@ public:
     };
 
     // SubRun for masks
-    GrSubRun(SubRunType type,
-             GrTextBlob* textBlob,
-             const SkStrikeSpec& strikeSpec,
-             GrMaskFormat format,
-             SkRect vertexBounds,
-             const SkSpan<VertexData>& vertexData);
+    GrAtlasSubRun(SubRunType type,
+                  GrTextBlob* textBlob,
+                  const SkStrikeSpec& strikeSpec,
+                  GrMaskFormat format,
+                  SkRect vertexBounds,
+                  const SkSpan<VertexData>& vertexData);
 
     // SubRun for paths
-    GrSubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
+    GrAtlasSubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
 
     std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
     makeAtlasTextOp(const GrClip* clip,
@@ -239,7 +251,7 @@ public:
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
-              GrRenderTargetContext* rtc);
+              GrRenderTargetContext* rtc) override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target);
 
@@ -270,16 +282,19 @@ public:
                                const SkStrikeSpec& strikeSpec,
                                GrTextBlob* blob,
                                SkArenaAlloc* alloc);
+
     static GrSubRun* MakeSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                               const SkFont& runFont,
                               const SkStrikeSpec& strikeSpec,
                               GrTextBlob* blob,
                               SkArenaAlloc* alloc);
+
     static GrSubRun* MakeDirectMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec,
                                     GrMaskFormat format,
                                     GrTextBlob* blob,
                                     SkArenaAlloc* alloc);
+
     static GrSubRun* MakeTransformedMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                          const SkStrikeSpec& strikeSpec,
                                          GrMaskFormat format,
@@ -318,12 +333,12 @@ private:
         AtlasPt atlasPos;
     };
 
-    static GrSubRun* InitForAtlas(SubRunType type,
-                                  const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                  const SkStrikeSpec& strikeSpec,
-                                  GrMaskFormat format,
-                                  GrTextBlob* blob,
-                                  SkArenaAlloc* alloc);
+    static GrAtlasSubRun* InitForAtlas(SubRunType type,
+                                       const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                       const SkStrikeSpec& strikeSpec,
+                                       GrMaskFormat format,
+                                       GrTextBlob* blob,
+                                       SkArenaAlloc* alloc);
     bool hasW() const;
     void setUseLCDText(bool useLCDText);
     void setAntiAliased(bool antiAliased);
@@ -345,7 +360,6 @@ private:
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
 
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
     const SubRunType fType;
     const GrMaskFormat fMaskFormat;
     bool fUseLCDText{false};

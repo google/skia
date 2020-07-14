@@ -510,7 +510,7 @@ private:
     SkScalar setupForAsPaths(SkPaint*);
     bool hasSomeAntiAliasing() const;
 
-    friend class GrSubRun;
+    friend class GrAtlasSubRun;
     friend class SkFontPriv;
     friend class SkGlyphRunListPainter;
     friend class SkTextBlobCacheDiffCanvas;
