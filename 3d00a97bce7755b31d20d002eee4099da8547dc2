@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "32de0344_e4ed92e9",
+        "filename": "tools/Stats.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T20:04:14Z",
+      "side": 0,
+      "message": "Almost. SkTQSort takes pointers, not general purpose iterators, so you have to do\n\n   std::vector\u003cdouble\u003e sorted(samples.begin(), samples.end());\n   SkTQSort(\u0026*sorted.begin(), \u0026*sorted.end());\n\nIt would be cool to update QSort to work with anything that qualifies as a random-access iterator but that doesn\u0027t offer a lot of benefit to the rest of Skia.",
+      "parentUuid": "89b355c8_ebdc7d3a",
+      "revId": "3d00a97bce7755b31d20d002eee4099da8547dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b5276d6_51440821",
         "filename": "tools/Stats.h",
         "patchSetId": 11

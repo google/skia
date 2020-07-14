@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "b5ada45f_007dc768",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T20:04:14Z",
+      "side": 1,
+      "message": "I noticed an off-by-one change in how we calculate the \"depth\" cutoff for switching from quicksort into heapsort. Rerunning now, fingers crossed. If that\u0027s not it I\u0027m quite stumped.",
+      "parentUuid": "321baef0_cce372b8",
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fd3a9257_c8b26150",
         "filename": "src/core/SkTSort.h",
         "patchSetId": 11
@@ -108,6 +126,30 @@
     },
     {
       "key": {
+        "uuid": "91386d81_c43d2e2d",
+        "filename": "src/core/SkTSort.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T20:04:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "97210a20_db9a4d96",
+      "range": {
+        "startLine": 160,
+        "startChar": 30,
+        "endLine": 160,
+        "endChar": 37
+      },
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d91cbc6e_d476b15a",
         "filename": "src/gpu/gl/GrGLExtensions.cpp",
         "patchSetId": 11
@@ -155,6 +197,24 @@
       "side": 1,
       "message": "sg.  What I was trying to get at here is that SkTQSort() is not a quicksort, and already chooses among various approaches depending on the data.  It seems like an unusual place to bypass those smarts.  But I wouldn\u0027t change anything with this CL.",
       "parentUuid": "261a7cf0_e7582f2d",
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "840a2628_b45c0e40",
+        "filename": "src/gpu/gl/GrGLExtensions.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T20:04:14Z",
+      "side": 1,
+      "message": "SkTQSort doesn\u0027t really do anything clever based on the contents of the data, it\u0027s just switching between heap/insertion/quicksort approaches the way all introsorts do based on predefined limits. I wouldn\u0027t have called that \"choosing an approach\" as it\u0027s super naive about it--insertion sort below a certain size threshold, heapsort when we blow our depth limit, quicksort the rest of the time. That\u0027s just what introsorts do :) \n\nIt\u0027s not a big deal, and you\u0027re right to question this because it really shouldn\u0027t be sorting at all; it just needs to erase one object from the middle of a sorted list, and insertion sort happens to do the right thing. It\u0027s goofy. \n\n(If you think it\u0027s worthwhile, we could add an erase(index) method to SkTArray and remove the sort here entirely, but my gut feeling is that this is gilding the lily and that you wouldn\u0027t ask for this change.)",
+      "parentUuid": "e954b7e3_4806c569",
       "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
