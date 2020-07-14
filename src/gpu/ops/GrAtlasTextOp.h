@@ -23,16 +23,16 @@ public:
         }
     }
 
-    static const int kVerticesPerGlyph = GrSubRun::kVerticesPerGlyph;
+    static const int kVerticesPerGlyph = GrAtlasSubRun::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
     struct Geometry {
-        SkMatrix    fDrawMatrix;
-        SkIRect     fClipRect;
-        GrTextBlob* fBlob;
-        SkPoint     fDrawOrigin;
-        GrSubRun*   fSubRunPtr;
-        SkPMColor4f fColor;
+        SkMatrix       fDrawMatrix;
+        SkIRect        fClipRect;
+        GrTextBlob*    fBlob;
+        SkPoint        fDrawOrigin;
+        GrAtlasSubRun* fSubRunPtr;
+        SkPMColor4f    fColor;
 
         void fillVertexData(void* dst, int offset, int count) const;
     };
@@ -80,7 +80,7 @@ private:
 
     GrAtlasTextOp(MaskType maskType,
                   GrPaint&& paint,
-                  GrSubRun* subrun,
+                  GrAtlasSubRun* subrun,
                   const SkMatrix& drawMatrix,
                   SkPoint drawOrigin,
                   const SkIRect& clipRect,
