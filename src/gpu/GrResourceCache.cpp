@@ -689,7 +689,7 @@ uint32_t GrResourceCache::getNextTimestamp() {
                 fPurgeableQueue.pop();
             }
 
-            SkTQSort(fNonpurgeableResources.begin(), fNonpurgeableResources.end() - 1,
+            SkTQSort(fNonpurgeableResources.begin(), fNonpurgeableResources.end(),
                      CompareTimestamp);
 
             // Pick resources out of the purgeable and non-purgeable arrays based on lowest
