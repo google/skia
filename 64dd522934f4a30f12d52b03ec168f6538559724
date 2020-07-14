@@ -113,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "ab625b6f_7b8ce6d1",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T14:40:42Z",
+      "side": 1,
+      "message": "I\u0027ll try",
+      "parentUuid": "5fd94f1a_99a4a1f0",
+      "range": {
+        "startLine": 78,
+        "startChar": 20,
+        "endLine": 78,
+        "endChar": 32
+      },
+      "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fce50c02_7a4916c9",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 17
@@ -124,6 +148,24 @@
       "writtenOn": "2020-07-14T14:15:29Z",
       "side": 1,
       "message": "Might be a good one to inline unless it does anything but proxy into the other?",
+      "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d77eedf_9e97fe10",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T14:40:42Z",
+      "side": 1,
+      "message": "Done. I thought I would need to include pixmap.h, but it is already being included indirect. Making that explicit.",
+      "parentUuid": "fce50c02_7a4916c9",
       "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -153,6 +195,30 @@
     },
     {
       "key": {
+        "uuid": "20995bf7_245744fd",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T14:40:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00e7fa13_c1b014bd",
+      "range": {
+        "startLine": 64,
+        "startChar": 21,
+        "endLine": 64,
+        "endChar": 22
+      },
+      "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3f5ebc0_b522af6b",
         "filename": "src/core/SkBitmapController.cpp",
         "patchSetId": 17
@@ -173,6 +239,30 @@
       "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f39039b_d9df72d5",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T14:40:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3f5ebc0_b522af6b",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 73,
+        "endChar": 13
+      },
+      "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -199,6 +289,30 @@
     },
     {
       "key": {
+        "uuid": "96a07ec5_fb5709b3",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T14:40:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7fe324a_3d709019",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 161,
+        "endChar": 9
+      },
+      "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c47c89d_95d10918",
         "filename": "src/core/SkMipMap.h",
         "patchSetId": 17
@@ -213,6 +327,24 @@
       "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97e55e6f_9fceec09",
+        "filename": "src/core/SkMipMap.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T14:40:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c47c89d_95d10918",
+      "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
