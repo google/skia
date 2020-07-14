@@ -10,15 +10,20 @@
 
 #include "src/gpu/GrBlockAllocator.h"
 
+#include <type_traits>
+
+/**
+ * GrTAllocator manages dynamic storage for instances of T, reserving fixed blocks such that
+ * allocation is amortized across every N instances. The optional StartingItems argument specifies
+ * how many instances can be stored inline with the GrTAllocator.
+ */
 template <typename T, int StartingItems = 1>
 class GrTAllocator {
 public:
     /**
      * Create an allocator that defaults to using StartingItems as heap increment.
      */
-    GrTAllocator()
-            : fTotalCount(0)
-            , fAllocator(GrBlockAllocator::GrowthPolicy::kFixed) {}
+    GrTAllocator() : GrTAllocator(StartingItems) {}
 
     /**
      * Create an allocator
@@ -82,11 +87,13 @@ public:
      * Removes all added items.
      */
     void reset() {
-        // Invoke destructors in reverse order
-        for (const auto* b : fAllocator->rblocks()) {
-            int c = b->metadata();
-            for (int i = c - 1; i >= 0; i--) {
-                GetItem(b, i)->~T();
+        // Invoke destructors in reverse order if not trivially destructible
+        if /* constexpr */ (!std::is_trivially_destructible<T>::value) {
+            for (const auto* b : fAllocator->rblocks()) {
+                int c = b->metadata();
+                for (int i = c - 1; i >= 0; i--) {
+                    GetItem(b, i)->~T();
+                }
             }
         }
 
