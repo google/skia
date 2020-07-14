@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81514bdd_cfc54be2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:00:23Z",
+      "side": 1,
+      "message": "This ended up being simpler than I expected. It only took so long because I wanted to test some of the more disruptive things incrementally. In the end, I was able to really simplify the generated code, particularly around sampling.",
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
