@@ -15,7 +15,8 @@ class GrDawnGpu;
 
 class GrDawnBuffer : public GrGpuBuffer {
 public:
-    GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType tpye, GrAccessPattern pattern);
+    GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType type, GrAccessPattern pattern);
+
     ~GrDawnBuffer() override;
 
     void onMap() override;
@@ -25,10 +26,26 @@ public:
     GrDawnGpu* getDawnGpu() const;
     wgpu::Buffer get() const { return fBuffer; }
 
+    void mapWriteAsync();
+    void mapReadAsync();
+
+    void setMapPtr(void* mapPtr) {
+        fMapPtr = mapPtr;
+    }
+
 private:
     wgpu::Buffer fBuffer;
+
+    enum class Mappable {
+        kNot,
+        kReadOnly,
+        kWriteOnly,
+    };
+    Mappable fMappable = Mappable::kNot;
+
     wgpu::Buffer fStagingBuffer;
-    size_t       fStagingOffset;
+    size_t fStagingOffset = 0;
+
     typedef GrGpuBuffer INHERITED;
 };
 
