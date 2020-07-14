@@ -157,9 +157,9 @@ void GrDawnTexture::upload(GrColorType srcColorType, const GrMipLevel texels[],
 
         wgpu::BufferCopyView srcBuffer;
         srcBuffer.buffer = static_cast<GrDawnStagingBuffer*>(slice.fBuffer)->buffer();
-        srcBuffer.offset = slice.fOffset;
-        srcBuffer.bytesPerRow = dstRowBytes;
-        srcBuffer.rowsPerImage = height;
+        srcBuffer.layout.offset = slice.fOffset;
+        srcBuffer.layout.bytesPerRow = dstRowBytes;
+        srcBuffer.layout.rowsPerImage = height;
 
         wgpu::TextureCopyView dstTexture;
         dstTexture.texture = fInfo.fTexture;
