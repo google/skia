@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d50b50c_81c4d54e",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "nit: WebGL",
+      "range": {
+        "startLine": 45,
+        "startChar": 63,
+        "endLine": 45,
+        "endChar": 68
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fa9cfef_45069eab",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 190,
+        "startChar": 10,
+        "endLine": 190,
+        "endChar": 22
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ba93b3e_7ce68f69",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "Maybe make this a constant like perfKeyWebGLVersion",
+      "range": {
+        "startLine": 194,
+        "startChar": 17,
+        "endLine": 194,
+        "endChar": 30
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a62ecc0_2e2be9bd",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "nit: typo",
+      "range": {
+        "startLine": 1054,
+        "startChar": 51,
+        "endLine": 1054,
+        "endChar": 60
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8302acb_bf7960f3",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "nit: wrap comments to 100 cols",
+      "range": {
+        "startLine": 1054,
+        "startChar": 92,
+        "endLine": 1054,
+        "endChar": 100
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f2671ea_28d64256",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "Do we really want this console.log statement?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 63
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e5c12e7_7a52abda",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "Did you update CHANGELOG.md?",
+      "range": {
+        "startLine": 59,
+        "startChar": 75,
+        "endLine": 59,
+        "endChar": 80
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef9eca42_9b022a46",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "This comment seems out of date now.",
+      "range": {
+        "startLine": 69,
+        "startChar": 40,
+        "endLine": 69,
+        "endChar": 48
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a9c9fe7_72828a8f",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "Please remove debugger statements here and line 99",
+      "range": {
+        "startLine": 72,
+        "startChar": 8,
+        "endLine": 72,
+        "endChar": 16
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caed17b6_4094e73a",
+        "filename": "tools/perf-canvaskit-puppeteer/skottie-frames.html",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-14T18:01:52Z",
+      "side": 1,
+      "message": "Thank you for sharing this API with me.",
+      "range": {
+        "startLine": 75,
+        "startChar": 36,
+        "endLine": 75,
+        "endChar": 51
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
