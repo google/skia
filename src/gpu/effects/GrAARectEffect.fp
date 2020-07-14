@@ -13,7 +13,7 @@ uniform float4 rectUniform;
 
 @optimizationFlags {
     (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-    kCompatibleWithCoverageAsAlpha_OptimizationFlag
+     kCompatibleWithCoverageAsAlpha_OptimizationFlag
 }
 
 void main() {
@@ -59,12 +59,8 @@ void main() {
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1());
-    std::unique_ptr<GrFragmentProcessor> fp;
-    do {
-        GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
-                d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
+    GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
+            d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
 
-        fp = GrAARectEffect::Make(/*inputFP=*/nullptr, edgeType, rect);
-    } while (nullptr == fp);
-    return fp;
+    return GrAARectEffect::Make(d->inputFP(), edgeType, rect);
 }
