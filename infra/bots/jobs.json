@@ -377,6 +377,7 @@
   "Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Debug-All-Android_Vulkan",
   "Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android",
   "Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android_Vulkan",
+  "Test-Android-Clang-Pixel4-GPU-Adreno640-arm64-Debug-All-Android",
   "Test-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Debug-All-Android",
   "Test-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Debug-All-Android_Vulkan",
   "Test-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android",
