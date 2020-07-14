@@ -39,6 +39,30 @@
       "revId": "2159bba98404f84b6902271fc855a15f26ac9fe2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d80f1ca_e921a749",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-14T20:27:37Z",
+      "side": 1,
+      "message": "I think that\u0027s probably true. Though, I\u0027d like to move most of the producer functionality to land in SkImage subclasses and then have a standalone helper function for SkBitmap. Also it\u0027d be nice if we landed in a place where we extract the bicubic wrapping into the callers.",
+      "parentUuid": "b0398df8_9fbb4f93",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 53
+      },
+      "revId": "2159bba98404f84b6902271fc855a15f26ac9fe2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
