@@ -20,58 +20,68 @@
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
-std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorForSubsetAndFilter(
+std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorForView(
         GrSurfaceProxyView view,
         const SkMatrix& textureMatrix,
-        bool coordsLimitedToConstraintRect,
-        FilterConstraint filterConstraint,
-        const SkRect& constraintRect,
-        GrSamplerState::WrapMode wrapX,
-        GrSamplerState::WrapMode wrapY,
-        const GrSamplerState::Filter* filterOrNullForBicubic) {
+        const SkRect* subset,
+        const SkRect* domain,
+        GrSamplerState samplerState) {
+    if (!view) {
+        return nullptr;
+    }
     SkRect tempSubset;
 
-    const SkRect* subset = nullptr;
-    if (filterConstraint == kYes_FilterConstraint) {
-        subset = &constraintRect;
-    } else if (!view.proxy()->isFullyLazy() && !view.proxy()->isFunctionallyExact()) {
+    if (!subset && !view.proxy()->isFullyLazy() && !view.proxy()->isFunctionallyExact()) {
         tempSubset = view.proxy()->getBoundsRect();
         subset = &tempSubset;
     }
 
     const auto& caps = *fContext->priv().caps();
-    if (filterOrNullForBicubic) {
-        GrSamplerState samplerState(wrapX, wrapY, *filterOrNullForBicubic);
-        if (subset) {
-            if (coordsLimitedToConstraintRect) {
-                return GrTextureEffect::MakeSubset(std::move(view), this->alphaType(),
-                                                   textureMatrix, samplerState, *subset,
-                                                   constraintRect, caps);
-            } else {
-                return GrTextureEffect::MakeSubset(std::move(view), this->alphaType(),
-                                                   textureMatrix, samplerState, *subset, caps);
-            }
+    if (subset) {
+        if (domain) {
+            return GrTextureEffect::MakeSubset(std::move(view), this->alphaType(), textureMatrix,
+                                               samplerState, *subset, *domain, caps);
         } else {
-            return GrTextureEffect::Make(std::move(view), this->alphaType(), textureMatrix,
-                                         samplerState, caps);
+            return GrTextureEffect::MakeSubset(std::move(view), this->alphaType(), textureMatrix,
+                                               samplerState, *subset, caps);
         }
     } else {
-        static constexpr auto kDir    = GrBicubicEffect::Direction::kXY;
-        static constexpr auto kKernel = GrBicubicEffect::Kernel::kMitchell;
-        if (subset) {
-            if (coordsLimitedToConstraintRect) {
-                return GrBicubicEffect::MakeSubset(std::move(view), this->alphaType(),
-                                                   textureMatrix, wrapX, wrapY, *subset,
-                                                   constraintRect, kKernel, kDir, caps);
-            } else {
-                return GrBicubicEffect::MakeSubset(std::move(view), this->alphaType(),
-                                                   textureMatrix, wrapX, wrapY, *subset, kKernel,
-                                                   kDir, caps);
-            }
+        return GrTextureEffect::Make(std::move(view), this->alphaType(), textureMatrix,
+                                     samplerState, caps);
+    }
+}
+
+std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createBicubicFragmentProcessorForView(
+        GrSurfaceProxyView view,
+        const SkMatrix& textureMatrix,
+        const SkRect* subset,
+        const SkRect* domain,
+        GrSamplerState::WrapMode wrapX,
+        GrSamplerState::WrapMode wrapY) {
+    if (!view) {
+        return nullptr;
+    }
+    SkRect tempSubset;
+
+    if (!subset && !view.proxy()->isFullyLazy() && !view.proxy()->isFunctionallyExact()) {
+        tempSubset = view.proxy()->getBoundsRect();
+        subset = &tempSubset;
+    }
+
+    const auto& caps = *fContext->priv().caps();
+    static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
+    static constexpr auto kKernel = GrBicubicEffect::Kernel::kMitchell;
+    if (subset) {
+        if (domain) {
+            return GrBicubicEffect::MakeSubset(std::move(view), this->alphaType(), textureMatrix,
+                                               wrapX, wrapY, *subset, *domain, kKernel, kDir, caps);
         } else {
-            return GrBicubicEffect::Make(std::move(view), this->alphaType(), textureMatrix, wrapX,
-                                         wrapY, kKernel, kDir, caps);
+            return GrBicubicEffect::MakeSubset(std::move(view), this->alphaType(), textureMatrix,
+                                               wrapX, wrapY, *subset, kKernel, kDir, caps);
         }
+    } else {
+        return GrBicubicEffect::Make(std::move(view), this->alphaType(), textureMatrix, wrapX,
+                                     wrapY, kKernel, kDir, caps);
     }
 }
 

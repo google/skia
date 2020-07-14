@@ -34,39 +34,52 @@ class GrTextureProducer : public SkNoncopyable {
 public:
     virtual ~GrTextureProducer() = default;
 
-    enum FilterConstraint {
-        kYes_FilterConstraint,
-        kNo_FilterConstraint,
-    };
-
-   /**
+    /**
      * Helper for creating a fragment processor to sample the texture with a given filtering mode.
-     * It attempts to avoid making texture copies or using shader tiling whenever possible.
+     * Attempts to avoid unnecessary copies (e.g. for planar sources or subsets) by generating more
+     * complex shader code.
      *
      * @param textureMatrix                    Matrix used to access the texture. It is applied to
      *                                         the local coords. The post-transformed coords should
      *                                         be in texel units (rather than normalized) with
      *                                         respect to this Producer's bounds (width()/height()).
-     * @param constraintRect                   A rect that represents the area of the texture to be
-     *                                         sampled. It must be contained in the Producer's
-     *                                         bounds as defined by width()/height().
-     * @param filterConstriant                 Indicates whether filtering is limited to
-     *                                         constraintRect.
-     * @param coordsLimitedToConstraintRect    Is it known that textureMatrix*localCoords is bound
-     *                                         by the portion of the texture indicated by
-     *                                         constraintRect (without consideration of filter
-     *                                         width, just the raw coords).
-     * @param filterOrNullForBicubic           If non-null indicates the filter mode. If null means
-     *                                         use bicubic filtering.
+     * @param subset                           If not null, a subset of the texture to restrict
+     *                                         sampling to. The wrap modes apply to this subset.
+     * @param domain                           If not null, a known limit on the texture coordinates
+     *                                         that will be accessed. Applies after textureMatrix.
+     * @param sampler                          Sampler state. Wrap modes applies to subset if not
+     *                                         null, otherwise to the entire source.
      **/
     virtual std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
             const SkMatrix& textureMatrix,
-            const SkRect& constraintRect,
-            FilterConstraint filterConstraint,
-            bool coordsLimitedToConstraintRect,
+            const SkRect* subset,
+            const SkRect* domain,
+            GrSamplerState sampler) = 0;
+
+    /**
+     * Similar createFragmentProcessor but produces a fragment processor that does bicubic
+     * interpolation of the source. Attempts to avoid unnecessary copies (e.g. for planar sources or
+     * subsets) by generating more complex shader code.
+     *
+     * @param textureMatrix                    Matrix used to access the texture. It is applied to
+     *                                         the local coords. The post-transformed coords should
+     *                                         be in texel units (rather than normalized) with
+     *                                         respect to this Producer's bounds (width()/height()).
+     * @param subset                           If not null, a subset of the texture to restrict
+     *                                         sampling to. The wrap modes apply to this subset.
+     * @param domain                           If not null, a known limit on the texture coordinates
+     *                                         that will be accessed. Applies after textureMatrix.
+     * @param wrapX                            Wrap mode on x axis. Applied to subset if not null,
+     *                                         otherwise to the entire source.
+     * @param wrapY                            Wrap mode on y axis. Applied to subset if not null,
+     *                                         otherwise to the entire source.
+     */
+    virtual std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect* subset,
+            const SkRect* domain,
             GrSamplerState::WrapMode wrapX,
-            GrSamplerState::WrapMode wrapY,
-            const GrSamplerState::Filter* filterOrNullForBicubic) = 0;
+            GrSamplerState::WrapMode wrapY) = 0;
 
     /**
      * Returns a texture view, possibly with MIP maps. The request for MIP maps may not be honored
@@ -92,15 +105,22 @@ protected:
     GrTextureProducer(GrRecordingContext* context, const GrImageInfo& imageInfo)
             : fContext(context), fImageInfo(imageInfo) {}
 
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForSubsetAndFilter(
+    // Helper for making a texture effect from a single proxy view.
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForView(
             GrSurfaceProxyView view,
             const SkMatrix& textureMatrix,
-            bool coordsLimitedToConstraintRect,
-            FilterConstraint filterConstraint,
-            const SkRect& constraintRect,
+            const SkRect* subset,
+            const SkRect* domain,
+            GrSamplerState sampler);
+
+    // Helper for making a bicubic effect from a single proxy view.
+    std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessorForView(
+            GrSurfaceProxyView view,
+            const SkMatrix& textureMatrix,
+            const SkRect* subset,
+            const SkRect* domain,
             GrSamplerState::WrapMode wrapX,
-            GrSamplerState::WrapMode wrapY,
-            const GrSamplerState::Filter* filterOrNullForBicubic);
+            GrSamplerState::WrapMode wrapY);
 
     GrRecordingContext* context() const { return fContext; }
 

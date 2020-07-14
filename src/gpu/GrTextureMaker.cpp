@@ -24,28 +24,20 @@ GrSurfaceProxyView GrTextureMaker::onView(GrMipMapped mipMapped) {
 
 std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         const SkMatrix& textureMatrix,
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        GrSamplerState::WrapMode wrapX,
-        GrSamplerState::WrapMode wrapY,
-        const GrSamplerState::Filter* filterOrNullForBicubic) {
+        const SkRect* subset,
+        const SkRect* domain,
+        GrSamplerState sampler) {
     GrSurfaceProxyView view;
-    if (filterOrNullForBicubic) {
-        view = this->view(*filterOrNullForBicubic);
-    } else {
-        view = this->view(GrMipMapped::kNo);
-    }
-    if (!view) {
-        return nullptr;
-    }
+    return this->createFragmentProcessorForView(
+            this->view(sampler.filter()), textureMatrix, subset, domain, sampler);
+}
 
-    return this->createFragmentProcessorForSubsetAndFilter(std::move(view),
-                                                           textureMatrix,
-                                                           coordsLimitedToConstraintRect,
-                                                           filterConstraint,
-                                                           constraintRect,
-                                                           wrapX,
-                                                           wrapY,
-                                                           filterOrNullForBicubic);
+std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createBicubicFragmentProcessor(
+        const SkMatrix& textureMatrix,
+        const SkRect* subset,
+        const SkRect* domain,
+        GrSamplerState::WrapMode wrapX,
+        GrSamplerState::WrapMode wrapY) {
+    return this->createBicubicFragmentProcessorForView(
+            this->view(GrMipMapped::kNo), textureMatrix, subset, domain, wrapX, wrapY);
 }

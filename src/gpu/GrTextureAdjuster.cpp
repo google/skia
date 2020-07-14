@@ -77,29 +77,19 @@ GrSurfaceProxyView GrTextureAdjuster::onView(GrMipMapped mipMapped) {
 
 std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         const SkMatrix& textureMatrix,
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        GrSamplerState::WrapMode wrapX,
-        GrSamplerState::WrapMode wrapY,
-        const GrSamplerState::Filter* filterOrNullForBicubic) {
-    GrSurfaceProxyView view;
-    if (filterOrNullForBicubic) {
-        view = this->view(*filterOrNullForBicubic);
-    } else {
-        view = this->view(GrMipMapped::kNo);
-    }
-    if (!view) {
-        return nullptr;
-    }
-    SkASSERT(view.asTextureProxy());
+        const SkRect* subset,
+        const SkRect* domain,
+        GrSamplerState samplerState) {
+    return this->createFragmentProcessorForView(
+            this->view(samplerState.filter()), textureMatrix, subset, domain, samplerState);
+}
 
-    return this->createFragmentProcessorForSubsetAndFilter(std::move(view),
-                                                           textureMatrix,
-                                                           coordsLimitedToConstraintRect,
-                                                           filterConstraint,
-                                                           constraintRect,
-                                                           wrapX,
-                                                           wrapY,
-                                                           filterOrNullForBicubic);
+std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createBicubicFragmentProcessor(
+        const SkMatrix& textureMatrix,
+        const SkRect* subset,
+        const SkRect* domain,
+        GrSamplerState::WrapMode wrapX,
+        GrSamplerState::WrapMode wrapY) {
+    return this->createBicubicFragmentProcessorForView(
+            this->view(GrMipMapped::kNo), textureMatrix, subset, domain, wrapX, wrapY);
 }

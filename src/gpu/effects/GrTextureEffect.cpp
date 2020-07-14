@@ -265,11 +265,12 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeBilerpWithInset(
         GrSamplerState::WrapMode wx,
         GrSamplerState::WrapMode wy,
         const SkRect& subset,
+        const SkRect* domain,
         SkVector inset,
         const GrCaps& caps,
         const float border[4]) {
     GrSamplerState sampler(wx, wy, GrSamplerState::Filter::kBilerp);
-    Sampling sampling(*view.proxy(), sampler, subset, nullptr, border, caps, inset);
+    Sampling sampling(*view.proxy(), sampler, subset, domain, border, caps, inset);
     SkMatrix final;
     bool lazyProxyNormalization;
     get_matrix(matrix, view, &final, &lazyProxyNormalization);
