@@ -16,6 +16,24 @@
       "revId": "a5b986087102f71357d4cf3055f237e14c31a0f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33ee8507_26efe512",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-14T04:12:25Z",
+      "side": 1,
+      "message": "Thanks. I do like that.",
+      "parentUuid": "c2ea1375_97f34648",
+      "revId": "a5b986087102f71357d4cf3055f237e14c31a0f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
