@@ -14,7 +14,7 @@
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkCachedData.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
@@ -51,7 +51,7 @@ const std::unique_ptr<SkPixmap[]> DDLPromiseImageHelper::PromiseImageInfo::norma
     pixmaps[0] = fBaseLevel.pixmap();
     if (fMipLevels) {
         for (int i = 0; i < fMipLevels->countLevels(); ++i) {
-            SkMipMap::Level mipLevel;
+            SkMipmap::Level mipLevel;
             fMipLevels->getLevel(i, &mipLevel);
             pixmaps[i+1] = mipLevel.fPixmap;
         }
@@ -65,7 +65,7 @@ int DDLPromiseImageHelper::PromiseImageInfo::numMipLevels() const {
 }
 
 void DDLPromiseImageHelper::PromiseImageInfo::setMipLevels(const SkBitmap& baseLevel,
-                                                           std::unique_ptr<SkMipMap> mipLevels) {
+                                                           std::unique_ptr<SkMipmap> mipLevels) {
     fBaseLevel = baseLevel;
     fMipLevels = std::move(mipLevels);
 }
@@ -484,7 +484,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
         // SKP) we don't know if a given SkImage will require mipmapping. To work around this
         // we just try to create all the backend textures as mipmapped but, failing that, fall
         // back to un-mipped.
-        std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(tmp.pixmap(), nullptr));
+        std::unique_ptr<SkMipmap> mipmaps(SkMipmap::Build(tmp.pixmap(), nullptr));
 
         newImageInfo.setMipLevels(tmp, std::move(mipmaps));
     }

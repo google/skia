@@ -11,7 +11,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"

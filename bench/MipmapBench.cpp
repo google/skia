@@ -7,16 +7,16 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 
-class MipMapBench: public Benchmark {
+class MipmapBench: public Benchmark {
     SkBitmap fBitmap;
     SkString fName;
     const int fW, fH;
     bool fHalfFoat;
 
 public:
-    MipMapBench(int w, int h, bool halfFloat = false)
+    MipmapBench(int w, int h, bool halfFloat = false)
         : fW(w), fH(h), fHalfFoat(halfFloat)
     {
         fName.printf("mipmap_build_%dx%d", w, h);
@@ -42,7 +42,7 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops * 4; i++) {
-            SkMipMap::Build(fBitmap, nullptr)->unref();
+            SkMipmap::Build(fBitmap, nullptr)->unref();
         }
     }
 
@@ -53,15 +53,15 @@ private:
 // Build variants that exercise the width and heights being even or odd at each level, as the
 // impl specializes on each of these.
 //
-DEF_BENCH( return new MipMapBench(511, 511); )
-DEF_BENCH( return new MipMapBench(512, 511); )
-DEF_BENCH( return new MipMapBench(511, 512); )
-DEF_BENCH( return new MipMapBench(512, 512); )
+DEF_BENCH( return new MipmapBench(511, 511); )
+DEF_BENCH( return new MipmapBench(512, 511); )
+DEF_BENCH( return new MipmapBench(511, 512); )
+DEF_BENCH( return new MipmapBench(512, 512); )
 
-DEF_BENCH( return new MipMapBench(512, 512, true); )
-DEF_BENCH( return new MipMapBench(511, 511, true); )
+DEF_BENCH( return new MipmapBench(512, 512, true); )
+DEF_BENCH( return new MipmapBench(511, 511, true); )
 
-DEF_BENCH( return new MipMapBench(2048, 2048); )
-DEF_BENCH( return new MipMapBench(2047, 2047); )
-DEF_BENCH( return new MipMapBench(2048, 2047); )
-DEF_BENCH( return new MipMapBench(2047, 2048); )
+DEF_BENCH( return new MipmapBench(2048, 2048); )
+DEF_BENCH( return new MipmapBench(2047, 2047); )
+DEF_BENCH( return new MipmapBench(2048, 2047); )
+DEF_BENCH( return new MipmapBench(2047, 2048); )
