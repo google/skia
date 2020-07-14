@@ -49,24 +49,15 @@ private:
             return input;
         }
 
+        const auto input_bounds = input.computeTightBounds();
+        const SkPoint center{input_bounds.centerX(), input_bounds.centerY()};
+
         SkPath path;
 
         SkPoint contour_start = {0, 0};
         std::vector<CubicInfo> cubics;
 
         auto commit_contour = [&]() {
-            if (cubics.empty()) {
-                return;
-            }
-
-            // first pass: determine the "center"
-            SkVector center {0,0};
-            for (const auto& c : cubics) {
-                center += c.pt;
-            }
-            center *= 1.f / cubics.size();
-
-            // second pass: adjust points and emit the results
             path.moveTo(lerp(contour_start, center, fAmount));
             for (const auto& c : cubics) {
                 path.cubicTo(lerp(c.ctrl0, center, -fAmount),
