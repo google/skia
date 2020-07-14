@@ -47,7 +47,7 @@ struct Stats {
 
         SkAutoTMalloc<double> sorted(n);
         memcpy(sorted.get(), samples.begin(), n * sizeof(double));
-        SkTQSort(sorted.get(), sorted.get() + n - 1);
+        SkTQSort(sorted.get(), sorted.get() + n);
         median = sorted[n/2];
 
         // Normalize samples to [min, max] in as many quanta as we have distinct bars to print.
