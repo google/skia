@@ -205,7 +205,7 @@ const GrSurfaceProxyView* SkImage_GpuYUVA::view(GrRecordingContext* context) con
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(
-        GrRecordingContext*, SkColorType, sk_sp<SkColorSpace> targetCS) const {
+        SkColorType, sk_sp<SkColorSpace> targetCS, GrDirectContext*) const {
     // We explicitly ignore color type changes, for now.
 
     // we may need a mutex here but for now we expect usage to be in a single thread

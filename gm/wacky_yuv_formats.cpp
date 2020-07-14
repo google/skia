@@ -1405,6 +1405,7 @@ protected:
             cellHeight *= 1.5f;
         }
 
+        auto direct = GrAsDirectContext(canvas->recordingContext());
         SkRect origSrcRect = SkRect::MakeWH(fOriginalBMs[0].width(), fOriginalBMs[0].height());
 
         SkRect srcRect = SkRect::MakeWH(fOriginalBMs[0].width(), fOriginalBMs[0].height());
@@ -1456,7 +1457,7 @@ protected:
                         // doesn't make a whole lot of sense. The colorSpace conversion will
                         // operate on the YUV components rather than the RGB components.
                         sk_sp<SkImage> csImage =
-                            fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace);
+                            fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace, direct);
                         canvas->drawImageRect(csImage, srcRect, dstRect, &paint, constraint);
                     } else {
                         canvas->drawImageRect(fImages[opaque][cs][format], srcRect, dstRect,
@@ -1625,12 +1626,12 @@ protected:
                 int y = kPad;
 
                 auto raster = SkImage::MakeFromBitmap(fOriginalBMs[opaque])
-                    ->makeColorSpace(fTargetColorSpace);
+                    ->makeColorSpace(fTargetColorSpace, nullptr);
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 
                 if (fImages[opaque][tagged]) {
-                    auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace);
+                    auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace, direct);
                     SkASSERT(SkColorSpace::Equals(yuv->colorSpace(), fTargetColorSpace.get()));
                     canvas->drawImage(yuv, x, y);
                     y += kTileWidthHeight + kPad;

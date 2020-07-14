@@ -80,21 +80,21 @@ GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrContext* context, const GrFlushInfo
     return context->priv().flushSurfaces(p, 1, info);
 }
 
-sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* context,
-                                                         SkColorType targetCT,
-                                                         sk_sp<SkColorSpace> targetCS) const {
-    if (!context || !fContext->priv().matches(context)) {
+sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
+                                                         sk_sp<SkColorSpace> targetCS,
+                                                         GrDirectContext* direct) const {
+    if (!fContext->priv().matches(direct)) {
         return nullptr;
     }
 
     auto renderTargetContext = GrRenderTargetContext::MakeWithFallback(
-            context, SkColorTypeToGrColorType(targetCT), nullptr, SkBackingFit::kExact,
+            direct, SkColorTypeToGrColorType(targetCT), nullptr, SkBackingFit::kExact,
             this->dimensions());
     if (!renderTargetContext) {
         return nullptr;
     }
 
-    auto texFP = GrTextureEffect::Make(*this->view(context), this->alphaType());
+    auto texFP = GrTextureEffect::Make(*this->view(direct), this->alphaType());
     auto colorFP = GrColorSpaceXformEffect::Make(std::move(texFP),
                                                  this->colorSpace(), this->alphaType(),
                                                  targetCS.get(), this->alphaType());
@@ -112,7 +112,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
 
     targetCT = GrColorTypeToSkColorType(renderTargetContext->colorInfo().colorType());
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), kNeedNewImageUniqueID,
                                    renderTargetContext->readSurfaceView(), targetCT,
                                    this->alphaType(), std::move(targetCS));
 }
