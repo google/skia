@@ -233,8 +233,8 @@ static bool orderTRange(skiatest::Reporter* reporter, const SkDQuad& quad1, cons
     if (!t1Array.count() || !t2Array.count()) {
         return false;
     }
-    SkTQSort<double>(t1Array.begin(), t1Array.end() - 1);
-    SkTQSort<double>(t2Array.begin(), t2Array.end() - 1);
+    SkTQSort<double>(t1Array.begin(), t1Array.end());
+    SkTQSort<double>(t2Array.begin(), t2Array.end());
     double t1 = result->tMin1 = t1Array[0];
     double t2 = result->tMin2 = t2Array[0];
     double a1 = quadAngle(reporter,quad1, t1);

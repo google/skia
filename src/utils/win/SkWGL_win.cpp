@@ -150,9 +150,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
         rankedFormats[i].fSampleCnt = std::max(1, numSamples);
         rankedFormats[i].fChoosePixelFormatRank = i;
     }
-    SkTQSort(rankedFormats.begin(),
-             rankedFormats.begin() + rankedFormats.count() - 1,
-             SkTLessFunctionToFunctorAdaptor<PixelFormat, pf_less>());
+    SkTQSort(rankedFormats.begin(), rankedFormats.end(), pf_less);
     int idx = SkTSearch<PixelFormat, pf_less>(rankedFormats.begin(),
                                               rankedFormats.count(),
                                               desiredFormat,

@@ -265,9 +265,9 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
         hit = hit->fNext;
     }
     int count = sorted.count();
-    SkTQSort(sorted.begin(), sorted.end() - 1, xy_index(dir)
-            ? less_than(dir) ? hit_compare_y : reverse_hit_compare_y
-            : less_than(dir) ? hit_compare_x : reverse_hit_compare_x);
+    SkTQSort(sorted.begin(), sorted.end(),
+             xy_index(dir) ? less_than(dir) ? hit_compare_y : reverse_hit_compare_y
+                           : less_than(dir) ? hit_compare_x : reverse_hit_compare_x);
     // verify windings
 #if DEBUG_WINDING
     SkDebugf("%s dir=%s seg=%d t=%1.9g pt=(%1.9g,%1.9g)\n", __FUNCTION__,

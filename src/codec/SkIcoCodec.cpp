@@ -121,7 +121,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         }
     };
     EntryLessThan lessThan;
-    SkTQSort(directoryEntries, &directoryEntries[numImages - 1], lessThan);
+    SkTQSort(directoryEntries, directoryEntries + numImages, lessThan);
 
     // Now will construct a candidate codec for each of the embedded images
     uint32_t bytesRead = kIcoDirectoryBytes + numImages * kIcoDirEntryBytes;

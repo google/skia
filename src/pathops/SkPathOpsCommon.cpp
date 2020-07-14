@@ -165,7 +165,7 @@ bool SortContourList(SkOpContourHead** contourList, bool evenOdd, bool oppEvenOd
         return false;
     }
     if (count > 1) {
-        SkTQSort<SkOpContour>(list.begin(), list.end() - 1);
+        SkTQSort<SkOpContour>(list.begin(), list.end());
     }
     contour = list[0];
     SkOpContourHead* contourHead = static_cast<SkOpContourHead*>(contour);
