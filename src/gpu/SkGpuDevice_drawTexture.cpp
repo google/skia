@@ -35,7 +35,7 @@ static inline bool use_shader(bool textureIsAlphaOnly, const SkPaint& paint) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//  Helper functions for dropping src rect constraint in bilerp mode.
+//  Helper functions for dropping src rect subset in bilerp mode.
 
 static const SkScalar kColorBleedTolerance = 0.001f;
 
@@ -79,17 +79,17 @@ static bool may_color_bleed(const SkRect& srcRect,
     return inner != outer;
 }
 
-static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
-                                         const SkRect& srcRect,
-                                         const SkMatrix& srcRectToDeviceSpace,
-                                         int numSamples) {
+static bool can_ignore_bilerp_subset(const GrTextureProducer& producer,
+                                     const SkRect& srcSubset,
+                                     const SkMatrix& srcRectToDeviceSpace,
+                                     int numSamples) {
     if (srcRectToDeviceSpace.rectStaysRect()) {
         // sampling is axis-aligned
         SkRect transformedRect;
-        srcRectToDeviceSpace.mapRect(&transformedRect, srcRect);
+        srcRectToDeviceSpace.mapRect(&transformedRect, srcSubset);
 
-        if (has_aligned_samples(srcRect, transformedRect) ||
-            !may_color_bleed(srcRect, transformedRect, srcRectToDeviceSpace, numSamples)) {
+        if (has_aligned_samples(srcSubset, transformedRect) ||
+            !may_color_bleed(srcSubset, transformedRect, srcRectToDeviceSpace, numSamples)) {
             return true;
         }
     }
@@ -446,10 +446,10 @@ static void draw_texture_producer(GrRecordingContext* context,
 
     // Check for optimization to drop the src rect constraint when on bilerp.
     if (!doBicubic && fm == GrSamplerState::Filter::kBilerp && restrictToSubset &&
-        coordsAllInsideSrcRect && !producer->isPlanar()) {
+        coordsAllInsideSrcRect) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(ctm, srcToDst);
-        if (can_ignore_bilerp_constraint(*producer, src, combinedMatrix, rtc->numSamples())) {
+        if (can_ignore_bilerp_subset(*producer, src, combinedMatrix, rtc->numSamples())) {
             restrictToSubset = false;
         }
     }
