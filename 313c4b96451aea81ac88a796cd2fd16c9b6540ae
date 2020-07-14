@@ -33,6 +33,24 @@
       "revId": "313c4b96451aea81ac88a796cd2fd16c9b6540ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "294d1bbb_3aaf2387",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:31:35Z",
+      "side": 1,
+      "message": "Or, if we want to avoid pushing more uniforms and want to take advantage of the paint color we\u0027ve already threaded through everything, maybe we could make an SkPaintShader (singleton)?",
+      "parentUuid": "1f961ccd_ef625c9e",
+      "revId": "313c4b96451aea81ac88a796cd2fd16c9b6540ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
