@@ -16,6 +16,23 @@
       "revId": "313c4b96451aea81ac88a796cd2fd16c9b6540ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f961ccd_ef625c9e",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:22:03Z",
+      "side": 1,
+      "message": "Is there somewhere we can bottleneck this logic up front using SkShaders::Color() to avoid needing to check it anywhere else?",
+      "revId": "313c4b96451aea81ac88a796cd2fd16c9b6540ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
