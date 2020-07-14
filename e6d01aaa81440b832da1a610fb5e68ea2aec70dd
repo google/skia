@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "97210a20_db9a4d96",
+        "filename": "src/core/SkTSort.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:43:28Z",
+      "side": 1,
+      "message": "uh, sure, just wanted to make sure you understood.  It\u0027s like reading \"abandoned animals/cats will be sent to a shelter.\"  You question whether the author knows what a cat is.",
+      "parentUuid": "951affbf_bb9cfdf5",
+      "range": {
+        "startLine": 160,
+        "startChar": 30,
+        "endLine": 160,
+        "endChar": 37
+      },
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d91cbc6e_d476b15a",
         "filename": "src/gpu/gl/GrGLExtensions.cpp",
         "patchSetId": 11
@@ -113,6 +137,24 @@
       "side": 1,
       "message": "They\u0027ve removed an item from an already-sorted list using removeShuffle (because SkTArray doesn\u0027t allow erasing from the middle). Almost-perfectly-ordered data is a pathologically bad case for QSort and really efficient for insertion sort. But the \"best\" fix would be for SkTArray to support a proper `erase` method and then no sort would be needed at all.\n\n(In practice I doubt it matters either way since this is probably far off the hot path)",
       "parentUuid": "d91cbc6e_d476b15a",
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e954b7e3_4806c569",
+        "filename": "src/gpu/gl/GrGLExtensions.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:43:28Z",
+      "side": 1,
+      "message": "sg.  What I was trying to get at here is that SkTQSort() is not a quicksort, and already chooses among various approaches depending on the data.  It seems like an unusual place to bypass those smarts.  But I wouldn\u0027t change anything with this CL.",
+      "parentUuid": "261a7cf0_e7582f2d",
       "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false

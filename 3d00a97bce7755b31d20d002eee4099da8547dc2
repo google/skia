@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "89b355c8_ebdc7d3a",
+        "filename": "tools/Stats.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:43:28Z",
+      "side": 0,
+      "message": "Are you sure you read and remember that warning correctly?  n*sizeof(double) is int*size_t, a size_t.\n\nI\u0027m not really sure I see where that\u0027d come up in the decision process between std::sort and SkTQSort though... you could just write\n\n   std::vector\u003cdouble\u003e sorted(samples.begin(), samples.end());\n   SkTQSort(sorted.begin(), sorted.end());\n\nright?",
+      "parentUuid": "c06e0e20_23870732",
+      "revId": "3d00a97bce7755b31d20d002eee4099da8547dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b5276d6_51440821",
         "filename": "tools/Stats.h",
         "patchSetId": 11
