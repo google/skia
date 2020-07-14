@@ -1095,6 +1095,9 @@ go.skia.org/infra v0.0.0-20200706211051-88e733d409bf h1:a8WuucYFZoZH56L9Vxb8sGTI
 go.skia.org/infra v0.0.0-20200706211051-88e733d409bf/go.mod h1:9X0Tt0jgyjgQ3GlJyjSUVoVahWlmQ4gCAI0Ba2ouh8w=
 go.skia.org/infra v0.0.0-20200708134745-fcce5bb3db4b h1:3McKLCugVU8pPzZbhu8E0iHkKkYhS5sb4wg5AAEQj0A=
 go.skia.org/infra v0.0.0-20200708134745-fcce5bb3db4b/go.mod h1:dNfsYphZk1yD3L700jW76XyiMwiPLq9ZJkJtAz5jkGU=
+go.skia.org/infra v0.0.0-20200708160605-39bbe4780f83 h1:mYYGz0I3lQI797UM4UeKXTTFq3xo38IgH/xF3Fd8SuU=
+go.skia.org/infra v0.0.0-20200708160605-39bbe4780f83/go.mod h1:dNfsYphZk1yD3L700jW76XyiMwiPLq9ZJkJtAz5jkGU=
+go.skia.org/infra v0.0.0-20200709124336-fd71f156e6c1 h1:oRuirYtNxbkx0uI/62xJMHEWEcbRbjjdhxX7wGbxafI=
 go.skia.org/infra v0.0.0-20200709171759-d743a7d95130 h1:DUHPuHONF9CMYMAp0Lm7Spv/Gb/6uZhvO2KwnU9u9vM=
 go.skia.org/infra v0.0.0-20200709171759-d743a7d95130/go.mod h1:dNfsYphZk1yD3L700jW76XyiMwiPLq9ZJkJtAz5jkGU=
 go.skia.org/infra v0.0.0-20200709211939-9acc96b0753c h1:sgK3KuxLu6JJVmUZIAdMUi5UnkxJ/vjtxQYjCkUZdNc=

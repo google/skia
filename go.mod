@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.61.0 // indirect
+	cloud.google.com/go/datastore v1.2.0
 	cloud.google.com/go/pubsub v1.5.0 // indirect
 	cloud.google.com/go/storage v1.10.0
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
