@@ -572,6 +572,12 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
                         rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
                         atlas.getStrokeBatchID(), baseStencilResolveInstance,
                         atlas.getEndStencilResolveInstance(), atlas.drawBounds());
+                if (onFlushRP->caps()->explicitTiledRenderingSupport()) {
+                    // Use QCOM_tiled_rendering to guarantee we don't spend memory bandwidth loading
+                    // or storing stencil values. All stencil values should remain local to tiles
+                    // and then be discarded.
+                    rtc->getOpsTask()->enableExplicitTiledRendering();
+                }
             } else if (onFlushRP->caps()->shaderCaps()->geometryShaderSupport()) {
                 op = RenderAtlasOp<GrGSCoverageProcessor>::Make(
                         rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),

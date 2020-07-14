@@ -60,7 +60,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
-    fTiledRenderingSupport = false;
     fFBFetchRequiresEnablePerSample = false;
     fSRGBWriteControl = false;
     fSkipErrorChecks = false;
@@ -704,7 +703,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (GR_IS_GR_GL_ES(standard)) {
-        fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
+        fExplicitTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
     }
 
     if (kARM_GrGLVendor == ctxInfo.vendor()) {
@@ -1198,7 +1197,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Program binary support", fProgramBinarySupport);
     writer->appendBool("Program parameters support", fProgramParameterSupport);
     writer->appendBool("Sampler object support", fSamplerObjectSupport);
-    writer->appendBool("Tiled rendering support", fTiledRenderingSupport);
     writer->appendBool("FB fetch requires enable per sample", fFBFetchRequiresEnablePerSample);
     writer->appendBool("sRGB Write Control", fSRGBWriteControl);
 
@@ -3970,18 +3968,18 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // http://skbug.com/9491: Nexus5 produces rendering artifacts when we use QCOM_tiled_rendering.
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
-        fTiledRenderingSupport = false;
+        fExplicitTiledRenderingSupport = false;
     }
     // https://github.com/flutter/flutter/issues/47164
     // https://github.com/flutter/flutter/issues/47804
-    if (fTiledRenderingSupport && (!glInterface->fFunctions.fStartTiling ||
-                                   !glInterface->fFunctions.fEndTiling)) {
+    if (fExplicitTiledRenderingSupport &&
+        (!glInterface->fFunctions.fStartTiling || !glInterface->fFunctions.fEndTiling)) {
         // Some devices expose the QCOM tiled memory extension string but don't actually provide the
         // start and end tiling functions (see above flutter bugs). To work around this, the funcs
         // are marked optional in the interface generator, but we turn off the tiled rendering cap
         // if they aren't provided. This disabling is in driver workarounds so that SKQP will still
         // fail on devices that advertise the extension w/o the functions.
-        fTiledRenderingSupport = false;
+        fExplicitTiledRenderingSupport = false;
     }
 
     if (kQualcomm_GrGLVendor == ctxInfo.vendor() || kATI_GrGLVendor == ctxInfo.vendor()) {

@@ -1937,14 +1937,6 @@ void GrGLGpu::clear(const GrScissorState& scissor, const SkPMColor4f& color,
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
-static bool use_tiled_rendering(const GrGLCaps& glCaps,
-                                const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
-    // Only use the tiled rendering extension if we can explicitly clear and discard the stencil.
-    // Otherwise it's faster to just not use it.
-    return glCaps.tiledRenderingSupport() && GrLoadOp::kClear == stencilLoadStore.fLoadOp &&
-           GrStoreOp::kDiscard == stencilLoadStore.fStoreOp;
-}
-
 void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const SkIRect& bounds, GrSurfaceOrigin origin,
                                  const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                  const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
@@ -1956,11 +1948,16 @@ void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const SkIRect& bounds, GrSu
     this->flushRenderTarget(glRT);
     SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
 
-    if (use_tiled_rendering(this->glCaps(), stencilLoadStore)) {
+    if (stencilLoadStore.fUseExplicitTiledRendering) {
+        SkASSERT(this->caps()->explicitTiledRenderingSupport());
         auto nativeBounds = GrNativeRect::MakeRelativeTo(origin, glRT->height(), bounds);
-        GrGLbitfield preserveMask = (GrLoadOp::kLoad == colorLoadStore.fLoadOp)
-                ? GR_GL_COLOR_BUFFER_BIT0 : GR_GL_NONE;
-        SkASSERT(GrLoadOp::kLoad != stencilLoadStore.fLoadOp);  // Handled by use_tiled_rendering().
+        GrGLbitfield preserveMask = GR_GL_NONE;
+        if (colorLoadStore.fLoadOp == GrLoadOp::kLoad) {
+            preserveMask |= GR_GL_COLOR_BUFFER_BIT0;
+        }
+        if (stencilLoadStore.fLoadOp == GrLoadOp::kLoad) {
+            preserveMask |= GR_GL_STENCIL_BUFFER_BIT0;
+        }
         GL_CALL(StartTiling(nativeBounds.fX, nativeBounds.fY, nativeBounds.fWidth,
                             nativeBounds.fHeight, preserveMask));
     }
@@ -2023,11 +2020,15 @@ void GrGLGpu::endCommandBuffer(GrRenderTarget* rt,
         }
     }
 
-    if (use_tiled_rendering(this->glCaps(), stencilLoadStore)) {
-        GrGLbitfield preserveMask = (GrStoreOp::kStore == colorLoadStore.fStoreOp)
-                ? GR_GL_COLOR_BUFFER_BIT0 : GR_GL_NONE;
-        // Handled by use_tiled_rendering().
-        SkASSERT(GrStoreOp::kStore != stencilLoadStore.fStoreOp);
+    if (stencilLoadStore.fUseExplicitTiledRendering) {
+        SkASSERT(this->caps()->explicitTiledRenderingSupport());
+        GrGLbitfield preserveMask = GR_GL_NONE;
+        if (colorLoadStore.fStoreOp == GrStoreOp::kStore) {
+            preserveMask |= GR_GL_COLOR_BUFFER_BIT0;
+        }
+        if (stencilLoadStore.fStoreOp == GrStoreOp::kStore) {
+            preserveMask |= GR_GL_STENCIL_BUFFER_BIT0;
+        }
         GL_CALL(EndTiling(preserveMask));
     }
 

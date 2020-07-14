@@ -464,31 +464,6 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     flushState->setSampledProxyArray(nullptr);
 }
 
-static GrOpsRenderPass* create_render_pass(
-        GrGpu* gpu, GrRenderTarget* rt, GrStencilAttachment* stencil, GrSurfaceOrigin origin,
-        const SkIRect& bounds, GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor,
-        GrLoadOp stencilLoadOp, GrStoreOp stencilStoreOp,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
-    const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
-        colorLoadOp,
-        GrStoreOp::kStore,
-        loadClearColor
-    };
-
-    // TODO:
-    // We would like to (at this level) only ever clear & discard. We would need
-    // to stop splitting up higher level OpsTasks for copyOps to achieve that.
-    // Note: we would still need SB loads and stores but they would happen at a
-    // lower level (inside the VK command buffer).
-    const GrOpsRenderPass::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
-        stencilLoadOp,
-        stencilStoreOp,
-    };
-
-    return gpu->getOpsRenderPass(rt, stencil, origin, bounds,
-                                 kColorLoadStoreInfo, stencilLoadAndStoreInfo, sampledProxies);
-}
-
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
@@ -568,10 +543,26 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             ? GrStoreOp::kDiscard
             : GrStoreOp::kStore;
 
-    GrOpsRenderPass* renderPass = create_render_pass(
-            flushState->gpu(), proxy->peekRenderTarget(), stencil, this->target(0).origin(),
-            fClippedContentBounds, fColorLoadOp, fLoadClearColor, stencilLoadOp, stencilStoreOp,
-            fSampledProxies);
+    const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
+        fColorLoadOp,
+        GrStoreOp::kStore,
+        fLoadClearColor
+    };
+
+    // TODO:
+    // We would like to (at this level) only ever clear & discard. We would need
+    // to stop splitting up higher level OpsTasks for copyOps to achieve that.
+    // Note: we would still need SB loads and stores but they would happen at a
+    // lower level (inside the VK command buffer).
+    const GrOpsRenderPass::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
+        stencilLoadOp,
+        stencilStoreOp,
+        fUseExplicitTiledRendering,
+    };
+
+    GrOpsRenderPass* renderPass = flushState->gpu()->getOpsRenderPass(
+            proxy->peekRenderTarget(), stencil, this->target(0).origin(), fClippedContentBounds,
+            kColorLoadStoreInfo, stencilLoadAndStoreInfo, fSampledProxies);
     if (!renderPass) {
         return false;
     }
