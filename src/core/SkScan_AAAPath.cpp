@@ -1019,7 +1019,7 @@ static bool operator<(const SkAnalyticEdge& a, const SkAnalyticEdge& b) {
 }
 
 static SkAnalyticEdge* sort_edges(SkAnalyticEdge* list[], int count, SkAnalyticEdge** last) {
-    SkTQSort(list, list + count - 1);
+    SkTQSort(list, list + count);
 
     // now make the edges linked in sorted order
     for (int i = 1; i < count; ++i) {
