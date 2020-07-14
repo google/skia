@@ -42,6 +42,47 @@
     },
     {
       "key": {
+        "uuid": "d7d92bba_f1e7c74e",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69d1a481_a4045763",
+      "range": {
+        "startLine": 34,
+        "startChar": 21,
+        "endLine": 34,
+        "endChar": 44
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a2fdaea_5851ceb9",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "Something that may not be obvious: If we wrote this loop differently, we could skip inserting nulls in the GLSLFP child lists. The GLSLFP iterator would go back to the way it was. Nothing ever looks at the GLSL FP children other than the iterator (and by extension, the ParallelIter), so I was tempted, but I figured that for debugging purposes, it\u0027s much simpler if the arrays are kept perfectly parallel.",
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a7d7f6c_43931639",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 4
@@ -62,6 +103,30 @@
       "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faa76a84_0f31395d",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a7d7f6c_43931639",
+      "range": {
+        "startLine": 187,
+        "startChar": 32,
+        "endLine": 187,
+        "endChar": 48
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +176,54 @@
     },
     {
       "key": {
+        "uuid": "e2f80fbe_c2adb9bf",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08ad8127_635051d0",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 64
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84c9fda5_c7fd1f3d",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "I did this, although it\u0027s in GrProgramDesc.cpp, where we generate the \"meta\" key. That made more sense, as it lines up with the code that already folds in the class IDs for each processor.",
+      "parentUuid": "81fc8bbd_6a02e320",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 64
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6a34f86_8721d5c3",
         "filename": "src/gpu/GrProcessorSet.cpp",
         "patchSetId": 4
@@ -134,6 +247,30 @@
     },
     {
       "key": {
+        "uuid": "a0eb8f0e_37f6a795",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6a34f86_8721d5c3",
+      "range": {
+        "startLine": 90,
+        "startChar": 74,
+        "endLine": 90,
+        "endChar": 81
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ea05224_aa8df243",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
@@ -145,6 +282,30 @@
       "writtenOn": "2020-07-14T14:33:03Z",
       "side": 1,
       "message": "Will we still be eventually changing this to be inputColor \u003d args.fInputColor as a pass-through when the color isn\u0027t given?\n\nAs an aside, what would it take to change the signature to be invokeChild(index, args, color, coords), so that it\u0027s a little closer to the sksl sample call?",
+      "range": {
+        "startLine": 45,
+        "startChar": 3,
+        "endLine": 47,
+        "endChar": 5
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e616c57_4a2d419e",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "Yes, I do think changing the default to be args.fInputColor (aka default color in the future) is a good direction. I figured this CL would make that future CL easier, definitely didn\u0027t want to conflate the two changes, though.\n\nI think changing the arguments would be pretty straightforward, just lots of search and replace?",
+      "parentUuid": "9ea05224_aa8df243",
       "range": {
         "startLine": 45,
         "startChar": 3,
@@ -180,6 +341,30 @@
     },
     {
       "key": {
+        "uuid": "bc9354e6_df5aab1e",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd552fe5_285554f7",
+      "range": {
+        "startLine": 420,
+        "startChar": 15,
+        "endLine": 420,
+        "endChar": 29
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b6d4902_66331460",
         "filename": "tests/ProcessorTest.cpp",
         "patchSetId": 4
@@ -200,6 +385,30 @@
       "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6baafbca_e81b3d97",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T14:58:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b6d4902_66331460",
+      "range": {
+        "startLine": 714,
+        "startChar": 92,
+        "endLine": 714,
+        "endChar": 103
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
