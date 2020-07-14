@@ -51,6 +51,24 @@
       "revId": "313c4b96451aea81ac88a796cd2fd16c9b6540ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd8500e9_51e26798",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:33:57Z",
+      "side": 1,
+      "message": "The null checks also all look fine to me and I don\u0027t mean to block anything.",
+      "parentUuid": "294d1bbb_3aaf2387",
+      "revId": "313c4b96451aea81ac88a796cd2fd16c9b6540ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
