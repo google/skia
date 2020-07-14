@@ -89,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "5fd94f1a_99a4a1f0",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T14:24:25Z",
+      "side": 1,
+      "message": "Oh, or maybe does returning sk_sp\u003cSkMipMap\u003e work?  std::shared_ptr would I think.",
+      "parentUuid": "9563ef70_82786dc8",
+      "range": {
+        "startLine": 78,
+        "startChar": 20,
+        "endLine": 78,
+        "endChar": 32
+      },
+      "revId": "64dd522934f4a30f12d52b03ec168f6538559724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fce50c02_7a4916c9",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 17
