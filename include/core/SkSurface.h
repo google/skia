@@ -9,6 +9,7 @@
 #define SkSurface_DEFINED
 
 #include "include/core/SkImage.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 
@@ -69,6 +70,11 @@ public:
     static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
                                              size_t rowBytes,
                                              const SkSurfaceProps* surfaceProps = nullptr);
+
+    static sk_sp<SkSurface> MakeRasterDirect(const SkPixmap& pm,
+                                             const SkSurfaceProps* props = nullptr) {
+        return MakeRasterDirect(pm.info(), pm.writable_addr(), pm.rowBytes(), props);
+    }
 
     /** Allocates raster SkSurface. SkCanvas returned by SkSurface draws directly into pixels.
         releaseProc is called with pixels and context when SkSurface is deleted.

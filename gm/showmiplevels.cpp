@@ -320,29 +320,38 @@ class ShowMipLevels3 : public skiagm::GM {
 
     SkString onShortName() override { return SkString("showmiplevels_explicit"); }
 
-    SkISize onISize() override { return {1290, 990}; }
-
-    SkScalar draw_downscaling(SkCanvas* canvas, SkFilterOptions options) {
-        SkAutoCanvasRestore acr(canvas, true);
-
-        SkPaint paint;
-        SkRect r = {0, 0, 150, 150};
-        for (float scale = 1; scale >= 0.125f; scale *= 0.75f) {
-            SkMatrix matrix = SkMatrix::Scale(scale, scale);
-            paint.setShader(fImg->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                             options, &matrix));
-            canvas->drawRect(r, paint);
-//            r.offset(r.width() + 10, 0);
-            canvas->translate(r.width() + 10, 0);
-        }
-        return 160;
-    }
+    SkISize onISize() override { return {1130, 970}; }
 
     void onOnceBeforeDraw() override {
         fImg = GetResourceAsImage("images/ship.png");
+        fImg = fImg->makeRasterImage(); // makeWithMips only works on raster for now
+
+        const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+
+        SkMipmapBuilder builder(fImg->imageInfo());
+        for (int i = 0; i < builder.countLevels(); ++i) {
+            auto surf = SkSurface::MakeRasterDirect(builder.level(i));
+            surf->getCanvas()->drawColor(colors[i % SK_ARRAY_COUNT(colors)]);
+        }
+        fImg = fImg->withMipmaps(builder.detach());
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        auto is_recording_canvas = [](SkCanvas* canvas) {
+            SkPixmap pm;
+            if (canvas->peekPixels(&pm)) {
+                return false;
+            }
+            if (canvas->getGrContext()) {
+                return false;
+            }
+            return true;
+        };
+        if (is_recording_canvas(canvas)) {
+            // TODO: make explicit mipmaps serialize
+            return DrawResult::kSkip;
+        }
+
         canvas->drawColor(0xFFDDDDDD);
 
         const SkSamplingMode samplings[] = {
@@ -357,11 +366,26 @@ class ShowMipLevels3 : public skiagm::GM {
             for (auto sa : samplings) {
                 canvas->translate(0, draw_downscaling(canvas, {sa, mm}));
             }
-            canvas->translate(0, 10);
         }
+        return DrawResult::kOk;
     }
 
 private:
+    SkScalar draw_downscaling(SkCanvas* canvas, SkFilterOptions options) {
+        SkAutoCanvasRestore acr(canvas, true);
+
+        SkPaint paint;
+        SkRect r = {0, 0, 150, 150};
+        for (float scale = 1; scale >= 0.1f; scale *= 0.7f) {
+            SkMatrix matrix = SkMatrix::Scale(scale, scale);
+            paint.setShader(fImg->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                             options, &matrix));
+            canvas->drawRect(r, paint);
+            canvas->translate(r.width() + 10, 0);
+        }
+        return r.height() + 10;
+    }
+
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ShowMipLevels3; )

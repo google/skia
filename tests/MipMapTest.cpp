@@ -9,6 +9,7 @@
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMipMap.h"
 #include "tests/Test.h"
+#include "tools/Resources.h"
 
 static void make_bitmap(SkBitmap* bm, int width, int height) {
     bm->allocN32Pixels(width, height);
@@ -208,4 +209,30 @@ DEF_TEST(MipMap_F16, reporter) {
     bmp.allocPixels(SkImageInfo::Make(10, 10, kRGBA_F16_SkColorType, kPremul_SkAlphaType));
     bmp.eraseColor(0);
     sk_sp<SkMipMap> mipmap(SkMipMap::Build(bmp, nullptr));
+}
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+
+DEF_TEST(image_mip_factory, reporter) {
+    // TODO: what do to about lazy images and mipmaps?
+    auto img = GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
+
+    REPORTER_ASSERT(reporter, !img->hasMipmaps());
+    auto img1 = img->withMipmaps(nullptr);
+    REPORTER_ASSERT(reporter, img.get() != img1.get());
+    REPORTER_ASSERT(reporter, img1->hasMipmaps());
+
+    SkMipmapBuilder builder(img->imageInfo());
+    int count = builder.countLevels();
+    for (int i = 0; i < count; ++i) {
+        SkPixmap pm = builder.level(i);
+        auto surf = SkSurface::MakeRasterDirect(pm);
+        surf->getCanvas()->drawImageRect(img, SkRect::MakeIWH(pm.width(), pm.height()), nullptr);
+    }
+    auto img2 = img->withMipmaps(builder.detach());
+    REPORTER_ASSERT(reporter, !builder.detach());
+    REPORTER_ASSERT(reporter, img.get()  != img2.get());
+    REPORTER_ASSERT(reporter, img1.get() != img2.get());
+    REPORTER_ASSERT(reporter, img2->hasMipmaps());
 }

@@ -17,6 +17,7 @@
 #include "include/core/SkTileMode.h"
 
 struct SkMask;
+class SkMipMap;
 struct SkIRect;
 struct SkRect;
 class SkPaint;
@@ -1165,7 +1166,9 @@ public:
 private:
     sk_sp<SkPixelRef>   fPixelRef;
     SkPixmap            fPixmap;
+    sk_sp<SkMipMap>     fMips;
 
+    friend class SkImage_Raster;
     friend class SkReadBuffer;        // unflatten
 };
 

@@ -395,7 +395,8 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return SkTo<int32_t>(size);
 }
 
-SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
+SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
+                          bool computeContents) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
     FilterProc* proc_1_2 = nullptr;
@@ -632,14 +633,16 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
                                          SkIntToScalar(height) / src.height());
 
         const SkPixmap& dstPM = levels[i].fPixmap;
-        const void* srcBasePtr = srcPM.addr();
-        void* dstBasePtr = dstPM.writable_addr();
+        if (computeContents) {
+            const void* srcBasePtr = srcPM.addr();
+            void* dstBasePtr = dstPM.writable_addr();
 
-        const size_t srcRB = srcPM.rowBytes();
-        for (int y = 0; y < height; y++) {
-            proc(dstBasePtr, srcBasePtr, srcRB, width);
-            srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
-            dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
+            const size_t srcRB = srcPM.rowBytes();
+            for (int y = 0; y < height; y++) {
+                proc(dstBasePtr, srcBasePtr, srcRB, width);
+                srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
+                dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
+            }
         }
         srcPM = dstPM;
         addr += height * rowBytes;

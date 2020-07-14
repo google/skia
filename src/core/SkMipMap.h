@@ -29,7 +29,11 @@ typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
  */
 class SkMipMap : public SkCachedData {
 public:
-    static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc);
+    // Allocate and fill-in a mipmap. If computeContents is false, we just allocated
+    // and compute the sizes/rowbytes, but leave the pixel-data uninitialized.
+    static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc,
+                           bool computeContents = true);
+
     static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
     // Determines how many levels a SkMipMap will have without creating that mipmap.
