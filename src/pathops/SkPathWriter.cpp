@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkTSort.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsPoint.h"
@@ -289,7 +290,7 @@ void SkPathWriter::assemble() {
         rRow += endCount;
     }
     SkASSERT(dIndex == entries);
-    std::sort(sortedDist.begin(), sortedDist.end(), DistanceLessThan(distances.begin()));
+    SkTQSort<int>(sortedDist.begin(), sortedDist.end() - 1, DistanceLessThan(distances.begin()));
     int remaining = linkCount;  // number of start/end pairs
     for (rIndex = 0; rIndex < entries; ++rIndex) {
         int pair = sortedDist[rIndex];

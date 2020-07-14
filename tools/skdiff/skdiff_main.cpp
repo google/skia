@@ -318,9 +318,9 @@ static void release_file_list(FileArray *files) {
     files->deleteAll();
 }
 
-/// Comparison routine for sorting by file name.
-static int compare_file_name_metrics(const SkString* lhs, const SkString* rhs) {
-    return strcmp(lhs->c_str(), rhs->c_str()) < 0;
+/// Comparison routines for qsort, sort by file names.
+static int compare_file_name_metrics(SkString **lhs, SkString **rhs) {
+    return strcmp((*lhs)->c_str(), (*rhs)->c_str());
 }
 
 class AutoReleasePixels {
@@ -397,10 +397,12 @@ static void create_diff_images (DiffMetricProc dmp,
                   &comparisonFiles);
 
     if (!baseFiles.isEmpty()) {
-        std::sort(baseFiles.begin(), baseFiles.end(), compare_file_name_metrics);
+        qsort(baseFiles.begin(), baseFiles.count(), sizeof(SkString*),
+              SkCastForQSort(compare_file_name_metrics));
     }
     if (!comparisonFiles.isEmpty()) {
-        std::sort(comparisonFiles.begin(), comparisonFiles.end(), compare_file_name_metrics);
+        qsort(comparisonFiles.begin(), comparisonFiles.count(),
+              sizeof(SkString*), SkCastForQSort(compare_file_name_metrics));
     }
 
     if (!outputDir.isEmpty()) {

@@ -18,6 +18,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScanPriv.h"
+#include "src/core/SkTSort.h"
 
 #include <utility>
 
@@ -365,10 +366,20 @@ static void PrePostInverseBlitterProc(SkBlitter* blitter, int y, bool isStart) {
 #pragma warning ( pop )
 #endif
 
+static bool operator<(const SkEdge& a, const SkEdge& b) {
+    int valuea = a.fFirstY;
+    int valueb = b.fFirstY;
+
+    if (valuea == valueb) {
+        valuea = a.fX;
+        valueb = b.fX;
+    }
+
+    return valuea < valueb;
+}
+
 static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
-    std::sort(list, list + count, [](const SkEdge* a, const SkEdge* b) {
-        return std::tie(a->fFirstY, a->fX) < std::tie(b->fFirstY, b->fX);
-    });
+    SkTQSort(list, list + count - 1);
 
     // now make the edges linked in sorted order
     for (int i = 1; i < count; i++) {

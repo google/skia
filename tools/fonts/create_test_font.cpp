@@ -19,6 +19,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkSpan.h"
+#include "src/core/SkTSort.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkUTF.h"
 

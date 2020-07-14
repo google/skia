@@ -6,6 +6,7 @@
  */
 
 #include "include/private/SkMacros.h"
+#include "src/core/SkTSort.h"
 #include "src/pathops/SkAddIntersections.h"
 #include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
@@ -164,8 +165,7 @@ bool SortContourList(SkOpContourHead** contourList, bool evenOdd, bool oppEvenOd
         return false;
     }
     if (count > 1) {
-        std::sort(list.begin(), list.end(),
-                  [](const SkOpContour* a, const SkOpContour* b) { return *a < *b; });
+        SkTQSort<SkOpContour>(list.begin(), list.end() - 1);
     }
     contour = list[0];
     SkOpContourHead* contourHead = static_cast<SkOpContourHead*>(contour);

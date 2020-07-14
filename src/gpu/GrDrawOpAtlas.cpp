@@ -8,7 +8,6 @@
 #include "src/gpu/GrDrawOpAtlas.h"
 
 #include "include/gpu/GrContext.h"
-#include "src/core/SkMathPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"

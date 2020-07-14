@@ -20,6 +20,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
+#include "src/core/SkTSort.h"
 
 #include <utility>
 
@@ -1018,8 +1019,7 @@ static bool operator<(const SkAnalyticEdge& a, const SkAnalyticEdge& b) {
 }
 
 static SkAnalyticEdge* sort_edges(SkAnalyticEdge* list[], int count, SkAnalyticEdge** last) {
-    std::sort(list, list + count,
-              [](const SkAnalyticEdge* a, const SkAnalyticEdge* b) { return *a < *b; });
+    SkTQSort(list, list + count - 1);
 
     // now make the edges linked in sorted order
     for (int i = 1; i < count; ++i) {

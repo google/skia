@@ -10,6 +10,7 @@
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkTSearch.h"
+#include "src/core/SkTSort.h"
 #include "src/core/SkZip.h"
 #include "tests/Test.h"
 
@@ -131,7 +132,11 @@ static void test_search(skiatest::Reporter* reporter) {
         array[i] = rand.nextS();
     }
 
-    std::sort(array, array + kSEARCH_COUNT);
+    SkTHeapSort<int>(array, kSEARCH_COUNT);
+    // make sure we got sorted properly
+    for (i = 1; i < kSEARCH_COUNT; i++) {
+        REPORTER_ASSERT(reporter, array[i-1] <= array[i]);
+    }
 
     // make sure we can find all of our values
     for (i = 0; i < kSEARCH_COUNT; i++) {
