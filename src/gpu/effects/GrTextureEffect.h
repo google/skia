@@ -74,7 +74,8 @@ public:
      * subset. When subset is an integer rectangle this clamping avoids the hw bilerp filtering from
      * reading texels just outside the subset rect. This factory allows a custom inset clamping
      * distance rather than 0.5, allowing those neighboring texels to influence the bilerped sample
-     * result.
+     * result. If there is a known restriction on the post-matrix texture coords it can be specified
+     * using domain.
      */
     static std::unique_ptr<GrFragmentProcessor> MakeBilerpWithInset(
             GrSurfaceProxyView,
@@ -83,6 +84,7 @@ public:
             GrSamplerState::WrapMode wx,
             GrSamplerState::WrapMode wy,
             const SkRect& subset,
+            const SkRect* domain,
             SkVector inset,
             const GrCaps& caps,
             const float border[4] = kDefaultBorder);

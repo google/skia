@@ -436,14 +436,8 @@ static void draw_texture_producer(GrRecordingContext* context,
     if (mf && as_MFB(mf)->hasFragmentProcessor()) {
         mf = nullptr;
     }
-    const GrSamplerState::Filter* filterMode = doBicubic ? nullptr : &fm;
 
-    GrTextureProducer::FilterConstraint constraintMode;
-    if (SkCanvas::kFast_SrcRectConstraint == constraint) {
-        constraintMode = GrTextureAdjuster::kNo_FilterConstraint;
-    } else {
-        constraintMode = GrTextureAdjuster::kYes_FilterConstraint;
-    }
+    bool restrictToSubset = SkCanvas::kStrict_SrcRectConstraint == constraint;
 
     // If we have to outset for AA then we will generate texture coords outside the src rect. The
     // same happens for any mask filter that extends the bounds rendered in the dst.
@@ -451,13 +445,12 @@ static void draw_texture_producer(GrRecordingContext* context,
     bool coordsAllInsideSrcRect = aaFlags == GrQuadAAFlags::kNone && !mf;
 
     // Check for optimization to drop the src rect constraint when on bilerp.
-    if (filterMode && GrSamplerState::Filter::kBilerp == *filterMode &&
-        GrTextureAdjuster::kYes_FilterConstraint == constraintMode && coordsAllInsideSrcRect &&
-        !producer->isPlanar()) {
+    if (!doBicubic && fm == GrSamplerState::Filter::kBilerp && restrictToSubset &&
+        coordsAllInsideSrcRect && !producer->isPlanar()) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(ctm, srcToDst);
         if (can_ignore_bilerp_constraint(*producer, src, combinedMatrix, rtc->numSamples())) {
-            constraintMode = GrTextureAdjuster::kNo_FilterConstraint;
+            restrictToSubset = false;
         }
     }
 
@@ -469,8 +462,14 @@ static void draw_texture_producer(GrRecordingContext* context,
             return;
         }
     }
-    auto fp = producer->createFragmentProcessor(textureMatrix, src, constraintMode,
-                                                coordsAllInsideSrcRect, wm, wm, filterMode);
+    const SkRect* subset = restrictToSubset       ? &src : nullptr;
+    const SkRect* domain = coordsAllInsideSrcRect ? &src : nullptr;
+    std::unique_ptr<GrFragmentProcessor> fp;
+    if (doBicubic) {
+        fp = producer->createBicubicFragmentProcessor(textureMatrix, subset, domain, wm, wm);
+    } else {
+        fp = producer->createFragmentProcessor(textureMatrix, subset, domain, {wm, fm});
+    }
     fp = GrColorSpaceXformEffect::Make(std::move(fp),
                                        producer->colorSpace(), producer->alphaType(),
                                        rtc->colorInfo().colorSpace(), kPremul_SkAlphaType);

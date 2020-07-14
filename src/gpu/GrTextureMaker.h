@@ -16,14 +16,17 @@
  */
 class GrTextureMaker : public GrTextureProducer {
 public:
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(const SkMatrix& textureMatrix,
+                                                                 const SkRect* subset,
+                                                                 const SkRect* domain,
+                                                                 GrSamplerState) override;
+
+    std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessor(
             const SkMatrix& textureMatrix,
-            const SkRect& constraintRect,
-            FilterConstraint filterConstraint,
-            bool coordsLimitedToConstraintRect,
+            const SkRect* subset,
+            const SkRect* domain,
             GrSamplerState::WrapMode wrapX,
-            GrSamplerState::WrapMode wrapY,
-            const GrSamplerState::Filter* filterOrNullForBicubic) override;
+            GrSamplerState::WrapMode wrapY) override;
 
 protected:
     GrTextureMaker(GrRecordingContext* context, const GrImageInfo& info)

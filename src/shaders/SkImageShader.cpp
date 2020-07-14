@@ -302,20 +302,22 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // quality setting. This completely ignores the complexity of the drawVertices case
     // where explicit local coords are provided by the caller.
     bool doBicubic;
-    GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
+    GrSamplerState::Filter fm = GrSkFilterQualityToGrFilterMode(
             fImage->width(), fImage->height(), this->resolveFiltering(args.fFilterQuality),
             args.fMatrixProvider.localToDevice(), *lm,
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
-    const GrSamplerState::Filter* filterOrNull = doBicubic ? nullptr : &textureFilterMode;
-    auto fp = producer->createFragmentProcessor(lmInverse, SkRect::Make(fImage->dimensions()),
-                                                GrTextureProducer::kNo_FilterConstraint, false, wmX,
-                                                wmY, filterOrNull);
+    std::unique_ptr<GrFragmentProcessor> fp;
+    if (doBicubic) {
+        fp = producer->createBicubicFragmentProcessor(lmInverse, nullptr, nullptr, wmX, wmY);
+    } else {
+        fp = producer->createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm});
+    }
 
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->colorSpace(), producer->alphaType(),
+                                       args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
     if (!fp) {
         return nullptr;
     }
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->colorSpace(), producer->alphaType(),
-                                       args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
     bool isAlphaOnly = SkColorTypeIsAlphaOnly(fImage->colorType());
     if (isAlphaOnly) {
         return fp;

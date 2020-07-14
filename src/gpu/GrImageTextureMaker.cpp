@@ -60,50 +60,48 @@ GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(GrMipMap
 
 std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProcessor(
         const SkMatrix& textureMatrix,
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        GrSamplerState::WrapMode wrapX,
-        GrSamplerState::WrapMode wrapY,
-        const GrSamplerState::Filter* filterOrNullForBicubic) {
+        const SkRect* subset,
+        const SkRect* domain,
+        GrSamplerState samplerState) {
     // Check whether it's already been flattened.
     if (fImage->fRGBView.proxy()) {
-        return this->INHERITED::createFragmentProcessor(
-                textureMatrix, constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                wrapX, wrapY, filterOrNullForBicubic);
+        return this->INHERITED::createFragmentProcessor(textureMatrix, subset, domain,
+                                                        samplerState);
     }
-
-    GrSamplerState::Filter filter =
-            filterOrNullForBicubic ? *filterOrNullForBicubic : GrSamplerState::Filter::kNearest;
 
     // Check to see if the client has given us pre-mipped textures or we can generate them
     // If not, fall back to bilerp. Also fall back to bilerp when a domain is requested
-    if (GrSamplerState::Filter::kMipMap == filter &&
-        (filterConstraint == GrTextureProducer::kYes_FilterConstraint ||
-         !fImage->setupMipmapsForPlanes(this->context()))) {
-        filter = GrSamplerState::Filter::kBilerp;
-    }
-
-    // Cannot rely on GrTextureProducer's domain infrastructure since we need to calculate domain's
-    // per plane, which may be different, so respect the filterConstraint without any additional
-    // analysis.
-    const SkRect* domain = nullptr;
-    if (filterConstraint == GrTextureProducer::kYes_FilterConstraint) {
-        domain = &constraintRect;
+    if (samplerState.filter() == GrSamplerState::Filter::kMipMap &&
+        (subset || !fImage->setupMipmapsForPlanes(this->context()))) {
+        samplerState.setFilterMode(GrSamplerState::Filter::kBilerp);
     }
 
     const auto& caps = *fImage->context()->priv().caps();
-    const SkMatrix& m = filterOrNullForBicubic ? textureMatrix : SkMatrix::I();
-    GrSamplerState sampler(wrapX, wrapY, filter);
     auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVAIndices, fImage->fYUVColorSpace,
-                                     sampler, caps, m, domain);
-    if (!filterOrNullForBicubic) {
-        fp = GrBicubicEffect::Make(std::move(fp),
-                                   fImage->alphaType(),
-                                   textureMatrix,
-                                   GrBicubicEffect::Kernel::kMitchell,
-                                   GrBicubicEffect::Direction::kXY);
+                                     samplerState, caps, textureMatrix, subset, domain);
+    if (fImage->fFromColorSpace) {
+        fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fFromColorSpace.get(),
+                                           fImage->alphaType(), fImage->colorSpace(),
+                                           kPremul_SkAlphaType);
     }
+    return fp;
+}
+
+std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createBicubicFragmentProcessor(
+        const SkMatrix& textureMatrix,
+        const SkRect* subset,
+        const SkRect* domain,
+        GrSamplerState::WrapMode wrapX,
+        GrSamplerState::WrapMode wrapY) {
+    const auto& caps = *fImage->context()->priv().caps();
+    GrSamplerState samplerState(wrapX, wrapY, GrSamplerState::Filter::kNearest);
+    auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVAIndices, fImage->fYUVColorSpace,
+                                     samplerState, caps, SkMatrix::I(), subset, domain);
+    fp = GrBicubicEffect::Make(std::move(fp),
+                               fImage->alphaType(),
+                               textureMatrix,
+                               GrBicubicEffect::Kernel::kMitchell,
+                               GrBicubicEffect::Direction::kXY);
     if (fImage->fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp),
                                            fImage->fFromColorSpace.get(), fImage->alphaType(),
