@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67603614_6bb719a3",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T14:46:11Z",
+      "side": 1,
+      "message": "nice",
+      "range": {
+        "startLine": 19,
+        "startChar": 29,
+        "endLine": 19,
+        "endChar": 42
+      },
+      "revId": "944e05ec237cfd2548a0946e7218127a31cd36db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
