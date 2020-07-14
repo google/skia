@@ -65,6 +65,9 @@ public:
     // extension, and any wrapped render target is the client's responsibility.
     bool msaaResolvesAutomatically() const { return fMSAAResolvesAutomatically; }
     bool halfFloatVertexAttributeSupport() const { return fHalfFloatVertexAttributeSupport; }
+    // Is there support for QCOM_tiled_rendering or something equivalent that allows us to start and
+    // stop tiling with an explicit bounding box and preserve masks?
+    bool explicitTiledRenderingSupport() const { return fExplicitTiledRenderingSupport; }
 
     // Primitive restart functionality is core in ES 3.0, but using it will cause slowdowns on some
     // systems. This cap is only set if primitive restart will improve performance.
@@ -472,6 +475,7 @@ protected:
     bool fShouldInitializeTextures                   : 1;
     bool fSupportsAHardwareBufferImages              : 1;
     bool fHalfFloatVertexAttributeSupport            : 1;
+    bool fExplicitTiledRenderingSupport              : 1;
     bool fClampToBorderSupport                       : 1;
     bool fPerformPartialClearsAsDraws                : 1;
     bool fPerformColorClearsAsDraws                  : 1;

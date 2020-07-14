@@ -43,6 +43,10 @@ public:
     struct StencilLoadAndStoreInfo {
         GrLoadOp  fLoadOp;
         GrStoreOp fStoreOp;
+        // Specifies that this render pass should use a tiled rendering extension to explicitly
+        // start and stop tiling with exact content bounds and preserve masks.
+        // NOTE: this must be false if GrCaps::tiledRenderingSupport() is not supported.
+        bool fUseExplicitTiledRendering;
     };
 
     void begin();

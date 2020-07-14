@@ -127,6 +127,8 @@ public:
                        &dstProxyView, caps);
     }
 
+    void enableExplicitTiledRendering() { fUseExplicitTiledRendering = true; }
+
     void discard();
 
 #ifdef SK_DEBUG
@@ -310,6 +312,7 @@ private:
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;
     StencilContent fInitialStencilContent = StencilContent::kDontCare;
+    bool fUseExplicitTiledRendering = false;
     bool fMustPreserveStencil = false;
 
     uint32_t fLastClipStackGenID = SK_InvalidUniqueID;

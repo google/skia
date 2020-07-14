@@ -42,6 +42,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fSemaphoreSupport = false;
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = false;
+    fExplicitTiledRenderingSupport = false;
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
     fPerformPartialClearsAsDraws = false;
     fPerformColorClearsAsDraws = false;
@@ -217,6 +218,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Semaphore support", fSemaphoreSupport);
     writer->appendBool("Cross context texture support", fCrossContextTextureSupport);
     writer->appendBool("Half float vertex attribute support", fHalfFloatVertexAttributeSupport);
+    writer->appendBool("Explicit tiled rendering support", fExplicitTiledRenderingSupport);
     writer->appendBool("Specify GeometryProcessor textures as a dynamic state array",
                        fDynamicStateArrayGeometryProcessorTextureSupport);
     writer->appendBool("Use draws for partial clears", fPerformPartialClearsAsDraws);

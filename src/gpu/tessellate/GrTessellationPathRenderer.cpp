@@ -365,6 +365,12 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
         }
     }
 
+    if (onFlushRP->caps()->explicitTiledRenderingSupport()) {
+        // Use QCOM_tiled_rendering to guarantee we don't spend memory bandwidth loading or storing
+        // stencil values. All stencil values should remain local to tiles and then be discarded.
+        rtc->getOpsTask()->enableExplicitTiledRendering();
+    }
+
     // Finally, draw a fullscreen rect to convert our stencilled paths into alpha coverage masks.
     auto fillRectFlags = GrFillRectOp::InputFlags::kNone;
 
