@@ -39,10 +39,90 @@ bool GrTextBlob::Key::operator==(const GrTextBlob::Key& other) const {
     return 0 == memcmp(this, &other, sizeof(Key));
 }
 
-// -- GrTextBlob::PathGlyph ------------------------------------------------------------------------
-GrTextBlob::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
+// -- GrPathSubRun::PathGlyph ----------------------------------------------------------------------
+GrPathSubRun::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
         : fPath(path)
         , fOrigin(origin) {}
+
+// -- GrPathSubRun ---------------------------------------------------------------------------------
+GrPathSubRun::GrPathSubRun(bool isAntiAliased,
+                           const SkStrikeSpec& strikeSpec,
+                           SkSpan<PathGlyph> paths)
+    : fIsAntiAliased{isAntiAliased}
+    , fStrikeSpec{strikeSpec}
+    , fPaths{paths} {}
+
+void GrPathSubRun::draw(const GrClip* clip,
+                        const SkMatrixProvider& viewMatrix,
+                        const SkGlyphRunList& glyphRunList,
+                        GrRenderTargetContext* rtc) {
+    SkASSERT(!fPaths.empty());
+    SkPoint drawOrigin = glyphRunList.origin();
+    const SkPaint& drawPaint = glyphRunList.paint();
+    SkPaint runPaint{drawPaint};
+    runPaint.setAntiAlias(fIsAntiAliased);
+    // If there are shaders, blurs or styles, the path must be scaled into source
+    // space independently of the CTM. This allows the CTM to be correct for the
+    // different effects.
+    GrStyle style(runPaint);
+
+    bool needsExactCTM = runPaint.getShader()
+                         || style.applies()
+                         || runPaint.getMaskFilter();
+
+    // Calculate the matrix that maps the path glyphs from their size in the strike to
+    // the graphics source space.
+    SkScalar scale = this->fStrikeSpec.strikeToSourceRatio();
+    SkMatrix strikeToSource = SkMatrix::Scale(scale, scale);
+    strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
+    if (!needsExactCTM) {
+        for (const auto& pathPos : fPaths) {
+            const SkPath& path = pathPos.fPath;
+            const SkPoint pos = pathPos.fOrigin;  // Transform the glyph to source space.
+            SkMatrix pathMatrix = strikeToSource;
+            pathMatrix.postTranslate(pos.x(), pos.y());
+            SkPreConcatMatrixProvider strikeToDevice(viewMatrix, pathMatrix);
+
+            GrStyledShape shape(path, drawPaint);
+            GrBlurUtils::drawShapeWithMaskFilter(
+                    rtc->priv().getContext(), rtc, clip, runPaint, strikeToDevice, shape);
+        }
+    } else {
+        // Transform the path to device because the deviceMatrix must be unchanged to
+        // draw effect, filter or shader paths.
+        for (const auto& pathPos : fPaths) {
+            const SkPath& path = pathPos.fPath;
+            const SkPoint pos = pathPos.fOrigin;
+            // Transform the glyph to source space.
+            SkMatrix pathMatrix = strikeToSource;
+            pathMatrix.postTranslate(pos.x(), pos.y());
+
+            SkPath deviceOutline;
+            path.transform(pathMatrix, &deviceOutline);
+            deviceOutline.setIsVolatile(true);
+            GrStyledShape shape(deviceOutline, drawPaint);
+            GrBlurUtils::drawShapeWithMaskFilter(
+                    rtc->priv().getContext(), rtc, clip, runPaint, viewMatrix, shape);
+        }
+    }
+}
+
+
+auto GrPathSubRun::MakePaths(
+        const SkZip<SkGlyphVariant, SkPoint>& drawables,
+        bool isAntiAliased,
+        const SkStrikeSpec& strikeSpec,
+        SkArenaAlloc* alloc) -> GrSubRun* {
+    PathGlyph* pathData = alloc->makeInitializedArray<PathGlyph>(
+            drawables.size(),
+            [&](size_t i) -> PathGlyph {
+                auto [variant, pos] = drawables[i];
+                return {*variant.path(), pos};
+            });
+
+    return alloc->make<GrPathSubRun>(
+            isAntiAliased, strikeSpec, SkMakeSpan(pathData, drawables.size()));
+};
 
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
 GrAtlasSubRun::GrAtlasSubRun(SubRunType type, GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
@@ -54,16 +134,7 @@ GrAtlasSubRun::GrAtlasSubRun(SubRunType type, GrTextBlob* textBlob, const SkStri
         , fStrikeSpec{strikeSpec}
         , fVertexBounds{vertexBounds}
         , fVertexData{vertexData} {
-    SkASSERT(fType != kTransformedPath);
 }
-
-GrAtlasSubRun::GrAtlasSubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
-        : fBlob{textBlob}
-        , fType{kTransformedPath}
-        , fMaskFormat{kA8_GrMaskFormat}
-        , fStrikeSpec{strikeSpec}
-        , fVertexBounds{SkRect::MakeEmpty()}
-        , fVertexData{SkSpan<VertexData>{}} { }
 
 static SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
     SkColor4f c = paint.getColor4f();
@@ -189,72 +260,13 @@ GrAtlasSubRun::makeAtlasTextOp(const GrClip* clip,
     return {clip, std::move(op)};
 }
 
-void GrAtlasSubRun::drawPaths(const GrClip* clip,
-                              const SkMatrixProvider& viewMatrix,
-                              const SkGlyphRunList& glyphRunList,
-                              GrRenderTargetContext* rtc) {
-    SkASSERT(!this->paths().empty());
-    SkPoint drawOrigin = glyphRunList.origin();
-    const SkPaint& drawPaint = glyphRunList.paint();
-    SkPaint runPaint{drawPaint};
-    runPaint.setAntiAlias(this->isAntiAliased());
-    // If there are shaders, blurs or styles, the path must be scaled into source
-    // space independently of the CTM. This allows the CTM to be correct for the
-    // different effects.
-    GrStyle style(runPaint);
-
-    bool needsExactCTM = runPaint.getShader()
-                         || style.applies()
-                         || runPaint.getMaskFilter();
-
-    // Calculate the matrix that maps the path glyphs from their size in the strike to
-    // the graphics source space.
-    SkScalar scale = this->strikeSpec().strikeToSourceRatio();
-    SkMatrix strikeToSource = SkMatrix::Scale(scale, scale);
-    strikeToSource.postTranslate(drawOrigin.x(), drawOrigin.y());
-    if (!needsExactCTM) {
-        for (const auto& pathPos : this->paths()) {
-            const SkPath& path = pathPos.fPath;
-            const SkPoint pos = pathPos.fOrigin;  // Transform the glyph to source space.
-            SkMatrix pathMatrix = strikeToSource;
-            pathMatrix.postTranslate(pos.x(), pos.y());
-            SkPreConcatMatrixProvider strikeToDevice(viewMatrix, pathMatrix);
-
-            GrStyledShape shape(path, drawPaint);
-            GrBlurUtils::drawShapeWithMaskFilter(
-                    rtc->priv().getContext(), rtc, clip, runPaint, strikeToDevice, shape);
-        }
-    } else {
-        // Transform the path to device because the deviceMatrix must be unchanged to
-        // draw effect, filter or shader paths.
-        for (const auto& pathPos : this->paths()) {
-            const SkPath& path = pathPos.fPath;
-            const SkPoint pos = pathPos.fOrigin;
-            // Transform the glyph to source space.
-            SkMatrix pathMatrix = strikeToSource;
-            pathMatrix.postTranslate(pos.x(), pos.y());
-
-            SkPath deviceOutline;
-            path.transform(pathMatrix, &deviceOutline);
-            deviceOutline.setIsVolatile(true);
-            GrStyledShape shape(deviceOutline, drawPaint);
-            GrBlurUtils::drawShapeWithMaskFilter(
-                    rtc->priv().getContext(), rtc, clip, runPaint, viewMatrix, shape);
-        }
-    }
-}
-
 void GrAtlasSubRun::draw(const GrClip* clip,
                          const SkMatrixProvider& viewMatrix,
                          const SkGlyphRunList& glyphRunList,
                          GrRenderTargetContext* rtc) {
-    if (this->drawAsPaths()) {
-        this->drawPaths(clip, viewMatrix, glyphRunList, rtc);
-    } else {
-        auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
-        if (op != nullptr) {
-            rtc->priv().addDrawOp(drawingClip, std::move(op));
-        }
+    auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
+    if (op != nullptr) {
+        rtc->priv().addDrawOp(drawingClip, std::move(op));
     }
 }
 
@@ -517,8 +529,6 @@ void GrAtlasSubRun::fillVertexData(
             }
             break;
         }
-        case kTransformedPath:
-            SK_ABORT("Paths don't generate vertex data.");
     }
 }
 
@@ -528,16 +538,13 @@ int GrAtlasSubRun::glyphCount() const {
 
 bool GrAtlasSubRun::drawAsDistanceFields() const { return fType == kTransformedSDFT; }
 
-bool GrAtlasSubRun::drawAsPaths() const { return fType == kTransformedPath; }
-
 bool GrAtlasSubRun::needsTransform() const {
-    return fType == kTransformedPath ||
-           fType == kTransformedMask ||
+    return fType == kTransformedMask ||
            fType == kTransformedSDFT;
 }
 
 bool GrAtlasSubRun::needsPadding() const {
-    return fType == kTransformedPath || fType == kTransformedMask;
+    return fType == kTransformedMask;
 }
 
 int GrAtlasSubRun::atlasPadding() const {
@@ -549,7 +556,7 @@ auto GrAtlasSubRun::vertexData() const -> SkSpan<const VertexData> {
 }
 
 bool GrAtlasSubRun::hasW() const {
-    if (fType == kTransformedSDFT || fType == kTransformedMask || fType == kTransformedPath) {
+    if (fType == kTransformedSDFT || fType == kTransformedMask) {
         return fBlob->hasPerspective();
     }
 
@@ -596,20 +603,6 @@ bool GrAtlasSubRun::hasUseLCDText() const { return fUseLCDText; }
 void GrAtlasSubRun::setAntiAliased(bool antiAliased) { fAntiAliased = antiAliased; }
 bool GrAtlasSubRun::isAntiAliased() const { return fAntiAliased; }
 const SkStrikeSpec& GrAtlasSubRun::strikeSpec() const { return fStrikeSpec; }
-
-auto GrAtlasSubRun::MakePaths(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables,
-        const SkFont& runFont,
-        const SkStrikeSpec& strikeSpec,
-        GrTextBlob* blob,
-        SkArenaAlloc* alloc) -> GrSubRun* {
-    GrAtlasSubRun* subRun = alloc->make<GrAtlasSubRun>(blob, strikeSpec);
-    subRun->setAntiAliased(runFont.hasSomeAntiAliasing());
-    for (auto [variant, pos] : drawables) {
-        subRun->fPaths.emplace_back(*variant.path(), pos);
-    }
-    return subRun;
-};
 
 auto GrAtlasSubRun::MakeSDFT(
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -877,7 +870,10 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
                                     const SkFont& runFont,
                                     const SkStrikeSpec& strikeSpec) {
     this->setHasBitmap();
-    GrSubRun* subRun = GrAtlasSubRun::MakePaths(drawables, runFont, strikeSpec, this, &fAlloc);
+    GrSubRun* subRun = GrPathSubRun::MakePaths(drawables,
+                                               runFont.hasSomeAntiAliasing(),
+                                               strikeSpec,
+                                               &fAlloc);
     this->insertSubRun(subRun);
 }
 

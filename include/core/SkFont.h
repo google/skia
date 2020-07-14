@@ -511,6 +511,7 @@ private:
     bool hasSomeAntiAliasing() const;
 
     friend class GrAtlasSubRun;
+    friend class GrTextBlob;
     friend class SkFontPriv;
     friend class SkGlyphRunListPainter;
     friend class SkTextBlobCacheDiffCanvas;
