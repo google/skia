@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03cdda7a_aed930f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T01:24:12Z",
+      "side": 1,
+      "message": "Turns out this will require figuring out what\u0027s up with those diffs, or at least staging to rebaseline Blink.  And the Chrome roll seems to complain about the size increase, though there were a bunch of CLs in that roll: https://chromium-review.googlesource.com/c/chromium/src/+/2296185",
+      "revId": "70474c1cb0bc19a025ee678161b633cf57b0a83e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
