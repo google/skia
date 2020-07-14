@@ -16,6 +16,24 @@
       "revId": "4a18f8cdcb861a8b94d0fc185bd1aff84e0b4c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e0d07b3_50a48fa5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-14T14:01:38Z",
+      "side": 1,
+      "message": "Yep, I should be able to swap them out for some clipShader calls. I\u0027ll sort this out this week.",
+      "parentUuid": "0c55f752_05d77ecb",
+      "revId": "4a18f8cdcb861a8b94d0fc185bd1aff84e0b4c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
