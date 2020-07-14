@@ -23,7 +23,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkPixelRefPriv.h"
 #include "src/core/SkPixmapPriv.h"
 #include "src/core/SkReadBuffer.h"

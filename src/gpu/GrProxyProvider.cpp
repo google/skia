@@ -17,7 +17,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkImagePriv.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
@@ -286,7 +286,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
 
     sk_sp<GrTextureProxy> proxy;
     if (mipMapped == GrMipMapped::kNo ||
-        0 == SkMipMap::ComputeLevelCount(copyBitmap.width(), copyBitmap.height())) {
+        0 == SkMipmap::ComputeLevelCount(copyBitmap.width(), copyBitmap.height())) {
         proxy = this->createNonMippedProxyFromBitmap(copyBitmap, fit, budgeted);
     } else {
         proxy = this->createMippedProxyFromBitmap(copyBitmap, budgeted);
@@ -349,7 +349,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
         return nullptr;
     }
 
-    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bitmap.pixmap(), nullptr));
+    sk_sp<SkMipmap> mipmaps(SkMipmap::Build(bitmap.pixmap(), nullptr));
     if (!mipmaps) {
         return nullptr;
     }
@@ -366,7 +366,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                 texels[0].fRowBytes = bitmap.rowBytes();
 
                 for (int i = 1; i < mipLevelCount; ++i) {
-                    SkMipMap::Level generatedMipLevel;
+                    SkMipmap::Level generatedMipLevel;
                     mipmaps->getLevel(i - 1, &generatedMipLevel);
                     texels[i].fPixels = generatedMipLevel.fPixmap.addr();
                     texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
@@ -413,8 +413,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
     }
 
     if (GrMipMapped::kYes == mipMapped) {
-        // SkMipMap doesn't include the base level in the level count so we have to add 1
-        int mipCount = SkMipMap::ComputeLevelCount(dimensions.fWidth, dimensions.fHeight) + 1;
+        // SkMipmap doesn't include the base level in the level count so we have to add 1
+        int mipCount = SkMipmap::ComputeLevelCount(dimensions.fWidth, dimensions.fHeight) + 1;
         if (1 == mipCount) {
             mipMapped = GrMipMapped::kNo;
         }
