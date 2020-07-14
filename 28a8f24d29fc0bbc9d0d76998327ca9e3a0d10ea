@@ -51,6 +51,24 @@
       "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2beea6f_d5db0848",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T19:05:03Z",
+      "side": 1,
+      "message": "I like that a lot; will there be too many ripple effects from making that change?",
+      "parentUuid": "2ced27d0_4ec20689",
+      "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
