@@ -157,23 +157,8 @@ static void test_compressed_color_init(GrContext* context,
 
     check_compressed_mipmaps(context, img, compression, expectedColors, mipMapped,
                              reporter, "colorinit");
-    check_readback(context, img, compression, color, reporter, "solid readback");
-
-    SkColor4f newColor;
-    newColor.fR = color.fB;
-    newColor.fG = color.fR;
-    newColor.fB = color.fG;
-    newColor.fA = color.fA;
-
-    bool result = context->updateCompressedBackendTexture(backendTex, newColor, nullptr, nullptr);
-    // Since we were able to create the compressed texture we should be able to update it.
-    REPORTER_ASSERT(reporter, result);
-
-    SkColor4f expectedNewColors[6] = {newColor, newColor, newColor, newColor, newColor, newColor};
-
-    check_compressed_mipmaps(context, img, compression, expectedNewColors, mipMapped, reporter,
-                             "colorinit");
-    check_readback(context, std::move(img), compression, newColor, reporter, "solid readback");
+    check_readback(context, std::move(img), compression, color, reporter,
+                   "solid readback");
 
     context->deleteBackendTexture(backendTex);
 }
@@ -244,30 +229,7 @@ static void test_compressed_data_init(GrContext* context,
 
     check_compressed_mipmaps(context, img, compression, expectedColors,
                              mipMapped, reporter, "pixmap");
-    check_readback(context, img, compression, expectedColors[0], reporter, "data readback");
-
-    SkColor4f expectedColorsNew[6] = {
-        {1.0f, 1.0f, 0.0f, 1.0f},  // Y
-        {1.0f, 0.0f, 0.0f, 1.0f},  // R
-        {0.0f, 1.0f, 0.0f, 1.0f},  // G
-        {0.0f, 0.0f, 1.0f, 1.0f},  // B
-        {0.0f, 1.0f, 1.0f, 1.0f},  // C
-        {1.0f, 0.0f, 1.0f, 1.0f},  // M
-    };
-
-    std::unique_ptr<const char[]> dataNew(
-            make_compressed_data(compression, expectedColorsNew, mipMapped));
-    size_t dataNewSize =
-            SkCompressedDataSize(compression, {32, 32}, nullptr, mipMapped == GrMipMapped::kYes);
-
-    bool result = context->updateCompressedBackendTexture(backendTex, dataNew.get(), dataNewSize,
-                                                          nullptr, nullptr);
-    // Since we were able to create the compressed texture we should be able to update it.
-    REPORTER_ASSERT(reporter, result);
-
-    check_compressed_mipmaps(context, img, compression, expectedColorsNew, mipMapped, reporter,
-                             "pixmap");
-    check_readback(context, std::move(img), compression, expectedColorsNew[0], reporter,
+    check_readback(context, std::move(img), compression, expectedColors[0], reporter,
                    "data readback");
 
     context->deleteBackendTexture(backendTex);
