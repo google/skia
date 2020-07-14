@@ -111,6 +111,29 @@
     },
     {
       "key": {
+        "uuid": "a6a34f86_8721d5c3",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T14:40:13Z",
+      "side": 1,
+      "message": "For human readable text \"null\" is likely preferable to \"nullptr\"",
+      "range": {
+        "startLine": 90,
+        "startChar": 74,
+        "endLine": 90,
+        "endChar": 81
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9ea05224_aa8df243",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
@@ -150,6 +173,29 @@
         "startChar": 15,
         "endLine": 420,
         "endChar": 29
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b6d4902_66331460",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T14:40:13Z",
+      "side": 1,
+      "message": "nit: Line wrapping\n\nAlso, \"null\" is probably better for description text than \"nullptr\" which may kill two birds with one stone",
+      "range": {
+        "startLine": 714,
+        "startChar": 92,
+        "endLine": 714,
+        "endChar": 103
       },
       "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
