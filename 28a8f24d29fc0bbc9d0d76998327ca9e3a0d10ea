@@ -105,6 +105,24 @@
       "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f3eb1f6_7a969dcd",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-14T19:22:33Z",
+      "side": 1,
+      "message": "I think this all makes sense and am in favor. I would keep the call sites that have domain knowledge where they don\u0027t care about the child\u0027s input color to still use sample() with no argument, which will help really point out the sample behavior in the places that want the half(1) override.",
+      "parentUuid": "8845d0b8_b6d6c728",
+      "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
