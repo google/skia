@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e336a3e_afa96d4d",
+        "filename": "src/core/SkTSearch.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T16:44:21Z",
+      "side": 1,
+      "message": "Can all of these just be \"std::less\u003cT\u003e{}\" ?",
+      "range": {
+        "startLine": 75,
+        "startChar": 21,
+        "endLine": 75,
+        "endChar": 70
+      },
+      "revId": "a2cf0b20df2c302750954d6599a4d8b868060c40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
