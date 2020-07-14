@@ -58,16 +58,6 @@ void GrGpu::disconnect(DisconnectType type) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texProxy,
-                                 GrSamplerState::Filter filter) {
-    SkASSERT(texProxy);
-    if (filter != GrSamplerState::Filter::kMipMap || texProxy->mipMapped() == GrMipMapped::kYes ||
-        !caps->mipMapSupport()) {
-        return false;
-    }
-    return SkMipMap::ComputeLevelCount(texProxy->width(), texProxy->height()) > 0;
-}
-
 static bool validate_texel_levels(SkISize dimensions, GrColorType texelColorType,
                                   const GrMipLevel* texels, int mipLevelCount, const GrCaps* caps) {
     SkASSERT(mipLevelCount > 0);

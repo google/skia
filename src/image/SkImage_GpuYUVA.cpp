@@ -96,19 +96,23 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     if (!context || !fContext->priv().matches(context)) {
         return false;
     }
-
+    GrSurfaceProxyView newViews[4];
+    if (!context->priv().caps()->mipMapSupport()) {
+        // We succeed in this case by doing nothing.
+        return true;
+    }
     for (int i = 0; i < fNumViews; ++i) {
-        int mipCount = SkMipMap::ComputeLevelCount(fViews[i].proxy()->width(),
-                                                   fViews[i].proxy()->height());
-        if (mipCount && GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
-                                                    fViews[i].asTextureProxy(),
-                                                    GrSamplerState::Filter::kMipMap)) {
-            auto mippedView = GrCopyBaseMipMapToView(context, fViews[i]);
-            if (!mippedView) {
+        auto* t = fViews[i].asTextureProxy();
+        if (t->mipMapped() == GrMipMapped::kNo && (t->width() > 1 || t->height() > 1)) {
+            if (!(newViews[i] = GrCopyBaseMipMapToView(context, fViews[i]))) {
                 return false;
             }
-            fViews[i] = std::move(mippedView);
+        } else {
+            newViews[i] = fViews[i];
         }
+    }
+    for (int i = 0; i < fNumViews; ++i) {
+        fViews[i] = std::move(newViews[i]);
     }
     return true;
 }
