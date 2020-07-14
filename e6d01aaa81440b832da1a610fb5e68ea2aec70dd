@@ -218,6 +218,24 @@
       "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5955f34_067f034f",
+        "filename": "src/gpu/gl/GrGLExtensions.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T20:13:29Z",
+      "side": 1,
+      "message": "Oh ok, this insertion sort runs in O(N) time, of course.  I guess I\u0027d have expected std::move() (this one, https://en.cppreference.com/w/cpp/algorithm/move)?  That said, I don\u0027t see any reason not to add erase() to SkTArray.  It\u0027s weird that it\u0027s missing.\n\nIf we\u0027re gilding anything here, I\u0027d hesitate to call it a lily.",
+      "parentUuid": "840a2628_b45c0e40",
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
