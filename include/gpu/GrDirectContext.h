@@ -12,7 +12,7 @@
 
 class GrAtlasManager;
 
-class GrDirectContext : public GrContext {
+class SK_API GrDirectContext : public GrContext {
 public:
 #ifdef SK_GL
     /**

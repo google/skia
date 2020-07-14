@@ -118,6 +118,8 @@ bool GrDirectContext::init() {
 
 #ifdef SK_GL
 /*************************************************************************************************/
+#ifndef SK_DISABLE_LEGACY_CONTEXT_FACTORIES
+
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface) {
     return GrDirectContext::MakeGL(std::move(glInterface));
 }
@@ -134,6 +136,8 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
                                    const GrContextOptions& options) {
     return GrDirectContext::MakeGL(std::move(glInterface), options);
 }
+
+#endif
 
 /*************************************************************************************************/
 sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface) {
@@ -203,6 +207,8 @@ sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInte
 #endif
 
 /*************************************************************************************************/
+#ifndef SK_DISABLE_LEGACY_CONTEXT_FACTORIES
+
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
     return GrDirectContext::MakeMock(mockOptions);
 }
@@ -211,6 +217,8 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
     return GrDirectContext::MakeMock(mockOptions, options);
 }
+
+#endif
 
 /*************************************************************************************************/
 sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOptions) {
@@ -232,6 +240,8 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOption
 
 #ifdef SK_VULKAN
 /*************************************************************************************************/
+#ifndef SK_DISABLE_LEGACY_CONTEXT_FACTORIES
+
 sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext) {
     return GrDirectContext::MakeVulkan(backendContext);
 }
@@ -240,6 +250,8 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                        const GrContextOptions& options) {
     return GrDirectContext::MakeVulkan(backendContext, options);
 }
+
+#endif
 
 /*************************************************************************************************/
 sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext) {
@@ -262,6 +274,8 @@ sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& bac
 
 #ifdef SK_METAL
 /*************************************************************************************************/
+#ifndef SK_DISABLE_LEGACY_CONTEXT_FACTORIES
+
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
     return GrDirectContext::MakeMetal(device, queue);
 }
@@ -269,6 +283,8 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
     return GrDirectContext::MakeMetal(device, queue, options);
 }
+
+#endif
 
 /*************************************************************************************************/
 sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue) {
@@ -291,6 +307,8 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue,
 
 #ifdef SK_DIRECT3D
 /*************************************************************************************************/
+#ifndef SK_DISABLE_LEGACY_CONTEXT_FACTORIES
+
 sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendContext) {
     return GrDirectContext::MakeDirect3D(backendContext);
 }
@@ -299,6 +317,8 @@ sk_sp<GrContext> GrContext::MakeDirect3D(const GrD3DBackendContext& backendConte
                                          const GrContextOptions& options) {
     return GrDirectContext::MakeDirect3D(backendContext, options);
 }
+
+#endif
 
 /*************************************************************************************************/
 sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& backendContext) {
@@ -321,6 +341,8 @@ sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& 
 
 #ifdef SK_DAWN
 /*************************************************************************************************/
+#ifndef SK_DISABLE_LEGACY_CONTEXT_FACTORIES
+
 sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
     return GrDirectContext::MakeDawn(device);
 }
@@ -328,6 +350,8 @@ sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
 sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContextOptions& options) {
     return GrDirectContext::MakeDawn(device, options);
 }
+
+#endif
 
 /*************************************************************************************************/
 sk_sp<GrDirectContext> GrDirectContext::MakeDawn(const wgpu::Device& device) {
