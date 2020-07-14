@@ -33,6 +33,24 @@
       "revId": "38e3b384903fa981f06bab3da70377045196ed6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4027f80_c56f6a6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-14T16:48:28Z",
+      "side": 1,
+      "message": "More consistency will be forthcoming! A motivation for doing this now was to stop depending on null filter mode to mean bicubic. That is getting in the way of the plumbing to support nearest/linear level selection in GrSamplerState. So I have more changes in the works for producers. They\u0027re starting to feel pretty thin so I think moving functionality into SkImage subclass virtuals is getting easier.",
+      "parentUuid": "e8ece54d_cff7e311",
+      "revId": "38e3b384903fa981f06bab3da70377045196ed6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
