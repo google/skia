@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "e1364223_b4d7413a",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T13:46:55Z",
+      "side": 1,
+      "message": "algo enum gone.\n\nnew names ok?",
+      "parentUuid": "38c811d5_3d4fc3d2",
+      "revId": "fa51ef7b1fe41c47e4ebcac8eae454e646bbc17e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "61f9d1c8_cc3d9de9",
         "filename": "include/core/SkImage.h",
         "patchSetId": 1
@@ -69,6 +87,24 @@
       "revId": "fa51ef7b1fe41c47e4ebcac8eae454e646bbc17e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "418798f3_eb23331b",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T13:46:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf5726ab_ac8741c9",
+      "revId": "fa51ef7b1fe41c47e4ebcac8eae454e646bbc17e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
