@@ -6,7 +6,6 @@
  */
 #include "include/core/SkCanvas.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkTSort.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
 #include "tests/Test.h"
