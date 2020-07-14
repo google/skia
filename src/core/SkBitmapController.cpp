@@ -12,17 +12,17 @@
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/image/SkImage_Base.h"
 
 // Try to load from the base image, or from the cache
-static sk_sp<const SkMipMap> try_load_mips(const SkImage_Base* image) {
-    sk_sp<const SkMipMap> mips = image->refMips();
+static sk_sp<const SkMipmap> try_load_mips(const SkImage_Base* image) {
+    sk_sp<const SkMipmap> mips = image->refMips();
     if (!mips) {
-        mips.reset(SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(image)));
+        mips.reset(SkMipmapCache::FindAndRef(SkBitmapCacheDesc::Make(image)));
     }
     if (!mips) {
-        mips.reset(SkMipMapCache::AddAndRef(image));
+        mips.reset(SkMipmapCache::AddAndRef(image));
     }
     return mips;
 }
@@ -81,7 +81,7 @@ bool SkBitmapController::State::processMediumRequest(const SkImage_Base* image) 
 
         const SkSize scale = SkSize::Make(SkScalarInvert(invScaleSize.width()),
                                           SkScalarInvert(invScaleSize.height()));
-        SkMipMap::Level level;
+        SkMipmap::Level level;
         if (fCurrMip->extractLevel(scale, &level)) {
             const SkSize& invScaleFixup = level.fScale;
             fInvMatrix.postScale(invScaleFixup.width(), invScaleFixup.height());
@@ -135,7 +135,7 @@ SkMipmapAccessor::SkMipmapAccessor(const SkImage_Base* image, const SkMatrix& in
         if (!inv.decomposeScale(&scale, nullptr)) {
             fResolvedMode = SkMipmapMode::kNone;
         } else {
-            level = SkMipMap::ComputeLevel({1/scale.width(), 1/scale.height()});
+            level = SkMipmap::ComputeLevel({1/scale.width(), 1/scale.height()});
             if (level <= 0) {
                 fResolvedMode = SkMipmapMode::kNone;
                 level = 0;
@@ -157,7 +157,7 @@ SkMipmapAccessor::SkMipmapAccessor(const SkImage_Base* image, const SkMatrix& in
             load_upper_from_base();
             fResolvedMode = SkMipmapMode::kNone;
         } else {
-            SkMipMap::Level levelRec;
+            SkMipmap::Level levelRec;
 
             SkASSERT(fResolvedMode != SkMipmapMode::kNone);
             if (levelNum > 0) {

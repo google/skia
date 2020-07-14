@@ -11,7 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkResourceCache.h"
 #include "src/image/SkImage_Base.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
@@ -46,14 +46,14 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     sk_sp<SkImage> img = SkImage::MakeFromBitmap(src);
     const auto desc = SkBitmapCacheDesc::Make(img.get());
 
-    const SkMipMap* mipmap = SkMipMapCache::FindAndRef(desc, cache);
+    const SkMipmap* mipmap = SkMipmapCache::FindAndRef(desc, cache);
     REPORTER_ASSERT(reporter, nullptr == mipmap);
 
-    mipmap = SkMipMapCache::AddAndRef(as_IB(img.get()), cache);
+    mipmap = SkMipmapCache::AddAndRef(as_IB(img.get()), cache);
     REPORTER_ASSERT(reporter, mipmap);
 
     {
-        const SkMipMap* mm = SkMipMapCache::FindAndRef(desc, cache);
+        const SkMipmap* mm = SkMipmapCache::FindAndRef(desc, cache);
         REPORTER_ASSERT(reporter, mm);
         REPORTER_ASSERT(reporter, mm == mipmap);
         mm->unref();
@@ -67,7 +67,7 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     check_data(reporter, mipmap, 1, kInCache, kNotLocked);
 
     // find us again
-    mipmap = SkMipMapCache::FindAndRef(desc, cache);
+    mipmap = SkMipmapCache::FindAndRef(desc, cache);
     check_data(reporter, mipmap, 2, kInCache, kLocked);
 
     cache->purgeAll();
@@ -86,23 +86,23 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
         src[i].allocN32Pixels(5, 5);
         src[i].setImmutable();
         img[i] = SkImage::MakeFromBitmap(src[i]);
-        SkMipMapCache::AddAndRef(as_IB(img[i].get()), cache)->unref();
+        SkMipmapCache::AddAndRef(as_IB(img[i].get()), cache)->unref();
         desc[i] = SkBitmapCacheDesc::Make(img[i].get());
     }
 
     for (int i = 0; i < N; ++i) {
-        const SkMipMap* mipmap = SkMipMapCache::FindAndRef(desc[i], cache);
+        const SkMipmap* mipmap = SkMipmapCache::FindAndRef(desc[i], cache);
         // We're always using a local cache, so we know we won't be purged by other threads
         REPORTER_ASSERT(reporter, mipmap);
         SkSafeUnref(mipmap);
 
         img[i].reset(); // delete the image, which *should not* remove us from the cache
-        mipmap = SkMipMapCache::FindAndRef(desc[i], cache);
+        mipmap = SkMipmapCache::FindAndRef(desc[i], cache);
         REPORTER_ASSERT(reporter, mipmap);
         SkSafeUnref(mipmap);
 
         src[i].reset(); // delete the underlying pixelref, which *should* remove us from the cache
-        mipmap = SkMipMapCache::FindAndRef(desc[i], cache);
+        mipmap = SkMipmapCache::FindAndRef(desc[i], cache);
         REPORTER_ASSERT(reporter, !mipmap);
     }
 }

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkMipMap_DEFINED
-#define SkMipMap_DEFINED
+#ifndef SkMipmap_DEFINED
+#define SkMipmap_DEFINED
 
 #include "include/core/SkPixmap.h"
 #include "include/core/SkScalar.h"
@@ -21,24 +21,24 @@ class SkDiscardableMemory;
 typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
 
 /*
- * SkMipMap will generate mipmap levels when given a base mipmap level image.
+ * SkMipmap will generate mipmap levels when given a base mipmap level image.
  *
  * Any function which deals with mipmap levels indices will start with index 0
  * being the first mipmap level which was generated. Said another way, it does
  * not include the base level in its range.
  */
-class SkMipMap : public SkCachedData {
+class SkMipmap : public SkCachedData {
 public:
     // Allocate and fill-in a mipmap. If computeContents is false, we just allocated
     // and compute the sizes/rowbytes, but leave the pixel-data uninitialized.
-    static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc,
+    static SkMipmap* Build(const SkPixmap& src, SkDiscardableFactoryProc,
                            bool computeContents = true);
 
-    static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
+    static SkMipmap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
-    // Determines how many levels a SkMipMap will have without creating that mipmap.
+    // Determines how many levels a SkMipmap will have without creating that mipmap.
     // This does not include the base mipmap level that the user provided when
-    // creating the SkMipMap.
+    // creating the SkMipmap.
     static int ComputeLevelCount(int baseWidth, int baseHeight);
     static int ComputeLevelCount(SkISize s) { return ComputeLevelCount(s.width(), s.height()); }
 
@@ -79,8 +79,8 @@ private:
     Level*              fLevels;    // managed by the baseclass, may be null due to onDataChanged.
     int                 fCount;
 
-    SkMipMap(void* malloc, size_t size) : INHERITED(malloc, size) {}
-    SkMipMap(size_t size, SkDiscardableMemory* dm) : INHERITED(size, dm) {}
+    SkMipmap(void* malloc, size_t size) : INHERITED(malloc, size) {}
+    SkMipmap(size_t size, SkDiscardableMemory* dm) : INHERITED(size, dm) {}
 
     static size_t AllocLevelsSize(int levelCount, size_t pixelSize);
 

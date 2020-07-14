@@ -13,7 +13,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 
 class SkImage_Base;
 
@@ -40,7 +40,7 @@ public:
 
         // Pixmap storage.
         SkBitmap              fResultBitmap;
-        sk_sp<const SkMipMap> fCurrMip;
+        sk_sp<const SkMipmap> fCurrMip;
 
     };
 
@@ -70,7 +70,7 @@ private:
 
     // these manage lifetime for the buffers
     SkBitmap              fBaseStorage;
-    sk_sp<const SkMipMap> fCurrMip;
+    sk_sp<const SkMipmap> fCurrMip;
 };
 
 #endif

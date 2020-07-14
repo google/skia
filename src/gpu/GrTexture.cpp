@@ -10,7 +10,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrResourceKey.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -48,7 +48,7 @@ GrTexture::GrTexture(GrGpu* gpu,
     if (GrMipMapsStatus::kNotAllocated == fMipMapsStatus) {
         fMaxMipMapLevel = 0;
     } else {
-        fMaxMipMapLevel = SkMipMap::ComputeLevelCount(this->width(), this->height());
+        fMaxMipMapLevel = SkMipmap::ComputeLevelCount(this->width(), this->height());
     }
 }
 

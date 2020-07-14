@@ -19,7 +19,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/private/SkNx.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "tools/ToolUtils.h"
 
 #include <math.h>
@@ -141,10 +141,10 @@ protected:
         SkPixmap prevPM;
         baseBM.peekPixels(&prevPM);
 
-        sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, nullptr));
+        sk_sp<SkMipmap> mm(SkMipmap::Build(baseBM, nullptr));
 
         int index = 0;
-        SkMipMap::Level level;
+        SkMipmap::Level level;
         SkScalar scale = 0.5f;
         while (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
             SkBitmap bm = func(prevPM, level.fPixmap);
@@ -249,10 +249,10 @@ protected:
         SkScalar x = 4;
         SkScalar y = 4;
 
-        sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, nullptr));
+        sk_sp<SkMipmap> mm(SkMipmap::Build(baseBM, nullptr));
 
         int index = 0;
-        SkMipMap::Level level;
+        SkMipmap::Level level;
         SkScalar scale = 0.5f;
         while (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
             SkBitmap bm;

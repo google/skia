@@ -11,7 +11,7 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
@@ -301,7 +301,7 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     size_t offset = 0;

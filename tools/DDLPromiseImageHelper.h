@@ -20,7 +20,7 @@
 
 class GrContext;
 class SkImage;
-class SkMipMap;
+class SkMipmap;
 class SkPicture;
 class SkTaskGroup;
 struct SkYUVAIndex;
@@ -213,7 +213,7 @@ private:
             return fCallbackContexts[index]->promiseImageTexture();
         }
 
-        void setMipLevels(const SkBitmap& baseLevel, std::unique_ptr<SkMipMap> mipLevels);
+        void setMipLevels(const SkBitmap& baseLevel, std::unique_ptr<SkMipmap> mipLevels);
 
         void setYUVData(sk_sp<SkCachedData> yuvData,
                         SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
@@ -236,7 +236,7 @@ private:
 
         // CPU-side cache of a normal SkImage's mipmap levels
         SkBitmap                           fBaseLevel;
-        std::unique_ptr<SkMipMap>          fMipLevels;
+        std::unique_ptr<SkMipmap>          fMipLevels;
 
         // CPU-side cache of a YUV SkImage's contents
         sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image

@@ -11,7 +11,7 @@
 #include <string>
 
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -156,7 +156,7 @@ static bool setup_backend_objects(GrContext* context,
             pixmap = &rgbaPixmap;
         }
         int mipLevelCount = GrMipMapped::kYes == options.fMipMapping
-                                    ? SkMipMap::ComputeLevelCount(bm.width(), bm.height())
+                                    ? SkMipmap::ComputeLevelCount(bm.width(), bm.height())
                                     : 1;
         std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
@@ -213,7 +213,7 @@ static bool setup_backend_objects(GrContext* context,
     {
         int mipLevelCount =
                 GrMipMapped::kYes == options.fOffScreenMipMapping
-                        ? SkMipMap::ComputeLevelCount(offscreenDims.width(), offscreenDims.height())
+                        ? SkMipmap::ComputeLevelCount(offscreenDims.width(), offscreenDims.height())
                         : 1;
         std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 

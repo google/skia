@@ -8,7 +8,7 @@
 #include "src/gpu/GrTextureProducer.h"
 
 #include "include/gpu/GrRecordingContext.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"

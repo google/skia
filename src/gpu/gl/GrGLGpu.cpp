@@ -18,7 +18,7 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
@@ -980,7 +980,7 @@ bool GrGLGpu::uploadColorToTex(GrGLFormat textureFormat,
 
     std::unique_ptr<char[]> pixelStorage;
     size_t bpp = 0;
-    int numLevels = SkMipMap::ComputeLevelCount(texDims) + 1;
+    int numLevels = SkMipmap::ComputeLevelCount(texDims) + 1;
     SkSTArray<16, GrMipLevel> levels;
     levels.resize(numLevels);
     SkISize levelDims = texDims;
@@ -1016,7 +1016,7 @@ void GrGLGpu::uploadTexData(SkISize texDims,
     SkASSERT(!texDims.isEmpty());
     SkASSERT(!dstRect.isEmpty());
     SkASSERT(SkIRect::MakeSize(texDims).contains(dstRect));
-    SkASSERT(mipLevelCount > 0 && mipLevelCount <= SkMipMap::ComputeLevelCount(texDims) + 1);
+    SkASSERT(mipLevelCount > 0 && mipLevelCount <= SkMipmap::ComputeLevelCount(texDims) + 1);
     SkASSERT(mipLevelCount == 1 || dstRect == SkIRect::MakeSize(texDims));
 
     const GrGLCaps& caps = this->glCaps();
@@ -1073,7 +1073,7 @@ bool GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionType,
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
     }
 
     // TODO: Make sure that the width and height that we pass to OpenGL
@@ -3422,7 +3422,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 
     int width = texture->width();
     int height = texture->height();
-    int levelCount = SkMipMap::ComputeLevelCount(width, height) + 1;
+    int levelCount = SkMipmap::ComputeLevelCount(width, height) + 1;
     SkASSERT(levelCount == texture->texturePriv().maxMipMapLevel() + 1);
 
     // Create (if necessary), then bind temporary FBO:
@@ -3580,7 +3580,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     // Compressed formats go through onCreateCompressedBackendTexture
@@ -3634,7 +3634,7 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     int numMipLevels = 1;
     if (backendTexture.hasMipMaps()) {
         numMipLevels =
-                SkMipMap::ComputeLevelCount(backendTexture.width(), backendTexture.height()) + 1;
+                SkMipmap::ComputeLevelCount(backendTexture.width(), backendTexture.height()) + 1;
     }
 
     GrGLFormat glFormat = GrGLFormatFromGLEnum(info.fFormat);

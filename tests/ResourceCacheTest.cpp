@@ -22,7 +22,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkMessageBus.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"

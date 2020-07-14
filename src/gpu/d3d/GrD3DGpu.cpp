@@ -10,7 +10,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrTexturePriv.h"
@@ -321,7 +321,7 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
 
     int mipLevelCount = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        mipLevelCount = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        mipLevelCount = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
@@ -924,7 +924,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     // create the texture
@@ -1068,7 +1068,7 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     D3D12_RESOURCE_DESC desc = d3dResource->GetDesc();
     unsigned int mipLevelCount = 1;
     if (backendTexture.fMipMapped == GrMipMapped::kYes) {
-        mipLevelCount = SkMipMap::ComputeLevelCount(backendTexture.dimensions().width(),
+        mipLevelCount = SkMipmap::ComputeLevelCount(backendTexture.dimensions().width(),
                                                     backendTexture.dimensions().height()) + 1;
     }
     SkASSERT(mipLevelCount == info.fLevelCount);

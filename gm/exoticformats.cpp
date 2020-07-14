@@ -12,7 +12,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/image/SkImage_Base.h"
@@ -115,7 +115,7 @@ static sk_sp<SkData> load_ktx(const char* filename, ImageInfo* imageInfo) {
     if (numberOfMipmapLevels == 1) {
         imageInfo->fMipMapped = GrMipMapped::kNo;
     } else {
-        int numRequiredMipLevels = SkMipMap::ComputeLevelCount(pixelWidth, pixelHeight)+1;
+        int numRequiredMipLevels = SkMipmap::ComputeLevelCount(pixelWidth, pixelHeight)+1;
         if (numberOfMipmapLevels != numRequiredMipLevels) {
             return nullptr;
         }
@@ -256,7 +256,7 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
         if (header.dwMipMapCount == 1) {
             imageInfo->fMipMapped = GrMipMapped::kNo;
         } else {
-            int numRequiredLevels = SkMipMap::ComputeLevelCount(header.dwWidth, header.dwHeight)+1;
+            int numRequiredLevels = SkMipmap::ComputeLevelCount(header.dwWidth, header.dwHeight)+1;
             if (header.dwMipMapCount != (unsigned) numRequiredLevels) {
                 return nullptr;
             }

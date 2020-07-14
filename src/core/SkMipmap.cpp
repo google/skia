@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkMipMap.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
@@ -16,6 +14,7 @@
 #include "include/private/SkTo.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkMipmap.h"
 #include <new>
 
 //
@@ -384,7 +383,7 @@ template <typename F> void downsample_3_3(void* dst, const void* src, size_t src
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
+size_t SkMipmap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     if (levelCount < 0) {
         return 0;
     }
@@ -395,7 +394,7 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return SkTo<int32_t>(size);
 }
 
-SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
+SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
                           bool computeContents) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
@@ -556,20 +555,20 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
         size += SkColorTypeMinRowBytes(ct, mipSize.fWidth) * mipSize.fHeight;
     }
 
-    size_t storageSize = SkMipMap::AllocLevelsSize(countLevels, size);
+    size_t storageSize = SkMipmap::AllocLevelsSize(countLevels, size);
     if (0 == storageSize) {
         return nullptr;
     }
 
-    SkMipMap* mipmap;
+    SkMipmap* mipmap;
     if (fact) {
         SkDiscardableMemory* dm = fact(storageSize);
         if (nullptr == dm) {
             return nullptr;
         }
-        mipmap = new SkMipMap(storageSize, dm);
+        mipmap = new SkMipmap(storageSize, dm);
     } else {
-        mipmap = new SkMipMap(sk_malloc_throw(storageSize), storageSize);
+        mipmap = new SkMipmap(sk_malloc_throw(storageSize), storageSize);
     }
 
     // init
@@ -587,7 +586,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
     SkPixmap    srcPM(src);
 
     // Depending on architecture and other factors, the pixel data alignment may need to be as
-    // large as 8 (for F16 pixels). See the comment on SkMipMap::Level.
+    // large as 8 (for F16 pixels). See the comment on SkMipmap::Level.
     SkASSERT(SkIsAlign8((uintptr_t)addr));
 
     for (int i = 0; i < countLevels; ++i) {
@@ -653,7 +652,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
     return mipmap;
 }
 
-int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
+int SkMipmap::ComputeLevelCount(int baseWidth, int baseHeight) {
     if (baseWidth < 1 || baseHeight < 1) {
         return 0;
     }
@@ -665,7 +664,7 @@ int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
 
     const int largestAxis = std::max(baseWidth, baseHeight);
     if (largestAxis < 2) {
-        // SkMipMap::Build requires a minimum size of 2.
+        // SkMipmap::Build requires a minimum size of 2.
         return 0;
     }
     const int leadingZeros = SkCLZ(static_cast<uint32_t>(largestAxis));
@@ -676,9 +675,9 @@ int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
     // and that sizeof(uint32_t)'s implementation-defined behavior is 4.
     int mipLevelCount = significantBits;
 
-    // SkMipMap does not include the base mip level.
+    // SkMipmap does not include the base mip level.
     // For example, it contains levels 1-x instead of 0-x.
-    // This is because the image used to create SkMipMap is the base level.
+    // This is because the image used to create SkMipmap is the base level.
     // So subtract 1 from the mip level count.
     if (mipLevelCount > 0) {
         --mipLevelCount;
@@ -687,7 +686,7 @@ int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
     return mipLevelCount;
 }
 
-SkISize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
+SkISize SkMipmap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
     if (baseWidth < 1 || baseHeight < 1) {
         return SkISize::Make(0, 0);
     }
@@ -700,10 +699,10 @@ SkISize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
     // max(1, floor(original_height / 2^i)
     // (or original_width) where i is the mipmap level.
 
-    // SkMipMap does not include the base mip level.
+    // SkMipmap does not include the base mip level.
     // For example, it contains levels 1-x instead of 0-x.
-    // This is because the image used to create SkMipMap is the base level.
-    // So subtract 1 from the mip level to get the index stored by SkMipMap.
+    // This is because the image used to create SkMipmap is the base level.
+    // So subtract 1 from the mip level to get the index stored by SkMipmap.
     int width = std::max(1, baseWidth >> (level + 1));
     int height = std::max(1, baseHeight >> (level + 1));
 
@@ -714,7 +713,7 @@ SkISize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
 
 // Returns fractional level value. floor(level) is the index of the larger level.
 // < 0 means failure.
-float SkMipMap::ComputeLevel(SkSize scaleSize) {
+float SkMipmap::ComputeLevel(SkSize scaleSize) {
     SkASSERT(scaleSize.width() >= 0 && scaleSize.height() >= 0);
 
 #ifndef SK_SUPPORT_LEGACY_ANISOTROPIC_MIPMAP_SCALE
@@ -739,7 +738,7 @@ float SkMipMap::ComputeLevel(SkSize scaleSize) {
     return L;
 }
 
-bool SkMipMap::extractLevel(SkSize scaleSize, Level* levelPtr) const {
+bool SkMipmap::extractLevel(SkSize scaleSize, Level* levelPtr) const {
     if (nullptr == fLevels) {
         return false;
     }
@@ -763,7 +762,7 @@ bool SkMipMap::extractLevel(SkSize scaleSize, Level* levelPtr) const {
 
 // Helper which extracts a pixmap from the src bitmap
 //
-SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
+SkMipmap* SkMipmap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     SkPixmap srcPixmap;
     if (!src.peekPixels(&srcPixmap)) {
         return nullptr;
@@ -771,11 +770,11 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     return Build(srcPixmap, fact);
 }
 
-int SkMipMap::countLevels() const {
+int SkMipmap::countLevels() const {
     return fCount;
 }
 
-bool SkMipMap::getLevel(int index, Level* levelPtr) const {
+bool SkMipmap::getLevel(int index, Level* levelPtr) const {
     if (nullptr == fLevels) {
         return false;
     }

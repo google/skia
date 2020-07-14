@@ -13,7 +13,7 @@
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkBitmapProcState.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkUtils.h"

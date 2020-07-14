@@ -11,7 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 
 struct ETC1Block {
     uint32_t fHigh;
@@ -247,7 +247,7 @@ size_t SkCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
 
     int numMipLevels = 1;
     if (mipMapped) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     size_t totalSize = 0;

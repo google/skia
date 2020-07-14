@@ -16,7 +16,7 @@
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkMipMap.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAHardwareBufferImageGenerator.h"
