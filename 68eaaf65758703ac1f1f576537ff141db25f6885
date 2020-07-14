@@ -16,6 +16,29 @@
       "revId": "68eaaf65758703ac1f1f576537ff141db25f6885",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bf6938d_a96de1d7",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T14:58:54Z",
+      "side": 1,
+      "message": "return std::move(fMM)?",
+      "range": {
+        "startLine": 681,
+        "startChar": 0,
+        "endLine": 683,
+        "endChar": 16
+      },
+      "revId": "68eaaf65758703ac1f1f576537ff141db25f6885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
