@@ -21,7 +21,8 @@ public:
                                                      GrSamplerState samplerState,
                                                      const GrCaps&,
                                                      const SkMatrix& localMatrix = SkMatrix::I(),
-                                                     const SkRect* subset = nullptr);
+                                                     const SkRect* subset = nullptr,
+                                                     const SkRect* domain = nullptr);
 #ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
