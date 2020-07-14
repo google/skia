@@ -19,6 +19,75 @@
     },
     {
       "key": {
+        "uuid": "69d1a481_a4045763",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T14:34:12Z",
+      "side": 1,
+      "message": "tiny nit: Feels like this-\u003e and that.childProcessor(i) should be moved into temp variables instead of accessed repeatedly.",
+      "range": {
+        "startLine": 34,
+        "startChar": 21,
+        "endLine": 34,
+        "endChar": 44
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a7d7f6c_43931639",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T14:34:12Z",
+      "side": 1,
+      "message": "nit: consider removing the previous line and just putting fp-\u003eclone() here",
+      "range": {
+        "startLine": 187,
+        "startChar": 32,
+        "endLine": 187,
+        "endChar": 48
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81fc8bbd_6a02e320",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-14T14:34:12Z",
+      "side": 1,
+      "message": "This TODO idea seems like a good idea to me; just fold in a zero for a null child. Any reason not to do that in this CL?",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 64
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9ea05224_aa8df243",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
