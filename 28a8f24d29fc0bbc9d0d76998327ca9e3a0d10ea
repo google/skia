@@ -123,6 +123,24 @@
       "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dd9a203_75ba3e56",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T20:48:40Z",
+      "side": 1,
+      "message": "I started to do this, and quickly realized that I had forgotten something very basic: texture effect *does* use (modulate by) the input color. Image shader has a slightly different behavior (it only scales by paint alpha), but it was enough to realize that even my first test case wasn\u0027t doing what I thought. I fixed that test case, but...\n\nThis means that if we want to change the default inputColor for invokeChild, we\u0027d need to explicitly pass \"half4(1)\" every time we want to sample a child and *not* get the implicit modulation from a texture effect.",
+      "parentUuid": "9f3eb1f6_7a969dcd",
+      "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
