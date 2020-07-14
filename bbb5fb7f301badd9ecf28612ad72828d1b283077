@@ -46,6 +46,30 @@
       "revId": "bbb5fb7f301badd9ecf28612ad72828d1b283077",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c6ba183_49cf1371",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T22:44:10Z",
+      "side": 1,
+      "message": "yeah, that seems plausible.",
+      "parentUuid": "6d63713e_e7857e8e",
+      "range": {
+        "startLine": 690,
+        "startChar": 0,
+        "endLine": 695,
+        "endChar": 9
+      },
+      "revId": "bbb5fb7f301badd9ecf28612ad72828d1b283077",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
