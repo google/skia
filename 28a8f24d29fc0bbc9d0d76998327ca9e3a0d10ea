@@ -69,6 +69,24 @@
       "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4477c2f_7568523c",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T19:13:35Z",
+      "side": 1,
+      "message": "I don\u0027t think so? Based on my read of all of the uses of sample() in .fp files, we can switch any that currently don\u0027t pass sk_InColor to explicitly pass half4(1), though for most it won\u0027t matter, because the child being sampled can\u0027t be null and is always constructed in a way that the input color is ignored (usually from a texture view that\u0027s passed to the factory).\n\nSo at minimum we can make the default reflect the more common convention, and we can probably iron out some places where we might have intended the input color to be passed to children, but forgot/missed it.",
+      "parentUuid": "d2beea6f_d5db0848",
+      "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
