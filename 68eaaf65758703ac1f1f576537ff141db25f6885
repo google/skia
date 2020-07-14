@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a388176_9427b6b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-14T14:57:11Z",
+      "side": 1,
+      "message": "I agree it\u0027s dumb to have both CapiTalizaions. (including GrMipMapped)\n\nLet\u0027s unify in a separate CL.",
+      "revId": "68eaaf65758703ac1f1f576537ff141db25f6885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
