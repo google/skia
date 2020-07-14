@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrConfigConversionEffect.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -81,7 +82,7 @@ std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(
 }
 #endif
 
-bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context) {
+bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* context) {
     static constexpr int kSize = 256;
     static constexpr GrColorType kColorType = GrColorType::kRGBA_8888;
     SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);

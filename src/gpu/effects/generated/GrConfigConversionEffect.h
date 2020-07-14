@@ -24,7 +24,7 @@
 
 class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
-    static bool TestForPreservingPMConversions(GrContext* context);
+    static bool TestForPreservingPMConversions(GrDirectContext*);
 
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                      PMConversion pmConversion) {
