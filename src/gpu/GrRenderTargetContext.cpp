@@ -503,7 +503,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
                 glyphRunList, drawMatrix, fSurfaceProps, supportsSDFT, options, blob.get());
     }
 
-    for (GrTextBlob::SubRun* subRun : blob->subRunList()) {
+    for (GrSubRun* subRun : blob->subRunList()) {
         subRun->draw(clip, viewMatrix, glyphRunList, this);
     }
 }
