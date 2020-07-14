@@ -446,3 +446,7 @@ void SkSurface::flushAndSubmit() {
 }
 
 #endif
+
+sk_sp<SkSurface> SkSurface::MakeRasterDirect(const SkPixmap& pm, const SkSurfaceProps* props) {
+    return MakeRasterDirect(pm.info(), pm.writable_addr(), pm.rowBytes(), props);
+}
