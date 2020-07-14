@@ -822,7 +822,7 @@ void Viewer::initSlides() {
                     sortedFilenames.push_back(name);
                 }
                 if (sortedFilenames.count()) {
-                    SkTQSort(sortedFilenames.begin(), sortedFilenames.end() - 1,
+                    SkTQSort(sortedFilenames.begin(), sortedFilenames.end(),
                              [](const SkString& a, const SkString& b) {
                                  return strcmp(a.c_str(), b.c_str()) < 0;
                              });

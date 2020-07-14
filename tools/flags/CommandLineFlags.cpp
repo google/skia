@@ -250,7 +250,7 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                 for (SkFlagInfo* flag = CommandLineFlags::gHead; flag; flag = flag->next()) {
                     allFlags.push_back(flag);
                 }
-                SkTQSort(&allFlags[0], &allFlags[allFlags.count() - 1], CompareFlagsByName());
+                SkTQSort(allFlags.begin(), allFlags.end(), CompareFlagsByName());
                 for (int i = 0; i < allFlags.count(); ++i) {
                     print_help_for_flag(allFlags[i]);
                     if (allFlags[i]->extendedHelp().size() > 0) {

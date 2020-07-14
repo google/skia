@@ -344,7 +344,7 @@ int SkDCubic::searchRoots(double extremeTs[6], int extrema, double axisIntercept
     extremeTs[extrema++] = 0;
     extremeTs[extrema] = 1;
     SkASSERT(extrema < 6);
-    SkTQSort(extremeTs, extremeTs + extrema);
+    SkTQSort(extremeTs, extremeTs + extrema + 1);
     int validCount = 0;
     for (int index = 0; index < extrema; ) {
         double min = extremeTs[index];

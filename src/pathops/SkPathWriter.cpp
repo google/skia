@@ -290,7 +290,7 @@ void SkPathWriter::assemble() {
         rRow += endCount;
     }
     SkASSERT(dIndex == entries);
-    SkTQSort<int>(sortedDist.begin(), sortedDist.end() - 1, DistanceLessThan(distances.begin()));
+    SkTQSort<int>(sortedDist.begin(), sortedDist.end(), DistanceLessThan(distances.begin()));
     int remaining = linkCount;  // number of start/end pairs
     for (rIndex = 0; rIndex < entries; ++rIndex) {
         int pair = sortedDist[rIndex];

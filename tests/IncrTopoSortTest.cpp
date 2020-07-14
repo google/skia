@@ -144,7 +144,7 @@ public:
         // sort. This means that we will be proceeding from right to left in the sort when
         // correcting the order.
         // TODO: QSort is waaay overkill here!
-        SkTQSort<Node*>(dependedOn->begin(), dependedOn->end() - 1, Node::CompareIndicesGT);
+        SkTQSort<Node*>(dependedOn->begin(), dependedOn->end(), Node::CompareIndicesGT);
 
         // TODO: although this is the general algorithm, I think this can be simplified for our
         // use case (i.e., the same dependent for all the new edges).

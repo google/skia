@@ -117,7 +117,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
         eat_space_sep_strings(&fStrings, extensions);
     }
     if (!fStrings.empty()) {
-        SkTQSort(&fStrings.front(), &fStrings.back(), extension_compare);
+        SkTQSort(fStrings.begin(), fStrings.end(), extension_compare);
     }
     fInitialized = true;
     return true;
@@ -139,7 +139,7 @@ bool GrGLExtensions::remove(const char ext[]) {
     // most a handful of times when our test programs start.
     fStrings.removeShuffle(idx);
     if (idx != fStrings.count()) {
-        SkTInsertionSort(&(fStrings.operator[](idx)), &fStrings.back(), extension_compare);
+        SkTInsertionSort(fStrings.begin() + idx, fStrings.size() - idx, extension_compare);
     }
     return true;
 }
@@ -150,7 +150,7 @@ void GrGLExtensions::add(const char ext[]) {
         // This is not the most effecient approach since we end up looking at all of the
         // extensions after the add
         fStrings.emplace_back(ext);
-        SkTInsertionSort(&fStrings.front(), &fStrings.back(), extension_compare);
+        SkTInsertionSort(fStrings.begin(), fStrings.size(), extension_compare);
     }
 }
 

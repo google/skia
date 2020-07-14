@@ -8,9 +8,11 @@
 #ifndef Stats_DEFINED
 #define Stats_DEFINED
 
+#include <algorithm>
+#include <vector>
+
 #include "include/core/SkString.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/core/SkTSort.h"
 
 #ifdef SK_BUILD_FOR_WIN
     static const char* kBars[] = { ".", "o", "O" };
@@ -45,9 +47,8 @@ struct Stats {
         }
         var = sk_ieee_double_divide(err, n-1);
 
-        SkAutoTMalloc<double> sorted(n);
-        memcpy(sorted.get(), samples.begin(), n * sizeof(double));
-        SkTQSort(sorted.get(), sorted.get() + n - 1);
+        std::vector<double> sorted(samples.begin(), samples.end());
+        std::sort(sorted.begin(), sorted.end());
         median = sorted[n/2];
 
         // Normalize samples to [min, max] in as many quanta as we have distinct bars to print.

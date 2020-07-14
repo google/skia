@@ -66,8 +66,7 @@ static const struct {
 };
 
 static void skqsort_sort(int array[N]) {
-    // End is inclusive for SkTQSort!
-    SkTQSort<int>(array, array + N - 1);
+    SkTQSort<int>(array, array + N);
 }
 
 static void skheap_sort(int array[N]) {
