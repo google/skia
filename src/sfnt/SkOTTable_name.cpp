@@ -450,7 +450,7 @@ BCP47FromLanguageID[] = {
 };
 
 namespace {
-bool BCP47FromLanguageIdLess(const BCP47FromLanguageId& a, const BCP47FromLanguageId& b) {
+bool BCP47FromLanguageIdLess(const BCP47FromLanguageId& a, const BCP47FromLanguageId& b) const {
     return a.languageID < b.languageID;
 }
 }
