@@ -46,6 +46,30 @@
       "revId": "a2cf0b20df2c302750954d6599a4d8b868060c40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c506bbf3_45c7f545",
+        "filename": "src/core/SkTSearch.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-14T16:53:01Z",
+      "side": 1,
+      "message": "Ah, and in this case, LESS may not actually be operator\u003c, I suppose? Yeah, this is fine. (It\u0027s worth noting that we already pull in \u003cfunctional\u003e in quite a few spots, including commonly-used headers like SkImage.h, but I think your inclination here was probably correct).",
+      "parentUuid": "8904e559_80d359a7",
+      "range": {
+        "startLine": 75,
+        "startChar": 21,
+        "endLine": 75,
+        "endChar": 70
+      },
+      "revId": "a2cf0b20df2c302750954d6599a4d8b868060c40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
