@@ -388,9 +388,10 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         }
         wgpu::BufferCopyView srcBuffer;
         srcBuffer.buffer = static_cast<GrDawnStagingBuffer*>(stagingBuffer.fBuffer)->buffer();
-        srcBuffer.offset = stagingBuffer.fOffset;
-        srcBuffer.bytesPerRow = rowBytes;
-        srcBuffer.rowsPerImage = h;
+        srcBuffer.bytesPerRow = 0; // TODO: remove this once the deprecated fields are gone.
+        srcBuffer.layout.offset = stagingBuffer.fOffset;
+        srcBuffer.layout.bytesPerRow = rowBytes;
+        srcBuffer.layout.rowsPerImage = h;
         wgpu::TextureCopyView dstTexture;
         dstTexture.texture = info.fTexture;
         dstTexture.mipLevel = i;
@@ -568,9 +569,10 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
 
     wgpu::BufferCopyView dstBuffer;
     dstBuffer.buffer = buf;
-    dstBuffer.offset = 0;
-    dstBuffer.bytesPerRow = rowBytes;
-    dstBuffer.rowsPerImage = height;
+    dstBuffer.bytesPerRow = 0; // TODO: remove this once the deprecated fields are gone.
+    dstBuffer.layout.offset = 0;
+    dstBuffer.layout.bytesPerRow = rowBytes;
+    dstBuffer.layout.rowsPerImage = height;
 
     wgpu::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
     this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
