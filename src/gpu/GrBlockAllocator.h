@@ -84,6 +84,11 @@ public:
         template <size_t Align = 1, size_t Padding = 0>
         int firstAlignedOffset() const { return this->alignedOffset<Align, Padding>(kDataStart); }
 
+        // Reconstruct the aligned offset of an allocated byte range that began at 'start' offset
+        // into this block.
+        template <size_t Align = 1, size_t Padding = 0>
+        int alignedOffset(int start) const;
+
         // Convert an offset into this block's storage into a usable pointer.
         void* ptr(int offset) {
             SkASSERT(offset >= kDataStart && offset < fSize);
@@ -129,8 +134,8 @@ public:
         template <size_t Align, size_t Padding>
         int cursor() const { return this->alignedOffset<Align, Padding>(fCursor); }
 
-        template <size_t Align, size_t Padding>
-        int alignedOffset(int offset) const;
+        bool isScratch() const { return fCursor < 0; }
+        void markAsScratch() { fCursor = -1; }
 
         SkDEBUGCODE(int fSentinel;) // known value to check for bad back pointers to blocks
 
@@ -242,6 +247,21 @@ public:
     ByteRange allocate(size_t size);
 
     /**
+     * Ensure the block allocator has 'size' contiguous available bytes. After calling this
+     * function, currentBlock()->avail<Align, Padding>() may still report less than 'size' if the
+     * reserved space was added as a scratch block. This is done so that anything remaining in
+     * the current block can still be used if a smaller-than-size allocation is requested. If 'size'
+     * is requested by a subsequent allocation, the scratch block will automatically be activated
+     * and the request will not itself trigger any malloc.
+     *
+     * If 'respectGrowthPolicy' is true, 'size' will be rounded up to the next automatically added
+     * block size. If it is false, 'size' will only be aligned to a nice boundary, making this
+     * suitable for minimizing block overhead.
+     */
+    template <size_t Align = 1, size_t Padding = 0>
+    void reserve(size_t size, bool respectGrowthPolicy=true);
+
+    /**
      * Return a pointer to the start of the current block. This will never be null.
      */
     const Block* currentBlock() const { return fTail; }
@@ -287,8 +307,25 @@ public:
      *
      * If 'block' represents the inline-allocated head block, its cursor and metadata are instead
      * reset to their defaults.
+     *
+     * If the block is not the head block, it may be kept as a scratch block to be reused for
+     * subsequent allocation requests, instead of making an entirely new block. A scratch block is
+     * not visible when iterating over blocks but is reported in the total size of the allocator.
      */
     void releaseBlock(Block* block);
+
+    /**
+     * Detach every heap-allocated block owned by 'other' and concatenate them to this allocator's
+     * list of blocks. This memory is now managed by this allocator. Since this only transfers
+     * ownership of a Block, and a Block itself does not move, any previous allocations remain
+     * valid and associated with their original Block instances. GrBlockAllocator-level functions
+     * that accept allocated pointers (e.g. findOwningBlock), must now use this allocator and not
+     * 'other' for these allocations.
+     *
+     * The head block of 'other' cannot be stolen, so higher-level allocators and memory structures
+     * must handle that data differently.
+     */
+    void stealHeapBlocks(GrBlockAllocator* other);
 
     /**
      * Explicitly free all blocks (invalidating all allocations), and resets the head block to its
@@ -299,7 +336,9 @@ public:
     template <bool Forward, bool Const> class BlockIter;
 
     /**
-     * Clients can iterate over all active Blocks in the GrBlockAllocator using for loops:
+     * Clients can iterate over all active Blocks in the GrBlockAllocator using for-range loops.
+     * This will always include the head block (even if it were "released", since it never leaves
+     * the block list), but will not include the scratch block (since that is not active).
      *
      * Forward iteration from head to tail block (or non-const variant):
      *   for (const Block* b : this->blocks()) { }
@@ -338,6 +377,8 @@ private:
     // that will preserve the static guarantees GrBlockAllocator makes.
     void addBlock(int minSize, int maxSize);
 
+    int scratchBlockSize() const { return fHead.fPrev ? fHead.fPrev->fSize : 0; }
+
     Block* fTail; // All non-head blocks are heap allocated; tail will never be null.
 
     // All remaining state is packed into 64 bits to keep GrBlockAllocator at 16 bytes + head block
@@ -359,6 +400,9 @@ private:
 
     // Inline head block, must be at the end so that it can utilize any additional reserved space
     // from the initial allocation.
+    // The head block's prev pointer may be non-null, which signifies a scratch block that may be
+    // reused instead of allocating an entirely new block (this helps when allocate+release calls
+    // bounce back and forth across the capacity of a block).
     alignas(alignof(std::max_align_t)) Block fHead;
 
     static_assert(kGrowthPolicyCount <= 4);
@@ -421,6 +465,26 @@ constexpr size_t GrBlockAllocator::MaxBlockSize() {
     // allocator (if it's not, the largest align will be encountered by the compiler and pass/fail
     // the same set of static asserts).
     return BlockOverhead<Align, Padding>() + kMaxAllocationSize;
+}
+
+template<size_t Align, size_t Padding>
+void GrBlockAllocator::reserve(size_t size, bool respectGrowthPolicy) {
+    if (size > kMaxAllocationSize) {
+        SK_ABORT("Allocation too large (%zu bytes requested)", size);
+    }
+    int iSize = (int) size;
+    if (this->currentBlock()->avail<Align, Padding>() < iSize) {
+        int blockSize = BlockOverhead<Align, Padding>() + iSize;
+        int maxSize = respectGrowthPolicy ? MaxBlockSize<Align, Padding>() : blockSize;
+        SkASSERT((size_t) maxSize <= (MaxBlockSize<Align, Padding>()));
+
+        SkDEBUGCODE(auto oldTail = fTail;)
+        this->addBlock(blockSize, maxSize);
+        SkASSERT(fTail != oldTail);
+        // Releasing the just added block will move it into scratch space, allowing the original
+        // tail's bytes to be used first before the scratch block is activated.
+        this->releaseBlock(fTail);
+    }
 }
 
 template <size_t Align, size_t Padding>
@@ -538,11 +602,11 @@ bool GrBlockAllocator::Block::release(int start, int end) {
 ///////// Block iteration
 template <bool Forward, bool Const>
 class GrBlockAllocator::BlockIter {
-public:
+private:
     using BlockT = typename std::conditional<Const, const Block, Block>::type;
     using AllocatorT =
             typename std::conditional<Const, const GrBlockAllocator, GrBlockAllocator>::type;
-
+public:
     BlockIter(AllocatorT* allocator) : fAllocator(allocator) {}
 
     class Item {
@@ -552,16 +616,31 @@ public:
         BlockT* operator*() const { return fBlock; }
 
         Item& operator++() {
-            fBlock = Forward ? fBlock->fNext : fBlock->fPrev;
+            this->advance(fNext);
             return *this;
         }
 
     private:
         friend BlockIter;
 
-        Item(BlockT* block) : fBlock(block) {}
+        Item(BlockT* block) {
+            this->advance(block);
+        }
+
+        void advance(BlockT* block) {
+            fBlock = block;
+            fNext = block ? (Forward ? block->fNext : block->fPrev) : nullptr;
+            if (!Forward && fNext && fNext->isScratch()) {
+                // For reverse-iteration only, we need to stop at the head, not the scratch block
+                // possibly stached in head->prev.
+                fNext = nullptr;
+            }
+            SkASSERT(!fNext || !fNext->isScratch());
+        }
 
         BlockT* fBlock;
+        // Cache this before operator++ so that fBlock can be released during iteration
+        BlockT* fNext;
     };
 
     Item begin() const { return Item(Forward ? &fAllocator->fHead : fAllocator->fTail); }

@@ -80,8 +80,7 @@ public:
     FillRectOp(Helper::MakeArgs args, SkPMColor4f paintColor, GrAAType aaType,
                DrawQuad* quad, const GrUserStencilSettings* stencil, Helper::InputFlags inputFlags)
             : INHERITED(ClassID())
-            , fHelper(args, aaType, stencil, inputFlags)
-            , fQuads(1, !fHelper.isTrivial()) {
+            , fHelper(args, aaType, stencil, inputFlags) {
         // Set bounds before clipping so we don't have to worry about unioning the bounds of
         // the two potential quads (GrQuad::bounds() is perspective-safe).
         this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
@@ -345,7 +344,7 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                       const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        const auto* that = t->cast<FillRectOp>();
+        auto* that = t->cast<FillRectOp>();
 
         bool upgradeToCoverageAAOnMerge = false;
         if (fHelper.aaType() != that->fHelper.aaType()) {
@@ -501,6 +500,12 @@ std::unique_ptr<GrDrawOp> GrFillRectOp::MakeOp(GrRecordingContext* context,
     std::unique_ptr<GrDrawOp> op = FillRectOp::Make(context, std::move(paint), aaType,
                                                     &quad, stencilSettings, InputFlags::kNone);
     FillRectOp* fillRects = op->cast<FillRectOp>();
+    fillRects->fQuads.reserve(cnt - 1,
+                              viewMatrix.hasPerspective() ? GrQuad::Type::kPerspective
+                                                          : GrQuad::Type::kAxisAligned,
+                              quads[0].fLocalMatrix.hasPerspective() ? GrQuad::Type::kPerspective
+                                                                     : GrQuad::Type::kAxisAligned,
+                              /* hasLocals*/ !fillRects->fHelper.isTrivial());
 
     *numConsumed = 1;
     // Accumulate remaining quads similar to onCombineIfPossible() without creating an op

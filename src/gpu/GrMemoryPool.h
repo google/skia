@@ -67,9 +67,8 @@ public:
      * Returns true if there are no unreleased allocations.
      */
     bool isEmpty() const {
-        // If size is the same as preallocSize, there aren't any heap blocks, so currentBlock()
-        // is the inline head block.
-        return 0 == this->size() && 0 == fAllocator.currentBlock()->metadata();
+        return fAllocator.currentBlock() == fAllocator.headBlock() &&
+               0 == fAllocator.currentBlock()->metadata();
     }
 
     /**

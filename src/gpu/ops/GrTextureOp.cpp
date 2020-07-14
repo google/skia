@@ -338,6 +338,7 @@ private:
     friend class ::GrOpMemoryPool;
 
     struct ColorSubsetAndAA {
+        ColorSubsetAndAA() = default;
         ColorSubsetAndAA(const SkPMColor4f& color, const SkRect& subsetRect, GrQuadAAFlags aaFlags)
                 : fColor(color)
                 , fSubsetRect(subsetRect)
@@ -454,7 +455,6 @@ private:
               DrawQuad* quad,
               const SkRect* subsetRect)
             : INHERITED(ClassID())
-            , fQuads(1, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fDesc(nullptr)
             , fMetadata(proxyView.swizzle(), filter, Subset(!!subsetRect), saturate) {
@@ -503,11 +503,12 @@ private:
               const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
-            , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fDesc(nullptr)
             , fMetadata(set[0].fProxyView.swizzle(), GrSamplerState::Filter::kNearest,
                         Subset::kNo, saturate) {
+        fQuads.reserve(cnt, viewMatrix.hasPerspective() ? GrQuad::Type::kPerspective : GrQuad::Type::kAxisAligned, GrQuad::Type::kAxisAligned, true);
+
         // Update counts to reflect the batch op
         fMetadata.fProxyCount = SkToUInt(proxyRunCnt);
         fMetadata.fTotalQuadCount = SkToUInt(cnt);
@@ -831,6 +832,7 @@ private:
             tmp += fViewCountPairs[p].fQuadCnt;
         }
         SkASSERT(tmp == fMetadata.fTotalQuadCount);
+        SkASSERT(tmp == fQuads.count());
 #endif
 
         return fMetadata.fTotalQuadCount;
@@ -931,7 +933,7 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                       const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        const auto* that = t->cast<TextureOp>();
+        auto* that = t->cast<TextureOp>();
 
         if (fDesc || that->fDesc) {
             // This should never happen (since only DDL recorded ops should be prePrepared)
@@ -991,9 +993,9 @@ private:
         }
 
         // Concatenate quad lists together
-        fQuads.concat(that->fQuads);
         fViewCountPairs[0].fQuadCnt += that->fQuads.count();
         fMetadata.fTotalQuadCount += that->fQuads.count();
+        fQuads.concat(that->fQuads);
 
         return CombineResult::kMerged;
     }
