@@ -88,6 +88,29 @@
     },
     {
       "key": {
+        "uuid": "08ad8127_635051d0",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-14T14:34:16Z",
+      "side": 1,
+      "message": "We could add a null value to the class ID enum I suppose.",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 64
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9ea05224_aa8df243",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
