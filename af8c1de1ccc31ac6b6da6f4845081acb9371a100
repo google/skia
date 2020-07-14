@@ -46,6 +46,30 @@
       "revId": "af8c1de1ccc31ac6b6da6f4845081acb9371a100",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a286e2c_c22b0ffe",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-14T14:06:44Z",
+      "side": 1,
+      "message": "Done. The MSAA texture creation isn\u0027t quite the same pattern (it creates a TextureResourceInfo) so I might address that in another CL as well.",
+      "parentUuid": "641f7af9_cfad4b85",
+      "range": {
+        "startLine": 305,
+        "startChar": 1,
+        "endLine": 341,
+        "endChar": 5
+      },
+      "revId": "af8c1de1ccc31ac6b6da6f4845081acb9371a100",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
