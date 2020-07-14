@@ -42,7 +42,7 @@ class AndroidFlavor(default.DefaultFlavor):
     # on the list, we fail the task to avoid perf inconsistencies.
     self.rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930FD', 'GalaxyS9',
                                'GalaxyS20', 'MotoG4', 'NVIDIA_Shield',
-                               'P30', 'Pixel4XL', 'TecnoSpark3Pro']
+                               'P30', 'Pixel4','Pixel4XL', 'TecnoSpark3Pro']
 
     # Maps device type -> CPU ids that should be scaled for nanobench.
     # Many devices have two (or more) different CPUs (e.g. big.LITTLE
