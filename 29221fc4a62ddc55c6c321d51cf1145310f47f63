@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e208981f_b3cd5cb4",
+        "filename": "src/gpu/GrStagingBufferManager.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-14T20:28:42Z",
+      "side": 1,
+      "message": "Do we still need this?",
+      "revId": "29221fc4a62ddc55c6c321d51cf1145310f47f63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1a4a269_af643e3c",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-14T20:28:42Z",
+      "side": 1,
+      "message": "Nit: const \u0026?\n\nIn fact, I think we could inline it, and just put it in the while condition:\n\nwhile (!fBusyStagingBuffers.emtpy() \u0026\u0026 fBusyStagingBuffers.front()-\u003eisMapped()) {\n  fBusyStagingBuffers.pop_front();\n}",
+      "revId": "29221fc4a62ddc55c6c321d51cf1145310f47f63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7e18faa_1e53acca",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-14T20:28:42Z",
+      "side": 1,
+      "message": "Nit: it\u0027d be nice if the name reflected the functionality.\n\nfActiveStagingBuffers? fSubmittedStagingBuffers? fAcquiredStagingBuffers? fSoonToBeBusyStagingBuffers? 😊",
+      "revId": "29221fc4a62ddc55c6c321d51cf1145310f47f63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
