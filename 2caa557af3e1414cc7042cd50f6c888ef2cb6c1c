@@ -16,6 +16,52 @@
       "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ea05224_aa8df243",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-14T14:33:03Z",
+      "side": 1,
+      "message": "Will we still be eventually changing this to be inputColor \u003d args.fInputColor as a pass-through when the color isn\u0027t given?\n\nAs an aside, what would it take to change the signature to be invokeChild(index, args, color, coords), so that it\u0027s a little closer to the sksl sample call?",
+      "range": {
+        "startLine": 45,
+        "startChar": 3,
+        "endLine": 47,
+        "endChar": 5
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd552fe5_285554f7",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-14T14:33:03Z",
+      "side": 1,
+      "message": "I think we can move this inside the following if, since it\u0027s no longer used for codegen supporting null FPs.",
+      "range": {
+        "startLine": 420,
+        "startChar": 15,
+        "endLine": 420,
+        "endChar": 29
+      },
+      "revId": "2caa557af3e1414cc7042cd50f6c888ef2cb6c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
