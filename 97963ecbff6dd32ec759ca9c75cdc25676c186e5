@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fb8e9fa_856dc978",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-14T19:30:28Z",
+      "side": 1,
+      "message": "The results now perfectly match AE.",
+      "revId": "97963ecbff6dd32ec759ca9c75cdc25676c186e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
