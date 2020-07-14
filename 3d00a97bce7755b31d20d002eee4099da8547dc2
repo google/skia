@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d93540e9_88769f05",
+        "filename": "tools/Stats.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:19:27Z",
+      "side": 0,
+      "message": "Is there a reason you swapped this file\u0027s algorithm instead of just switching to end() like th rest?",
+      "revId": "3d00a97bce7755b31d20d002eee4099da8547dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b5276d6_51440821",
+        "filename": "tools/Stats.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:19:27Z",
+      "side": 0,
+      "message": "lost?",
+      "revId": "3d00a97bce7755b31d20d002eee4099da8547dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

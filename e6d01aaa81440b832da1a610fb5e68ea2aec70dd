@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87d96684_b902c566",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:19:27Z",
+      "side": 1,
+      "message": "\u003e Patch Set 11:\n\u003e \n\u003e Gold has detected about 6 untriaged digest(s) on patchset 11. View them at https://gold.skia.org/cl/gerrit/302579\n\nHmm.  Same sort of mystery as last time.",
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd3a9257_c8b26150",
+        "filename": "src/core/SkTSort.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:19:27Z",
+      "side": 1,
+      "message": "(lambdas are functors)",
+      "range": {
+        "startLine": 160,
+        "startChar": 30,
+        "endLine": 160,
+        "endChar": 37
+      },
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d91cbc6e_d476b15a",
+        "filename": "src/gpu/gl/GrGLExtensions.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-14T19:19:27Z",
+      "side": 1,
+      "message": "I\u0027m curious why we don\u0027t use SkTQSort() for these also, leaving the algorithm choice up to that like all the other sorters.",
+      "revId": "e6d01aaa81440b832da1a610fb5e68ea2aec70dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
