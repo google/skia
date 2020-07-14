@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPictureRecorder.h"
@@ -18,7 +19,6 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkAutoMalloc.h"
-#include "src/core/SkFontDescriptor.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPicturePriv.h"
@@ -394,6 +394,34 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface,
     compare_bitmaps(reporter, origBitmap, destBitmap);
 }
 
+static sk_sp<SkTypeface> makeDistortableWithNonDefaultAxes(skiatest::Reporter* reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return nullptr;
+    }
+
+    const SkFontArguments::VariationPosition::Coordinate position[] = {
+        { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 },
+    };
+    SkFontArguments params;
+    params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+    if (!typeface) {
+        return nullptr;  // Not all SkFontMgr can makeFromStream().
+    }
+
+    int count = typeface->getVariationDesignPosition(nullptr, 0);
+    if (count == -1) {
+        return nullptr;  // The number of axes is unknown.
+    }
+
+    return typeface;
+}
+
 static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
                                              const SkDeserialProcs* deserial_procs,
                                              skiatest::Reporter* reporter) {
@@ -410,19 +438,12 @@ static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
 
     {
         // Load typeface as stream to create with axis settings.
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
-        if (!distortable) {
-            INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
+        auto typeface = makeDistortableWithNonDefaultAxes(reporter);
+        if (!typeface) {
+            INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
         } else {
-            SkFixed axis = SK_FixedSqrt2;
-            sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
-                std::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
-            if (!typeface) {
-                INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
-            } else {
-                serialize_and_compare_typeface(std::move(typeface), "ab", serial_procs,
-                                               deserial_procs, reporter);
-            }
+            serialize_and_compare_typeface(std::move(typeface), "ab", serial_procs,
+                                            deserial_procs, reporter);
         }
     }
 }
