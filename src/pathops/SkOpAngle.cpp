@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkTSort.h"
 #include "src/pathops/SkOpAngle.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkPathOpsCurve.h"
@@ -1025,7 +1026,7 @@ void SkOpAngle::setSpans() {
         }
         testTs[testCount++] = startT;
         testTs[testCount++] = endT;
-        std::sort(testTs, testTs + testCount);
+        SkTQSort<double>(testTs, &testTs[testCount - 1]);
         double bestSide = 0;
         int testCases = (testCount << 1) - 1;
         index = 0;

@@ -10,6 +10,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkTSearch.h"
+#include "src/core/SkTSort.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"

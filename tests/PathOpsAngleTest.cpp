@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/utils/SkRandom.h"
+#include "src/core/SkTSort.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"

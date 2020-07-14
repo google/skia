@@ -10,6 +10,7 @@
 #include "src/gpu/gl/GrGLUtil.h"
 
 #include "src/core/SkTSearch.h"
+#include "src/core/SkTSort.h"
 #include "src/utils/SkJSONWriter.h"
 
 namespace { // This cannot be static because it is used as a template parameter.
@@ -116,7 +117,8 @@ bool GrGLExtensions::init(GrGLStandard standard,
         eat_space_sep_strings(&fStrings, extensions);
     }
     if (!fStrings.empty()) {
-        std::sort(fStrings.begin(), fStrings.end(), extension_compare);
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
     }
     fInitialized = true;
     return true;
@@ -138,7 +140,8 @@ bool GrGLExtensions::remove(const char ext[]) {
     // most a handful of times when our test programs start.
     fStrings.removeShuffle(idx);
     if (idx != fStrings.count()) {
-        std::sort(fStrings.begin() + idx, fStrings.end(), extension_compare);
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTInsertionSort(&(fStrings.operator[](idx)), &fStrings.back(), cmp);
     }
     return true;
 }
@@ -148,8 +151,9 @@ void GrGLExtensions::add(const char ext[]) {
     if (idx < 0) {
         // This is not the most effecient approach since we end up looking at all of the
         // extensions after the add
-        fStrings.push_back(SkString(ext));
-        std::sort(fStrings.begin(), fStrings.end(), extension_compare);
+        fStrings.emplace_back(ext);
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTInsertionSort(&fStrings.front(), &fStrings.back(), cmp);
     }
 }
 
