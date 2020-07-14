@@ -44,7 +44,7 @@ void GrVkExtensions::init(GrVkGetProc getProc,
         // if not already in the list, add it
         if (find_info(fExtensions, extension) < 0) {
             fExtensions.push_back() = Info(extension);
-            SkTQSort(&fExtensions.front(), &fExtensions.back(), extension_compare);
+            SkTQSort(fExtensions.begin(), fExtensions.end(), extension_compare);
         }
     }
     for (uint32_t i = 0; i < deviceExtensionCount; ++i) {
@@ -52,7 +52,7 @@ void GrVkExtensions::init(GrVkGetProc getProc,
         // if not already in the list, add it
         if (find_info(fExtensions, extension) < 0) {
             fExtensions.push_back() = Info(extension);
-            SkTQSort(&fExtensions.front(), &fExtensions.back(), extension_compare);
+            SkTQSort(fExtensions.begin(), fExtensions.end(), extension_compare);
         }
     }
     this->getSpecVersions(getProc, instance, physDev);
