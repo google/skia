@@ -249,9 +249,9 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext
     return validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
 }
 
-sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(GrRecordingContext*,
-                                                          SkColorType targetCT,
-                                                          sk_sp<SkColorSpace> targetCS) const {
+sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
+                                                          sk_sp<SkColorSpace> targetCS,
+                                                          GrDirectContext*) const {
     SkAutoMutexExclusive autoAquire(fOnMakeColorTypeAndSpaceMutex);
     if (fOnMakeColorTypeAndSpaceResult &&
         targetCT == fOnMakeColorTypeAndSpaceResult->colorType() &&
