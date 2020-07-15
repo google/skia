@@ -8,10 +8,10 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
 /**
@@ -147,8 +147,8 @@ private:
     typedef GrContext INHERITED;
 };
 
-sk_sp<GrContext> GrContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {
-    sk_sp<GrContext> context(new GrDDLContext(std::move(proxy)));
+sk_sp<GrRecordingContext> GrRecordingContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {
+    sk_sp<GrRecordingContext> context(new GrDDLContext(std::move(proxy)));
 
     if (!context->init()) {
         return nullptr;

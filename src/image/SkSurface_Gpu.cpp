@@ -535,7 +535,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context, SkBudgeted budg
 }
 
 sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(
-        GrContext* context, std::unique_ptr<GrRenderTargetContext> rtc) {
+        GrRecordingContext* context, std::unique_ptr<GrRenderTargetContext> rtc) {
     if (!context) {
         return nullptr;
     }

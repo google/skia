@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDrawProcs.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrPaint.h"

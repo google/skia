@@ -69,11 +69,6 @@ public:
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
     /**
-     * Create a GrContext without a resource cache
-     */
-    static sk_sp<GrContext> MakeDDL(sk_sp<GrContextThreadSafeProxy>);
-
-    /**
      * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves
      * if necessary. The GrSurfaceProxy array is treated as a hint. If it is supplied the context
      * will guarantee that the draws required for those proxies are flushed but it could do more.
@@ -117,7 +112,6 @@ public:
         return fContext->onGetAtlasManager();
     }
 
-    void moveRenderTasksToDDL(SkDeferredDisplayList*);
     void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&);
