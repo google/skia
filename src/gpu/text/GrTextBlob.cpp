@@ -108,7 +108,7 @@ void GrPathSubRun::draw(const GrClip* clip,
 }
 
 
-auto GrPathSubRun::Make(
+auto GrPathSubRun::MakePaths(
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
         bool isAntiAliased,
         const SkStrikeSpec& strikeSpec,
@@ -870,10 +870,10 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
                                     const SkFont& runFont,
                                     const SkStrikeSpec& strikeSpec) {
     this->setHasBitmap();
-    GrSubRun* subRun = GrPathSubRun::Make(drawables,
-                                          runFont.hasSomeAntiAliasing(),
-                                          strikeSpec,
-                                          &fAlloc);
+    GrSubRun* subRun = GrPathSubRun::MakePaths(drawables,
+                                               runFont.hasSomeAntiAliasing(),
+                                               strikeSpec,
+                                               &fAlloc);
     this->insertSubRun(subRun);
 }
 
