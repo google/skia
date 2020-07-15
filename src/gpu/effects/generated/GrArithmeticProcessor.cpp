@@ -29,11 +29,10 @@ public:
         (void)enforcePMColor;
         kVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                 "k");
-        SkString _input385(args.fInputColor);
-        SkString _sample385 = this->invokeChild(0, _input385.c_str(), args);
+        SkString _sample385 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 src = %s;)SkSL", _sample385.c_str());
-        SkString _sample428 = this->invokeChild(1, args);
+        SkString _sample416 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 dst = %s;
@@ -42,7 +41,7 @@ half4 dst = %s;
     %s.xyz = min(%s.xyz, %s.w);
 }
 )SkSL",
-                _sample428.c_str(), args.fOutputColor, args.fUniformHandler->getUniformCStr(kVar),
+                _sample416.c_str(), args.fOutputColor, args.fUniformHandler->getUniformCStr(kVar),
                 args.fUniformHandler->getUniformCStr(kVar),
                 args.fUniformHandler->getUniformCStr(kVar),
                 args.fUniformHandler->getUniformCStr(kVar),

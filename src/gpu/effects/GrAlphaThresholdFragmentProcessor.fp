@@ -16,7 +16,7 @@ in uniform half outerThreshold;
 }
 
 void main() {
-    half4 color = sample(inputFP, sk_InColor);
+    half4 color = sample(inputFP);
     half4 mask_color = sample(maskFP);
     if (mask_color.a < 0.5) {
         if (color.a > outerThreshold) {

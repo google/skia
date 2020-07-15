@@ -43,7 +43,7 @@ void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) 
 SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
                                               EmitArgs& args, SkSL::String skslCoords) {
     if (!inputColor) {
-        inputColor = "half4(1)";
+        inputColor = args.fInputColor;
     }
 
     SkASSERT(childIndex >= 0);
@@ -78,7 +78,7 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
                                                         EmitArgs& args,
                                                         SkSL::String skslMatrix) {
     if (!inputColor) {
-        inputColor = "half4(1)";
+        inputColor = args.fInputColor;
     }
 
     SkASSERT(childIndex >= 0);

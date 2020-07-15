@@ -880,8 +880,10 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
                 if (floorVal.w >= stitchData.y) { floorVal.w -= stitchData.y; };)");
     }
 
-    SkString sampleX = this->invokeChild(0, args, "half2(floorVal.x, 0.5)");
-    SkString sampleY = this->invokeChild(0, args, "half2(floorVal.z, 0.5)");
+    // NOTE: We need to explicitly pass half4(1) as input color here, because the helper function
+    // can't see fInputColor (which is "_input" in the FP's outer function). skbug.com/10506
+    SkString sampleX = this->invokeChild(0, "half4(1)", args, "half2(floorVal.x, 0.5)");
+    SkString sampleY = this->invokeChild(0, "half4(1)", args, "half2(floorVal.z, 0.5)");
     noiseCode.appendf("half2 latticeIdx = half2(%s.r, %s.r);", sampleX.c_str(), sampleY.c_str());
 
 #if defined(SK_BUILD_FOR_ANDROID)
@@ -907,10 +909,10 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     SkString dotLattice =
             SkStringPrintf("dot((lattice.ga + lattice.rb*%s)*2 - half2(1), fractVal)", inc8bit);
 
-    SkString sampleA = this->invokeChild(1, args, "half2(bcoords.x, chanCoord)");
-    SkString sampleB = this->invokeChild(1, args, "half2(bcoords.y, chanCoord)");
-    SkString sampleC = this->invokeChild(1, args, "half2(bcoords.w, chanCoord)");
-    SkString sampleD = this->invokeChild(1, args, "half2(bcoords.z, chanCoord)");
+    SkString sampleA = this->invokeChild(1, "half4(1)", args, "half2(bcoords.x, chanCoord)");
+    SkString sampleB = this->invokeChild(1, "half4(1)", args, "half2(bcoords.y, chanCoord)");
+    SkString sampleC = this->invokeChild(1, "half4(1)", args, "half2(bcoords.w, chanCoord)");
+    SkString sampleD = this->invokeChild(1, "half4(1)", args, "half2(bcoords.z, chanCoord)");
 
     // Compute u, at offset (0,0)
     noiseCode.appendf("half4 lattice = %s;", sampleA.c_str());
@@ -1217,7 +1219,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     const GrShaderVar permArgs[] =  {
             {"x", kHalf_GrSLType}
     };
-    SkString samplePerm = this->invokeChild(0, args, "float2(x, 0.5)");
+    SkString samplePerm = this->invokeChild(0, "half4(1)", args, "float2(x, 0.5)");
     SkString permFuncName;
     SkString permCode = SkStringPrintf("return %s.r * 255;", samplePerm.c_str());
     fragBuilder->emitFunction(kHalf_GrSLType, "perm", SK_ARRAY_COUNT(permArgs), permArgs,
@@ -1228,7 +1230,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
             {"x", kHalf_GrSLType},
             {"p", kHalf3_GrSLType}
     };
-    SkString sampleGrad = this->invokeChild(1, args, "float2(x, 0.5)");
+    SkString sampleGrad = this->invokeChild(1, "half4(1)", args, "float2(x, 0.5)");
     SkString gradFuncName;
     SkString gradCode = SkStringPrintf("return half(dot(%s.rgb * 255.0 - float3(1.0), p));",
                                        sampleGrad.c_str());

@@ -23,9 +23,8 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDeviceSpaceEffect& _outer = args.fFp.cast<GrDeviceSpaceEffect>();
         (void)_outer;
-        SkString _input203(args.fInputColor);
         SkString _coords203("sk_FragCoord.xy");
-        SkString _sample203 = this->invokeChild(0, _input203.c_str(), args, _coords203.c_str());
+        SkString _sample203 = this->invokeChild(0, args, _coords203.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(%s = %s;
 )SkSL",

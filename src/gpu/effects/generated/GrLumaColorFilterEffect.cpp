@@ -23,8 +23,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrLumaColorFilterEffect& _outer = args.fFp.cast<GrLumaColorFilterEffect>();
         (void)_outer;
-        SkString _input870(args.fInputColor);
-        SkString _sample870 = this->invokeChild(0, _input870.c_str(), args);
+        SkString _sample870 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 

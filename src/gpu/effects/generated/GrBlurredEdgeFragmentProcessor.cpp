@@ -26,8 +26,7 @@ public:
         (void)_outer;
         auto mode = _outer.mode;
         (void)mode;
-        SkString _input308(args.fInputColor);
-        SkString _sample308 = this->invokeChild(0, _input308.c_str(), args);
+        SkString _sample308 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half inputAlpha = %s.w;
 half factor = 1.0 - inputAlpha;

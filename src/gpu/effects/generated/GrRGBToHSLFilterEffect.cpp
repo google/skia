@@ -23,8 +23,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrRGBToHSLFilterEffect& _outer = args.fFp.cast<GrRGBToHSLFilterEffect>();
         (void)_outer;
-        SkString _input1173(args.fInputColor);
-        SkString _sample1173 = this->invokeChild(0, _input1173.c_str(), args);
+        SkString _sample1173 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 c = %s;
 half4 p = c.y < c.z ? half4(c.zy, -1.0, 0.66666666666666663) : half4(c.yz, 0.0, -0.33333333333333331);

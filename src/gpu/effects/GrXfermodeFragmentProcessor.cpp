@@ -281,9 +281,9 @@ void GLComposeFragmentProcessor::emitCode(EmitArgs& args) {
     switch (behavior) {
         case ComposeBehavior::kComposeOneBehavior:
             // Compose-one operations historically leave the alpha on the input color.
-            srcColor = cs.childProcessor(0) ? this->invokeChild(0, args)
+            srcColor = cs.childProcessor(0) ? this->invokeChild(0, "half4(1)", args)
                                             : SkString(args.fInputColor);
-            dstColor = cs.childProcessor(1) ? this->invokeChild(1, args)
+            dstColor = cs.childProcessor(1) ? this->invokeChild(1, "half4(1)", args)
                                             : SkString(args.fInputColor);
             break;
 
@@ -296,7 +296,7 @@ void GLComposeFragmentProcessor::emitCode(EmitArgs& args) {
 
         case ComposeBehavior::kSkModeBehavior:
             // SkModeColorFilter operations act like ComposeOne, but pass the input color to dst.
-            srcColor = cs.childProcessor(0) ? this->invokeChild(0, args)
+            srcColor = cs.childProcessor(0) ? this->invokeChild(0, "half4(1)", args)
                                             : SkString(args.fInputColor);
             dstColor = cs.childProcessor(1) ? this->invokeChild(1, args.fInputColor, args)
                                             : SkString(args.fInputColor);

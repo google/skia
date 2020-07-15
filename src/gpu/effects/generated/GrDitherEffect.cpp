@@ -27,8 +27,7 @@ public:
         (void)range;
         rangeVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "range");
-        SkString _input302(args.fInputColor);
-        SkString _sample302 = this->invokeChild(0, _input302.c_str(), args);
+        SkString _sample302 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 color = %s;
 half value;

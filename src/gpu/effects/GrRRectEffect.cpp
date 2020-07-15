@@ -296,7 +296,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("alpha = 1.0 - alpha;");
     }
 
-    SkString inputSample = this->invokeChild(/*childIndex=*/0, args.fInputColor, args);
+    SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
 
     fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, inputSample.c_str());
 }
@@ -623,7 +623,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("half alpha = clamp(0.5 + approx_dist, 0.0, 1.0);");
     }
 
-    SkString inputSample = this->invokeChild(/*childIndex=*/0, args.fInputColor, args);
+    SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
 
     fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, inputSample.c_str());
 }

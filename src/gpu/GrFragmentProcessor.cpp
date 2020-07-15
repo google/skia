@@ -260,7 +260,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
-                    SkString childColor = this->invokeChild(0, args.fInputColor, args);
+                    SkString childColor = this->invokeChild(0, args);
 
                     const SwizzleFragmentProcessor& sfp = args.fFp.cast<SwizzleFragmentProcessor>();
                     const GrSwizzle& swizzle = sfp.swizzle();
@@ -327,7 +327,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             public:
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                    SkString temp = this->invokeChild(0, args);
+                    SkString temp = this->invokeChild(0, "half4(1)", args);
                     fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, temp.c_str());
                     fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
                                                                   args.fInputColor);
@@ -407,8 +407,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
-                    // First guy's input might be nil.
-                    SkString result = this->invokeChild(0, args.fInputColor, args);
+                    SkString result = this->invokeChild(0, args);
                     for (int i = 1; i < this->numChildProcessors(); ++i) {
                         result = this->invokeChild(i, result.c_str(), args);
                     }

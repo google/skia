@@ -27,14 +27,13 @@ public:
         (void)weight;
         weightVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                      kFloat_GrSLType, "weight");
-        SkString _sample290 = this->invokeChild(0, args);
-        SkString _sample358 = this->invokeChild(1, args);
+        SkString _sample273 = this->invokeChild(0, args);
+        SkString _sample289 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
-                R"SkSL(%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));
+                R"SkSL(%s = mix(%s, %s, half(%s));
 )SkSL",
-                args.fOutputColor, _outer.childProcessor(0) ? "true" : "false", _sample290.c_str(),
-                args.fInputColor, _outer.childProcessor(1) ? "true" : "false", _sample358.c_str(),
-                args.fInputColor, args.fUniformHandler->getUniformCStr(weightVar));
+                args.fOutputColor, _sample273.c_str(), _sample289.c_str(),
+                args.fUniformHandler->getUniformCStr(weightVar));
     }
 
 private:
