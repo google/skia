@@ -119,7 +119,7 @@ void main() {
             // hairline not supported
             discard;
     }
-    half4 inputColor = sample(inputFP, sk_InColor);
+    half4 inputColor = sample(inputFP);
     sk_OutColor = inputColor * alpha;
 }
 

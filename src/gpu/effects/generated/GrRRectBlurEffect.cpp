@@ -94,19 +94,18 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        SkString _input9561(args.fInputColor);
-        SkString _sample9561 = this->invokeChild(0, _input9561.c_str(), args);
+        SkString _sample9561 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
                 _sample9561.c_str());
-        SkString _coords9621("float2(texCoord)");
-        SkString _sample9621 = this->invokeChild(1, args, _coords9621.c_str());
+        SkString _coords9609("float2(texCoord)");
+        SkString _sample9609 = this->invokeChild(1, args, _coords9609.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s;
 )SkSL",
-                args.fOutputColor, _sample9621.c_str());
+                args.fOutputColor, _sample9609.c_str());
     }
 
 private:

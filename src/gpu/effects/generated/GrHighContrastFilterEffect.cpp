@@ -47,8 +47,7 @@ if (t > 1.0) t -= 1.0;
 return t < 0.16666666666666666 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0.66666666666666663 ? p + ((q - p) * (0.66666666666666663 - t)) * 6.0 : p));
 )SkSL",
                                   &HSLToRGB_name);
-        SkString _input896(args.fInputColor);
-        SkString _sample896 = this->invokeChild(0, _input896.c_str(), args);
+        SkString _sample896 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inColor = %s;

@@ -214,7 +214,7 @@ void main() {
     half2 proxyDims = half2(2.0 * edgeSize);
     half2 texCoord = translatedFragPos / proxyDims;
 
-    half4 inputColor = sample(inputFP, sk_InColor);
+    half4 inputColor = sample(inputFP);
     sk_OutColor = inputColor * sample(ninePatchFP, texCoord);
 }
 
