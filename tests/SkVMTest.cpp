@@ -1567,6 +1567,20 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.vcvtps2ph(A::xmm3, A::ymm2, A::CURRENT);
+        a.vcvtps2ph(A::Mem{A::rsi, 32, A::rax, A::EIGHT}, A::ymm5, A::CEIL);
+
+        a.vcvtph2ps(A::ymm15, A::Mem{A::rdi, 12, A::r9, A::ONE});
+        a.vcvtph2ps(A::ymm2, A::xmm3);
+    },{
+        0xc4,0xe3,0x7d,0x1d,0xd3,0x04,
+        0xc4,0xe3,0x7d,0x1d,0x6c,0xc6,0x20,0x02,
+
+        0xc4,0x22,0x7d,0x13,0x7c,0x0f,0x0c,
+        0xc4,0xe2,0x7d,0x13,0xd3,
+    });
+
+    test_asm(r, [&](A& a) {
         a.vgatherdps(A::ymm1 , A::FOUR , A::ymm0 , A::rdi, A::ymm2 );
         a.vgatherdps(A::ymm0 , A::ONE  , A::ymm2 , A::rax, A::ymm1 );
         a.vgatherdps(A::ymm10, A::ONE  , A::ymm2 , A::rax, A::ymm1 );
