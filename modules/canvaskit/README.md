@@ -94,6 +94,14 @@ gold results are reported to gold.skia.org
 
 Coverage is not measured while running tests this way.
 
+# Inspecting output WASM
+
+The `wasm2wat` tool from [the WebAssembly Binary Toolkit](https://github.com/WebAssembly/wabt)
+can be used to produce a human-readable text version of a `.wasm` file.
+
+wasm2wat 1.0.13 (1.0.17) is required for the tools in `wasm_tools/SIMD/`. These tools
+programmatically inspect the wasm output of a CanvasKit build to detect the presence of wasm SIMD
+operations.
 
 # Infrastructure Playbook
 
