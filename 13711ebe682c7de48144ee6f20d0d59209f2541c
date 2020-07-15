@@ -22,6 +22,30 @@
       "revId": "13711ebe682c7de48144ee6f20d0d59209f2541c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40069b57_a4e3aba3",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-15T14:21:44Z",
+      "side": 0,
+      "message": "It looks like I added this check in the first version of YUV2RGBEffect that supported a clamping domain. That was a much simpler domain than what is supported now using texture effect for each plane. I believe I was encountering gold image differences where it thought it could drop the clamp for the Y plane, but shouldn\u0027t for the U/V based on scale factor and how the down-sampled subset would let in U/V pixels that partially corresponded to Y pixels outside the subset.\n\nI\u0027m not sure how serious that actually was (I can\u0027t remember the image differences that prompted the check). And I wouldn\u0027t be surprised at all if all of the work in texture effect and yuv handling has mitigated this concern.\n\nI see a few changes to the bottom of the mandrill\u0027s chin in gold, but actually think that the new version of the image better matches the original scale, compared to before.",
+      "parentUuid": "a811fc36_17951b4f",
+      "range": {
+        "startLine": 449,
+        "startChar": 30,
+        "endLine": 449,
+        "endChar": 55
+      },
+      "revId": "13711ebe682c7de48144ee6f20d0d59209f2541c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
