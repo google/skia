@@ -95,7 +95,7 @@ public:
 
     void flushIfNecessary();
 
-    static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
+    static bool ProgramUnitTest(GrContext*, int maxStages, int maxLevels);
 
     GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy* proxies[],
                                         int cnt,
