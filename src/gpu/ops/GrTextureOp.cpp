@@ -30,6 +30,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadBuffer.h"
@@ -1066,6 +1067,7 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         } else {
             fp = GrTextureEffect::Make(std::move(proxyView), alphaType, SkMatrix::I(), filter);
         }
+        fp = GrXfermodeFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         if (saturate == GrTextureOp::Saturate::kYes) {
             fp = GrClampFragmentProcessor::Make(std::move(fp), /*clampToPremul=*/false);
