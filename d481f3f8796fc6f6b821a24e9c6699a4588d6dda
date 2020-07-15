@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb5b85a3_d631476c",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/simd_test.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-15T11:47:33Z",
+      "side": 1,
+      "message": "I usually like to put a \"what is this script for\" sort of comment at the top, just under the copyright header. Also explicitly describe what arguments if any there are.",
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06bee5d8_6de1d2a7",
+        "filename": "tools/perf-canvaskit-puppeteer/Makefile",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-15T11:47:33Z",
+      "side": 1,
+      "message": "for loops are too complex IMO for a Makefile.\n\nI would recommend putting all of this into a helper Bash (or Python or Go or JS) file with some flags.",
+      "range": {
+        "startLine": 30,
+        "startChar": 1,
+        "endLine": 30,
+        "endChar": 9
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6b4d3fe_2179c439",
+        "filename": "tools/perf-canvaskit-puppeteer/benchmark.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-15T11:47:33Z",
+      "side": 1,
+      "message": "This is not the right place to put summarizing data, IMO. We already summarize this data using go code when uploading to Perf https://github.com/google/skia/blob/b92d53afbead991906561ac8c9fe3d5e0f140515/infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go#L330\n\nI think for your SIMD analysis, this averaging should go on in your skp_data_prep.js",
+      "range": {
+        "startLine": 75,
+        "startChar": 23,
+        "endLine": 75,
+        "endChar": 45
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec61a441_ffd0092c",
+        "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-15T11:47:33Z",
+      "side": 1,
+      "message": "Let\u0027s just call this \"merge_output_as\" so it\u0027s a little more clear.",
+      "range": {
+        "startLine": 56,
+        "startChar": 11,
+        "endLine": 56,
+        "endChar": 45
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b340f56c_105ca5c8",
+        "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-15T11:47:33Z",
+      "side": 1,
+      "message": "Will this work even for the older version of Chromium we currently test against? Should the addition of this be behind a flag?",
+      "range": {
+        "startLine": 199,
+        "startChar": 9,
+        "endLine": 199,
+        "endChar": 15
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82d9f0e4_990191cb",
+        "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-15T11:47:33Z",
+      "side": 1,
+      "message": "simd_frame_average_accumulator or simd_frame_average_sum is probably more clear (since the average doesn\u0027t happen till line 46+\n\nNaming tips: since we are only dealing with total_frame_ms in this file, we can abbreviate it. In a name, make sure every part of the name is \"important\" - either providing information or uniqueness.",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 31
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "679da2f5_b0477a92",
+        "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-15T11:47:33Z",
+      "side": 1,
+      "message": "suggestion: make difference an array and have the skp_name be a key in the contained objects. Since we have to sort it anyway later, an array seems like a better fit.",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 22
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
