@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "dbd66b7c_e2f48cea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T22:46:45Z",
+      "side": 1,
+      "message": "This CL appeared to be building a SIMD build of CanvasKit correctly, but I later found that no wasm SIMD instructions were actually present in the built output. The CL https://skia-review.googlesource.com/c/skia/+/302669 fixes this.",
+      "revId": "fe7e74b3a78668bc9e2402f29e2be009d84a306c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7d678eb_bc97fa0f",
         "filename": "modules/canvaskit/wasm_tools/SIMD/build_simd_test.sh",
         "patchSetId": 8
