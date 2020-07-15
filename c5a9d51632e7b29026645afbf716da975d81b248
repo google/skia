@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7632a6fd_f3c507c2",
+        "filename": "src/gpu/GrStagingBufferManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-15T18:09:08Z",
+      "side": 1,
+      "message": "Stephen, does dawn ever have any offset alignment requirements within these buffers?",
+      "range": {
+        "startLine": 16,
+        "startChar": 21,
+        "endLine": 16,
+        "endChar": 45
+      },
+      "revId": "c5a9d51632e7b29026645afbf716da975d81b248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
