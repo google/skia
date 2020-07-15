@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a811fc36_17951b4f",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-15T13:37:26Z",
+      "side": 0,
+      "message": "This is the real meat of the change. I guess this was necessary at some time in the past but I see no reason not to do this for YUV images now.",
+      "range": {
+        "startLine": 449,
+        "startChar": 30,
+        "endLine": 449,
+        "endChar": 55
+      },
+      "revId": "13711ebe682c7de48144ee6f20d0d59209f2541c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
