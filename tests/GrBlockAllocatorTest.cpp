@@ -378,6 +378,43 @@ DEF_TEST(GrBlockAllocatorReleaseBlock, r) {
     }
 }
 
+DEF_TEST(GrBlockAllocatorIterateAndRelease, r) {
+    GrSBlockAllocator<256> pool;
+
+    pool->headBlock()->setMetadata(1);
+    add_block(pool);
+    add_block(pool);
+    add_block(pool);
+
+    // Loop forward and release the blocks
+    int releaseCount = 0;
+    for (auto* b : pool->blocks()) {
+        pool->releaseBlock(b);
+        releaseCount++;
+    }
+    REPORTER_ASSERT(r, releaseCount == 4);
+    // pool should have just the head block, but was reset
+    REPORTER_ASSERT(r, pool->headBlock()->metadata() == 0);
+    REPORTER_ASSERT(r, block_count(pool) == 1);
+
+    // Add more blocks
+    pool->headBlock()->setMetadata(1);
+    add_block(pool);
+    add_block(pool);
+    add_block(pool);
+
+    // Loop in reverse and release the blocks
+    releaseCount = 0;
+    for (auto* b : pool->rblocks()) {
+        pool->releaseBlock(b);
+        releaseCount++;
+    }
+    REPORTER_ASSERT(r, releaseCount == 4);
+    // pool should have just the head block, but was reset
+    REPORTER_ASSERT(r, pool->headBlock()->metadata() == 0);
+    REPORTER_ASSERT(r, block_count(pool) == 1);
+}
+
 // These tests ensure that the allocation padding mechanism works as intended
 struct TestMeta {
     int fX1;
