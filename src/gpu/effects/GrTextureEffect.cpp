@@ -321,13 +321,9 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
             fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
                                                         kFloat4_GrSLType, "norm", &norm);
             SkString coordString = SkStringPrintf("%s * %s.zw", args.fSampleCoord, norm);
-            fb->appendTextureLookupAndBlend(args.fInputColor,
-                                            SkBlendMode::kModulate,
-                                            fSamplerHandle,
-                                            coordString.c_str());
+            fb->appendTextureLookup(fSamplerHandle, coordString.c_str());
         } else {
-            fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                            fSamplerHandle, args.fSampleCoord);
+            fb->appendTextureLookup(fSamplerHandle, args.fSampleCoord);
         }
         fb->codeAppendf(";");
     } else {
@@ -682,7 +678,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     "}",
                     subsetName, subsetName, borderName);
         }
-        fb->codeAppendf("%s = %s * textureColor;", args.fOutputColor, args.fInputColor);
+        fb->codeAppendf("%s = textureColor;", args.fOutputColor);
     }
 }
 
