@@ -13,8 +13,6 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
 
-class GrContext;
-
 /**
  * GrClip is an abstract base class for applying a clip. It constructs a clip mask if necessary, and
  * fills out a GrAppliedClip instructing the caller on how to set up the draw state.

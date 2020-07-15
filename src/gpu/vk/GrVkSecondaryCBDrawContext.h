@@ -13,7 +13,7 @@
 #include "include/core/SkTypes.h"
 
 class GrBackendSemaphore;
-class GrContext;
+class GrRecordingContext;
 struct GrVkDrawableInfo;
 class SkCanvas;
 class SkDeferredDisplayList;
@@ -57,7 +57,7 @@ class SkSurfaceProps;
  */
 class SK_SPI GrVkSecondaryCBDrawContext : public SkRefCnt {
 public:
-    static sk_sp<GrVkSecondaryCBDrawContext> Make(GrContext*, const SkImageInfo&,
+    static sk_sp<GrVkSecondaryCBDrawContext> Make(GrRecordingContext*, const SkImageInfo&,
                                                   const GrVkDrawableInfo&,
                                                   const SkSurfaceProps* props);
 

@@ -12,7 +12,6 @@
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkNoncopyable.h"
 
-class GrContext;
 class GrGpu;
 class GrResourceCache;
 class SkTraceMemoryDump;
@@ -105,8 +104,8 @@ public:
      * they no longer have an owning context. Destroying a GrContext
      * automatically releases all its resources.
      */
-    const GrContext* getContext() const;
-    GrContext* getContext();
+    const GrDirectContext* getContext() const;
+    GrDirectContext* getContext();
 
     /**
      * Retrieves the amount of GPU memory used by this resource in bytes. It is

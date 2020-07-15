@@ -23,7 +23,6 @@
 class GrCaps;
 class GrColorInfo;
 class GrColorSpaceXform;
-class GrContext;
 class GrDirectContext;
 class GrFragmentProcessor;
 class GrPaint;
