@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78a5bf07_e829004b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T20:56:35Z",
+      "side": 1,
+      "message": "kjlubick@ I addressed your comments, also addressed this comment from a previous CL: https://skia-review.googlesource.com/c/skia/+/299705/8/modules/canvaskit/wasm_tools/SIMD/build_simd_test.sh#10",
+      "revId": "f72725d7051adbe9f482b0b156a43c182c24f7a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

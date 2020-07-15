@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cf98bd44_eb5f00f6",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/simd_test.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T20:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb5b85a3_d631476c",
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06bee5d8_6de1d2a7",
         "filename": "tools/perf-canvaskit-puppeteer/Makefile",
         "patchSetId": 6
@@ -39,6 +57,30 @@
       "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55268ca8_b4a8e182",
+        "filename": "tools/perf-canvaskit-puppeteer/Makefile",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T20:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06bee5d8_6de1d2a7",
+      "range": {
+        "startLine": 30,
+        "startChar": 1,
+        "endLine": 30,
+        "endChar": 9
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "9a59e05f_b61b889a",
+        "filename": "tools/perf-canvaskit-puppeteer/benchmark.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T20:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6b4d3fe_2179c439",
+      "range": {
+        "startLine": 75,
+        "startChar": 23,
+        "endLine": 75,
+        "endChar": 45
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec61a441_ffd0092c",
         "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
         "patchSetId": 6
@@ -85,6 +151,30 @@
       "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "269b57e7_880a42c7",
+        "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T20:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec61a441_ffd0092c",
+      "range": {
+        "startLine": 56,
+        "startChar": 11,
+        "endLine": 56,
+        "endChar": 45
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "1c0ec860_11ac6c8e",
+        "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T20:56:35Z",
+      "side": 1,
+      "message": "To answer your first question: I tried it with the older version of Chromium: It does not cause any issues, but this version of chromium cannot execute the SIMD wasm even with the flag.\n\nsecond question: I think it makes more sense behind a flag. More explicit about which tests need it, and avoids unnoticed consequences if there are any. Done.",
+      "parentUuid": "b340f56c_105ca5c8",
+      "range": {
+        "startLine": 199,
+        "startChar": 9,
+        "endLine": 199,
+        "endChar": 15
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82d9f0e4_990191cb",
         "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
         "patchSetId": 6
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "eadeff7e_2611dccf",
+        "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T20:56:35Z",
+      "side": 1,
+      "message": "Thanks for the naming tip. I have come up with a bunch of (hopefully) better names.",
+      "parentUuid": "82d9f0e4_990191cb",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 31
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "679da2f5_b0477a92",
         "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
         "patchSetId": 6
@@ -154,6 +292,30 @@
       "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75746ecf_a03c7394",
+        "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T20:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "679da2f5_b0477a92",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 22
+      },
+      "revId": "d481f3f8796fc6f6b821a24e9c6699a4588d6dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
