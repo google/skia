@@ -5,9 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
 #include "src/core/SkMipMap.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexturePriv.h"
