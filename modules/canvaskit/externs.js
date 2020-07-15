@@ -468,6 +468,9 @@ var CanvasKit = {
     _addVerbsPointsWeights: function() {},
     _arc: function() {},
     _arcTo: function() {},
+    _arcToOval: function() {},
+    _arcToTangent: function() {},
+    _arcToRotated: function() {},
     _close: function() {},
     _conicTo: function() {},
     _cubicTo: function() {},
@@ -880,6 +883,9 @@ CanvasKit.SkPath.prototype.addRoundRect = function() {};
 CanvasKit.SkPath.prototype.addVerbsPointsWeights = function() {};
 CanvasKit.SkPath.prototype.arc = function() {};
 CanvasKit.SkPath.prototype.arcTo = function() {};
+CanvasKit.SkPath.prototype.arcToOval = function() {};
+CanvasKit.SkPath.prototype.arcToTangent = function() {};
+CanvasKit.SkPath.prototype.arcToRotated = function() {};
 CanvasKit.SkPath.prototype.close = function() {};
 CanvasKit.SkPath.prototype.conicTo = function() {};
 CanvasKit.SkPath.prototype.cubicTo = function() {};
