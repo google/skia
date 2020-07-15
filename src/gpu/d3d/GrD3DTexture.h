@@ -81,9 +81,7 @@ private:
     void removeFinishIdleProcs();
 
     struct SamplerHash {
-        uint32_t operator()(GrSamplerState state) const {
-            return GrSamplerState::GenerateKey(state);
-        }
+        uint32_t operator()(GrSamplerState state) const { return state.asIndex(); }
     };
 
     GrD3DDescriptorHeap::CPUHandle fShaderResourceView;

@@ -232,7 +232,7 @@ public:
     }
 
     void bindSampler(int unitIdx, GrSamplerState state) {
-        int index = StateToIndex(state);
+        int index = state.asIndex();
         if (!fSamplers[index]) {
             GrGLuint s;
             GR_GL_CALL(fGpu->glInterface(), GenSamplers(1, &s));
@@ -280,20 +280,8 @@ public:
     }
 
 private:
-    static int StateToIndex(GrSamplerState state) {
-        int filter = static_cast<int>(state.filter());
-        SkASSERT(filter >= 0 && filter < 3);
-        int wrapX = static_cast<int>(state.wrapModeX());
-        SkASSERT(wrapX >= 0 && wrapX < 4);
-        int wrapY = static_cast<int>(state.wrapModeY());
-        SkASSERT(wrapY >= 0 && wrapY < 4);
-        int idx = 16 * filter + 4 * wrapX + wrapY;
-        SkASSERT(idx < kNumSamplers);
-        return idx;
-    }
-
+    static constexpr int kNumSamplers = GrSamplerState::kNumUniqueSamplers;
     GrGLGpu* fGpu;
-    static constexpr int kNumSamplers = 48;
     std::unique_ptr<GrGLuint[]> fHWBoundSamplers;
     GrGLuint fSamplers[kNumSamplers];
     int fNumTextureUnits;

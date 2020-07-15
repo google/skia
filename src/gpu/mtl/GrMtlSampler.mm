@@ -74,5 +74,5 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
 }
 
 GrMtlSampler::Key GrMtlSampler::GenerateKey(GrSamplerState samplerState) {
-    return GrSamplerState::GenerateKey(samplerState);
+    return samplerState.asIndex();
 }
