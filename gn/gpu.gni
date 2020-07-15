@@ -155,6 +155,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrProxyProvider.cpp",
   "$_src/gpu/GrProxyProvider.h",
   "$_src/gpu/GrRecordingContext.cpp",
+  "$_src/gpu/GrRecordingContextPriv.cpp",
   "$_src/gpu/GrRecordingContextPriv.h",
   "$_src/gpu/GrRectanizer.h",
   "$_src/gpu/GrRectanizerPow2.cpp",

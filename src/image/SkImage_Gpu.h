@@ -69,7 +69,7 @@ public:
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.
      */
-    static sk_sp<SkImage> MakePromiseTexture(GrContext* context,
+    static sk_sp<SkImage> MakePromiseTexture(GrRecordingContext*,
                                              const GrBackendFormat& backendFormat,
                                              int width,
                                              int height,
