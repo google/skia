@@ -48,8 +48,7 @@ half d;
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar));
-        SkString _input2509(args.fInputColor);
-        SkString _sample2509 = this->invokeChild(0, _input2509.c_str(), args);
+        SkString _sample2509 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
