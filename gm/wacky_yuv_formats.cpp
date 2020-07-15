@@ -1405,6 +1405,7 @@ protected:
             cellHeight *= 1.5f;
         }
 
+        auto direct = GrAsDirectContext(canvas->recordingContext());
         SkRect origSrcRect = SkRect::MakeWH(fOriginalBMs[0].width(), fOriginalBMs[0].height());
 
         SkRect srcRect = SkRect::MakeWH(fOriginalBMs[0].width(), fOriginalBMs[0].height());
@@ -1456,7 +1457,7 @@ protected:
                         // doesn't make a whole lot of sense. The colorSpace conversion will
                         // operate on the YUV components rather than the RGB components.
                         sk_sp<SkImage> csImage =
-                            fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace);
+                            fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace, direct);
                         canvas->drawImageRect(csImage, srcRect, dstRect, &paint, constraint);
                     } else {
                         canvas->drawImageRect(fImages[opaque][cs][format], srcRect, dstRect,
@@ -1615,43 +1616,53 @@ protected:
         fImages[0][0] = fImages[0][1] = fImages[1][0] = fImages[1][1] = nullptr;
     }
 
-    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onDraw(GrRecordingContext* recording, GrRenderTargetContext*,
+                      SkCanvas* canvas, SkString* msg) override {
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
-        auto direct = context->asDirectContext();
+        auto direct = GrAsDirectContext(recording);
+        if (recording && !direct) {
+            *msg = "YUV ColorSpace image creation requires a direct context.";
+            return DrawResult::kSkip;
+        }
+
         int x = kPad;
         for (int tagged : { 0, 1 }) {
             for (int opaque : { 0, 1 }) {
                 int y = kPad;
 
                 auto raster = SkImage::MakeFromBitmap(fOriginalBMs[opaque])
-                    ->makeColorSpace(fTargetColorSpace);
+                    ->makeColorSpace(fTargetColorSpace, nullptr);
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 
                 if (fImages[opaque][tagged]) {
-                    auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace);
+                    auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace, direct);
+                    SkASSERT(yuv);
                     SkASSERT(SkColorSpace::Equals(yuv->colorSpace(), fTargetColorSpace.get()));
                     canvas->drawImage(yuv, x, y);
                     y += kTileWidthHeight + kPad;
 
                     SkIRect bounds = SkIRect::MakeWH(kTileWidthHeight / 2, kTileWidthHeight / 2);
                     auto subset = yuv->makeSubset(bounds, direct);
+                    SkASSERT(subset);
                     canvas->drawImage(subset, x, y);
                     y += kTileWidthHeight + kPad;
 
                     auto nonTexture = yuv->makeNonTextureImage();
+                    SkASSERT(nonTexture);
                     canvas->drawImage(nonTexture, x, y);
                     y += kTileWidthHeight + kPad;
 
                     SkBitmap readBack;
                     readBack.allocPixels(yuv->imageInfo());
-                    yuv->readPixels(readBack.pixmap(), 0, 0);
+                    SkAssertResult(yuv->readPixels(readBack.pixmap(), 0, 0));
                     canvas->drawBitmap(readBack, x, y);
                 }
                 x += kTileWidthHeight + kPad;
             }
         }
+        return DrawResult::kOk;
     }
 
 private:
