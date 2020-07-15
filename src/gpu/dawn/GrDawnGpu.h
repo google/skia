@@ -14,6 +14,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 
 #include <unordered_map>
@@ -36,6 +37,9 @@ public:
 
     void disconnect(DisconnectType) override;
 
+    GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
+    void takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer>) override;
+
     const wgpu::Device& device() const { return fDevice; }
     const wgpu::Queue&  queue() const { return fQueue; }
 
@@ -53,7 +57,6 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
-    std::unique_ptr<GrStagingBuffer> createStagingBuffer(size_t size) override;
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -96,6 +99,8 @@ public:
     wgpu::CommandEncoder getCopyEncoder();
     void flushCopyEncoder();
     void appendCommandBuffer(wgpu::CommandBuffer commandBuffer);
+
+    void waitOnAllBusyStagingBuffers();
 
 private:
     GrDawnGpu(GrDirectContext*, const GrContextOptions&, const wgpu::Device&);
@@ -187,7 +192,8 @@ private:
 
     bool onSubmitToGpu(bool syncCpu) override;
 
-    void mapStagingBuffers();
+    void moveStagingBuffersToBusyAndMapAsync();
+    void checkForCompletedStagingBuffers();
 
     wgpu::Device                                    fDevice;
     wgpu::Queue                                     fQueue;
@@ -196,6 +202,12 @@ private:
     GrDawnRingBuffer                                fUniformRingBuffer;
     wgpu::CommandEncoder                            fCopyEncoder;
     std::vector<wgpu::CommandBuffer>                fCommandBuffers;
+    GrStagingBufferManager                          fStagingBufferManager;
+    std::list<sk_sp<GrGpuBuffer>>                   fBusyStagingBuffers;
+    // Temporary array of staging buffers to hold refs on the staging buffers between detaching
+    // from the GrStagingManager and moving them to the busy list which must happen after
+    // submission.
+    std::vector<sk_sp<GrGpuBuffer>>                 fSubmittedStagingBuffers;
 
     struct ProgramDescHash {
         uint32_t operator()(const GrProgramDesc& desc) const {
