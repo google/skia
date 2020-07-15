@@ -204,10 +204,10 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrRenderTargetContext* rtc) override;
 
-    static GrSubRun* MakePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                               bool isAntiAliased,
-                               const SkStrikeSpec& strikeSpec,
-                               SkArenaAlloc* alloc);
+    static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                          bool isAntiAliased,
+                          const SkStrikeSpec& strikeSpec,
+                          SkArenaAlloc* alloc);
 
 private:
     struct PathGlyph {
