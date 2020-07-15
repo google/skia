@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64dea4bb_5a5ca061",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-15T18:33:51Z",
+      "side": 1,
+      "message": "Just removing some unused (pretty sure) old API.\n\nThe G3 failure is one already failing test. Everything builds, which is the only real thing this affects.",
+      "revId": "f7b47afff186a64cff381fcd11dc8e07a3defddb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
