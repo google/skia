@@ -1686,10 +1686,11 @@ public:
         @param stream      writable SkWStream receiving SkPath text representation; may be nullptr
         @param forceClose  true if missing kClose_Verb is output
         @param dumpAsHex   true if SkScalar values are written as hexadecimal
+        @param relative    true if relative verbs (e.g. rLineTo) are used (excluding rMoveTo)
 
         example: https://fiddle.skia.org/c/@Path_dump
     */
-    void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const;
+    void dump(SkWStream* stream, bool forceClose, bool dumpAsHex, bool relative=false) const;
 
     /** Writes text representation of SkPath to standard output. The representation may be
         directly compiled as C++ code. Floating point values are written
@@ -1699,6 +1700,12 @@ public:
         example: https://fiddle.skia.org/c/@Path_dump_2
     */
     void dump() const;
+
+    /** Like dump() except relative commands (e.g. rLineTo) are used for all verbs
+        except moveTo(). Useful for extracting paths that can be easily repositioned
+        on a gm or viewer slide.
+    */
+    void rDump() const;
 
     /** Writes text representation of SkPath to standard output. The representation may be
         directly compiled as C++ code. Floating point values are written

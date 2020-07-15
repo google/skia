@@ -1887,7 +1887,8 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
 #include "src/core/SkStringUtils.h"
 
 static void append_params(SkString* str, const char label[], const SkPoint pts[],
-                          int count, SkScalarAsStringType strType, SkScalar conicWeight = -12345) {
+                          int count, SkScalarAsStringType strType, SkPoint* relP = NULL,
+                          SkScalar conicWeight = -12345) {
     str->append(label);
     str->append("(");
 
@@ -1895,7 +1896,11 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
     count *= 2;
 
     for (int i = 0; i < count; ++i) {
-        SkAppendScalar(str, values[i], strType);
+        SkScalar v = values[i];
+        if (relP!=NULL) {
+            v -= i%2 ? relP->fY : relP->fX;
+        }
+        SkAppendScalar(str, v, strType);
         if (i < count - 1) {
             str->append(", ");
         }
@@ -1921,11 +1926,13 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
     str->append("\n");
 }
 
-void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
+void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex, bool relative /*=false*/) const {
     SkScalarAsStringType asType = dumpAsHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;
-    Iter    iter(*this, forceClose);
-    SkPoint pts[4];
-    Verb    verb;
+    Iter        iter(*this, forceClose);
+    SkPoint     pts[4];
+    SkPoint*    relP;
+    Verb        verb;
+    const char* verbStr;
 
     SkString builder;
     char const * const gFillTypeStrs[] = {
@@ -1937,21 +1944,26 @@ void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
     builder.printf("path.setFillType(SkPathFillType::k%s);\n",
             gFillTypeStrs[(int) this->getFillType()]);
     while ((verb = iter.next(pts)) != kDone_Verb) {
+        relP = relative ? &pts[0] : NULL;
         switch (verb) {
             case kMove_Verb:
                 append_params(&builder, "path.moveTo", &pts[0], 1, asType);
                 break;
             case kLine_Verb:
-                append_params(&builder, "path.lineTo", &pts[1], 1, asType);
+                verbStr = relative ? "path.rLineTo" : "path.lineTo";
+                append_params(&builder, verbStr, &pts[1], 1, asType, relP);
                 break;
             case kQuad_Verb:
-                append_params(&builder, "path.quadTo", &pts[1], 2, asType);
+                verbStr = relative ? "path.rQuadTo" : "path.quadTo";
+                append_params(&builder, verbStr, &pts[1], 2, asType, relP);
                 break;
             case kConic_Verb:
-                append_params(&builder, "path.conicTo", &pts[1], 2, asType, iter.conicWeight());
+                verbStr = relative ? "path.rConicTo" : "path.conicTo";
+                append_params(&builder, verbStr, &pts[1], 2, asType, relP, iter.conicWeight());
                 break;
             case kCubic_Verb:
-                append_params(&builder, "path.cubicTo", &pts[1], 3, asType);
+                verbStr = relative ? "path.rCubicTo" : "path.cubicTo";
+                append_params(&builder, verbStr, &pts[1], 3, asType, relP);
                 break;
             case kClose_Verb:
                 builder.append("path.close();\n");
@@ -1973,6 +1985,10 @@ void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
 
 void SkPath::dump() const {
     this->dump(nullptr, false, false);
+}
+
+void SkPath::rDump() const {
+    this->dump(nullptr, false, false, true);
 }
 
 void SkPath::dumpHex() const {
