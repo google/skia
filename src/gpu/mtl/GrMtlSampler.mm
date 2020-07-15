@@ -48,7 +48,7 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
     };
 
     static_assert((int)GrSamplerState::Filter::kNearest == 0);
-    static_assert((int)GrSamplerState::Filter::kBilerp == 1);
+    static_assert((int)GrSamplerState::Filter::kLinear == 1);
     static_assert((int)GrSamplerState::Filter::kMipMap == 2);
 
     auto samplerDesc = [[MTLSamplerDescriptor alloc] init];

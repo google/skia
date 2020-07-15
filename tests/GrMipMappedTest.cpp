@@ -465,7 +465,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
 
         // Draw the dirty mipmap texture into a render target, but don't do mipmap filtering.
         rtc1 = draw_mipmap_into_new_render_target(context.get(), proxyProvider, colorType,
-                                                  alphaType, mipmapView, Filter::kBilerp);
+                                                  alphaType, mipmapView, Filter::kLinear);
 
         // Mipmaps should have gotten marked dirty during makeClosed() when adding the dependency.
         // Since the last draw did not use mips, they will not have been regenerated and should

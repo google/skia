@@ -139,7 +139,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
     };
 
     static_assert((int)GrSamplerState::Filter::kNearest == 0);
-    static_assert((int)GrSamplerState::Filter::kBilerp == 1);
+    static_assert((int)GrSamplerState::Filter::kLinear == 1);
     static_assert((int)GrSamplerState::Filter::kMipMap == 2);
 
     D3D12_FILTER filter = d3dFilterModes[static_cast<int>(params.filter())];

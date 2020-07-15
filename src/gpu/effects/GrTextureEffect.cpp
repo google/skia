@@ -31,7 +31,7 @@ struct GrTextureEffect::Sampling {
              const SkRect*,
              const float border[4],
              const GrCaps&,
-             SkVector bilerpInset = {0.5f, 0.5f});
+             SkVector linearFilterInset = {0.5f, 0.5f});
     inline bool hasBorderAlpha() const;
 };
 
@@ -41,7 +41,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     const SkRect* domain,
                                     const float border[4],
                                     const GrCaps& caps,
-                                    SkVector bilerpInset) {
+                                    SkVector linearFilterInset) {
     struct Span {
         float fA = 0.f, fB = 0.f;
 
@@ -65,7 +65,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
     auto type = proxy.asTextureProxy()->textureType();
     auto filter = sampler.filter();
 
-    auto resolve = [&](int size, Mode mode, Span subset, Span domain, float bilerpInset) {
+    auto resolve = [&](int size, Mode mode, Span subset, Span domain, float linearFilterInset) {
         Result1D r;
         bool canDoModeInHW = true;
         // TODO: Use HW border color when available.
@@ -97,7 +97,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
             // and GPU-specific snapping at the boundary).
             r.fShaderClamp = isubset.makeInset(0.5f);
         } else {
-            r.fShaderClamp = subset.makeInset(bilerpInset);
+            r.fShaderClamp = subset.makeInset(linearFilterInset);
             if (r.fShaderClamp.contains(domain)) {
                 domainIsSafe = true;
             }
@@ -121,12 +121,12 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
     Span subsetX{subset.fLeft, subset.fRight};
     auto domainX = domain ? Span{domain->fLeft, domain->fRight}
                           : Span{SK_FloatNegativeInfinity, SK_FloatInfinity};
-    auto x = resolve(dim.width(), sampler.wrapModeX(), subsetX, domainX, bilerpInset.fX);
+    auto x = resolve(dim.width(), sampler.wrapModeX(), subsetX, domainX, linearFilterInset.fX);
 
     Span subsetY{subset.fTop, subset.fBottom};
     auto domainY = domain ? Span{domain->fTop, domain->fBottom}
                           : Span{SK_FloatNegativeInfinity, SK_FloatInfinity};
-    auto y = resolve(dim.height(), sampler.wrapModeY(), subsetY, domainY, bilerpInset.fY);
+    auto y = resolve(dim.height(), sampler.wrapModeY(), subsetY, domainY, linearFilterInset.fY);
 
     fHWSampler = {x.fHWMode, y.fHWMode, filter};
     fShaderModes[0] = x.fShaderMode;
@@ -258,7 +258,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                           lazyProxyNormalization)));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeBilerpWithInset(
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeCustomLinearFilterInset(
         GrSurfaceProxyView view,
         SkAlphaType alphaType,
         const SkMatrix& matrix,
@@ -269,7 +269,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeBilerpWithInset(
         SkVector inset,
         const GrCaps& caps,
         const float border[4]) {
-    GrSamplerState sampler(wx, wy, GrSamplerState::Filter::kBilerp);
+    GrSamplerState sampler(wx, wy, GrSamplerState::Filter::kLinear);
     Sampling sampling(*view.proxy(), sampler, subset, domain, border, caps, inset);
     SkMatrix final;
     bool lazyProxyNormalization;
@@ -290,8 +290,8 @@ GrTextureEffect::ShaderMode GrTextureEffect::GetShaderMode(GrSamplerState::WrapM
             switch (filter) {
                 case GrSamplerState::Filter::kNearest:
                     return ShaderMode::kRepeatNearest;
-                case GrSamplerState::Filter::kBilerp:
-                    return ShaderMode::kRepeatBilerp;
+                case GrSamplerState::Filter::kLinear:
+                    return ShaderMode::kRepeatLinear;
                 case GrSamplerState::Filter::kMipMap:
                     return ShaderMode::kRepeatMipMap;
             }
@@ -371,7 +371,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
               case ShaderMode::kNone:                     return false;
               case ShaderMode::kClamp:                    return false;
               case ShaderMode::kRepeatNearest:            return true;
-              case ShaderMode::kRepeatBilerp:             return true;
+              case ShaderMode::kRepeatLinear:             return true;
               case ShaderMode::kRepeatMipMap:             return true;
               case ShaderMode::kMirrorRepeat:             return true;
               case ShaderMode::kClampToBorderNearest:     return true;
@@ -385,7 +385,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
               case ShaderMode::kNone:                     return false;
               case ShaderMode::kClamp:                    return true;
               case ShaderMode::kRepeatNearest:            return true;
-              case ShaderMode::kRepeatBilerp:             return true;
+              case ShaderMode::kRepeatLinear:             return true;
               case ShaderMode::kRepeatMipMap:             return true;
               case ShaderMode::kMirrorRepeat:             return true;
               case ShaderMode::kClampToBorderNearest:     return false;
@@ -402,7 +402,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
               case ShaderMode::kNone:                     return false;
               case ShaderMode::kClamp:                    return false;
               case ShaderMode::kRepeatNearest:            return false;
-              case ShaderMode::kRepeatBilerp:             return true;
+              case ShaderMode::kRepeatLinear:             return true;
               case ShaderMode::kRepeatMipMap:             return true;
               case ShaderMode::kMirrorRepeat:             return false;
               case ShaderMode::kClampToBorderNearest:     return true;
@@ -468,7 +468,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     fb->codeAppendf("subsetCoord.%s = inCoord.%s;", coordSwizzle, coordSwizzle);
                     break;
                 case ShaderMode::kRepeatNearest:
-                case ShaderMode::kRepeatBilerp:
+                case ShaderMode::kRepeatLinear:
                     fb->codeAppendf(
                             "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + "
                             "%s.%s;",
@@ -597,37 +597,37 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
             fb->codeAppendf("half4 textureColor = %s;", read("clampedCoord").c_str());
         }
 
-        // Strings for extra texture reads used only in kRepeatBilerp
-        SkString repeatBilerpReadX;
-        SkString repeatBilerpReadY;
+        // Strings for extra texture reads used only in kRepeatLinear
+        SkString repeatLinearReadX;
+        SkString repeatLinearReadY;
 
         // Calculate the amount the coord moved for clamping. This will be used
         // to implement shader-based filtering for kClampToBorder and kRepeat.
 
-        if (m[0] == ShaderMode::kRepeatBilerp || m[0] == ShaderMode::kClampToBorderFilter) {
+        if (m[0] == ShaderMode::kRepeatLinear || m[0] == ShaderMode::kClampToBorderFilter) {
             fb->codeAppend("half errX = half(subsetCoord.x - clampedCoord.x);");
-            if (m[0] == ShaderMode::kRepeatBilerp) {
+            if (m[0] == ShaderMode::kRepeatLinear) {
                 fb->codeAppendf("float repeatCoordX = errX > 0 ? %s.x : %s.z;",
                                 clampName, clampName);
-                repeatBilerpReadX = read("float2(repeatCoordX, clampedCoord.y)");
+                repeatLinearReadX = read("float2(repeatCoordX, clampedCoord.y)");
             }
         }
-        if (m[1] == ShaderMode::kRepeatBilerp || m[1] == ShaderMode::kClampToBorderFilter) {
+        if (m[1] == ShaderMode::kRepeatLinear || m[1] == ShaderMode::kClampToBorderFilter) {
             fb->codeAppend("half errY = half(subsetCoord.y - clampedCoord.y);");
-            if (m[1] == ShaderMode::kRepeatBilerp) {
+            if (m[1] == ShaderMode::kRepeatLinear) {
                 fb->codeAppendf("float repeatCoordY = errY > 0 ? %s.y : %s.w;",
                                 clampName, clampName);
-                repeatBilerpReadY = read("float2(clampedCoord.x, repeatCoordY)");
+                repeatLinearReadY = read("float2(clampedCoord.x, repeatCoordY)");
             }
         }
 
-        // Add logic for kRepeatBilerp. Do 1 or 3 more texture reads depending
+        // Add logic for kRepeatLinear. Do 1 or 3 more texture reads depending
         // on whether both modes are kRepeat and whether we're near a single subset edge
         // or a corner. Then blend the multiple reads using the err values calculated
         // above.
         const char* ifStr = "if";
-        if (m[0] == ShaderMode::kRepeatBilerp && m[1] == ShaderMode::kRepeatBilerp) {
-            auto repeatBilerpReadXY = read("float2(repeatCoordX, repeatCoordY)");
+        if (m[0] == ShaderMode::kRepeatLinear && m[1] == ShaderMode::kRepeatLinear) {
+            auto repeatLinearReadXY = read("float2(repeatCoordX, repeatCoordY)");
             fb->codeAppendf(
                     "if (errX != 0 && errY != 0) {"
                     "    errX = abs(errX);"
@@ -635,23 +635,23 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     "                       mix(%s, %s, errX),"
                     "                       abs(errY));"
                     "}",
-                    repeatBilerpReadX.c_str(), repeatBilerpReadY.c_str(),
-                    repeatBilerpReadXY.c_str());
+                    repeatLinearReadX.c_str(), repeatLinearReadY.c_str(),
+                    repeatLinearReadXY.c_str());
             ifStr = "else if";
         }
-        if (m[0] == ShaderMode::kRepeatBilerp) {
+        if (m[0] == ShaderMode::kRepeatLinear) {
             fb->codeAppendf(
                     "%s (errX != 0) {"
                     "    textureColor = mix(textureColor, %s, abs(errX));"
                     "}",
-                    ifStr, repeatBilerpReadX.c_str());
+                    ifStr, repeatLinearReadX.c_str());
         }
-        if (m[1] == ShaderMode::kRepeatBilerp) {
+        if (m[1] == ShaderMode::kRepeatLinear) {
             fb->codeAppendf(
                     "%s (errY != 0) {"
                     "    textureColor = mix(textureColor, %s, abs(errY));"
                     "}",
-                    ifStr, repeatBilerpReadY.c_str());
+                    ifStr, repeatLinearReadY.c_str());
         }
 
         // Do soft edge shader filtering against border color for kClampToBorderFilter using
@@ -810,14 +810,14 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTest
                 filter = Filter::kNearest;
                 break;
             case 1:
-                filter = Filter::kBilerp;
+                filter = Filter::kLinear;
                 break;
             default:
                 filter = Filter::kMipMap;
                 break;
         }
     } else {
-        filter = testData->fRandom->nextBool() ? Filter::kBilerp : Filter::kNearest;
+        filter = testData->fRandom->nextBool() ? Filter::kLinear : Filter::kNearest;
     }
     GrSamplerState params(wrapModes, filter);
 

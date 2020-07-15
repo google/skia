@@ -176,7 +176,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                                                               *target->caps().shaderCaps(),
                                                               views, numActiveViews);
     } else {
-        auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kBilerp
+        auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kLinear
                                            : GrSamplerState::Filter::kNearest;
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                 target->allocator(), *target->caps().shaderCaps(), this->color(), false, views,
@@ -323,13 +323,13 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewViews(
-                        views, numActiveViews, GrSamplerState::Filter::kBilerp);
+                        views, numActiveViews, GrSamplerState::Filter::kLinear);
             } else {
                 reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewViews(
-                        views, numActiveViews, GrSamplerState::Filter::kBilerp);
+                        views, numActiveViews, GrSamplerState::Filter::kLinear);
             }
         } else {
-            auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kBilerp
+            auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kLinear
                                                : GrSamplerState::Filter::kNearest;
             reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(views, numActiveViews, filter);
         }
@@ -449,7 +449,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
         return GrDistanceFieldLCDTextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                   GrSamplerState::Filter::kBilerp, widthAdjust,
+                                                   GrSamplerState::Filter::kLinear, widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -461,12 +461,12 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                       fUseGammaCorrectDistanceTable);
         }
         return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                  GrSamplerState::Filter::kBilerp, correction,
+                                                  GrSamplerState::Filter::kLinear, correction,
                                                   fDFGPFlags, localMatrix);
 #else
         return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                  GrSamplerState::Filter::kBilerp,
-                                                  fDFGPFlags, localMatrix);
+                                                  GrSamplerState::Filter::kLinear, fDFGPFlags,
+                                                  localMatrix);
 #endif
     }
 }

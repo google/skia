@@ -35,7 +35,7 @@ static inline bool use_shader(bool textureIsAlphaOnly, const SkPaint& paint) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//  Helper functions for dropping src rect subset in bilerp mode.
+//  Helper functions for dropping src rect subset with GrSamplerState::Filter::kLinear.
 
 static const SkScalar kColorBleedTolerance = 0.001f;
 
@@ -79,10 +79,10 @@ static bool may_color_bleed(const SkRect& srcRect,
     return inner != outer;
 }
 
-static bool can_ignore_bilerp_subset(const GrTextureProducer& producer,
-                                     const SkRect& srcSubset,
-                                     const SkMatrix& srcRectToDeviceSpace,
-                                     int numSamples) {
+static bool can_ignore_linear_filtering_subset(const GrTextureProducer& producer,
+                                               const SkRect& srcSubset,
+                                               const SkMatrix& srcRectToDeviceSpace,
+                                               int numSamples) {
     if (srcRectToDeviceSpace.rectStaysRect()) {
         // sampling is axis-aligned
         SkRect transformedRect;
@@ -350,7 +350,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip* clip, const S
             filter = GrSamplerState::Filter::kNearest;
             break;
         case kLow_SkFilterQuality:
-            filter = GrSamplerState::Filter::kBilerp;
+            filter = GrSamplerState::Filter::kLinear;
             break;
         case kMedium_SkFilterQuality:
         case kHigh_SkFilterQuality:
@@ -361,9 +361,9 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip* clip, const S
     // rect would access pixels outside the proxy's content area without the constraint.
     if (constraint != SkCanvas::kStrict_SrcRectConstraint && !proxy->isFunctionallyExact()) {
         // Conservative estimate of how much a coord could be outset from src rect:
-        // 1/2 pixel for AA and 1/2 pixel for bilerp
+        // 1/2 pixel for AA and 1/2 pixel for linear filtering
         float buffer = 0.5f * (aa == GrAA::kYes) +
-                       0.5f * (filter == GrSamplerState::Filter::kBilerp);
+                       0.5f * (filter == GrSamplerState::Filter::kLinear);
         SkRect safeBounds = proxy->getBoundsRect();
         safeBounds.inset(buffer, buffer);
         if (!safeBounds.contains(srcRect)) {
@@ -444,12 +444,12 @@ static void draw_texture_producer(GrRecordingContext* context,
     // This is conservative as a mask filter does not have to expand the bounds rendered.
     bool coordsAllInsideSrcRect = aaFlags == GrQuadAAFlags::kNone && !mf;
 
-    // Check for optimization to drop the src rect constraint when on bilerp.
-    if (!doBicubic && fm == GrSamplerState::Filter::kBilerp && restrictToSubset &&
+    // Check for optimization to drop the src rect constraint when using linear filtering.
+    if (!doBicubic && fm == GrSamplerState::Filter::kLinear && restrictToSubset &&
         coordsAllInsideSrcRect) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(ctm, srcToDst);
-        if (can_ignore_bilerp_subset(*producer, src, combinedMatrix, rtc->numSamples())) {
+        if (can_ignore_linear_filtering_subset(*producer, src, combinedMatrix, rtc->numSamples())) {
             restrictToSubset = false;
         }
     }
@@ -780,8 +780,9 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         return;
     }
 
-    GrSamplerState::Filter filter = kNone_SkFilterQuality == paint.getFilterQuality() ?
-            GrSamplerState::Filter::kNearest : GrSamplerState::Filter::kBilerp;
+    GrSamplerState::Filter filter = kNone_SkFilterQuality == paint.getFilterQuality()
+                                            ? GrSamplerState::Filter::kNearest
+                                            : GrSamplerState::Filter::kLinear;
     SkBlendMode mode = paint.getBlendMode();
 
     SkAutoTArray<GrRenderTargetContext::TextureSetEntry> textures(count);

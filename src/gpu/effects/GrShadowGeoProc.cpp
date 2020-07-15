@@ -61,7 +61,7 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView)
     this->setVertexAttributes(&fInPosition, 3);
 
     SkASSERT(lutView.proxy());
-    fLUTTextureSampler.reset(GrSamplerState::Filter::kBilerp, lutView.proxy()->backendFormat(),
+    fLUTTextureSampler.reset(GrSamplerState::Filter::kLinear, lutView.proxy()->backendFormat(),
                              lutView.swizzle());
     this->setTextureSamplerCnt(1);
 }

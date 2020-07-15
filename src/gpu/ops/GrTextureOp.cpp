@@ -561,11 +561,12 @@ private:
             }
 
             if (netFilter != filter && filter_has_effect(quad.fLocal, quad.fDevice)) {
-                // The only way netFilter != filter is if bilerp is requested and we haven't yet
-                // found a quad that requires bilerp (so net is still nearest).
+                // The only way netFilter != filter is if linear filtering is requested and we
+                // haven't yet found a quad that requires linear filtering (so net is still
+                // nearest).
                 SkASSERT(netFilter == GrSamplerState::Filter::kNearest &&
-                         filter == GrSamplerState::Filter::kBilerp);
-                netFilter = GrSamplerState::Filter::kBilerp;
+                         filter == GrSamplerState::Filter::kLinear);
+                netFilter = GrSamplerState::Filter::kLinear;
             }
 
             // Update overall bounds of the op as the union of all quads

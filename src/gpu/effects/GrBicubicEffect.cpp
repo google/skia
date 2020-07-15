@@ -326,7 +326,7 @@ bool GrBicubicEffect::ShouldUseBicubic(const SkMatrix& matrix, GrSamplerState::F
             *filterMode = GrSamplerState::Filter::kNearest;
             break;
         case kLow_SkFilterQuality:
-            *filterMode = GrSamplerState::Filter::kBilerp;
+            *filterMode = GrSamplerState::Filter::kLinear;
             break;
         case kMedium_SkFilterQuality:
             *filterMode = GrSamplerState::Filter::kMipMap;

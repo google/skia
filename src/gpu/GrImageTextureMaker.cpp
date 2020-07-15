@@ -70,10 +70,11 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     }
 
     // Check to see if the client has given us pre-mipped textures or we can generate them
-    // If not, fall back to bilerp. Also fall back to bilerp when a domain is requested
+    // If not, fall back to linear filtering. Also fall back to linear filtering when a domain is
+    // requested.
     if (samplerState.filter() == GrSamplerState::Filter::kMipMap &&
         (subset || !fImage->setupMipmapsForPlanes(this->context()))) {
-        samplerState.setFilterMode(GrSamplerState::Filter::kBilerp);
+        samplerState.setFilterMode(GrSamplerState::Filter::kLinear);
     }
 
     const auto& caps = *fImage->context()->priv().caps();

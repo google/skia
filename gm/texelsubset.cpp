@@ -50,7 +50,7 @@ protected:
             case GrSamplerState::Filter::kNearest:
                 name.append("_nearest");
                 break;
-            case GrSamplerState::Filter::kBilerp:
+            case GrSamplerState::Filter::kLinear:
                 name.append("_bilerp");
                 break;
             case GrSamplerState::Filter::kMipMap:
@@ -210,8 +210,8 @@ private:
 
 DEF_GM(return new TexelSubset(GrSamplerState::Filter::kNearest, false);)
 DEF_GM(return new TexelSubset(GrSamplerState::Filter::kNearest, true);)
-DEF_GM(return new TexelSubset(GrSamplerState::Filter::kBilerp , false);)
-DEF_GM(return new TexelSubset(GrSamplerState::Filter::kBilerp , true);)
+DEF_GM(return new TexelSubset(GrSamplerState::Filter::kLinear , false);)
+DEF_GM(return new TexelSubset(GrSamplerState::Filter::kLinear , true);)
 // It doesn't make sense to have upscaling MIP map.
 DEF_GM(return new TexelSubset(GrSamplerState::Filter::kMipMap,  false);)
 

@@ -68,7 +68,7 @@ GrSurfaceProxyView GrTextureAdjuster::onView(GrMipMapped mipMapped) {
     if (!copy) {
         // If we were unable to make a copy and we only needed a copy for mips, then we will return
         // the source texture here and require that the GPU backend is able to fall back to using
-        // bilerp if mips are required.
+        // linear filtering if mips are required.
         return fOriginal;
     }
     SkASSERT(copy.asTextureProxy());

@@ -76,7 +76,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
                                                                    GrColorType::kAlpha_8);
         GrSurfaceProxyView view{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
         return GrTextureEffect::Make(
-                std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kBilerp);
+                std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
     }
 
     SkBitmap bitmap;
@@ -102,7 +102,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
     SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
     return GrTextureEffect::Make(
-            std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kBilerp);
+            std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
 }
 }
 
@@ -145,7 +145,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
          bool isFast = insetRect.isSorted();
          return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
                     std::move(inputFP), insetRect, std::move(integral),
-                    isFast, GrSamplerState::Filter::kBilerp));
+                    isFast, GrSamplerState::Filter::kLinear));
      }
 }
 

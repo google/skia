@@ -305,13 +305,13 @@ static GrSurfaceProxyView decimate(GrRecordingContext* context,
         if (i == 1) {
             GrSamplerState::WrapMode wrapMode = SkTileModeToWrapMode(mode);
             const auto& caps = *context->priv().caps();
-            GrSamplerState sampler(wrapMode, GrSamplerState::Filter::kBilerp);
+            GrSamplerState sampler(wrapMode, GrSamplerState::Filter::kLinear);
             fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
                                              sampler, SkRect::Make(*contentRect), caps);
             srcRect.offset(-srcOffset);
         } else {
             fp = GrTextureEffect::Make(std::move(srcView), srcAlphaType, SkMatrix::I(),
-                                       GrSamplerState::Filter::kBilerp);
+                                       GrSamplerState::Filter::kLinear);
         }
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -368,7 +368,7 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(GrRecordingContext* conte
     GrPaint paint;
     const auto& caps = *context->priv().caps();
     auto fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
-                                          GrSamplerState::Filter::kBilerp, SkRect::Make(srcBounds),
+                                          GrSamplerState::Filter::kLinear, SkRect::Make(srcBounds),
                                           caps);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

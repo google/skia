@@ -448,7 +448,7 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int image
         case kNone_SkFilterQuality:
             return GrSamplerState::Filter::kNearest;
         case kLow_SkFilterQuality:
-            return GrSamplerState::Filter::kBilerp;
+            return GrSamplerState::Filter::kLinear;
         case kMedium_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
@@ -465,7 +465,7 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int image
                 return GrSamplerState::Filter::kMipMap;
             } else {
                 // Don't trigger MIP level generation unnecessarily.
-                return GrSamplerState::Filter::kBilerp;
+                return GrSamplerState::Filter::kLinear;
             }
         }
         case kHigh_SkFilterQuality: {
