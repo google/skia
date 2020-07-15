@@ -47,7 +47,7 @@ const MaskInfo* GetMaskInfo(char mode) {
     static constexpr MaskInfo k_sub_info =
         { SkBlendMode::kSrcIn     , sksg::Merge::Mode::kIntersect , true  };
     static constexpr MaskInfo k_dif_info =
-        { SkBlendMode::kDifference, sksg::Merge::Mode::kDifference, false };
+        { SkBlendMode::kXor       , sksg::Merge::Mode::kXOR       , false };
 
     switch (mode) {
     case 'a': return &k_add_info;
