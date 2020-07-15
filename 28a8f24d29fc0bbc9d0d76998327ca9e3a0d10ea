@@ -141,6 +141,24 @@
       "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1da179a3_3a65c257",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-15T13:12:03Z",
+      "side": 1,
+      "message": "I have a TODO to remove the modulation from texture effect. Why don\u0027t you land what you have, and when I remove use of input from TE we can revisit this?",
+      "parentUuid": "2dd9a203_75ba3e56",
+      "revId": "28a8f24d29fc0bbc9d0d76998327ca9e3a0d10ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
