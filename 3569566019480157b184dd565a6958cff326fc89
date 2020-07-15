@@ -16,6 +16,24 @@
       "revId": "3569566019480157b184dd565a6958cff326fc89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0734a756_4e494a8e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-15T18:10:05Z",
+      "side": 1,
+      "message": "Also, if we do decide to take this, can you cherry-pick to android/next-release? It doesn\u0027t merge cleanly.",
+      "parentUuid": "995dfed9_c47839f0",
+      "revId": "3569566019480157b184dd565a6958cff326fc89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
