@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "377b1337_e940dedd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-15T15:19:04Z",
+      "side": 1,
+      "message": "I\u0027m going to change things so we don\u0027t need this method, but for the time being it\u0027s easiest to just implement it where needed now.",
+      "revId": "97c270d0fe43b0c2b149dc6aa6d82622c51e64dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
