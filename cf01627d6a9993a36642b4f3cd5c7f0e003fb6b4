@@ -22,6 +22,30 @@
       "revId": "cf01627d6a9993a36642b4f3cd5c7f0e003fb6b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d785f21e_81337f4d",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-15T16:59:08Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "effb25b1_01778ec8",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 4
+      },
+      "revId": "cf01627d6a9993a36642b4f3cd5c7f0e003fb6b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
