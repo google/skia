@@ -34,6 +34,24 @@
       "revId": "14fdcdc891cc2f2f795354890b09ac528f3387c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72a12ec0_f24978b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-15T14:23:31Z",
+      "side": 1,
+      "message": "Yeah that was my thought as well, but looking at everything else right before we started getting corruption looks fine. I think I may speculatively revert this, we can see what happens to the bots, then it is easy enough to reland if this isn\u0027t to the culprit.",
+      "parentUuid": "428cec10_09fc35f0",
+      "revId": "14fdcdc891cc2f2f795354890b09ac528f3387c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
