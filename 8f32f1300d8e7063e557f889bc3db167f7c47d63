@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c446aeb6_86c5cf13",
+        "filename": "src/gpu/GrSamplerState.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-15T18:50:18Z",
+      "side": 0,
+      "message": "Moving away from shifts by design since that only keeps things tightly packed with pow2 # of value fields.",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 38
+      },
+      "revId": "8f32f1300d8e7063e557f889bc3db167f7c47d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
