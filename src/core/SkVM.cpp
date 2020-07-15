@@ -3254,11 +3254,6 @@ namespace skvm {
                     (void)constants[immy];
                     break;
 
-                case Op::to_half:
-                case Op::from_half:
-                    // TODO
-                    return false;
-
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
                     a->vptest (r(x), &constants[0xffffffff]);
@@ -3517,6 +3512,17 @@ namespace skvm {
                     if (in_reg(x)) { a->vcvtps2dq(dst(x),  r(x)); }
                     else           { a->vcvtps2dq(dst(), any(x)); }
                                      break;
+
+                case Op::to_half:
+                    a->vcvtps2ph(dst(x), r(x), A::CURRENT);  // f32 ymm -> f16 xmm
+                    a->vpmovzxwd(dst(), dst());              // f16 xmm -> f16 ymm
+                    break;
+
+                case Op::from_half:
+                    a->vpackusdw(dst(x), r(x), r(x));  // f16 ymm -> f16 xmm
+                    a->vpermq   (dst(), dst(), 0xd8);  // swap middle two 64-bit lanes
+                    a->vcvtph2ps(dst(), dst());        // f16 xmm -> f32 ymm
+                    break;
 
             #elif defined(__aarch64__)
                 default:  // TODO
