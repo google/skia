@@ -97,9 +97,7 @@ private:
     const GrVkImageView* fTextureView;
 
     struct SamplerHash {
-        uint32_t operator()(GrSamplerState state) const {
-            return GrSamplerState::GenerateKey(state);
-        }
+        uint32_t operator()(GrSamplerState state) const { return state.asIndex(); }
     };
     struct DescriptorCacheEntry;
     SkLRUCache<const GrSamplerState, std::unique_ptr<DescriptorCacheEntry>, SamplerHash>
