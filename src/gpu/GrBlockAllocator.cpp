@@ -131,24 +131,19 @@ void GrBlockAllocator::releaseBlock(Block* block) {
 }
 
 void GrBlockAllocator::reset() {
-    // We can't use the RBlocks for-range since we're destroying the linked list as we go
-    Block* toFree = fTail;
-    while(toFree) {
-        Block* prev = toFree->fPrev;
-        if (prev) {
-            SkASSERT(toFree != &fHead);
-            delete toFree;
+    for (Block* b : this->rblocks()) {
+        if (b == &fHead) {
+            // Reset metadata and cursor, tail points to the head block again
+            fTail = b;
+            b->fNext = nullptr;
+            b->fCursor = kDataStart;
+            b->fMetadata = 0;
         } else {
-            SkASSERT(toFree == &fHead);
-            fTail = toFree;
-            // the head block's prev is already null, it's next block was deleted last iteration
-            fTail->fNext = nullptr;
-            fTail->fCursor = kDataStart;
-            fTail->fMetadata = 0;
+            delete b;
         }
-
-        toFree = prev;
     }
+    SkASSERT(fTail == &fHead && fHead.fNext == nullptr &&
+             fHead.metadata() == 0 && fHead.fCursor == kDataStart);
 
     GrowthPolicy gp = static_cast<GrowthPolicy>(fGrowthPolicy);
     fN0 = (gp == GrowthPolicy::kLinear || gp == GrowthPolicy::kExponential) ? 1 : 0;
