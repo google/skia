@@ -15,7 +15,6 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 
-class GrContext;
 class GrCoverageCountingPathRenderer;
 
 /**

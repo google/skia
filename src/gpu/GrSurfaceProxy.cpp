@@ -8,13 +8,11 @@
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -26,6 +24,8 @@
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
 #ifdef SK_DEBUG
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
