@@ -25,6 +25,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/image/SkImage_Base.h"
 
@@ -469,6 +470,9 @@ static void draw_texture_producer(GrRecordingContext* context,
         fp = producer->createBicubicFragmentProcessor(textureMatrix, subset, domain, wm, wm);
     } else {
         fp = producer->createFragmentProcessor(textureMatrix, subset, domain, {wm, fm});
+    }
+    if (fp) {
+        fp = GrXfermodeFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
     }
     fp = GrColorSpaceXformEffect::Make(std::move(fp),
                                        producer->colorSpace(), producer->alphaType(),

@@ -248,6 +248,7 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         const GrFPArgs& args) const {
@@ -312,7 +313,9 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     } else {
         fp = producer->createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm});
     }
-
+    if (fp) {
+        fp = GrXfermodeFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
+    }
     fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->colorSpace(), producer->alphaType(),
                                        args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
     if (!fp) {

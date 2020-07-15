@@ -154,12 +154,13 @@ static void run(GrRecordingContext* ctx, GrRenderTargetContext* rtc, bool subset
             // Draw the src subset in the tile mode faded as a reference before drawing the blur
             // on top.
             {
+                static constexpr float kAlpha = 0.2f;
                 auto fp = GrTextureEffect::MakeSubset(src, kPremul_SkAlphaType, SkMatrix::I(),
                                                       sampler, SkRect::Make(srcRect), caps);
+                fp = GrFragmentProcessor::ModulateRGBA(std::move(fp),
+                                                       {kAlpha, kAlpha, kAlpha, kAlpha});
                 GrPaint paint;
                 paint.addColorFragmentProcessor(std::move(fp));
-                static constexpr float kAlpha = 0.2f;
-                paint.setColor4f({kAlpha, kAlpha, kAlpha, kAlpha});
                 rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, m, SkRect::Make(testArea));
             }
             // If we're in ref mode we will create a temp image that has the original image
