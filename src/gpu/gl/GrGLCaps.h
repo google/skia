@@ -481,7 +481,6 @@ private:
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
-                                           const GrGLInterface*,
                                            GrShaderCaps*, FormatWorkarounds*);
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
