@@ -38,7 +38,6 @@ uniform half4 circleData;
 }
 
 @cpp {
-    #include "include/gpu/GrContext.h"
     #include "include/gpu/GrRecordingContext.h"
     #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrProxyProvider.h"
