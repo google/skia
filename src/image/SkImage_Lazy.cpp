@@ -531,14 +531,14 @@ void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::DecodeToTexture(GrContext* ctx, const void* encoded, size_t length,
-                                        const SkIRect* subset) {
+sk_sp<SkImage> SkImage::DecodeToTexture(GrDirectContext* direct, const void* encoded,
+                                        size_t length, const SkIRect* subset) {
     // img will not survive this function, so we don't need to copy/own the encoded data,
     auto img = MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length), subset);
     if (!img) {
         return nullptr;
     }
-    return img->makeTextureImage(ctx);
+    return img->makeTextureImage(direct);
 }
 
 #endif
