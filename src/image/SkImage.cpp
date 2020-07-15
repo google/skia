@@ -189,7 +189,6 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, GrDirectContext* direc
         direct = GrAsDirectContext(myContext);
     }
 #endif
-    // This check is also performed in the subclass, but we do it here for the short-circuit below.
     if (myContext && !myContext->priv().matches(direct)) {
         return nullptr;
     }
@@ -434,29 +433,36 @@ bool SkImage::isLazyGenerated() const {
 
 bool SkImage::isAlphaOnly() const { return SkColorTypeIsAlphaOnly(fInfo.colorType()); }
 
-sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target, GrDirectContext* direct) const {
-    return this->makeColorTypeAndColorSpace(this->colorType(), std::move(target), direct);
+sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
+    if (!target) {
+        return nullptr;
+    }
+
+    // No need to create a new image if:
+    // (1) The color spaces are equal.
+    // (2) The color type is kAlpha8.
+    SkColorSpace* colorSpace = this->colorSpace();
+    if (!colorSpace) {
+        colorSpace = sk_srgb_singleton();
+    }
+    if (SkColorSpace::Equals(colorSpace, target.get()) || this->isAlphaOnly()) {
+        return sk_ref_sp(const_cast<SkImage*>(this));
+    }
+
+    // CONTEXT TODO: propagate the context parameter to the top-level API
+#if SK_SUPPORT_GPU
+    return as_IB(this)->onMakeColorTypeAndColorSpace(as_IB(this)->context(),
+#else
+    return as_IB(this)->onMakeColorTypeAndColorSpace(nullptr,
+#endif
+                                                     this->colorType(), std::move(target));
 }
 
 sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
-                                                   sk_sp<SkColorSpace> targetColorSpace,
-                                                   GrDirectContext* direct) const {
+                                                   sk_sp<SkColorSpace> targetColorSpace) const {
     if (kUnknown_SkColorType == targetColorType || !targetColorSpace) {
         return nullptr;
     }
-
-#if SK_SUPPORT_GPU
-    auto myContext = as_IB(this)->context();
-#ifdef SK_IMAGE_MAKE_COLOR_TYPE_AND_SPACE_USE_SOURCE_CONTEXT
-    if (!direct) {
-        direct = GrAsDirectContext(myContext);
-    }
-#endif
-    // This check is also performed in the subclass, but we do it here for the short-circuit below.
-    if (myContext && !myContext->priv().matches(direct)) {
-        return nullptr;
-    }
-#endif
 
     SkColorType colorType = this->colorType();
     SkColorSpace* colorSpace = this->colorSpace();
@@ -468,8 +474,13 @@ sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    return as_IB(this)->onMakeColorTypeAndColorSpace(targetColorType,
-                                                     std::move(targetColorSpace), direct);
+    // CONTEXT TODO: propagate the context parameter to the top-level API
+#if SK_SUPPORT_GPU
+    return as_IB(this)->onMakeColorTypeAndColorSpace(as_IB(this)->context(),
+#else
+    return as_IB(this)->onMakeColorTypeAndColorSpace(nullptr,
+#endif
+                                                     targetColorType, std::move(targetColorSpace));
 }
 
 sk_sp<SkImage> SkImage::reinterpretColorSpace(sk_sp<SkColorSpace> target) const {
