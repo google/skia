@@ -868,7 +868,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorS
     std::copy_n(baseM + 5, 5, uM + 15);
     GrPaint uPaint;
     auto uTexFP = GrTextureEffect::Make(srcView, this->colorInfo().alphaType(), texMatrix,
-                                        GrSamplerState::Filter::kBilerp);
+                                        GrSamplerState::Filter::kLinear);
     auto uColFP = GrColorMatrixFragmentProcessor::Make(std::move(uTexFP), uM,
                                                        /*unpremulInput=*/false,
                                                        /*clampRGBOutput=*/true,
@@ -892,7 +892,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorS
     std::copy_n(baseM + 10, 5, vM + 15);
     GrPaint vPaint;
     auto vTexFP = GrTextureEffect::Make(std::move(srcView), this->colorInfo().alphaType(),
-                                        texMatrix, GrSamplerState::Filter::kBilerp);
+                                        texMatrix, GrSamplerState::Filter::kLinear);
     auto vColFP = GrColorMatrixFragmentProcessor::Make(std::move(vTexFP), vM,
                                                        /*unpremulInput=*/false,
                                                        /*clampRGBOutput=*/true,
@@ -1129,7 +1129,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
                                     dstRect);
         } else {
             auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
-                                                                  : GrSamplerState::Filter::kBilerp;
+                                                                  : GrSamplerState::Filter::kLinear;
             // Minimizing draw with integer coord src and dev rects can always be kFast.
             auto constraint = SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint;
             if (nextDims.width() <= srcRect.width() && nextDims.height() <= srcRect.height()) {
