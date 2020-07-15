@@ -130,8 +130,8 @@ public:
     virtual bool onPinAsTexture(GrContext*) const { return false; }
     virtual void onUnpinAsTexture(GrContext*) const {}
 
-    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
-                                                        GrDirectContext*) const = 0;
+    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
+                                                        SkColorType, sk_sp<SkColorSpace>) const = 0;
 
     virtual sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const = 0;
 

@@ -47,8 +47,8 @@ public:
         return true;
     }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
+                                                SkColorType, sk_sp<SkColorSpace>) const final;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
@@ -86,7 +86,7 @@ public:
                                                  PromiseImageApiVersion);
 
 private:
-    SkImage_GpuYUVA(sk_sp<GrContext>, const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
+    SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
 
     void flattenToRGB(GrRecordingContext*) const;
 

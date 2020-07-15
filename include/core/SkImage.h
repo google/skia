@@ -1364,17 +1364,12 @@ public:
         Otherwise, converts pixels from SkImage SkColorSpace to target SkColorSpace.
         If SkImage colorSpace() returns nullptr, SkImage SkColorSpace is assumed to be sRGB.
 
-        If this image is texture-backed, the context parameter is required and must match the
-        context of the source image.
-
         @param target  SkColorSpace describing color range of returned SkImage
-        @param direct  The GrDirectContext in play, if it exists
         @return        created SkImage in target SkColorSpace
 
         example: https://fiddle.skia.org/c/@Image_makeColorSpace
     */
-    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
-                                  GrDirectContext* direct = nullptr) const;
+    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
 
     /** Experimental.
         Creates SkImage in target SkColorType and SkColorSpace.
@@ -1382,17 +1377,12 @@ public:
 
         Returns original SkImage if it is in target SkColorType and SkColorSpace.
 
-        If this image is texture-backed, the context parameter is required and must match the
-        context of the source image.
-
         @param targetColorType  SkColorType of returned SkImage
         @param targetColorSpace SkColorSpace of returned SkImage
-        @param direct           The GrDirectContext in play, if it exists
         @return                 created SkImage in target SkColorType and SkColorSpace
     */
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkColorType targetColorType,
-                                              sk_sp<SkColorSpace> targetColorSpace,
-                                              GrDirectContext* direct = nullptr) const;
+                                              sk_sp<SkColorSpace> targetColorSpace) const;
 
     /** Creates a new SkImage identical to this one, but with a different SkColorSpace.
         This does not convert the underlying pixel data, so the resulting image will draw
