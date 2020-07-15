@@ -305,6 +305,8 @@ public:
      *   for (const Block* b : this->blocks()) { }
      * Reverse iteration from tail to head block:
      *   for (const Block* b : this->rblocks()) { }
+     *
+     * It is safe to call releaseBlock() on the active block while looping.
      */
     inline BlockIter<true, false> blocks();
     inline BlockIter<true, true> blocks() const;
@@ -538,11 +540,12 @@ bool GrBlockAllocator::Block::release(int start, int end) {
 ///////// Block iteration
 template <bool Forward, bool Const>
 class GrBlockAllocator::BlockIter {
-public:
+private:
     using BlockT = typename std::conditional<Const, const Block, Block>::type;
     using AllocatorT =
             typename std::conditional<Const, const GrBlockAllocator, GrBlockAllocator>::type;
 
+public:
     BlockIter(AllocatorT* allocator) : fAllocator(allocator) {}
 
     class Item {
@@ -552,16 +555,23 @@ public:
         BlockT* operator*() const { return fBlock; }
 
         Item& operator++() {
-            fBlock = Forward ? fBlock->fNext : fBlock->fPrev;
+            this->advance(fNext);
             return *this;
         }
 
     private:
         friend BlockIter;
 
-        Item(BlockT* block) : fBlock(block) {}
+        Item(BlockT* block) { this->advance(block); }
+
+        void advance(BlockT* block) {
+            fBlock = block;
+            fNext = block ? (Forward ? block->fNext : block->fPrev) : nullptr;
+        }
 
         BlockT* fBlock;
+        // Cache this before operator++ so that fBlock can be released during iteration
+        BlockT* fNext;
     };
 
     Item begin() const { return Item(Forward ? &fAllocator->fHead : fAllocator->fTail); }
