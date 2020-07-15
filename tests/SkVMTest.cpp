@@ -34,16 +34,6 @@ static void dump(skvm::Builder& builder, SkWStream* o) {
 
 template <typename Fn>
 static void test_jit_and_interpreter(skvm::Program&& program, Fn&& test) {
-#if defined(SKVM_LLVM)
-    SkASSERT(program.hasJIT());
-#elif defined(SKVM_JIT) && defined(SK_CPU_X86)
-    SkASSERT(program.hasJIT() == SkCpu::Supports(SkCpu::HSW));
-#elif defined(SKVM_JIT)                         // eventually!
-    //SkASSERT(program.hasJIT());
-#else
-    SkASSERT(!program.hasJIT());
-#endif
-
     if (program.hasJIT()) {
         test((const skvm::Program&) program);
         program.dropJIT();
