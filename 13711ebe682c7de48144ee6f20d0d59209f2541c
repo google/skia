@@ -46,6 +46,30 @@
       "revId": "13711ebe682c7de48144ee6f20d0d59209f2541c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4619a01f_21df0aca",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-15T14:34:30Z",
+      "side": 0,
+      "message": "Thanks for the context!",
+      "parentUuid": "40069b57_a4e3aba3",
+      "range": {
+        "startLine": 449,
+        "startChar": 30,
+        "endLine": 449,
+        "endChar": 55
+      },
+      "revId": "13711ebe682c7de48144ee6f20d0d59209f2541c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
