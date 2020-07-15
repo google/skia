@@ -490,6 +490,74 @@ static inline Vec<N,float> fract(const Vec<N,float>& x) {
     return x - floor(x);
 }
 
+// The default cases for to_half/from_half are borrowed from skcms,
+// and assume inputs are finite and treat/flush denorm half floats as/to zero.
+// Key constants to watch for:
+//    - a float is 32-bit, 1-8-23 sign-exponent-mantissa, with 127 exponent bias;
+//    - a half  is 16-bit, 1-5-10 sign-exponent-mantissa, with  15 exponent bias.
+template <int N>
+static inline Vec<N,uint16_t> to_half_finite_ftz(const Vec<N,float>& x) {
+    Vec<N,uint32_t> sem = bit_pun<Vec<N,uint32_t>>(x),
+                    s   = sem & 0x8000'0000,
+                     em = sem ^ s,
+              is_denorm =  em < 0x3880'0000;
+    return cast<uint16_t>(if_then_else(is_denorm, Vec<N,uint32_t>(0)
+                                                , (s>>16) + (em>>13) - ((127-15)<<10)));
+}
+template <int N>
+static inline Vec<N,float> from_half_finite_ftz(const Vec<N,uint16_t>& x) {
+    Vec<N,uint32_t> wide = cast<uint32_t>(x),
+                      s  = wide & 0x8000,
+                      em = wide ^ s;
+    auto is_denorm = bit_pun<Vec<N,int32_t>>(em < 0x0400);
+    return if_then_else(is_denorm, Vec<N,float>(0)
+                                 , bit_pun<Vec<N,float>>( (s<<16) + (em<<13) + ((127-15)<<23) ));
+}
+
+// Like if_then_else(), these N=1 base cases won't actually be used unless explicitly called.
+static inline Vec<1,uint16_t> to_half(const Vec<1,float>&    x) { return   to_half_finite_ftz(x); }
+static inline Vec<1,float>  from_half(const Vec<1,uint16_t>& x) { return from_half_finite_ftz(x); }
+
+template <int N>
+static inline Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
+#if defined(__F16C__)
+    if /*constexpr*/ (N == 8) {
+        return unchecked_bit_pun<Vec<N,uint16_t>>(_mm256_cvtps_ph(unchecked_bit_pun<__m256>(x),
+                                                                  _MM_FROUND_CUR_DIRECTION));
+    }
+#endif
+#if defined(__aarch64__)
+    if /*constexpr*/ (N == 4) {
+        return unchecked_bit_pun<Vec<N,uint16_t>>(vcvt_f16_f32(unchecked_bit_pun<float32x4_t>(x)));
+
+    }
+#endif
+    if /*constexpr*/ (N > 4) {
+        return join(to_half(x.lo),
+                    to_half(x.hi));
+    }
+    return to_half_finite_ftz(x);
+}
+
+template <int N>
+static inline Vec<N,float> from_half(const Vec<N,uint16_t>& x) {
+#if defined(__F16C__)
+    if /*constexpr*/ (N == 8) {
+        return unchecked_bit_pun<Vec<N,float>>(_mm256_cvtph_ps(unchecked_bit_pun<__m128i>(x)));
+    }
+#endif
+#if defined(__aarch64__)
+    if /*constexpr*/ (N == 4) {
+        return unchecked_bit_pun<Vec<N,float>>(vcvt_f32_f16(unchecked_bit_pun<uint16x4_t>(x)));
+    }
+#endif
+    if /*constexpr*/ (N > 4) {
+        return join(from_half(x.lo),
+                    from_half(x.hi));
+    }
+    return from_half_finite_ftz(x);
+}
+
 
 // div255(x) = (x + 127) / 255 is a bit-exact rounding divide-by-255, packing down to 8-bit.
 template <int N>

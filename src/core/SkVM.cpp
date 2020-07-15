@@ -8,6 +8,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/SkChecksum.h"
+#include "include/private/SkHalf.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkThreadID.h"
@@ -320,11 +321,13 @@ namespace skvm {
             case Op::select:  write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
             case Op::pack:    write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}, fs(id)...); break;
 
-            case Op::ceil:   write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::floor:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::to_f32: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::trunc:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::round:  write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::ceil:      write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::floor:     write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::to_f32:    write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::to_half:   write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::from_half: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::trunc:     write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::round:     write(o, V{id}, "=", op, V{x}, fs(id)...); break;
         }
 
         write(o, "\n");
@@ -440,11 +443,13 @@ namespace skvm {
                 case Op::select:  write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
                 case Op::pack:    write(o, R{d}, "=", op,   R{x}, R{y}, Shift{immz}); break;
 
-                case Op::ceil:   write(o, R{d}, "=", op, R{x}); break;
-                case Op::floor:  write(o, R{d}, "=", op, R{x}); break;
-                case Op::to_f32: write(o, R{d}, "=", op, R{x}); break;
-                case Op::trunc:  write(o, R{d}, "=", op, R{x}); break;
-                case Op::round:  write(o, R{d}, "=", op, R{x}); break;
+                case Op::ceil:      write(o, R{d}, "=", op, R{x}); break;
+                case Op::floor:     write(o, R{d}, "=", op, R{x}); break;
+                case Op::to_f32:    write(o, R{d}, "=", op, R{x}); break;
+                case Op::to_half:   write(o, R{d}, "=", op, R{x}); break;
+                case Op::from_half: write(o, R{d}, "=", op, R{x}); break;
+                case Op::trunc:     write(o, R{d}, "=", op, R{x}); break;
+                case Op::round:     write(o, R{d}, "=", op, R{x}); break;
             }
             write(o, "\n");
         }
@@ -1104,6 +1109,15 @@ namespace skvm {
     I32 Builder::round(F32 x) {
         if (float X; this->allImm(x.id,&X)) { return splat((int)lrintf(X)); }
         return {this, this->push(Op::round, x.id)};
+    }
+
+    I32 Builder::to_half(F32 x) {
+        if (float X; this->allImm(x.id,&X)) { return splat((int)SkFloatToHalf(X)); }
+        return {this, this->push(Op::to_half, x.id)};
+    }
+    F32 Builder::from_half(I32 x) {
+        if (int X; this->allImm(x.id,&X)) { return splat(SkHalfToFloat(X)); }
+        return {this, this->push(Op::from_half, x.id)};
     }
 
     F32 Builder::from_unorm(int bits, I32 x) {
@@ -1957,6 +1971,14 @@ namespace skvm {
     void Assembler::vcvttps2dq(Ymm dst, Operand x) { this->op(0xf3,0x0f,0x5b, dst,x); }
     void Assembler::vcvtps2dq (Ymm dst, Operand x) { this->op(0x66,0x0f,0x5b, dst,x); }
     void Assembler::vsqrtps   (Ymm dst, Operand x) { this->op(   0,0x0f,0x51, dst,x); }
+
+    void Assembler::vcvtps2ph(Operand dst, Ymm x, Rounding imm) {
+        this->op(0x66,0x3a0f,0x1d, x,dst);
+        this->imm_byte_after_operand(dst, imm);
+    }
+    void Assembler::vcvtph2ps(Ymm dst, Operand x) {
+        this->op(0x66,0x380f,0x13, dst,x);
+    }
 
     int Assembler::disp19(Label* l) {
         SkASSERT(l->kind == Label::NotYetSet ||
@@ -3231,6 +3253,11 @@ namespace skvm {
                     // Make sure splat constants can be found by load_from_memory() or any().
                     (void)constants[immy];
                     break;
+
+                case Op::to_half:
+                case Op::from_half:
+                    // TODO
+                    return false;
 
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
