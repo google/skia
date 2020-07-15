@@ -16,7 +16,7 @@
 
 class GrBackendFormat;
 class GrBackendTexture;
-class GrContext;
+class GrRecordingContext;
 class SkCanvas;
 class SkImage;
 class SkPromiseImageTexture;
@@ -157,7 +157,7 @@ private:
     const SkSurfaceCharacterization             fCharacterization;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrContext>                            fContext;
+    sk_sp<GrRecordingContext>                   fContext;
     sk_sp<GrRenderTargetProxy>                  fTargetProxy;
     sk_sp<SkDeferredDisplayList::LazyProxyData> fLazyProxyData;
     sk_sp<SkSurface>                            fSurface;
