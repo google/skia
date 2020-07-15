@@ -39,6 +39,30 @@
       "revId": "97c270d0fe43b0c2b149dc6aa6d82622c51e64dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44dff214_e41b0fad",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-15T16:09:26Z",
+      "side": 1,
+      "message": "Heh, yes this is actually fontAxisIndex (and below argsAxisIndex). This was just copy pasta from before (pulled out for breathing room). In the new code I got around this by just using \u0027i\u0027.",
+      "parentUuid": "fc4695ee_f959b4ca",
+      "range": {
+        "startLine": 986,
+        "startChar": 16,
+        "endLine": 986,
+        "endChar": 25
+      },
+      "revId": "97c270d0fe43b0c2b149dc6aa6d82622c51e64dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
