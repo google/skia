@@ -534,7 +534,7 @@ sk_sp<SkImage> SkImage::makeRasterImage(CachingHint chint) const {
 
 #if !SK_SUPPORT_GPU
 
-sk_sp<SkImage> SkImage::DecodeToTexture(GrContext*, const void*, size_t, const SkIRect*) {
+sk_sp<SkImage> SkImage::DecodeToTexture(GrDirectContext*, const void*, size_t, const SkIRect*) {
     return nullptr;
 }
 
@@ -614,7 +614,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, GrMipMapped, SkBudgeted) const {
+sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipMapped, SkBudgeted) const {
     return nullptr;
 }
 

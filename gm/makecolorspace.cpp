@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkImagePriv.h"
 #include "tools/Resources.h"
 
@@ -86,6 +87,7 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
     auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
 
     // Use the lazy images on the first iteration, and concrete (raster/GPU) images on the second
+    auto direct = GrAsDirectContext(canvas->recordingContext());
     for (bool lazy : {true, false}) {
         for (int j = 0; j < 2; ++j) {
             const SkImage* image = images[j].get();
@@ -116,9 +118,7 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
                 canvas->drawImage(imageGray, 256, 0);
             }
 
-            images[j] = canvas->getGrContext()
-                    ? image->makeTextureImage(canvas->getGrContext())
-                    : image->makeRasterImage();
+            images[j] = direct ? image->makeTextureImage(direct) : image->makeRasterImage();
 
             canvas->translate(0, 128);
         }
@@ -163,7 +163,8 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     canvas->translate(0.0f, 128.0f);
 
     // GPU images
-    if (auto gpuImage = image->makeTextureImage(canvas->getGrContext())) {
+    auto direct = GrAsDirectContext(canvas->recordingContext());
+    if (auto gpuImage = image->makeTextureImage(direct)) {
         image = gpuImage;
     }
 
