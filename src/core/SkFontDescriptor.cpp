@@ -20,7 +20,6 @@ enum {
     // These count backwards from 0xFF, so as not to collide with the SFNT
     // defines for names in its 'name' table.
     kFontAxes       = 0xFB,
-    kFontAxes_bad   = 0xFC, // Broken negative axes, remove when MIN_PICTURE_VERSION > 62.
     kFontIndex      = 0xFD,
     kSentinel       = 0xFF,
 };
@@ -81,15 +80,6 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
                 axis.reset(axisCount);
                 for (size_t i = 0; i < axisCount; ++i) {
                     if (!stream->readS32(&axis[i])) { return false; }
-                }
-                break;
-            case kFontAxes_bad:
-                if (!stream->readPackedUInt(&axisCount)) { return false; }
-                axis.reset(axisCount);
-                for (size_t i = 0; i < axisCount; ++i) {
-                    size_t packedAxis;
-                    if (!stream->readPackedUInt(&packedAxis)) { return false; }
-                    axis[i] = packedAxis;
                 }
                 break;
             case kFontIndex:

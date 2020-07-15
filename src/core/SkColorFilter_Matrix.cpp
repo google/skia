@@ -53,8 +53,7 @@ sk_sp<SkFlattenable> SkColorFilter_Matrix::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    auto   is_rgba = buffer.isVersionLT(SkPicturePriv::kMatrixColorFilterDomain_Version) ||
-                     buffer.readBool();
+    auto   is_rgba = buffer.readBool();
     return is_rgba ? SkColorFilters::Matrix(matrix)
                    : SkColorFilters::HSLAMatrix(matrix);
 }
