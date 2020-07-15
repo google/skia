@@ -32,7 +32,7 @@ public:
                      bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final;
     PreClipResult preApply(const SkRect& drawBounds) const final;
 
-    sk_sp<GrTextureProxy> testingOnly_createClipMask(GrContext*) const;
+    sk_sp<GrTextureProxy> testingOnly_createClipMask(GrRecordingContext*) const;
     static const char kMaskTestTag[];
 
 private:
