@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4f4417e_0b4c2969",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-15T00:15:44Z",
+      "side": 1,
+      "message": "... or do you prefer MioMap? I can make that change instead if that\u0027s your pref",
+      "revId": "28e7ec2b5e7981b0653eaf64055866c66c460093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
