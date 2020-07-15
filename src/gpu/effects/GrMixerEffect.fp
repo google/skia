@@ -33,6 +33,6 @@ in uniform half       weight;
 }
 
 void main() {
-    half4 inColor = sample(inputFP, sk_InColor);
+    half4 inColor = sample(inputFP);
     sk_OutColor = mix(sample(fp0, inColor), sample(fp1, inColor), weight);
 }

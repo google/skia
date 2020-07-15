@@ -269,9 +269,6 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(*this));
     }
 
-    static constexpr int kTexEffectFPIndex = 0;
-    static constexpr int kInputFPIndex = 1;
-
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -292,9 +289,9 @@ ColorTableEffect::ColorTableEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrSurfaceProxyView view)
         // Not bothering with table-specific optimizations.
         : INHERITED(kColorTableEffect_ClassID, kNone_OptimizationFlags) {
+    this->registerChild(std::move(inputFP));
     this->registerChild(GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType),
                         SkSL::SampleUsage::Explicit());
-    this->registerChild(std::move(inputFP));
 }
 
 ColorTableEffect::ColorTableEffect(const ColorTableEffect& that)
@@ -307,11 +304,11 @@ GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {
     public:
         void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            SkString inputColor = this->invokeChild(kInputFPIndex, args.fInputColor, args);
-            SkString a = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.a, 0.5)");
-            SkString r = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.r, 1.5)");
-            SkString g = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.g, 2.5)");
-            SkString b = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.b, 3.5)");
+            SkString inputColor = this->invokeChild(0, args);
+            SkString a = this->invokeChild(1, args, "half2(coord.a, 0.5)");
+            SkString r = this->invokeChild(1, args, "half2(coord.r, 1.5)");
+            SkString g = this->invokeChild(1, args, "half2(coord.g, 2.5)");
+            SkString b = this->invokeChild(1, args, "half2(coord.b, 3.5)");
             fragBuilder->codeAppendf("half4 coord = 255 * unpremul(%s) + 0.5;\n"
                                      "%s = half4(%s.a, %s.a, %s.a, 1);\n"
                                      "%s *= %s.a;\n",

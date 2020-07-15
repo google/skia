@@ -95,8 +95,7 @@ half xCoverage, yCoverage;
     yCoverage = (1.0 - %s.w) - %s.w;
 })SkSL",
                 _sample8763.c_str(), _sample8826.c_str());
-        SkString _input8895(args.fInputColor);
-        SkString _sample8895 = this->invokeChild(0, _input8895.c_str(), args);
+        SkString _sample8895 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;

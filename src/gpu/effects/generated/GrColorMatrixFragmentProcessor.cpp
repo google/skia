@@ -38,8 +38,7 @@ public:
                                                 "m");
         vVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                 "v");
-        SkString _input585(args.fInputColor);
-        SkString _sample585 = this->invokeChild(0, _input585.c_str(), args);
+        SkString _sample585 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 @if (%s) {

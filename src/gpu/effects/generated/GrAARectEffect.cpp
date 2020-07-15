@@ -57,8 +57,7 @@ half alpha;
                 args.fUniformHandler->getUniformCStr(rectUniformVar),
                 args.fUniformHandler->getUniformCStr(rectUniformVar), (int)_outer.edgeType,
                 (int)_outer.edgeType);
-        SkString _input1677(args.fInputColor);
-        SkString _sample1677 = this->invokeChild(0, _input1677.c_str(), args);
+        SkString _sample1677 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
