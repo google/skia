@@ -11,51 +11,79 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/utils/SkRandom.h"
 #include "tools/Resources.h"
 
-const char* gProg = R"(
-    uniform half4 gColor;
+enum RT_Flags {
+    kAnimate_RTFlag = 0x1,
+    kBench_RTFlag   = 0x2,
+};
 
-    void main(float2 p, inout half4 color) {
-        color = half4(half2(p)*(1.0/255), gColor.b, 1);
+class RuntimeShaderGM : public skiagm::GM {
+public:
+    RuntimeShaderGM(const char* name, SkISize size, const char* sksl, uint32_t flags = 0)
+            : fName(name), fSize(size), fFlags(flags), fSkSL(sksl) {}
+
+    void onOnceBeforeDraw() override {
+        auto [effect, error] = SkRuntimeEffect::Make(fSkSL);
+        if (!effect) {
+            SkDebugf("RuntimeShader error: %s\n", error.c_str());
+        }
+        fEffect = std::move(effect);
     }
-)";
 
-class RuntimeShader : public skiagm::GM {
-    bool runAsBench() const override { return true; }
+    bool runAsBench() const override { return SkToBool(fFlags & kBench_RTFlag); }
+    SkString onShortName() override { return fName; }
+    SkISize onISize() override { return fSize; }
 
-    SkString onShortName() override { return SkString("runtime_shader"); }
+    bool onAnimate(double nanos) override {
+        fSecs = nanos / (1000 * 1000 * 1000);
+        return SkToBool(fFlags & kAnimate_RTFlag);
+    }
 
-    SkISize onISize() override { return {512, 256}; }
+protected:
+    SkString fName;
+    SkISize  fSize;
+    uint32_t fFlags;
+    float    fSecs = 0.0f;
+
+    SkString fSkSL;
+    sk_sp<SkRuntimeEffect> fEffect;
+};
+
+class SimpleRT : public RuntimeShaderGM {
+public:
+    SimpleRT() : RuntimeShaderGM("runtime_shader", {512, 256}, R"(
+        uniform half4 gColor;
+
+        void main(float2 p, inout half4 color) {
+            color = half4(half2(p)*(1.0/255), gColor.b, 1);
+        }
+    )", kBench_RTFlag) {}
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkRuntimeEffect> gEffect = std::get<0>(SkRuntimeEffect::Make(SkString(gProg)));
-        SkASSERT(gEffect);
+        SkRuntimeShaderBuilder builder(fEffect);
 
         SkMatrix localM;
         localM.setRotate(90, 128, 128);
+        builder.input("gColor") = SkColor4f{1, 0, 0, 1};
 
-        SkColor4f inputColor = { 1, 0, 0, 1 };
-        auto shader = gEffect->makeShader(SkData::MakeWithCopy(&inputColor, sizeof(inputColor)),
-                                          nullptr, 0, &localM, true);
         SkPaint p;
-        p.setShader(std::move(shader));
+        p.setShader(builder.makeShader(&localM, true));
         canvas->drawRect({0, 0, 256, 256}, p);
     }
 };
-DEF_GM(return new RuntimeShader;)
+DEF_GM(return new SimpleRT;)
 
 static sk_sp<SkShader> make_shader(sk_sp<SkImage> img, SkISize size) {
     SkMatrix scale = SkMatrix::Scale(size.width()  / (float)img->width(),
                                      size.height() / (float)img->height());
     return img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &scale);
 }
-
-#include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
-#include "include/utils/SkRandom.h"
 
 static sk_sp<SkShader> make_threshold(SkISize size) {
     auto info = SkImageInfo::Make(size.width(), size.height(), kAlpha_8_SkColorType,
@@ -89,11 +117,31 @@ static sk_sp<SkShader> make_threshold(SkISize size) {
     return surf->makeImageSnapshot()->makeShader();
 }
 
-class ThresholdRT : public skiagm::GM {
-    sk_sp<SkShader> fBefore, fAfter, fThreshold;
-    sk_sp<SkRuntimeEffect> fEffect;
+class ThresholdRT : public RuntimeShaderGM {
+public:
+    ThresholdRT() : RuntimeShaderGM("threshold_rt", {256, 256}, R"(
+        in shader before_map;
+        in shader after_map;
+        in shader threshold_map;
 
-    float fCutoff = 0.5;    // so we get something interested when we're not animated
+        uniform float cutoff;
+        uniform float slope;
+
+        float smooth_cutoff(float x) {
+            x = x * slope + (0.5 - slope * cutoff);
+            return clamp(x, 0, 1);
+        }
+
+        void main(float2 xy, inout half4 color) {
+            half4 before = sample(before_map);
+            half4 after = sample(after_map);
+
+            float m = smooth_cutoff(sample(threshold_map).a);
+            color = mix(before, after, half(m));
+        }
+    )", kAnimate_RTFlag | kBench_RTFlag) {}
+
+    sk_sp<SkShader> fBefore, fAfter, fThreshold;
 
     void onOnceBeforeDraw() override {
         const SkISize size = {256, 256};
@@ -101,52 +149,21 @@ class ThresholdRT : public skiagm::GM {
         fBefore = make_shader(GetResourceAsImage("images/mandrill_256.png"), size);
         fAfter = make_shader(GetResourceAsImage("images/dog.jpg"), size);
 
-        const char code[] = R"(
-            in shader before_map;
-            in shader after_map;
-            in shader threshold_map;
-
-            uniform float cutoff;
-            uniform float slope;
-
-            float smooth_cutoff(float x) {
-                x = x * slope + (0.5 - slope * cutoff);
-                return clamp(x, 0, 1);
-            }
-
-            void main(float2 xy, inout half4 color) {
-                half4 before = sample(before_map);
-                half4 after = sample(after_map);
-
-                float m = smooth_cutoff(sample(threshold_map).a);
-                color = mix(before, after, half(m));
-            }
-        )";
-        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
-        if (!effect) {
-            SkDebugf("runtime error %s\n", error.c_str());
-        }
-        fEffect = effect;
+        this->RuntimeShaderGM::onOnceBeforeDraw();
     }
 
-    bool runAsBench() const override { return true; }
-
-    SkString onShortName() override { return SkString("threshold_rt"); }
-
-    SkISize onISize() override { return {256, 256}; }
-
     void onDraw(SkCanvas* canvas) override {
-        struct {
-            float cutoff, slope;
-        } uni = {
-            fCutoff, 10
-        };
-        sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
-        sk_sp<SkShader> children[] = { fBefore, fAfter, fThreshold };
+        SkRuntimeShaderBuilder builder(fEffect);
+
+        builder.input("cutoff") = sin(fSecs) * 0.55f + 0.5f;
+        builder.input("slope")  = 10.0f;
+
+        builder.child("before_map")    = fBefore;
+        builder.child("after_map")     = fAfter;
+        builder.child("threshold_map") = fThreshold;
 
         SkPaint paint;
-        paint.setShader(fEffect->makeShader(data, children, SK_ARRAY_COUNT(children),
-                                            nullptr, true));
+        paint.setShader(builder.makeShader(nullptr, true));
         canvas->drawRect({0, 0, 256, 256}, paint);
 
         auto draw = [&](SkScalar x, SkScalar y, sk_sp<SkShader> shader) {
@@ -160,80 +177,76 @@ class ThresholdRT : public skiagm::GM {
         draw(  0, 256, fBefore);
         draw(256, 256, fAfter);
     }
-
-    bool onAnimate(double nanos) override {
-        double t = sin(nanos / (1000 * 1000 * 1000));
-        fCutoff = float(t + 1) * 0.55f - 0.05f;
-        return true;
-    }
 };
 DEF_GM(return new ThresholdRT;)
 
-class SpiralRT : public skiagm::GM {
-    sk_sp<SkRuntimeEffect> fEffect;
-    float                  fSecs = 4;    // so we get something interested when we're not animated
+class SpiralRT : public RuntimeShaderGM {
+public:
+    SpiralRT() : RuntimeShaderGM("spiral_rt", {512, 512}, R"(
+        uniform float rad_scale;
+        uniform float2 in_center;
+        layout(srgb_unpremul) uniform float4 in_colors0;
+        layout(srgb_unpremul) uniform float4 in_colors1;
 
-    void onOnceBeforeDraw() override {
-        const char code[] = R"(
-            uniform float rad_scale;
-            uniform float2 in_center;
-            layout(srgb_unpremul) uniform float4 in_colors0;
-            layout(srgb_unpremul) uniform float4 in_colors1;
-
-            void main(float2 p, inout half4 color) {
-                float2 pp = p - in_center;
-                float radius = length(pp);
-                radius = sqrt(radius);
-                float angle = atan(pp.y / pp.x);
-                float t = (angle + 3.1415926/2) / (3.1415926);
-                t += radius * rad_scale;
-                t = fract(t);
-                float4 m = in_colors0 * (1-t) + in_colors1 * t;
-                color = half4(m);
-            }
-        )";
-        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
-        if (!effect) {
-            SkDebugf("runtime error %s\n", error.c_str());
+        void main(float2 p, inout half4 color) {
+            float2 pp = p - in_center;
+            float radius = length(pp);
+            radius = sqrt(radius);
+            float angle = atan(pp.y / pp.x);
+            float t = (angle + 3.1415926/2) / (3.1415926);
+            t += radius * rad_scale;
+            t = fract(t);
+            float4 m = in_colors0 * (1-t) + in_colors1 * t;
+            color = half4(m);
         }
-        fEffect = effect;
-    }
-
-    bool runAsBench() const override { return true; }
-
-    SkString onShortName() override { return SkString("spiral_rt"); }
-
-    SkISize onISize() override { return {512, 512}; }
+    )", kAnimate_RTFlag | kBench_RTFlag) {}
 
     void onDraw(SkCanvas* canvas) override {
-        struct {
-            float rad_scale;
-            SkV2  in_center;
-            SkV4  in_colors0;
-            SkV4  in_colors1;
-        } uni {
-            std::sin(fSecs / 2) / 5,
-            {256, 256},       // center
-            {1, 0, 0, 1},     // color0
-            {0, 1, 0, 1},    // color1
-        };
+        SkRuntimeShaderBuilder builder(fEffect);
+
+        builder.input("rad_scale")  = std::sin(fSecs * 0.5f + 2.0f) / 5;
+        builder.input("in_center")  = SkV2{256, 256};
+        builder.input("in_colors0") = SkV4{1, 0, 0, 1};
+        builder.input("in_colors1") = SkV4{0, 1, 0, 1};
 
         SkPaint paint;
-        paint.setShader(fEffect->makeShader(SkData::MakeWithCopy(&uni, sizeof(uni)),
-                                            nullptr, 0, nullptr, true));
+        paint.setShader(builder.makeShader(nullptr, true));
         canvas->drawRect({0, 0, 512, 512}, paint);
-    }
-
-    bool onAnimate(double nanos) override {
-        fSecs = nanos / (1000 * 1000 * 1000);
-        return true;
     }
 };
 DEF_GM(return new SpiralRT;)
 
-class ColorCubeRT : public skiagm::GM {
+class ColorCubeRT : public RuntimeShaderGM {
+public:
+    ColorCubeRT() : RuntimeShaderGM("color_cube_rt", {512, 512}, R"(
+        in shader input;
+        in shader color_cube;
+
+        uniform float rg_scale;
+        uniform float rg_bias;
+        uniform float b_scale;
+        uniform float inv_size;
+
+        void main(float2 xy, inout half4 color) {
+            float4 c = float4(unpremul(sample(input)));
+
+            // Map to cube coords:
+            float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
+
+            // Compute slice coordinate
+            float2 coords1 = float2((floor(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
+            float2 coords2 = float2(( ceil(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
+
+            // Two bilinear fetches, plus a manual lerp for the third axis:
+            color = mix(sample(color_cube, coords1), sample(color_cube, coords2),
+                        half(fract(cubeCoords.b)));
+
+            // Premul again
+            color.rgb *= color.a;
+        }
+    )") {}
+
     sk_sp<SkImage> fMandrill, fMandrillSepia, fIdentityCube, fSepiaCube;
-    sk_sp<SkRuntimeEffect> fEffect;
 
     void onOnceBeforeDraw() override {
         fMandrill      = GetResourceAsImage("images/mandrill_256.png");
@@ -241,45 +254,12 @@ class ColorCubeRT : public skiagm::GM {
         fIdentityCube  = GetResourceAsImage("images/lut_identity.png");
         fSepiaCube     = GetResourceAsImage("images/lut_sepia.png");
 
-        const char code[] = R"(
-            in shader input;
-            in shader color_cube;
-
-            uniform float rg_scale;
-            uniform float rg_bias;
-            uniform float b_scale;
-            uniform float inv_size;
-
-            void main(float2 xy, inout half4 color) {
-                float4 c = float4(unpremul(sample(input)));
-
-                // Map to cube coords:
-                float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
-
-                // Compute slice coordinate
-                float2 coords1 = float2((floor(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
-                float2 coords2 = float2(( ceil(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
-
-                // Two bilinear fetches, plus a manual lerp for the third axis:
-                color = mix(sample(color_cube, coords1), sample(color_cube, coords2),
-                            half(fract(cubeCoords.b)));
-
-                // Premul again
-                color.rgb *= color.a;
-            }
-        )";
-        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
-        if (!effect) {
-            SkDebugf("runtime error %s\n", error.c_str());
-        }
-        fEffect = effect;
+        this->RuntimeShaderGM::onOnceBeforeDraw();
     }
 
-    SkString onShortName() override { return SkString("color_cube_rt"); }
-
-    SkISize onISize() override { return {512, 512}; }
-
     void onDraw(SkCanvas* canvas) override {
+        SkRuntimeShaderBuilder builder(fEffect);
+
         // First we draw the unmodified image, and a copy that was sepia-toned in Photoshop:
         canvas->drawImage(fMandrill,      0,   0);
         canvas->drawImage(fMandrillSepia, 0, 256);
@@ -287,13 +267,12 @@ class ColorCubeRT : public skiagm::GM {
         // LUT dimensions should be (kSize^2, kSize)
         constexpr float kSize = 16.0f;
 
-        SkRuntimeShaderBuilder builder(fEffect);
         builder.input("rg_scale")     = (kSize - 1) / kSize;
         builder.input("rg_bias")      = 0.5f / kSize;
         builder.input("b_scale")      = kSize - 1;
         builder.input("inv_size")     = 1.0f / kSize;
 
-        builder.child("input")      = fMandrill->makeShader();
+        builder.child("input")        = fMandrill->makeShader();
 
         // TODO: Move filter quality to the shader itself. We need to enforce at least kLow here
         // so that we bilerp the color cube image.
@@ -318,29 +297,21 @@ class ColorCubeRT : public skiagm::GM {
 };
 DEF_GM(return new ColorCubeRT;)
 
-class DefaultColorRT : public skiagm::GM {
+class DefaultColorRT : public RuntimeShaderGM {
+public:
+    DefaultColorRT() : RuntimeShaderGM("default_color_rt", {512, 256}, R"(
+        in shader input;
+        void main(float2 xy, inout half4 color) {
+            color = sample(input);
+        }
+    )") {}
+
     sk_sp<SkImage> fMandrill;
-    sk_sp<SkRuntimeEffect> fEffect;
 
     void onOnceBeforeDraw() override {
         fMandrill      = GetResourceAsImage("images/mandrill_256.png");
-
-        const char code[] = R"(
-            in shader input;
-            void main(float2 xy, inout half4 color) {
-                color = sample(input);
-            }
-        )";
-        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
-        if (!effect) {
-            SkDebugf("runtime error %s\n", error.c_str());
-        }
-        fEffect = effect;
+        this->RuntimeShaderGM::onOnceBeforeDraw();
     }
-
-    SkString onShortName() override { return SkString("default_color_rt"); }
-
-    SkISize onISize() override { return {512, 256}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkRuntimeShaderBuilder builder(fEffect);
