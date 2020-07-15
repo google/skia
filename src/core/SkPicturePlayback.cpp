@@ -274,12 +274,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readRect(&rect);
             SkCanvas::QuadAAFlags aaFlags = static_cast<SkCanvas::QuadAAFlags>(reader->read32());
             SkColor4f color;
-            if (reader->isVersionLT(SkPicturePriv::kEdgeAAQuadColor4f_Version)) {
-                // Old version stored color as 8888
-                color = SkColor4f::FromColor(reader->read32());
-            } else {
-                reader->readColor4f(&color);
-            }
+            reader->readColor4f(&color);
             SkBlendMode blend = static_cast<SkBlendMode>(reader->read32());
             bool hasClip = reader->readInt();
             SkPoint* clip = nullptr;
@@ -527,16 +522,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readPoint3(&rec.fZPlaneParams);
             reader->readPoint3(&rec.fLightPos);
             rec.fLightRadius = reader->readScalar();
-            if (reader->isVersionLT(SkPicturePriv::kTwoColorDrawShadow_Version)) {
-                SkScalar ambientAlpha = reader->readScalar();
-                SkScalar spotAlpha = reader->readScalar();
-                SkColor color = reader->read32();
-                rec.fAmbientColor = SkColorSetA(color, SkColorGetA(color)*ambientAlpha);
-                rec.fSpotColor = SkColorSetA(color, SkColorGetA(color)*spotAlpha);
-            } else {
-                rec.fAmbientColor = reader->read32();
-                rec.fSpotColor = reader->read32();
-            }
+            rec.fAmbientColor = reader->read32();
+            rec.fSpotColor = reader->read32();
             rec.fFlags = reader->read32();
             BREAK_ON_READ_ERROR(reader);
 

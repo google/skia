@@ -290,13 +290,8 @@ uint32_t SkReadBuffer::getArrayCount() {
  */
 sk_sp<SkImage> SkReadBuffer::readImage() {
     SkIRect bounds;
-    if (this->isVersionLT(SkPicturePriv::kStoreImageBounds_Version)) {
-        bounds.fLeft = bounds.fTop = 0;
-        bounds.fRight = this->read32();
-        bounds.fBottom = this->read32();
-    } else {
-        this->readIRect(&bounds);
-    }
+    this->readIRect(&bounds);
+
     const int width = bounds.width();
     const int height = bounds.height();
     if (width <= 0 || height <= 0) {    // SkImage never has a zero dimension
@@ -334,10 +329,6 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
     if (!this->readPad32(data->writable_data(), size)) {
         this->validate(false);
         return nullptr;
-    }
-    if (this->isVersionLT(SkPicturePriv::kDontNegateImageSize_Version)) {
-        (void)this->read32();   // originX
-        (void)this->read32();   // originY
     }
 
     sk_sp<SkImage> image;
