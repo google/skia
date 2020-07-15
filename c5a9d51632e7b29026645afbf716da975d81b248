@@ -22,6 +22,29 @@
       "revId": "c5a9d51632e7b29026645afbf716da975d81b248",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f02b7e8_906a85f9",
+        "filename": "src/gpu/GrStagingBufferManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-15T18:18:49Z",
+      "side": 1,
+      "message": "GrAlignTo?",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 83
+      },
+      "revId": "c5a9d51632e7b29026645afbf716da975d81b248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
