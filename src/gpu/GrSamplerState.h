@@ -9,6 +9,7 @@
 #define GrSamplerState_DEFINED
 
 #include "include/gpu/GrTypes.h"
+#include <limits>
 
 /**
  * Represents the filtering and tile modes used to access a texture.
@@ -61,25 +62,28 @@ public:
 
     constexpr bool operator!=(const GrSamplerState& that) const { return !(*this == that); }
 
-    constexpr static uint8_t GenerateKey(GrSamplerState samplerState) {
-        const int kTileModeXShift = 2;
-        const int kTileModeYShift = 4;
-
-        SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
-        uint8_t key = static_cast<uint8_t>(samplerState.filter());
-
-        SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 3);
-        key |= (static_cast<uint8_t>(samplerState.wrapModeX()) << kTileModeXShift);
-
-        SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 3);
-        key |= (static_cast<uint8_t>(samplerState.wrapModeY()) << kTileModeYShift);
-
-        return key;
+    /**
+     * Turn the sampler state into an integer from a tightly packed range for use as an index
+     * (or key)
+     */
+    constexpr uint8_t asIndex() const {
+        constexpr int kNumWraps   = static_cast<int>(WrapMode::kLast) + 1;
+        int result = static_cast<int>(fWrapModes[0])*1
+                   + static_cast<int>(fWrapModes[1])*kNumWraps
+                   + static_cast<int>(fFilter)      *kNumWraps*kNumWraps;
+        SkASSERT(result <= kNumUniqueSamplers);
+        return static_cast<uint8_t>(result);
     }
 
+    static constexpr int kNumUniqueSamplers = (static_cast<int>(WrapMode::kLast) + 1)
+                                            * (static_cast<int>(WrapMode::kLast) + 1)
+                                            * (static_cast<int>(Filter::kLast  ) + 1);
 private:
     WrapMode fWrapModes[2] = {WrapMode::kClamp, WrapMode::kClamp};
     Filter fFilter = GrSamplerState::Filter::kNearest;
 };
+
+static_assert(GrSamplerState::kNumUniqueSamplers <=
+              std::numeric_limits<decltype(GrSamplerState{}.asIndex())>::max());
 
 #endif
