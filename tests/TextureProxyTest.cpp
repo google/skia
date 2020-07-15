@@ -233,7 +233,7 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     // Some of our backends use buffers to do uploads that will live in our resource cache. So we
     // need to account for those extra resources here.
     int bufferResources = 0;
-    if (context->backend() == GrBackendApi::kDawn) {
+    if (context->backend() == GrBackendApi::kDawn || context->backend() == GrBackendApi::kVulkan) {
         bufferResources = 1;
     }
 
