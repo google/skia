@@ -162,7 +162,7 @@ namespace skvm {
 
         void vpermq(Ymm dst, Operand x, int imm);
 
-        enum Rounding { NEAREST, FLOOR, CEIL, TRUNC };
+        enum Rounding { NEAREST, FLOOR, CEIL, TRUNC, CURRENT };
         void vroundps(Ymm dst, Operand x, Rounding);
 
         void vmovdqa(Ymm dst, Operand x);
@@ -174,6 +174,9 @@ namespace skvm {
         void vcvtdq2ps (Ymm dst, Operand x);
         void vcvttps2dq(Ymm dst, Operand x);
         void vcvtps2dq (Ymm dst, Operand x);
+
+        void vcvtps2ph(Operand dst, Ymm x, Rounding);
+        void vcvtph2ps(Ymm dst, Operand x);
 
         void vpblendvb(Ymm dst, Ymm x, Operand y, Ymm z);
 
@@ -364,34 +367,35 @@ namespace skvm {
     };
 
     // Order matters a little: Ops <=store32 are treated as having side effects.
-    #define SKVM_OPS(M)                       \
-        M(assert_true)                        \
-        M(store8)   M(store16)   M(store32)   \
-        M(index)                              \
-        M(load8)    M(load16)    M(load32)    \
-        M(gather8)  M(gather16)  M(gather32)  \
-        M(uniform8) M(uniform16) M(uniform32) \
-        M(splat)                              \
-        M(add_f32) M(add_i32)                 \
-        M(sub_f32) M(sub_i32)                 \
-        M(mul_f32) M(mul_i32)                 \
-        M(div_f32)                            \
-        M(min_f32)                            \
-        M(max_f32)                            \
-        M(fma_f32) M(fms_f32) M(fnma_f32)     \
-        M(sqrt_f32)                           \
-        M(shl_i32) M(shr_i32) M(sra_i32)      \
-        M(ceil) M(floor) M(trunc) M(round)    \
-        M(to_f32)                             \
-        M( eq_f32) M( eq_i32)                 \
-        M(neq_f32)                            \
-        M( gt_f32) M( gt_i32)                 \
-        M(gte_f32)                            \
-        M(bit_and)                            \
-        M(bit_or)                             \
-        M(bit_xor)                            \
-        M(bit_clear)                          \
-        M(select) M(pack)                     \
+    #define SKVM_OPS(M)                           \
+        M(assert_true)                            \
+        M(store8)   M(store16)   M(store32)       \
+        M(index)                                  \
+        M(load8)    M(load16)    M(load32)        \
+        M(gather8)  M(gather16)  M(gather32)      \
+        M(uniform8) M(uniform16) M(uniform32)     \
+        M(splat)                                  \
+        M(add_f32) M(add_i32)                     \
+        M(sub_f32) M(sub_i32)                     \
+        M(mul_f32) M(mul_i32)                     \
+        M(div_f32)                                \
+        M(min_f32)                                \
+        M(max_f32)                                \
+        M(fma_f32) M(fms_f32) M(fnma_f32)         \
+        M(sqrt_f32)                               \
+        M(shl_i32) M(shr_i32) M(sra_i32)          \
+        M(ceil) M(floor)                          \
+        M(trunc) M(round) M(to_half) M(from_half) \
+        M(to_f32)                                 \
+        M( eq_f32) M( eq_i32)                     \
+        M(neq_f32)                                \
+        M( gt_f32) M( gt_i32)                     \
+        M(gte_f32)                                \
+        M(bit_and)                                \
+        M(bit_or)                                 \
+        M(bit_xor)                                \
+        M(bit_clear)                              \
+        M(select) M(pack)                         \
     // End of SKVM_OPS
 
     enum class Op : int {
@@ -656,6 +660,9 @@ namespace skvm {
         I32 trunc(F32 x);
         I32 round(F32 x);  // Round to int using current rounding mode (as if lrintf()).
         I32 bit_cast(F32 x) { return {x.builder, x.id}; }
+
+        I32   to_half(F32 x);
+        F32 from_half(I32 x);
 
         F32 norm(F32 x, F32 y) {
             return sqrt(add(mul(x,x),
@@ -996,11 +1003,13 @@ namespace skvm {
     static inline F32   floor(F32 x) { return x->  floor(x); }
     static inline I32  is_NaN(F32 x) { return x-> is_NaN(x); }
 
-    static inline I32    trunc(F32 x) { return x->   trunc(x); }
-    static inline I32    round(F32 x) { return x->   round(x); }
-    static inline I32 bit_cast(F32 x) { return x->bit_cast(x); }
-    static inline F32 bit_cast(I32 x) { return x->bit_cast(x); }
-    static inline F32   to_f32(I32 x) { return x->  to_f32(x); }
+    static inline I32     trunc(F32 x) { return x->    trunc(x); }
+    static inline I32     round(F32 x) { return x->    round(x); }
+    static inline I32  bit_cast(F32 x) { return x-> bit_cast(x); }
+    static inline F32  bit_cast(I32 x) { return x-> bit_cast(x); }
+    static inline F32    to_f32(I32 x) { return x->   to_f32(x); }
+    static inline I32   to_half(F32 x) { return x->  to_half(x); }
+    static inline F32 from_half(I32 x) { return x->from_half(x); }
 
     static inline F32 lerp(F32   lo, F32a  hi, F32a t) { return lo->lerp(lo,hi,t); }
     static inline F32 lerp(float lo, F32   hi, F32a t) { return hi->lerp(lo,hi,t); }
