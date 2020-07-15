@@ -1557,6 +1557,20 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.vcvtps2ph(A::xmm3, A::ymm2, A::CURRENT);
+        a.vcvtps2ph(A::Mem{A::rsi, 32, A::rax, A::EIGHT}, A::ymm5, A::CEIL);
+
+        a.vcvtph2ps(A::ymm15, A::Mem{A::rdi, 12, A::r9, A::ONE});
+        a.vcvtph2ps(A::ymm2, A::xmm3);
+    },{
+        0xc4,0xe3,0x7d,0x1d,0xd3,0x04,
+        0xc4,0xe3,0x7d,0x1d,0x6c,0xc6,0x20,0x02,
+
+        0xc4,0x22,0x7d,0x13,0x7c,0x0f,0x0c,
+        0xc4,0xe2,0x7d,0x13,0xd3,
+    });
+
+    test_asm(r, [&](A& a) {
         a.vgatherdps(A::ymm1 , A::FOUR , A::ymm0 , A::rdi, A::ymm2 );
         a.vgatherdps(A::ymm0 , A::ONE  , A::ymm2 , A::rax, A::ymm1 );
         a.vgatherdps(A::ymm10, A::ONE  , A::ymm2 , A::rax, A::ymm1 );
@@ -2159,6 +2173,41 @@ DEF_TEST(SkVM_min_max, r) {
             for (int j = 0; j < 8; j++) {
                 REPORTER_ASSERT(r, identical(mn[j], std::min(f[i], f[j])));
                 REPORTER_ASSERT(r, identical(mx[j], std::max(f[i], f[j])));
+            }
+        });
+    }
+}
+
+DEF_TEST(SkVM_halfs, r) {
+    const uint16_t hs[] = {0x0000,0x3800,0x3c00,0x4000,
+                           0xc400,0xb800,0xbc00,0xc000};
+    const float fs[] = {+0.0f,+0.5f,+1.0f,+2.0f,
+                        -4.0f,-0.5f,-1.0f,-2.0f};
+    {
+        skvm::Builder b;
+        skvm::Arg src = b.varying<uint16_t>(),
+                  dst = b.varying<float>();
+        b.storeF(dst, b.from_half(b.load16(src)));
+
+        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+            float dst[8];
+            program.eval(8, hs, dst);
+            for (int i = 0; i < 8; i++) {
+                REPORTER_ASSERT(r, dst[i] == fs[i]);
+            }
+        });
+    }
+    {
+        skvm::Builder b;
+        skvm::Arg src = b.varying<float>(),
+                  dst = b.varying<uint16_t>();
+        b.store16(dst, b.to_half(b.loadF(src)));
+
+        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+            uint16_t dst[8];
+            program.eval(8, fs, dst);
+            for (int i = 0; i < 8; i++) {
+                REPORTER_ASSERT(r, dst[i] == hs[i]);
             }
         });
     }
