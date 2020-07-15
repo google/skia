@@ -16,7 +16,7 @@ namespace textlayout {
 
 class ParagraphBuilder {
 public:
-    ParagraphBuilder(const ParagraphStyle& style, sk_sp<FontCollection> fontCollection) { }
+    ParagraphBuilder(const ParagraphStyle&, sk_sp<FontCollection>) { }
 
     virtual ~ParagraphBuilder() = default;
 
