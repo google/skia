@@ -1048,7 +1048,6 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
     } else {
         // Emulate complex blending using GrFillRectOp
         GrPaint paint;
-        paint.setColor4f(color);
         paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
         std::unique_ptr<GrFragmentProcessor> fp;
@@ -1065,6 +1064,7 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         } else {
             fp = GrTextureEffect::Make(std::move(proxyView), alphaType, SkMatrix::I(), filter);
         }
+        fp = GrFragmentProcessor::ModulateRGBA(std::move(fp), color);
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         if (saturate == GrTextureOp::Saturate::kYes) {
             fp = GrClampFragmentProcessor::Make(std::move(fp), /*clampToPremul=*/false);
