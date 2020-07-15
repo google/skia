@@ -253,37 +253,35 @@ static void set_random_color_coverage_stages(GrPaint* paint,
 #endif
 
 #if !GR_TEST_UTILS
-bool GrDrawingManager::ProgramUnitTest(GrContext*, int) { return true; }
+bool GrDrawingManager::ProgramUnitTest(GrDirectContext*, int) { return true; }
 #else
-bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int maxLevels) {
-    GrDrawingManager* drawingManager = context->priv().drawingManager();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, int maxLevels) {
+    GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
+    const GrCaps* caps = direct->priv().caps();
 
     GrProcessorTestData::ViewInfo views[2];
 
     // setup dummy textures
-    GrMipMapped mipMapped = GrMipMapped(context->priv().caps()->mipMapSupport());
+    GrMipMapped mipMapped = GrMipMapped(caps->mipMapSupport());
     {
         static constexpr SkISize kDummyDims = {34, 18};
-        const GrBackendFormat format =
-            context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
-                                                            GrRenderable::kYes);
+        const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                     GrRenderable::kYes);
         auto proxy = proxyProvider->createProxy(format, kDummyDims, GrRenderable::kYes, 1,
                                                 mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
+        GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
         views[0] = {{std::move(proxy), kBottomLeft_GrSurfaceOrigin, swizzle},
                     GrColorType::kRGBA_8888, kPremul_SkAlphaType};
     }
     {
         static constexpr SkISize kDummyDims = {16, 22};
-        const GrBackendFormat format =
-            context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
-                                                            GrRenderable::kNo);
+        const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
+                                                                     GrRenderable::kNo);
         auto proxy = proxyProvider->createProxy(format, kDummyDims, GrRenderable::kNo, 1, mipMapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
+        GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
         views[1] = {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle},
                       GrColorType::kAlpha_8, kPremul_SkAlphaType};
     }
@@ -297,28 +295,25 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        auto renderTargetContext =
-                random_render_target_context(context, &random, context->priv().caps());
+        auto renderTargetContext = random_render_target_context(direct, &random, caps);
         if (!renderTargetContext) {
             SkDebugf("Could not allocate renderTargetContext");
             return false;
         }
 
         GrPaint paint;
-        GrProcessorTestData ptd(&random, context, 2, views);
+        GrProcessorTestData ptd(&random, direct, 2, views);
         set_random_color_coverage_stages(&paint, &ptd, maxStages, maxLevels);
         set_random_xpf(&paint, &ptd);
         GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
-    if (drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
-                              GrFlushInfo(), nullptr)) {
-        drawingManager->submitToGpu(false);
-    }
+    direct->flush(GrFlushInfo());
+    direct->submit(false);
 
     // Validate that GrFPs work correctly without an input.
     auto renderTargetContext = GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
+            direct, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderTargetWidth, kRenderTargetHeight});
     if (!renderTargetContext) {
         SkDebugf("Could not allocate a renderTargetContext");
@@ -329,7 +324,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            GrProcessorTestData ptd(&random, context, 2, views);
+            GrProcessorTestData ptd(&random, direct, 2, views);
 
             GrPaint paint;
             paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -337,10 +332,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             auto blockFP = BlockInputFragmentProcessor::Make(std::move(fp));
             paint.addColorFragmentProcessor(std::move(blockFP));
             GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
-            if (drawingManager->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                      GrFlushInfo(), nullptr)) {
-                drawingManager->submitToGpu(false);
-            }
+
+            direct->flush(GrFlushInfo());
+            direct->submit(false);
         }
     }
 
