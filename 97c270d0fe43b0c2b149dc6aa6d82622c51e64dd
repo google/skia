@@ -16,6 +16,29 @@
       "revId": "97c270d0fe43b0c2b149dc6aa6d82622c51e64dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc4695ee_f959b4ca",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-15T15:26:59Z",
+      "side": 1,
+      "message": "variationIndex? It looks like this is going through all the variations on a font, and not a single variation across multiple fonts as fontIndex would imply.",
+      "range": {
+        "startLine": 986,
+        "startChar": 16,
+        "endLine": 986,
+        "endChar": 25
+      },
+      "revId": "97c270d0fe43b0c2b149dc6aa6d82622c51e64dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
