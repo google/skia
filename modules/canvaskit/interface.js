@@ -737,6 +737,7 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  // Deprecated, use one of the three variants below depending on how many args you were calling it with.
   CanvasKit.SkPath.prototype.arcTo = function() {
     // takes 4, 5 or 7 args
     // - 5 x1, y1, x2, y2, radius
@@ -744,15 +745,61 @@ CanvasKit.onRuntimeInitialized = function() {
     // - 7 rx, ry, xAxisRotate, useSmallArc, isCCW, x, y
     var args = arguments;
     if (args.length === 5) {
-      this._arcTo(args[0], args[1], args[2], args[3], args[4]);
+      this._arcToTangent(args[0], args[1], args[2], args[3], args[4]);
     } else if (args.length === 4) {
-      this._arcTo(args[0], args[1], args[2], args[3]);
+      this._arcToOval(args[0], args[1], args[2], args[3]);
     } else if (args.length === 7) {
-      this._arcTo(args[0], args[1], args[2], !!args[3], !!args[4], args[5], args[6]);
+      this._arcToRotated(args[0], args[1], args[2], !!args[3], !!args[4], args[5], args[6]);
     } else {
       throw 'Invalid args for arcTo. Expected 4, 5, or 7, got '+ args.length;
     }
 
+    return this;
+  };
+
+  // Appends arc to SkPath. Arc added is part of ellipse
+  // bounded by oval, from startAngle through sweepAngle. Both startAngle and
+  // sweepAngle are measured in degrees, where zero degrees is aligned with the
+  // positive x-axis, and positive sweeps extends arc clockwise.
+  CanvasKit.SkPath.prototype.arcToOval = function(oval, startAngle, sweepAngle, forceMoveTo) {
+    this._arcToOval(oval, startAngle, sweepAngle, forceMoveTo);
+    return this;
+  };
+
+  // Appends arc to SkPath. Arc is implemented by one or more conics weighted to
+  // describe part of oval with radii (rx, ry) rotated by xAxisRotate degrees. Arc
+  // curves from last SkPath SkPoint to (x, y), choosing one of four possible routes:
+  // clockwise or counterclockwise, and smaller or larger.
+
+  // Arc sweep is always less than 360 degrees. arcTo() appends line to (x, y) if
+  // either radii are zero, or if last SkPath SkPoint equals (x, y). arcTo() scales radii
+  // (rx, ry) to fit last SkPath SkPoint and (x, y) if both are greater than zero but
+  // too small.
+
+  // arcToRotated() appends up to four conic curves.
+  // arcToRotated() implements the functionality of SVG arc, although SVG sweep-flag value
+  // is opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise,
+  // while kCW_Direction cast to int is zero.
+  CanvasKit.SkPath.prototype.arcToRotated = function(rx, ry, xAxisRotate, useSmallArc, isCCW, x, y) {
+    this._arcToRotated(rx, ry, xAxisRotate, !!useSmallArc, !!isCCW, x, y);
+    return this;
+  };
+
+  // Appends arc to SkPath, after appending line if needed. Arc is implemented by conic
+  // weighted to describe part of circle. Arc is contained by tangent from
+  // last SkPath point to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
+  // is part of circle sized to radius, positioned so it touches both tangent lines.
+
+  // If last Path Point does not start Arc, arcTo appends connecting Line to Path.
+  // The length of Vector from (x1, y1) to (x2, y2) does not affect Arc.
+
+  // Arc sweep is always less than 180 degrees. If radius is zero, or if
+  // tangents are nearly parallel, arcTo appends Line from last Path Point to (x1, y1).
+
+  // arcToTangent appends at most one Line and one conic.
+  // arcToTangent implements the functionality of PostScript arct and HTML Canvas arcTo.
+  CanvasKit.SkPath.prototype.arcToTangent = function(x1, y1, x2, y2, radius) {
+    this._arcToTangent(x1, y1, x2, y2, radius);
     return this;
   };
 
