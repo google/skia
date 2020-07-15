@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7df07fd_865e0eda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2020-07-15T09:43:17Z",
+      "side": 1,
+      "message": "PTAL!\n\nWhat do you think of using glslang\u0027s upstream build files instead of Skia\u0027s own? It save my from fixing them every other week.\n\n(it would require making skia use -Weverything only for its internal targets though)",
+      "revId": "de9275e2a234ebea32f15e0379fbcf999bd88018",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
