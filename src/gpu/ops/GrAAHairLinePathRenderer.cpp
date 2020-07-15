@@ -635,16 +635,36 @@ static void add_quads(const SkPoint p[3],
                       const SkMatrix* toSrc,
                       BezierVertex** vert) {
     SkASSERT(subdiv >= 0);
-    if (subdiv) {
-        SkPoint newP[5];
-        SkChopQuadAtHalf(p, newP);
-        add_quads(newP + 0, subdiv-1, toDevice, toSrc, vert);
-        add_quads(newP + 2, subdiv-1, toDevice, toSrc, vert);
-    } else {
-        bloat_quad(p, toDevice, toSrc, *vert);
-        set_uv_quad(p, *vert);
+    // temporary vertex storage to avoid reading the vertex buffer
+    BezierVertex outVerts[kQuadNumVertices];
+
+    // storage for the chopped quad
+    // pts 0,1,2 are the first quad, and 2,3,4 the second quad
+    SkPoint choppedQuadPts[5];
+    // start off with our original curve in the second quad slot
+    memcpy(&choppedQuadPts[2], p, 3*sizeof(SkPoint));
+
+    int stepCount = 1 << subdiv;
+    while (stepCount > 1) {
+        // The general idea is:
+        // * chop the quad using pts 2,3,4 as the input
+        // * write out verts using pts 0,1,2
+        // * now 2,3,4 is the remainder of the curve, chop again until all subdivisions are done
+        SkScalar h = 1.f / stepCount;
+        SkChopQuadAt(&choppedQuadPts[2], choppedQuadPts, h);
+
+        bloat_quad(choppedQuadPts, toDevice, toSrc, outVerts);
+        set_uv_quad(choppedQuadPts, outVerts);
+        memcpy(*vert, outVerts, kQuadNumVertices*sizeof(BezierVertex));
         *vert += kQuadNumVertices;
+        --stepCount;
     }
+
+    // finish up, write out the final quad
+    bloat_quad(&choppedQuadPts[2], toDevice, toSrc, outVerts);
+    set_uv_quad(&choppedQuadPts[2], outVerts);
+    memcpy(*vert, outVerts, kQuadNumVertices * sizeof(BezierVertex));
+    *vert += kQuadNumVertices;
 }
 
 static void add_line(const SkPoint p[2],
