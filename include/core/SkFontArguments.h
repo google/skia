@@ -21,11 +21,6 @@ struct SkFontArguments {
         const Coordinate* coordinates;
         int coordinateCount;
     };
-    // deprecated, use VariationPosition::Coordinate instead
-    struct Axis {
-       SkFourByteTag fTag;
-       float fStyleValue;
-    };
 
     SkFontArguments() : fCollectionIndex(0), fVariationDesignPosition{nullptr, 0} {}
 
@@ -36,14 +31,6 @@ struct SkFontArguments {
      */
     SkFontArguments& setCollectionIndex(int collectionIndex) {
         fCollectionIndex = collectionIndex;
-        return *this;
-    }
-
-    // deprecated, use setVariationDesignPosition instead.
-    SkFontArguments& setAxes(const Axis* axes, int axisCount) {
-        fVariationDesignPosition.coordinates =
-                reinterpret_cast<const VariationPosition::Coordinate*>(axes);
-        fVariationDesignPosition.coordinateCount = axisCount;
         return *this;
     }
 
@@ -63,11 +50,7 @@ struct SkFontArguments {
     int getCollectionIndex() const {
         return fCollectionIndex;
     }
-    // deprecated, use getVariationDesignPosition instead.
-    const Axis* getAxes(int* axisCount) const {
-        *axisCount = fVariationDesignPosition.coordinateCount;
-        return reinterpret_cast<const Axis*>(fVariationDesignPosition.coordinates);
-    }
+
     VariationPosition getVariationDesignPosition() const {
         return fVariationDesignPosition;
     }
