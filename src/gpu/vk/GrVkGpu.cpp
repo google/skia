@@ -715,11 +715,12 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
 
 // This fills in the 'regions' vector in preparation for copying a buffer to an image.
 // 'individualMipOffsets' is filled in as a side-effect.
-static size_t fill_in_regions(GrVkCaps* vkCaps, SkTArray<VkBufferImageCopy>* regions,
+static size_t fill_in_regions(GrVkCaps* vkCaps, GrStagingBufferManager* stagingBufferManager,
+                              SkTArray<VkBufferImageCopy>* regions,
                               SkTArray<size_t>* individualMipOffsets,
+                              GrStagingBufferManager::Slice* slice,
                               SkImage::CompressionType compression,
-                              VkFormat vkFormat, SkISize dimensions, GrMipMapped mipMapped,
-                              VkDeviceSize bufferOffset) {
+                              VkFormat vkFormat, SkISize dimensions, GrMipMapped mipMapped) {
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
@@ -741,10 +742,19 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, SkTArray<VkBufferImageCopy>* reg
     }
     SkASSERT(individualMipOffsets->count() == numMipLevels);
 
+    // Get a staging buffer slice to hold our mip data.
+    // Vulkan requires offsets in the buffer to be aligned to multiple of the texel size and 4
+    size_t bytesPerPixel = vkCaps->bytesPerPixel(vkFormat);
+    size_t alignment = SkAlign4(bytesPerPixel);
+    *slice = stagingBufferManager->allocateStagingBufferSlice(combinedBufferSize, alignment);
+    if (!slice->fBuffer) {
+        return 0;
+    }
+
     for (int i = 0; i < numMipLevels; ++i) {
         VkBufferImageCopy& region = regions->push_back();
         memset(&region, 0, sizeof(VkBufferImageCopy));
-        region.bufferOffset = bufferOffset + (*individualMipOffsets)[i];
+        region.bufferOffset = slice->fOffset + (*individualMipOffsets)[i];
         SkISize revisedDimensions = GrCompressedDimensions(compression, dimensions);
         region.bufferRowLength = revisedDimensions.width();
         region.bufferImageHeight = revisedDimensions.height();
@@ -840,10 +850,12 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         return true;
     }
 
-    // allocate buffer to hold our mip data
-    sk_sp<GrVkTransferBuffer> transferBuffer =
-            GrVkTransferBuffer::Make(this, combinedBufferSize, GrVkBuffer::kCopyRead_Type);
-    if (!transferBuffer) {
+    // Get a staging buffer slice to hold our mip data.
+    // Vulkan requires offsets in the buffer to be aligned to multiple of the texel size and 4
+    size_t alignment = SkAlign4(bpp);
+    GrStagingBufferManager::Slice slice =
+            fStagingBufferManager.allocateStagingBufferSlice(combinedBufferSize, alignment);
+    if (!slice.fBuffer) {
         return false;
     }
 
@@ -886,7 +898,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         uploadTop = 0;
     }
 
-    char* buffer = (char*) transferBuffer->map();
+    char* buffer = (char*) slice.fOffsetMapPtr;
     SkTArray<VkBufferImageCopy> regions(mipLevelCount);
 
     currentWidth = width;
@@ -905,7 +917,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
             VkBufferImageCopy& region = regions.push_back();
             memset(&region, 0, sizeof(VkBufferImageCopy));
-            region.bufferOffset = transferBuffer->offset() + individualMipOffsets[currentMipLevel];
+            region.bufferOffset = slice.fOffset + individualMipOffsets[currentMipLevel];
             region.bufferRowLength = currentWidth;
             region.bufferImageHeight = currentHeight;
             region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
@@ -917,9 +929,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         layerHeight = currentHeight;
     }
 
-    // no need to flush non-coherent memory, unmap will do that for us
-    transferBuffer->unmap();
-
     // Change layout of our target so it can be copied to
     uploadTexture->setImageLayout(this,
                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -929,7 +938,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
     // Copy the buffer to the image
     this->currentCommandBuffer()->copyBufferToImage(this,
-                                                    transferBuffer.get(),
+                                                    static_cast<GrVkTransferBuffer*>(slice.fBuffer),
                                                     uploadTexture,
                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                     regions.count(),
@@ -969,33 +978,26 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
         return false;
     }
 
-    SkASSERT(this->vkCaps().isVkFormatTexturable(uploadTexture->imageFormat()));
+    SkASSERT(uploadTexture->imageFormat() == vkFormat);
+    SkASSERT(this->vkCaps().isVkFormatTexturable(vkFormat));
 
-    // allocate buffer to hold our mip data
-    sk_sp<GrVkTransferBuffer> transferBuffer = GrVkTransferBuffer::Make(this, dataSize,
-                                                                        GrVkBuffer::kCopyRead_Type);
-    if (!transferBuffer) {
-        return false;
-    }
 
-    VkDeviceSize bufferOffset;
-    {
-        char* buffer = (char*)transferBuffer->map();
-        bufferOffset = transferBuffer->offset();
-
-        memcpy(buffer, data, dataSize);
-
-        // no need to flush non-coherent memory, unmap will do that for us
-        transferBuffer->unmap();
-    }
-
+    GrStagingBufferManager::Slice slice;
     SkTArray<VkBufferImageCopy> regions;
     SkTArray<size_t> individualMipOffsets;
-    SkDEBUGCODE(size_t combinedBufferSize =) fill_in_regions(fVkCaps.get(), &regions,
-                                                             &individualMipOffsets, compression,
-                                                             vkFormat, dimensions, mipMapped,
-                                                             bufferOffset);
+    SkDEBUGCODE(size_t combinedBufferSize =) fill_in_regions(fVkCaps.get(), &fStagingBufferManager,
+                                                             &regions, &individualMipOffsets,
+                                                             &slice, compression, vkFormat,
+                                                             dimensions, mipMapped);
+    if (!slice.fBuffer) {
+        return false;
+    }
     SkASSERT(dataSize == combinedBufferSize);
+
+    {
+        char* buffer = (char*)slice.fOffsetMapPtr;
+        memcpy(buffer, data, dataSize);
+    }
 
     // Change layout of our target so it can be copied to
     uploadTexture->setImageLayout(this,
@@ -1006,7 +1008,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
 
     // Copy the buffer to the image
     this->currentCommandBuffer()->copyBufferToImage(this,
-                                                    transferBuffer.get(),
+                                                    static_cast<GrVkTransferBuffer*>(slice.fBuffer),
                                                     uploadTexture,
                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                     regions.count(),
@@ -1666,34 +1668,33 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         SkTArray<VkBufferImageCopy> regions;
         SkTArray<size_t> individualMipOffsets;
-        size_t combinedBufferSize = fill_in_regions(fVkCaps.get(), &regions, &individualMipOffsets,
-                                                    compression, info.fFormat,
-                                                    backendTexture.dimensions(),
-                                                    backendTexture.fMipMapped, 0);
+        GrStagingBufferManager::Slice slice;
 
-        sk_sp<GrVkTransferBuffer> transferBuffer =
-                GrVkTransferBuffer::Make(this, combinedBufferSize, GrVkBuffer::kCopyRead_Type);
-        if (!transferBuffer) {
+        fill_in_regions(fVkCaps.get(), &fStagingBufferManager, &regions, &individualMipOffsets,
+                        &slice, compression, info.fFormat, backendTexture.dimensions(),
+                        backendTexture.fMipMapped);
+
+        if (!slice.fBuffer) {
             return false;
         }
 
         bool result;
         if (data->type() == BackendTextureData::Type::kPixmaps) {
-            result = copy_src_data(this, (char*)transferBuffer->map(), info.fFormat,
+            result = copy_src_data(this, (char*)slice.fOffsetMapPtr, info.fFormat,
                                    individualMipOffsets, data->pixmaps(), info.fLevelCount);
         } else if (data->type() == BackendTextureData::Type::kCompressed) {
-            result = copy_compressed_data(this, (char*)transferBuffer->map(),
+            result = copy_compressed_data(this, (char*)slice.fOffsetMapPtr,
                                           data->compressedData(), data->compressedSize());
         } else {
             SkASSERT(data->type() == BackendTextureData::Type::kColor);
-            result = generate_compressed_data(this, (char*)transferBuffer->map(), compression,
+            result = generate_compressed_data(this, (char*)slice.fOffsetMapPtr, compression,
                                               backendTexture.dimensions(),
                                               backendTexture.fMipMapped, data->color());
         }
-        transferBuffer->unmap();
 
-        cmdBuffer->copyBufferToImage(this, transferBuffer.get(), texture.get(),
-                                     texture->currentLayout(), regions.count(), regions.begin());
+        cmdBuffer->copyBufferToImage(this, static_cast<GrVkTransferBuffer*>(slice.fBuffer),
+                                     texture.get(), texture->currentLayout(), regions.count(),
+                                     regions.begin());
     }
 
     // Change image layout to shader read since if we use this texture as a borrowed

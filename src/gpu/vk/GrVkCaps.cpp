@@ -1172,7 +1172,8 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
         constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
         info.init(interface, physDev, properties, format);
-        info.fBytesPerPixel = 0;
+        // Setting this to texel block size
+        info.fBytesPerPixel = 8;
         // No supported GrColorTypes.
     }
 
@@ -1181,7 +1182,8 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
         constexpr VkFormat format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
         info.init(interface, physDev, properties, format);
-        info.fBytesPerPixel = 0;
+        // Setting this to texel block size
+        info.fBytesPerPixel = 8;
         // No supported GrColorTypes.
     }
 
@@ -1190,7 +1192,8 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
         constexpr VkFormat format = VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
         info.init(interface, physDev, properties, format);
-        info.fBytesPerPixel = 0;
+        // Setting this to texel block size
+        info.fBytesPerPixel = 8;
         // No supported GrColorTypes.
     }
 
