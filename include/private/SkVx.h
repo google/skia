@@ -671,11 +671,11 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
             ));
         }
 
-        static inline Vec<4,int32_t> any(const Vec<4,int32_t>& x) {
-            return to_vec<4,int32_t>(wasm_i32x4_any_true(to_vext(x)));
+        static inline bool any(const Vec<4,int32_t>& x) {
+            return wasm_i32x4_any_true(to_vext(x));
         }
-        static inline Vec<4,int32_t> all(const Vec<4,int32_t>& x) {
-            return to_vec<4,int32_t>(wasm_i32x4_all_true(to_vext(x)));
+        static inline bool all(const Vec<4,int32_t>& x) {
+            return wasm_i32x4_all_true(to_vext(x));
         }
         static inline Vec<4,int32_t> min(const Vec<4,int32_t>& x, const Vec<4,int32_t>& y) {
             return to_vec<4,int32_t>(wasm_i32x4_min(to_vext(x), to_vext(y)));
@@ -687,11 +687,11 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
             return to_vec<4,int32_t>(wasm_i32x4_abs(to_vext(x)));
         }
 
-        static inline Vec<4,uint32_t> any(const Vec<4,uint32_t>& x) {
-            return to_vec<4,uint32_t>(wasm_i32x4_any_true(to_vext(x)));
+        static inline bool any(const Vec<4,uint32_t>& x) {
+            return wasm_i32x4_any_true(to_vext(x));
         }
-        static inline Vec<4,uint32_t> all(const Vec<4,uint32_t>& x) {
-            return to_vec<4,uint32_t>(wasm_i32x4_all_true(to_vext(x)));
+        static inline bool all(const Vec<4,uint32_t>& x) {
+            return wasm_i32x4_all_true(to_vext(x));
         }
         static inline Vec<4,uint32_t> min(const Vec<4,uint32_t>& x,
                                               const Vec<4,uint32_t>& y) {

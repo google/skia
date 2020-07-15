@@ -47,14 +47,15 @@ elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
   RELEASE_CONF+=" --profiling-funcs --closure 0"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
-elif [[ $@ == *simd* ]]; then
-  echo "Building a Debug build with SIMD operations"
-  EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 -msimd128 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
-                --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
-  BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_experimental_simd"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
+fi
+
+if [[ $@ == *simd* ]]; then
+  echo "Building with SIMD operations"
+  RELEASE_CONF+=" -msimd128"
+  EXTRA_CFLAGS+=" \"-msimd128\""
+  BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_experimental_simd"}
 fi
 
 mkdir -p $BUILD_DIR
