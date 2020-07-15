@@ -1286,6 +1286,7 @@ if (skia_enable_tools) {
     "include/svg",
     "include/utils",
     "include/utils/mac",
+    "modules/skparagraph/include",
     "modules/skshaper/include",
     "modules/skottie/include",
   ]
