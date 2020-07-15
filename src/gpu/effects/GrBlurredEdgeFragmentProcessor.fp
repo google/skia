@@ -14,7 +14,7 @@ in fragmentProcessor? inputFP;
 layout(key) in Mode mode;
 
 void main() {
-    half inputAlpha = sample(inputFP, sk_InColor).a;
+    half inputAlpha = sample(inputFP).a;
     half factor = 1.0 - inputAlpha;
     @switch (mode) {
         case Mode::kGaussian:

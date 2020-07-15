@@ -32,7 +32,7 @@ half HSLToRGB(half p, half q, half t) {
 void main() {
     const half3 SK_ITU_BT709_LUM_COEFF = half3(0.2126, 0.7152, 0.0722);
 
-    half4 inColor = sample(inputFP, sk_InColor);
+    half4 inColor = sample(inputFP);
     half4 color = unpremul(inColor);
 
     @if (linearize) {

@@ -18,7 +18,7 @@ layout(key) in bool premulOutput;
 }
 
 void main() {
-    half4 inputColor = sample(inputFP, sk_InColor);
+    half4 inputColor = sample(inputFP);
     @if (unpremulInput) {
         inputColor = unpremul(inputColor);
     }

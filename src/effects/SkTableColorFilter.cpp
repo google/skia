@@ -307,7 +307,7 @@ GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {
     public:
         void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            SkString inputColor = this->invokeChild(kInputFPIndex, args.fInputColor, args);
+            SkString inputColor = this->invokeChild(kInputFPIndex, args);
             SkString a = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.a, 0.5)");
             SkString r = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.r, 1.5)");
             SkString g = this->invokeChild(kTexEffectFPIndex, args, "half2(coord.g, 2.5)");
