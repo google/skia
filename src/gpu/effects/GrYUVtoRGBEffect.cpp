@@ -116,7 +116,6 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
             }
         }
         if (subset) {
-            SkASSERT(samplerState.filter() != GrSamplerState::Filter::kMipMap);
             if (makeLinearWithSnap) {
                 // The plane is subsampled and we have an overall subset on the image. We're
                 // emulating do_fancy_upsampling using linear filtering but snapping look ups to the
@@ -128,19 +127,33 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
                 // planeSubset but allows linear filtering to read pixels from the plane that are
                 // just outside planeSubset.
                 SkRect* domainRect = domain ? &planeDomain : nullptr;
-                planeFPs[i] = GrTextureEffect::MakeCustomLinearFilterInset(
-                        views[i], kUnknown_SkAlphaType, *planeMatrix, samplerState.wrapModeX(),
-                        samplerState.wrapModeY(), planeSubset, domainRect, {sx / 2.f, sy / 2.f},
-                        caps, planeBorders[i]);
+                planeFPs[i] = GrTextureEffect::MakeCustomLinearFilterInset(views[i],
+                                                                           kUnknown_SkAlphaType,
+                                                                           *planeMatrix,
+                                                                           samplerState.wrapModeX(),
+                                                                           samplerState.wrapModeY(),
+                                                                           planeSubset,
+                                                                           domainRect,
+                                                                           {sx/2.f, sy/2.f},
+                                                                           caps,
+                                                                           planeBorders[i]);
             } else if (domain) {
-                planeFPs[i] = GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType,
-                                                          *planeMatrix, samplerState, planeSubset,
-                                                          planeDomain, caps, planeBorders[i]);
+                planeFPs[i] = GrTextureEffect::MakeSubset(views[i],
+                                                          kUnknown_SkAlphaType,
+                                                          *planeMatrix,
+                                                          samplerState,
+                                                          planeSubset,
+                                                          planeDomain,
+                                                          caps,
+                                                          planeBorders[i]);
             } else {
-                SkASSERT(samplerState.filter() != GrSamplerState::Filter::kMipMap);
-                planeFPs[i] = GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType,
-                                                          *planeMatrix, samplerState, planeSubset,
-                                                          caps, planeBorders[i]);
+                planeFPs[i] = GrTextureEffect::MakeSubset(views[i],
+                                                          kUnknown_SkAlphaType,
+                                                          *planeMatrix,
+                                                          samplerState,
+                                                          planeSubset,
+                                                          caps,
+                                                          planeBorders[i]);
             }
         } else {
             GrSamplerState planeSampler = samplerState;
