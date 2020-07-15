@@ -121,6 +121,24 @@
       "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82efa122_aad454ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-15T19:06:59Z",
+      "side": 1,
+      "message": "Alright, it looks like the current plan is to revert only in android/next-release (assuming we can get the bug BC-Triaged - I\u0027ve emailed the Android Bug council, but have not heard back), and separately fix in master (or at least disable) with https://skia-review.googlesource.com/c/skia/+/302670. I\u0027ve uploaded the revert to https://skia-review.googlesource.com/c/skia/+/303019",
+      "parentUuid": "2fe457b8_6689bb59",
+      "revId": "98945c71ba28b8691de7255bf6a22652f5d44f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
