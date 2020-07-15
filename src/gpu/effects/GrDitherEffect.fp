@@ -11,7 +11,7 @@ in fragmentProcessor inputFP;
 in uniform half range;
 
 void main() {
-    half4 color = sample(inputFP, sk_InColor);
+    half4 color = sample(inputFP);
     half value;
     @if (sk_Caps.integerSupport)
     {

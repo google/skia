@@ -15,8 +15,8 @@ layout(ctype=SkV4) in uniform float4 k;
 layout(key) in bool enforcePMColor;
 
 void main() {
-    half4 src = sample(srcFP, sk_InColor);
-    half4 dst = sample(dstFP);
+    half4 src = sample(srcFP);
+    half4 dst = sample(dstFP, "half4(1)");
     sk_OutColor = saturate(half(k.x) * src * dst +
                            half(k.y) * src +
                            half(k.z) * dst +
