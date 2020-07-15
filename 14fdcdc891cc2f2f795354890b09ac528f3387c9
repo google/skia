@@ -52,6 +52,23 @@
       "revId": "14fdcdc891cc2f2f795354890b09ac528f3387c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d8bffe8_9fdfb4c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-15T14:44:30Z",
+      "side": 1,
+      "message": "Okay I\u0027m think this is now not the cause. I think gold is not aligning commits up correctly in the traces. So I think the failure actually started before this change. But just to confirm I\u0027ll let the bot run with the revert which should still continue to fail",
+      "revId": "14fdcdc891cc2f2f795354890b09ac528f3387c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
