@@ -61,8 +61,11 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/gpu/GrRecordingContext.h"
+// remove!!
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
@@ -73,7 +76,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
         : fCharacterization(c) {
     if (fCharacterization.isValid()) {
-        fContext = GrContextPriv::MakeDDL(fCharacterization.refContextInfo());
+        fContext = GrRecordingContextPriv::MakeDDL(fCharacterization.refContextInfo());
     }
 }
 
