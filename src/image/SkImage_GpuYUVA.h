@@ -97,6 +97,7 @@ private:
     SkYUVAIndex                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;
     GrSurfaceOrigin                  fOrigin;
+    mutable GrMipMapped              fMipmapped;
     // If this is non-null then the planar data should be converted from fFromColorSpace to
     // this->colorSpace(). Otherwise we assume the planar data (post YUV->RGB conversion) is already
     // in this->colorSpace().

@@ -57,24 +57,34 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrRecordingContext> context,
     SkASSERT(SkYUVAIndex::AreValidIndices(yuvaIndices, &textureCount));
     SkASSERT(textureCount == fNumViews);
 
+    fMipmapped = GrMipMapped::kYes;
     for (int i = 0; i < numViews; ++i) {
+        if (views[i].proxy()->asTextureProxy()->mipMapped() == GrMipMapped::kNo &&
+            views[i].proxy()->dimensions().area() > 1) {
+            fMipmapped = GrMipMapped::kNo;
+        }
         fViews[i] = std::move(views[i]);
     }
     memcpy(fYUVAIndices, yuvaIndices, 4 * sizeof(SkYUVAIndex));
 }
 
 // For onMakeColorSpace()
-SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, const SkImage_GpuYUVA* image,
+SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context,
+                                 const SkImage_GpuYUVA* image,
                                  sk_sp<SkColorSpace> targetCS)
-        : INHERITED(std::move(context), image->dimensions(), kNeedNewImageUniqueID,
+        : INHERITED(std::move(context),
+                    image->dimensions(),
+                    kNeedNewImageUniqueID,
                     kAssumedColorType,
                     // If an alpha channel is present we always switch to kPremul. This is because,
                     // although the planar data is always un-premul, the final interleaved RGB image
                     // is/would-be premul.
-                    GetAlphaTypeFromYUVAIndices(image->fYUVAIndices), std::move(targetCS))
+                    GetAlphaTypeFromYUVAIndices(image->fYUVAIndices),
+                    std::move(targetCS))
         , fNumViews(image->fNumViews)
         , fYUVColorSpace(image->fYUVColorSpace)
         , fOrigin(image->fOrigin)
+        , fMipmapped(image->fMipmapped)
         // Since null fFromColorSpace means no GrColorSpaceXform, we turn a null
         // image->refColorSpace() into an explicit SRGB.
         , fFromColorSpace(image->colorSpace() ? image->refColorSpace() : SkColorSpace::MakeSRGB()) {
@@ -96,6 +106,9 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, const SkImage_GpuYUVA
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     // We shouldn't get here if the planes were already flattened to RGBA.
     SkASSERT(fViews[0].proxy() && !fRGBView.proxy());
+    if (fMipmapped == GrMipMapped::kYes) {
+        return true;
+    }
     if (!context || !fContext->priv().matches(context)) {
         return false;
     }
@@ -117,6 +130,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     for (int i = 0; i < fNumViews; ++i) {
         fViews[i] = std::move(newViews[i]);
     }
+    fMipmapped = GrMipMapped::kYes;
     return true;
 }
 
@@ -158,9 +172,10 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
+    // We copy the mip map status of the planes.
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, this->refColorSpace(), SkBackingFit::kExact,
-            this->dimensions(), 1, GrMipMapped::kNo, GrProtected::kNo, fOrigin);
+            this->dimensions(), 1, fMipmapped, GrProtected::kNo, fOrigin);
     if (!renderTargetContext) {
         return;
     }
@@ -187,7 +202,8 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
 GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) const {
     // if invalid or already has miplevels
     this->flattenToRGB(context);
-    if (!fRGBView || fRGBView.asTextureProxy()->mipMapped() == GrMipMapped::kYes) {
+    SkASSERT(!fRGBView || fRGBView.asTextureProxy()->mipMapped() == fMipmapped);
+    if (!fRGBView || fMipmapped == GrMipMapped::kYes) {
         return fRGBView;
     }
 
@@ -196,7 +212,7 @@ GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) c
     if (!mippedView) {
         return {};
     }
-
+    fMipmapped = GrMipMapped::kYes;
     fRGBView = std::move(mippedView);
     return fRGBView;
 }
