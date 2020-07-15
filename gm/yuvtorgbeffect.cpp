@@ -326,8 +326,8 @@ protected:
             }
         }
 
-        static const GrSamplerState::Filter kFilters[] = {
-                GrSamplerState::Filter::kNearest, GrSamplerState::Filter::kBilerp };
+        static const GrSamplerState::Filter kFilters[] = {GrSamplerState::Filter::kNearest,
+                                                          GrSamplerState::Filter::kLinear};
         static const SkRect kColorRect = SkRect::MakeLTRB(2.f, 2.f, 6.f, 6.f);
 
         SkYUVAIndex yuvaIndices[4] = {

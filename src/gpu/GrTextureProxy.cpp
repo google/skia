@@ -148,7 +148,7 @@ size_t GrTextureProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
 }
 
 GrSamplerState::Filter GrTextureProxy::HighestFilterMode(GrTextureType textureType) {
-    return GrTextureTypeHasRestrictedSampling(textureType) ? GrSamplerState::Filter::kBilerp
+    return GrTextureTypeHasRestrictedSampling(textureType) ? GrSamplerState::Filter::kLinear
                                                            : GrSamplerState::Filter::kMipMap;
 }
 
