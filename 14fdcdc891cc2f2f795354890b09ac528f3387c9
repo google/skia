@@ -16,6 +16,24 @@
       "revId": "14fdcdc891cc2f2f795354890b09ac528f3387c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "428cec10_09fc35f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2020-07-15T14:17:58Z",
+      "side": 1,
+      "message": "The D3D12 backend should be unaffected by this roll because it only updates Dawn, GLSLang and shaderc. Unless the D3D12 backend uses GLSLang to compile HLSL somehow?",
+      "parentUuid": "b1870752_c68a7309",
+      "revId": "14fdcdc891cc2f2f795354890b09ac528f3387c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
