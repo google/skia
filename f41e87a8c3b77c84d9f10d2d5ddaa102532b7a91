@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef1761c4_0fca2cc3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-07-15T19:59:41Z",
+      "side": 1,
+      "message": "\u003e Patch Set 1:\n\u003e \n\u003e (3 comments)\n\u003e \n\u003e Ultimately I think we\u0027ll want to use callbacks for all resource loading (images, fonts, etc), by letting clients pass a SkResourceProvider [1].  For now this looks fine - I presume you\u0027re building these programmatically, not depending on the xml parser?\n\u003e \n\u003e [1] https://github.com/google/skia/blob/4e68ec693fdbb1a074b744f78e4999b60b517389/modules/skresources/include/SkResources.h#L78\n\nOoh that looks interesting. Will definitely have to consider how to use SkResourceProvider in a future CL.\n\nTo answer your question: I am building these in XML, and providing local embedded resources via data: URIs. That seemed like the easiest first step to me...",
+      "revId": "f41e87a8c3b77c84d9f10d2d5ddaa102532b7a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
