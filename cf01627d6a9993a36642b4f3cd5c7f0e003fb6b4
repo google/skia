@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "effb25b1_01778ec8",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-15T11:52:24Z",
+      "side": 1,
+      "message": "I think you don\u0027t want this in the elif branches, but as its own branch (assuming you want the flexibility to have a profiling+simd or debug+simd build.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 4
+      },
+      "revId": "cf01627d6a9993a36642b4f3cd5c7f0e003fb6b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
