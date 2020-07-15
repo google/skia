@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eea19012_f1c1e268",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-15T21:06:50Z",
+      "side": 1,
+      "message": "Fixes the original issue and a couple of samples.\n\nI\u0027ll add a better test and investigate other issues in a follow-up.",
+      "revId": "8a698443c923e4cc8c35b1007fc695f7d4e1d727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
