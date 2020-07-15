@@ -244,13 +244,12 @@ void ApplyAddRoundRect(SkPath& path, SkScalar left, SkScalar top,
                       ccw ? SkPathDirection::kCCW : SkPathDirection::kCW);
 }
 
-
-void ApplyArcTo(SkPath& p, SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
+void ApplyArcToTangent(SkPath& p, SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                 SkScalar radius) {
     p.arcTo(x1, y1, x2, y2, radius);
 }
 
-void ApplyArcToAngle(SkPath& p, SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo) {
+void ApplyArcToOval(SkPath& p, SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo) {
     p.arcTo(oval, startAngle, sweepAngle, forceMoveTo);
 }
 
@@ -1470,9 +1469,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // interface.js has 4 overloads of addRoundRect
         .function("_addRoundRect", &ApplyAddRoundRect)
         .function("_addVerbsPointsWeights", &PathAddVerbsPointsWeights)
-        .function("_arcTo", &ApplyArcTo)
-        .function("_arcTo", &ApplyArcToAngle)
-        .function("_arcTo", &ApplyArcToArcSize)
+        .function("_arcToOval", &ApplyArcToOval)
+        .function("_arcToRotated", &ApplyArcToArcSize)
+        .function("_arcToTangent", ApplyArcToTangent)
         .function("_close", &ApplyClose)
         .function("_conicTo", &ApplyConicTo)
         .function("countPoints", &SkPath::countPoints)

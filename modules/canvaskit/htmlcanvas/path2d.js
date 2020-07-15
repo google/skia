@@ -16,7 +16,7 @@ function arcTo(skpath, x1, y1, x2, y2, radius) {
   if (skpath.isEmpty()) {
     skpath.moveTo(x1, y1);
   }
-  skpath.arcTo(x1, y1, x2, y2, radius);
+  skpath.arcToTangent(x1, y1, x2, y2, radius);
 }
 
 function bezierCurveTo(skpath, cp1x, cp1y, cp2x, cp2y, x, y) {
@@ -50,11 +50,11 @@ function _ellipseHelper(skpath, x, y, radiusX, radiusY, startAngle, endAngle) {
   // draws nothing.
   if (almostEqual(Math.abs(sweepDegrees), 360)) {
     var halfSweep = sweepDegrees/2;
-    skpath.arcTo(oval, startDegrees, halfSweep, false);
-    skpath.arcTo(oval, startDegrees + halfSweep, halfSweep, false);
+    skpath.arcToOval(oval, startDegrees, halfSweep, false);
+    skpath.arcToOval(oval, startDegrees + halfSweep, halfSweep, false);
     return;
   }
-  skpath.arcTo(oval, startDegrees, sweepDegrees, false);
+  skpath.arcToOval(oval, startDegrees, sweepDegrees, false);
 }
 
 function ellipse(skpath, x, y, radiusX, radiusY, rotation,
