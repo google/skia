@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkTraceMemoryDump.h"

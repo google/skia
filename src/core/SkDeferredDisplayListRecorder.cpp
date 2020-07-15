@@ -61,8 +61,11 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/gpu/GrRecordingContext.h"
+// remove!!
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
@@ -73,13 +76,13 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
         : fCharacterization(c) {
     if (fCharacterization.isValid()) {
-        fContext = GrContextPriv::MakeDDL(fCharacterization.refContextInfo());
+        fContext1 = GrRecordingContextPriv::MakeDDL(fCharacterization.refContextInfo());
     }
 }
 
 SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
-    if (fContext) {
-        auto proxyProvider = fContext->priv().proxyProvider();
+    if (fContext1) {
+        auto proxyProvider = fContext1->priv().proxyProvider();
 
         // This allows the uniquely keyed proxies to keep their keys but removes their back
         // pointer to the about-to-be-deleted proxy provider. The proxies will use their
@@ -96,7 +99,7 @@ SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
 
 
 bool SkDeferredDisplayListRecorder::init() {
-    SkASSERT(fContext);
+    SkASSERT(fContext1);
     SkASSERT(!fTargetProxy);
     SkASSERT(!fLazyProxyData);
     SkASSERT(!fSurface);
@@ -108,12 +111,12 @@ bool SkDeferredDisplayListRecorder::init() {
     fLazyProxyData = sk_sp<SkDeferredDisplayList::LazyProxyData>(
                                                     new SkDeferredDisplayList::LazyProxyData);
 
-    auto proxyProvider = fContext->priv().proxyProvider();
-    const GrCaps* caps = fContext->priv().caps();
+    auto proxyProvider = fContext1->priv().proxyProvider();
+    const GrCaps* caps = fContext1->priv().caps();
 
     bool usesGLFBO0 = fCharacterization.usesGLFBO0();
     if (usesGLFBO0) {
-        if (GrBackendApi::kOpenGL != fContext->backend() ||
+        if (GrBackendApi::kOpenGL != fContext1->backend() ||
             fCharacterization.isTextureable()) {
             return false;
         }
@@ -187,16 +190,16 @@ bool SkDeferredDisplayListRecorder::init() {
     GrSurfaceProxyView readView(fTargetProxy, fCharacterization.origin(), readSwizzle);
     GrSurfaceProxyView writeView(fTargetProxy, fCharacterization.origin(), writeSwizzle);
 
-    auto rtc = std::make_unique<GrRenderTargetContext>(fContext.get(), std::move(readView),
+    auto rtc = std::make_unique<GrRenderTargetContext>(fContext1.get(), std::move(readView),
                                                        std::move(writeView), grColorType,
                                                        fCharacterization.refColorSpace(),
                                                        &fCharacterization.surfaceProps());
-    fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(), std::move(rtc));
+    fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext1.get(), std::move(rtc));
     return SkToBool(fSurface.get());
 }
 
 SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
-    if (!fContext) {
+    if (!fContext1) {
         return nullptr;
     }
 
@@ -208,7 +211,7 @@ SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
 }
 
 sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
-    if (!fContext) {
+    if (!fContext1) {
         return nullptr;
     }
 
@@ -222,7 +225,7 @@ sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
                                                                       std::move(fTargetProxy),
                                                                       std::move(fLazyProxyData)));
 
-    fContext->priv().moveRenderTasksToDDL(ddl.get());
+    fContext1->priv().moveRenderTasksToDDL(ddl.get());
 
     // We want a new lazy proxy target for each recorded DDL so force the (lazy proxy-backed)
     // SkSurface to be regenerated for each DDL.
@@ -244,11 +247,11 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         PromiseImageTextureDoneProc textureDoneProc,
         PromiseImageTextureContext textureContext,
         PromiseImageApiVersion version) {
-    if (!fContext) {
+    if (!fContext1) {
         return nullptr;
     }
 
-    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
+    return SkImage_Gpu::MakePromiseTexture(fContext1.get(),
                                            backendFormat,
                                            width,
                                            height,
@@ -278,11 +281,11 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         PromiseImageTextureDoneProc textureDoneProc,
         PromiseImageTextureContext textureContexts[],
         PromiseImageApiVersion version) {
-    if (!fContext) {
+    if (!fContext1) {
         return nullptr;
     }
 
-    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext1.get(),
                                                    yuvColorSpace,
                                                    yuvaFormats,
                                                    yuvaSizes,
