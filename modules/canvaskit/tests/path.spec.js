@@ -37,7 +37,7 @@ describe('Path Behavior', () => {
         path.lineTo(36, 148);
 
         path.moveTo(150, 180);
-        path.arcTo(150, 100, 50, 200, 20);
+        path.arcToTangent(150, 100, 50, 200, 20);
         path.lineTo(160, 160);
 
         path.moveTo(20, 120);
@@ -263,15 +263,14 @@ describe('Path Behavior', () => {
         canvas.clear(CanvasKit.WHITE);
 
         const path = new CanvasKit.SkPath();
-        //path.moveTo(5, 5);
-        // takes 4, 5 or 7 args
-        // - 5 x1, y1, x2, y2, radius
-        path.arcTo(40, 0, 40, 40, 40);
-        // - 4 oval (as Rect), startAngle, sweepAngle, forceMoveTo
-        path.arcTo(CanvasKit.LTRBRect(90, 10, 120, 200), 30, 300, true);
-        // - 7 rx, ry, xAxisRotate, useSmallArc, isCCW, x, y
+        
+        // - x1, y1, x2, y2, radius
+        path.arcToTangent(40, 0, 40, 40, 40);
+        // - oval (as Rect), startAngle, sweepAngle, forceMoveTo
+        path.arcToOval(CanvasKit.LTRBRect(90, 10, 120, 200), 30, 300, true);
+        // - rx, ry, xAxisRotate, useSmallArc, isCCW, x, y
         path.moveTo(5, 105);
-        path.arcTo(24, 24, 45, true, false, 82, 156);
+        path.arcToRotated(24, 24, 45, true, false, 82, 156);
 
         canvas.drawPath(path, paint);
 

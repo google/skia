@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and when passed into CanvasKit will be used w/o copying the data (just like
   `Malloc.toTypedArray`).
  - `SkM44.setupCamera` to return a 4x4 matrix which sets up a perspective view from a camera.
+ - `SkPath.arcToOval`, `SkPath.arcToTangent`, and `SkPath.arcToRotated` to replace the three
+   overloads of `SkPath.arcTo`. https://github.com/flutter/flutter/issues/61305
 
 ### Changed
  - In all places where color arrays are accepted (gradient makers, drawAtlas, and MakeSkVertices),
@@ -39,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
  - `CanvasKit.MakePathFromCmds` has been renamed to `CanvasKit.SkPath.MakeFromCmds`. The alias
    will be removed in an upcoming release.
+ - `SkPath.arcTo` Separated into three functions.
 
 ## [0.16.2] - 2020-06-05
 
