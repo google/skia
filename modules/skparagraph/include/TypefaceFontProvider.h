@@ -44,23 +44,21 @@ public:
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override;
 
-    SkFontStyleSet* onCreateStyleSet(int index) const override { return nullptr; }
-    SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                   const SkFontStyle& style) const override {
+    SkFontStyleSet* onCreateStyleSet(int) const override { return nullptr; }
+    SkTypeface* onMatchFamilyStyle(const char[], const SkFontStyle&) const override {
         return nullptr;
     }
-    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle& style,
-                                            const char* bcp47[], int bcp47Count,
-                                            SkUnichar character) const override {
+    SkTypeface* onMatchFamilyStyleCharacter(const char[], const SkFontStyle&,
+                                            const char*[], int,
+                                            SkUnichar) const override {
         return nullptr;
     }
-    SkTypeface* onMatchFaceStyle(const SkTypeface* tf, const SkFontStyle& style) const override {
+    SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
         return nullptr;
     }
 
-    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override { return nullptr; }
-    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
-                                            int ttcIndex) const override {
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int) const override { return nullptr; }
+    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>, int) const override {
         return nullptr;
     }
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>,
@@ -68,12 +66,11 @@ public:
         return nullptr;
     }
     sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData>) const override;
-    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
+    sk_sp<SkTypeface> onMakeFromFile(const char[], int) const override {
         return nullptr;
     }
 
-    sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[],
-                                           SkFontStyle style) const override {
+    sk_sp<SkTypeface> onLegacyMakeTypeface(const char[], SkFontStyle) const override {
         return nullptr;
     }
 
