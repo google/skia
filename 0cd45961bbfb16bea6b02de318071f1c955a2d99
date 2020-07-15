@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "965310bf_2f8655b5",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_skottie_frames/perf_puppeteer_skottie_frames.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-15T13:29:30Z",
+      "side": 1,
+      "message": "does the tryjob count? It\u0027s getting exercised because I\u0027ve configured the job to run both ways, webgl1 and webgl2",
+      "parentUuid": "8123b4e6_33d2f0fe",
+      "range": {
+        "startLine": 194,
+        "startChar": 28,
+        "endLine": 194,
+        "endChar": 40
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a62ecc0_2e2be9bd",
         "filename": "modules/canvaskit/externs.js",
         "patchSetId": 5
