@@ -60,7 +60,7 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
     }
 }
 
-GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendFormat GetBackendFormat(GrDirectContext* context, AHardwareBuffer* hardwareBuffer,
                                  uint32_t bufferFormat, bool requireKnownFormat) {
     GrBackendApi backend = context->backend();
 
@@ -169,7 +169,7 @@ public:
         // eglDestroyImageKHR will remove a ref from the AHardwareBuffer
         eglDestroyImageKHR(fDisplay, fImage);
     }
-    void rebind(GrContext* grContext);
+    void rebind(GrDirectContext*);
 
 private:
     GrGLuint    fTexID;
@@ -178,7 +178,7 @@ private:
     GrGLuint    fTexTarget;
 };
 
-void GLTextureHelper::rebind(GrContext* grContext) {
+void GLTextureHelper::rebind(GrDirectContext* grContext) {
     glBindTexture(fTexTarget, fTexID);
     GLenum status = GL_NO_ERROR;
     if ((status = glGetError()) != GL_NO_ERROR) {
@@ -199,13 +199,14 @@ void delete_gl_texture(void* context) {
     delete cleanupHelper;
 }
 
-void update_gl_texture(void* context, GrContext* grContext) {
+void update_gl_texture(void* context, GrDirectContext* grContext) {
     GLTextureHelper* cleanupHelper = static_cast<GLTextureHelper*>(context);
     cleanupHelper->rebind(grContext);
 }
 
 static GrBackendTexture make_gl_backend_texture(
-        GrContext* context, AHardwareBuffer* hardwareBuffer,
+        GrDirectContext* context,
+        AHardwareBuffer* hardwareBuffer,
         int width, int height,
         DeleteImageProc* deleteProc,
         UpdateImageProc* updateProc,
@@ -294,12 +295,13 @@ void delete_vk_image(void* context) {
     delete cleanupHelper;
 }
 
-void update_vk_image(void* context, GrContext* grContext) {
+void update_vk_image(void* context, GrDirectContext* grContext) {
     // no op
 }
 
 static GrBackendTexture make_vk_backend_texture(
-        GrContext* context, AHardwareBuffer* hardwareBuffer,
+        GrDirectContext* context,
+        AHardwareBuffer* hardwareBuffer,
         int width, int height,
         DeleteImageProc* deleteProc,
         UpdateImageProc* updateProc,
@@ -510,7 +512,7 @@ static bool can_import_protected_content_eglimpl() {
     return equal || atStart || atEnd || inMiddle;
 }
 
-static bool can_import_protected_content(GrContext* context) {
+static bool can_import_protected_content(GrRecordingContext* context) {
     if (GrBackendApi::kOpenGL == context->backend()) {
         // Only compute whether the extension is present once the first time this
         // function is called.
@@ -520,7 +522,8 @@ static bool can_import_protected_content(GrContext* context) {
     return false;
 }
 
-GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendTexture MakeBackendTexture(GrDirectContext* context,
+                                    AHardwareBuffer* hardwareBuffer,
                                     int width, int height,
                                     DeleteImageProc* deleteProc,
                                     UpdateImageProc* updateProc,
