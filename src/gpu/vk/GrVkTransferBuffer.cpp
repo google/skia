@@ -41,14 +41,14 @@ GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& des
 
 void GrVkTransferBuffer::onRelease() {
     if (!this->wasDestroyed()) {
-        this->vkRelease();
+        this->vkRelease(this->getVkGpu());
     }
     INHERITED::onRelease();
 }
 
 void GrVkTransferBuffer::onAbandon() {
     if (!this->wasDestroyed()) {
-        this->vkRelease();
+        this->vkRelease(this->getVkGpu());
     }
     INHERITED::onAbandon();
 }

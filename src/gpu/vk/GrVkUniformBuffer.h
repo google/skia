@@ -33,7 +33,7 @@ public:
                     bool* createdNewBuffer) {
         return this->vkUpdateData(gpu, src, srcSizeInBytes, createdNewBuffer);
     }
-    void release() { this->vkRelease(); }
+    void release(GrVkGpu* gpu) { this->vkRelease(gpu); }
 
     const VkDescriptorSet* descriptorSet() const {
         const Resource* resource = static_cast<const Resource*>(this->resource());

@@ -65,7 +65,7 @@ public:
 
     void addUniformResources(GrVkCommandBuffer&, GrVkSampler*[], GrVkTexture*[], int numTextures);
 
-    void freeGPUResources();
+    void freeGPUResources(GrVkGpu* gpu);
 
 private:
     /**

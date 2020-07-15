@@ -53,7 +53,7 @@ sk_sp<GrVkMeshBuffer> GrVkMeshBuffer::Make(GrVkGpu* gpu, GrGpuBufferType bufferT
 
 void GrVkMeshBuffer::onRelease() {
     if (!this->wasDestroyed()) {
-        this->vkRelease();
+        this->vkRelease(this->getVkGpu());
     }
 
     this->GrGpuBuffer::onRelease();
@@ -61,7 +61,7 @@ void GrVkMeshBuffer::onRelease() {
 
 void GrVkMeshBuffer::onAbandon() {
     if (!this->wasDestroyed()) {
-        this->vkRelease();
+        this->vkRelease(this->getVkGpu());
     }
     this->GrGpuBuffer::onAbandon();
 }

@@ -32,7 +32,7 @@ struct GrVkResourceProvider::PipelineStateCache::Entry {
 
     ~Entry() {
         if (fPipelineState) {
-            fPipelineState->freeGPUResources();
+            fPipelineState->freeGPUResources(fGpu);
         }
     }
 
