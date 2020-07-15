@@ -77,6 +77,17 @@ private:
     friend void SkDilateImageFilter::RegisterFlattenables();
 
     SK_FLATTENABLE_HOOKS(SkMorphologyImageFilterImpl)
+    // Historically the morphology op was implicitly encoded in the factory type used to decode
+    // the image filter, so provide backwards compatible functions for old SKPs.
+    static sk_sp<SkFlattenable> CreateProcWithType(SkReadBuffer&, const MorphType*);
+    static sk_sp<SkFlattenable> DilateCreateProc(SkReadBuffer& buffer) {
+        static const MorphType kType = MorphType::kDilate;
+        return CreateProcWithType(buffer, &kType);
+    }
+    static sk_sp<SkFlattenable> ErodeCreateProc(SkReadBuffer& buffer) {
+        static const MorphType kType = MorphType::kErode;
+        return CreateProcWithType(buffer, &kType);
+    }
 
     MorphType fType;
     SkSize    fRadius;
@@ -108,11 +119,19 @@ sk_sp<SkImageFilter> SkErodeImageFilter::Make(SkScalar radiusX, SkScalar radiusY
 
 void SkDilateImageFilter::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkMorphologyImageFilterImpl);
+    // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old names
+    SkFlattenable::Register("SkDilateImageFilter", SkMorphologyImageFilterImpl::DilateCreateProc);
+    SkFlattenable::Register(
+            "SkDilateImageFilterImpl", SkMorphologyImageFilterImpl::DilateCreateProc);
+    SkFlattenable::Register("SkErodeImageFilter", SkMorphologyImageFilterImpl::ErodeCreateProc);
+    SkFlattenable::Register("SkErodeImageFilterImpl", SkMorphologyImageFilterImpl::ErodeCreateProc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkFlattenable> SkMorphologyImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+// 'type' acts as a signal that old-style deserialization is required. It is temporary.
+sk_sp<SkFlattenable> SkMorphologyImageFilterImpl::CreateProcWithType(SkReadBuffer& buffer,
+                                                                     const MorphType* type) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar width;
     SkScalar height;
@@ -124,7 +143,14 @@ sk_sp<SkFlattenable> SkMorphologyImageFilterImpl::CreateProc(SkReadBuffer& buffe
         height = buffer.readScalar();
     }
 
-    MorphType filterType = buffer.read32LE(MorphType::kLastType);
+    MorphType filterType;
+    if (type) {
+        // The old create procs that have an associated op should only be used on old SKPs
+        SkASSERT(buffer.isVersionLT(SkPicturePriv::kUnifyErodeDilateImpls_Version));
+        filterType = *type;
+    } else {
+        filterType = buffer.read32LE(MorphType::kLastType);
+    }
 
     if (filterType == MorphType::kDilate) {
         return SkDilateImageFilter::Make(width, height, common.getInput(0), &common.cropRect());
@@ -133,6 +159,11 @@ sk_sp<SkFlattenable> SkMorphologyImageFilterImpl::CreateProc(SkReadBuffer& buffe
     } else {
         return nullptr;
     }
+}
+
+sk_sp<SkFlattenable> SkMorphologyImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+    // Pass null to have the create proc read the op from the buffer
+    return CreateProcWithType(buffer, nullptr);
 }
 
 void SkMorphologyImageFilterImpl::flatten(SkWriteBuffer& buffer) const {

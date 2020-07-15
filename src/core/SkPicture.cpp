@@ -84,6 +84,9 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     if (!stream->readScalar(&info.fCullRect.fTop   )) { return false; }
     if (!stream->readScalar(&info.fCullRect.fRight )) { return false; }
     if (!stream->readScalar(&info.fCullRect.fBottom)) { return false; }
+    if (info.getVersion() < SkPicturePriv::kRemoveHeaderFlags_Version) {
+        if (!stream->readU32(nullptr)) { return false; }
+    }
 
     if (!IsValidPictInfo(info)) { return false; }
 
@@ -103,6 +106,9 @@ bool SkPicture::BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo) {
 
     info.setVersion(buffer->readUInt());
     buffer->readRect(&info.fCullRect);
+    if (info.getVersion() < SkPicturePriv::kRemoveHeaderFlags_Version) {
+        (void)buffer->readUInt();   // used to be flags
+    }
 
     if (IsValidPictInfo(info)) {
         if (pInfo) { *pInfo = info; }
