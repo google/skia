@@ -48,6 +48,16 @@ const opts = [
     description: 'The perf file to write. Defaults to perf.json',
   },
   {
+    name: 'chromium_executable_path',
+    typeLabel: '{underline file}',
+    description: 'The chromium executable to be used by puppeteer to run tests',
+  },
+  {
+    name: 'merge_output_as',
+    typeLabel: String,
+    description: 'Overwrites a json property in an existing output file.',
+  },
+  {
     name: 'use_gpu',
     description: 'Whether we should run in non-headless mode with GPU.',
     type: Boolean,
@@ -57,6 +67,11 @@ const opts = [
     description: 'If non-empty, will be interpreted as the tracing categories that should be ' +
       'measured and returned in the output JSON. Example: "blink,cc,gpu"',
     type: String,
+  },
+  {
+    name: 'enable_simd',
+    description: 'enable execution of wasm SIMD operations in chromium',
+    type: Boolean
   },
   {
     name: 'port',
@@ -187,6 +202,9 @@ async function driveBrowser() {
       '--disable-frame-rate-limit',
       '--disable-gpu-vsync',
   ];
+  if (options.enable_simd) {
+    browser_args.push('--enable-features=WebAssemblySimd');
+  }
   if (options.use_gpu) {
     browser_args.push('--ignore-gpu-blacklist');
     browser_args.push('--ignore-gpu-blocklist');
@@ -194,7 +212,11 @@ async function driveBrowser() {
   }
   console.log("Running with headless: " + headless + " args: " + browser_args);
   try {
-    browser = await puppeteer.launch({headless: headless, args: browser_args});
+    browser = await puppeteer.launch({
+      headless: headless,
+      args: browser_args,
+      executablePath: options.chromium_executable_path
+    });
     page = await browser.newPage();
     await page.setViewport(viewPort);
   } catch (e) {
@@ -252,7 +274,19 @@ async function driveBrowser() {
     } else {
       const perfResults = await page.evaluate('window._perfData');
       console.debug('Perf results: ', perfResults);
-      fs.writeFileSync(options.output, JSON.stringify(perfResults));
+
+      if (options.merge_output_as) {
+        const existing_output_file_contents = fs.readFileSync(options.output, 'utf8');
+        let existing_dataset = {};
+        try {
+          existing_dataset = JSON.parse(existing_output_file_contents);
+        } catch (e) {}
+
+        existing_dataset[options.merge_output_as] = perfResults;
+        fs.writeFileSync(options.output, JSON.stringify(existing_dataset));
+      } else {
+        fs.writeFileSync(options.output, JSON.stringify(perfResults));
+      }
     }
 
   } catch(e) {
