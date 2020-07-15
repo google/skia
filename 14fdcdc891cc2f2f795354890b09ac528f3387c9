@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1870752_c68a7309",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-15T14:13:11Z",
+      "side": 1,
+      "message": "Ever since this landed our d3d backend is drawing a lot of junk. See gold here, https://gold.skia.org/search?blame\u003d14fdcdc891cc2f2f795354890b09ac528f3387c9\u0026fdiffmax\u003d-1\u0026fref\u003dfalse\u0026frgbamax\u003d255\u0026frgbamin\u003d0\u0026head\u003dtrue\u0026include\u003dfalse\u0026limit\u003d50\u0026master\u003dfalse\u0026match\u003dname\u0026metric\u003dcombined\u0026neg\u003dfalse\u0026offset\u003d0\u0026pos\u003dfalse\u0026query\u003dsource_type%3Dgm\u0026sort\u003ddesc\u0026unt\u003dtrue\n\nIs there anything in here that could be affecting that backend? We do use spirv cross for shaders, but that is its own dep, unless somehow we are getting a different version of it from the new shaderc/gslang updates here. Should we try reverting this to see if it fixes things?",
+      "revId": "14fdcdc891cc2f2f795354890b09ac528f3387c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
