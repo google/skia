@@ -10,6 +10,28 @@ glslang_root = "../externals/glslang"
 
 spirv_tools_dir = glslang_spirv_tools_dir
 
+action("glslang_build_info") {
+  script = "${glslang_root}/build_info.py"
+
+  changes_file = "${glslang_root}/CHANGES.md"
+  template_file = "${glslang_root}/build_info.h.tmpl"
+  out_file = "${target_gen_dir}/include/glslang/build_info.h"
+
+  inputs = [
+    changes_file,
+    script,
+    template_file,
+  ]
+  outputs = [ out_file ]
+  args = [
+    rebase_path(glslang_root, root_build_dir),
+    "-i",
+    rebase_path(template_file, root_build_dir),
+    "-o",
+    rebase_path(out_file, root_build_dir),
+  ]
+}
+
 third_party("glslang_sources") {
   public_include_dirs = [ "$glslang_root" ]
   public_defines = [ "ENABLE_HLSL=1" ]
@@ -72,7 +94,6 @@ third_party("glslang_sources") {
                     "glslang/Include/Types.h",
                     "glslang/Include/arrays.h",
                     "glslang/Include/intermediate.h",
-                    "glslang/Include/revision.h",
                     "glslang/MachineIndependent/Constant.cpp",
                     "glslang/MachineIndependent/InfoSink.cpp",
                     "glslang/MachineIndependent/Initialize.cpp",
@@ -134,5 +155,9 @@ third_party("glslang_sources") {
     defines += [ "GLSLANG_OSINCLUDE_UNIX" ]
   }
 
-  deps = [ "${spirv_tools_dir}:spvtools_val" ]
+  include_dirs = [ "${target_gen_dir}/include" ]
+  deps = [
+    ":glslang_build_info",
+    "${spirv_tools_dir}:spvtools_val",
+  ]
 }
