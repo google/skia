@@ -373,7 +373,7 @@ private:
             }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
                     target->allocator(), *target->caps().shaderCaps(), *matrix, fWideColor,
-                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::Filter::kBilerp,
+                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::Filter::kLinear,
                     flags);
         } else {
             SkMatrix invert;
@@ -769,7 +769,7 @@ private:
             if (fUsesDistanceField) {
                 reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewViews(
                         fAtlas->getViews(), fAtlas->numActivePages(),
-                        GrSamplerState::Filter::kBilerp);
+                        GrSamplerState::Filter::kLinear);
             } else {
                 reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(
                         fAtlas->getViews(), fAtlas->numActivePages(),

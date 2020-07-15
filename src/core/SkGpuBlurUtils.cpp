@@ -266,7 +266,7 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(GrRecordingContext* conte
 
     GrPaint paint;
     auto fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
-                                          GrSamplerState::Filter::kBilerp, srcBounds, srcBounds,
+                                          GrSamplerState::Filter::kLinear, srcBounds, srcBounds,
                                           *context->priv().caps());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

@@ -29,7 +29,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrRecordingCont
     auto rtContext = GrRenderTargetContext::Make(
             context, colorType, nullptr, SkBackingFit::kExact, rectView.proxy()->dimensions());
     for (auto filter : {GrSamplerState::Filter::kNearest,
-                        GrSamplerState::Filter::kBilerp,
+                        GrSamplerState::Filter::kLinear,
                         GrSamplerState::Filter::kMipMap}) {
         rtContext->clear(SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA));
         auto fp = GrTextureEffect::Make(rectView, alphaType, SkMatrix::I(), filter);

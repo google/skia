@@ -68,7 +68,7 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
     // TODO: When we start sampling colorizers with explicit coords rather than using sk_InColor
     // the GrTextureEffect can simply be the colorizer.
     auto m = SkMatrix::Scale(view.width(), 1.f);
-    auto te = GrTextureEffect::Make(std::move(view), alphaType, m, GrSamplerState::Filter::kBilerp);
+    auto te = GrTextureEffect::Make(std::move(view), alphaType, m, GrSamplerState::Filter::kLinear);
     return GrTextureGradientColorizer::Make(std::move(te));
 }
 

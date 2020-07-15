@@ -812,13 +812,13 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
                         paint, constraint);
 }
 
-// When drawing nine-patches or n-patches, cap the filter quality at kBilerp.
+// When drawing nine-patches or n-patches, cap the filter quality at kLinear.
 static GrSamplerState::Filter compute_lattice_filter_mode(const SkPaint& paint) {
     if (paint.getFilterQuality() == kNone_SkFilterQuality) {
         return GrSamplerState::Filter::kNearest;
     }
 
-    return GrSamplerState::Filter::kBilerp;
+    return GrSamplerState::Filter::kLinear;
 }
 
 void SkGpuDevice::drawImageNine(const SkImage* image,
