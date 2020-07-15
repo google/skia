@@ -114,8 +114,11 @@ void GrVkBuffer::Resource::freeGPUData() const {
     GrVkMemory::FreeBufferMemory(fGpu, fType, fAlloc);
 }
 
-void GrVkBuffer::vkRelease() {
+void GrVkBuffer::vkRelease(GrVkGpu* gpu) {
     VALIDATE();
+    if (this->vkIsMapped()) {
+        this->vkUnmap(gpu);
+    }
     fResource->recycle();
     fResource = nullptr;
     if (!fDesc.fDynamic) {

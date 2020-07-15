@@ -12,10 +12,18 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrResourceProvider.h"
 
-GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice(size_t size) {
+GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice(
+        size_t size, size_t requiredAlignment) {
+    SkASSERT(requiredAlignment != 0 && SkIsPow2(requiredAlignment));
+
+  //  size_t alignedSize = (size + requireAlignemnt - 1) & ~(fAlignment - 1);
     StagingBuffer* buffer = nullptr;
+    size_t offset = 0;
     for (size_t i = 0; i < fBuffers.size(); ++i) {
-        if (fBuffers[i].remaining() >= size) {
+        size_t totalBufferSize = fBuffers[i].fBuffer->size();
+        size_t currentOffset = fBuffers[i].fOffset;
+        offset = (currentOffset + requiredAlignment - 1) & ~(requiredAlignment - 1);
+        if (totalBufferSize - offset >= size) {
             buffer = &fBuffers[i];
             break;
         }
@@ -35,15 +43,15 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
         }
         fBuffers.emplace_back(std::move(newBuffer), mapPtr);
         buffer = &fBuffers.back();
+        offset = 0;
     }
 
     SkASSERT(buffer);
     SkASSERT(buffer->remaining() >= size);
 
-    size_t sliceOffset = buffer->fOffset;
-    buffer->fOffset += size;
-    char* offsetMapPtr = static_cast<char*>(buffer->fMapPtr) + sliceOffset;
-    return {buffer->fBuffer.get(), sliceOffset, offsetMapPtr};
+    buffer->fOffset = offset + size;
+    char* offsetMapPtr = static_cast<char*>(buffer->fMapPtr) + offset;
+    return {buffer->fBuffer.get(), offset, offsetMapPtr};
 }
 
 void GrStagingBufferManager::detachBuffers() {
