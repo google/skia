@@ -52,6 +52,50 @@ static void check_allocator_helper(GrTAllocator<C, N>* allocator, int cnt, int p
     }
 }
 
+template<int N>
+static void check_iterator_helper(GrTAllocator<C, N>* allocator, const std::vector<C*>& expected,
+                                  skiatest::Reporter* reporter) {
+    const GrTAllocator<C, N>* cAlloc = allocator;
+    REPORTER_ASSERT(reporter, (size_t) allocator->count() == expected.size());
+    // Forward+const
+    int i = 0;
+    for (const C& c : cAlloc->items()) {
+        REPORTER_ASSERT(reporter, (uintptr_t) &c == (uintptr_t) expected[i]);
+        ++i;
+    }
+    REPORTER_ASSERT(reporter, (size_t) i == expected.size());
+
+    // Forward+non-const
+    i = 0;
+    for (C& c : allocator->items()) {
+        REPORTER_ASSERT(reporter, (uintptr_t) &c == (uintptr_t) expected[i]);
+        ++i;
+    }
+    REPORTER_ASSERT(reporter, (size_t) i == expected.size());
+
+    // Reverse+const
+    i = (int) expected.size() - 1;
+    for (const C& c : cAlloc->ritems()) {
+        REPORTER_ASSERT(reporter, (uintptr_t) &c == (uintptr_t) expected[i]);
+        --i;
+    }
+    REPORTER_ASSERT(reporter, i == -1);
+
+    // Reverse+non-const
+    i = (int) expected.size() - 1;
+    for (C& c : allocator->ritems()) {
+        REPORTER_ASSERT(reporter, (uintptr_t) &c == (uintptr_t) expected[i]);
+        --i;
+    }
+    REPORTER_ASSERT(reporter, i == -1);
+
+    // Also test random access
+    for (int i = 0; i < allocator->count(); ++i) {
+        REPORTER_ASSERT(reporter, (uintptr_t) &allocator->item(i) == (uintptr_t) expected[i]);
+        REPORTER_ASSERT(reporter, (uintptr_t) &cAlloc->item(i) == (uintptr_t) expected[i]);
+    }
+}
+
 // Adds cnt items to the allocator, tests the cnts and iterators, pops popCnt items and checks
 // again. Finally it resets the allocator and checks again.
 template<int N>
@@ -59,6 +103,7 @@ static void check_allocator(GrTAllocator<C, N>* allocator, int cnt, int popCnt,
                             skiatest::Reporter* reporter) {
     SkASSERT(allocator);
     SkASSERT(allocator->empty());
+    std::vector<C*> items;
     for (int i = 0; i < cnt; ++i) {
         // Try both variations of push_back().
         if (i % 1) {
@@ -66,9 +111,12 @@ static void check_allocator(GrTAllocator<C, N>* allocator, int cnt, int popCnt,
         } else {
             allocator->push_back() = C(i);
         }
+        items.push_back(&allocator->back());
     }
+    check_iterator_helper(allocator, items, reporter);
     check_allocator_helper(allocator, cnt, popCnt, reporter);
     allocator->reset();
+    check_iterator_helper(allocator, {}, reporter);
     check_allocator_helper(allocator, 0, 0, reporter);
 }
 
