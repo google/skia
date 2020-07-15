@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aabfc728_8d8dcf75",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1289,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-07-15T15:13:54Z",
+      "side": 1,
+      "message": "Mike, if you don\u0027t like all the \"unused\" warnings, I can fix it.",
+      "revId": "8523e5b7532283eb92c67ef41c4e9ba1e9b50a2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
