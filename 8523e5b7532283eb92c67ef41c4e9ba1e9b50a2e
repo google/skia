@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f69a74c7_2fef190e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-15T15:31:45Z",
+      "side": 1,
+      "message": "You can take-over this CL",
+      "revId": "8523e5b7532283eb92c67ef41c4e9ba1e9b50a2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aabfc728_8d8dcf75",
         "filename": "BUILD.gn",
         "patchSetId": 1
