@@ -126,7 +126,7 @@ static D3D12_TEXTURE_ADDRESS_MODE wrap_mode_to_d3d_address_mode(GrSamplerState::
 
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler(
         const GrSamplerState& params) {
-    uint32_t key = GrSamplerState::GenerateKey(params);
+    uint32_t key = params.asIndex();
     D3D12_CPU_DESCRIPTOR_HANDLE* samplerPtr = fSamplers.find(key);
     if (samplerPtr) {
         return *samplerPtr;
