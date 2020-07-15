@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0314cfa2_d76008f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-15T17:53:44Z",
+      "side": 1,
+      "message": "@Mike looks like a recursion limit of 32 produces no diffs when running through gold. 16 appears to be too low (one large diff produced). \n\nOn the original fuzzer timeout testcase, lowering to 32 doesn\u0027t change the time: still 3min30 sec. But when I lower the limit to 31, suddenly the testcase executes in 1.19 seconds... huge difference. Still investigating. But it looks tentatively like lowering the limit can be a fix for the fuzzer timeout.",
+      "revId": "bef03ceb8f014431e7a24ed31f4610952b1418f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
