@@ -262,6 +262,40 @@ DEF_SIMPLE_GM(squarehair, canvas, 240, 360) {
     }
 }
 
+// GM to test subdivision of hairlines
+static void draw_subdivided_quad(SkCanvas* canvas, SkPaint* paint,
+                          int x0, int y0, int x1, int y1, SkColor color) {
+    SkPath quad;
+    quad.moveTo(0, 0);
+    quad.quadTo(SkIntToScalar(x0), SkIntToScalar(y0),
+                SkIntToScalar(x1), SkIntToScalar(y1));
+    paint->setColor(color);
+    canvas->drawPath(quad, *paint);
+}
+
+DEF_SIMPLE_GM(hairline_subdiv, canvas, 512, 256) {
+    SkPaint paint;
+    paint.setStrokeWidth(1);
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    // no subdivisions
+    canvas->translate(45, -25);
+    draw_subdivided_quad(canvas, &paint, 334, 334, 467, 267, SK_ColorBLACK);
+
+    // one subdivision
+    canvas->translate(-185, -150);
+    draw_subdivided_quad(canvas, &paint, 472, 472, 660, 378, SK_ColorRED);
+
+    // two subdivisions
+    canvas->translate(-275, -200);
+    draw_subdivided_quad(canvas, &paint, 668, 668, 934, 535, SK_ColorGREEN);
+
+    // three subdivisions
+    canvas->translate(-385, -260);
+    draw_subdivided_quad(canvas, &paint, 944, 944, 1320, 756, SK_ColorBLUE);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new HairlinesGM; )
