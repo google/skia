@@ -30,7 +30,7 @@
 
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
-SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context,
+SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrRecordingContext> context,
                                  SkISize size,
                                  uint32_t uniqueID,
                                  SkYUVColorSpace colorSpace,
@@ -39,7 +39,8 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context,
                                  const SkYUVAIndex yuvaIndices[4],
                                  GrSurfaceOrigin origin,
                                  sk_sp<SkColorSpace> imageColorSpace)
-        : INHERITED(std::move(context),
+        // CONTEXT TODO: rm this usage of the 'backdoor' to create an image
+        : INHERITED(sk_ref_sp(context->priv().backdoor()),
                     size,
                     uniqueID,
                     kAssumedColorType,
@@ -323,7 +324,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrContext* context, SkYUVColorSpace 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
-        GrContext* context,
+        GrRecordingContext* context,
         SkYUVColorSpace yuvColorSpace,
         const GrBackendFormat yuvaFormats[],
         const SkISize yuvaSizes[],

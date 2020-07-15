@@ -59,10 +59,6 @@ void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
     this->flushSurfaces(proxy ? &proxy : nullptr, proxy ? 1 : 0, {});
 }
 
-void GrContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
-    fContext->drawingManager()->moveRenderTasksToDDL(ddl);
-}
-
 void GrContextPriv::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
                                            GrRenderTargetProxy* newDest) {
     fContext->drawingManager()->copyRenderTasksFromDDL(std::move(ddl), newDest);
@@ -184,6 +180,7 @@ void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCal
 
 bool GrContextPriv::validPMUPMConversionExists() {
     ASSERT_SINGLE_OWNER
+
     if (!fContext->fDidTestPMConversions) {
         fContext->fPMUPMConversionsRoundTrip =
                 GrConfigConversionEffect::TestForPreservingPMConversions(fContext);
