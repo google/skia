@@ -492,7 +492,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     auto csxf = GrTest::TestColorXform(random);
     GrSamplerState::Filter filter =
-            random->nextBool() ? GrSamplerState::Filter::kNearest : GrSamplerState::Filter::kBilerp;
+            random->nextBool() ? GrSamplerState::Filter::kNearest : GrSamplerState::Filter::kLinear;
 
     GrSurfaceProxyView view(
             std::move(proxy), origin,

@@ -38,11 +38,11 @@ public:
      * Makes a texture effect that samples a subset of a texture. The wrap modes of the
      * GrSampleState are applied to the subset in the shader rather than using HW samplers.
      * The 'subset' parameter specifies the texels in the base level. The shader code will
-     * avoid allowing bilerp filtering to read outside the texel window. However, if MIP
+     * avoid allowing linear filtering to read outside the texel window. However, if MIP
      * filtering is used and a shader invocation reads from a level other than the base
      * then it may read texel values that were computed from in part from base level texels
      * outside the window. More specifically, we treat the MIP map case exactly like the
-     * bilerp case in terms of how the final texture coords are computed.
+     * linear case in terms of how the final texture coords are computed.
      */
     static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
                                                            SkAlphaType,
@@ -68,16 +68,16 @@ public:
                                                            const float border[4] = kDefaultBorder);
 
     /**
-     * Like MakeSubset() but always uses kBilerp filtering. MakeSubset() uses the subset rect
+     * Like MakeSubset() but always uses kLinear filtering. MakeSubset() uses the subset rect
      * dimensions to determine the period of the wrap mode (for repeat and mirror). Once it computes
      * the wrapped texture coordinate inside subset rect it further clamps it to a 0.5 inset rect of
-     * subset. When subset is an integer rectangle this clamping avoids the hw bilerp filtering from
+     * subset. When subset is an integer rectangle this clamping avoids the hw linear filtering from
      * reading texels just outside the subset rect. This factory allows a custom inset clamping
-     * distance rather than 0.5, allowing those neighboring texels to influence the bilerped sample
-     * result. If there is a known restriction on the post-matrix texture coords it can be specified
-     * using domain.
+     * distance rather than 0.5, allowing those neighboring texels to influence the linear filtering
+     * sample result. If there is a known restriction on the post-matrix texture coords it can be
+     * specified using domain.
      */
-    static std::unique_ptr<GrFragmentProcessor> MakeBilerpWithInset(
+    static std::unique_ptr<GrFragmentProcessor> MakeCustomLinearFilterInset(
             GrSurfaceProxyView,
             SkAlphaType,
             const SkMatrix&,
@@ -127,7 +127,7 @@ private:
         kNone,                  // Using HW mode
         kClamp,                 // Shader based clamp, no filter specialization
         kRepeatNearest,         // Simple repeat for nearest sampling
-        kRepeatBilerp,          // Filter across the subset boundary for kRepeat mode
+        kRepeatLinear,          // Filter across the subset boundary for kRepeat mode
         kRepeatMipMap,          // Logic for LOD selection with kRepeat mode.
         kMirrorRepeat,          // Mirror repeat (doesn't depend on filter))
         kClampToBorderNearest,  // Logic for hard transition to border color when not filtering.
