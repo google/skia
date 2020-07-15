@@ -55,6 +55,8 @@ public:
 
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
+    void moveRenderTasksToDDL(SkDeferredDisplayList*);
+
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
      *
@@ -103,6 +105,11 @@ public:
     GrSDFTOptions SDFTOptions() const {
         return {this->options().fMinDistanceFieldFontSize, this->options().fGlyphsAsPathsFontSize};
     }
+
+    /**
+     * Create a GrRecordingContext without a resource cache
+     */
+    static sk_sp<GrRecordingContext> MakeDDL(sk_sp<GrContextThreadSafeProxy>);
 
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}

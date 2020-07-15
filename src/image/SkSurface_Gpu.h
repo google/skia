@@ -22,7 +22,7 @@ public:
     ~SkSurface_Gpu() override;
 
     // This is an internal-only factory
-    static sk_sp<SkSurface> MakeWrappedRenderTarget(GrContext*,
+    static sk_sp<SkSurface> MakeWrappedRenderTarget(GrRecordingContext*,
                                                     std::unique_ptr<GrRenderTargetContext>);
 
     GrContext* onGetContext_deprecated() override;
