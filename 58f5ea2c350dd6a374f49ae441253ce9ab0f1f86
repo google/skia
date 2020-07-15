@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "368e4188_ec67dc53",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-15T17:21:24Z",
+      "side": 1,
+      "message": "We had some gold diffs this morning but they were misattributed as confirmed by talking with bsalomon and repro-ing locally.",
+      "revId": "58f5ea2c350dd6a374f49ae441253ce9ab0f1f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
