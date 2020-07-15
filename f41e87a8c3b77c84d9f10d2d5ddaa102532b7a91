@@ -16,6 +16,23 @@
       "revId": "f41e87a8c3b77c84d9f10d2d5ddaa102532b7a91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d841c1eb_97e7fc99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-07-15T20:00:40Z",
+      "side": 1,
+      "message": "Also, I\u0027m now getting a linker error and I\u0027m not sure how to solve it:\n\n```\n[20/20] link dm\nFAILED: dm \nc++ -rdynamic -Wl,-rpath,\\$ORIGIN -Wl,--start-group @./dm.rsp  -Wl,--end-group -lpthread -lfontconfig -ldl -lfreetype -lGL -lGLU -lX11 -o ./dm\n/usr/bin/ld: obj/experimental/svg/model/experimental_svg_model.SkSVGDOM.o: in function `SkSVGImage::Make()\u0027:\n/mnt/riker/dev/skia/out/Static/../../experimental/svg/model/SkSVGImage.h:21: undefined reference to `SkSVGImage::SkSVGImage()\u0027\ncollect2: error: ld returned 1 exit status\nninja: build stopped: subcommand failed.\n```\n\nI suppose something in the order needs to be changed? Have you seen this before?",
+      "revId": "f41e87a8c3b77c84d9f10d2d5ddaa102532b7a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
