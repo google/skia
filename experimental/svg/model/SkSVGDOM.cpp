@@ -12,6 +12,7 @@
 #include "experimental/svg/model/SkSVGDefs.h"
 #include "experimental/svg/model/SkSVGEllipse.h"
 #include "experimental/svg/model/SkSVGG.h"
+#include "experimental/svg/model/SkSVGImage.h"
 #include "experimental/svg/model/SkSVGLine.h"
 #include "experimental/svg/model/SkSVGLinearGradient.h"
 #include "experimental/svg/model/SkSVGNode.h"
@@ -385,6 +386,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "defs"          , []() -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
     { "ellipse"       , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();        }},
     { "g"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
+    { "image"         , []() -> sk_sp<SkSVGNode> { return SkSVGImage::Make();          }},
     { "line"          , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();           }},
     { "linearGradient", []() -> sk_sp<SkSVGNode> { return SkSVGLinearGradient::Make(); }},
     { "path"          , []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make();           }},
