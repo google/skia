@@ -50,6 +50,24 @@
       "revId": "de9275e2a234ebea32f15e0379fbcf999bd88018",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ccf2701_ec6536a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-15T13:32:40Z",
+      "side": 1,
+      "message": "Seems fine to me. I thought we already disabled Werror somehow for third party code.",
+      "parentUuid": "a7df07fd_865e0eda",
+      "revId": "de9275e2a234ebea32f15e0379fbcf999bd88018",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
