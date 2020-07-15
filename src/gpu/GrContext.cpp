@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkTraceMemoryDump.h"
@@ -464,7 +464,7 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
 }
 
 static GrBackendTexture create_and_update_backend_texture(
-        GrContext* context,
+        GrDirectContext* context,
         SkISize dimensions,
         const GrBackendFormat& backendFormat,
         GrMipMapped mipMapped,
@@ -521,8 +521,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
 
     GrGpu::BackendTextureData data(color);
     GrBackendTexture result = create_and_update_backend_texture(
-            this, {c.width(), c.height()}, format, GrMipMapped(c.isMipMapped()), GrRenderable::kYes,
-            c.isProtected(), std::move(finishedCallback), &data);
+            this->asDirectContext(), {c.width(), c.height()}, format, GrMipMapped(c.isMipMapped()),
+            GrRenderable::kYes, c.isProtected(), std::move(finishedCallback), &data);
 
     SkASSERT(c.isCompatible(result));
     return result;
@@ -551,9 +551,9 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     GrGpu::BackendTextureData data(color);
-    return create_and_update_backend_texture(this, {width, height}, backendFormat, mipMapped,
-                                             renderable, isProtected, std::move(finishedCallback),
-                                             &data);
+    return create_and_update_backend_texture(this->asDirectContext(), {width, height},
+                                             backendFormat, mipMapped, renderable, isProtected,
+                                             std::move(finishedCallback), &data);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -586,9 +586,9 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     SkColor4f swizzledColor = this->caps()->getWriteSwizzle(format, grColorType).applyTo(color);
 
     GrGpu::BackendTextureData data(swizzledColor);
-    return create_and_update_backend_texture(this, {width, height}, format, mipMapped,
-                                             renderable, isProtected, std::move(finishedCallback),
-                                             &data);
+    return create_and_update_backend_texture(this->asDirectContext(), {width, height}, format,
+                                             mipMapped, renderable, isProtected,
+                                             std::move(finishedCallback), &data);
 }
 
 GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int numProvidedLevels,
@@ -632,8 +632,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
 
     GrGpu::BackendTextureData data(srcData);
-    return create_and_update_backend_texture(this, {baseWidth, baseHeight}, backendFormat,
-                                             mipMapped, renderable, isProtected,
+    return create_and_update_backend_texture(this->asDirectContext(), {baseWidth, baseHeight},
+                                             backendFormat, mipMapped, renderable, isProtected,
                                              std::move(finishedCallback), &data);
 }
 
@@ -696,7 +696,7 @@ bool GrContext::updateBackendTexture(const GrBackendTexture& backendTexture,
 //////////////////////////////////////////////////////////////////////////////
 
 static GrBackendTexture create_and_update_compressed_backend_texture(
-        GrContext* context,
+        GrDirectContext* context,
         SkISize dimensions,
         const GrBackendFormat& backendFormat,
         GrMipMapped mipMapped,
@@ -741,8 +741,8 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
     }
 
     GrGpu::BackendTextureData data(color);
-    return create_and_update_compressed_backend_texture(this, {width, height}, backendFormat,
-                                                        mipMapped, isProtected,
+    return create_and_update_compressed_backend_texture(this->asDirectContext(), {width, height},
+                                                        backendFormat, mipMapped, isProtected,
                                                         std::move(finishedCallback), &data);
 }
 
@@ -783,8 +783,8 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
     }
 
     GrGpu::BackendTextureData data(compressedData, dataSize);
-    return create_and_update_compressed_backend_texture(this, {width, height}, backendFormat,
-                                                        mipMapped, isProtected,
+    return create_and_update_compressed_backend_texture(this->asDirectContext(), {width, height},
+                                                        backendFormat, mipMapped, isProtected,
                                                         std::move(finishedCallback), &data);
 }
 

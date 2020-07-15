@@ -24,7 +24,7 @@ namespace GrAHardwareBufferUtils {
 
 SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat);
 
-GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendFormat GetBackendFormat(GrDirectContext*, AHardwareBuffer* hardwareBuffer,
                                  uint32_t bufferFormat, bool requireKnownFormat);
 
 typedef void* TexImageCtx;

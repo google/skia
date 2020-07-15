@@ -60,7 +60,7 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
     }
 }
 
-GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendFormat GetBackendFormat(GrDirectContext* context, AHardwareBuffer* hardwareBuffer,
                                  uint32_t bufferFormat, bool requireKnownFormat) {
     GrBackendApi backend = context->backend();
 

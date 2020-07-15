@@ -7,7 +7,7 @@
 
 #include "src/gpu/GrResourceCache.h"
 #include <atomic>
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrSingleOwner.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
