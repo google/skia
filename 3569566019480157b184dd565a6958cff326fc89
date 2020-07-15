@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "995dfed9_c47839f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-15T13:49:18Z",
+      "side": 1,
+      "message": "This fixes the bug, *except* when EnableSharedImageForWebView is turned on.\n\nIs this a safe fix to merge in R, which is almost ready to ship?",
+      "revId": "3569566019480157b184dd565a6958cff326fc89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
