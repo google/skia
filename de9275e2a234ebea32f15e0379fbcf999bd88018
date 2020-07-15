@@ -16,6 +16,23 @@
       "revId": "de9275e2a234ebea32f15e0379fbcf999bd88018",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09e4a66f_9a18b798",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-15T12:03:43Z",
+      "side": 1,
+      "message": "This CL LGTM.  I defer to Brian regarding use of glslang build files.",
+      "revId": "de9275e2a234ebea32f15e0379fbcf999bd88018",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
