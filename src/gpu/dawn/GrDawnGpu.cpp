@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
@@ -24,7 +25,6 @@
 #include "src/gpu/dawn/GrDawnOpsRenderPass.h"
 #include "src/gpu/dawn/GrDawnProgramBuilder.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
-#include "src/gpu/dawn/GrDawnStagingBuffer.h"
 #include "src/gpu/dawn/GrDawnStencilAttachment.h"
 #include "src/gpu/dawn/GrDawnTexture.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
@@ -114,23 +114,21 @@ GrDawnGpu::GrDawnGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fQueue(device.GetDefaultQueue())
         , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
+        , fStagingBufferManager(this)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
         , fFinishCallbacks(this) {
     fCaps.reset(new GrDawnCaps(options));
 }
 
 GrDawnGpu::~GrDawnGpu() {
-    while (!this->busyStagingBuffers().isEmpty()) {
-        fDevice.Tick();
-    }
+    this->waitOnAllBusyStagingBuffers();
 }
 
 void GrDawnGpu::disconnect(DisconnectType type) {
     if (DisconnectType::kCleanup == type) {
-        while (!this->busyStagingBuffers().isEmpty()) {
-            fDevice.Tick();
-        }
+        this->waitOnAllBusyStagingBuffers();
     }
+    fStagingBufferManager.reset();
     fQueue = nullptr;
     fDevice = nullptr;
     INHERITED::disconnect(type);
@@ -374,12 +372,13 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         size_t origRowBytes = bpp * w;
         size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
         size_t size = rowBytes * h;
-        GrStagingBuffer::Slice stagingBuffer = this->allocateStagingBufferSlice(size);
+        GrStagingBufferManager::Slice stagingBuffer =
+                this->stagingBufferManager()->allocateStagingBufferSlice(size);
         if (rowBytes == origRowBytes) {
-            memcpy(stagingBuffer.fData, pixels, size);
+            memcpy(stagingBuffer.fOffsetMapPtr, pixels, size);
         } else {
             const char* src = static_cast<const char*>(pixels);
-            char* dst = static_cast<char*>(stagingBuffer.fData);
+            char* dst = static_cast<char*>(stagingBuffer.fOffsetMapPtr);
             for (int row = 0; row < h; row++) {
                 memcpy(dst, src, origRowBytes);
                 dst += rowBytes;
@@ -387,7 +386,7 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
             }
         }
         wgpu::BufferCopyView srcBuffer;
-        srcBuffer.buffer = static_cast<GrDawnStagingBuffer*>(stagingBuffer.fBuffer)->buffer();
+        srcBuffer.buffer = static_cast<GrDawnBuffer*>(stagingBuffer.fBuffer)->get();
         srcBuffer.bytesPerRow = 0; // TODO: remove this once the deprecated fields are gone.
         srcBuffer.layout.offset = stagingBuffer.fOffset;
         srcBuffer.layout.bytesPerRow = rowBytes;
@@ -484,6 +483,26 @@ void GrDawnGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
     fFinishCallbacks.add(finishedProc, finishedContext);
 }
 
+void GrDawnGpu::checkForCompletedStagingBuffers() {
+    // We expect all the buffer maps to trigger in order of submission so we bail after the first
+    // non finished map since we always push new busy buffers to the back of our list.
+    while (!fBusyStagingBuffers.empty() && fBusyStagingBuffers.front()->isMapped()) {
+        fBusyStagingBuffers.pop_front();
+    }
+}
+
+void GrDawnGpu::waitOnAllBusyStagingBuffers() {
+    while (!fBusyStagingBuffers.empty()) {
+        fDevice.Tick();
+        this->checkForCompletedStagingBuffers();
+    }
+}
+
+void GrDawnGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+    fSubmittedStagingBuffers.push_back(std::move(buffer));
+}
+
+
 static void callback(WGPUFenceCompletionStatus status, void* userData) {
     *static_cast<bool*>(userData) = true;
 }
@@ -494,7 +513,8 @@ bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
         fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
         fCommandBuffers.clear();
     }
-    this->mapStagingBuffers();
+
+    this->moveStagingBuffersToBusyAndMapAsync();
     if (syncCpu) {
         wgpu::FenceDescriptor desc;
         wgpu::Fence fence = fQueue.CreateFence(&desc);
@@ -505,6 +525,9 @@ bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
         }
         fFinishCallbacks.callAll(true);
     }
+
+    this->checkForCompletedStagingBuffers();
+
     return true;
 }
 
@@ -698,15 +721,6 @@ GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {
     return fUniformRingBuffer.allocate(size);
 }
 
-std::unique_ptr<GrStagingBuffer> GrDawnGpu::createStagingBuffer(size_t size) {
-    wgpu::BufferDescriptor desc;
-    desc.usage = wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc;
-    desc.size = size;
-    wgpu::CreateBufferMappedResult result = fDevice.CreateBufferMapped(&desc);
-    auto stagingBuffer = new GrDawnStagingBuffer(this, result.buffer, desc.size, result.data);
-    return std::unique_ptr<GrStagingBuffer>(stagingBuffer);
-}
-
 void GrDawnGpu::appendCommandBuffer(wgpu::CommandBuffer commandBuffer) {
     if (commandBuffer) {
         fCommandBuffers.push_back(commandBuffer);
@@ -727,10 +741,11 @@ void GrDawnGpu::flushCopyEncoder() {
     }
 }
 
-void GrDawnGpu::mapStagingBuffers() {
-    // Map all active buffers, so we get a callback when they're done.
-    while (auto buffer = this->activeStagingBuffers().head()) {
-        this->moveStagingBufferFromActiveToBusy(buffer);
-        static_cast<GrDawnStagingBuffer*>(buffer)->mapAsync();
+void GrDawnGpu::moveStagingBuffersToBusyAndMapAsync() {
+    for (size_t i = 0; i < fSubmittedStagingBuffers.size(); ++i) {
+        GrDawnBuffer* buffer = static_cast<GrDawnBuffer*>(fSubmittedStagingBuffers[i].get());
+        buffer->mapWriteAsync();
+        fBusyStagingBuffers.push_back(std::move(fSubmittedStagingBuffers[i]));
     }
+    fSubmittedStagingBuffers.clear();
 }

@@ -178,6 +178,7 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fQueue(backendContext.fQueue)
         , fQueueIndex(backendContext.fGraphicsQueueIndex)
         , fResourceProvider(this)
+        , fStagingBufferManager(this)
         , fDisconnected(false)
         , fProtectedContext(backendContext.fProtectedContext) {
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
@@ -279,6 +280,8 @@ void GrVkGpu::destroyResources() {
         fSemaphoresToSignal[i]->unref();
     }
     fSemaphoresToSignal.reset();
+
+    fStagingBufferManager.reset();
 
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
@@ -2037,6 +2040,10 @@ void GrVkGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
 void GrVkGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
     fResourceProvider.addFinishedProcToActiveCommandBuffers(std::move(finishedCallback));
+}
+
+void GrVkGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+    this->currentCommandBuffer()->addGpuBuffer(std::move(buffer));
 }
 
 bool GrVkGpu::onSubmitToGpu(bool syncCpu) {

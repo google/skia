@@ -27,7 +27,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
-#include "src/gpu/GrStagingBuffer.h"
+#include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrSurfacePriv.h"
@@ -36,25 +36,15 @@
 #include "src/gpu/GrTracing.h"
 #include "src/utils/SkJSONWriter.h"
 
-static const size_t kMinStagingBufferSize = 32 * 1024;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGpu::GrGpu(GrDirectContext* direct) : fResetBits(kAll_GrBackendState), fContext(direct) {}
 
 GrGpu::~GrGpu() {
     this->callSubmittedProcs(false);
-    SkASSERT(fBusyStagingBuffers.isEmpty());
 }
 
-void GrGpu::disconnect(DisconnectType type) {
-    if (DisconnectType::kAbandon == type) {
-        fAvailableStagingBuffers.reset();
-        fActiveStagingBuffers.reset();
-        fBusyStagingBuffers.reset();
-    }
-    fStagingBuffers.clear();
-}
+void GrGpu::disconnect(DisconnectType type) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -615,35 +605,6 @@ int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget) {
     return fSamplePatternDictionary.findOrAssignSamplePatternKey(sampleLocations);
 }
 
-#ifdef SK_DEBUG
-bool GrGpu::inStagingBuffers(GrStagingBuffer* b) const {
-    for (const auto& i : fStagingBuffers) {
-        if (b == i.get()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void GrGpu::validateStagingBuffers() const {
-    for (const auto& i : fStagingBuffers) {
-        GrStagingBuffer* buffer = i.get();
-        SkASSERT(fAvailableStagingBuffers.isInList(buffer) ||
-                 fActiveStagingBuffers.isInList(buffer) ||
-                 fBusyStagingBuffers.isInList(buffer));
-    }
-    for (auto b : fAvailableStagingBuffers) {
-        SkASSERT(this->inStagingBuffers(b));
-    }
-    for (auto b : fActiveStagingBuffers) {
-        SkASSERT(this->inStagingBuffers(b));
-    }
-    for (auto b : fBusyStagingBuffers) {
-        SkASSERT(this->inStagingBuffers(b));
-    }
-}
-#endif
-
 void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
                              int numProxies,
                              SkSurface::BackendSurfaceAccess access,
@@ -696,10 +657,9 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
 bool GrGpu::submitToGpu(bool syncCpu) {
     this->stats()->incNumSubmitToGpus();
 
-#ifdef SK_DEBUG
-    this->validateStagingBuffers();
-#endif
-    this->unmapStagingBuffers();
+    if (auto manager = this->stagingBufferManager()) {
+        manager->detachBuffers();
+    }
 
     bool submitted = this->onSubmitToGpu(syncCpu);
 
@@ -977,63 +937,4 @@ bool GrGpu::updateCompressedBackendTexture(const GrBackendTexture& backendTextur
 
     return this->onUpdateCompressedBackendTexture(backendTexture, std::move(finishedCallback),
                                                   data);
-}
-
-GrStagingBuffer* GrGpu::findStagingBuffer(size_t size) {
-#ifdef SK_DEBUG
-    this->validateStagingBuffers();
-#endif
-    for (auto b : fActiveStagingBuffers) {
-        if (b->remaining() >= size) {
-            return b;
-        }
-    }
-    for (auto b : fAvailableStagingBuffers) {
-        if (b->remaining() >= size) {
-            fAvailableStagingBuffers.remove(b);
-            fActiveStagingBuffers.addToTail(b);
-            return b;
-        }
-    }
-    size = SkNextPow2(size);
-    size = std::max(size, kMinStagingBufferSize);
-    std::unique_ptr<GrStagingBuffer> b = this->createStagingBuffer(size);
-    GrStagingBuffer* stagingBuffer = b.get();
-    fStagingBuffers.push_back(std::move(b));
-    fActiveStagingBuffers.addToTail(stagingBuffer);
-    return stagingBuffer;
-}
-
-GrStagingBuffer::Slice GrGpu::allocateStagingBufferSlice(size_t size) {
-#ifdef SK_DEBUG
-    this->validateStagingBuffers();
-#endif
-    GrStagingBuffer* stagingBuffer = this->findStagingBuffer(size);
-    return stagingBuffer->allocate(size);
-}
-
-void GrGpu::unmapStagingBuffers() {
-#ifdef SK_DEBUG
-    this->validateStagingBuffers();
-#endif
-    // Unmap all active buffers.
-    for (auto buffer : fActiveStagingBuffers) {
-        buffer->unmap();
-    }
-}
-
-void GrGpu::moveStagingBufferFromBusyToAvailable(GrStagingBuffer* buffer) {
-#ifdef SK_DEBUG
-    this->validateStagingBuffers();
-#endif
-    fBusyStagingBuffers.remove(buffer);
-    fAvailableStagingBuffers.addToTail(buffer);
-}
-
-void GrGpu::moveStagingBufferFromActiveToBusy(GrStagingBuffer* buffer) {
-#ifdef SK_DEBUG
-    this->validateStagingBuffers();
-#endif
-    fActiveStagingBuffers.remove(buffer);
-    fBusyStagingBuffers.addToTail(buffer);
 }
