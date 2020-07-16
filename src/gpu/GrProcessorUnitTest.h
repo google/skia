@@ -19,14 +19,15 @@
 
 #include <tuple>
 
-class SkMatrix;
 class GrCaps;
+class GrFragmentProcessor;
+class GrGeometryProcessor;
+class GrProcessorTestData;
 class GrProxyProvider;
 class GrRenderTargetContext;
-class GrProcessorTestData;
 class GrTexture;
 class GrXPFactory;
-class GrGeometryProcessor;
+class SkMatrix;
 
 namespace GrProcessorUnitTest {
 
@@ -44,20 +45,20 @@ std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 
 /*
  * GrProcessorTestData is an argument struct to TestCreate functions
- * fTextures are valid textures that can optionally be used to construct
- * TextureSampler. The first texture has a RGBA8 format and the second has Alpha8 format for the
- * specific backend API. TestCreate functions are also free to create additional textures using
- * the GrContext.
  */
 class GrProcessorTestData {
 public:
     using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
-    GrProcessorTestData(SkRandom*, GrRecordingContext*, int numProxies, const ViewInfo[]);
+    GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+                        int numViews, const ViewInfo views[],
+                        std::unique_ptr<GrFragmentProcessor> inputFP = nullptr);
+    ~GrProcessorTestData();
 
     GrRecordingContext* context() { return fContext; }
     GrProxyProvider* proxyProvider();
     const GrCaps* caps();
     SkArenaAlloc* allocator() { return fArena.get(); }
+    std::unique_ptr<GrFragmentProcessor> inputFP() { return std::move(fInputFP); }
 
     ViewInfo randomView();
     ViewInfo randomAlphaOnlyView();
@@ -68,6 +69,7 @@ private:
     GrRecordingContext* fContext;
     SkTArray<ViewInfo> fViews;
     std::unique_ptr<SkArenaAlloc> fArena;
+    std::unique_ptr<GrFragmentProcessor> fInputFP;
 };
 
 class GrProcessor;
