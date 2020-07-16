@@ -31,14 +31,14 @@ template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
     bool unique() const { return fRefCnt == 1; }
 
-    void ref() const {
+    virtual void ref() const {
         // Only the cache should be able to add the first ref to a resource.
         SkASSERT(this->getRefCnt() > 0);
         // No barrier required.
         (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
-    void unref() const {
+    virtual void unref() const {
         SkASSERT(this->getRefCnt() > 0);
         if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             // At this point we better be the only thread accessing this resource.
@@ -74,7 +74,7 @@ protected:
         (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
-private:
+public:
     int32_t getRefCnt() const { return fRefCnt.load(std::memory_order_relaxed); }
 
     mutable std::atomic<int32_t> fRefCnt;

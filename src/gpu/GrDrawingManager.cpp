@@ -125,7 +125,7 @@ void GrDrawingManager::RenderTaskDAG::prepForFlush() {
             GrOpsTask* curOpsTask = fRenderTasks[i]->asOpsTask();
 
             if (prevOpsTask && curOpsTask) {
-                SkASSERT(prevOpsTask->target(0).proxy() != curOpsTask->target(0).proxy());
+                SkASSERT(prevOpsTask->target1(0).proxy() != curOpsTask->target1(0).proxy());
             }
 
             prevOpsTask = curOpsTask;
@@ -282,7 +282,7 @@ bool GrDrawingManager::flush(
                 }
             });
 #endif
-            onFlushRenderTask->prepare(&flushState);
+            onFlushRenderTask->prepare1(&flushState);
         }
     }
 
@@ -360,6 +360,8 @@ bool GrDrawingManager::flush(
 
     gpu->executeFlushInfo(proxies, numProxies, access, info, newState);
 
+    SkDebugf("flush %d\n", flushed);
+
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
         resourceCache->purgeAsNeeded();
@@ -416,7 +418,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 
         SkASSERT(renderTask->deferredProxiesAreInstantiated());
 
-        renderTask->prepare(flushState);
+        renderTask->prepare1(flushState);
     }
 
     // Upload all data to the GPU
@@ -431,7 +433,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 
     // Execute the onFlush renderTasks first, if any.
     for (sk_sp<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
-        if (!onFlushRenderTask->execute(flushState)) {
+        if (!onFlushRenderTask->execute1(flushState)) {
             SkDebugf("WARNING: onFlushRenderTask failed to execute.\n");
         }
         SkASSERT(onFlushRenderTask->unique());
@@ -452,7 +454,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
             continue;
         }
 
-        if (renderTask->execute(flushState)) {
+        if (renderTask->execute1(flushState)) {
             anyRenderTasksExecuted = true;
         }
         (*numRenderTasksExecuted)++;
@@ -638,7 +640,8 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 }
 
 void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
-                                              GrRenderTargetProxy* newDest) {
+                                              GrRenderTargetProxy* newDest,
+                                              int xOffset, int yOffset) {
     SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {
@@ -672,10 +675,11 @@ void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>
         ccpr->mergePendingPaths(ddl->fPendingPaths);
     }
 
-    fDAG.add(ddl->fRenderTasks);
+//    fDAG.add(ddl->fRenderTasks);
 
     // Add a task to unref the DDL after flush.
-    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(std::move(ddl)));
+    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(this, std::move(ddl),
+                                                                  xOffset, yOffset));
     unrefTask->makeClosed(*fContext->priv().caps());
 
     SkDEBUGCODE(this->validate());
@@ -808,7 +812,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
         }
         fDAG.add(waitTask);
     } else {
-        if (fActiveOpsTask && (fActiveOpsTask->target(0).proxy() == proxy.get())) {
+        if (fActiveOpsTask && (fActiveOpsTask->target1(0).proxy() == proxy.get())) {
             SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
             fDAG.addBeforeLast(waitTask);
             // In this case we keep the current renderTask open but just insert the new waitTask
