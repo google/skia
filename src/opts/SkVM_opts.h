@@ -24,6 +24,7 @@ namespace SK_OPTS_NS {
     #endif
         using I32 = skvx::Vec<K, int>;
         using F32 = skvx::Vec<K, float>;
+        using U64 = skvx::Vec<K, uint64_t>;
         using U32 = skvx::Vec<K, uint32_t>;
         using U16 = skvx::Vec<K, uint16_t>;
         using  U8 = skvx::Vec<K, uint8_t>;
@@ -86,18 +87,31 @@ namespace SK_OPTS_NS {
                     STRIDE_1(Op::store8 ): memcpy(args[immy], &r[x].i32, 1); break;
                     STRIDE_1(Op::store16): memcpy(args[immy], &r[x].i32, 2); break;
                     STRIDE_1(Op::store32): memcpy(args[immy], &r[x].i32, 4); break;
+                    STRIDE_1(Op::store64): memcpy((char*)args[immz]+0, &r[x].i32, 4);
+                                           memcpy((char*)args[immz]+4, &r[y].i32, 4); break;
 
                     STRIDE_K(Op::store8 ): skvx::cast<uint8_t> (r[x].i32).store(args[immy]); break;
                     STRIDE_K(Op::store16): skvx::cast<uint16_t>(r[x].i32).store(args[immy]); break;
                     STRIDE_K(Op::store32):                     (r[x].i32).store(args[immy]); break;
+                    STRIDE_K(Op::store64): (skvx::cast<uint64_t>(r[x].u32) << 0 |
+                                            skvx::cast<uint64_t>(r[y].u32) << 32).store(args[immz]);
+                                           break;
 
                     STRIDE_1(Op::load8 ): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 1); break;
                     STRIDE_1(Op::load16): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 2); break;
                     STRIDE_1(Op::load32): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 4); break;
+                    STRIDE_1(Op::load64_lo):
+                        r[d].i32 = 0; memcpy(&r[d].i32, (char*)args[immy] + 0, 4); break;
+                    STRIDE_1(Op::load64_hi):
+                        r[d].i32 = 0; memcpy(&r[d].i32, (char*)args[immy] + 4, 4); break;
 
                     STRIDE_K(Op::load8 ): r[d].i32= skvx::cast<int>(U8 ::Load(args[immy])); break;
                     STRIDE_K(Op::load16): r[d].i32= skvx::cast<int>(U16::Load(args[immy])); break;
                     STRIDE_K(Op::load32): r[d].i32=                 I32::Load(args[immy]) ; break;
+                    STRIDE_K(Op::load64_lo):
+                        r[d].i32 = skvx::cast<int>(U64::Load(args[immy]) & 0xffff'ffff); break;
+                    STRIDE_K(Op::load64_hi):
+                        r[d].i32 = skvx::cast<int>(U64::Load(args[immy]) >> 32); break;
 
                     // The pointer we base our gather on is loaded indirectly from a uniform:
                     //     - args[immy] is the uniform holding our gather base pointer somewhere;
