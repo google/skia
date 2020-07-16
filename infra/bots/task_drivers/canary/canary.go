@@ -76,17 +76,19 @@ func main() {
 	}
 
 	if err := waitForCanaryRoll(ctx, manualRollDB, req.Id); err != nil {
+		// TODO(rmistry): Add the link if returned to the top-level step as well
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 }
 
-func waitForCanaryRoll(ctx context.Context, manualRollDB manual.DB, rollId string) error {
-	ctx = td.StartStep(ctx, td.Props("Wait for canary roll"))
+func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId string) error {
+	ctx := td.StartStep(parentCtx, td.Props("Wait for canary roll"))
 	defer td.EndStep(ctx)
 
 	// For writing to the step's log stream.
 	stdout := td.NewLogStream(ctx, "stdout", td.Info)
-
+	// Lets add the roll link only once to step data.
+	addedRollLinkStepData := false
 	for {
 		roll, err := manualRollDB.Get(ctx, rollId)
 		if err != nil {
@@ -98,6 +100,12 @@ func waitForCanaryRoll(ctx context.Context, manualRollDB manual.DB, rollId strin
 		if cl == "" {
 			rollStatus = fmt.Sprintf("Canary roll has status %s", roll.Status)
 		} else {
+			if !addedRollLinkStepData {
+				// Add the roll link to both the current step and it's parent.
+				td.StepText(ctx, "Canary roll CL", cl)
+				td.StepText(parentCtx, "Canary roll CL", cl)
+				addedRollLinkStepData = true
+			}
 			rollStatus = fmt.Sprintf("Canary roll [ %s ] has status %s", roll.Url, roll.Status)
 		}
 		if _, err := stdout.Write([]byte(rollStatus)); err != nil {
