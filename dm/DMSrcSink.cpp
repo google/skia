@@ -1830,7 +1830,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // Care must be taken when using 'gpuThreadCtx' bc it moves between the gpu-thread and this
     // one. About all it can be consistently used for is GrCaps access and 'defaultBackendFormat'
     // calls.
-    constexpr int kNumDivisions = 3;
+    constexpr int kNumDivisions = 1;
     DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions);
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);

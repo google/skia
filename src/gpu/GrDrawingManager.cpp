@@ -360,6 +360,8 @@ bool GrDrawingManager::flush(
 
     gpu->executeFlushInfo(proxies, numProxies, access, info, newState);
 
+    SkDebugf("flush %d\n", flushed);
+
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
         resourceCache->purgeAsNeeded();

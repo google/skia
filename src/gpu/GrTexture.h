@@ -20,6 +20,21 @@ class GrTexturePriv;
 
 class GrTexture : virtual public GrSurface {
 public:
+     void ref() const override {
+        auto refCnt = this->getRefCnt();
+        SkDebugf("GrTexture %p Ref: %d -> %d\n", this, refCnt, refCnt+1);
+
+        GrSurface::ref();
+    }
+
+    void unref() const override {
+        auto refCnt = this->getRefCnt();
+        SkDebugf("GrTexture %p Unref: %d -> %d\n", this, refCnt, refCnt-1);
+
+        GrSurface::unref();
+    }
+
+
     GrTexture* asTexture() override { return this; }
     const GrTexture* asTexture() const override { return this; }
 
