@@ -16,32 +16,89 @@
  */
 class GrUnrefDDLTask final : public GrRenderTask {
 public:
-    GrUnrefDDLTask(sk_sp<const SkDeferredDisplayList> ddl)
-            : GrRenderTask()
-            , fDDL(std::move(ddl)) {}
 
-    // We actually do the unreffing in dtor instead of onExecute, so that we maintain the invariant
-    // that DDLs are always the last owners of their render tasks (because those tasks depend on
-    // memory owned by the DDL.) If we had this in onExecute, the tasks would still be alive in
-    // the drawing manager although it would already have executed them.
+    GrUnrefDDLTask(GrDrawingManager* drawingMgr,
+                   sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yOffset)
+            : GrRenderTask()
+            , fDDL(std::move(ddl))
+            , fXOffset(xOffset)
+            , fYOffset(yOffset)
+            , fNumTargets(0) {
+        for (auto& task : fDDL->priv().renderTasks()) {
+            for (int i = 0; i < task->numTargets1(); ++i) {
+                this->addTarget1(drawingMgr, task->target1(i));
+            }
+        }
+    }
+
     ~GrUnrefDDLTask() override {
-        fDDL.reset();
+    }
+
+    void endFlush(GrDrawingManager* drawingManager) override {
+        for (auto& task : fDDL->priv().renderTasks()) {
+            task->endFlush(drawingManager);
+        }
+
+        GrRenderTask::endFlush(drawingManager);
+    }
+
+    void disown(GrDrawingManager* drawingManager) override {
+        for (auto& task : fDDL->priv().renderTasks()) {
+            task->disown(drawingManager);
+        }
+
+        INHERITED::disown(drawingManager);
     }
 
 private:
-    bool onIsUsed(GrSurfaceProxy* proxy) const override { return false; }
+    bool onIsUsed(GrSurfaceProxy* proxy) const override {
+        for (auto& task : fDDL->priv().renderTasks()) {
+            if (task->onIsUsed(proxy)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void handleInternalAllocationFailure() override {}
+
     void gatherProxyIntervals(GrResourceAllocator* alloc) const override {
         // We don't have any proxies, but the resource allocator will still bark
         // if a task doesn't claim any op indices, so we oblige it.
         alloc->incOps();
+
+        for (auto& task : fDDL->priv().renderTasks()) {
+            task->gatherProxyIntervals(alloc);
+        }
     }
 
-    ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override {
+    ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override {
+        for (auto& task : fDDL->priv().renderTasks()) {
+            SkASSERT(task->isClosed());
+        }
+
         return ExpectedOutcome::kTargetUnchanged;
     }
 
-    bool onExecute(GrOpFlushState*) override { return true; }
+//    void onPrePrepare(GrRecordingContext*) override {
+//    }
+
+    void onPrepare(GrOpFlushState* flushState) override {
+        for (auto& task : fDDL->priv().renderTasks()) {
+            task->prepare1(flushState);
+        }
+    }
+
+    bool onExecute(GrOpFlushState* flushState) override {
+        bool anyCommandsIssued = false;
+        for (auto& task : fDDL->priv().renderTasks()) {
+            if (task->execute1(flushState)) {
+                anyCommandsIssued = true;
+            }
+        }
+        return anyCommandsIssued;
+    }
 
 #ifdef SK_DEBUG
     const char* name() const final { return "UnrefDDL"; }
@@ -49,6 +106,11 @@ private:
 #endif
 
     sk_sp<const SkDeferredDisplayList> fDDL;
+    int fXOffset;
+    int fYOffset;
+    int fNumTargets;
+
+    typedef GrRenderTask INHERITED;
 };
 
 #endif
