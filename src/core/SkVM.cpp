@@ -1204,12 +1204,43 @@ namespace skvm {
         return {};
     }
 
+    static void split_disjoint_8byte_format(PixelFormat f, PixelFormat* lo, PixelFormat* hi) {
+        SkASSERT(byte_size(f) == 8);
+        // We assume some of the channels are in the low 32 bits, some in the high 32 bits.
+        // The assert on byte_size(lo) will trigger if this assumption is violated.
+        *lo = f;
+        if (f.r_shift >= 32) { lo->r_bits = 0; lo->r_shift = 32; }
+        if (f.g_shift >= 32) { lo->g_bits = 0; lo->g_shift = 32; }
+        if (f.b_shift >= 32) { lo->b_bits = 0; lo->b_shift = 32; }
+        if (f.a_shift >= 32) { lo->a_bits = 0; lo->a_shift = 32; }
+        SkASSERT(byte_size(*lo) == 4);
+
+        *hi = f;
+        if (f.r_shift < 32) { hi->r_bits = 0; hi->r_shift = 32; } else { hi->r_shift -= 32; }
+        if (f.g_shift < 32) { hi->g_bits = 0; hi->g_shift = 32; } else { hi->g_shift -= 32; }
+        if (f.b_shift < 32) { hi->b_bits = 0; hi->b_shift = 32; } else { hi->b_shift -= 32; }
+        if (f.a_shift < 32) { hi->a_bits = 0; hi->a_shift = 32; } else { hi->a_shift -= 32; }
+        SkASSERT(byte_size(*hi) == 4);
+    }
+
     Color Builder::gather(PixelFormat f, Arg ptr, int offset, I32 index) {
         switch (byte_size(f)) {
             case 1: return unpack(f, gather8 (ptr, offset, index));
             case 2: return unpack(f, gather16(ptr, offset, index));
             case 4: return unpack(f, gather32(ptr, offset, index));
-            // TODO: 8,16
+            case 8: {
+                PixelFormat lo,hi;
+                split_disjoint_8byte_format(f, &lo,&hi);
+                Color l = unpack(lo, gather32(ptr, offset, (index<<1)+0)),
+                      h = unpack(hi, gather32(ptr, offset, (index<<1)+1));
+                return {
+                    lo.r_bits ? l.r : h.r,
+                    lo.g_bits ? l.g : h.g,
+                    lo.b_bits ? l.b : h.b,
+                    lo.a_bits ? l.a : h.a,
+                };
+            }
+            // TODO: 16
             default: SkUNREACHABLE;
         }
         return {};
