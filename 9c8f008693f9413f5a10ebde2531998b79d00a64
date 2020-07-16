@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e026a8f2_1b620813",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-16T19:40:57Z",
+      "side": 1,
+      "message": "The win-angle-rel-64 \"fail\" looks not related to this CL",
+      "revId": "9c8f008693f9413f5a10ebde2531998b79d00a64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
