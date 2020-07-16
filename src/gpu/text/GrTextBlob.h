@@ -220,11 +220,30 @@ private:
     const SkStrikeSpec fStrikeSpec;
     const SkSpan<const PathGlyph> fPaths;
 };
-
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
+class GrAtlasSubRun : public GrSubRun {
+public:
+    static constexpr int kVerticesPerGlyph = 4;
+    virtual size_t vertexStride() const = 0;
+    virtual int glyphCount() const = 0;
+
+    virtual std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+    makeAtlasTextOp(const GrClip* clip,
+                    const SkMatrixProvider& viewMatrix,
+                    const SkGlyphRunList& glyphRunList,
+                    GrRenderTargetContext* rtc) = 0;
+    virtual std::tuple<bool, int> regenerateAtlas(
+            int begin, int end, GrMeshDrawOp::Target* target) = 0;
+    virtual void fillVertexData(
+            void* vertexDst, int offset, int count,
+            GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
+            SkIRect clip) const = 0;
+};
+
+// -- GrMaskSubRun ---------------------------------------------------------------------------------
 // Hold data to draw the different types of sub run. SubRuns are produced knowing all the
 // glyphs that are included in them.
-class GrAtlasSubRun : public GrSubRun {
+class GrMaskSubRun : public GrAtlasSubRun {
     enum SubRunType {
         kDirectMask,
         kTransformedMask,
@@ -232,7 +251,6 @@ class GrAtlasSubRun : public GrSubRun {
     };
 
 public:
-    static constexpr int kVerticesPerGlyph = 4;
     struct VertexData {
         union {
             // Initially, filled with packed id, but changed to GrGlyph* in the onPrepare stage.
@@ -246,33 +264,34 @@ public:
     };
 
     // SubRun for masks
-    GrAtlasSubRun(SubRunType type,
-                  GrTextBlob* textBlob,
-                  const SkStrikeSpec& strikeSpec,
-                  GrMaskFormat format,
-                  SkRect vertexBounds,
-                  const SkSpan<VertexData>& vertexData);
+    GrMaskSubRun(SubRunType type,
+                 GrTextBlob* textBlob,
+                 const SkStrikeSpec& strikeSpec,
+                 GrMaskFormat format,
+                 SkRect vertexBounds,
+                 const SkSpan<VertexData>& vertexData);
 
     std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
-                    GrRenderTargetContext* rtc);
+                    GrRenderTargetContext* rtc) override;
 
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
               GrRenderTargetContext* rtc) override;
 
-    std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target);
+    std::tuple<bool, int> regenerateAtlas(
+            int begin, int end, GrMeshDrawOp::Target* target) override;
 
-    size_t vertexStride() const;
+    size_t vertexStride() const override;
     void fillVertexData(
             void* vertexDst, int offset, int count,
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
-            SkIRect clip) const;
+            SkIRect clip) const override;
 
-    int glyphCount() const;
+    int glyphCount() const override;
 
     const SkStrikeSpec& strikeSpec() const;
 
@@ -324,12 +343,12 @@ private:
         AtlasPt atlasPos;
     };
 
-    static GrAtlasSubRun* InitForAtlas(SubRunType type,
-                                       const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                       const SkStrikeSpec& strikeSpec,
-                                       GrMaskFormat format,
-                                       GrTextBlob* blob,
-                                       SkArenaAlloc* alloc);
+    static GrMaskSubRun* InitForAtlas(SubRunType type,
+                                      const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                      const SkStrikeSpec& strikeSpec,
+                                      GrMaskFormat format,
+                                      GrTextBlob* blob,
+                                      SkArenaAlloc* alloc);
     bool hasW() const;
     void setUseLCDText(bool useLCDText);
     void setAntiAliased(bool antiAliased);
