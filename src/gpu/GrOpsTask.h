@@ -131,30 +131,8 @@ private:
 
     void deleteOps();
 
-    enum class StencilContent {
-        kDontCare,
-        kUserBitsCleared,  // User bits: cleared
-                           // Clip bit: don't care (Ganesh always pre-clears the clip bit.)
-        kPreserved
-    };
-
-    // Lets the caller specify what the content of the stencil buffer should be at the beginning
-    // of the render pass.
-    //
-    // When requesting kClear: Tilers will load the stencil buffer with a "clear" op; non-tilers
-    // will clear the stencil on first load, and then preserve it on subsequent loads. (Preserving
-    // works because renderTargetContexts are required to leave the user bits in a cleared state
-    // once finished.)
-    //
-    // NOTE: initialContent must not be kClear if caps.performStencilClearsAsDraws() is true.
-    void setInitialStencilContent(StencilContent initialContent) {
-        fInitialStencilContent = initialContent;
-    }
-
-    // If a renderTargetContext splits its opsTask, it uses this method to guarantee stencil values
-    // get preserved across its split tasks.
-    void setMustPreserveStencil() { fMustPreserveStencil = true; }
-
+    // Must only be called if native stencil buffer clearing is enabled
+    void setStencilLoadOp(GrLoadOp op) { fStencilLoadOp = op; }
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, const SkPMColor4f& color);
     // Sets the clear color to transparent black
@@ -285,8 +263,7 @@ private:
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;
-    StencilContent fInitialStencilContent = StencilContent::kDontCare;
-    bool fMustPreserveStencil = false;
+    GrLoadOp fStencilLoadOp = GrLoadOp::kLoad;
 
     uint32_t fLastClipStackGenID;
     SkIRect fLastDevClipBounds;

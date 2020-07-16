@@ -401,17 +401,7 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpsTask || fOpsTask->isClosed()) {
-        sk_sp<GrOpsTask> newOpsTask =
-                this->drawingManager()->newOpsTask(this->outputSurfaceView(), fManagedOpsTask);
-        if (fOpsTask && fNumStencilSamples > 0) {
-            // Store the stencil values in memory upon completion of fOpsTask.
-            fOpsTask->setMustPreserveStencil();
-            // Reload the stencil buffer content at the beginning of newOpsTask.
-            // FIXME: Could the topo sort insert a task between these two that modifies the stencil
-            // values?
-            newOpsTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
-        }
-        fOpsTask = std::move(newOpsTask);
+        fOpsTask = this->drawingManager()->newOpsTask(this->outputSurfaceView(), fManagedOpsTask);
     }
 
     return fOpsTask.get();
@@ -937,7 +927,7 @@ GrOpsTask::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnF
 void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
     // Don't clear stencil until after we've changed fNumStencilSamples. This ensures we don't loop
     // forever in the event that there are driver bugs and we need to clear as a draw.
-    bool hasInitializedStencil = fNumStencilSamples > 0;
+    bool needsStencilClear = !fNumStencilSamples;
 
     int numRequiredSamples = this->numSamples();
     if (useMixedSamplesIfNotMSAA && 1 == numRequiredSamples) {
@@ -952,14 +942,17 @@ void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
         this->asRenderTargetProxy()->setNeedsStencil(fNumStencilSamples);
     }
 
-    if (!hasInitializedStencil) {
+    if (needsStencilClear) {
         if (this->caps()->performStencilClearsAsDraws()) {
             // There is a driver bug with clearing stencil. We must use an op to manually clear the
             // stencil buffer before the op that required 'setNeedsStencil'.
             this->internalStencilClear(GrFixedClip::Disabled(), /* inside mask */ false);
         } else {
-            this->getOpsTask()->setInitialStencilContent(
-                    GrOpsTask::StencilContent::kUserBitsCleared);
+            // Setting the clear stencil load op is preferable. On non-tilers, this lets the flush
+            // code note when the instantiated stencil buffer is already clear and skip the clear
+            // altogether. And on tilers, loading the stencil buffer cleared is even faster than
+            // preserving the previous contents.
+            this->getOpsTask()->setStencilLoadOp(GrLoadOp::kClear);
         }
     }
 }

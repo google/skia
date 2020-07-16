@@ -91,21 +91,7 @@ static constexpr GrUserStencilSettings kIncrDecrStencil(
         0xffff,                        0xffff>()
 );
 
-// Resolves stencil winding counts to A8 coverage. Leaves stencil values untouched.
-// NOTE: For the CCW face we intentionally use "1 == (stencil & 1)" because the contrapositive logic
-// (i.e. 0 != ...) causes bugs on Adreno Vulkan. http://skbug.com/9643
-static constexpr GrUserStencilSettings kResolveStencilCoverage(
-    GrUserStencilSettings::StaticInitSeparate<
-        0x0000,                           0x0001,
-        GrUserStencilTest::kNotEqual,     GrUserStencilTest::kEqual,
-        0xffff,                           0x0001,
-        GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
-        GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
-        0xffff,                           0xffff>()
-);
-
-// Same as above, but also resets stencil values to zero. This is better for non-tilers
-// where we prefer to not clear the stencil buffer at the beginning of every render pass.
+// Resolves stencil winding counts to A8 coverage and resets stencil values to zero.
 static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
     GrUserStencilSettings::StaticInitSeparate<
         0x0000,                           0x0000,
@@ -135,16 +121,9 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
     // not necessary, and will even cause artifacts if using mixed samples.
     constexpr auto noHWAA = GrPipeline::InputFlags::kNone;
 
-    const auto* stencilResolveSettings = (flushState->caps().discardStencilValuesAfterRenderPass())
-            // The next draw will be the final op in the renderTargetContext. So if Ganesh is
-            // planning to discard the stencil values anyway, we don't actually need to reset them
-            // back to zero.
-            ? &kResolveStencilCoverage
-            : &kResolveStencilCoverageAndReset;
-
-    GrPipeline resolvePipeline(GrScissorTest::kEnabled, SkBlendMode::kSrc,
-                               flushState->drawOpArgs().outputSwizzle(), noHWAA,
-                               stencilResolveSettings);
+    GrPipeline resolvePipeline(
+            GrScissorTest::kEnabled, SkBlendMode::kSrc, flushState->drawOpArgs().outputSwizzle(),
+            noHWAA, &kResolveStencilCoverageAndReset);
     GrPipeline::FixedDynamicState scissorRectState(drawBoundsRect);
 
     GrMesh mesh;
