@@ -12,6 +12,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DCommandList.h"
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
@@ -43,6 +44,9 @@ public:
     ID3D12CommandQueue* queue() const { return fQueue.get(); }
 
     GrD3DDirectCommandList* currentCommandList() const { return fCurrentDirectCommandList.get(); }
+
+    GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
+    void takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer>) override;
 
     bool protectedContext() const { return false; }
 
@@ -251,6 +255,7 @@ private:
     gr_cp<ID3D12CommandQueue> fQueue;
 
     GrD3DResourceProvider fResourceProvider;
+    GrStagingBufferManager fStagingBufferManager;
 
     gr_cp<ID3D12Fence> fFence;
     uint64_t fCurrentFenceValue = 0;
