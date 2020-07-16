@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "1bcbcafa_cca2bf5c",
+        "filename": "src/gpu/GrStagingBufferManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-16T22:28:57Z",
+      "side": 1,
+      "message": "Grepping for that in Dawn shows that there\u0027s a TextureCopySplitter class that splits non-aligned buffer-to-texture copies into 2 copies:\n\nhttps://source.chromium.org/chromium/chromium/src/+/master:third_party/dawn/src/dawn_native/d3d12/TextureCopySplitter.cpp;l\u003d197?q\u003dD3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT\u0026ss\u003dchromium\n\nAligning it here would probably save an extra copy command in the cmd buffer in Dawn. I\u0027m guessing that\u0027s not a big win unless the texture is very small, though.",
+      "parentUuid": "cd613f2f_bd5a3a6c",
+      "range": {
+        "startLine": 16,
+        "startChar": 21,
+        "endLine": 16,
+        "endChar": 45
+      },
+      "revId": "c5a9d51632e7b29026645afbf716da975d81b248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f02b7e8_906a85f9",
         "filename": "src/gpu/GrStagingBufferManager.cpp",
         "patchSetId": 2
