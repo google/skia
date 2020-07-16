@@ -880,8 +880,8 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
     }
 }
 
-GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
-        const GrCaps& caps, SkIRect* targetUpdateBounds) {
+GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(const GrCaps& caps,
+                                                      SkIRect* targetUpdateBounds) {
     this->forwardCombine(caps);
     SkScopeExit triggerObservers([&] {
         for (const auto& o : fClosedObservers) {
