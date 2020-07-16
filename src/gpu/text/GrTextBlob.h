@@ -266,9 +266,6 @@ public:
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target);
 
-    GrMaskFormat maskFormat() const;
-    bool needsTransform() const;
-
     size_t vertexStride() const;
     size_t quadOffset(size_t index) const;
     void fillVertexData(
@@ -280,9 +277,6 @@ public:
 
     // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
     void prepareGrGlyphs(GrStrikeCache*);
-
-    // The rectangle that surrounds all the glyph bounding boxes in device space.
-    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
     GrGlyph* grGlyph(int i) const;
 
@@ -305,8 +299,6 @@ public:
                                          GrMaskFormat format,
                                          GrTextBlob* blob,
                                          SkArenaAlloc* alloc);
-
-    GrTextBlob* fBlob;
 
 private:
     struct AtlasPt {
@@ -352,6 +344,12 @@ private:
     bool hasUseLCDText() const;
     bool isAntiAliased() const;
 
+    GrMaskFormat maskFormat() const;
+
+    // The rectangle that surrounds all the glyph bounding boxes in device space.
+    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
+
+    bool needsTransform() const;
     bool drawAsDistanceFields() const;
     bool needsPadding() const;
     int atlasPadding() const;
@@ -363,6 +361,7 @@ private:
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
 
+    GrTextBlob* fBlob;
     const SubRunType fType;
     const GrMaskFormat fMaskFormat;
     bool fUseLCDText{false};
