@@ -239,6 +239,9 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ComposeFragmentProcessor);
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> ComposeFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     // Create two random frag procs.
     std::unique_ptr<GrFragmentProcessor> fpA(GrProcessorUnitTest::MakeChildFP(d));

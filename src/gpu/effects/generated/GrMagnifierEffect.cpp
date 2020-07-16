@@ -148,6 +148,9 @@ std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;

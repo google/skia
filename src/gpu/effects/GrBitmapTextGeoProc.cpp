@@ -201,6 +201,8 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
 #if GR_TEST_UTILS
 
+#include "src/gpu/GrProcessorTestData.h"
+
 GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomView();
 

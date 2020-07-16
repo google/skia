@@ -76,6 +76,9 @@ std::unique_ptr<GrFragmentProcessor> GrDitherEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDitherEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* d) {
     float range = d->fRandom->nextRangeF(0.0, 1.0);
     return GrDitherEffect::Make(GrProcessorUnitTest::MakeChildFP(d), range);

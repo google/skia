@@ -153,6 +153,9 @@ std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* data) {
     float sigma = data->fRandom->nextRangeF(3, 8);
     float width = data->fRandom->nextRangeF(200, 300);
