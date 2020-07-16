@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bb948d9_752794de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-16T16:30:29Z",
+      "side": 1,
+      "message": "Some invisible GM diffs are expected now that we can sample from F16 when drawing into 8888, I think due to geometry precision (FMAs and such).",
+      "revId": "08cac0162a5806309c63e4275c6c6455b23b97d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
