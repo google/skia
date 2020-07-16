@@ -79,6 +79,11 @@ static inline bool skcms_TransferFunction_makeHLG(skcms_TransferFunction* tf) {
                                                , 1/0.17883277f, 0.28466892f, 0.55991073f);
 }
 
+// Is this an ordinary sRGB-ish transfer function, or one of the HDR forms we support?
+SKCMS_API bool skcms_TransferFunction_isSRGBish(const skcms_TransferFunction*);
+SKCMS_API bool skcms_TransferFunction_isPQish  (const skcms_TransferFunction*);
+SKCMS_API bool skcms_TransferFunction_isHLGish (const skcms_TransferFunction*);
+
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
     struct {
