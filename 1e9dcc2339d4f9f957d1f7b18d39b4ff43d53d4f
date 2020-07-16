@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "524267ab_633d49a0",
+        "filename": "src/gpu/effects/GrComposeLerpEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-16T17:20:42Z",
+      "side": 1,
+      "message": "This changes the behavior here slightly - we are now passing the input color to the children. This effect isn\u0027t really used, but I think the new version is more correct (and matches what CPU does).",
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "587fd347_6019ea38",
+        "filename": "src/shaders/SkPerlinNoiseShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-16T17:20:42Z",
+      "side": 1,
+      "message": "These half4(1)\u0027s are necessary here. Even though the children being sampled are always texture effects, all of these samples happen inside helper functions, so fInputColor (\"_input\") isn\u0027t visible. It seemed easier to just force the input color to white than to plumb the parent\u0027s input color in, knowing that it would be ignored.",
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
