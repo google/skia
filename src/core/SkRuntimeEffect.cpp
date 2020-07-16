@@ -74,6 +74,38 @@ static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint3
     return true;
 }
 
+static bool init_variable_type(const SkSL::Context& ctx,
+                               const SkSL::Type* type,
+                               SkRuntimeEffect::Variable& v) {
+#define SET_TYPES(cpuType, gpuType)                         \
+    do {                                                    \
+        v.fType = SkRuntimeEffect::Variable::Type::cpuType; \
+        v.fGPUType = gpuType;                               \
+        return true;                                        \
+    } while (false)
+
+    if (type == ctx.fBool_Type.get())     { SET_TYPES(kBool,     kVoid_GrSLType);     }
+    if (type == ctx.fInt_Type.get())      { SET_TYPES(kInt,      kVoid_GrSLType);     }
+    if (type == ctx.fFloat_Type.get())    { SET_TYPES(kFloat,    kFloat_GrSLType);    }
+    if (type == ctx.fHalf_Type.get())     { SET_TYPES(kFloat,    kHalf_GrSLType);     }
+    if (type == ctx.fFloat2_Type.get())   { SET_TYPES(kFloat2,   kFloat2_GrSLType);   }
+    if (type == ctx.fHalf2_Type.get())    { SET_TYPES(kFloat2,   kHalf2_GrSLType);    }
+    if (type == ctx.fFloat3_Type.get())   { SET_TYPES(kFloat3,   kFloat3_GrSLType);   }
+    if (type == ctx.fHalf3_Type.get())    { SET_TYPES(kFloat3,   kHalf3_GrSLType);    }
+    if (type == ctx.fFloat4_Type.get())   { SET_TYPES(kFloat4,   kFloat4_GrSLType);   }
+    if (type == ctx.fHalf4_Type.get())    { SET_TYPES(kFloat4,   kHalf4_GrSLType);    }
+    if (type == ctx.fFloat2x2_Type.get()) { SET_TYPES(kFloat2x2, kFloat2x2_GrSLType); }
+    if (type == ctx.fHalf2x2_Type.get())  { SET_TYPES(kFloat2x2, kHalf2x2_GrSLType);  }
+    if (type == ctx.fFloat3x3_Type.get()) { SET_TYPES(kFloat3x3, kFloat3x3_GrSLType); }
+    if (type == ctx.fHalf3x3_Type.get())  { SET_TYPES(kFloat3x3, kHalf3x3_GrSLType);  }
+    if (type == ctx.fFloat4x4_Type.get()) { SET_TYPES(kFloat4x4, kFloat4x4_GrSLType); }
+    if (type == ctx.fHalf4x4_Type.get())  { SET_TYPES(kFloat4x4, kHalf4x4_GrSLType);  }
+
+#undef SET_TYPES
+
+    return false;
+}
+
 SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     SkSL::SharedCompiler compiler;
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
@@ -88,176 +120,136 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
+    bool hasMain = false;
     bool mainHasSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
 
-    size_t offset = 0, uniformSize = 0;
-    std::vector<Variable> inAndUniformVars;
+    std::vector<const SkSL::Variable*> inVars;
+    std::vector<const SkSL::Variable*> uniformVars;
     std::vector<SkString> children;
     std::vector<SkSL::SampleUsage> sampleUsages;
     std::vector<Varying> varyings;
     const SkSL::Context& ctx(compiler->context());
 
-    // Scrape the varyings
-    for (const auto& e : *program) {
-        if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
-            SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
-            for (const auto& varStatement : v.fVars) {
-                const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
+    // Go through program elements, pulling out information that we need
+    for (const auto& elem : *program) {
+        // Variables (in, uniform, varying, etc.)
+        if (elem.fKind == SkSL::ProgramElement::kVar_Kind) {
+            SkSL::VarDeclarations& varDecls = (SkSL::VarDeclarations&) elem;
+            for (const auto& varDecl : varDecls.fVars) {
+                const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varDecl).fVar;
 
+                // Varyings (only used in conjunction with drawVertices)
                 if (var.fModifiers.fFlags & SkSL::Modifiers::kVarying_Flag) {
                     varyings.push_back({var.fName, var.fType.kind() == SkSL::Type::kVector_Kind
                                                            ? var.fType.columns()
                                                            : 1});
                 }
-            }
-        }
-    }
-
-    // Gather the inputs in two passes, to de-interleave them in our input layout.
-    // We put the uniforms *first*, so that the CPU backend can alias the combined input block as
-    // the uniform block when calling the interpreter.
-    for (auto flag : { SkSL::Modifiers::kUniform_Flag, SkSL::Modifiers::kIn_Flag }) {
-        if (flag == SkSL::Modifiers::kIn_Flag) {
-            uniformSize = offset;
-        }
-        for (const auto& e : *program) {
-            if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
-                SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
-                for (const auto& varStatement : v.fVars) {
-                    const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
-
-                    // Sanity check some rules that should be enforced by the IR generator.
-                    // These are all layout options that only make sense in .fp files.
-                    SkASSERT(!var.fModifiers.fLayout.fKey);
-                    SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
-                        (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
-                    SkASSERT(var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kDefault);
-                    SkASSERT(var.fModifiers.fLayout.fWhen.fLength == 0);
-                    SkASSERT((var.fModifiers.fLayout.fFlags & SkSL::Layout::kTracked_Flag) == 0);
-
-                    if (var.fModifiers.fFlags & flag) {
-                        if (&var.fType == ctx.fFragmentProcessor_Type.get()) {
-                            children.push_back(var.fName);
-                            sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
-                            continue;
-                        }
-
-                        Variable v;
-                        v.fName = var.fName;
-                        v.fQualifier = (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)
-                                ? Variable::Qualifier::kUniform
-                                : Variable::Qualifier::kIn;
-                        v.fFlags = 0;
-                        v.fCount = 1;
-
-                        const SkSL::Type* type = &var.fType;
-                        if (type->kind() == SkSL::Type::kArray_Kind) {
-                            v.fFlags |= Variable::kArray_Flag;
-                            v.fCount = type->columns();
-                            type = &type->componentType();
-                        }
-
-#if SK_SUPPORT_GPU
-#define SET_TYPES(cpuType, gpuType) do { v.fType = cpuType; v.fGPUType = gpuType;} while (false)
-#else
-#define SET_TYPES(cpuType, gpuType) do { v.fType = cpuType; } while (false)
-#endif
-
-                        if (type == ctx.fBool_Type.get()) {
-                            SET_TYPES(Variable::Type::kBool, kVoid_GrSLType);
-                        } else if (type == ctx.fInt_Type.get()) {
-                            SET_TYPES(Variable::Type::kInt, kVoid_GrSLType);
-                        } else if (type == ctx.fFloat_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat, kFloat_GrSLType);
-                        } else if (type == ctx.fHalf_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat, kHalf_GrSLType);
-                        } else if (type == ctx.fFloat2_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat2, kFloat2_GrSLType);
-                        } else if (type == ctx.fHalf2_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat2, kHalf2_GrSLType);
-                        } else if (type == ctx.fFloat3_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat3, kFloat3_GrSLType);
-                        } else if (type == ctx.fHalf3_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat3, kHalf3_GrSLType);
-                        } else if (type == ctx.fFloat4_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat4, kFloat4_GrSLType);
-                        } else if (type == ctx.fHalf4_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat4, kHalf4_GrSLType);
-                        } else if (type == ctx.fFloat2x2_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat2x2, kFloat2x2_GrSLType);
-                        } else if (type == ctx.fHalf2x2_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat2x2, kHalf2x2_GrSLType);
-                        } else if (type == ctx.fFloat3x3_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat3x3, kFloat3x3_GrSLType);
-                        } else if (type == ctx.fHalf3x3_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat3x3, kHalf3x3_GrSLType);
-                        } else if (type == ctx.fFloat4x4_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat4x4, kFloat4x4_GrSLType);
-                        } else if (type == ctx.fHalf4x4_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat4x4, kHalf4x4_GrSLType);
-                        } else {
-                            RETURN_FAILURE("Invalid input/uniform type: '%s'",
-                                           type->displayName().c_str());
-                        }
-
-#undef SET_TYPES
-
-                        switch (v.fType) {
-                            case Variable::Type::kBool:
-                            case Variable::Type::kInt:
-                                if (v.fQualifier == Variable::Qualifier::kUniform) {
-                                    RETURN_FAILURE("'uniform' variables may not have '%s' type",
-                                                   type->displayName().c_str());
-                                }
-                                break;
-
-                            case Variable::Type::kFloat:
-                                // Floats can be 'in' or 'uniform'
-                                break;
-
-                            case Variable::Type::kFloat2:
-                            case Variable::Type::kFloat3:
-                            case Variable::Type::kFloat4:
-                            case Variable::Type::kFloat2x2:
-                            case Variable::Type::kFloat3x3:
-                            case Variable::Type::kFloat4x4:
-                                if (v.fQualifier == Variable::Qualifier::kIn) {
-                                    RETURN_FAILURE("'in' variables may not have '%s' type",
-                                                   type->displayName().c_str());
-                                }
-                                break;
-                        }
-
-                        const SkSL::StringFragment& marker(var.fModifiers.fLayout.fMarker);
-                        if (marker.fLength) {
-                            // Rules that should be enforced by the IR generator:
-                            SkASSERT(v.fQualifier == Variable::Qualifier::kUniform);
-                            SkASSERT(v.fType == Variable::Type::kFloat4x4);
-                            v.fFlags |= Variable::kMarker_Flag;
-                            if (!parse_marker(marker, &v.fMarker, &v.fFlags)) {
-                                RETURN_FAILURE("Invalid 'marker' string: '%.*s'",
-                                               (int)marker.fLength, marker.fChars);
-                            }
-                        }
-
-                        if (var.fModifiers.fLayout.fFlags &
-                            SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
-                            v.fFlags |= Variable::kSRGBUnpremul_Flag;
-                        }
-
-                        if (v.fType != Variable::Type::kBool) {
-                            offset = SkAlign4(offset);
-                        }
-                        v.fOffset = offset;
-                        offset += v.sizeInBytes();
-                        inAndUniformVars.push_back(v);
-                    }
+                // Fragment Processors (aka 'shader'): These are child effects
+                else if (&var.fType == ctx.fFragmentProcessor_Type.get()) {
+                    children.push_back(var.fName);
+                    sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
+                }
+                // 'in' variables (other than fragment processors)
+                else if (var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
+                    inVars.push_back(&var);
+                }
+                // 'uniform' variables
+                else if (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                    uniformVars.push_back(&var);
                 }
             }
         }
+        // Functions
+        else if (elem.fKind == SkSL::ProgramElement::kFunction_Kind) {
+            const SkSL::FunctionDefinition& func  = (const SkSL::FunctionDefinition&) elem;
+            const SkSL::FunctionDeclaration& decl = func.fDeclaration;
+            if (decl.fName == "main") {
+                hasMain = true;
+            }
+        }
     }
 
-#undef RETURN_FAILURE
+    if (!hasMain) {
+        RETURN_FAILURE("missing 'main' function");
+    }
+
+    size_t offset = 0, uniformSize = 0;
+    std::vector<Variable> inAndUniformVars;
+
+    // We've gathered the 'in' and 'uniform' variables in separate lists. Now build a single list
+    // of both, in our own structure. We put the uniforms *first* in our input layout, so that the
+    // CPU backend can alias the combined input block as the uniform block when calling the interpreter.
+    for (auto& skslVars : {uniformVars, inVars}) {
+        if (&skslVars == &inVars) {
+            uniformSize = offset;
+        }
+        for (const SkSL::Variable* var : skslVars) {
+            Variable v;
+            v.fName = var->fName;
+            v.fFlags = 0;
+            v.fQualifier = (var->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)
+                                   ? Variable::Qualifier::kUniform
+                                   : Variable::Qualifier::kIn;
+            v.fCount = 1;
+
+            const SkSL::Type* type = &var->fType;
+            if (type->kind() == SkSL::Type::kArray_Kind) {
+                v.fFlags |= Variable::kArray_Flag;
+                v.fCount = type->columns();
+                type = &type->componentType();
+            }
+
+            if (!init_variable_type(ctx, type, v)) {
+                RETURN_FAILURE("Invalid input/uniform type: '%s'", type->displayName().c_str());
+            }
+
+            switch (v.fType) {
+                case Variable::Type::kBool:
+                case Variable::Type::kInt:
+                    if (v.fQualifier == Variable::Qualifier::kUniform) {
+                        RETURN_FAILURE("'uniform' variables may not have '%s' type",
+                                       type->displayName().c_str());
+                    }
+                    break;
+
+                case Variable::Type::kFloat:
+                    // Floats can be 'in' or 'uniform'
+                    break;
+
+                case Variable::Type::kFloat2:
+                case Variable::Type::kFloat3:
+                case Variable::Type::kFloat4:
+                case Variable::Type::kFloat2x2:
+                case Variable::Type::kFloat3x3:
+                case Variable::Type::kFloat4x4:
+                    if (v.fQualifier == Variable::Qualifier::kIn) {
+                        RETURN_FAILURE("'in' variables may not have '%s' type",
+                                       type->displayName().c_str());
+                    }
+                    break;
+            }
+
+            const SkSL::StringFragment& marker(var->fModifiers.fLayout.fMarker);
+            if (marker.fLength) {
+                v.fFlags |= Variable::kMarker_Flag;
+                if (!parse_marker(marker, &v.fMarker, &v.fFlags)) {
+                    RETURN_FAILURE("Invalid 'marker' string: '%.*s'", (int)marker.fLength,
+                                   marker.fChars);
+                }
+            }
+
+            if (var->fModifiers.fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
+                v.fFlags |= Variable::kSRGBUnpremul_Flag;
+            }
+
+            if (v.fType != Variable::Type::kBool) {
+                offset = SkAlign4(offset);
+            }
+            v.fOffset = offset;
+            offset += v.sizeInBytes();
+            inAndUniformVars.push_back(v);
+        }
+    }
 
     sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
                                                       std::move(program),
