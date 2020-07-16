@@ -24,3 +24,6 @@ skp_with_local:
 	--canvaskit_wasm ../../out/canvaskit_wasm/canvaskit.wasm --use_gpu \
 	--input_skp ${HOME}/skps/desk_nytimes.skp \
 	--bench_html render-skp.html
+
+skps_release_and_simd:
+	./perf_all_skps.sh --release --simd --summary

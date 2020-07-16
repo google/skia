@@ -78,7 +78,7 @@ function startTimingFrames(drawFn, surface, warmupFrames, maxFrames, timeoutMill
     // We can fill out this frame's intermediate steps.
     withFlush[idx] = end - start;
     withoutFlush[idx] = afterDraw - start;
-    
+
     if (timeoutMillis && ((beginTest + timeoutMillis) < performance.now())) {
       console.log('test aborted due to timeout');
       return;
