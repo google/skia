@@ -33,7 +33,8 @@ GrBlockAllocator::Block::Block(Block* prev, int allocationSize)
          , fPrev(prev)
          , fSize(allocationSize)
          , fCursor(kDataStart)
-         , fMetadata(0) {
+         , fMetadata(0)
+         , fAllocatorMetadata(0) {
     SkASSERT(allocationSize >= (int) sizeof(Block));
     SkDEBUGCODE(fSentinel = kAssignedMarker;)
 }
@@ -138,6 +139,9 @@ void GrBlockAllocator::reset() {
             b->fNext = nullptr;
             b->fCursor = kDataStart;
             b->fMetadata = 0;
+
+            // For reset(), but NOT releaseBlock(), the head allocatorMetadata resets too
+            b->fAllocatorMetadata = 0;
         } else {
             delete b;
         }
