@@ -13,6 +13,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "modules/skshaper/src/SkUnicode.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
