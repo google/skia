@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "744be04c_3bd93b73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T17:28:34Z",
+      "side": 1,
+      "message": "lgtm, although check SkVx.h again.",
+      "revId": "36418ade121bffee44fe508cd5e17ed84306d76b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
