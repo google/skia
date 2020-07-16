@@ -16,6 +16,52 @@
       "revId": "d3f7a9a12b1ae18e98eaeebd4d17166f8360e163",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e867a87e_8916117f",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-16T11:35:06Z",
+      "side": 1,
+      "message": "IIRC we\u0027ll need some corresponding changes in infra code, since we have duplication.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 1
+      },
+      "revId": "d3f7a9a12b1ae18e98eaeebd4d17166f8360e163",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8164e3d7_acab66fd",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 17
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-16T11:35:06Z",
+      "side": 1,
+      "message": "Nit: I find this naming to be a little confusing.  Could we call it something like \"project\", \"repo\", or \"target\"?",
+      "range": {
+        "startLine": 27,
+        "startChar": 9,
+        "endLine": 27,
+        "endChar": 18
+      },
+      "revId": "d3f7a9a12b1ae18e98eaeebd4d17166f8360e163",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
