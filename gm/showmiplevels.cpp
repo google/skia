@@ -336,22 +336,7 @@ class ShowMipLevels3 : public skiagm::GM {
         fImg = fImg->withMipmaps(builder.detach());
     }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        auto is_recording_canvas = [](SkCanvas* canvas) {
-            SkPixmap pm;
-            if (canvas->peekPixels(&pm)) {
-                return false;
-            }
-            if (canvas->getGrContext()) {
-                return false;
-            }
-            return true;
-        };
-        if (is_recording_canvas(canvas)) {
-            // TODO: make explicit mipmaps serialize
-            return DrawResult::kSkip;
-        }
-
+    void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFDDDDDD);
 
         const SkSamplingMode samplings[] = {
@@ -367,7 +352,6 @@ class ShowMipLevels3 : public skiagm::GM {
                 canvas->translate(0, draw_downscaling(canvas, {sa, mm}));
             }
         }
-        return DrawResult::kOk;
     }
 
 private:
