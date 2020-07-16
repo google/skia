@@ -28,7 +28,7 @@
 
 #include "include/effects/SkImageFilters.h"
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -270,12 +270,12 @@ protected:
         // These need to be GPU-backed when on the GPU to ensure that the image filters use the GPU
         // code paths (otherwise they may choose to do CPU filtering then upload)
         sk_sp<SkImage> mainImage, auxImage;
-        if (canvas->recordingContext()) {
-            if (canvas->recordingContext()->abandoned()) {
+        if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
+            if (direct->abandoned()) {
                 return;
             }
-            mainImage = fMainImage->makeTextureImage(canvas->getGrContext());
-            auxImage = fAuxImage->makeTextureImage(canvas->getGrContext());
+            mainImage = fMainImage->makeTextureImage(direct);
+            auxImage = fAuxImage->makeTextureImage(direct);
         } else {
             mainImage = fMainImage;
             auxImage = fAuxImage;
