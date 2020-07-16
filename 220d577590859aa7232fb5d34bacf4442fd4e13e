@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aafa2ac0_64e0cac8",
+        "filename": "src/opts/SkVM_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-16T18:24:30Z",
+      "side": 1,
+      "message": "This is the key design tradeoff of all this 64-bit support.  Programs using 64-bit pixels that both load64_lo and load64_hi will actually load the pixels twice.  I figure the second load is super cheap, finding its data in L1 cache, and easy for the processor to hide latency-wise.\n\nStores and gathers touch memory minimally.",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 87
+      },
+      "revId": "220d577590859aa7232fb5d34bacf4442fd4e13e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
