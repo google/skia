@@ -66,6 +66,9 @@ std::unique_ptr<GrFragmentProcessor> GrClampFragmentProcessor::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrClampFragmentProcessor);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrClampFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     return GrClampFragmentProcessor::Make(/*inputFP=*/nullptr, d->fRandom->nextBool());
 }

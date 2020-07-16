@@ -366,6 +366,9 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 const GrXPFactory* CustomXPFactory::TestGet(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU((int)SkBlendMode::kLastCoeffMode + 1,
                                       (int)SkBlendMode::kLastSeparableMode);
