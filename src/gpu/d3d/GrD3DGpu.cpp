@@ -46,6 +46,7 @@ GrD3DGpu::GrD3DGpu(GrDirectContext* direct, const GrContextOptions& contextOptio
 
         , fQueue(backendContext.fQueue)
         , fResourceProvider(this)
+        , fStagingBufferManager(this)
         , fOutstandingCommandLists(sizeof(OutstandingCommandList), kDefaultOutstandingAllocCnt)
         , fCompiler(new SkSL::Compiler()) {
     fCaps.reset(new GrD3DCaps(contextOptions,
@@ -91,6 +92,8 @@ void GrD3DGpu::destroyResources() {
         list->~OutstandingCommandList();
         fOutstandingCommandLists.pop_front();
     }
+
+    fStagingBufferManager.reset();
 
     fResourceProvider.destroyResources();
 }
@@ -351,19 +354,23 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
                                    numRows.get(), rowSizeInBytes.get(), &combinedBufferSize);
     SkASSERT(combinedBufferSize);
 
-    // TODO: do this until we have slices of buttery buffers
-    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(combinedBufferSize,
-                                                           GrGpuBufferType::kXferCpuToGpu,
-                                                           kDynamic_GrAccessPattern);
-    if (!transferBuffer) {
+    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            combinedBufferSize, D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
+    if (!slice.fBuffer) {
         return false;
     }
-    char* bufferData = (char*)transferBuffer->map();
+
+    char* bufferData = (char*)slice.fOffsetMapPtr;
 
     copy_compressed_data(bufferData, desc.Format, placedFootprints.get(), numRows.get(),
                          rowSizeInBytes.get(), data, mipLevelCount);
 
-    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(transferBuffer.get());
+    // Update the offsets in the footprints to be relative to the slice's offset
+    for (int i = 0; i < mipLevelCount; ++i) {
+        placedFootprints[i].Offset += slice.fOffset;
+    }
+
+    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer);
     fCurrentDirectCommandList->copyBufferToTexture(d3dBuffer, d3dTex.get(), mipLevelCount,
                                                    placedFootprints.get(), 0, 0);
 
@@ -665,14 +672,13 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
     size_t bpp = GrColorTypeBytesPerPixel(colorType);
     SkASSERT(combinedBufferSize);
 
-    // TODO: do this until we have slices of buttery buffers
-    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(combinedBufferSize,
-                                                           GrGpuBufferType::kXferCpuToGpu,
-                                                           kDynamic_GrAccessPattern);
-    if (!transferBuffer) {
+    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            combinedBufferSize, D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
+    if (!slice.fBuffer) {
         return false;
     }
-    char* bufferData = (char*)transferBuffer->map();
+
+    char* bufferData = (char*)slice.fOffsetMapPtr;
 
     int currentWidth = width;
     int currentHeight = height;
@@ -697,9 +703,12 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
         layerHeight = currentHeight;
     }
 
-    transferBuffer->unmap();
+    // Update the offsets in the footprints to be relative to the slice's offset
+    for (int i = 0; i < mipLevelCount; ++i) {
+        placedFootprints[i].Offset += slice.fOffset;
+    }
 
-    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(transferBuffer.get());
+    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer);
     fCurrentDirectCommandList->copyBufferToTexture(d3dBuffer, tex, mipLevelCount,
                                                    placedFootprints.get(), left, top);
 
@@ -1090,14 +1099,13 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         }
     }
 
-    // TODO: do this until we have slices of buttery buffers
-    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(combinedBufferSize,
-                                                           GrGpuBufferType::kXferCpuToGpu,
-                                                           kDynamic_GrAccessPattern);
-    if (!transferBuffer) {
+    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            combinedBufferSize, D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
+    if (!slice.fBuffer) {
         return false;
     }
-    char* bufferData = (char*)transferBuffer->map();
+
+    char* bufferData = (char*)slice.fOffsetMapPtr;
     SkASSERT(bufferData);
 
     if (data->type() == BackendTextureData::Type::kPixmaps) {
@@ -1113,7 +1121,6 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         if (SkImage::CompressionType::kNone == compression) {
             if (!copy_color_data(this->d3dCaps(), bufferData, info.fFormat,
                                  backendTexture.dimensions(), placedFootprints, data->color())) {
-              transferBuffer->unmap();
               return false;
             }
         } else {
@@ -1127,11 +1134,15 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                  rowSizeInBytes.get(), tempData.get(), info.fLevelCount);
         }
     }
-    transferBuffer->unmap();
 
-    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(transferBuffer.get());
-    cmdList->copyBufferToTexture(d3dBuffer, texture.get(), mipLevelCount, placedFootprints.get(),
-                                 0, 0);
+    // Update the offsets in the footprints to be relative to the slice's offset
+    for (unsigned int i = 0; i < mipLevelCount; ++i) {
+        placedFootprints[i].Offset += slice.fOffset;
+    }
+
+    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer);
+    cmdList->copyBufferToTexture(d3dBuffer, texture.get(), mipLevelCount, placedFootprints.get(), 0,
+                                 0);
 
     if (finishedCallback) {
         this->addFinishedCallback(std::move(finishedCallback));
@@ -1259,6 +1270,10 @@ void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
             resource->prepareForPresent(this);
         }
     }
+}
+
+void GrD3DGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+    fCurrentDirectCommandList->addGpuBuffer(std::move(buffer));
 }
 
 bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
