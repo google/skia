@@ -16,6 +16,7 @@
 #include "src/core/SkNextID.h"
 
 #if SK_SUPPORT_GPU
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
@@ -527,18 +528,18 @@ void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const
     bool singleThreaded = this->unique();
     fUniqueIDListeners.add(std::move(listener), singleThreaded);
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::DecodeToTexture(GrContext* ctx, const void* encoded, size_t length,
-                                        const SkIRect* subset) {
+sk_sp<SkImage> SkImage::DecodeToTexture(GrDirectContext* direct, const void* encoded,
+                                        size_t length, const SkIRect* subset) {
     // img will not survive this function, so we don't need to copy/own the encoded data,
     auto img = MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length), subset);
     if (!img) {
         return nullptr;
     }
-    return img->makeTextureImage(ctx);
+    return img->makeTextureImage(direct);
 }
+#endif  // SK_SUPPORT_GPU
 
 #endif

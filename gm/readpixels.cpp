@@ -22,6 +22,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/third_party/skcms/skcms.h"
 #include "tools/Resources.h"
 
@@ -164,8 +165,8 @@ protected:
                 if (!image) {
                     continue;
                 }
-                if (GrContext* context = canvas->getGrContext()) {
-                    image = image->makeTextureImage(context);
+                if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
+                    image = image->makeTextureImage(direct);
                 }
                 if (image) {
                     for (SkColorType dstColorType : colorTypes) {

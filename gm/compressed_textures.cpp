@@ -21,7 +21,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
@@ -31,7 +31,6 @@
 #include "src/image/SkImage_Base.h"
 #include "third_party/etc1/etc1.h"
 
-class GrContext;
 class GrRenderTargetContext;
 
 static SkPoint gen_pt(float angle, const SkVector& scale) {
@@ -213,26 +212,26 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto direct = GrAsDirectContext(canvas->recordingContext());
 
-        this->drawCell(context, canvas, fOpaqueETC2Data,
+        this->drawCell(direct, canvas, fOpaqueETC2Data,
                        SkImage::CompressionType::kETC2_RGB8_UNORM, { kPad, kPad });
 
-        this->drawCell(context, canvas, fOpaqueBC1Data,
+        this->drawCell(direct, canvas, fOpaqueBC1Data,
                        SkImage::CompressionType::kBC1_RGB8_UNORM, { 2*kPad + kCellWidth, kPad });
 
-        this->drawCell(context, canvas, fTransparentBC1Data,
+        this->drawCell(direct, canvas, fTransparentBC1Data,
                        SkImage::CompressionType::kBC1_RGBA8_UNORM,
                        { 2*kPad + kCellWidth, 2*kPad + kBaseTexHeight });
     }
 
 private:
-    void drawCell(GrContext* context, SkCanvas* canvas, sk_sp<SkData> data,
+    void drawCell(GrDirectContext* direct, SkCanvas* canvas, sk_sp<SkData> data,
                   SkImage::CompressionType compression, SkIVector offset) {
 
         sk_sp<SkImage> image;
-        if (context) {
-            image = SkImage::MakeTextureFromCompressed(context, std::move(data),
+        if (direct) {
+            image = SkImage::MakeTextureFromCompressed(direct, std::move(data),
                                                        fImgDimensions.width(),
                                                        fImgDimensions.height(),
                                                        compression, GrMipMapped::kYes);
@@ -255,7 +254,7 @@ private:
 
         bool isCompressed = false;
         if (image->isTextureBacked()) {
-            const GrCaps* caps = context->priv().caps();
+            const GrCaps* caps = direct->priv().caps();
 
             GrTextureProxy* proxy = as_IB(image)->peekProxy();
             isCompressed = caps->isFormatCompressed(proxy->backendFormat());

@@ -73,10 +73,9 @@ protected:
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkIRect discardSubset;
 
-        auto context = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
-                                                  : nullptr;
+        auto direct = GrAsDirectContext(canvas->recordingContext());
         // makeWithFilter will only use the GPU backend if the image is already a texture
-        sk_sp<SkImage> image = fImage->makeTextureImage(context);
+        sk_sp<SkImage> image = fImage->makeTextureImage(direct);
         if (!image) {
             image = fImage;
         }

@@ -252,16 +252,17 @@ public:
      *  If the encoded format is not supported, or subset is outside of the bounds of the decoded
      *  image, nullptr is returned.
      *
+     *  @param direct   the GrDirectContext in play
      *  @param encoded  the encoded data
      *  @param length   the number of bytes of encoded data
      *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
      *  @return         created SkImage, or nullptr
      */
-    static sk_sp<SkImage> DecodeToTexture(GrContext* ctx, const void* encoded, size_t length,
-                                          const SkIRect* subset = nullptr);
-    static sk_sp<SkImage> DecodeToTexture(GrContext* ctx, const sk_sp<SkData>& data,
+    static sk_sp<SkImage> DecodeToTexture(GrDirectContext* direct, const void* encoded,
+                                          size_t length, const SkIRect* subset = nullptr);
+    static sk_sp<SkImage> DecodeToTexture(GrDirectContext* direct, const sk_sp<SkData>& data,
                                           const SkIRect* subset = nullptr) {
-        return DecodeToTexture(ctx, data->data(), data->size(), subset);
+        return DecodeToTexture(direct, data->data(), data->size(), subset);
     }
 
     /*
@@ -306,7 +307,7 @@ public:
         @param isProtected do the contents of 'data' require DRM protection (on Vulkan)?
         @return            created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeTextureFromCompressed(GrContext* context,
+    static sk_sp<SkImage> MakeTextureFromCompressed(GrDirectContext* direct,
                                                     sk_sp<SkData> data,
                                                     int width, int height,
                                                     CompressionType type,
@@ -319,11 +320,7 @@ public:
                                              int width, int height,
                                              CompressionType type,
                                              GrMipMapped mipMapped = GrMipMapped::kNo,
-                                             GrProtected isProtected = GrProtected::kNo) {
-        return MakeTextureFromCompressed(context, data, width, height, type,
-                                         mipMapped, isProtected);
-
-    }
+                                             GrProtected isProtected = GrProtected::kNo);
 
     /** Creates a CPU-backed SkImage from compressed data.
 
@@ -1224,17 +1221,23 @@ public:
         mipMapped is compatible with the backing GPU texture. SkBudgeted is ignored in this case.
 
         Returns nullptr if context is nullptr, or if SkImage was created with another
-        GrContext.
+        GrDirectContext.
 
-        @param GrContext      GPU context
-        @param GrMipMapped    whether created SkImage texture must allocate mip map levels
-        @param SkBudgeted     whether to count a newly created texture for the returned image
-                              counts against the GrContext's budget.
-        @return               created SkImage, or nullptr
+        @param GrDirectContext the GrDirectContext in play, if it exists
+        @param GrMipMapped     whether created SkImage texture must allocate mip map levels
+        @param SkBudgeted      whether to count a newly created texture for the returned image
+                               counts against the GrContext's budget.
+        @return                created SkImage, or nullptr
     */
+#ifndef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
+    sk_sp<SkImage> makeTextureImage(GrDirectContext*,
+                                    GrMipMapped = GrMipMapped::kNo,
+                                    SkBudgeted = SkBudgeted::kYes) const;
+#else
     sk_sp<SkImage> makeTextureImage(GrContext*,
                                     GrMipMapped = GrMipMapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;
+#endif
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
         CPU memory if needed. Returns original SkImage if decoded in raster bitmap,
