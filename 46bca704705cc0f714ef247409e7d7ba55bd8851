@@ -16,6 +16,75 @@
       "revId": "46bca704705cc0f714ef247409e7d7ba55bd8851",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09240eff_50d48b17",
+        "filename": "infra/bots/canary.isolate",
+        "patchSetId": 55
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-16T11:26:14Z",
+      "side": 1,
+      "message": "Based on my reading of the task driver, I don\u0027t think we need any of these inputs.  We may be able to use empty.isolate instead.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 1
+      },
+      "revId": "46bca704705cc0f714ef247409e7d7ba55bd8851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86cd864a_ffe70abc",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 55
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-16T11:26:14Z",
+      "side": 1,
+      "message": "Nit: sort",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 19
+      },
+      "revId": "46bca704705cc0f714ef247409e7d7ba55bd8851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9302f99e_13cbbd4f",
+        "filename": "infra/bots/task_drivers/canary/canary.go",
+        "patchSetId": 55
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-16T11:26:14Z",
+      "side": 1,
+      "message": "I\u0027m not a huge fan of this approach.  It feels a little sneaky to be directly accessing the database, and I think it could make things brittle if we wanted to change implementations.  Could we use the HTTP frontend instead?",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 96
+      },
+      "revId": "46bca704705cc0f714ef247409e7d7ba55bd8851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
