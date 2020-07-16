@@ -366,36 +366,36 @@ namespace skvm {
         int disp19(Label*);
     };
 
-    // Order matters a little: Ops <=store32 are treated as having side effects.
-    #define SKVM_OPS(M)                           \
-        M(assert_true)                            \
-        M(store8)   M(store16)   M(store32)       \
-        M(index)                                  \
-        M(load8)    M(load16)    M(load32)        \
-        M(gather8)  M(gather16)  M(gather32)      \
-        M(uniform8) M(uniform16) M(uniform32)     \
-        M(splat)                                  \
-        M(add_f32) M(add_i32)                     \
-        M(sub_f32) M(sub_i32)                     \
-        M(mul_f32) M(mul_i32)                     \
-        M(div_f32)                                \
-        M(min_f32)                                \
-        M(max_f32)                                \
-        M(fma_f32) M(fms_f32) M(fnma_f32)         \
-        M(sqrt_f32)                               \
-        M(shl_i32) M(shr_i32) M(sra_i32)          \
-        M(ceil) M(floor)                          \
-        M(trunc) M(round) M(to_half) M(from_half) \
-        M(to_f32)                                 \
-        M( eq_f32) M( eq_i32)                     \
-        M(neq_f32)                                \
-        M( gt_f32) M( gt_i32)                     \
-        M(gte_f32)                                \
-        M(bit_and)                                \
-        M(bit_or)                                 \
-        M(bit_xor)                                \
-        M(bit_clear)                              \
-        M(select) M(pack)                         \
+    // Order matters a little: Ops <=store64 are treated as having side effects.
+    #define SKVM_OPS(M)                                               \
+        M(assert_true)                                                \
+        M(store8)   M(store16)   M(store32) M(store64)                \
+        M(index)                                                      \
+        M(load8)    M(load16)    M(load32)  M(load64_lo) M(load64_hi) \
+        M(gather8)  M(gather16)  M(gather32)                          \
+        M(uniform8) M(uniform16) M(uniform32)                         \
+        M(splat)                                                      \
+        M(add_f32) M(add_i32)                                         \
+        M(sub_f32) M(sub_i32)                                         \
+        M(mul_f32) M(mul_i32)                                         \
+        M(div_f32)                                                    \
+        M(min_f32)                                                    \
+        M(max_f32)                                                    \
+        M(fma_f32) M(fms_f32) M(fnma_f32)                             \
+        M(sqrt_f32)                                                   \
+        M(shl_i32) M(shr_i32) M(sra_i32)                              \
+        M(ceil) M(floor)                                              \
+        M(trunc) M(round) M(to_half) M(from_half)                     \
+        M(to_f32)                                                     \
+        M( eq_f32) M( eq_i32)                                         \
+        M(neq_f32)                                                    \
+        M( gt_f32) M( gt_i32)                                         \
+        M(gte_f32)                                                    \
+        M(bit_and)                                                    \
+        M(bit_or)                                                     \
+        M(bit_xor)                                                    \
+        M(bit_clear)                                                  \
+        M(select) M(pack)                                             \
     // End of SKVM_OPS
 
     enum class Op : int {
@@ -405,7 +405,7 @@ namespace skvm {
     };
 
     static inline bool has_side_effect(Op op) {
-        return op <= Op::store32;
+        return op <= Op::store64;
     }
     static inline bool is_always_varying(Op op) {
         return op <= Op::gather32 && op != Op::assert_true;
@@ -573,6 +573,7 @@ namespace skvm {
         void store16(Arg ptr, I32 val);
         void store32(Arg ptr, I32 val);
         void storeF (Arg ptr, F32 val) { store32(ptr, bit_cast(val)); }
+        void store64(Arg ptr, I32 lo, I32 hi);
 
         // Returns varying {n, n-1, n-2, ..., 1}, where n is the argument to Program::eval().
         I32 index();
@@ -582,6 +583,8 @@ namespace skvm {
         I32 load16(Arg ptr);
         I32 load32(Arg ptr);
         F32 loadF (Arg ptr) { return bit_cast(load32(ptr)); }
+        I32 load64_lo(Arg ptr);
+        I32 load64_hi(Arg ptr);
 
         // Load u8,u16,i32 uniform with byte-count offset.
         I32 uniform8 (Arg ptr, int offset);
@@ -964,10 +967,11 @@ namespace skvm {
     static inline void assert_true(I32 cond, F32 debug) { cond->assert_true(cond,debug); }
     static inline void assert_true(I32 cond)            { cond->assert_true(cond); }
 
-    static inline void store8 (Arg ptr, I32 val) { val->store8 (ptr, val); }
-    static inline void store16(Arg ptr, I32 val) { val->store16(ptr, val); }
-    static inline void store32(Arg ptr, I32 val) { val->store32(ptr, val); }
-    static inline void storeF (Arg ptr, F32 val) { val->storeF (ptr, val); }
+    static inline void store8 (Arg ptr, I32 val)        { val->store8 (ptr, val); }
+    static inline void store16(Arg ptr, I32 val)        { val->store16(ptr, val); }
+    static inline void store32(Arg ptr, I32 val)        { val->store32(ptr, val); }
+    static inline void storeF (Arg ptr, F32 val)        { val->storeF (ptr, val); }
+    static inline void store64(Arg ptr, I32 lo, I32 hi) { lo ->store64(ptr, lo,hi); }
 
     static inline I32 gather8 (Arg ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
     static inline I32 gather16(Arg ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }

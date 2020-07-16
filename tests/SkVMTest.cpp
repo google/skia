@@ -2212,3 +2212,51 @@ DEF_TEST(SkVM_halfs, r) {
         });
     }
 }
+
+DEF_TEST(SkVM_64bit, r) {
+    uint32_t lo[65],
+             hi[65];
+    uint64_t wide[65];
+    for (int i = 0; i < 65; i++) {
+        lo[i] = 2*i+0;
+        hi[i] = 2*i+1;
+        wide[i] = ((uint64_t)lo[i] <<  0)
+                | ((uint64_t)hi[i] << 32);
+    }
+
+    {
+        skvm::Builder b;
+        {
+            skvm::Arg wide = b.varying<uint64_t>(),
+                        lo = b.varying<int>(),
+                        hi = b.varying<int>();
+            b.store32(lo, b.load64_lo(wide));
+            b.store32(hi, b.load64_hi(wide));
+        }
+        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+            uint32_t l[65], h[65];
+            program.eval(65, wide,l,h);
+            for (int i = 0; i < 65; i++) {
+                REPORTER_ASSERT(r, l[i] == lo[i]);
+                REPORTER_ASSERT(r, h[i] == hi[i]);
+            }
+        });
+    }
+
+    {
+        skvm::Builder b;
+        {
+            skvm::Arg wide = b.varying<uint64_t>(),
+                        lo = b.varying<int>(),
+                        hi = b.varying<int>();
+            b.store64(wide, b.load32(lo), b.load32(hi));
+        }
+        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+            uint64_t w[65];
+            program.eval(65, w,lo,hi);
+            for (int i = 0; i < 65; i++) {
+                REPORTER_ASSERT(r, w[i] == wide[i]);
+            }
+        });
+    }
+}
