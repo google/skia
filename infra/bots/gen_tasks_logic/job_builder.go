@@ -154,10 +154,6 @@ func (b *jobBuilder) genTasksForJob() {
 			// Android Framework compile tasks use a different recipe.
 			b.androidFrameworkCompile()
 			return
-		} else if b.extraConfig("G3") && b.extraConfig("Framework") {
-			// G3 compile tasks use a different recipe.
-			b.g3FrameworkCompile()
-			return
 		} else {
 			b.compile()
 			return
@@ -186,6 +182,14 @@ func (b *jobBuilder) genTasksForJob() {
 	if b.role("FM") {
 		b.fm()
 		return
+	}
+
+	// Canary bots.
+	if b.role("Canary") {
+		if b.project("G3") {
+			b.g3FrameworkCanary()
+			return
+		}
 	}
 
 	if b.extraConfig("Puppeteer") {

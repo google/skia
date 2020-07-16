@@ -1147,18 +1147,19 @@ func (b *jobBuilder) androidFrameworkCompile() {
 	})
 }
 
-// g3FrameworkCompile generates a G3 Framework Compile task. Returns
+// g3FrameworkCanary generates a G3 Framework Canary task. Returns
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
-func (b *jobBuilder) g3FrameworkCompile() {
+func (b *jobBuilder) g3FrameworkCanary() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.recipeProps(EXTRA_PROPS)
-		b.kitchenTask("g3_compile", OUTPUT_NONE)
-		b.isolate("compile_g3_framework.isolate")
+		b.kitchenTask("g3_canary", OUTPUT_NONE)
+		b.isolate("canary_g3_framework.isolate")
 		b.serviceAccount("skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.timeout(3 * time.Hour)
 		b.usesGit()
+		b.attempts(1)
 	})
 }
 

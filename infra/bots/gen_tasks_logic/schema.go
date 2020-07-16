@@ -143,6 +143,10 @@ func (p parts) matchRole(re ...string) bool {
 	return p.matchPart("role", re...)
 }
 
+func (p parts) project(re ...string) bool {
+	return p.matchPart("project", re...)
+}
+
 // matchOs returns true if the OS for this job matches any of the given regular
 // expressions.
 func (p parts) matchOs(re ...string) bool {
