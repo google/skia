@@ -161,13 +161,14 @@ GrAtlasSubRun::makeAtlasTextOp(const GrClip* clip,
     const GrColorInfo& colorInfo = rtc->colorInfo();
 
     // This is the color the op will use to draw.
-    SkPMColor4f drawingColor = generate_filtered_color(drawPaint, colorInfo);
-
+    SkPMColor4f drawingColor;
     GrPaint grPaint;
     if (this->maskFormat() == kARGB_GrMaskFormat) {
+        drawingColor = SK_PMColor4fWHITE;
         SkPaintToGrPaintWithPrimitiveColor(
                 context, colorInfo, drawPaint, viewMatrix, &grPaint);
     } else {
+        drawingColor = generate_filtered_color(drawPaint, colorInfo);
         SkPaintToGrPaint(context, colorInfo, drawPaint, viewMatrix, &grPaint);
     }
 
@@ -210,16 +211,21 @@ GrAtlasSubRun::makeAtlasTextOp(const GrClip* clip,
             }
         }();
 
+        GrAtlasTextOp::Geometry geometry = {
+                SkRef(fBlob),
+                this,
+                drawMatrix,
+                drawOrigin,
+                clipRect,
+                drawingColor
+        };
+
         op = pool->allocate<GrAtlasTextOp>(maskType,
+                                           this->needsTransform(),
+                                           this->glyphCount(),
+                                           this->deviceRect(drawMatrix, drawOrigin),
                                            std::move(grPaint),
-                                           this,
-                                           drawMatrix,
-                                           drawOrigin,
-                                           clipRect,
-                                           drawingColor,
-                                           0,
-                                           false,
-                                           0);
+                                           std::move(geometry));
     } else {
         const SkSurfaceProps& props = rtc->surfaceProps();
         bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
@@ -244,16 +250,24 @@ GrAtlasSubRun::makeAtlasTextOp(const GrClip* clip,
                          kBGR_DistanceFieldEffectFlag : 0;
         }
 
+        GrAtlasTextOp::Geometry geometry = {
+                SkRef(fBlob),
+                this,
+                drawMatrix,
+                drawOrigin,
+                SkIRect::MakeEmpty(),
+                drawingColor
+        };
+
         op = pool->allocate<GrAtlasTextOp>(maskType,
-                                           std::move(grPaint),
-                                           this,
-                                           drawMatrix,
-                                           drawOrigin,
-                                           SkIRect::MakeEmpty(),
-                                           drawingColor,
+                                           this->needsTransform(),
+                                           this->glyphCount(),
+                                           this->deviceRect(drawMatrix, drawOrigin),
                                            SkPaintPriv::ComputeLuminanceColor(drawPaint),
                                            useGammaCorrectDistanceTable,
-                                           DFGPFlags);
+                                           DFGPFlags,
+                                           std::move(grPaint),
+                                           std::move(geometry));
     }
 
     return {clip, std::move(op)};

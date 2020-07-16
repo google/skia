@@ -35,40 +35,52 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
+                             bool needsTransform,
+                             int glyphCount,
+                             SkRect deviceRect,
                              GrPaint&& paint,
-                             GrAtlasSubRun* subrun,
-                             const SkMatrix& drawMatrix,
-                             SkPoint drawOrigin,
-                             const SkIRect& clipRect,
-                             const SkPMColor4f& filteredColor,
+                             Geometry&& geo)
+         : INHERITED{ClassID()}
+         , fMaskType{maskType}
+         , fNeedsGlyphTransform{needsTransform}
+         , fLuminanceColor{0}
+         , fUseGammaCorrectDistanceTable{false}
+         , fDFGPFlags{0}
+         , fGeoDataAllocSize{kMinGeometryAllocated}
+         , fProcessors{std::move(paint)}
+         , fNumGlyphs{glyphCount} {
+    fGeoData[0] = std::move(geo);
+    fGeoCount = 1;
+
+    // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
+    // we treat this as a set of non-AA rects rendered with a texture.
+    this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
+}
+
+GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
+                             bool needsTransform,
+                             int glyphCount,
+                             SkRect deviceRect,
                              SkColor luminanceColor,
                              bool useGammaCorrectDistanceTable,
-                             uint32_t DFGPFlags)
-        : INHERITED(ClassID())
+                             uint32_t DFGPFlags,
+                             GrPaint&& paint,
+                             Geometry&& geo)
+        : INHERITED{ClassID()}
         , fMaskType{maskType}
-        , fNeedsGlyphTransform{subrun->needsTransform()}
+        , fNeedsGlyphTransform{needsTransform}
         , fLuminanceColor{luminanceColor}
         , fUseGammaCorrectDistanceTable{useGammaCorrectDistanceTable}
         , fDFGPFlags{DFGPFlags}
         , fGeoDataAllocSize{kMinGeometryAllocated}
         , fProcessors{std::move(paint)}
-        , fNumGlyphs{subrun->glyphCount()} {
-    GrAtlasTextOp::Geometry& geometry = fGeoData[0];
-
-    // Unref handled in ~GrAtlasTextOp().
-    geometry.fBlob = SkRef(subrun->fBlob);
-    geometry.fSubRunPtr = subrun;
-    geometry.fDrawMatrix = drawMatrix;
-    geometry.fDrawOrigin = drawOrigin;
-    geometry.fClipRect = clipRect;
-    geometry.fColor = subrun->maskFormat() == kARGB_GrMaskFormat ? SK_PMColor4fWHITE
-                                                                 : filteredColor;
+        , fNumGlyphs{glyphCount} {
+    fGeoData[0] = std::move(geo);
     fGeoCount = 1;
 
-    SkRect bounds = subrun->deviceRect(drawMatrix, drawOrigin);
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
-    this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
+    this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
 }
 
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
