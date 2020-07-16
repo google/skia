@@ -58,7 +58,7 @@ public:
                   int numOpsTaskIDs) override;
 
 private:
-    void initAtlasFlags(const GrShaderCaps& shaderCaps);
+    void initAtlasFlags(const GrCaps&);
     SkPath* getAtlasUberPath(SkPathFillType fillType, bool antialias) {
         int idx = (int)antialias << 1;
         idx |= (int)fillType & 1;
