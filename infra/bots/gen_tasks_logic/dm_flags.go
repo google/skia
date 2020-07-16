@@ -967,29 +967,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.extraConfig("Direct3D") {
 		// skia:9935
-		match = append(match, "~^ColorTypeBackendAllocationTest$")
-		match = append(match, "~^CompressedBackendAllocationTest$")
 		match = append(match, "~^DDLSkSurfaceFlush$")
 		match = append(match, "~^GrBackendTextureImageMipMappedTest$")
-		match = append(match, "~^GrMeshTest$")
-		match = append(match, "~^GrSurfaceRenderability$")
 		match = append(match, "~^GrTextureMipMapInvalidationTest$")
-		match = append(match, "~^PremulAlphaRoundTrip_Gpu$")
-		match = append(match, "~^ReplaceSurfaceBackendTexture$")
 		match = append(match, "~^SkImage_makeTextureImage$")
 		match = append(match, "~^TextureIdleStateTest$")
-		match = append(match, "~^TextureProxyTest$")
-	}
-	if b.extraConfig("Direct3D") && b.matchOs("Win") {
-		// skia:9935
-		match = append(match, "~^ImageAsyncReadPixels$")
-	}
-	if b.extraConfig("Direct3D") && b.gpu("RadeonHD7770") && b.matchOs("Win") {
-		// skia:9935
-		match = append(match, "~^SurfaceAsyncReadPixels$")
-		match = append(match, "~^MorphologyFilterRadiusWithMirrorCTM_Gpu$")
-		match = append(match, "~^ReadPixels_Gpu$")
-		match = append(match, "~^ReadPixels_Texture$")
 	}
 
 	if b.extraConfig("ANGLE") {

@@ -233,7 +233,8 @@ static void invalidation_test(GrDirectContext* direct, skiatest::Reporter* repor
     // Some of our backends use buffers to do uploads that will live in our resource cache. So we
     // need to account for those extra resources here.
     int bufferResources = 0;
-    if (direct->backend() == GrBackendApi::kDawn || direct->backend() == GrBackendApi::kVulkan) {
+    if (direct->backend() == GrBackendApi::kDawn || direct->backend() == GrBackendApi::kVulkan ||
+        direct->backend() == GrBackendApi::kDirect3D) {
         bufferResources = 1;
     }
 
