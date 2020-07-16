@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0879ef2c_ffb11283",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-16T14:42:41Z",
+      "side": 1,
+      "message": "LGTM, but I\u0027ll let Brian S weigh in too",
+      "revId": "0bcf45a21af342721cd09a3b2ab61573482d7f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c5f0728e_2866c73d",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-16T14:42:41Z",
+      "side": 1,
+      "message": "I would rather not have it in GrTextureProducer, since this modulation seems more aligned with how we configure paint shading behavior, and less about how we access textures.",
+      "parentUuid": "e448dea3_49fa9e16",
+      "revId": "9bce11fc1fd0359b814d6cf8246f96e6a83c0186",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "42a7852e_51090d7e",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2020-07-16T13:53:40Z",
       "side": 1,
       "message": "There is only one GM (HSL_duck) that\u0027s still producing different results (nothing drastic, though). From investigation, it\u0027s because of how I did this - we\u0027re now getting modulation by a uniform uploaded directly to the fragment shader, rather than a varying color coming from the GP. Presumably the varying has lower precision? I could change this to still put the color on the paint and inject the Xfermode::Modulate, I just figured the uniform version was clearer, given the constraints here?",
+      "revId": "9bce11fc1fd0359b814d6cf8246f96e6a83c0186",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "463313b9_53633e34",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-16T14:42:41Z",
+      "side": 1,
+      "message": "I don\u0027t feel too strongly about this; having it as a VA from the paint color would help batching in the GrFillRectOp, but we know that\u0027s not really likely to happen unless they redraw the exact same image. In that case, I wonder if one uniform may offer better performance than expanding it out to a color per vertex that\u0027s only used to draw 2 triangles?",
+      "parentUuid": "42a7852e_51090d7e",
       "revId": "9bce11fc1fd0359b814d6cf8246f96e6a83c0186",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
