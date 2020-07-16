@@ -446,7 +446,7 @@ static void draw_texture_producer(GrRecordingContext* context,
 
     // Check for optimization to drop the src rect constraint when using linear filtering.
     if (!doBicubic && fm == GrSamplerState::Filter::kLinear && restrictToSubset &&
-        coordsAllInsideSrcRect) {
+        coordsAllInsideSrcRect && !producer->isPlanar()) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(ctm, srcToDst);
         if (can_ignore_linear_filtering_subset(*producer, src, combinedMatrix, rtc->numSamples())) {
