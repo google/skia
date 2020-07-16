@@ -27,7 +27,7 @@ public:
         (void)pmConversion;
 
         fragBuilder->forceHighPrecision();
-        SkString _sample5730 = this->invokeChild(0, args);
+        SkString _sample5748 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(%s = floor(%s * 255.0 + 0.5) / 255.0;
 @switch (%d) {
@@ -39,7 +39,7 @@ public:
         break;
 }
 )SkSL",
-                args.fOutputColor, _sample5730.c_str(), (int)_outer.pmConversion, args.fOutputColor,
+                args.fOutputColor, _sample5748.c_str(), (int)_outer.pmConversion, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor);
     }
@@ -80,7 +80,7 @@ std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(
 }
 #endif
 
-bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context) {
+bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* context) {
     static constexpr int kSize = 256;
     static constexpr GrColorType kColorType = GrColorType::kRGBA_8888;
     SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);

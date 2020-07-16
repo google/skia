@@ -104,7 +104,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended debug only
 #ifdef SK_DEBUG
-    void dump(GrContext* context) const;
+    void dump(GrDirectContext*) const;
 #endif
 
     void setAtlasDimensionsToMinimum_ForTesting();

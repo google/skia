@@ -8,9 +8,7 @@
 
 #include "src/gpu/GrRenderTarget.h"
 
-#include "include/gpu/GrContext.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetPriv.h"

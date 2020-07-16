@@ -21,7 +21,6 @@
 
 class SkMatrix;
 class GrCaps;
-class GrContext;
 class GrProxyProvider;
 class GrRenderTargetContext;
 class GrProcessorTestData;
@@ -53,10 +52,9 @@ std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 class GrProcessorTestData {
 public:
     using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
-    GrProcessorTestData(SkRandom* random, GrContext* context, int numProxies, const ViewInfo[]);
+    GrProcessorTestData(SkRandom*, GrRecordingContext*, int numProxies, const ViewInfo[]);
 
-    GrContext* context() { return fContext; }
-    GrResourceProvider* resourceProvider();
+    GrRecordingContext* context() { return fContext; }
     GrProxyProvider* proxyProvider();
     const GrCaps* caps();
     SkArenaAlloc* allocator() { return fArena.get(); }
@@ -67,7 +65,7 @@ public:
     SkRandom* fRandom;
 
 private:
-    GrContext* fContext;
+    GrRecordingContext* fContext;
     SkTArray<ViewInfo> fViews;
     std::unique_ptr<SkArenaAlloc> fArena;
 };

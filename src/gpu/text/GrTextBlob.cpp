@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkColorFilter.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMaskFilterBase.h"

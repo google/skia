@@ -10,7 +10,6 @@
  **************************************************************************************************/
 #include "GrCircleBlurFragmentProcessor.h"
 
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -304,19 +303,19 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar));
-        SkString _input13941(args.fInputColor);
-        SkString _sample13941 = this->invokeChild(0, _input13941.c_str(), args);
+        SkString _input13902(args.fInputColor);
+        SkString _sample13902 = this->invokeChild(0, _input13902.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample13941.c_str());
-        SkString _coords14001("float2(half2(dist, 0.5))");
-        SkString _sample14001 = this->invokeChild(1, args, _coords14001.c_str());
+                _sample13902.c_str());
+        SkString _coords13962("float2(half2(dist, 0.5))");
+        SkString _sample13962 = this->invokeChild(1, args, _coords13962.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s.w;
 )SkSL",
-                args.fOutputColor, _sample14001.c_str());
+                args.fOutputColor, _sample13962.c_str());
     }
 
 private:

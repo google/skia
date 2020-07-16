@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrRenderTarget.h"

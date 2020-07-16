@@ -7,16 +7,19 @@
 
 #include "src/gpu/GrRenderTargetProxy.h"
 
-#include "include/gpu/GrContext.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
+
+#ifdef SK_DEBUG
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrContextPriv.h"
+#endif
 
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred

@@ -7,7 +7,6 @@
 
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
 
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTargetPriv.h"
@@ -19,6 +18,11 @@
 #include "src/gpu/d3d/GrD3DPipelineStateBuilder.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
+
+#ifdef SK_DEBUG
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrContextPriv.h"
+#endif
 
 GrD3DOpsRenderPass::GrD3DOpsRenderPass(GrD3DGpu* gpu) : fGpu(gpu) {}
 

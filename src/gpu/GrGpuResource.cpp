@@ -109,7 +109,7 @@ SkString GrGpuResource::getResourceName() const {
     return resourceName;
 }
 
-const GrContext* GrGpuResource::getContext() const {
+const GrDirectContext* GrGpuResource::getContext() const {
     if (fGpu) {
         return fGpu->getContext();
     } else {
@@ -117,7 +117,7 @@ const GrContext* GrGpuResource::getContext() const {
     }
 }
 
-GrContext* GrGpuResource::getContext() {
+GrDirectContext* GrGpuResource::getContext() {
     if (fGpu) {
         return fGpu->getContext();
     } else {

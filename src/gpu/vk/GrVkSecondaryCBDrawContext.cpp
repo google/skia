@@ -19,7 +19,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/SkGpuDevice.h"
 
-sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ctx,
+sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingContext* ctx,
                                                                    const SkImageInfo& imageInfo,
                                                                    const GrVkDrawableInfo& vkInfo,
                                                                    const SkSurfaceProps* props) {

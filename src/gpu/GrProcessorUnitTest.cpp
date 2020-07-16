@@ -7,14 +7,14 @@
 
 #include "src/gpu/GrProcessorUnitTest.h"
 
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 
 #if GR_TEST_UTILS
 
 GrProcessorTestData::GrProcessorTestData(SkRandom* random,
-                                         GrContext* context,
+                                         GrRecordingContext* context,
                                          int numViews,
                                          const ViewInfo views[])
         : fRandom(random), fContext(context) {
@@ -22,9 +22,6 @@ GrProcessorTestData::GrProcessorTestData(SkRandom* random,
     fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
 }
 
-GrResourceProvider* GrProcessorTestData::resourceProvider() {
-    return fContext->priv().resourceProvider();
-}
 
 GrProxyProvider* GrProcessorTestData::proxyProvider() { return fContext->priv().proxyProvider(); }
 

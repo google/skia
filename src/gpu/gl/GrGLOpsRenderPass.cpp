@@ -7,9 +7,13 @@
 
 #include "src/gpu/gl/GrGLOpsRenderPass.h"
 
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetPriv.h"
+
+#ifdef SK_DEBUG
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrContextPriv.h"
+#endif
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 

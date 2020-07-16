@@ -7,8 +7,6 @@
 
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 
-#include "include/gpu/GrContext.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"

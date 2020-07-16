@@ -10,6 +10,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendDrawableInfo.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrPipeline.h"

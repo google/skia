@@ -9,7 +9,6 @@
 #include <cmath>
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMathPriv.h"

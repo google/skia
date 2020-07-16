@@ -11,7 +11,6 @@
 #include "include/private/GrTypesPriv.h"
 
 class GrClip;
-class GrContext;
 class GrPaint;
 class GrRecordingContext;
 class GrRenderTarget;

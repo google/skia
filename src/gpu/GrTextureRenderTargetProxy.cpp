@@ -8,7 +8,6 @@
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
@@ -16,6 +15,11 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxyPriv.h"
+
+#ifdef SK_DEBUG
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrContextPriv.h"
+#endif
 
 // Deferred version
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and

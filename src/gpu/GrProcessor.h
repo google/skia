@@ -18,7 +18,6 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 
-class GrContext;
 class GrResourceProvider;
 
 /**
