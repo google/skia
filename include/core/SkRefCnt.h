@@ -78,8 +78,6 @@ public:
         }
     }
 
-private:
-
 #ifdef SK_DEBUG
     /** Return the reference count. Use only for debugging. */
     int32_t getRefCnt() const {
@@ -87,6 +85,7 @@ private:
     }
 #endif
 
+private:
     /**
      *  Called when the ref count goes to 0.
      */
