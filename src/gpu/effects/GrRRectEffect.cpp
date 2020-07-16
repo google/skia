@@ -132,12 +132,12 @@ std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::TestCreate(GrProcessor
     SkScalar r = d->fRandom->nextRangeF(kRadiusMin, 9.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    std::unique_ptr<GrFragmentProcessor> fp;
+    std::unique_ptr<GrFragmentProcessor> fp = d->inputFP();
     bool success;
     do {
         GrClipEdgeType et =
                 (GrClipEdgeType)d->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        std::tie(success, fp) = GrRRectEffect::Make(/*inputFP=*/nullptr, et, rrect,
+        std::tie(success, fp) = GrRRectEffect::Make(std::move(fp), et, rrect,
                                                     *d->caps()->shaderCaps());
     } while (!success);
     return fp;
@@ -501,11 +501,11 @@ std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcess
         rrect.setRectXY(SkRect::MakeWH(w, h), r[SkRRect::kUpperLeft_Corner].fX,
                                               r[SkRRect::kUpperLeft_Corner].fY);
     }
-    std::unique_ptr<GrFragmentProcessor> fp;
+    std::unique_ptr<GrFragmentProcessor> fp = d->inputFP();
     bool success;
     do {
         GrClipEdgeType et = (GrClipEdgeType)d->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        std::tie(success, fp) = GrRRectEffect::Make(/*inputFP=*/nullptr, et, rrect,
+        std::tie(success, fp) = GrRRectEffect::Make(std::move(fp), et, rrect,
                                                     *d->caps()->shaderCaps());
     } while (!success);
     return fp;

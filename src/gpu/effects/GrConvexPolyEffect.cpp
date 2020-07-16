@@ -226,16 +226,13 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorT
         edges[i] = d->fRandom->nextSScalar1();
     }
 
-    std::unique_ptr<GrFragmentProcessor> fp;
+    bool success;
+    std::unique_ptr<GrFragmentProcessor> fp = d->inputFP();
     do {
-        GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
-                d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        auto [success, convexPolyFP] = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, edgeType,
-                                                                count, edges);
-        if (success) {
-            fp = std::move(convexPolyFP);
-        }
-    } while (nullptr == fp);
+        GrClipEdgeType edgeType =
+                static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
+        std::tie(success, fp) = GrConvexPolyEffect::Make(std::move(fp), edgeType, count, edges);
+    } while (!success);
     return fp;
 }
 #endif
