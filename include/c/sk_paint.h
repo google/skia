@@ -109,7 +109,9 @@ SK_API void sk_paint_set_stroke_cap(sk_paint_t*, sk_stroke_cap_t);
 typedef enum {
     MITER_SK_STROKE_JOIN,
     ROUND_SK_STROKE_JOIN,
-    BEVEL_SK_STROKE_JOIN
+    BEVEL_SK_STROKE_JOIN,
+    MITERCLIP_SK_STROKE_JOIN,
+    ARCS_SK_STROKE_JOIN,
 } sk_stroke_join_t;
 
 /**

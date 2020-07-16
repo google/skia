@@ -45,6 +45,8 @@ public:
         // have an additional triangle cap on top of the bevel, and round joins have an arc on top.
         kBevelJoin,
         kMiterJoin,
+        kMiterClipJoin,
+        kMiterRectJoin,
         kRoundJoin,
 
         // We use internal joins when we have to internally break up a stroke because its curvature
@@ -69,7 +71,8 @@ public:
         // For miter and round joins: How tall should the triangle cap be on top of the join?
         // (This triangle is the conic control points for a round join.)
         float fMiterCapHeightOverWidth;
-        float fConicWeight;  // Round joins only.
+        float fJoinWeight;  // Round and Miter-Clip joins only.
+        float fMiterRectLength;  // Close-to-180 degree Miter-Clip or Arcs join only
     };
 
     const SkTArray<Verb, true>& verbs() const { SkASSERT(!fInsideContour); return fVerbs; }
@@ -113,6 +116,8 @@ private:
     void recordLeftJoinIfNotEmpty(Verb joinType, SkVector nextNormal);
     void recordBevelJoin(Verb originalJoinVerb);
     void recordMiterJoin(float miterCapHeightOverWidth);
+    void recordMiterClipJoin(float miterCapHeightOverWidth, float miterClipRatio);
+    void recordMiterRectJoin(float miterRectLength);
     void recordRoundJoin(Verb roundJoinVerb, float miterCapHeightOverWidth, float conicWeight);
 
     void recordCapsIfAny();
@@ -122,6 +127,9 @@ private:
     SkPaint::Cap fCurrStrokeCapType;
     InstanceTallies* fCurrStrokeTallies = nullptr;
 
+    // For close-to-180 degree angles, the multiple of the radius to add to Miter-Clip or Arcs
+    // joins.
+    float fMiterLimit;
     // We implement miters by placing a triangle-shaped cap on top of a bevel join. This field tells
     // us what the miter limit is, restated in terms of how tall that triangle cap can be.
     float fMiterMaxCapHeightOverWidth;
@@ -168,6 +176,8 @@ inline bool GrCCStrokeGeometry::IsInternalJoinVerb(Verb verb) {
         case Verb::kCubicStroke:
         case Verb::kBevelJoin:
         case Verb::kMiterJoin:
+        case Verb::kMiterClipJoin:
+        case Verb::kMiterRectJoin:
         case Verb::kRoundJoin:
         case Verb::kSquareCap:
         case Verb::kRoundCap:

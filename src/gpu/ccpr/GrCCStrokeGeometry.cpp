@@ -58,6 +58,11 @@ static GrCCStrokeGeometry::Verb join_verb_from_join(SkPaint::Join join) {
             return Verb::kMiterJoin;
         case SkPaint::kRound_Join:
             return Verb::kRoundJoin;
+        case SkPaint::kMiterClip_Join:
+            return Verb::kMiterClipJoin;
+        default:
+            SkASSERT(false);
+            break;
     }
     SK_ABORT("Invalid SkPaint::Join.");
 }
@@ -73,11 +78,16 @@ void GrCCStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWid
     fCurrStrokeCapType = stroke.getCap();
     fCurrStrokeTallies = tallies;
 
-    if (Verb::kMiterJoin == fCurrStrokeJoinVerb) {
+    if (Verb::kMiterJoin == fCurrStrokeJoinVerb ||
+        Verb::kMiterClipJoin == fCurrStrokeJoinVerb) {
         // We implement miters by placing a triangle-shaped cap on top of a bevel join. Convert the
         // "miter limit" to how tall that triangle cap can be.
-        float m = stroke.getMiter();
-        fMiterMaxCapHeightOverWidth = .5f * SkScalarSqrt(m*m - 1);
+        fMiterLimit = stroke.getMiter();
+        if (fMiterLimit > 1.0f) {
+            fMiterMaxCapHeightOverWidth = .5f * SkScalarSqrt(fMiterLimit*fMiterLimit - 1);
+        } else {
+            fMiterMaxCapHeightOverWidth = 0;
+        }
     }
 
     // Find the angle of curvature where the arc height above a simple line from point A to point B
@@ -426,38 +436,61 @@ void GrCCStrokeGeometry::recordLeftJoinIfNotEmpty(Verb joinVerb, SkVector nextNo
     // We implement miters and round joins by placing a triangle-shaped cap on top of a bevel join.
     // (For round joins this triangle cap comprises the conic control points.) Find how tall to make
     // this triangle cap, relative to its width.
-    //
-    // NOTE: This value would be infinite at 180 degrees, but we clamp miterCapHeightOverWidth at
-    // near-infinity. 180-degree round joins still look perfectly acceptable like this (though
-    // technically not pure arcs).
     Sk2f cross = base * SkNx_shuffle<1,0>(n0);
     Sk2f dot = base * n0;
     float miterCapHeight = SkScalarAbs(dot[0] + dot[1]);
     float miterCapWidth = SkScalarAbs(cross[0] - cross[1]) * 2;
 
-    if (Verb::kMiterJoin == joinVerb) {
-        if (miterCapHeight > fMiterMaxCapHeightOverWidth * miterCapWidth) {
-            // This join is tighter than the miter limit. Treat it as a bevel.
-            this->recordBevelJoin(Verb::kMiterJoin);
-            return;
-        }
-        this->recordMiterJoin(miterCapHeight / miterCapWidth);
-        return;
-    }
-
-    SkASSERT(Verb::kRoundJoin == joinVerb || Verb::kInternalRoundJoin == joinVerb);
-
+    // Handle close-to-180 degree joins.
     // Conic arcs become unstable when they approach 180 degrees. When the conic control point
     // begins shooting off to infinity (i.e., height/width > 32), split the conic into two.
     static constexpr float kAlmost180Degrees = 32;
-    if (miterCapHeight > kAlmost180Degrees * miterCapWidth) {
+    if ((Verb::kRoundJoin == joinVerb ||
+         Verb::kInternalRoundJoin == joinVerb) &&
+        miterCapHeight > kAlmost180Degrees * miterCapWidth) {
         Sk2f bisect = normalize(n0 - n1);
         this->rotateTo(joinVerb, SkVector::Make(-bisect[1], bisect[0]));
         this->recordLeftJoinIfNotEmpty(joinVerb, nextNormal);
         return;
     }
 
+    // Use tighter 180 degree margin for Miter joins for smooth transition
+    if (miterCapHeight > kAlmost180Degrees * 4 * miterCapWidth) {
+        SkASSERT(Verb::kMiterJoin == joinVerb ||
+                 Verb::kMiterClipJoin == joinVerb);
+        if (Verb::kMiterJoin == joinVerb) {
+            this->recordBevelJoin(Verb::kMiterJoin);
+            return;
+        } else if (Verb::kMiterClipJoin == joinVerb) {
+            this->recordMiterRectJoin(fMiterLimit * fCurrStrokeRadius);
+            return;
+        }
+    }
+
     float miterCapHeightOverWidth = miterCapHeight / miterCapWidth;
+
+    if (Verb::kMiterJoin == joinVerb || Verb::kMiterClipJoin == joinVerb) {
+        if (miterCapHeightOverWidth > fMiterMaxCapHeightOverWidth) {
+            if (Verb::kMiterJoin == joinVerb) {
+                // This join is tighter than the miter limit. Treat it as a bevel.
+                this->recordBevelJoin(Verb::kMiterJoin);
+            } else {
+                SkScalar adjustedMiterLimit = fMiterLimit - length(n0 + n1) * .5f;
+                if (adjustedMiterLimit > 0) {
+                    this->recordMiterClipJoin(miterCapHeightOverWidth,
+                                              adjustedMiterLimit
+                                              / (length(base)*miterCapHeightOverWidth));
+                } else {
+                    this->recordBevelJoin(Verb::kMiterJoin);
+                }
+            }
+        } else {
+            this->recordMiterJoin(miterCapHeightOverWidth);
+        }
+        return;
+    }
+
+    SkASSERT(Verb::kRoundJoin == joinVerb || Verb::kInternalRoundJoin == joinVerb);
 
     // Find the heights of this round join's conic control point as well as the arc itself.
     Sk2f X, Y;
@@ -492,10 +525,24 @@ void GrCCStrokeGeometry::recordMiterJoin(float miterCapHeightOverWidth) {
     fCurrStrokeTallies->fTriangles += 2;
 }
 
+void GrCCStrokeGeometry::recordMiterClipJoin(float miterCapHeightOverWidth,
+                                             float miterClipRatio) {
+    fVerbs.push_back(Verb::kMiterClipJoin);
+    fParams.push_back().fJoinWeight = miterClipRatio;
+    fParams.push_back().fMiterCapHeightOverWidth = miterCapHeightOverWidth;
+    fCurrStrokeTallies->fTriangles += 3;
+}
+
+void GrCCStrokeGeometry::recordMiterRectJoin(float miterRectLength) {
+    fVerbs.push_back(Verb::kMiterRectJoin);
+    fParams.push_back().fMiterRectLength = miterRectLength;
+    ++fCurrStrokeTallies->fStrokes[0];
+}
+
 void GrCCStrokeGeometry::recordRoundJoin(Verb joinVerb, float miterCapHeightOverWidth,
                                          float conicWeight) {
     fVerbs.push_back(joinVerb);
-    fParams.push_back().fConicWeight = conicWeight;
+    fParams.push_back().fJoinWeight = conicWeight;
     fParams.push_back().fMiterCapHeightOverWidth = miterCapHeightOverWidth;
     if (Verb::kRoundJoin == joinVerb) {
         ++fCurrStrokeTallies->fTriangles;

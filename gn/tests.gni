@@ -13,6 +13,7 @@ tests_sources = [
   "$_tests/AnimatedImageTest.cpp",
   "$_tests/AnnotationTest.cpp",
   "$_tests/ApplyGammaTest.cpp",
+  "$_tests/ArcsJoinTest.cpp",
   "$_tests/ArenaAllocTest.cpp",
   "$_tests/AsADashTest.cpp",
   "$_tests/BRDTest.cpp",

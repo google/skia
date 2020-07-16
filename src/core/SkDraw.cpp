@@ -547,7 +547,8 @@ static inline SkPoint compute_stroke_size(const SkPaint& paint, const SkMatrix& 
 
 static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
                            SkPoint* strokeSize) {
-    if (SkPaint::kMiter_Join != paint.getStrokeJoin() ||
+    if (!(SkPaint::kMiter_Join == paint.getStrokeJoin() ||
+          SkPaint::kMiterClip_Join == paint.getStrokeJoin()) ||
         paint.getStrokeMiter() < SK_ScalarSqrt2) {
         return false;
     }
