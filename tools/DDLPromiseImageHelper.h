@@ -34,8 +34,27 @@ struct SkYUVAIndex;
 // it drops all of its refs (via "reset").
 class PromiseImageCallbackContext : public SkRefCnt {
 public:
+
+    static uint32_t next_atlas_unique_id() {
+        static std::atomic<uint32_t> nextID;
+        return nextID++;
+    }
+
+    void ref() const override {
+        int refCnt = this->getRefCnt();
+        SkDebugf("Reffing %d: %d -> %d\n", this->fID, refCnt, refCnt+1);
+        SkRefCnt::ref();
+    }
+
+    void unref() const override {
+        int refCnt = this->getRefCnt();
+        SkDebugf("Unreffing %d: %d -> %d\n", this->fID, refCnt, refCnt-1);
+        SkRefCnt::unref();
+    }
+
     PromiseImageCallbackContext(GrDirectContext* direct, GrBackendFormat backendFormat)
-            : fContext(direct)
+            : fID(next_atlas_unique_id())
+            , fContext(direct)
             , fBackendFormat(backendFormat) {}
 
     ~PromiseImageCallbackContext();
@@ -87,6 +106,7 @@ public:
     }
 
 private:
+    uint32_t                     fID;
     GrDirectContext*             fContext;
     GrBackendFormat              fBackendFormat;
     sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
