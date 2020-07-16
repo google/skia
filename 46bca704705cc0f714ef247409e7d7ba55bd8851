@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "b7e12d19_74bea939",
+        "filename": "infra/bots/canary.isolate",
+        "patchSetId": 55
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-16T13:35:41Z",
+      "side": 1,
+      "message": "Done. Looks like we will still need this for the G3 bot because it runs recipes (for now).",
+      "parentUuid": "09240eff_50d48b17",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 1
+      },
+      "revId": "46bca704705cc0f714ef247409e7d7ba55bd8851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86cd864a_ffe70abc",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 55
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "76f24418_c1455653",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 55
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-16T13:35:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86cd864a_ffe70abc",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 19
+      },
+      "revId": "46bca704705cc0f714ef247409e7d7ba55bd8851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9302f99e_13cbbd4f",
         "filename": "infra/bots/task_drivers/canary/canary.go",
         "patchSetId": 55
@@ -85,6 +133,30 @@
       "revId": "46bca704705cc0f714ef247409e7d7ba55bd8851",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15900b1d_f17cf9fe",
+        "filename": "infra/bots/task_drivers/canary/canary.go",
+        "patchSetId": 55
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-16T13:35:41Z",
+      "side": 1,
+      "message": "Yep, we spoke about this last week, probably good to mention it here as well.\nHTTP frontend will not work because of the Android roller. The firestore project is accessible publicly and so using that has worked here. If/when things change in the firestore project then this will have to be revisited to find a better solution.\n\nAgree about it being brittle if implementations change. The \"Trigger canary roll\" is marked as an infra step so hopefully it will be obvious that it\u0027s an infra issue if that piece fails. Also, I\u0027ll add a comment in \"ManualRollRequest struct\" about it being used by this task_driver.",
+      "parentUuid": "9302f99e_13cbbd4f",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 96
+      },
+      "revId": "46bca704705cc0f714ef247409e7d7ba55bd8851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
