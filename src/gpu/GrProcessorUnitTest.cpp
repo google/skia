@@ -13,8 +13,6 @@
 
 #if GR_TEST_UTILS
 
-class GrGeometryProcessor;
-
 template <class ProcessorSmartPtr>
 ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::Make(GrProcessorTestData* data) {
     VerifyFactoryCount();
