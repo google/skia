@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b2b04867_f66b8520",
+        "filename": "src/gpu/effects/GrArithmeticProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-16T17:40:36Z",
+      "side": 1,
+      "message": "Looking at how this is used by the image filter I think dstFP won\u0027t use its input color. Maybe this can just be sample(dstFP)?\n\ndstFP will either be a texture effect (possibly wrapped in cs xform) or a const color effect",
+      "range": {
+        "startLine": 19,
+        "startChar": 30,
+        "endLine": 19,
+        "endChar": 41
+      },
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "524267ab_633d49a0",
         "filename": "src/gpu/effects/GrComposeLerpEffect.fp",
         "patchSetId": 4
@@ -13,6 +36,47 @@
       "writtenOn": "2020-07-16T17:20:42Z",
       "side": 1,
       "message": "This changes the behavior here slightly - we are now passing the input color to the children. This effect isn\u0027t really used, but I think the new version is more correct (and matches what CPU does).",
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40c88d89_b0c84ae5",
+        "filename": "src/gpu/effects/GrComposeLerpEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-16T17:40:36Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "524267ab_633d49a0",
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea1e1ee8_6c5a55ec",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-16T17:40:36Z",
+      "side": 1,
+      "message": "could be removed?",
+      "range": {
+        "startLine": 301,
+        "startChar": 67,
+        "endLine": 301,
+        "endChar": 83
+      },
       "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
