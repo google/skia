@@ -25,6 +25,8 @@
 constexpr static SkISize kAtlasInitialSize{512, 512};
 constexpr static int kMaxAtlasSize = 2048;
 
+constexpr static auto kAtlasAlpha8Type = GrColorType::kAlpha_8;
+
 // The atlas is only used for small-area paths, which means at least one dimension of every path is
 // guaranteed to be quite small. So if we transpose tall paths, then every path will have a small
 // height, which lends very well to efficient pow2 atlas packing.
@@ -38,21 +40,30 @@ bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps)
-        : fAtlas(GrColorType::kAlpha_8, GrDynamicAtlas::InternalMultisample::kYes,
-                 kAtlasInitialSize, std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()),
+        : fAtlas(kAtlasAlpha8Type, GrDynamicAtlas::InternalMultisample::kYes, kAtlasInitialSize,
+                 std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()),
                  caps, kAtlasAlgorithm) {
-    this->initAtlasFlags(*caps.shaderCaps());
+    this->initAtlasFlags(caps);
 }
 
-void GrTessellationPathRenderer::initAtlasFlags(const GrShaderCaps& shaderCaps) {
+void GrTessellationPathRenderer::initAtlasFlags(const GrCaps& caps) {
     fStencilAtlasFlags = OpFlags::kStencilOnly | OpFlags::kDisableHWTessellation;
     fMaxAtlasPathWidth = fAtlas.maxAtlasSize() / 2;
-    // The atlas usually does better with hardware tessellation. If hardware tessellation is
-    // supported, we choose a max atlas path width that is guaranteed to never require more
-    // tessellation segments than are supported by the hardware.
-    if (!shaderCaps.tessellationSupport()) {
+
+    auto atlasFormat = caps.getDefaultBackendFormat(kAtlasAlpha8Type, GrRenderable::kYes);
+    if (caps.internalMultisampleCount(atlasFormat) <= 1) {
+        // MSAA is not supported on kAlpha8. Disable the atlas.
+        fMaxAtlasPathWidth = 0;
         return;
     }
+
+    // The atlas usually does better with hardware tessellation. If hardware tessellation is
+    // supported, we will next choose a max atlas path width that is guaranteed to never require
+    // more tessellation segments than are supported by the hardware.
+    if (!caps.shaderCaps()->tessellationSupport()) {
+        return;
+    }
+
     // Since we limit the area of paths in the atlas to kMaxAtlasPathHeight^2, taller paths can't
     // get very wide anyway. Find the tallest path whose width is limited by
     // GrWangsFormula::worst_case_cubic() rather than the max area constraint, and use that for our
@@ -65,7 +76,7 @@ void GrTessellationPathRenderer::initAtlasFlags(const GrShaderCaps& shaderCaps) 
     //
     float k = GrWangsFormula::cubic_k(kLinearizationIntolerance);
     float h = kMaxAtlasPathHeight;
-    float s = shaderCaps.maxTessellationSegments();
+    float s = caps.shaderCaps()->maxTessellationSegments();
     // Quadratic formula from Numerical Recipes in C:
     //
     //     q = -1/2 [b + sign(b) sqrt(b*b - 4*a*c)]
@@ -80,7 +91,7 @@ void GrTessellationPathRenderer::initAtlasFlags(const GrShaderCaps& shaderCaps) 
         // maxTessellationSegments is too small for any path whose area == kMaxAtlasPathHeight^2.
         // (This is unexpected because the GL spec mandates a minimum of 64 segments.)
         SkDebugf("WARNING: maxTessellationSegments seems too low. (%i)\n",
-                 shaderCaps.maxTessellationSegments());
+                 caps.shaderCaps()->maxTessellationSegments());
         return;
     }
     float q = -.5f * (b - std::sqrt(det));  // Always positive.
@@ -253,6 +264,10 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
         const GrCaps& caps, const SkMatrix& viewMatrix, const SkPath& path, const SkRect& devBounds,
         GrAAType aaType, SkIRect* devIBounds, SkIPoint16* locationInAtlas,
         bool* transposedInAtlas) {
+    if (!fMaxAtlasPathWidth) {
+        return false;
+    }
+
     if (!caps.multisampleDisableSupport() && GrAAType::kNone == aaType) {
         return false;
     }
@@ -366,16 +381,22 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
     }
 
     // Finally, draw a fullscreen rect to convert our stencilled paths into alpha coverage masks.
+    auto aaType = GrAAType::kMSAA;
     auto fillRectFlags = GrFillRectOp::InputFlags::kNone;
 
     // This will be the final op in the renderTargetContext. So if Ganesh is planning to discard the
     // stencil values anyway, then we might not actually need to reset the stencil values back to 0.
     bool mustResetStencil = !onFlushRP->caps()->discardStencilValuesAfterRenderPass();
 
-    if (rtc->numSamples() <= 1) {
-        // We are mixed sampled. We need to enable conservative raster and ensure stencil values get
-        // reset in order to avoid artifacts along the diagonal of the atlas.
-        fillRectFlags |= GrFillRectOp::InputFlags::kConservativeRaster;
+    if (rtc->numSamples() == 1) {
+        // We are mixed sampled. We need to either enable conservative raster (preferred) or disable
+        // MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for the cover
+        // geometry, the stencil test is still multisampled and will still produce smooth results.)
+        if (onFlushRP->caps()->conservativeRasterSupport()) {
+            fillRectFlags |= GrFillRectOp::InputFlags::kConservativeRaster;
+        } else {
+            aaType = GrAAType::kNone;
+        }
         mustResetStencil = true;
     }
 
@@ -395,8 +416,8 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
     GrPaint paint;
     paint.setColor4f(SK_PMColor4fWHITE);
 
-    auto coverOp = GrFillRectOp::Make(rtc->surfPriv().getContext(), std::move(paint),
-                                      GrAAType::kMSAA, &drawQuad, stencil, fillRectFlags);
+    auto coverOp = GrFillRectOp::Make(rtc->surfPriv().getContext(), std::move(paint), aaType,
+                                      &drawQuad, stencil, fillRectFlags);
     rtc->addDrawOp(nullptr, std::move(coverOp));
 
     if (rtc->asSurfaceProxy()->requiresManualMSAAResolve()) {
