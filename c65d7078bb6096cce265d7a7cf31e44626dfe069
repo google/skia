@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54397a5e_87d35ca7",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:16:06Z",
+      "side": 1,
+      "message": "Does this change need to go into this CL? Could you break the SkVX into its own change so it\u0027s a little easier to review (and revert, if necessary)?",
+      "range": {
+        "startLine": 142,
+        "startChar": 16,
+        "endLine": 142,
+        "endChar": 33
+      },
+      "revId": "c65d7078bb6096cce265d7a7cf31e44626dfe069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a174e764_dfffcf18",
+        "filename": "modules/canvaskit/README.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:16:06Z",
+      "side": 1,
+      "message": "I don\u0027t know why there are two versions here. Can you explain more?",
+      "range": {
+        "startLine": 102,
+        "startChar": 17,
+        "endLine": 102,
+        "endChar": 23
+      },
+      "revId": "c65d7078bb6096cce265d7a7cf31e44626dfe069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b39980b_58cef747",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/build_simd_test.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:16:06Z",
+      "side": 1,
+      "message": "a path to a .cpp file",
+      "range": {
+        "startLine": 7,
+        "startChar": 22,
+        "endLine": 7,
+        "endChar": 34
+      },
+      "revId": "c65d7078bb6096cce265d7a7cf31e44626dfe069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51871c19_0801ee54",
+        "filename": "modules/canvaskit/wasm_tools/SIMD/build_simd_test.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:16:06Z",
+      "side": 1,
+      "message": "As in the other place, I don\u0027t understand why there are two versions here",
+      "range": {
+        "startLine": 15,
+        "startChar": 21,
+        "endLine": 15,
+        "endChar": 27
+      },
+      "revId": "c65d7078bb6096cce265d7a7cf31e44626dfe069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b4bb8f0_57602bf1",
+        "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:16:06Z",
+      "side": 1,
+      "message": "comparisonData.push({...}) is probably more clear",
+      "range": {
+        "startLine": 43,
+        "startChar": 9,
+        "endLine": 43,
+        "endChar": 45
+      },
+      "revId": "c65d7078bb6096cce265d7a7cf31e44626dfe069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bca5f24_e0050814",
+        "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:16:06Z",
+      "side": 1,
+      "message": "I\u0027m not a fan of mixing named and un-named keys. Go with names for all of them.",
+      "range": {
+        "startLine": 44,
+        "startChar": 12,
+        "endLine": 44,
+        "endChar": 20
+      },
+      "revId": "c65d7078bb6096cce265d7a7cf31e44626dfe069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf13cb44_ce0a3e22",
+        "filename": "tools/perf-canvaskit-puppeteer/skp_data_prep.js",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:16:06Z",
+      "side": 1,
+      "message": "comparisonData.length?",
+      "range": {
+        "startLine": 56,
+        "startChar": 60,
+        "endLine": 56,
+        "endChar": 78
+      },
+      "revId": "c65d7078bb6096cce265d7a7cf31e44626dfe069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
