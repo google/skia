@@ -42,7 +42,8 @@ GrTexture::GrTexture(GrGpu* gpu,
                      GrProtected isProtected,
                      GrTextureType textureType,
                      GrMipMapsStatus mipMapsStatus)
-        : INHERITED(gpu, dimensions, isProtected)
+        : fID(next_atlas_unique_id())
+        , INHERITED(gpu, dimensions, isProtected)
         , fTextureType(textureType)
         , fMipMapsStatus(mipMapsStatus) {
     if (GrMipMapsStatus::kNotAllocated == fMipMapsStatus) {

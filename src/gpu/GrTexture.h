@@ -20,6 +20,21 @@ class GrTexturePriv;
 
 class GrTexture : virtual public GrSurface {
 public:
+
+     void ref() const override {
+        auto refCnt = this->getRefCnt();
+        SkDebugf("GrTexture %d Ref: %d -> %d\n", this->fID, refCnt, refCnt+1);
+
+        GrSurface::ref();
+    }
+
+    void unref() const override {
+        auto refCnt = this->getRefCnt();
+        SkDebugf("GrTexture %d Unref: %d -> %d\n", this->fID, refCnt, refCnt-1);
+
+        GrSurface::unref();
+    }
+
     GrTexture* asTexture() override { return this; }
     const GrTexture* asTexture() const override { return this; }
 
@@ -73,7 +88,14 @@ public:
     inline GrTexturePriv texturePriv();
     inline const GrTexturePriv texturePriv() const;
 
+    const uint32_t fID;
+
 protected:
+    static uint32_t next_atlas_unique_id() {
+        static std::atomic<uint32_t> nextID;
+        return nextID++;
+    }
+
     GrTexture(GrGpu*, const SkISize&, GrProtected, GrTextureType, GrMipMapsStatus);
 
     virtual bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) = 0;

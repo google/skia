@@ -120,7 +120,8 @@ public:
     void setLastRenderTask(const GrSurfaceProxy*, GrRenderTask*);
 
     void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
-    void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
+    void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest,
+                                int xOffset, int yOffset);
 
 private:
     // This class encapsulates maintenance and manipulation of the drawing manager's DAG of
@@ -237,10 +238,10 @@ private:
     bool isDDLTarget(GrSurfaceProxy* newTarget) {
         return SkToBool(fDDLTargets.find(newTarget->uniqueID().asUInt()));
     }
-    GrRenderTargetProxy* getDDLTarget(GrSurfaceProxy* newTarget) {
-        auto entry = fDDLTargets.find(newTarget->uniqueID().asUInt());
-        return entry ? *entry : nullptr;
-    }
+//    GrRenderTargetProxy* getDDLTarget(GrSurfaceProxy* newTarget) {
+//        auto entry = fDDLTargets.find(newTarget->uniqueID().asUInt());
+//        return entry ? *entry : nullptr;
+//    }
     void clearDDLTargets() { fDDLTargets.reset(); }
 
     // We play a trick with lazy proxies to retarget the base target of a DDL to the SkSurface

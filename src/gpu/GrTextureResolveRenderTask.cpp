@@ -46,7 +46,7 @@ void GrTextureResolveRenderTask::addProxy(GrDrawingManager* drawingMgr,
     // generating mipmap levels and/or resolving MSAA.
     this->addDependency(drawingMgr, proxy, GrMipMapped::kNo,
                         GrTextureResolveManager(nullptr), caps);
-    this->addTarget(drawingMgr, GrSurfaceProxyView(std::move(proxyRef)));
+    this->addTarget1(drawingMgr, GrSurfaceProxyView(std::move(proxyRef)));
 }
 
 void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
@@ -54,8 +54,8 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
     // fEndOfOpsTaskOpIndices will remain in sync. We create fake op#'s to capture the fact that we
     // manipulate the resolve proxies.
     auto fakeOp = alloc->curOp();
-    SkASSERT(fResolves.count() == this->numTargets());
-    for (const GrSurfaceProxyView& target : fTargets) {
+    SkASSERT(fResolves.count() == this->numTargets1());
+    for (const GrSurfaceProxyView& target : fTargets1) {
         alloc->addInterval(target.proxy(), fakeOp, fakeOp,
                            GrResourceAllocator::ActualUse::kYes);
     }
@@ -64,11 +64,11 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
 
 bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
     // Resolve all msaa back-to-back, before regenerating mipmaps.
-    SkASSERT(fResolves.count() == this->numTargets());
+    SkASSERT(fResolves.count() == this->numTargets1());
     for (int i = 0; i < fResolves.count(); ++i) {
         const Resolve& resolve = fResolves[i];
         if (GrSurfaceProxy::ResolveFlags::kMSAA & resolve.fFlags) {
-            GrSurfaceProxy* proxy = this->target(i).proxy();
+            GrSurfaceProxy* proxy = this->target1(i).proxy();
             // peekRenderTarget might be null if there was an instantiation error.
             if (GrRenderTarget* renderTarget = proxy->peekRenderTarget()) {
                 flushState->gpu()->resolveRenderTarget(renderTarget, resolve.fMSAAResolveRect);
@@ -80,7 +80,7 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
         const Resolve& resolve = fResolves[i];
         if (GrSurfaceProxy::ResolveFlags::kMipMaps & resolve.fFlags) {
             // peekTexture might be null if there was an instantiation error.
-            GrTexture* texture = this->target(i).proxy()->peekTexture();
+            GrTexture* texture = this->target1(i).proxy()->peekTexture();
             if (texture && texture->texturePriv().mipMapsAreDirty()) {
                 flushState->gpu()->regenerateMipMapLevels(texture);
                 SkASSERT(!texture->texturePriv().mipMapsAreDirty());
