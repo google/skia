@@ -240,7 +240,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                 }
                 opsTask.makeClosed(*context->priv().caps());
                 opsTask.prepare(&flushState);
-                opsTask.execute(&flushState);
+                opsTask.execute1(&flushState);
                 opsTask.endFlush(drawingMgr);
                 opsTask.disown(drawingMgr);
 #if 0  // Useful to repeat a random configuration that fails the test while debugger attached.

@@ -416,7 +416,7 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
             chain.head()->prePrepare(context,
-                                     &fTargets[0],
+                                     &fTargets1[0],
                                      chain.appliedClip(),
                                      chain.dstProxyView());
         }
@@ -445,7 +445,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
             TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
             GrOpFlushState::OpArgs opArgs(chain.head(),
-                                          &fTargets[0],
+                                          &fTargets1[0],
                                           chain.appliedClip(),
                                           chain.dstProxyView());
 
@@ -501,7 +501,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
-    SkASSERT(this->numTargets() == 1);
+    SkASSERT(this->numTargets1() == 1);
     GrRenderTargetProxy* proxy = this->target(0).proxy()->asRenderTargetProxy();
     SkASSERT(proxy);
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -588,7 +588,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 #endif
 
         GrOpFlushState::OpArgs opArgs(chain.head(),
-                                      &fTargets[0],
+                                      &fTargets1[0],
                                       chain.appliedClip(),
                                       chain.dstProxyView());
 
@@ -880,8 +880,8 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
     }
 }
 
-GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
-        const GrCaps& caps, SkIRect* targetUpdateBounds) {
+GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(const GrCaps& caps,
+                                                      SkIRect* targetUpdateBounds) {
     this->forwardCombine(caps);
     SkScopeExit triggerObservers([&] {
         for (const auto& o : fClosedObservers) {

@@ -35,7 +35,9 @@ public:
 
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
-    bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
+    bool execute1(GrOpFlushState* flushState) { return this->onExecute(flushState); }
+
+    virtual bool requiresExplicitCleanup() const { return false; }
 
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
@@ -67,8 +69,8 @@ public:
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
     uint32_t uniqueID() const { return fUniqueID; }
-    int numTargets() const { return fTargets.count(); }
-    const GrSurfaceProxyView& target(int i) const { return fTargets[i]; }
+    virtual int numTargets1() const { return fTargets1.count(); }
+    const GrSurfaceProxyView& target(int i) const { return fTargets1[i]; }
 
     /*
      * Safely cast this GrRenderTask to a GrOpsTask (if possible).
@@ -88,7 +90,7 @@ public:
 
     void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
-        for (int i = 0; i < this->numTargets(); ++i) {
+        for (int i = 0; i < this->numTargets1(); ++i) {
             fn(this->target(i).proxy(), GrMipMapped::kNo);
         }
     }
@@ -117,7 +119,7 @@ protected:
     // targetUpdateBounds must not extend beyond the proxy bounds.
     virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
 
-    SkSTArray<1, GrSurfaceProxyView> fTargets;
+    SkSTArray<1, GrSurfaceProxyView> fTargets1;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     // TODO: this list exists so we can fire off the proper upload when an renderTask begins
@@ -127,6 +129,7 @@ protected:
 private:
     // for resetFlag, TopoSortTraits, gatherProxyIntervals, handleInternalAllocationFailure
     friend class GrDrawingManager;
+    friend class GrUnrefDDLTask;
 
     // Drops any pending operations that reference proxies that are not instantiated.
     // NOTE: Derived classes don't need to check targets. That is handled when the
@@ -138,7 +141,7 @@ private:
     virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
 
     bool isUsed(GrSurfaceProxy* proxy) const {
-        for (const GrSurfaceProxyView& target : fTargets) {
+        for (const GrSurfaceProxyView& target : fTargets1) {
             if (target.proxy() == proxy) {
                 return true;
             }
@@ -202,9 +205,8 @@ private:
         }
     };
 
-    // Only the GrOpsTask currently overrides this virtual
-    virtual void onPrePrepare(GrRecordingContext*) {}
-    virtual void onPrepare(GrOpFlushState*) {} // Only the GrOpsTask overrides this virtual
+    virtual void onPrePrepare(GrRecordingContext*) {} // Only the GrOpsTask currently overrides this
+    virtual void onPrepare(GrOpFlushState*) {} // Only GrOpsTask and GrDDLTask override this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;

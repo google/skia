@@ -54,8 +54,8 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
     // fEndOfOpsTaskOpIndices will remain in sync. We create fake op#'s to capture the fact that we
     // manipulate the resolve proxies.
     auto fakeOp = alloc->curOp();
-    SkASSERT(fResolves.count() == this->numTargets());
-    for (const GrSurfaceProxyView& target : fTargets) {
+    SkASSERT(fResolves.count() == this->numTargets1());
+    for (const GrSurfaceProxyView& target : fTargets1) {
         alloc->addInterval(target.proxy(), fakeOp, fakeOp,
                            GrResourceAllocator::ActualUse::kYes);
     }
@@ -64,7 +64,7 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
 
 bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
     // Resolve all msaa back-to-back, before regenerating mipmaps.
-    SkASSERT(fResolves.count() == this->numTargets());
+    SkASSERT(fResolves.count() == this->numTargets1());
     for (int i = 0; i < fResolves.count(); ++i) {
         const Resolve& resolve = fResolves[i];
         if (GrSurfaceProxy::ResolveFlags::kMSAA & resolve.fFlags) {

@@ -35,7 +35,7 @@ void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
     SkDEBUGCODE(fDrawingMgr = nullptr);
     this->setFlag(kDisowned_Flag);
 
-    for (const GrSurfaceProxyView& target : fTargets) {
+    for (const GrSurfaceProxyView& target : fTargets1) {
         if (this == drawingMgr->getLastRenderTask(target.proxy())) {
             drawingMgr->setLastRenderTask(target.proxy(), nullptr);
         }
@@ -258,18 +258,20 @@ void GrRenderTask::closeThoseWhoDependOnMe(const GrCaps& caps) {
 
 bool GrRenderTask::isInstantiated() const {
     // Some renderTasks (e.g. GrTransferFromRenderTask) don't have any targets.
-    if (0 == this->numTargets()) {
+    if (0 == this->numTargets1()) {
         return true;
     }
-    GrSurfaceProxy* proxy = this->target(0).proxy();
 
-    if (!proxy->isInstantiated()) {
-        return false;
-    }
+    for (int i = 0; i < this->numTargets1(); ++i) {
+        GrSurfaceProxy* proxy = this->target(i).proxy();
+        if (!proxy->isInstantiated()) {
+            return false;
+        }
 
-    GrSurface* surface = proxy->peekSurface();
-    if (surface->wasDestroyed()) {
-        return false;
+        GrSurface* surface = proxy->peekSurface();
+        if (surface->wasDestroyed()) {
+            return false;
+        }
     }
 
     return true;
@@ -281,7 +283,7 @@ void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, GrSurfaceProxyView vi
     SkASSERT(!fDrawingMgr || drawingMgr == fDrawingMgr);
     SkDEBUGCODE(fDrawingMgr = drawingMgr);
     drawingMgr->setLastRenderTask(view.proxy(), this);
-    fTargets.push_back(std::move(view));
+    fTargets1.push_back(std::move(view));
 }
 
 #ifdef SK_DEBUG
@@ -289,10 +291,10 @@ void GrRenderTask::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
     SkDebugf("%s - renderTaskID: %d\n", this->name(), fUniqueID);
 
-    if (!fTargets.empty()) {
+    if (!fTargets1.empty()) {
         SkDebugf("Targets: \n");
-        for (int i = 0; i < fTargets.count(); ++i) {
-            GrSurfaceProxy* proxy = fTargets[i].proxy();
+        for (int i = 0; i < fTargets1.count(); ++i) {
+            GrSurfaceProxy* proxy = fTargets1[i].proxy();
             SkDebugf("[%d]: proxyID: %d - surfaceID: %d\n",
                      i,
                      proxy ? proxy->uniqueID().asUInt() : -1,
