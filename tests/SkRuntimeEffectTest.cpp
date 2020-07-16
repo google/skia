@@ -50,11 +50,13 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("in float2 Input;", "", "'in'");
     test("in half3x3 Input;", "", "'in'");
 
+    // 'marker' is only permitted on 'uniform' variables
+    test("layout(marker=local_to_world) in float4x4 localToWorld;", "", "'uniform'");
+    // 'marker' is only permitted on float4x4 variables
+    test("layout(marker=local_to_world) uniform float3x3 localToWorld;", "", "float4x4");
+
     test("half missing();", "color.r = missing();", "undefined function");
 }
-
-// Our packing rules and unit test code here relies on this:
-static_assert(sizeof(bool) == 1);
 
 class TestEffect {
 public:
