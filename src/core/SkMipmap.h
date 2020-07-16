@@ -16,7 +16,9 @@
 #include "src/shaders/SkShaderBase.h"
 
 class SkBitmap;
+class SkData;
 class SkDiscardableMemory;
+class SkMipmapBuilder;
 
 typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
 
@@ -68,6 +70,9 @@ public:
     // |index| is an index into the generated mipmap levels. It does not include
     // the base level. So index 0 represents mipmap level 1.
     bool getLevel(int index, Level*) const;
+
+    sk_sp<SkData> serialize() const;
+    static bool Deserialize(SkMipmapBuilder*, const void* data, size_t size);
 
 protected:
     void onDataChange(void* oldData, void* newData) override {

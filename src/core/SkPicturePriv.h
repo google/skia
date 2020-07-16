@@ -77,16 +77,19 @@ public:
     // V74: MorphologyImageFilter internal radius is SkScaler
     // V75: SkVertices switched from unsafe use of SkReader32 to SkReadBuffer (like everything else)
     // V76: Add filtering enum to ImageShader
+    // V77: Explicit filtering options on imageshaders
+    // V78: Serialize skmipmap data for images that have it
 
     enum Version {
         kMorphologyTakesScalar_Version      = 74,
         kVerticesUseReadBuffer_Version      = 75,
         kFilterEnumInImageShader_Version    = 76,
         kFilterOptionsInImageShader_Version = 77,
+        kSerializeMipmaps_Version           = 78,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kMorphologyTakesScalar_Version,
-        kCurrent_Version = kFilterOptionsInImageShader_Version
+        kCurrent_Version = kSerializeMipmaps_Version
     };
 };
 
