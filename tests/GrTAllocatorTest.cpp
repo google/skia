@@ -12,7 +12,7 @@ namespace {
 struct C {
     C() : fID(-1) { ++gInstCnt; }
     C(int id) : fID(id) { ++gInstCnt; }
-    C(C&&) = default;
+    C(C&& c) : C(c.fID) {}
     C& operator=(C&&) = default;
     ~C() { --gInstCnt; }
     int fID;
@@ -105,11 +105,13 @@ static void check_allocator(GrTAllocator<C, N>* allocator, int cnt, int popCnt,
     SkASSERT(allocator->empty());
     std::vector<C*> items;
     for (int i = 0; i < cnt; ++i) {
-        // Try both variations of push_back().
-        if (i % 1) {
+        // Try both variations of push_back() and emplace_back()
+        if (i % 3 == 0) {
             allocator->push_back(C(i));
-        } else {
+        } else if (i % 3 == 1) {
             allocator->push_back() = C(i);
+        } else {
+            allocator->emplace_back(i);
         }
         items.push_back(&allocator->back());
     }

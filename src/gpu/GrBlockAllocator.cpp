@@ -21,7 +21,7 @@ GrBlockAllocator::GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementByt
         , fGrowthPolicy(static_cast<uint64_t>(policy))
         , fN0((policy == GrowthPolicy::kLinear || policy == GrowthPolicy::kExponential) ? 1 : 0)
         , fN1(1)
-        // The head block always fills remaiing space from GrBlockAllocator's size, because it's
+        // The head block always fills remaining space from GrBlockAllocator's size, because it's
         // inline, but can take over the specified number of bytes immediately after it.
         , fHead(nullptr, additionalPreallocBytes + BaseHeadBlockSize()) {
     SkASSERT(fBlockIncrement >= 1);
