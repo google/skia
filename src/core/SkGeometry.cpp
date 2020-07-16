@@ -278,6 +278,32 @@ SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]) {
     return t;
 }
 
+SkScalar SkFindQuadStartCurvatureVal(const SkPoint src[3]) {
+    SkVector v_10 = src[1] - src[0], v_21 = src[2] - src[1];
+    SkScalar v_10_lsq = v_10.dot(v_10), c;
+    if (SkScalarNearlyZero(v_10_lsq, 1e-10)) {
+        return 0.0f;
+    }
+    c = .5f * v_10.cross(v_21) / SkScalarPow(v_10_lsq, 1.5f);
+    if (SkScalarNearlyZero(c, 1e-5)) {
+        return 0.0f;
+    }
+    return c;
+}
+
+SkScalar SkFindQuadEndCurvatureVal(const SkPoint src[3]) {
+    SkVector v_01 = src[0] - src[1], v_21 = src[2] - src[1];
+    SkScalar v_21_lsq = v_21.dot(v_21), c;
+    if (SkScalarNearlyZero(v_21_lsq, 1e-10)) {
+        return 0.0f;
+    }
+    c = .5f * v_21.cross(v_01) / SkScalarPow(v_21_lsq, 1.5f);
+    if (SkScalarNearlyZero(c, 1e-5)) {
+        return 0.0f;
+    }
+    return c;
+}
+
 int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]) {
     SkScalar t = SkFindQuadMaxCurvature(src);
     if (t == 0 || t == 1) {
@@ -844,6 +870,32 @@ int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]) {
     return numRoots;
 }
 
+SkScalar SkFindCubicStartCurvatureVal(const SkPoint src[4]) {
+    SkVector v_10 = src[1] - src[0], v_21 = src[2] - src[1];
+    SkScalar v_10_lsq = v_10.dot(v_10), c;
+    if (SkScalarNearlyZero(v_10_lsq, 1e-10)) {
+        return 0.0f;
+    }
+    c = 0.66666666f * v_10.cross(v_21) / SkScalarPow(v_10_lsq, 1.5f);
+    if (SkScalarNearlyZero(c, 1e-5)) {
+        return 0.0f;
+    }
+    return c;
+}
+
+SkScalar SkFindCubicEndCurvatureVal(const SkPoint src[4]) {
+    SkVector v_32 = src[3] - src[2], v_12 = src[1] - src[2];
+    SkScalar v_32_lsq = v_32.dot(v_32), c;
+    if (SkScalarNearlyZero(v_32_lsq, 1e-10)) {
+        return 0.0f;
+    }
+    c = 0.66666666f * v_32.cross(v_12) / SkScalarPow(v_32_lsq, 1.5f);
+    if (SkScalarNearlyZero(c, 1e-5)) {
+        return 0.0f;
+    }
+    return c;
+}
+
 int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
                               SkScalar tValues[3]) {
     SkScalar    t_storage[3];
@@ -1379,6 +1431,20 @@ bool SkConic::findMaxCurvature(SkScalar* t) const {
     return false;
 }
 #endif
+
+SkScalar SkConic::findStartCurvatureVal() const {
+    if (fW <= 0) {
+        return 0;
+    }
+    return SkFindQuadStartCurvatureVal(fPts) / (fW*fW);
+}
+
+SkScalar SkConic::findEndCurvatureVal() const {
+    if (fW <= 0) {
+        return 0;
+    }
+    return SkFindQuadEndCurvatureVal(fPts) / (fW*fW);
+}
 
 SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w, const SkMatrix& matrix) {
     if (!matrix.hasPerspective()) {

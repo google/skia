@@ -154,6 +154,9 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
                 // The stroker does not support conics yet.
                 return CanDrawPath::kNo;
             }
+            if (SkPaint::Join::kArcs_Join == stroke.getJoin()) {
+                return CanDrawPath::kNo;
+            }
             return CanDrawPath::kYes;
         }
 

@@ -31,6 +31,8 @@ const struct {
     { MITER_SK_STROKE_JOIN, SkPaint::kMiter_Join },
     { ROUND_SK_STROKE_JOIN, SkPaint::kRound_Join },
     { BEVEL_SK_STROKE_JOIN, SkPaint::kBevel_Join },
+    { MITERCLIP_SK_STROKE_JOIN, SkPaint::kMiterClip_Join },
+    { ARCS_SK_STROKE_JOIN, SkPaint::kArcs_Join },
 };
 
 #define CType           sk_stroke_cap_t

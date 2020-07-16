@@ -58,8 +58,10 @@ static GrStrokeGeometry::Verb join_verb_from_join(SkPaint::Join join) {
             return Verb::kMiterJoin;
         case SkPaint::kRound_Join:
             return Verb::kRoundJoin;
+        default:
+            SK_ABORT("Invalid SkPaint::Join.");
+            return Verb::kMiterJoin;
     }
-    SK_ABORT("Invalid SkPaint::Join.");
 }
 
 void GrStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWidth,

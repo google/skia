@@ -152,15 +152,18 @@ SkScalar SkStrokeRec::GetInflationRadius(SkPaint::Join join, SkScalar miterLimit
         return 0;
     } else if (0 == strokeWidth) {
         // FIXME: We need a "matrixScale" parameter here in order to properly handle hairlines.
-        // Their with is determined in device space, unlike other strokes.
+        // Their width is determined in device space, unlike other strokes.
         // http://skbug.com/8157
         return SK_Scalar1;
     }
 
     // since we're stroked, outset the rect by the radius (and join type, caps)
     SkScalar multiplier = SK_Scalar1;
-    if (SkPaint::kMiter_Join == join) {
-        multiplier = std::max(multiplier, miterLimit);
+    if (SkPaint::kMiter_Join == join ||
+        SkPaint::kMiterClip_Join == join ||
+        SkPaint::kArcs_Join == join) {
+        // NOTE: More ideal to use a smaller-than-sqrt2 multiplier for longer miterLimits
+        multiplier = std::max(multiplier, std::max(miterLimit,SK_Scalar1) * SK_ScalarSqrt2);
     }
     if (SkPaint::kSquare_Cap == cap) {
         multiplier = std::max(multiplier, SK_ScalarSqrt2);
