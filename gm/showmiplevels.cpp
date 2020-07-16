@@ -336,17 +336,34 @@ class ShowMipLevels3 : public skiagm::GM {
         fImg = fImg->withMipmaps(builder.detach());
     }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString*) override {
-        if (canvas->getGrContext()) {
-            // mips not supported yet
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        auto is_recording_canvas = [](SkCanvas* canvas) {
+            SkPixmap pm;
+            if (canvas->peekPixels(&pm)) {
+                return false;
+            }
+            if (canvas->getGrContext()) {
+                return false;
+            }
+            return true;
+        };
+        if (is_recording_canvas(canvas)) {
+            // TODO: make explicit mipmaps serialize
             return DrawResult::kSkip;
         }
 
         canvas->drawColor(0xFFDDDDDD);
 
+        const SkSamplingMode samplings[] = {
+            SkSamplingMode::kNearest, SkSamplingMode::kLinear
+        };
+        const SkMipmapMode mipmodes[] = {
+            SkMipmapMode::kNone, SkMipmapMode::kNearest, SkMipmapMode::kLinear
+        };
+
         canvas->translate(10, 10);
-        for (auto mm : {SkMipmapMode::kNone, SkMipmapMode::kNearest, SkMipmapMode::kLinear}) {
-            for (auto sa : {SkSamplingMode::kNearest, SkSamplingMode::kLinear}) {
+        for (auto mm : mipmodes) {
+            for (auto sa : samplings) {
                 canvas->translate(0, draw_downscaling(canvas, {sa, mm}));
             }
         }
