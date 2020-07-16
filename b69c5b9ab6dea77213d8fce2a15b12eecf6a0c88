@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39071b0a_0f173404",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-16T15:46:53Z",
+      "side": 1,
+      "message": "Soon it will be useful to try writing unittests (and possibly benchmarks) explicitly for SkUnicode.h",
+      "revId": "b69c5b9ab6dea77213d8fce2a15b12eecf6a0c88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
