@@ -586,14 +586,19 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* flushState) {
 
     GrPipeline::InitArgs initArgs;
     if (GrAAType::kNone != fAAType) {
-        initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
-        if (1 == flushState->proxy()->numSamples()) {
+        if (flushState->proxy()->numSamples() == 1) {
+            // We are mixed sampled. We need to either enable conservative raster (preferred) or
+            // disable MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for
+            // the cover geometry, the stencil test is still multisampled and will still produce
+            // smooth results.)
             SkASSERT(GrAAType::kCoverage == fAAType);
-            // We are mixed sampled. Use conservative raster to make the sample coverage mask 100%
-            // at every fragment. This way we will still get a double hit on shared edges, but
-            // whichever side comes first will cover every sample and will clear the stencil. The
-            // other side will then be discarded and not cause a double blend.
-            initArgs.fInputFlags |= GrPipeline::InputFlags::kConservativeRaster;
+            if (flushState->caps().conservativeRasterSupport()) {
+                initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
+                initArgs.fInputFlags |= GrPipeline::InputFlags::kConservativeRaster;
+            }
+        } else {
+            // We are standard MSAA. Leave MSAA enabled for the cover geometry.
+            initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
         }
     }
     initArgs.fCaps = &flushState->caps();
