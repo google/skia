@@ -11,6 +11,19 @@
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
+void GrGLOpsRenderPass::begin() {
+    if (GrLoadOp::kClear == fColorLoadAndStoreInfo.fLoadOp) {
+        fGpu->clear(GrFixedClip::Disabled(), fColorLoadAndStoreInfo.fClearColor,
+                    fRenderTarget, fOrigin);
+    }
+    if (GrLoadOp::kClear == fStencilLoadAndStoreInfo.fLoadOp) {
+        GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
+        if (sb && (sb->isDirty() || fRenderTarget->alwaysClearStencil())) {
+            fGpu->clearStencil(fRenderTarget, 0x0);
+        }
+    }
+}
+
 void GrGLOpsRenderPass::set(GrRenderTarget* rt, const SkIRect& contentBounds,
                             GrSurfaceOrigin origin, const LoadAndStoreInfo& colorInfo,
                             const StencilLoadAndStoreInfo& stencilInfo) {

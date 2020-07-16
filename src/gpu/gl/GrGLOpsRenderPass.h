@@ -26,14 +26,8 @@ class GrGLOpsRenderPass : public GrOpsRenderPass {
 public:
     GrGLOpsRenderPass(GrGLGpu* gpu) : fGpu(gpu) {}
 
-    void begin() override {
-        fGpu->beginCommandBuffer(fRenderTarget, fContentBounds, fOrigin, fColorLoadAndStoreInfo,
-                                 fStencilLoadAndStoreInfo);
-    }
-
-    void end() override {
-        fGpu->endCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
-    }
+    void begin() override;
+    void end() override {}
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
         state->doUpload(upload);
