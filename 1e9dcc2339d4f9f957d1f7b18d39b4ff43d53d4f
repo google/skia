@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "77e5528a_a3ae80b7",
+        "filename": "src/gpu/effects/GrArithmeticProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-16T17:57:15Z",
+      "side": 1,
+      "message": "Ah, you\u0027re right. Done.",
+      "parentUuid": "b2b04867_f66b8520",
+      "range": {
+        "startLine": 19,
+        "startChar": 30,
+        "endLine": 19,
+        "endChar": 41
+      },
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "524267ab_633d49a0",
         "filename": "src/gpu/effects/GrComposeLerpEffect.fp",
         "patchSetId": 4
@@ -83,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "2c319c24_15939de0",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-16T17:57:15Z",
+      "side": 1,
+      "message": "Yes, (in fact this could skip the childProcessor check, too). Given how much this FP is overriding default behavior, I opted to keep it all really explicit, so it\u0027s fairly clear what each child sees (which lines up with the comments in the header accompanying the behavior enum).",
+      "parentUuid": "ea1e1ee8_6c5a55ec",
+      "range": {
+        "startLine": 301,
+        "startChar": 67,
+        "endLine": 301,
+        "endChar": 83
+      },
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "587fd347_6019ea38",
         "filename": "src/shaders/SkPerlinNoiseShader.cpp",
         "patchSetId": 4
@@ -115,6 +163,24 @@
       "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc764e82_b56cdd73",
+        "filename": "src/shaders/SkPerlinNoiseShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-16T17:57:15Z",
+      "side": 1,
+      "message": "skbug.com/10506",
+      "parentUuid": "29774d0e_85a3013b",
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
