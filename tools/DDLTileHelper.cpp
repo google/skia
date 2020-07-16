@@ -224,6 +224,9 @@ void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext*, TileData* t
 
     tile->fTileSurface = nullptr;
 
+    int refCnt = tile->fCallbackContext->getRefCnt();
+    SkDebugf("Is Unique %d: %d\n", tile->fCallbackContext->fID, refCnt);
+
     SkASSERT(tile->fCallbackContext->unique());
     tile->fCallbackContext.reset();
 }
