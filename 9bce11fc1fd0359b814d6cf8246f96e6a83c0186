@@ -123,6 +123,24 @@
       "revId": "9bce11fc1fd0359b814d6cf8246f96e6a83c0186",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fc66c0c_593ce750",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-16T17:15:04Z",
+      "side": 1,
+      "message": "I went for the safe option of putting this back as a modulation by input color. No risk of perf regression, and it eliminates even the low-bit diffs I was seeing.",
+      "parentUuid": "fab3688a_b98295c3",
+      "revId": "9bce11fc1fd0359b814d6cf8246f96e6a83c0186",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
