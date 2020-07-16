@@ -122,6 +122,9 @@ std::unique_ptr<GrFragmentProcessor> GrCircleEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestData* testData) {
     SkPoint center;
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
