@@ -1000,6 +1000,9 @@ DashingCircleEffect::DashingCircleEffect(const SkPMColor4f& color,
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
     AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashOp::kAAModeCnt));
     return DashingCircleEffect::Make(d->allocator(),

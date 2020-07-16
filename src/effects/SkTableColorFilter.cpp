@@ -345,6 +345,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
 #if GR_TEST_UTILS
 
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrProcessorTestData.h"
 
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     int flags = 0;
@@ -369,7 +370,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
     ));
     sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
     auto [success, fp] = as_CFB(filter)->asFragmentProcessor(
-            /*inputFP=*/nullptr, d->context(),
+            d->inputFP(), d->context(),
             GrColorInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType, std::move(colorSpace)));
     SkASSERT(success);
     return std::move(fp);

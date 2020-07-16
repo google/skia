@@ -164,13 +164,16 @@ std::unique_ptr<GrFragmentProcessor> GrHighContrastFilterEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrHighContrastFilterEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrHighContrastFilterEffect::TestCreate(
         GrProcessorTestData* d) {
     using InvertStyle = SkHighContrastConfig::InvertStyle;
     SkHighContrastConfig config{/*grayscale=*/d->fRandom->nextBool(),
                                 InvertStyle(d->fRandom->nextRangeU(0, int(InvertStyle::kLast))),
                                 /*contrast=*/d->fRandom->nextF()};
-    return GrHighContrastFilterEffect::Make(/*inputFP=*/nullptr, config,
+    return GrHighContrastFilterEffect::Make(d->inputFP(), config,
                                             /*linearize=*/d->fRandom->nextBool());
 }
 #endif

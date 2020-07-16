@@ -361,12 +361,15 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() cons
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(
         GrProcessorTestData* testData) {
     SkScalar wh = testData->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar sigma = testData->fRandom->nextRangeF(1.f, 10.f);
     SkRect circle = SkRect::MakeWH(wh, wh);
-    return GrCircleBlurFragmentProcessor::Make(/*inputFP=*/nullptr, testData->context(), circle,
+    return GrCircleBlurFragmentProcessor::Make(testData->inputFP(), testData->context(), circle,
                                                sigma);
 }
 #endif

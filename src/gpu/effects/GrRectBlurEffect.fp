@@ -208,6 +208,6 @@ void main() {
     float sigma = data->fRandom->nextRangeF(3,8);
     float width = data->fRandom->nextRangeF(200,300);
     float height = data->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(/*inputFP=*/nullptr, data->context(), *data->caps()->shaderCaps(),
+    return GrRectBlurEffect::Make(data->inputFP(), data->context(), *data->caps()->shaderCaps(),
                                   SkRect::MakeWH(width, height), sigma);
 }

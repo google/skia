@@ -57,13 +57,13 @@ half alpha;
                 args.fUniformHandler->getUniformCStr(rectUniformVar),
                 args.fUniformHandler->getUniformCStr(rectUniformVar), (int)_outer.edgeType,
                 (int)_outer.edgeType);
-        SkString _sample1677 = this->invokeChild(0, args);
+        SkString _sample1678 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
 %s = inputColor * alpha;
 )SkSL",
-                _sample1677.c_str(), args.fOutputColor);
+                _sample1678.c_str(), args.fOutputColor);
     }
 
 private:
@@ -111,18 +111,17 @@ std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAARectEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::TestCreate(GrProcessorTestData* d) {
     SkRect rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1());
-    std::unique_ptr<GrFragmentProcessor> fp;
-    do {
-        GrClipEdgeType edgeType =
-                static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
+    GrClipEdgeType edgeType =
+            static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
 
-        fp = GrAARectEffect::Make(/*inputFP=*/nullptr, edgeType, rect);
-    } while (nullptr == fp);
-    return fp;
+    return GrAARectEffect::Make(d->inputFP(), edgeType, rect);
 }
 #endif

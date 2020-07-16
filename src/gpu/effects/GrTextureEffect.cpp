@@ -794,6 +794,9 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::clone() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTestData* testData) {
     auto [view, ct, at] = testData->randomView();
     Mode wrapModes[2];

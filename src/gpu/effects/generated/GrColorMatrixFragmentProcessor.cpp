@@ -124,6 +124,9 @@ std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::clone() con
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrColorMatrixFragmentProcessor);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
     float m[20];
@@ -133,6 +136,6 @@ std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::TestCreate(
     bool unpremul = d->fRandom->nextBool();
     bool clampRGB = d->fRandom->nextBool();
     bool premul = d->fRandom->nextBool();
-    return Make(/*inputFP=*/nullptr, m, unpremul, clampRGB, premul);
+    return Make(d->inputFP(), m, unpremul, clampRGB, premul);
 }
 #endif

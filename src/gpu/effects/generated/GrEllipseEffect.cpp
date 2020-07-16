@@ -162,6 +162,9 @@ std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrEllipseEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTestData* testData) {
     SkPoint center;
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
@@ -169,12 +172,11 @@ std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTest
     SkScalar rx = testData->fRandom->nextRangeF(0.f, 1000.f);
     SkScalar ry = testData->fRandom->nextRangeF(0.f, 1000.f);
     bool success;
-    std::unique_ptr<GrFragmentProcessor> fp;
+    std::unique_ptr<GrFragmentProcessor> fp = testData->inputFP();
     do {
         GrClipEdgeType et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        std::tie(success, fp) =
-                GrEllipseEffect::Make(/*inputFP=*/nullptr, et, center, SkPoint::Make(rx, ry),
-                                      *testData->caps()->shaderCaps());
+        std::tie(success, fp) = GrEllipseEffect::Make(
+                std::move(fp), et, center, SkPoint::Make(rx, ry), *testData->caps()->shaderCaps());
     } while (!success);
     return fp;
 }
