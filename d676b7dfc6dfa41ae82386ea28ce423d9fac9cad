@@ -120,6 +120,24 @@
       "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63453ccd_faf3a366",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T22:03:26Z",
+      "side": 1,
+      "message": "A future VC could be good. I\u0027ll finish cleaning up and post a version of the main thing of interest and we can see how that goes.",
+      "parentUuid": "8662d6ae_58fbe9c3",
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
