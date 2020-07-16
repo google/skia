@@ -40,8 +40,7 @@ public:
      * @param   itemsPerBlock   the number of items to allocate at once
      */
     explicit GrTAllocator(int itemsPerBlock)
-            : fTotalCount(0)
-            , fAllocator(GrBlockAllocator::GrowthPolicy::kFixed,
+            : fAllocator(GrBlockAllocator::GrowthPolicy::kFixed,
                          GrBlockAllocator::BlockOverhead<alignof(T)>() + sizeof(T)*itemsPerBlock) {}
 
     ~GrTAllocator() { this->reset(); }
@@ -70,7 +69,7 @@ public:
      * Remove the last item, only call if count() != 0
      */
     void pop_back() {
-        SkASSERT(fTotalCount > 0);
+        SkASSERT(this->count() > 0);
 
         GrBlockAllocator::Block* block = fAllocator->currentBlock();
 
@@ -86,7 +85,7 @@ public:
             block->setMetadata(Decrement(block, releaseIndex));
         }
 
-        fTotalCount--;
+        fAllocator->setMetadata(fAllocator->metadata() - 1);
     }
 
     /**
@@ -101,7 +100,6 @@ public:
         }
 
         fAllocator->reset();
-        fTotalCount = 0;
     }
 
     /**
@@ -117,9 +115,9 @@ public:
             }
             count += (sizeof(T) + Last(b) - First(b)) / sizeof(T);
         }
-        SkASSERT(count == fTotalCount);
+        SkASSERT(count == fAllocator->metadata());
 #endif
-        return fTotalCount;
+        return fAllocator->metadata();
     }
 
     /**
@@ -133,11 +131,11 @@ public:
     T& front() {
         // This assumes that the head block actually have room to store the first item.
         static_assert(StartingItems >= 1);
-        SkASSERT(fTotalCount > 0 && fAllocator->headBlock()->metadata() > 0);
+        SkASSERT(this->count() > 0 && fAllocator->headBlock()->metadata() > 0);
         return GetItem(fAllocator->headBlock(), First(fAllocator->headBlock()));
     }
     const T& front() const {
-        SkASSERT(fTotalCount > 0 && fAllocator->headBlock()->metadata() > 0);
+        SkASSERT(this->count() > 0 && fAllocator->headBlock()->metadata() > 0);
         return GetItem(fAllocator->headBlock(), First(fAllocator->headBlock()));
     }
 
@@ -145,11 +143,11 @@ public:
      * Access last item, only call if count() != 0
      */
     T& back() {
-        SkASSERT(fTotalCount > 0 && fAllocator->currentBlock()->metadata() > 0);
+        SkASSERT(this->count() > 0 && fAllocator->currentBlock()->metadata() > 0);
         return GetItem(fAllocator->currentBlock(), Last(fAllocator->currentBlock()));
     }
     const T& back() const {
-        SkASSERT(fTotalCount > 0 && fAllocator->currentBlock()->metadata() > 0);
+        SkASSERT(this->count() > 0 && fAllocator->currentBlock()->metadata() > 0);
         return GetItem(fAllocator->currentBlock(), Last(fAllocator->currentBlock()));
     }
 
@@ -158,7 +156,7 @@ public:
      * Use for-range loops by calling items() or ritems() instead to access all added items in order
      */
     T& item(int i) {
-        SkASSERT(i >= 0 && i < fTotalCount);
+        SkASSERT(i >= 0 && i < fAllocator->metadata());
 
         // Iterate over blocks until we find the one that contains i.
         for (auto* b : fAllocator->blocks()) {
@@ -210,16 +208,15 @@ private:
         SkASSERT(br.fStart == br.fAlignedOffset ||
                  br.fAlignedOffset == First(fAllocator->currentBlock()));
         br.fBlock->setMetadata(br.fAlignedOffset);
-        fTotalCount++;
+        fAllocator->setMetadata(fAllocator->metadata() + 1);
         return br.fBlock->ptr(br.fAlignedOffset);
     }
 
-    // Each Block in the allocator tracks their count of items, but it's convenient to store
-    // the sum of their counts as well.
-    int fTotalCount;
-
     // N represents the number of items, whereas GrSBlockAllocator takes total bytes, so must
     // account for the block allocator's size too.
+    //
+    // This class uses the GrBlockAllocator's metadata to track total count of items, and per-block
+    // metadata to track the index of the last allocated item within each block.
     GrSBlockAllocator<StartingSize> fAllocator;
 
 public:
