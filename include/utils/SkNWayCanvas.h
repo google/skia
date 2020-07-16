@@ -40,6 +40,8 @@ protected:
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) override;
+    void onDrawGlyphs(const SkGlyphID[], int count, const SkPoint pos[], const SkFont&,
+                      const SkPaint&) override;
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkBlendMode,
                              const SkPaint& paint) override;

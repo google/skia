@@ -288,6 +288,14 @@ void SkNWayCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y
     }
 }
 
+void SkNWayCanvas::onDrawGlyphs(const SkGlyphID glyphs[], int count, const SkPoint pos[],
+                                const SkFont& font, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawGlyphs(glyphs, count, pos, font, paint);
+    }
+}
+
 void SkNWayCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                  const SkPaint* paint) {
     Iter iter(fList);
