@@ -196,6 +196,7 @@ GrConicEffect::GrConicEffect(const SkPMColor4f& color, const SkMatrix& viewMatri
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
 #if GR_TEST_UTILS
+#include "src/gpu/GrProcessorTestData.h"
 GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
     return GrConicEffect::Make(d->allocator(),
                                SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
@@ -356,6 +357,9 @@ GrQuadEffect::GrQuadEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix,
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     return GrQuadEffect::Make(d->allocator(),
                               SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),

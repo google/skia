@@ -186,6 +186,9 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::clone() co
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTwoPointConicalGradientLayout);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::TestCreate(
         GrProcessorTestData* d) {
     SkScalar scale = GrGradientShader::RandomParams::kGradientScale;

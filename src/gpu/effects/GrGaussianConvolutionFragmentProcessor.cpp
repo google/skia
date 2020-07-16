@@ -205,6 +205,9 @@ bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGaussianConvolutionFragmentProcessor);
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomView();
