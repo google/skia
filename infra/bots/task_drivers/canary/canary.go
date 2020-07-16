@@ -114,7 +114,12 @@ func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId
 			if roll.Result == manual.RESULT_SUCCESS {
 				return nil
 			} else if roll.Result == manual.RESULT_FAILURE {
-				return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] failed", cl))
+				if roll.ResultDetails != "" {
+					// If result details are specified include them in the error.
+					return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] failed due to: %s", cl, roll.ResultDetails))
+				} else {
+					return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] failed", cl))
+				}
 			} else if roll.Result == manual.RESULT_UNKNOWN {
 				return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] completed with an unknown result", cl))
 			}
