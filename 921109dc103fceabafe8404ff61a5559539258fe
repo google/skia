@@ -16,6 +16,24 @@
       "revId": "921109dc103fceabafe8404ff61a5559539258fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6f52903_10b931d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-16T21:08:15Z",
+      "side": 1,
+      "message": "I think so. If we\u0027re going to offer our current \"standard\" I think we should call it MitchellWeights rather than BibucicWeights and also offer CatmulRomWeights():\n\n 0.5 * [ 0, 2,  0,   0,\n        -1  0,  1,   0,\n         2, -5,  4, -1,\n        -1,  3, -3,  1]\n\nMore accurately, CentripetalCatmulRomWeights(). It is sharper than Mitchell and more distinct from bilerp.\n\nMight make sense to document how the \"weights\" apply so people don\u0027t think it works like matrix convolution kernel image filter. My rough pseudocode:\ncubic(x, func):\ni \u003d int(x-.5)\nf \u003d fract(x-.5)\nw \u003d M*[1, f, f^2, f^3]\nc \u003d [func(i-1), func(i), func(i+1), func(i+2)]\nreturn dot(w,c)\n\nbicubic(image, x, y):\nreturn cubic(y, cubic(x, [y](t){ return image(t,y) }))",
+      "parentUuid": "40b054fe_0144e273",
+      "revId": "921109dc103fceabafe8404ff61a5559539258fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
