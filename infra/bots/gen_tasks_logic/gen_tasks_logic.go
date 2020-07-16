@@ -220,6 +220,7 @@ type Config struct {
 	Project string `json:"project"`
 
 	// Service accounts.
+	ServiceAccountCanary       string `json:"service_account_canary"`
 	ServiceAccountCompile      string `json:"service_account_compile"`
 	ServiceAccountHousekeeper  string `json:"service_account_housekeeper"`
 	ServiceAccountRecreateSKPs string `json:"service_account_recreate_skps"`
@@ -1154,7 +1155,7 @@ func (b *jobBuilder) g3FrameworkCanary() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.recipeProps(EXTRA_PROPS)
 		b.kitchenTask("g3_canary", OUTPUT_NONE)
-		b.isolate("canary_g3_framework.isolate")
+		b.isolate("canary.isolate")
 		b.serviceAccount("skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.timeout(3 * time.Hour)
@@ -1397,6 +1398,32 @@ func (b *jobBuilder) fm() {
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
 		b.expiration(15 * time.Minute)
+		b.attempts(1)
+	})
+}
+
+// canary generates a task that uses TaskDrivers to trigger canary manual rolls on autorollers.
+// Canary-G3 does not use this path because it is very different from other autorollers.
+func (b *jobBuilder) canary(rollerName string) {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.isolate("empty.isolate")
+		b.dep(b.buildTaskDrivers())
+		b.cmd("./canary",
+			"--local=false",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--roller_name", rollerName,
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--alsologtostderr")
+		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.serviceAccount(b.cfg.ServiceAccountCanary)
+		b.timeout(3 * time.Hour)
 		b.attempts(1)
 	})
 }
