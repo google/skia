@@ -223,7 +223,7 @@ protected:
         fAuxImage = surface->makeImageSnapshot();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         FilterFactory filters[] = {
             color_filter_factory,
             blur_filter_factory,
@@ -270,9 +270,18 @@ protected:
         // These need to be GPU-backed when on the GPU to ensure that the image filters use the GPU
         // code paths (otherwise they may choose to do CPU filtering then upload)
         sk_sp<SkImage> mainImage, auxImage;
-        if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
+
+        auto recording = canvas->recordingContext();
+        if (recording) {
+            // In a DDL context, we can't use the GPU code paths and we will drop the work – skip.
+            auto direct = GrAsDirectContext(recording);
+            if (!direct) {
+                *errorMsg = "Requires a direct context.";
+                return DrawResult::kSkip;
+            }
             if (direct->abandoned()) {
-                return;
+                *errorMsg = "Direct context abandoned.";
+                return DrawResult::kSkip;
             }
             mainImage = fMainImage->makeTextureImage(direct);
             auxImage = fAuxImage->makeTextureImage(direct);
@@ -281,10 +290,10 @@ protected:
             auxImage = fAuxImage;
         }
         if (!mainImage || !auxImage) {
-            return;
+            return DrawResult::kFail;
         }
-        SkASSERT(mainImage && (mainImage->isTextureBacked() || !canvas->recordingContext()));
-        SkASSERT(auxImage && (auxImage->isTextureBacked() || !canvas->recordingContext()));
+        SkASSERT(mainImage && (mainImage->isTextureBacked() || !recording));
+        SkASSERT(auxImage && (auxImage->isTextureBacked() || !recording));
 
         SkScalar MARGIN = SkIntToScalar(40);
         SkScalar DX = mainImage->width() + MARGIN;
@@ -328,6 +337,7 @@ protected:
             canvas->restore();
             canvas->translate(0, DY);
         }
+        return DrawResult::kOk;
     }
 
 private:
