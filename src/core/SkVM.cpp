@@ -266,12 +266,15 @@ namespace skvm {
             case Op::store8:  write(o, op, Arg{immy}, V{x}, fs(id)...); break;
             case Op::store16: write(o, op, Arg{immy}, V{x}, fs(id)...); break;
             case Op::store32: write(o, op, Arg{immy}, V{x}, fs(id)...); break;
+            case Op::store64: write(o, op, Arg{immz}, V{x}, V{y}, fs(id)...); break;
 
             case Op::index: write(o, V{id}, "=", op, fs(id)...); break;
 
-            case Op::load8:  write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
-            case Op::load16: write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
-            case Op::load32: write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
+            case Op::load8:     write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
+            case Op::load16:    write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
+            case Op::load32:    write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
+            case Op::load64_lo: write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
+            case Op::load64_hi: write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
 
             case Op::gather8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
             case Op::gather16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
@@ -388,12 +391,15 @@ namespace skvm {
                 case Op::store8:  write(o, op, Arg{immy}, R{x}); break;
                 case Op::store16: write(o, op, Arg{immy}, R{x}); break;
                 case Op::store32: write(o, op, Arg{immy}, R{x}); break;
+                case Op::store64: write(o, op, Arg{immz}, R{x}, R{y}); break;
 
                 case Op::index: write(o, R{d}, "=", op); break;
 
-                case Op::load8:  write(o, R{d}, "=", op, Arg{immy}); break;
-                case Op::load16: write(o, R{d}, "=", op, Arg{immy}); break;
-                case Op::load32: write(o, R{d}, "=", op, Arg{immy}); break;
+                case Op::load8:     write(o, R{d}, "=", op, Arg{immy}); break;
+                case Op::load16:    write(o, R{d}, "=", op, Arg{immy}); break;
+                case Op::load32:    write(o, R{d}, "=", op, Arg{immy}); break;
+                case Op::load64_lo: write(o, R{d}, "=", op, Arg{immy}); break;
+                case Op::load64_hi: write(o, R{d}, "=", op, Arg{immy}); break;
 
                 case Op::gather8:  write(o, R{d}, "=", op, Arg{immy}, Hex{immz}, R{x}); break;
                 case Op::gather16: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}, R{x}); break;
@@ -680,12 +686,17 @@ namespace skvm {
     void Builder::store8 (Arg ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA, ptr.ix); }
     void Builder::store16(Arg ptr, I32 val) { (void)push(Op::store16, val.id,NA,NA, ptr.ix); }
     void Builder::store32(Arg ptr, I32 val) { (void)push(Op::store32, val.id,NA,NA, ptr.ix); }
+    void Builder::store64(Arg ptr, I32 lo, I32 hi) {
+        (void)push(Op::store64, lo.id,hi.id,NA, NA,ptr.ix);
+    }
 
     I32 Builder::index() { return {this, push(Op::index , NA,NA,NA,0) }; }
 
-    I32 Builder::load8 (Arg ptr) { return {this, push(Op::load8 , NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load16(Arg ptr) { return {this, push(Op::load16, NA,NA,NA, ptr.ix) }; }
-    I32 Builder::load32(Arg ptr) { return {this, push(Op::load32, NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load8    (Arg ptr) { return {this, push(Op::load8    , NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load16   (Arg ptr) { return {this, push(Op::load16   , NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load32   (Arg ptr) { return {this, push(Op::load32   , NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load64_lo(Arg ptr) { return {this, push(Op::load64_lo, NA,NA,NA, ptr.ix) }; }
+    I32 Builder::load64_hi(Arg ptr) { return {this, push(Op::load64_hi, NA,NA,NA, ptr.ix) }; }
 
     I32 Builder::gather8 (Arg ptr, int offset, I32 index) {
         return {this, push(Op::gather8 , index.id,NA,NA, ptr.ix,offset)};
@@ -3304,6 +3315,12 @@ namespace skvm {
                     // Make sure splat constants can be found by load_from_memory() or any().
                     (void)constants[immy];
                     break;
+
+                case Op::load64_lo:
+                case Op::load64_hi:
+                case Op::store64:
+                    // TODO
+                    return false;
 
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
