@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "57bfab55_4a554f1a",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-16T15:25:58Z",
+      "side": 1,
+      "message": "\u003e Patch Set 8 was rebased\n\nNevermind, that was easy.  Go ahead!",
+      "parentUuid": "c02297ed_1a187d0a",
+      "range": {
+        "startLine": 142,
+        "startChar": 16,
+        "endLine": 142,
+        "endChar": 33
+      },
+      "revId": "c65d7078bb6096cce265d7a7cf31e44626dfe069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a174e764_dfffcf18",
         "filename": "modules/canvaskit/README.md",
         "patchSetId": 8
