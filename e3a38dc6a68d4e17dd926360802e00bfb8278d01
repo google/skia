@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6fe6697_862c3eb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T22:37:55Z",
+      "side": 1,
+      "message": "This changeset is the reason for the others; they were things I found along the way and I thought might be helpful. Obviously this is much larger so the lack of time to look at the smaller things may bode ill for it. Let me briefly explain what I\u0027m up to. \n\nI have no affiliation with the SVG-WG. I ran into the spec for these joins ( https://svgwg.org/svg2-draft/painting.html#LineJoin ) as I was replacing the stroke engine in FontForge, and implemented them without realizing I was among the first to try it. (From the amount of code you can see that arcs joins are a bit of a pain.) When I later found the \"official\" draft I realized they were \"at risk\" because there were \"no known browser implementations\". \n\nWhat I\u0027m trying to do here is remove the \"at risk\" status by adding them to the most widely used rendering engine (the subsequent blink changes are more or less trivial). However, my interest isn\u0027t just in \"spec completeness\" -- I want these to be supported because I think they\u0027re a good idea. Miter-clip is an overall improvement on Miter (and tends to hide artifacts caused by cusps visible in bevel joins). Arcs joins are new and I think they\u0027ll get use once they\u0027re available.\n\nI\u0027ll think a bit about static rendering tests to add but for now and probably in the future the best test is to try out the added sample code:\n\nviewer --slide StrokeJoins\n\nI\u0027ll also add some code review comments with other explanations.",
+      "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
