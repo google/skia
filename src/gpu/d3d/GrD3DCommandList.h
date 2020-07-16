@@ -73,6 +73,10 @@ public:
                             ID3D12Resource* srcBuffer, uint64_t srcOffset,
                             uint64_t numBytes);
 
+    void addGpuBuffer(sk_sp<GrGpuBuffer> buffer) {
+        fTrackedGpuBuffers.push_back(std::move(buffer));
+    }
+
     void releaseResources();
 
     bool hasWork() const { return fHasWork; }
@@ -110,6 +114,8 @@ protected:
 
     SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrManagedResource>> fTrackedResources;
     SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrRecycledResource>> fTrackedRecycledResources;
+    SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrGpuBuffer>> fTrackedGpuBuffers;
+
 
     // When we create a command list it starts in an active recording state
     SkDEBUGCODE(bool fIsActive = true;)
