@@ -8,9 +8,7 @@
 #include "src/gpu/GrOpsRenderPass.h"
 
 #include "include/core/SkRect.h"
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCpuBuffer.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPrimitiveProcessor.h"

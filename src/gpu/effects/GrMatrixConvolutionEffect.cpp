@@ -484,7 +484,7 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrPro
     auto wm = static_cast<GrSamplerState::WrapMode>(
             d->fRandom->nextULessThan(GrSamplerState::kWrapModeCount));
     bool convolveAlpha = d->fRandom->nextBool();
-    return GrMatrixConvolutionEffect::Make(d->context()->priv().asRecordingContext(),
+    return GrMatrixConvolutionEffect::Make(d->context(),
                                            std::move(view),
                                            bounds,
                                            kernelSize,

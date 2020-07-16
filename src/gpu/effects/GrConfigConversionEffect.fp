@@ -8,7 +8,7 @@
 in fragmentProcessor inputFP;
 
 @header {
-    #include "include/gpu/GrContext.h"
+    #include "include/gpu/GrDirectContext.h"
     #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrContextPriv.h"
     #include "src/gpu/GrImageInfo.h"
@@ -16,11 +16,11 @@ in fragmentProcessor inputFP;
 }
 
 @class {
-    static bool TestForPreservingPMConversions(GrContext* context);
+    static bool TestForPreservingPMConversions(GrDirectContext* context);
 }
 
 @cppEnd {
-    bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context) {
+    bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* context) {
         static constexpr int kSize = 256;
         static constexpr GrColorType kColorType = GrColorType::kRGBA_8888;
         SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
