@@ -232,7 +232,6 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     for (const Geometry& geo : SkMakeSpan(fGeoData.get(), fGeoCount)) {
         GrAtlasSubRun* subRun = geo.fSubRunPtr;
         SkASSERT((int)subRun->vertexStride() == vertexStride);
-        subRun->prepareGrGlyphs(target->strikeCache());
 
         const int subRunEnd = subRun->glyphCount();
         for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
