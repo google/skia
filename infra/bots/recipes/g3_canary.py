@@ -22,12 +22,12 @@ def RunSteps(api):
     raise Exception('%s can only be run as a trybot.' % api.vars.builder_name)
 
   infrabots_dir = api.path['start_dir'].join('skia', 'infra', 'bots')
-  trigger_wait_g3_script = infrabots_dir.join('g3_compile',
+  trigger_wait_g3_script = infrabots_dir.join('g3_canary',
                                               'trigger_wait_g3_task.py')
 
   output_dir = api.path.mkdtemp('g3_try')
   output_file = output_dir.join('output_file')
-  # Trigger a compile task and wait for it to complete.
+  # Trigger a canary task and wait for it to complete.
   cmd = ['python', trigger_wait_g3_script,
          '--issue', api.vars.issue,
          '--patchset', api.vars.patchset,
@@ -36,7 +36,7 @@ def RunSteps(api):
         ]
   try:
     with api.context(cwd=api.path['start_dir'].join('skia')):
-      api.run(api.step, 'Trigger and wait for g3 compile task', cmd=cmd)
+      api.run(api.step, 'Trigger and wait for g3 canary task', cmd=cmd)
   except api.step.StepFailure as e:
     # Add CL link if it exists in the output_file.
     task_json = api.file.read_json(
@@ -49,7 +49,7 @@ def RunSteps(api):
 
 def GenTests(api):
   yield(
-    api.test('g3_compile_trybot') +
+    api.test('g3_canary_trybot') +
     api.properties.tryserver(
           gerrit_project='skia',
           gerrit_url='https://skia-review.googlesource.com/',
@@ -64,7 +64,7 @@ def GenTests(api):
   )
 
   yield(
-    api.test('g3_compile_trybot_failure') +
+    api.test('g3_canary_trybot_failure') +
     api.properties.tryserver(
           gerrit_project='skia',
           gerrit_url='https://skia-review.googlesource.com/',
@@ -76,11 +76,11 @@ def GenTests(api):
         repository='https://skia.googlesource.com/skia.git',
         revision='abc123',
     ) +
-    api.step_data('Trigger and wait for g3 compile task', retcode=1)
+    api.step_data('Trigger and wait for g3 canary task', retcode=1)
   )
 
   yield(
-    api.test('g3_compile_nontrybot') +
+    api.test('g3_canary_nontrybot') +
     api.properties(
         buildername='Build-Debian10-Clang-TAP-Presubmit-G3_Framework',
         path_config='kitchen',

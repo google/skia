@@ -3,7 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Script that triggers and waits for g3 compile tasks."""
+"""Script that triggers and waits for g3 canary tasks."""
 
 import json
 import math

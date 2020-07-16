@@ -22,6 +22,11 @@
         "extra_config"
       ]
     },
+    "Canary": {
+      "keys": [
+        "project"
+      ]
+    },
     "Housekeeper": {
       "keys": [
         "frequency"
