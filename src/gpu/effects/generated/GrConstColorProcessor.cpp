@@ -68,6 +68,9 @@ std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
     SkPMColor4f color;
     int colorPicker = d->fRandom->nextULessThan(3);

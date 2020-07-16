@@ -71,6 +71,9 @@ std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(
         GrProcessorTestData* data) {
     PMConversion pmConv = static_cast<PMConversion>(
