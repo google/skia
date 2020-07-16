@@ -228,12 +228,8 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
 
 void test_draw_op(GrContext* context,
                   GrRenderTargetContext* rtc,
-                  std::unique_ptr<GrFragmentProcessor> fp,
-                  GrSurfaceProxyView inputDataView,
-                  SkAlphaType inputAlphaType) {
+                  std::unique_ptr<GrFragmentProcessor> fp) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(GrTextureEffect::Make(std::move(inputDataView),
-                                                          inputAlphaType));
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -242,77 +238,126 @@ void test_draw_op(GrContext* context,
     rtc->priv().testingOnly_addDrawOp(std::move(op));
 }
 
-// This assumes that the output buffer will be the same size as inputDataView
+// This assumes that the output buffer will be the same size as the render target context.
 void render_fp(GrContext* context,
-               GrRenderTargetContext* rtc,
-               std::unique_ptr<GrFragmentProcessor> fp,
-               GrSurfaceProxyView inputDataView,
-               SkAlphaType inputAlphaType,
-               GrColor* buffer) {
-    test_draw_op(context, rtc, std::move(fp), inputDataView, inputAlphaType);
-    memset(buffer, 0x0,
-           sizeof(GrColor) * inputDataView.proxy()->width() * inputDataView.proxy()->height());
-    rtc->readPixels(SkImageInfo::Make(inputDataView.proxy()->dimensions(), kRGBA_8888_SkColorType,
+                GrRenderTargetContext* rtc,
+                std::unique_ptr<GrFragmentProcessor> fp,
+                GrColor* buffer) {
+    test_draw_op(context, rtc, std::move(fp));
+    memset(buffer, 0x0, sizeof(GrColor) * rtc->width() * rtc->height());
+    rtc->readPixels(SkImageInfo::Make(rtc->width(), rtc->height(), kRGBA_8888_SkColorType,
                                       kPremul_SkAlphaType),
                     buffer, 0, {0, 0});
 }
 
-/** Initializes the two test texture proxies that are available to the FP test factories. */
-bool init_test_textures(GrResourceProvider* resourceProvider,
-                        GrRecordingContext* context,
-                        SkRandom* random,
-                        GrProcessorTestData::ViewInfo views[2]) {
-    static const int kTestTextureSize = 256;
+// This class is responsible for reproducibly generating a random fragment processor.
+// An identical randomly-designed FP can be generated as many times as needed.
+class TestFPGenerator {
+    public:
+        TestFPGenerator() = delete;
+        TestFPGenerator(GrDirectContext* context, GrResourceProvider* resourceProvider)
+                : fContext(context)
+                , fResourceProvider(resourceProvider)
+                , fInitialSeed(synthesizeInitialSeed())
+                , fRandomSeed(fInitialSeed) {}
 
-    {
-        // Put premul data into the RGBA texture that the test FPs can optionally use.
-        GrColor* rgbaData = new GrColor[kTestTextureSize * kTestTextureSize];
-        for (int y = 0; y < kTestTextureSize; ++y) {
-            for (int x = 0; x < kTestTextureSize; ++x) {
-                rgbaData[kTestTextureSize * y + x] = input_texel_color(
-                        random->nextULessThan(256), random->nextULessThan(256), 0.0f);
+        uint32_t initialSeed() { return fInitialSeed; }
+
+        bool init() {
+            // Initializes the two test texture proxies that are available to the FP test factories.
+            SkRandom random{fRandomSeed};
+            constexpr int kTestTextureSize = 256;
+
+            {
+                // Put premul data into the RGBA texture that the test FPs can optionally use.
+                GrColor* rgbaData = new GrColor[kTestTextureSize * kTestTextureSize];
+                for (int y = 0; y < kTestTextureSize; ++y) {
+                    for (int x = 0; x < kTestTextureSize; ++x) {
+                        rgbaData[kTestTextureSize * y + x] = input_texel_color(
+                                random.nextULessThan(256), random.nextULessThan(256), 0.0f);
+                    }
+                }
+
+                SkImageInfo ii = SkImageInfo::Make(kTestTextureSize, kTestTextureSize,
+                                                   kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+                SkBitmap bitmap;
+                bitmap.installPixels(
+                        ii, rgbaData, ii.minRowBytes(),
+                        [](void* addr, void* context) { delete[](GrColor*) addr; }, nullptr);
+                bitmap.setImmutable();
+                GrBitmapTextureMaker maker(fContext, bitmap,
+                                           GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+                GrSurfaceProxyView view = maker.view(GrMipMapped::kNo);
+                if (!view.proxy() || !view.proxy()->instantiate(fResourceProvider)) {
+                    SkDebugf("Unable to instantiate RGBA8888 test texture.");
+                    return false;
+                }
+                fTestViews[0] = GrProcessorTestData::ViewInfo{view, GrColorType::kRGBA_8888,
+                                                              kPremul_SkAlphaType};
+            }
+
+            {
+                // Put random values into the alpha texture that the test FPs can optionally use.
+                uint8_t* alphaData = new uint8_t[kTestTextureSize * kTestTextureSize];
+                for (int y = 0; y < kTestTextureSize; ++y) {
+                    for (int x = 0; x < kTestTextureSize; ++x) {
+                        alphaData[kTestTextureSize * y + x] = random.nextULessThan(256);
+                    }
+                }
+
+                SkImageInfo ii = SkImageInfo::Make(kTestTextureSize, kTestTextureSize,
+                                                   kAlpha_8_SkColorType, kPremul_SkAlphaType);
+                SkBitmap bitmap;
+                bitmap.installPixels(
+                        ii, alphaData, ii.minRowBytes(),
+                        [](void* addr, void* context) { delete[](uint8_t*) addr; }, nullptr);
+                bitmap.setImmutable();
+                GrBitmapTextureMaker maker(fContext, bitmap,
+                                           GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+                GrSurfaceProxyView view = maker.view(GrMipMapped::kNo);
+                if (!view.proxy() || !view.proxy()->instantiate(fResourceProvider)) {
+                    SkDebugf("Unable to instantiate A8 test texture.");
+                    return false;
+                }
+                fTestViews[1] = GrProcessorTestData::ViewInfo{view, GrColorType::kAlpha_8,
+                                                              kPremul_SkAlphaType};
+            }
+
+            return true;
+        }
+
+        void reroll() {
+            // Feed our current random seed into SkRandom to generate a new seed.
+            SkRandom random{fRandomSeed};
+            fRandomSeed = random.nextU();
+        }
+
+        std::unique_ptr<GrFragmentProcessor> create(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                    int type) {
+            // This will generate the exact same randomized FP (of each requested type) each time
+            // it's called. Call `reroll` to get a different FP.
+            SkRandom random{fRandomSeed};
+            GrProcessorTestData testData(&random, fContext, SK_ARRAY_COUNT(fTestViews), fTestViews,
+                                         std::move(inputFP));
+            return GrFragmentProcessorTestFactory::MakeIdx(type, &testData);
+        }
+
+    private:
+        static uint32_t synthesizeInitialSeed() {
+            if (FLAGS_randomProcessorTest) {
+                std::random_device rd;
+                return rd();
+            } else {
+                return FLAGS_processorSeed;
             }
         }
 
-        SkImageInfo ii = SkImageInfo::Make(kTestTextureSize, kTestTextureSize,
-                                           kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-        SkBitmap bitmap;
-        bitmap.installPixels(ii, rgbaData, ii.minRowBytes(),
-                             [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
-        bitmap.setImmutable();
-        GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto view = maker.view(GrMipMapped::kNo);
-        if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
-            return false;
-        }
-        views[0] = {view, GrColorType::kRGBA_8888, kPremul_SkAlphaType};
-    }
-
-    {
-        // Put random values into the alpha texture that the test FPs can optionally use.
-        uint8_t* alphaData = new uint8_t[kTestTextureSize * kTestTextureSize];
-        for (int y = 0; y < kTestTextureSize; ++y) {
-            for (int x = 0; x < kTestTextureSize; ++x) {
-                alphaData[kTestTextureSize * y + x] = random->nextULessThan(256);
-            }
-        }
-
-        SkImageInfo ii = SkImageInfo::Make(kTestTextureSize, kTestTextureSize,
-                                           kAlpha_8_SkColorType, kPremul_SkAlphaType);
-        SkBitmap bitmap;
-        bitmap.installPixels(ii, alphaData, ii.minRowBytes(),
-                             [](void* addr, void* context) { delete[] (uint8_t*)addr; }, nullptr);
-        bitmap.setImmutable();
-        GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto view = maker.view(GrMipMapped::kNo);
-        if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
-            return false;
-        }
-        views[1] = {view, GrColorType::kAlpha_8, kPremul_SkAlphaType};
-    }
-
-    return true;
-}
+        GrDirectContext* fContext;              // owned by caller
+        GrResourceProvider* fResourceProvider;  // owned by caller
+        const uint32_t fInitialSeed;
+        uint32_t fRandomSeed;
+        GrProcessorTestData::ViewInfo fTestViews[2];
+};
 
 // Creates a texture of premul colors used as the output of the fragment processor that precedes
 // the fragment processor under test. Color values are those provided by input_texel_color().
@@ -334,15 +379,16 @@ GrSurfaceProxyView make_input_texture(GrRecordingContext* context, int width, in
     return maker.view(GrMipMapped::kNo);
 }
 
-// We tag logged  data as unpremul to avoid conversion when encoding as  PNG. The input texture
+// We tag logged data as unpremul to avoid conversion when encoding as PNG. The input texture
 // actually contains unpremul data. Also, even though we made the result data by rendering into
 // a "unpremul" GrRenderTargetContext, our input texture is unpremul and outside of the random
 // effect configuration, we didn't do anything to ensure the output is actually premul. We just
 // don't currently allow kUnpremul GrRenderTargetContexts.
-static constexpr auto kLogAlphaType = kUnpremul_SkAlphaType;
+static constexpr SkAlphaType kLogAlphaType = kUnpremul_SkAlphaType;
 
 bool log_pixels(GrColor* pixels, int widthHeight, SkString* dst) {
-    auto info = SkImageInfo::Make(widthHeight, widthHeight, kRGBA_8888_SkColorType, kLogAlphaType);
+    SkImageInfo info =
+            SkImageInfo::Make(widthHeight, widthHeight, kRGBA_8888_SkColorType, kLogAlphaType);
     SkBitmap bmp;
     bmp.installPixels(info, pixels, widthHeight * sizeof(GrColor));
     return BipmapToBase64DataURI(bmp, dst);
@@ -365,7 +411,7 @@ bool fuzzy_color_equals(const SkPMColor4f& c1, const SkPMColor4f& c2) {
     // from that, it is not uncommon for a valid output to differ from estimate by up to 0.01
     // (really 1/128 ~ .0078, but frequently floating point issues make that tolerance a little
     // too unforgiving).
-    static constexpr SkScalar kTolerance = 0.01f;
+    constexpr SkScalar kTolerance = 0.01f;
     for (int i = 0; i < 4; i++) {
         if (!SkScalarNearlyEqual(c1[i], c2[i], kTolerance)) {
             return false;
@@ -476,18 +522,9 @@ bool legal_modulation(const GrColor in[3], const GrColor out[3]) {
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
-    auto resourceProvider = context->priv().resourceProvider();
+    GrDirectContext* context = ctxInfo.directContext();
+    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     using FPFactory = GrFragmentProcessorTestFactory;
-
-    uint32_t seed = FLAGS_processorSeed;
-    if (FLAGS_randomProcessorTest) {
-        std::random_device rd;
-        seed = rd();
-    }
-    // If a non-deterministic bot fails this test, check the output to see what seed it used, then
-    // use --processorSeed <seed> (without --randomProcessorTest) to reproduce.
-    SkRandom random(seed);
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 256;
@@ -495,84 +532,103 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderSize, kRenderSize});
 
-    GrProcessorTestData::ViewInfo views[2];
-    if (!init_test_textures(resourceProvider, context, &random, views)) {
-        ERRORF(reporter, "Could not create test textures");
+    // Create three input textures. Our coverage optimization checks use three frames with a
+    // linearly transformed input texture. The first frame is a baseline; the second frame adds 0.2
+    // and the third adds 0.4, which should then be present as a fixed difference between the frame
+    // outputs if the FP is properly following the modulation requirements of the coverage
+    // optimization.
+    constexpr SkScalar kInputDelta = 0.2f;
+    GrSurfaceProxyView inputTexture1 =
+            make_input_texture(context, kRenderSize, kRenderSize, 0 * kInputDelta);
+    GrSurfaceProxyView inputTexture2 =
+            make_input_texture(context, kRenderSize, kRenderSize, 1 * kInputDelta);
+    GrSurfaceProxyView inputTexture3 =
+            make_input_texture(context, kRenderSize, kRenderSize, 2 * kInputDelta);
+
+    std::unique_ptr<GrFragmentProcessor> inputTexEffect1FP =
+            GrTextureEffect::Make(inputTexture1, kPremul_SkAlphaType);
+    std::unique_ptr<GrFragmentProcessor> inputTexEffect2FP =
+            GrTextureEffect::Make(inputTexture2, kPremul_SkAlphaType);
+    std::unique_ptr<GrFragmentProcessor> inputTexEffect3FP =
+            GrTextureEffect::Make(inputTexture3, kPremul_SkAlphaType);
+
+    TestFPGenerator fpGenerator{context, resourceProvider};
+    if (!fpGenerator.init()) {
+        ERRORF(reporter, "Could not initialize TestFPGenerator");
         return;
     }
-    GrProcessorTestData testData(&random, context, 2, views);
-
-    // Coverage optimization uses three frames with a linearly transformed input texture.  The first
-    // frame has no offset, second frames add .2 and .4, which should then be present as a fixed
-    // difference between the frame outputs if the FP is properly following the modulation
-    // requirements of the coverage optimization.
-    static constexpr SkScalar kInputDelta = 0.2f;
-    auto inputTexture1 = make_input_texture(context, kRenderSize, kRenderSize, 0.0f);
-    auto inputTexture2 = make_input_texture(context, kRenderSize, kRenderSize, kInputDelta);
-    auto inputTexture3 = make_input_texture(context, kRenderSize, kRenderSize, 2*kInputDelta);
 
     // Encoded images are very verbose and this tests many potential images, so only export the
     // first failure (subsequent failures have a reasonable chance of being related).
     bool loggedFirstFailure = false;
     bool loggedFirstWarning = false;
 
-    // Storage for the three frames required for coverage compatibility optimization. Each frame
-    // uses the correspondingly numbered inputTextureX.
-    std::unique_ptr<GrColor[]> readData1(new GrColor[kRenderSize * kRenderSize]);
-    std::unique_ptr<GrColor[]> readData2(new GrColor[kRenderSize * kRenderSize]);
-    std::unique_ptr<GrColor[]> readData3(new GrColor[kRenderSize * kRenderSize]);
+    // Storage for the three frames required for coverage compatibility optimization testing.
+    // Each frame uses the correspondingly numbered inputTextureX.
+    std::vector<GrColor> readData1(kRenderSize * kRenderSize);
+    std::vector<GrColor> readData2(kRenderSize * kRenderSize);
+    std::vector<GrColor> readData3(kRenderSize * kRenderSize);
 
     // Because processor factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < FPFactory::Count(); ++i) {
-        int timesToInvokeFactory = 5;
-        // Increase the number of attempts if the FP has child FPs since optimizations likely depend
+        // Create a temp FP of this type just to see the number of children that it uses. Then
+        // increase the number of attempts if the FP has child FPs, since optimizations will depend
         // on child optimizations being present.
-        std::unique_ptr<GrFragmentProcessor> fp = FPFactory::MakeIdx(i, &testData);
+        std::unique_ptr<GrFragmentProcessor> fp = fpGenerator.create(/*inputFP=*/nullptr, i);
+
+        int timesToInvokeFactory = 5;
         for (int j = 0; j < fp->numChildProcessors(); ++j) {
             // This value made a reasonable trade off between time and coverage when this test was
             // written.
             timesToInvokeFactory *= FPFactory::Count() / 2;
         }
+
 #if defined(__MSVC_RUNTIME_CHECKS)
         // This test is infuriatingly slow with MSVC runtime checks enabled
         timesToInvokeFactory = 1;
 #endif
-        for (int j = 0; j < timesToInvokeFactory; ++j) {
-            fp = FPFactory::MakeIdx(i, &testData);
 
+        for (int j = 0; j < timesToInvokeFactory; ++j) {
+            // Create a randomly-configured FP.
+            fpGenerator.reroll();
+            fp = fpGenerator.create(inputTexEffect1FP->clone(), i);
+
+            // Skip further testing if it has no optimization bits enabled.
             if (!fp->hasConstantOutputForConstantInput() && !fp->preservesOpaqueInput() &&
                 !fp->compatibleWithCoverageAsAlpha()) {
                 continue;
             }
 
-            // All draws use a clone so that we can continue to query fp. ProcessorCloneTest should
-            // validate that clones are equivalent to the original.
             if (fp->compatibleWithCoverageAsAlpha()) {
-                // 2nd and 3rd frames are only used when checking coverage optimization
-                render_fp(context, rtc.get(), fp->clone(), inputTexture2, kPremul_SkAlphaType,
-                          readData2.get());
-                render_fp(context, rtc.get(), fp->clone(), inputTexture3, kPremul_SkAlphaType,
-                          readData3.get());
+                // Create and render two identical versions of this FP, but using different input
+                // textures, to check coverage optimization. We don't need to do this step for
+                // constant-output or preserving-opacity tests.
+                std::unique_ptr<GrFragmentProcessor> fp2 =
+                        fpGenerator.create(inputTexEffect2FP->clone(), i);
+                std::unique_ptr<GrFragmentProcessor> fp3 =
+                        fpGenerator.create(inputTexEffect3FP->clone(), i);
+
+                render_fp(context, rtc.get(), std::move(fp2), readData2.data());
+                render_fp(context, rtc.get(), std::move(fp3), readData3.data());
             }
 
-            // Draw base frame last so that rtc holds the original FP behavior if we need to
-            // dump the image to the log.
-            render_fp(context, rtc.get(), fp->clone(), inputTexture1, kPremul_SkAlphaType,
-                      readData1.get());
+            // Draw base frame last so that rtc holds the original FP behavior if we need to dump
+            // the image to the log.
+            render_fp(context, rtc.get(), fp->clone(), readData1.data());
 
             // This test has a history of being flaky on a number of devices. If an FP is logically
             // violating the optimizations, it's reasonable to expect it to violate requirements on
             // a large number of pixels in the image. Sporadic pixel violations are more indicative
             // of device errors and represents a separate problem.
 #if defined(SK_BUILD_FOR_SKQP)
-            static constexpr int kMaxAcceptableFailedPixels = 0; // Strict when running as SKQP
+            constexpr int kMaxAcceptableFailedPixels = 0;  // Strict when running as SKQP
 #else
-            static constexpr int kMaxAcceptableFailedPixels = 2 * kRenderSize; // ~0.7% of the image
+            constexpr int kMaxAcceptableFailedPixels = 2 * kRenderSize;  // ~0.7% of the image
 #endif
 
-            int failedPixelCount = 0;
             // Collect first optimization failure message, to be output later as a warning or an
             // error depending on whether the rendering "passed" or failed.
+            int failedPixelCount = 0;
             SkString coverageMessage;
             SkString opaqueMessage;
             SkString constMessage;
@@ -580,18 +636,18 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 for (int x = 0; x < kRenderSize; ++x) {
                     bool passing = true;
                     GrColor input = input_texel_color(x, y, 0.0f);
-                    GrColor output = readData1.get()[y * kRenderSize + x];
+                    GrColor output = readData1[y * kRenderSize + x];
 
                     if (fp->compatibleWithCoverageAsAlpha()) {
                         GrColor ins[3];
                         ins[0] = input;
-                        ins[1] = input_texel_color(x, y, kInputDelta);
+                        ins[1] = input_texel_color(x, y, 1 * kInputDelta);
                         ins[2] = input_texel_color(x, y, 2 * kInputDelta);
 
                         GrColor outs[3];
                         outs[0] = output;
-                        outs[1] = readData2.get()[y * kRenderSize + x];
-                        outs[2] = readData3.get()[y * kRenderSize + x];
+                        outs[1] = readData2[y * kRenderSize + x];
+                        outs[2] = readData3[y * kRenderSize + x];
 
                         if (!legal_modulation(ins, outs)) {
                             passing = false;
@@ -613,7 +669,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         float gDiff = fabsf(output4f.fG - expected4f.fG);
                         float bDiff = fabsf(output4f.fB - expected4f.fB);
                         float aDiff = fabsf(output4f.fA - expected4f.fA);
-                        static constexpr float kTol = 4 / 255.f;
+                        constexpr float kTol = 4 / 255.f;
                         if (rDiff > kTol || gDiff > kTol || bDiff > kTol || aDiff > kTol) {
                             if (constMessage.isEmpty()) {
                                 passing = false;
@@ -652,7 +708,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             if (failedPixelCount > kMaxAcceptableFailedPixels) {
                 ERRORF(reporter, "Processor violated %d of %d pixels, seed: 0x%08x, processor: %s"
                        ", first failing pixel details are below:",
-                       failedPixelCount, kRenderSize * kRenderSize, seed,
+                       failedPixelCount, kRenderSize * kRenderSize, fpGenerator.initialSeed(),
                        fp->dumpInfo().c_str());
 
                 // Print first failing pixel's details.
@@ -671,7 +727,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                     SkString input;
                     log_texture_view(context, inputTexture1, &input);
                     SkString output;
-                    log_pixels(readData1.get(), kRenderSize, &output);
+                    log_pixels(readData1.data(), kRenderSize, &output);
                     ERRORF(reporter, "Input image: %s\n\n"
                            "===========================================================\n\n"
                            "Output image: %s\n", input.c_str(), output.c_str());
@@ -681,7 +737,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 // Don't trigger an error, but don't just hide the failures either.
                 INFOF(reporter, "Processor violated %d of %d pixels (below error threshold), seed: "
                       "0x%08x, processor: %s", failedPixelCount, kRenderSize * kRenderSize,
-                      seed, fp->dumpInfo().c_str());
+                      fpGenerator.initialSeed(), fp->dumpInfo().c_str());
                 if (!coverageMessage.isEmpty()) {
                     INFOF(reporter, coverageMessage.c_str());
                 }
@@ -695,7 +751,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                     SkString input;
                     log_texture_view(context, inputTexture1, &input);
                     SkString output;
-                    log_pixels(readData1.get(), kRenderSize, &output);
+                    log_pixels(readData1.data(), kRenderSize, &output);
                     INFOF(reporter, "Input image: %s\n\n"
                           "===========================================================\n\n"
                           "Output image: %s\n", input.c_str(), output.c_str());
@@ -726,54 +782,60 @@ static SkString describe_fp(const GrFragmentProcessor& fp) {
 }
 
 // Tests that a fragment processor returned by GrFragmentProcessor::clone() is equivalent to its
-// progenitor.
+// progenitor. If a non-deterministic bot fails this test, check the output to see what seed it
+// used, then use --processorSeed <seed> (without --randomProcessorTest) to reproduce.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
-    auto resourceProvider = context->priv().resourceProvider();
-
-    SkRandom random;
+    GrDirectContext* context = ctxInfo.directContext();
+    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 
     // Make the destination context for the test.
-    static constexpr int kRenderSize = 1024;
+    constexpr int kRenderSize = 1024;
     auto rtc = GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderSize, kRenderSize});
 
-    GrProcessorTestData::ViewInfo views[2];
-    if (!init_test_textures(resourceProvider, context, &random, views)) {
-        ERRORF(reporter, "Could not create test textures");
-        return;
-    }
-    GrProcessorTestData testData(&random, context, 2, views);
-
-    auto inputTexture = make_input_texture(context, kRenderSize, kRenderSize, 0.0f);
-    std::unique_ptr<GrColor[]> readData1(new GrColor[kRenderSize * kRenderSize]);
-    std::unique_ptr<GrColor[]> readData2(new GrColor[kRenderSize * kRenderSize]);
-    // On failure we write out images, but just write the first failing set as the print is very
-    // large.
-    bool loggedFirstFailure = false;
+    // Create an input texture that will serve as the input for our effects.
+    GrSurfaceProxyView inputTexture = make_input_texture(context, kRenderSize, kRenderSize, 0.0f);
+    std::unique_ptr<GrFragmentProcessor> inputTexEffectFP =
+            GrTextureEffect::Make(inputTexture, kPremul_SkAlphaType);
 
     // This test has a history of being flaky on a number of devices. If an FP clone is logically
     // wrong, it's reasonable to expect it produce a large number of pixel differences in the image
     // Sporadic pixel violations are more indicative device errors and represents a separate
     // problem.
 #if defined(SK_BUILD_FOR_SKQP)
-    static constexpr int kMaxAcceptableFailedPixels = 0;  // Strict when running as SKQP
+    constexpr int kMaxAcceptableFailedPixels = 0;  // Strict when running as SKQP
 #else
-    static constexpr int kMaxAcceptableFailedPixels = 2 * kRenderSize;  // ~0.7% of the image
+    constexpr int kMaxAcceptableFailedPixels = 2 * kRenderSize;  // ~0.7% of the image
 #endif
+
+    TestFPGenerator fpGenerator{context, resourceProvider};
+    if (!fpGenerator.init()) {
+        ERRORF(reporter, "Could not initialize TestFPGenerator");
+        return;
+    }
+
+    // On failure we write out images, but just write the first failing set as the print is very
+    // large.
+    bool loggedFirstFailure = false;
+
+    // Storage for the original frame's readback and the readback of its clone.
+    std::vector<GrColor> readData1(kRenderSize * kRenderSize);
+    std::vector<GrColor> readData2(kRenderSize * kRenderSize);
 
     // Because processor factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < GrFragmentProcessorTestFactory::Count(); ++i) {
-        static constexpr int kTimesToInvokeFactory = 10;
+        constexpr int kTimesToInvokeFactory = 10;
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
+            fpGenerator.reroll();
             std::unique_ptr<GrFragmentProcessor> fp =
-                GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
+                    fpGenerator.create(inputTexEffectFP->clone(), i);
             std::unique_ptr<GrFragmentProcessor> clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
                 continue;
             }
+            SkDebugf("%s\n", describe_fp(*fp).c_str());
             const char* name = fp->name();
             REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()),
                                       "%s\n", describe_fp(*fp).c_str());
@@ -795,12 +857,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                       clone->referencesSampleCoords(),
                                       "%s\n", describe_fp(*fp).c_str());
             // Draw with original and read back the results.
-            render_fp(context, rtc.get(), std::move(fp), inputTexture, kPremul_SkAlphaType,
-                      readData1.get());
+            render_fp(context, rtc.get(), std::move(fp), readData1.data());
 
             // Draw with clone and read back the results.
-            render_fp(context, rtc.get(), std::move(clone), inputTexture, kPremul_SkAlphaType,
-                      readData2.get());
+            render_fp(context, rtc.get(), std::move(clone), readData2.data());
 
             // Check that the results are the same.
             bool passing = true;
@@ -838,8 +898,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                                           kUnpremul_SkAlphaType);
                             SkString inputURL, origURL, cloneURL;
                             if (log_texture_view(context, inputTexture, &inputURL) &&
-                                log_pixels(readData1.get(), kRenderSize, &origURL) &&
-                                log_pixels(readData2.get(), kRenderSize, &cloneURL)) {
+                                log_pixels(readData1.data(), kRenderSize, &origURL) &&
+                                log_pixels(readData2.data(), kRenderSize, &cloneURL)) {
                                 ERRORF(reporter,
                                        "\nInput image:\n%s\n\n"
                                        "==========================================================="
