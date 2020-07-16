@@ -28,13 +28,8 @@ public:
 
     virtual void writeByteArray(const void* data, size_t size) = 0;
     void writeDataAsByteArray(SkData* data) {
-        if (!data) {
-            this->write32(0);
-        } else {
-            this->writeByteArray(data->data(), data->size());
-        }
+        this->writeByteArray(data->data(), data->size());
     }
-
     virtual void writeBool(bool value) = 0;
     virtual void writeScalar(SkScalar value) = 0;
     virtual void writeScalarArray(const SkScalar* value, uint32_t count) = 0;
@@ -141,14 +136,5 @@ private:
     // Only used if we do not have an fFactorySet
     SkTHashMap<const char*, uint32_t> fFlattenableDict;
 };
-
-enum SkWriteBufferImageFlags {
-    kVersion_bits   = 8,
-    kCurrVersion    = 0,
-
-    kHasSubsetRect  = 1 << 8,
-    kHasMipmap      = 1 << 9,
-};
-
 
 #endif // SkWriteBuffer_DEFINED

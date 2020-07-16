@@ -135,26 +135,14 @@ bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) const {
     return fWriter.writeToStream(stream);
 }
 
-#include "src/image/SkImage_Base.h"
-
 /*  Format:
- *      flags: U32
- *      encoded : size_32 + data[]
- *      [subset: IRect]
- *      [mips]  : size_32 + data[]
+ *  (subset) bounds
+ *  size (31bits)
+ *  data [ encoded, with raw width/height ]
  */
 void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
-    uint32_t flags = 0;
-    const SkIRect r = SkImage_getSubset(image);
-    if (r.x() != 0 || r.y() != 0 || r.width() != image->width() || r.height() != image->height()) {
-        flags |= SkWriteBufferImageFlags::kHasSubsetRect;
-    }
-    const SkMipmap* mips = as_IB(image)->onPeekMips();
-    if (mips) {
-        flags |= SkWriteBufferImageFlags::kHasMipmap;
-    }
-
-    this->write32(flags);
+    const SkIRect bounds = SkImage_getSubset(image);
+    this->writeIRect(bounds);
 
     sk_sp<SkData> data;
     if (fProcs.fImageProc) {
@@ -163,14 +151,14 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     if (!data) {
         data = image->encodeToData();
     }
-    this->writeDataAsByteArray(data.get());
 
-    if (flags & SkWriteBufferImageFlags::kHasSubsetRect) {
-        this->writeIRect(r);
+    size_t size = data ? data->size() : 0;
+    if (!SkTFitsIn<int32_t>(size)) {
+        size = 0;   // too big to store
     }
-    if (flags & SkWriteBufferImageFlags::kHasMipmap) {
-        this->writeDataAsByteArray(mips->serialize().get());
-
+    this->write32(SkToS32(size));   // writing 0 signals failure
+    if (size) {
+        this->writePad32(data->data(), size);
     }
 }
 

@@ -288,9 +288,7 @@ uint32_t SkReadBuffer::getArrayCount() {
  *  size (31bits)
  *  data [ encoded, with raw width/height ]
  */
-sk_sp<SkImage> SkReadBuffer::readImage_preV78() {
-    SkASSERT(this->isVersionLT(SkPicturePriv::kSerializeMipmaps_Version));
-
+sk_sp<SkImage> SkReadBuffer::readImage() {
     SkIRect bounds;
     this->readIRect(&bounds);
 
@@ -348,61 +346,6 @@ sk_sp<SkImage> SkReadBuffer::readImage_preV78() {
     // Question: are we correct to return an "empty" image instead of nullptr, if the decoder
     //           failed for some reason?
     return image ? image : MakeEmptyImage(width, height);
-}
-
-#include "src/core/SkMipmap.h"
-
-// If we see a corrupt stream, we return null (fail). If we just fail trying to decode
-// the image, we don't fail, but return a dummy image.
-sk_sp<SkImage> SkReadBuffer::readImage() {
-    if (this->isVersionLT(SkPicturePriv::kSerializeMipmaps_Version)) {
-        return this->readImage_preV78();
-    }
-
-    uint32_t flags = this->read32();
-
-    sk_sp<SkImage> image;
-    {
-        sk_sp<SkData> data = this->readByteArrayAsData();
-        if (!data) {
-            this->validate(false);
-            return nullptr;
-        }
-        if (fProcs.fImageProc) {
-            image = fProcs.fImageProc(data->data(), data->size(), fProcs.fImageCtx);
-        }
-        if (!image) {
-            image = SkImage::MakeFromEncoded(std::move(data));
-        }
-    }
-
-    if (flags & SkWriteBufferImageFlags::kHasSubsetRect) {
-        SkIRect subset;
-        this->readIRect(&subset);
-        if (image) {
-            image = image->makeSubset(subset);
-        }
-    }
-
-    if (flags & SkWriteBufferImageFlags::kHasMipmap) {
-        sk_sp<SkData> data = this->readByteArrayAsData();
-        if (!data) {
-            this->validate(false);
-            return nullptr;
-        }
-        if (image) {
-            SkMipmapBuilder builder(image->imageInfo());
-            if (SkMipmap::Deserialize(&builder, data->data(), data->size())) {
-                // TODO: need to make lazy images support mips
-                if (auto ri = image->makeRasterImage()) {
-                    image = ri;
-                }
-                image = image->withMipmaps(builder.detach());
-                SkASSERT(image);    // withMipmaps should never return null
-            }
-        }
-    }
-    return image ? image : MakeEmptyImage(1, 1);
 }
 
 sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
