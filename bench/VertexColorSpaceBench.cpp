@@ -37,7 +37,8 @@ enum Mode {
 
 class GP : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Make(SkArenaAlloc* arena, Mode mode,
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     Wrap mode,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform) {
         return arena->make<GP>(mode, std::move(colorSpaceXform));
     }
@@ -98,7 +99,7 @@ public:
 private:
     friend class ::SkArenaAlloc; // for access to ctor
 
-    GP(Mode mode, sk_sp<GrColorSpaceXform> colorSpaceXform)
+    GP(Wrap mode, sk_sp<GrColorSpaceXform> colorSpaceXform)
             : INHERITED(kVertexColorSpaceBenchGP_ClassID)
             , fMode(mode)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
@@ -118,7 +119,7 @@ private:
         this->setVertexAttributes(&fInPosition, 2);
     }
 
-    Mode fMode;
+    Wrap fMode;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     Attribute fInPosition;
@@ -140,7 +141,7 @@ public:
         this->setBounds(SkRect::MakeWH(100.f, 100.f), HasAABloat::kNo, IsHairline::kNo);
     }
 
-    Op(const SkColor4f& color4f, Mode mode)
+    Op(const SkColor4f& color4f, Wrap mode)
             : INHERITED(ClassID())
             , fMode(mode)
             , fColor4f(color4f) {
@@ -265,7 +266,7 @@ private:
         flushState->drawMesh(*fMesh);
     }
 
-    Mode fMode;
+    Wrap fMode;
     GrColor fColor;
     SkColor4f fColor4f;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
@@ -279,7 +280,7 @@ private:
 
 class VertexColorSpaceBench : public Benchmark {
 public:
-    VertexColorSpaceBench(Mode mode, const char* name) : fMode(mode) {
+    VertexColorSpaceBench(Wrap mode, const char* name) : fMode(mode) {
         fName = "vertexcolorspace";
         fName.appendf("_%s", name);
     }
@@ -338,7 +339,7 @@ public:
 
 private:
     SkString fName;
-    Mode fMode;
+    Wrap fMode;
 
     typedef Benchmark INHERITED;
 };

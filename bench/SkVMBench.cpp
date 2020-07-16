@@ -19,7 +19,7 @@ namespace {
 
 class SkVMBench : public Benchmark {
 public:
-    SkVMBench(int pixels, Mode mode)
+    SkVMBench(int pixels, Wrap mode)
         : fPixels(pixels)
         , fMode(mode)
         , fName(SkStringPrintf("SkVM_%d_%s", pixels, kMode_name[mode]))
@@ -66,7 +66,7 @@ private:
     }
 
     int                   fPixels;
-    Mode                  fMode;
+    Wrap fMode;
     SkString              fName;
     std::vector<uint32_t> fSrc,
                           fDst;

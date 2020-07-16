@@ -140,13 +140,14 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
 
 ////////////////////////////////////////////////////////////////////////////////
 // Misc Sk to Gr type conversions
-
-GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int imageHeight,
-                                                       SkFilterQuality paintFilterQuality,
-                                                       const SkMatrix& viewM,
-                                                       const SkMatrix& localM,
-                                                       bool sharpenMipmappedTextures,
-                                                       bool* doBicubic);
+std::tuple<GrSamplerState::Filter,
+           GrSamplerState::MipmapMode,
+           bool /*bicubic*/>
+GrSkFilterQualityToGrFilterMode(SkISize imageDims,
+                                SkFilterQuality paintFilterQuality,
+                                const SkMatrix& viewM,
+                                const SkMatrix& localM,
+                                bool sharpenMipmappedTextures);
 
 //////////////////////////////////////////////////////////////////////////////
 

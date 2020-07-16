@@ -23,7 +23,8 @@ public:
             GrSurfaceProxyView,
             SkAlphaType,
             const SkMatrix& = SkMatrix::I(),
-            GrSamplerState::Filter = GrSamplerState::Filter::kNearest);
+            GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
+            GrSamplerState::MipmapMode mipmapMode = GrSamplerState::MipmapMode::kNone);
 
     /**
      * Make from a full GrSamplerState. Caps are required to determine support for kClampToBorder.
@@ -133,7 +134,9 @@ private:
         kClampToBorderNearest,  // Logic for hard transition to border color when not filtering.
         kClampToBorderFilter,   // Logic for fading to border color when filtering.
     };
-    static ShaderMode GetShaderMode(GrSamplerState::WrapMode, GrSamplerState::Filter);
+    static ShaderMode GetShaderMode(GrSamplerState::WrapMode,
+                                    GrSamplerState::Filter,
+                                    GrSamplerState::MipmapMode);
     static bool ShaderModeIsClampToBorder(ShaderMode);
 
     GrSurfaceProxyView fView;

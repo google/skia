@@ -101,13 +101,9 @@ public:
 
     /**
      * Determines whether the bicubic effect should be used based on the transformation from the
-     * local coords to the device. Returns true if the bicubic effect should be used. filterMode
-     * is set to appropriate filtering mode to use regardless of the return result (e.g. when this
-     * returns false it may indicate that the best fallback is to use kMipMap, kLinear, or
-     * kNearest).
+     * local coords to the device. Returns true if the bicubic effect should be used.
      */
-    static bool ShouldUseBicubic(const SkMatrix& localCoordsToDevice,
-                                 GrSamplerState::Filter* filterMode);
+    static bool ShouldUseBicubic(const SkMatrix& localCoordsToDevice);
 
 private:
     class Impl;

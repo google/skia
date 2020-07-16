@@ -29,7 +29,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         GrSamplerState sampler) {
     GrSurfaceProxyView view;
     return this->createFragmentProcessorForView(
-            this->view(sampler.filter()), textureMatrix, subset, domain, sampler);
+            this->view(sampler.mipMapped()), textureMatrix, subset, domain, sampler);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createBicubicFragmentProcessor(

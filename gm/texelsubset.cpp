@@ -33,28 +33,36 @@
 #include <memory>
 #include <utility>
 
+using MipmapMode = GrSamplerState::MipmapMode;
+using Filter     = GrSamplerState::Filter;
+using Wrap       = GrSamplerState::WrapMode;
+
 namespace skiagm {
 /**
  * This GM directly exercises GrTextureEffect::MakeTexelSubset.
  */
 class TexelSubset : public GpuGM {
 public:
-    TexelSubset(GrSamplerState::Filter filter, bool upscale) : fFilter(filter), fUpscale(upscale) {
+    TexelSubset(GrSamplerState::Filter filter, GrSamplerState::MipmapMode mm, bool upscale) : fFilter(filter), fMipmapMode(mm), fUpscale(upscale) {
         this->setBGColor(0xFFFFFFFF);
     }
 
 protected:
     SkString onShortName() override {
         SkString name("texel_subset");
+        switch (fMipmapMode) {
+            case GrSamplerState::MipmapMode::kNone:
+                break;
+            case GrSamplerState::MipmapMode::kLinear:
+                name.append("_linear_mipmap");
+                break;
+        }
         switch (fFilter) {
             case GrSamplerState::Filter::kNearest:
                 name.append("_nearest");
                 break;
             case GrSamplerState::Filter::kLinear:
-                name.append("_bilerp");
-                break;
-            case GrSamplerState::Filter::kMipMap:
-                name.append("_mip_map");
+                name.append("_linear");
                 break;
         }
         name.append(fUpscale ? "_up" : "_down");
@@ -77,9 +85,11 @@ protected:
 
     DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        GrMipMapped mipMapped = fFilter == GrSamplerState::Filter::kMipMap &&
-                                context->priv().caps()->mipMapSupport()
-                ? GrMipMapped::kYes : GrMipMapped::kNo;
+        GrMipMapped mipMapped = (fMipmapMode != MipmapMode::kNone) ? GrMipMapped::kYes
+                                                                   : GrMipMapped::kNo;
+        if (mipMapped == GrMipMapped::kYes && !context->priv().caps()->mipMapSupport()) {
+            return DrawResult::kSkip;
+        }
         GrBitmapTextureMaker maker(context, fBitmap, GrImageTexGenPolicy::kDraw);
         auto view = maker.view(mipMapped);
         if (!view) {
@@ -132,7 +142,7 @@ protected:
 
                     const auto& caps = *context->priv().caps();
 
-                    GrSamplerState sampler(wmx, wmy, fFilter);
+                    GrSamplerState sampler(wmx, wmy, fFilter, fMipmapMode);
 
                     drawRect = localRect.makeOffset(x, y);
 
@@ -203,16 +213,18 @@ private:
     static constexpr SkScalar kTestPad = 10.f;
     SkBitmap fBitmap;
     GrSamplerState::Filter fFilter;
+    GrSamplerState::MipmapMode fMipmapMode;
     bool fUpscale;
 
     typedef GM INHERITED;
 };
 
-DEF_GM(return new TexelSubset(GrSamplerState::Filter::kNearest, false);)
-DEF_GM(return new TexelSubset(GrSamplerState::Filter::kNearest, true);)
-DEF_GM(return new TexelSubset(GrSamplerState::Filter::kLinear , false);)
-DEF_GM(return new TexelSubset(GrSamplerState::Filter::kLinear , true);)
+DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kNone  , false);)
+DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kNone  , true);)
+DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kNone  , false);)
+DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kNone  , true);)
 // It doesn't make sense to have upscaling MIP map.
-DEF_GM(return new TexelSubset(GrSamplerState::Filter::kMipMap,  false);)
+DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kLinear, false);)
+DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kLinear, false);)
 
 }

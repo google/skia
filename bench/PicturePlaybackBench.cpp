@@ -26,7 +26,7 @@ enum BBH  { kNone, kRTree };
 enum Mode { kTiled, kRandom };
 class TiledPlaybackBench : public Benchmark {
 public:
-    TiledPlaybackBench(BBH bbh, Mode mode) : fBBH(bbh), fMode(mode), fName("tiled_playback") {
+    TiledPlaybackBench(BBH bbh, Wrap mode) : fBBH(bbh), fMode(mode), fName("tiled_playback") {
         switch (fBBH) {
             case kNone:     fName.append("_none"    ); break;
             case kRTree:    fName.append("_rtree"   ); break;
@@ -86,7 +86,7 @@ public:
 
 private:
     BBH                 fBBH;
-    Mode                fMode;
+    Wrap fMode;
     SkString            fName;
     sk_sp<SkPicture>    fPic;
 };

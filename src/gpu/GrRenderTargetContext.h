@@ -271,7 +271,7 @@ public:
      * device space.
      */
     void drawTexture(const GrClip* clip, GrSurfaceProxyView view, SkAlphaType srcAlphaType,
-                     GrSamplerState::Filter filter, SkBlendMode mode, const SkPMColor4f& color,
+                     GrSamplerState::Filter filter, GrSamplerState::MipmapMode mm, SkBlendMode mode, const SkPMColor4f& color,
                      const SkRect& srcRect, const SkRect& dstRect, GrAA aa, GrQuadAAFlags edgeAA,
                      SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
                      sk_sp<GrColorSpaceXform> texXform) {
@@ -280,7 +280,7 @@ public:
         DrawQuad quad{GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), edgeAA};
 
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
-                               filter, color, mode, aa, &quad, subset);
+                               filter, mm, color, mode, aa, &quad, subset);
     }
 
     /**
@@ -290,7 +290,8 @@ public:
      * provided, the strict src rect constraint is applied using 'subset'.
      */
     void drawTextureQuad(const GrClip* clip, GrSurfaceProxyView view, GrColorType srcColorType,
-                         SkAlphaType srcAlphaType, GrSamplerState::Filter filter, SkBlendMode mode,
+                         SkAlphaType srcAlphaType, GrSamplerState::Filter filter, GrSamplerState::MipmapMode mm,
+                         SkBlendMode mode,
                          const SkPMColor4f& color, const SkPoint srcQuad[4],
                          const SkPoint dstQuad[4], GrAA aa, GrQuadAAFlags edgeAA,
                          const SkRect* subset, const SkMatrix& viewMatrix,
@@ -298,7 +299,7 @@ public:
         DrawQuad quad{GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
                       GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), edgeAA};
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
-                               filter, color, mode, aa, &quad, subset);
+                               filter, mm, color, mode, aa, &quad, subset);
     }
 
     /** Used with drawTextureSet */
@@ -324,7 +325,7 @@ public:
      * by SkGpuDevice, so no need to incur another iteration over the array.
      */
     void drawTextureSet(const GrClip*, TextureSetEntry[], int cnt, int proxyRunCnt,
-                        GrSamplerState::Filter, SkBlendMode mode, GrAA aa,
+                        GrSamplerState::Filter, GrSamplerState::MipmapMode, SkBlendMode mode, GrAA aa,
                         SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
                         sk_sp<GrColorSpaceXform> texXform);
 
@@ -645,6 +646,7 @@ private:
                           SkAlphaType alphaType,
                           sk_sp<GrColorSpaceXform> textureXform,
                           GrSamplerState::Filter filter,
+                          GrSamplerState::MipmapMode,
                           const SkPMColor4f& color,
                           SkBlendMode blendMode,
                           GrAA aa,
