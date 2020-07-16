@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrCaps.h"
@@ -99,10 +99,10 @@ static sk_sp<SkData> make_compressed_data() {
     return tmp;
 }
 
-static sk_sp<SkImage> data_to_img(GrContext *context, sk_sp<SkData> data,
+static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
                                   SkImage::CompressionType compression) {
-    if (context) {
-        return SkImage::MakeTextureFromCompressed(context, std::move(data),
+    if (direct) {
+        return SkImage::MakeTextureFromCompressed(direct, std::move(data),
                                                   kImgWidth,
                                                   kImgHeight,
                                                   compression,
@@ -180,16 +180,16 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        auto context = canvas->getGrContext();
+        auto direct = GrAsDirectContext(canvas->recordingContext());
 
-        sk_sp<SkImage> rgbImg = data_to_img(context, fBC1Data,
+        sk_sp<SkImage> rgbImg = data_to_img(direct, fBC1Data,
                                             SkImage::CompressionType::kBC1_RGB8_UNORM);
 
-        sk_sp<SkImage> rgbaImg = data_to_img(context, fBC1Data,
+        sk_sp<SkImage> rgbaImg = data_to_img(direct, fBC1Data,
                                              SkImage::CompressionType::kBC1_RGBA8_UNORM);
 
-        draw_image(context, canvas, rgbImg, kPad, kPad);
-        draw_image(context, canvas, rgbaImg, kPad, 2 * kPad + kImgHeight);
+        draw_image(direct, canvas, rgbImg, kPad, kPad);
+        draw_image(direct, canvas, rgbaImg, kPad, 2 * kPad + kImgHeight);
     }
 
 private:
