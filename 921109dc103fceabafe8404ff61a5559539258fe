@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40b054fe_0144e273",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-16T19:58:42Z",
+      "side": 1,
+      "message": "Is this what we imagined? Take a 4x4 matrix in makeShader(), and offer our \"std\" matrix for clients that don\u0027t have something specific in mind...?",
+      "revId": "921109dc103fceabafe8404ff61a5559539258fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
