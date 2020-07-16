@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
@@ -301,9 +301,10 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
 }
 
 //-------------------------------------------------------------------------------------------------
-static sk_sp<SkImage> data_to_img(GrContext *context, sk_sp<SkData> data, const ImageInfo& info) {
-    if (context) {
-        return SkImage::MakeTextureFromCompressed(context, std::move(data),
+static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
+                                  const ImageInfo& info) {
+    if (direct) {
+        return SkImage::MakeTextureFromCompressed(direct, std::move(data),
                                                   info.fDim.fWidth,
                                                   info.fDim.fHeight,
                                                   info.fCompressionType,
@@ -335,7 +336,7 @@ protected:
         return SkISize::Make(2*kImgWidthHeight + 3 * kPad, kImgWidthHeight + 2 * kPad);
     }
 
-    void loadImages(GrContext *context) {
+    void loadImages(GrDirectContext *direct) {
 
         if (!fETC1Image) {
             ImageInfo info;
@@ -345,7 +346,7 @@ protected:
                 SkASSERT(info.fMipMapped == GrMipMapped::kNo);
                 SkASSERT(info.fCompressionType == SkImage::CompressionType::kETC2_RGB8_UNORM);
 
-                fETC1Image = data_to_img(context, std::move(data), info);
+                fETC1Image = data_to_img(direct, std::move(data), info);
             } else {
                 SkDebugf("failed to load flower-etc1.ktx\n");
             }
@@ -359,7 +360,7 @@ protected:
                 SkASSERT(info.fMipMapped == GrMipMapped::kNo);
                 SkASSERT(info.fCompressionType == SkImage::CompressionType::kBC1_RGB8_UNORM);
 
-                fBC1Image = data_to_img(context, std::move(data), info);
+                fBC1Image = data_to_img(direct, std::move(data), info);
             } else {
                 SkDebugf("failed to load flower-bc1.dds\n");
             }
@@ -394,12 +395,18 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto recording = canvas->recordingContext();
+        auto direct = GrAsDirectContext(recording);
 
-        this->loadImages(context);
+        // In DDL mode, these draws will be dropped.
+        if (recording && !direct) {
+            return;
+        }
 
-        this->drawImage(context, canvas, fETC1Image.get(), kPad, kPad);
-        this->drawImage(context, canvas, fBC1Image.get(), kImgWidthHeight + 2 * kPad, kPad);
+        this->loadImages(direct);
+
+        this->drawImage(direct, canvas, fETC1Image.get(), kPad, kPad);
+        this->drawImage(direct, canvas, fBC1Image.get(), kImgWidthHeight + 2 * kPad, kPad);
     }
 
 private:

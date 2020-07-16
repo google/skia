@@ -28,6 +28,7 @@
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -200,9 +201,9 @@ DEF_GM(return new SaveLayerWithBackdropGM();)
 // normally be a sprite draw that could avoid an auto-saveLayer.
 DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_256.png"));
-    if (canvas->getGrContext()) {
-        sk_sp<SkImage> gpuImage = image->makeTextureImage(canvas->getGrContext());
-        if (gpuImage) {
+    auto direct = GrAsDirectContext(canvas->recordingContext());
+    if (direct) {
+        if (sk_sp<SkImage> gpuImage = image->makeTextureImage(direct)) {
             image = std::move(gpuImage);
         }
     }
