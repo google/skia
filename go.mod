@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.61.0 // indirect
+	cloud.google.com/go/datastore v1.2.0
 	cloud.google.com/go/pubsub v1.5.0 // indirect
 	cloud.google.com/go/storage v1.10.0
 	github.com/99designs/goodies v0.0.0-20140916053233-ec7f410f2ff2 // indirect
@@ -26,7 +27,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
 	go.chromium.org/luci v0.0.0-20200714005733-7a755727d74d // indirect
-	go.skia.org/infra v0.0.0-20200713190753-d1daff06b038
+	go.skia.org/infra v0.0.0-20200716131439-4244d8caa80b
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
