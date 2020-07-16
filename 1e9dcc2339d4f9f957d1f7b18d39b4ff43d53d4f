@@ -97,6 +97,24 @@
       "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29774d0e_85a3013b",
+        "filename": "src/shaders/SkPerlinNoiseShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-16T17:49:08Z",
+      "side": 1,
+      "message": "Hmm, I\u0027m not opposed to your workaround, but that\u0027s an annoying side effect of how we\u0027ve got coords and input color wired up through invokeChild. This effectively means that if a helper function calls sample(), it won\u0027t work. We can work around this, as you\u0027ve done, but I can see someone running into this with runtime effects.\n\nCan we capture this in a bug and mark it with a comment here?",
+      "parentUuid": "587fd347_6019ea38",
+      "revId": "1e9dcc2339d4f9f957d1f7b18d39b4ff43d53d4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
