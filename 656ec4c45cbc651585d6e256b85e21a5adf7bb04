@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4d0fdf0_6f6d0533",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-16T15:40:31Z",
+      "side": 1,
+      "message": "LGTM assuming magic number change.",
+      "revId": "656ec4c45cbc651585d6e256b85e21a5adf7bb04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "289faebb_17c77ce0",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-16T15:40:31Z",
+      "side": 1,
+      "message": "D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT",
+      "range": {
+        "startLine": 358,
+        "startChar": 81,
+        "endLine": 358,
+        "endChar": 84
+      },
+      "revId": "656ec4c45cbc651585d6e256b85e21a5adf7bb04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e87305d_6daea8b9",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-16T15:40:31Z",
+      "side": 1,
+      "message": "Same here",
+      "range": {
+        "startLine": 676,
+        "startChar": 81,
+        "endLine": 676,
+        "endChar": 84
+      },
+      "revId": "656ec4c45cbc651585d6e256b85e21a5adf7bb04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "587c5f92_e63402f9",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-16T15:40:31Z",
+      "side": 1,
+      "message": "And here",
+      "range": {
+        "startLine": 1103,
+        "startChar": 81,
+        "endLine": 1103,
+        "endChar": 84
+      },
+      "revId": "656ec4c45cbc651585d6e256b85e21a5adf7bb04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
