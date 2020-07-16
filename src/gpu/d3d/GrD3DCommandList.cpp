@@ -78,6 +78,7 @@ void GrD3DCommandList::releaseResources() {
 
     fTrackedResources.reset();
     fTrackedRecycledResources.reset();
+    fTrackedGpuBuffers.reset();
 
     this->callFinishedCallbacks();
 }
@@ -130,6 +131,7 @@ void GrD3DCommandList::copyBufferToTexture(const GrD3DBuffer* srcBuffer,
     this->addingWork();
     this->addResource(srcBuffer->resource());
     this->addResource(dstTexture->resource());
+
     for (uint32_t subresource = 0; subresource < subresourceCount; ++subresource) {
         D3D12_TEXTURE_COPY_LOCATION src = {};
         src.pResource = srcBuffer->d3dResource();
