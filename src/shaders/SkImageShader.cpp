@@ -791,22 +791,12 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
 
     skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
 
-    // We "secretly" know that gather() will work with 64-bit pixel formats
-    // even if SkColorType_to_PixelFormat() returns false.
-    auto temporary_ct_to_pixel_format = [](SkColorType ct, skvm::PixelFormat* f) -> bool {
-        if (ct == kRGBA_F16_SkColorType) {
-            *f = {skvm::PixelFormat::HALF, 16,16,16,16, 0,16,32,48};
-            return true;
-        }
-        return SkColorType_to_PixelFormat(ct, f);
-    };
-
     // Bail out if sample() can't yet handle our image's color type(s).
     skvm::PixelFormat unused;
-    if (true  && !temporary_ct_to_pixel_format(upper->colorType(), &unused)) {
+    if (true  && !SkColorType_to_PixelFormat(upper->colorType(), &unused)) {
         return {};
     }
-    if (lower && !temporary_ct_to_pixel_format(lower->colorType(), &unused)) {
+    if (lower && !SkColorType_to_PixelFormat(lower->colorType(), &unused)) {
         return {};
     }
 
@@ -847,7 +837,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
 
     auto setup_uniforms = [&](const SkPixmap& pm) -> Uniforms {
         skvm::PixelFormat pixelFormat;
-        SkAssertResult(temporary_ct_to_pixel_format(pm.colorType(), &pixelFormat));
+        SkAssertResult(SkColorType_to_PixelFormat(pm.colorType(), &pixelFormat));
         return {
             p->uniformF(uniforms->pushF(     pm.width())),
             p->uniformF(uniforms->pushF(1.0f/pm.width())), // iff tileX == kRepeat
