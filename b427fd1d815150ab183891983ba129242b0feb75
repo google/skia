@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71ea588d_abdb470e",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-16T19:40:16Z",
+      "side": 1,
+      "message": "Currently this is used internally and for a test case, but I made it public since it seemed like a nice control option to expose.",
+      "range": {
+        "startLine": 347,
+        "startChar": 9,
+        "endLine": 347,
+        "endChar": 26
+      },
+      "revId": "b427fd1d815150ab183891983ba129242b0feb75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
