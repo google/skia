@@ -12,6 +12,7 @@
 #include "include/core/SkRRect.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrColorInfo.h"
+#include "src/gpu/GrProcessorTestData.h"
 #include "src/gpu/GrProcessorUnitTest.h"
 #include "src/gpu/GrStyle.h"
 #include "src/utils/SkDashPathPriv.h"

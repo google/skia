@@ -126,6 +126,9 @@ bool CircularRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircularRRectEffect);
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar w = d->fRandom->nextRangeScalar(20.f, 1000.f);
     SkScalar h = d->fRandom->nextRangeScalar(20.f, 1000.f);

@@ -457,6 +457,9 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomView();
 

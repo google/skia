@@ -528,6 +528,9 @@ bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDisplacementMapEffect);
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestData* d) {
     auto [dispView,  ct1, at1] = d->randomView();
     auto [colorView, ct2, at2] = d->randomView();

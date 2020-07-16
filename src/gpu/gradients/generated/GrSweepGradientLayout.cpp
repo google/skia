@@ -92,6 +92,9 @@ std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSweepGradientLayout);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::TestCreate(GrProcessorTestData* d) {
     SkScalar scale = GrGradientShader::RandomParams::kGradientScale;
     SkPoint center = {d->fRandom->nextRangeScalar(0.0f, scale),
