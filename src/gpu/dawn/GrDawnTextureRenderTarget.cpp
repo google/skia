@@ -8,7 +8,6 @@
 #include "src/gpu/dawn/GrDawnTextureRenderTarget.h"
 
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 

@@ -10,7 +10,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
-#include "include/gpu/GrContext.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrProcessorUnitTest.h"

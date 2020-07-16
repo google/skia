@@ -676,7 +676,13 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
         return nullptr;
     }
 
-    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(context,
+    auto direct = GrAsDirectContext(context);
+    if (!direct) {
+        SkDebugf("Direct context required\n");
+        return nullptr;
+    }
+
+    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(direct,
                                                                              hardwareBuffer,
                                                                              bufferDesc.format,
                                                                              true);
@@ -690,7 +696,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     GrAHardwareBufferUtils::TexImageCtx deleteImageCtx = nullptr;
 
     GrBackendTexture backendTexture =
-            GrAHardwareBufferUtils::MakeBackendTexture(context, hardwareBuffer,
+            GrAHardwareBufferUtils::MakeBackendTexture(direct, hardwareBuffer,
                                                        bufferDesc.width, bufferDesc.height,
                                                        &deleteImageProc, &updateImageProc,
                                                        &deleteImageCtx, false, backendFormat, true);
@@ -707,7 +713,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
     if (!proxyProvider) {
         return nullptr;
     }
@@ -722,20 +728,20 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     sk_sp<SkColorSpace> cs = pixmap.refColorSpace();
     SkAlphaType at =  pixmap.alphaType();
 
-    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
+    GrSwizzle swizzle = direct->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(std::move(proxy), surfaceOrigin, swizzle);
-    sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, view,
+    sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), kNeedNewImageUniqueID, view,
                                                    colorType, at, cs);
     if (!image) {
         return nullptr;
     }
 
-    GrDrawingManager* drawingManager = context->priv().drawingManager();
+    GrDrawingManager* drawingManager = direct->priv().drawingManager();
     if (!drawingManager) {
         return nullptr;
     }
 
-    GrSurfaceContext surfaceContext(context, std::move(view),
+    GrSurfaceContext surfaceContext(direct, std::move(view),
                                     SkColorTypeToGrColorType(pixmap.colorType()),
                                     pixmap.alphaType(), cs);
 
