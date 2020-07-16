@@ -112,7 +112,8 @@ public:
         return fContext->onGetAtlasManager();
     }
 
-    void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
+    void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest,
+                                int xOffset, int yOffset);
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&);
 
