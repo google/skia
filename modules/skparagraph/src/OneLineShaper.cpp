@@ -2,12 +2,22 @@
 
 #include "modules/skparagraph/src/Iterators.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
+#include <unicode/uchar.h>
 #include <algorithm>
 #include <unordered_set>
+#include "src/utils/SkUTF.h"
 
 namespace skia {
 namespace textlayout {
+
+namespace {
+
+SkUnichar utf8_next(const char** ptr, const char* end) {
+    SkUnichar val = SkUTF::NextUTF8(ptr, end);
+    return val < 0 ? 0xFFFD : val;
+}
+
+}
 
 void OneLineShaper::commitRunBuffer(const RunInfo&) {
 
@@ -303,8 +313,8 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
             block.end = i;
         } else {
             const char* cluster = text.begin() + clusterIndex(i);
-            SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
-            if (isControl(codepoint)) {
+            SkUnichar codepoint = utf8_next(&cluster, text.end());
+            if (u_iscntrl(codepoint)) {
                 // This codepoint does not have to be resolved; let's pretend it's resolved
                 if (block.start == EMPTY_INDEX) {
                     // Keep skipping resolved code points
@@ -409,7 +419,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
             // We have the global cache for all already found typefaces for SkUnichar
             // but we still need to keep track of all SkUnichars used in this unresolved block
             SkTHashSet<SkUnichar> alreadyTried;
-            SkUnichar unicode = nextUtf8Unit(&ch, unresolvedText.end());
+            SkUnichar unicode = utf8_next(&ch, unresolvedText.end());
             while (true) {
 
                 sk_sp<SkTypeface> typeface;
@@ -447,7 +457,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
 
                 // We can stop here or we can switch to another DIFFERENT codepoint
                 while (ch != unresolvedText.end()) {
-                    unicode = nextUtf8Unit(&ch, unresolvedText.end());
+                    unicode = utf8_next(&ch, unresolvedText.end());
                     auto found = alreadyTried.find(unicode);
                     if (found == nullptr) {
                         alreadyTried.add(unicode);
@@ -462,6 +472,10 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
 
 bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
+    if (!fParagraph->getBidiRegions()) {
+        return false;
+    }
+
     size_t bidiIndex = 0;
 
     SkScalar advanceX = 0;
@@ -471,8 +485,8 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
             // Shape the text by bidi regions
             while (bidiIndex < fParagraph->fBidiRegions.size()) {
                 BidiRegion& bidiRegion = fParagraph->fBidiRegions[bidiIndex];
-                auto start = std::max(bidiRegion.start, placeholder.fTextBefore.start);
-                auto end = std::min(bidiRegion.end, placeholder.fTextBefore.end);
+                auto start = std::max(bidiRegion.text.start, placeholder.fTextBefore.start);
+                auto end = std::min(bidiRegion.text.end, placeholder.fTextBefore.end);
 
                 // Set up the iterators (the style iterator points to a bigger region that it could
                 TextRange textRange(start, end);
@@ -480,11 +494,11 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                 SkSpan<Block> styleSpan(fParagraph->blocks(blockRange));
 
                 // Shape the text between placeholders
-                if (!shape(textRange, styleSpan, advanceX, start, bidiRegion.level)) {
+                if (!shape(textRange, styleSpan, advanceX, start, bidiRegion.direction)) {
                     return false;
                 }
 
-                if (end == bidiRegion.end) {
+                if (end == bidiRegion.text.end) {
                     ++bidiIndex;
                 } else /*if (end == placeholder.fTextBefore.end)*/ {
                     break;

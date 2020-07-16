@@ -4,10 +4,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
 #include "modules/skparagraph/src/ParagraphUtil.h"
-#include "src/utils/SkUTF.h"
 
 #include <unicode/umachine.h>
-#include <unicode/uchar.h>
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
 #include <string>
@@ -30,15 +28,6 @@ SkString SkStringFromU16String(const std::u16string& utf16text) {
         return dst;
     }
     return dst;
-}
-
-SkUnichar nextUtf8Unit(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF::NextUTF8(ptr, end);
-    return val < 0 ? 0xFFFD : val;
-}
-
-bool isControl(SkUnichar utf8) {
-    return u_iscntrl(utf8);
 }
 
 }
