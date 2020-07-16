@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "03528381_2944f633",
+        "filename": "src/gpu/GrStagingBufferManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2020-07-16T16:53:48Z",
+      "side": 1,
+      "message": "I don\u0027t think so. Uniforms have to be packed according to the relevant standard (std140 or std430) but I think they can start anywhere in the buffer.\n\nThat said, if Vulkan has such a requirement, I\u0027m surprised Dawn doesn\u0027t.",
+      "parentUuid": "7632a6fd_f3c507c2",
+      "range": {
+        "startLine": 16,
+        "startChar": 21,
+        "endLine": 16,
+        "endChar": 45
+      },
+      "revId": "c5a9d51632e7b29026645afbf716da975d81b248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f02b7e8_906a85f9",
         "filename": "src/gpu/GrStagingBufferManager.cpp",
         "patchSetId": 2
