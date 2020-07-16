@@ -124,6 +124,9 @@ std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::clone() con
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrColorMatrixFragmentProcessor);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
     float m[20];
