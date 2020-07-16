@@ -203,6 +203,7 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
 }
 
 #ifdef SK_DEBUG
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -217,7 +218,7 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
   * Write the contents of the surface proxy to a PNG. Returns true if successful.
   * @param filename      Full path to desired file
   */
-static bool save_pixels(GrContext* context, GrSurfaceProxyView view, GrColorType colorType,
+static bool save_pixels(GrDirectContext* context, GrSurfaceProxyView view, GrColorType colorType,
                         const char* filename) {
     if (!view.proxy()) {
         return false;
@@ -262,7 +263,7 @@ static bool save_pixels(GrContext* context, GrSurfaceProxyView view, GrColorType
     return true;
 }
 
-void GrAtlasManager::dump(GrContext* context) const {
+void GrAtlasManager::dump(GrDirectContext* context) const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {

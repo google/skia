@@ -759,7 +759,13 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
         return nullptr;
     }
 
-    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(context,
+    auto direct = GrAsDirectContext(context);
+    if (!direct) {
+        SkDebugf("Direct context required\n");
+        return nullptr;
+    }
+
+    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(direct,
                                                                              hardwareBuffer,
                                                                              bufferDesc.format,
                                                                              true);
@@ -773,7 +779,7 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
         GrAHardwareBufferUtils::TexImageCtx deleteImageCtx = nullptr;
 
         GrBackendTexture backendTexture =
-                GrAHardwareBufferUtils::MakeBackendTexture(context, hardwareBuffer,
+                GrAHardwareBufferUtils::MakeBackendTexture(direct, hardwareBuffer,
                                                            bufferDesc.width, bufferDesc.height,
                                                            &deleteImageProc, &updateImageProc,
                                                            &deleteImageCtx, isProtectedContent,
@@ -785,7 +791,7 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
         SkColorType colorType =
                 GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
 
-        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
+        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(direct, backendTexture,
                 origin, 0, colorType, std::move(colorSpace), surfaceProps, deleteImageProc,
                 deleteImageCtx);
 
@@ -804,8 +810,7 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
 void SkSurface::flushAndSubmit() {
     this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 
-    auto direct = this->recordingContext() ? this->recordingContext()->asDirectContext()
-                                           : nullptr;
+    auto direct = GrAsDirectContext(this->recordingContext());
     if (direct) {
         direct->submit();
     }
