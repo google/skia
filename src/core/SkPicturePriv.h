@@ -101,6 +101,7 @@ public:
         kVerticesUseReadBuffer_Version      = 75,
         kFilterEnumInImageShader_Version    = 76,
         kFilterOptionsInImageShader_Version = 77,
+        kSerializeMipmaps_Version           = 78,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kTileModeInBlurImageFilter_Version,
