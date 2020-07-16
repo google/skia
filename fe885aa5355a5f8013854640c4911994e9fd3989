@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "770324bc_337cc806",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:03:45Z",
+      "side": 1,
+      "message": "Maybe provide concrete numbers?",
+      "revId": "fe885aa5355a5f8013854640c4911994e9fd3989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e924a25_c089cced",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-16T15:03:45Z",
+      "side": 1,
+      "message": "try removing the private helpers too. Since there\u0027s no magic here, let\u0027s try having embind do this for us.",
+      "range": {
+        "startLine": 765,
+        "startChar": 9,
+        "endLine": 765,
+        "endChar": 19
+      },
+      "revId": "fe885aa5355a5f8013854640c4911994e9fd3989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
