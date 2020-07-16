@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcc66ac0_f80c0351",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-16T16:46:30Z",
+      "side": 1,
+      "message": "return false ?",
+      "revId": "06ea5dc06c26d55c682e0bfc2ccdfdcab694ee50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "034322c5_4c0e3cff",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-16T16:46:30Z",
+      "side": 1,
+      "message": "return true ?",
+      "revId": "06ea5dc06c26d55c682e0bfc2ccdfdcab694ee50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a78b4c2_1e6aab03",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-16T16:46:30Z",
+      "side": 1,
+      "message": "It seems like this should be:\n\nif (!resetVertexBuffer()) {\n    return;\n}",
+      "revId": "06ea5dc06c26d55c682e0bfc2ccdfdcab694ee50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
