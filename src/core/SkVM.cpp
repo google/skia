@@ -1130,45 +1130,56 @@ namespace skvm {
     }
 
     bool SkColorType_to_PixelFormat(SkColorType ct, PixelFormat* f) {
+        auto UNORM = PixelFormat::UNORM,
+             HALF  = PixelFormat::HALF;
         switch (ct) {
             case kUnknown_SkColorType: SkASSERT(false); return false;
 
-            // TODO: float and >32-bit formats
+            // TODO: >32-bit formats
             case kRGBA_F16Norm_SkColorType:
             case kRGBA_F16_SkColorType:
             case kRGBA_F32_SkColorType:
-            case kA16_float_SkColorType:
-            case kR16G16_float_SkColorType:
             case kR16G16B16A16_unorm_SkColorType: return false;
 
-            case kAlpha_8_SkColorType: *f = {0,0,0,8, 0,0,0,0}; return true;
-            case kGray_8_SkColorType:  *f = {8,8,8,0, 0,0,0,0}; return true;  // Gray is subtle!
+            case kA16_float_SkColorType:    *f = {HALF,  0, 0,0,16, 0, 0,0,0}; return true;
+            case kR16G16_float_SkColorType: *f = {HALF, 16,16,0, 0, 0,16,0,0}; return true;
 
-            case kRGB_565_SkColorType:   *f = {5,6,5,0, 11,5,0,0}; return true;  // Yes, it's BGR.
-            case kARGB_4444_SkColorType: *f = {4,4,4,4, 12,8,4,0}; return true;  // Yes, it's ABGR.
+            case kAlpha_8_SkColorType: *f = {UNORM, 0,0,0,8, 0,0,0,0}; return true;
+            case kGray_8_SkColorType:  *f = {UNORM, 8,8,8,0, 0,0,0,0}; return true;  // Subtle.
 
-            case kRGBA_8888_SkColorType:  *f = {8,8,8,8,  0,8,16,24}; return true;
-            case kRGB_888x_SkColorType:   *f = {8,8,8,0,  0,8,16,32}; return true;  // N.B. 4-byte.
-            case kBGRA_8888_SkColorType:  *f = {8,8,8,8, 16,8, 0,24}; return true;
+            case kRGB_565_SkColorType:   *f = {UNORM, 5,6,5,0, 11,5,0,0}; return true;  // (BGR)
+            case kARGB_4444_SkColorType: *f = {UNORM, 4,4,4,4, 12,8,4,0}; return true;  // (ABGR)
 
-            case kRGBA_1010102_SkColorType: *f = {10,10,10,2,  0,10,20,30}; return true;
-            case kBGRA_1010102_SkColorType: *f = {10,10,10,2, 20,10, 0,30}; return true;
-            case kRGB_101010x_SkColorType:  *f = {10,10,10,0,  0,10,20, 0}; return true;
-            case kBGR_101010x_SkColorType:  *f = {10,10,10,0, 20,10, 0, 0}; return true;
+            case kRGBA_8888_SkColorType:  *f = {UNORM, 8,8,8,8,  0,8,16,24}; return true;
+            case kRGB_888x_SkColorType:   *f = {UNORM, 8,8,8,0,  0,8,16,32}; return true;  // 32-bit
+            case kBGRA_8888_SkColorType:  *f = {UNORM, 8,8,8,8, 16,8, 0,24}; return true;
 
-            case kR8G8_unorm_SkColorType:   *f = { 8, 8,0, 0, 0, 8,0,0}; return true;
-            case kR16G16_unorm_SkColorType: *f = {16,16,0, 0, 0,16,0,0}; return true;
-            case kA16_unorm_SkColorType:    *f = { 0, 0,0,16, 0, 0,0,0}; return true;
+            case kRGBA_1010102_SkColorType: *f = {UNORM, 10,10,10,2,  0,10,20,30}; return true;
+            case kBGRA_1010102_SkColorType: *f = {UNORM, 10,10,10,2, 20,10, 0,30}; return true;
+            case kRGB_101010x_SkColorType:  *f = {UNORM, 10,10,10,0,  0,10,20, 0}; return true;
+            case kBGR_101010x_SkColorType:  *f = {UNORM, 10,10,10,0, 20,10, 0, 0}; return true;
+
+            case kR8G8_unorm_SkColorType:   *f = {UNORM,  8, 8,0, 0, 0, 8,0,0}; return true;
+            case kR16G16_unorm_SkColorType: *f = {UNORM, 16,16,0, 0, 0,16,0,0}; return true;
+            case kA16_unorm_SkColorType:    *f = {UNORM,  0, 0,0,16, 0, 0,0,0}; return true;
         }
         return false;
     }
 
-    static Color unpack_unorm(PixelFormat f, I32 x) {
+    static Color unpack(PixelFormat f, I32 x) {
+        auto unpack_channel = [=](int bits, int shift) {
+            I32 channel = extract(x, shift, (1<<bits)-1);
+            switch (f.encoding) {
+                case PixelFormat::UNORM: return from_unorm(bits, channel);
+                case PixelFormat::HALF:  return from_half (      channel);
+            }
+            SkUNREACHABLE;
+        };
         return {
-            f.r_bits ? from_unorm(f.r_bits, extract(x, f.r_shift, (1<<f.r_bits)-1)) : x->splat(0.f),
-            f.g_bits ? from_unorm(f.g_bits, extract(x, f.g_shift, (1<<f.g_bits)-1)) : x->splat(0.f),
-            f.b_bits ? from_unorm(f.b_bits, extract(x, f.b_shift, (1<<f.b_bits)-1)) : x->splat(0.f),
-            f.a_bits ? from_unorm(f.a_bits, extract(x, f.a_shift, (1<<f.a_bits)-1)) : x->splat(1.f),
+            f.r_bits ? unpack_channel(f.r_bits, f.r_shift) : x->splat(0.0f),
+            f.g_bits ? unpack_channel(f.g_bits, f.g_shift) : x->splat(0.0f),
+            f.b_bits ? unpack_channel(f.b_bits, f.b_shift) : x->splat(0.0f),
+            f.a_bits ? unpack_channel(f.a_bits, f.a_shift) : x->splat(1.0f),
         };
     }
 
@@ -1184,9 +1195,9 @@ namespace skvm {
 
     Color Builder::load(PixelFormat f, Arg ptr) {
         switch (byte_size(f)) {
-            case 1: return unpack_unorm(f, load8 (ptr));
-            case 2: return unpack_unorm(f, load16(ptr));
-            case 4: return unpack_unorm(f, load32(ptr));
+            case 1: return unpack(f, load8 (ptr));
+            case 2: return unpack(f, load16(ptr));
+            case 4: return unpack(f, load32(ptr));
             // TODO: 8,16
             default: SkUNREACHABLE;
         }
@@ -1195,9 +1206,9 @@ namespace skvm {
 
     Color Builder::gather(PixelFormat f, Arg ptr, int offset, I32 index) {
         switch (byte_size(f)) {
-            case 1: return unpack_unorm(f, gather8 (ptr, offset, index));
-            case 2: return unpack_unorm(f, gather16(ptr, offset, index));
-            case 4: return unpack_unorm(f, gather32(ptr, offset, index));
+            case 1: return unpack(f, gather8 (ptr, offset, index));
+            case 2: return unpack(f, gather16(ptr, offset, index));
+            case 4: return unpack(f, gather32(ptr, offset, index));
             // TODO: 8,16
             default: SkUNREACHABLE;
         }
@@ -1216,16 +1227,25 @@ namespace skvm {
             f.g_bits = f.b_bits = 0;
         }
 
-        I32 bits = splat(0);
-        if (f.r_bits) { bits = pack(bits, to_unorm(f.r_bits, c.r), f.r_shift); }
-        if (f.g_bits) { bits = pack(bits, to_unorm(f.g_bits, c.g), f.g_shift); }
-        if (f.b_bits) { bits = pack(bits, to_unorm(f.b_bits, c.b), f.b_shift); }
-        if (f.a_bits) { bits = pack(bits, to_unorm(f.a_bits, c.a), f.a_shift); }
+        auto pack_channel = [=](I32 dst, F32 channel, int bits, int shift) {
+            I32 encoded;
+            switch (f.encoding) {
+                case PixelFormat::UNORM: encoded = to_unorm(bits, channel); break;
+                case PixelFormat::HALF:  encoded = to_half (      channel); break;
+            }
+            return pack(dst, encoded, shift);
+        };
+
+        I32 dst = splat(0);
+        if (f.r_bits) { dst = pack_channel(dst, c.r, f.r_bits, f.r_shift); }
+        if (f.g_bits) { dst = pack_channel(dst, c.g, f.g_bits, f.g_shift); }
+        if (f.b_bits) { dst = pack_channel(dst, c.b, f.b_bits, f.b_shift); }
+        if (f.a_bits) { dst = pack_channel(dst, c.a, f.a_bits, f.a_shift); }
 
         switch (byte_size(f)) {
-            case 1: store8 (ptr, bits); return true;
-            case 2: store16(ptr, bits); return true;
-            case 4: store32(ptr, bits); return true;
+            case 1: store8 (ptr, dst); return true;
+            case 2: store16(ptr, dst); return true;
+            case 4: store32(ptr, dst); return true;
             // TODO: 8,16
             default: SkUNREACHABLE;
         }
