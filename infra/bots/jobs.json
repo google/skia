@@ -139,6 +139,9 @@
   "BuildStats-Debian10-EMCC-wasm-Release-CanvasKit",
   "BuildStats-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
   "BuildStats-Debian10-EMCC-wasm-Release-PathKit",
+  "Canary-Android",
+  "Canary-Chromium",
+  "Canary-Flutter",
   "Canary-G3",
   "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
   "Housekeeper-Nightly-RecreateSKPs_Canary",
@@ -655,3 +658,4 @@
   "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All",
   "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
 ]
+
