@@ -16,6 +16,125 @@
       "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49601d7d_bc7e97c9",
+        "filename": "src/core/SkStrokerPriv.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T23:38:55Z",
+      "side": 1,
+      "message": "I never figured out how to explain this in text. See https://www.geogebra.org/m/spva8qsd . (Maybe there\u0027s someplace under doc to stash an SVG of that?)",
+      "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "205a8535_44dc6788",
+        "filename": "src/core/SkStrokerPriv.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T23:38:55Z",
+      "side": 1,
+      "message": "https://www.geogebra.org/m/rhykeujp illustrates the overlap version.",
+      "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3ab7c6f_7778f4d2",
+        "filename": "src/core/SkStrokerPriv.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T23:38:55Z",
+      "side": 1,
+      "message": "Maybe this trig is avoidable but I never found an approach that worked and wasn\u0027t far more confusing.",
+      "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0eb73c0_46648776",
+        "filename": "src/core/SkStrokerPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T23:38:55Z",
+      "side": 1,
+      "message": "Clearly this class has been almost entirely modified, although the actual logic that draws the existing joins is more or less unchanged.\n\nThe JoinProc pattern was good for generality but only if all joins need more or less the same parameters. Building the parameters into an object allows more flexibility -- the new code only calculates curvatures when they\u0027re needed -- and making the setters inline will (should?) minimize the overhead. JoinProc also had the disadvantage of repeating the \"inner\" join logic (\"which is inner and outer, is an inner join needed?\") in each of the join styles.",
+      "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b9b392f_31eaf2f9",
+        "filename": "src/gpu/ccpr/GrCCStrokeGeometry.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T23:38:55Z",
+      "side": 1,
+      "message": "I did this work before realizing that CCPR seems to be on its way out. In any case most individual miter-clip joins will be miter joins so it\u0027s sensible to support them directly if authors start preferring miter-clip.",
+      "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "099e93b3_f4bfafe6",
+        "filename": "src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T23:38:55Z",
+      "side": 1,
+      "message": "NVPR supports a version of truncated miters that I\u0027ve added above. The documentation (https://www.khronos.org/registry/OpenGL/extensions/NV/NV_path_rendering.txt#:~:text\u003dThe%20MITER_TRUNCATE_NV%20join,the%20miter%20limit. ) suggests that the implementation should match the miter-clip spec but it doesn\u0027t quite. One problem is that the miterlimit is interpreted differently for TRUNCATE and REVERT, as I\u0027ve noted. The other is that the clip line doesn\u0027t seem to be calculated correctly.\n\nMy email on this subject to nvpr-support@nvidia.com seems to have gone into /dev/null. It would probably be best to add kMiterClip_join to the reject list here before merging this work. I didn\u0027t do so so that reviewers could verify the problem for themselves by running \n\nviewer --slide StrokeJoins --pr nvpr --msaa 4\n\nand flipping between raster and nvpr with \"d\".",
+      "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52131084_05a7171e",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-16T23:38:55Z",
+      "side": 1,
+      "message": "Adding miter-clip to this renderer and its current triangle-fan join model would be fairly straightforward. There are two approaches to parameterizing the clip line; I\u0027m not sure which is best. If we get that far I can chat with Chris Dalton about it.\n\nDoing an arcs join in CCPR would have been tricky. It may be easier in this context because it looks easier to add \"custom\" code. The current round join is a triangle fan. If each arc is parameterized as center/radius and start/end point one could build a triangle strip by (speaking informally) breaking both arcs into the same number of vertices (as with a fan) but alternating between them. There are some special cases (sometimes one side is a line, sometimes a point).",
+      "revId": "e3a38dc6a68d4e17dd926360802e00bfb8278d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
