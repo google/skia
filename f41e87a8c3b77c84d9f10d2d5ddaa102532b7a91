@@ -33,6 +33,24 @@
       "revId": "f41e87a8c3b77c84d9f10d2d5ddaa102532b7a91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cadfc1a_d4c05a55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-16T19:21:09Z",
+      "side": 1,
+      "message": "I think you just need to add your new SkSVGImage.cpp file to BUILD.gn here: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/BUILD.gn;l\u003d1755;drc\u003d70258c79be1dbddea782e675434ba8686ce6b207?originalUrl\u003dhttps:%2F%2Fcs.chromium.org%2F",
+      "parentUuid": "d841c1eb_97e7fc99",
+      "revId": "f41e87a8c3b77c84d9f10d2d5ddaa102532b7a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
