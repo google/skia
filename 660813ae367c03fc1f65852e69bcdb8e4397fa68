@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42aa9ab7_5e69baaf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-16T19:29:47Z",
+      "side": 1,
+      "message": "% the bot redness",
+      "revId": "660813ae367c03fc1f65852e69bcdb8e4397fa68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ea5549d_1b0e11cb",
+        "filename": "tests/GrBlockAllocatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-16T19:29:47Z",
+      "side": 1,
+      "message": "as if ?",
+      "range": {
+        "startLine": 480,
+        "startChar": 62,
+        "endLine": 480,
+        "endChar": 65
+      },
+      "revId": "660813ae367c03fc1f65852e69bcdb8e4397fa68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
