@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7da2b96e_d3f84081",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-16T15:38:42Z",
+      "side": 1,
+      "message": "PS5 removes the modulation from GrBicubicEffect, which I had initially missed. It\u0027s a little scary that no tests caught this (any high-quality upscaling image draw with a non-white paint should have shown double modulation).",
+      "revId": "555678490e9082dba4aa5a8ad49d77bdf8507e9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

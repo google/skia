@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "dfdce805_7655c36c",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-16T15:38:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c5f0728e_2866c73d",
+      "revId": "9bce11fc1fd0359b814d6cf8246f96e6a83c0186",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42a7852e_51090d7e",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 2
