@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2a705ff4_4b6f933b",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d50b50c_81c4d54e",
+      "range": {
+        "startLine": 45,
+        "startChar": 63,
+        "endLine": 45,
+        "endChar": 68
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fa9cfef_45069eab",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "00744957_2fa5420c",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fa9cfef_45069eab",
+      "range": {
+        "startLine": 190,
+        "startChar": 10,
+        "endLine": 190,
+        "endChar": 22
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ba93b3e_7ce68f69",
         "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27a40a28_1d9cf2ec",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_render_skps/perf_puppeteer_render_skps.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ba93b3e_7ce68f69",
+      "range": {
+        "startLine": 194,
+        "startChar": 17,
+        "endLine": 194,
+        "endChar": 30
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -164,6 +236,54 @@
     },
     {
       "key": {
+        "uuid": "edaa98be_6c8a01e4",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a62ecc0_2e2be9bd",
+      "range": {
+        "startLine": 1054,
+        "startChar": 51,
+        "endLine": 1054,
+        "endChar": 60
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbf01355_eb1482ce",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8302acb_bf7960f3",
+      "range": {
+        "startLine": 1054,
+        "startChar": 92,
+        "endLine": 1054,
+        "endChar": 100
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f2671ea_28d64256",
         "filename": "modules/canvaskit/gpu.js",
         "patchSetId": 5
@@ -184,6 +304,30 @@
       "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b19c4254_b87643e7",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f2671ea_28d64256",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 63
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -210,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "0e155475_49967788",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e5c12e7_7a52abda",
+      "range": {
+        "startLine": 59,
+        "startChar": 75,
+        "endLine": 59,
+        "endChar": 80
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ef9eca42_9b022a46",
         "filename": "modules/canvaskit/gpu.js",
         "patchSetId": 5
@@ -233,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "bd0f1ee6_fd7a67d2",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef9eca42_9b022a46",
+      "range": {
+        "startLine": 69,
+        "startChar": 40,
+        "endLine": 69,
+        "endChar": 48
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a9c9fe7_72828a8f",
         "filename": "modules/canvaskit/gpu.js",
         "patchSetId": 5
@@ -253,6 +445,30 @@
       "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92fcb12e_83f2bba9",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T16:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a9c9fe7_72828a8f",
+      "range": {
+        "startLine": 72,
+        "startChar": 8,
+        "endLine": 72,
+        "endChar": 16
+      },
+      "revId": "0cd45961bbfb16bea6b02de318071f1c955a2d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
