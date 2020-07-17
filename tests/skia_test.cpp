@@ -8,7 +8,6 @@
 #include <atomic>
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTime.h"
-#include "include/gpu/GrContext.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkOSFile.h"

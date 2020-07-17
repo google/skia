@@ -11,8 +11,6 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
-#include "include/gpu/GrContext.h"
-
 static uint32_t pack_unpremul_rgba(SkColor c) {
     uint32_t packed;
     uint8_t* byte = reinterpret_cast<uint8_t*>(&packed);

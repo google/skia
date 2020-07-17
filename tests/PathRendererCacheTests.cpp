@@ -8,8 +8,10 @@
 #include "tests/Test.h"
 
 #include "include/core/SkPath.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
@@ -28,7 +30,7 @@ static SkPath create_concave_path() {
     return path;
 }
 
-static void draw_path(GrContext* ctx,
+static void draw_path(GrRecordingContext* rContext,
                       GrRenderTargetContext* renderTargetContext,
                       const SkPath& path,
                       GrPathRenderer* pr,
@@ -46,7 +48,7 @@ static void draw_path(GrContext* ctx,
     }
     SkMatrix matrix = SkMatrix::I();
     matrix.setScaleX(scaleX);
-    GrPathRenderer::DrawPathArgs args{ctx,
+    GrPathRenderer::DrawPathArgs args{rContext,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
@@ -71,32 +73,32 @@ static bool cache_non_scratch_resources_equals(GrResourceCache* cache, int expec
 
 static void test_path(skiatest::Reporter* reporter,
                       std::function<SkPath(void)> createPath,
-                      std::function<GrPathRenderer*(GrContext*)> createPathRenderer,
+                      std::function<GrPathRenderer*(GrRecordingContext*)> createPathRenderer,
                       int expected,
                       bool checkListeners,
                       GrAAType aaType = GrAAType::kNone,
                       GrStyle style = GrStyle(SkStrokeRec::kFill_InitStyle)) {
-    sk_sp<GrDirectContext> ctx = GrDirectContext::MakeMock(nullptr);
+    sk_sp<GrDirectContext> dContext = GrDirectContext::MakeMock(nullptr);
     // The cache needs to be big enough that nothing gets flushed, or our expectations can be wrong
-    ctx->setResourceCacheLimit(8000000);
-    GrResourceCache* cache = ctx->priv().getResourceCache();
+    dContext->setResourceCacheLimit(8000000);
+    GrResourceCache* cache = dContext->priv().getResourceCache();
 
     auto rtc = GrRenderTargetContext::Make(
-            ctx.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800}, 1,
+            dContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800}, 1,
             GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtc) {
         return;
     }
 
-    sk_sp<GrPathRenderer> pathRenderer(createPathRenderer(ctx.get()));
+    sk_sp<GrPathRenderer> pathRenderer(createPathRenderer(dContext.get()));
     SkPath path = createPath();
 
     // Initially, cache only has the render target context
     REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, 0));
 
     // Draw the path, check that new resource count matches expectations
-    draw_path(ctx.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
-    ctx->flushAndSubmit();
+    draw_path(dContext.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
+    dContext->flushAndSubmit();
     REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, expected));
 
     // Nothing should be purgeable yet
@@ -118,19 +120,19 @@ static void test_path(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 0);
     for (int i = 0; i < 20; ++i) {
         float scaleX = 1 + ((float)i + 1)/20.f;
-        draw_path(ctx.get(), rtc.get(), path, pathRenderer.get(), aaType, style, scaleX);
+        draw_path(dContext.get(), rtc.get(), path, pathRenderer.get(), aaType, style, scaleX);
     }
-    ctx->flushAndSubmit();
+    dContext->flushAndSubmit();
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 20);
     cache->purgeAllUnlocked();
     // The listeners don't actually purge until we try to add another one.
-    draw_path(ctx.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
+    draw_path(dContext.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 1);
 }
 
 // Test that deleting the original path invalidates the VBs cached by the tessellating path renderer
 DEF_GPUTEST(TriangulatingPathRendererCacheTest, reporter, /* options */) {
-    auto createPR = [](GrContext*) {
+    auto createPR = [](GrRecordingContext*) {
         return new GrTriangulatingPathRenderer();
     };
 
@@ -152,8 +154,8 @@ DEF_GPUTEST(TriangulatingPathRendererCacheTest, reporter, /* options */) {
 
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
 DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */) {
-    auto createPR = [](GrContext* ctx) {
-        return new GrSoftwarePathRenderer(ctx->priv().proxyProvider(), true);
+    auto createPR = [](GrRecordingContext* rContext) {
+        return new GrSoftwarePathRenderer(rContext->priv().proxyProvider(), true);
     };
 
     // Software path renderer creates a mask texture and renders with a non-AA rect, but the flush
