@@ -82,6 +82,9 @@ std::unique_ptr<GrFragmentProcessor> GrArithmeticProcessor::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticProcessor);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrArithmeticProcessor::TestCreate(GrProcessorTestData* d) {
     return GrArithmeticProcessor::Make(
             GrProcessorUnitTest::MakeChildFP(d), GrProcessorUnitTest::MakeChildFP(d),

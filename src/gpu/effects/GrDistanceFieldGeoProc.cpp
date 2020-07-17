@@ -285,6 +285,9 @@ GrDistanceFieldA8TextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomAlphaOnlyView();
 

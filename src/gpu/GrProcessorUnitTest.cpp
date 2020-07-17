@@ -7,50 +7,47 @@
 
 #include "src/gpu/GrProcessorUnitTest.h"
 
-#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrProcessorTestData.h"
 
 #if GR_TEST_UTILS
 
-GrProcessorTestData::GrProcessorTestData(SkRandom* random,
-                                         GrRecordingContext* context,
-                                         int numViews,
-                                         const ViewInfo views[])
-        : fRandom(random), fContext(context) {
-    fViews.reset(views, numViews);
-    fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
-}
-
-
-GrProxyProvider* GrProcessorTestData::proxyProvider() { return fContext->priv().proxyProvider(); }
-
-const GrCaps* GrProcessorTestData::caps() { return fContext->priv().caps(); }
-
-GrProcessorTestData::ViewInfo GrProcessorTestData::randomView() {
-    SkASSERT(!fViews.empty());
-    return fViews[fRandom->nextULessThan(fViews.count())];
-}
-
-GrProcessorTestData::ViewInfo GrProcessorTestData::randomAlphaOnlyView() {
-    int numAlphaOnly = 0;
-    for (const auto& [v, ct, at] : fViews) {
-        if (GrColorTypeIsAlphaOnly(ct)) {
-            ++numAlphaOnly;
-        }
+template <class ProcessorSmartPtr>
+ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::Make(GrProcessorTestData* data) {
+    VerifyFactoryCount();
+    if (GetFactories()->count() == 0) {
+        return nullptr;
     }
-    SkASSERT(numAlphaOnly);
-    int idx = fRandom->nextULessThan(numAlphaOnly);
-    for (const auto& [v, ct, at] : fViews) {
-        if (GrColorTypeIsAlphaOnly(ct) && !idx--) {
-            return {v, ct, at};
-        }
-    }
-    SkUNREACHABLE;
+    uint32_t idx = data->fRandom->nextULessThan(GetFactories()->count());
+    return MakeIdx(idx, data);
 }
 
-class GrFragmentProcessor;
-class GrGeometryProcessor;
+template <class ProcessorSmartPtr>
+ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::MakeIdx(int idx,
+                                                                     GrProcessorTestData* data) {
+    SkASSERT(idx < GetFactories()->count());
+    GrProcessorTestFactory<ProcessorSmartPtr>* factory = (*GetFactories())[idx];
+    ProcessorSmartPtr processor = factory->fMakeProc(data);
+    SkASSERT(processor);
+    return processor;
+}
+
+template <class ProcessorSmartPtr>
+int GrProcessorTestFactory<ProcessorSmartPtr>::Count() {
+    return GetFactories()->count();
+}
+
+const GrXPFactory* GrXPFactoryTestFactory::Get(GrProcessorTestData* data) {
+    VerifyFactoryCount();
+    if (GetFactories()->count() == 0) {
+        return nullptr;
+    }
+    uint32_t idx = data->fRandom->nextULessThan(GetFactories()->count());
+    const GrXPFactory* xpf = (*GetFactories())[idx]->fGetProc(data);
+    SkASSERT(xpf);
+    return xpf;
+}
 
 /*
  * Originally these were both in the processor unit test header, but then it seemed to cause linker
@@ -78,9 +75,9 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static const int kFPFactoryCount = 37;
-static const int kGPFactoryCount = 14;
-static const int kXPFactoryCount = 4;
+static constexpr int kFPFactoryCount = 37;
+static constexpr int kGPFactoryCount = 14;
+static constexpr int kXPFactoryCount = 4;
 
 template <> void GrFragmentProcessorTestFactory::VerifyFactoryCount() {
     if (kFPFactoryCount != GetFactories()->count()) {
@@ -106,6 +103,9 @@ void GrXPFactoryTestFactory::VerifyFactoryCount() {
     }
 }
 
+template class GrProcessorTestFactory<GrGeometryProcessor*>;
+template class GrProcessorTestFactory<std::unique_ptr<GrFragmentProcessor>>;
+
 std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcessorTestData* data) {
     std::unique_ptr<GrFragmentProcessor> fp;
     do {
@@ -114,4 +114,5 @@ std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcesso
     } while (fp->numNonNullChildProcessors() != 0);
     return fp;
 }
+
 #endif

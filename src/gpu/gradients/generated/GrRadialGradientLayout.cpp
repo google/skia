@@ -54,6 +54,9 @@ std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradientLayout);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::TestCreate(GrProcessorTestData* d) {
     SkScalar scale = GrGradientShader::RandomParams::kGradientScale;
     std::unique_ptr<GrFragmentProcessor> fp;
