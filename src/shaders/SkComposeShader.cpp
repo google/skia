@@ -197,6 +197,53 @@ skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
     return {};
 }
 
+sk_sp<SkShader> SkShaders::Bilerp(sk_sp<SkShader> child) {
+    return child ? sk_make_sp<SkShader_Bilerp>(std::move(child))
+                 : nullptr;
+}
+sk_sp<SkFlattenable> SkShader_Bilerp::CreateProc(SkReadBuffer& b) {
+    return SkShaders::Bilerp(b.readShader());
+}
+void SkShader_Bilerp::flatten(SkWriteBuffer& b) const {
+    b.writeFlattenable(fChild.get());
+}
+
+skvm::Color SkShader_Bilerp::onProgram(skvm::Builder* p,
+                                       skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                       const SkMatrixProvider& matrices, const SkMatrix* localM,
+                                       SkFilterQuality quality, const SkColorInfo& dst,
+                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    // Our four sample points are the corners of a logical 1x1 pixel
+    // box surrounding (x,y) at (0.5,0.5) off-center.
+    skvm::F32 left   = local.x - 0.5f,
+              top    = local.y - 0.5f,
+              right  = local.x + 0.5f,
+              bottom = local.y + 0.5f;
+
+    // The fractional parts of right and bottom are our lerp factors in x and y respectively.
+    skvm::F32 fx = fract(right ),
+              fy = fract(bottom);
+
+    auto sample = [&](skvm::Coord local) {
+        skvm::Coord device = ApplyMatrix(p, matrices.localToDevice(), local, uniforms);
+        return as_SB(fChild)->program(p, device,local,paint,
+                                      matrices,localM, quality,dst, uniforms,alloc);
+    };
+
+#if 0
+    return sample(local);
+#endif
+
+    skvm::Color lt = sample({left,top   }), rt = sample({right,top   }),
+                lb = sample({left,bottom}), rb = sample({right,bottom});
+    if (lt && rt &&
+        lb && rb) {
+        return lerp(lerp(lt, rt, fx),
+                    lerp(lb, rb, fx), fy);
+    }
+    return {};
+}
+
 #if SK_SUPPORT_GPU
 
 #include "include/gpu/GrRecordingContext.h"
@@ -223,4 +270,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
     auto fpB = as_fp(args, fSrc.get());
     return GrComposeLerpEffect::Make(std::move(fpA), std::move(fpB), fWeight);
 }
+
+// TODO: SkShader_Bilerp
+
 #endif

@@ -24,7 +24,6 @@ public:
 #endif
 
 protected:
-    SkShader_Blend(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
@@ -57,7 +56,6 @@ public:
 #endif
 
 protected:
-    SkShader_Lerp(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
@@ -73,6 +71,27 @@ private:
     const float     fWeight;
 
     typedef SkShaderBase INHERITED;
+};
+
+class SkShader_Bilerp final : public SkShaderBase {
+public:
+    SkShader_Bilerp(sk_sp<SkShader> child) : fChild(child) {}
+
+#if SK_SUPPORT_GPU
+    //TODO
+    //std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#endif
+
+private:
+    SK_FLATTENABLE_HOOKS(SkShader_Bilerp)
+    void flatten(SkWriteBuffer&) const override;
+
+    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                          const SkMatrixProvider&, const SkMatrix* localM,
+                          SkFilterQuality, const SkColorInfo& dst,
+                          skvm::Uniforms*, SkArenaAlloc*) const override;
+
+    sk_sp<SkShader> fChild;
 };
 
 #endif
