@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01a627a3_f0829d2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T15:59:26Z",
+      "side": 1,
+      "message": "PTAL. Jim for the backend code and Chris for the majority of the plumbing code.\n\nChris, if you notice any place in the ccpr/tesselate code that could std::move the buffers into bindBuffers please point them out. For general ops it is safe to move the buffers in onExecute if we will recreate them in onPrepare. However, with ccpr/tesselate you have lots and lots of helper functions not called prepare/execute so its hard for to follow if it is safe to move the refs or not.",
+      "revId": "711a73a6a7b6e49f7d272648653a7eeef7586d2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bfef9a5_276ac5c0",
+        "filename": "src/gpu/ccpr/GrAutoMapVertexBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T15:59:26Z",
+      "side": 1,
+      "message": "added to avoid the extra refing that would occur from just calling gpuBuffer() now.",
+      "range": {
+        "startLine": 25,
+        "startChar": 3,
+        "endLine": 25,
+        "endChar": 23
+      },
+      "revId": "711a73a6a7b6e49f7d272648653a7eeef7586d2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8e95144_562931e7",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T15:59:26Z",
+      "side": 1,
+      "message": "I added this. Is it necessary? We track the active vertex and index, so wasn\u0027t sure why we would track the instance since it is basically the same as vertex",
+      "range": {
+        "startLine": 273,
+        "startChar": 8,
+        "endLine": 273,
+        "endChar": 59
+      },
+      "revId": "711a73a6a7b6e49f7d272648653a7eeef7586d2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
