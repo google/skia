@@ -133,6 +133,6 @@ std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::TestCreate(
     bool unpremul = d->fRandom->nextBool();
     bool clampRGB = d->fRandom->nextBool();
     bool premul = d->fRandom->nextBool();
-    return Make(/*inputFP=*/nullptr, m, unpremul, clampRGB, premul);
+    return Make(d->inputFP(), m, unpremul, clampRGB, premul);
 }
 #endif
