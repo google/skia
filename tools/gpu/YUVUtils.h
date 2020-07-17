@@ -64,9 +64,9 @@ public:
 
     // Given how and when backend textures are created, just deleting this object often
     // isn't enough. This helper encapsulates the extra work needed.
-    static void Unwind(GrContext* context, YUVABackendReleaseContext* beContext, bool fullFlush);
+    static void Unwind(GrDirectContext*, YUVABackendReleaseContext* beContext, bool fullFlush);
 
-    YUVABackendReleaseContext(GrContext* context);
+    YUVABackendReleaseContext(GrDirectContext*);
     ~YUVABackendReleaseContext();
 
     void set(int index, const GrBackendTexture& beTex) {
@@ -104,7 +104,7 @@ public:
     }
 
 private:
-    GrContext*       fContext;
+    GrDirectContext* fDContext;
     GrBackendTexture fBETextures[4];
     bool             fCreationComplete[4] = { false };
 };
