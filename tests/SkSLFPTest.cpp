@@ -493,6 +493,9 @@ DEF_TEST(SkSLFPSections, r) {
          /*expectedH=*/{},
          /*expectedCPP=*/{
              "#if GR_TEST_UTILS\n"
+             "\n"
+             "#include \"src/gpu/GrProcessorTestData.h\"\n"
+             "\n"
              "std::unique_ptr<GrFragmentProcessor> GrTest::TestCreate(GrProcessorTestData* testDataName) {\n"
              " testDataName section }\n"
              "#endif"

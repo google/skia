@@ -17,16 +17,14 @@
 #include "src/gpu/GrTestUtils.h"
 #include "src/gpu/GrTextureProxy.h"
 
-#include <tuple>
-
-class SkMatrix;
 class GrCaps;
-class GrProxyProvider;
+class GrGeometryProcessor;
 class GrRenderTargetContext;
 class GrProcessorTestData;
+class GrProxyProvider;
 class GrTexture;
 class GrXPFactory;
-class GrGeometryProcessor;
+class SkMatrix;
 
 namespace GrProcessorUnitTest {
 
@@ -42,34 +40,6 @@ std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 
 }
 
-/*
- * GrProcessorTestData is an argument struct to TestCreate functions
- * fTextures are valid textures that can optionally be used to construct
- * TextureSampler. The first texture has a RGBA8 format and the second has Alpha8 format for the
- * specific backend API. TestCreate functions are also free to create additional textures using
- * the GrContext.
- */
-class GrProcessorTestData {
-public:
-    using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
-    GrProcessorTestData(SkRandom*, GrRecordingContext*, int numProxies, const ViewInfo[]);
-
-    GrRecordingContext* context() { return fContext; }
-    GrProxyProvider* proxyProvider();
-    const GrCaps* caps();
-    SkArenaAlloc* allocator() { return fArena.get(); }
-
-    ViewInfo randomView();
-    ViewInfo randomAlphaOnlyView();
-
-    SkRandom* fRandom;
-
-private:
-    GrRecordingContext* fContext;
-    SkTArray<ViewInfo> fViews;
-    std::unique_ptr<SkArenaAlloc> fArena;
-};
-
 class GrProcessor;
 class GrTexture;
 
@@ -84,31 +54,16 @@ public:
     }
 
     /** Pick a random factory function and create a processor.  */
-    static ProcessorSmartPtr Make(GrProcessorTestData* data) {
-        VerifyFactoryCount();
-        if (GetFactories()->count() == 0) {
-            return nullptr;
-        }
-        uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
-        return MakeIdx(idx, data);
-    }
-
-    /** Number of registered factory functions */
-    static int Count() { return GetFactories()->count(); }
+    static ProcessorSmartPtr Make(GrProcessorTestData* data);
 
     /** Use factory function at Index idx to create a processor. */
-    static ProcessorSmartPtr MakeIdx(int idx, GrProcessorTestData* data) {
-        SkASSERT(idx < GetFactories()->count());
-        GrProcessorTestFactory<ProcessorSmartPtr>* factory = (*GetFactories())[idx];
-        ProcessorSmartPtr processor = factory->fMakeProc(data);
-        SkASSERT(processor);
-        return processor;
-    }
+    static ProcessorSmartPtr MakeIdx(int idx, GrProcessorTestData* data);
+
+    /** Number of registered factory functions */
+    static int Count();
 
 private:
-    /**
-     * A test function which verifies the count of factories.
-     */
+    /**A test function which verifies the count of factories. */
     static void VerifyFactoryCount();
 
     MakeProc fMakeProc;
@@ -125,16 +80,7 @@ public:
 
     GrXPFactoryTestFactory(GetFn* getProc) : fGetProc(getProc) { GetFactories()->push_back(this); }
 
-    static const GrXPFactory* Get(GrProcessorTestData* data) {
-        VerifyFactoryCount();
-        if (GetFactories()->count() == 0) {
-            return nullptr;
-        }
-        uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
-        const GrXPFactory* xpf = (*GetFactories())[idx]->fGetProc(data);
-        SkASSERT(xpf);
-        return xpf;
-    }
+    static const GrXPFactory* Get(GrProcessorTestData* data);
 
 private:
     static void VerifyFactoryCount();
