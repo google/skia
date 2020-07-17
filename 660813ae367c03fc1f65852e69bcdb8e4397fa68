@@ -39,6 +39,30 @@
       "revId": "660813ae367c03fc1f65852e69bcdb8e4397fa68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77b6656d_9fa12105",
+        "filename": "tests/GrBlockAllocatorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-17T13:30:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ea5549d_1b0e11cb",
+      "range": {
+        "startLine": 480,
+        "startChar": 62,
+        "endLine": 480,
+        "endChar": 65
+      },
+      "revId": "660813ae367c03fc1f65852e69bcdb8e4397fa68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
