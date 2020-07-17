@@ -72,7 +72,7 @@ static const TestCase gTests[] = {
     { kR16G16_unorm_SkColorType,kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false, false},
     { kR16G16_float_SkColorType,kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false, false},
     { kR16G16B16A16_unorm_SkColorType,
-                                kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, false, false},
+                                kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, false, true},
 };
 
 static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
