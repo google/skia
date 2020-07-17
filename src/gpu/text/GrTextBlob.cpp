@@ -290,12 +290,12 @@ std::tuple<bool, int> GrAtlasSubRun::regenerateAtlas(
 
     uint64_t currentAtlasGen = atlasManager->atlasGeneration(this->maskFormat());
 
+    this->prepareGrGlyphs(target->strikeCache());
+
     if (fAtlasGeneration != currentAtlasGen) {
         // Calculate the texture coordinates for the vertexes during first use (fAtlasGeneration
         // is set to kInvalidAtlasGeneration) or the atlas has changed in subsequent calls..
         this->resetBulkUseToken();
-
-        SkASSERT(this->isPrepared());
 
         SkBulkGlyphMetricsAndImages metricsAndImages{this->strikeSpec()};
 
