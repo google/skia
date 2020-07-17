@@ -42,8 +42,8 @@ protected:
         return SkISize::Make(2*kPad+kImageSize, 2*kPad+kImageSize);
     }
 
-    DrawResult createYCbCrImage(GrContext* context, SkString* errorMsg) {
-        std::unique_ptr<VkYcbcrSamplerHelper> ycbcrHelper(new VkYcbcrSamplerHelper(context));
+    DrawResult createYCbCrImage(GrDirectContext* dContext, SkString* errorMsg) {
+        std::unique_ptr<VkYcbcrSamplerHelper> ycbcrHelper(new VkYcbcrSamplerHelper(dContext));
 
         if (!ycbcrHelper->isYCbCrSupported()) {
             *errorMsg = "YCbCr sampling not supported.";
@@ -56,7 +56,7 @@ protected:
         }
 
         SkASSERT(!fYCbCrImage);
-        fYCbCrImage = SkImage::MakeFromTexture(context, ycbcrHelper->backendTexture(),
+        fYCbCrImage = SkImage::MakeFromTexture(dContext, ycbcrHelper->backendTexture(),
                                                kTopLeft_GrSurfaceOrigin, kRGB_888x_SkColorType,
                                                kPremul_SkAlphaType, nullptr,
                                                release_ycbcrhelper, ycbcrHelper.get());

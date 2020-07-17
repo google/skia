@@ -1156,7 +1156,7 @@ protected:
     }
 
     // Resize all the backend textures in 'yuvaTextures' to a quarter their size.
-    sk_sp<SkImage> resizeOnGpu(GrContext* context,
+    sk_sp<SkImage> resizeOnGpu(GrDirectContext* dContext,
                                YUVFormat yuvFormat,
                                SkYUVColorSpace yuvColorSpace,
                                bool opaque,
@@ -1164,14 +1164,14 @@ protected:
                                const SkYUVAIndex yuvaIndices[4],
                                int numTextures,
                                SkISize imageSize) {
-        auto releaseContext = new YUVABackendReleaseContext(context);
+        auto releaseContext = new YUVABackendReleaseContext(dContext);
 
         for (int i = 0; i < numTextures; ++i) {
             const GrBackendTexture& curTex = yuvaTextures[i];
 
             SkColorType ct = get_color_type(curTex.getBackendFormat());
-            if (ct == kUnknown_SkColorType || !context->colorTypeSupportedAsSurface(ct)) {
-                YUVABackendReleaseContext::Unwind(context, releaseContext, true);
+            if (ct == kUnknown_SkColorType || !dContext->colorTypeSupportedAsSurface(ct)) {
+                YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);
                 return nullptr;
             }
 
@@ -1179,25 +1179,25 @@ protected:
                 // We disallow resizing AYUV and Y410 formats on the GPU bc resizing them w/ a
                 // premul draw combines the YUV channels w/ the A channel in an inappropriate
                 // manner.
-                YUVABackendReleaseContext::Unwind(context, releaseContext, true);
+                YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);
                 return nullptr;
             }
 
             SkISize shrunkPlaneSize = {curTex.width() / 2, curTex.height() / 2 };
 
-            sk_sp<SkImage> wrappedOrig = SkImage::MakeFromTexture(context, curTex,
+            sk_sp<SkImage> wrappedOrig = SkImage::MakeFromTexture(dContext, curTex,
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   ct,
                                                                   kPremul_SkAlphaType,
                                                                   nullptr);
 
-            GrBackendTexture tmp = context->createBackendTexture(shrunkPlaneSize.width(),
-                                                                 shrunkPlaneSize.height(),
-                                                                 curTex.getBackendFormat(),
-                                                                 GrMipMapped::kNo,
-                                                                 GrRenderable::kYes);
+            GrBackendTexture tmp = dContext->createBackendTexture(shrunkPlaneSize.width(),
+                                                                  shrunkPlaneSize.height(),
+                                                                  curTex.getBackendFormat(),
+                                                                  GrMipMapped::kNo,
+                                                                  GrRenderable::kYes);
             if (!tmp.isValid()) {
-                YUVABackendReleaseContext::Unwind(context, releaseContext, true);
+                YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);
                 return nullptr;
             }
 
@@ -1205,11 +1205,11 @@ protected:
             // uninitialized beTextures don't have any pending work
             releaseContext->setCreationComplete(i);
 
-            sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(context, tmp,
+            sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(dContext, tmp,
                                                                    kTopLeft_GrSurfaceOrigin, 0,
                                                                    ct, nullptr, nullptr);
             if (!s) {
-                YUVABackendReleaseContext::Unwind(context, releaseContext, true);
+                YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);
                 return nullptr;
             }
             SkCanvas* c = s->getCanvas();
@@ -1226,7 +1226,7 @@ protected:
 
         SkISize shrunkImageSize = { imageSize.width() / 2, imageSize.height() / 2 };
 
-        return SkImage::MakeFromYUVATextures(context,
+        return SkImage::MakeFromYUVATextures(dContext,
                                              yuvColorSpace,
                                              releaseContext->beTextures(),
                                              yuvaIndices,
@@ -1237,7 +1237,7 @@ protected:
                                              releaseContext);
     }
 
-    bool createImages(GrDirectContext* context) {
+    bool createImages(GrDirectContext* dContext) {
         int counter = 0;
         for (bool opaque : { false, true }) {
             for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
@@ -1250,24 +1250,24 @@ protected:
 
                     int numTextures = create_YUV(planes, format, resultBMs, opaque);
 
-                    if (context) {
+                    if (dContext) {
                         fGpuGeneratedImages = true;
 
-                        if (context->abandoned()) {
+                        if (dContext->abandoned()) {
                             return false;
                         }
 
-                        if (!is_format_natively_supported(context, format)) {
+                        if (!is_format_natively_supported(dContext, format)) {
                             continue;
                         }
 
-                        auto releaseCtx = new YUVABackendReleaseContext(context);
+                        auto releaseCtx = new YUVABackendReleaseContext(dContext);
 
                         for (int i = 0; i < numTextures; ++i) {
-                            GrBackendTexture tmp = create_yuva_texture(context, resultBMs[i], i,
+                            GrBackendTexture tmp = create_yuva_texture(dContext, resultBMs[i], i,
                                                                        releaseCtx);
                             if (!tmp.isValid()) {
-                                YUVABackendReleaseContext::Unwind(context, releaseCtx, false);
+                                YUVABackendReleaseContext::Unwind(dContext, releaseCtx, false);
                                 return false;
                             }
                             releaseCtx->set(i, tmp);
@@ -1278,13 +1278,13 @@ protected:
                         bool externalAlphaPlane = !opaque && !planarConfig.hasAlpha();
                         if (!planarConfig.getYUVAIndices(releaseCtx->beTextures(), numTextures,
                                                          externalAlphaPlane, yuvaIndices)) {
-                            YUVABackendReleaseContext::Unwind(context, releaseCtx, false);
+                            YUVABackendReleaseContext::Unwind(dContext, releaseCtx, false);
                             continue;
                         }
 
                         if (fQuarterSize) {
                             fImages[opaque][cs][format] =
-                                    this->resizeOnGpu(context,
+                                    this->resizeOnGpu(dContext,
                                                       format,
                                                       (SkYUVColorSpace)cs,
                                                       opaque,
@@ -1292,7 +1292,7 @@ protected:
                                                       yuvaIndices,
                                                       numTextures,
                                                       fOriginalBMs[opaque].dimensions());
-                            YUVABackendReleaseContext::Unwind(context, releaseCtx, true);
+                            YUVABackendReleaseContext::Unwind(dContext, releaseCtx, true);
                         } else {
                             int counterMod = counter % 3;
                             if (fUseDomain && counterMod == 0) {
@@ -1307,17 +1307,17 @@ protected:
                             switch (counterMod) {
                                 case 0:
                                     fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
-                                        context,
+                                        dContext,
                                         (SkYUVColorSpace)cs,
                                         releaseCtx->beTextures(),
                                         yuvaIndices,
                                         imgSize,
                                         kTopLeft_GrSurfaceOrigin);
-                                    YUVABackendReleaseContext::Unwind(context, releaseCtx, true);
+                                    YUVABackendReleaseContext::Unwind(dContext, releaseCtx, true);
                                     break;
                                 case 1:
                                     fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
-                                        context,
+                                        dContext,
                                         (SkYUVColorSpace)cs,
                                         releaseCtx->beTextures(),
                                         yuvaIndices,
@@ -1330,7 +1330,7 @@ protected:
                                 case 2:
                                 default: {
                                     // TODO: we did a lot of work to delete these here
-                                    YUVABackendReleaseContext::Unwind(context, releaseCtx, false);
+                                    YUVABackendReleaseContext::Unwind(dContext, releaseCtx, false);
 
                                     SkPixmap yuvaPixmaps[4];
                                     for (int i = 0; i < numTextures; ++i) {
@@ -1338,7 +1338,7 @@ protected:
                                     }
 
                                     fImages[opaque][cs][format] = SkImage::MakeFromYUVAPixmaps(
-                                        context,
+                                        dContext,
                                         (SkYUVColorSpace)cs,
                                         yuvaPixmaps,
                                         yuvaIndices,
@@ -1360,27 +1360,27 @@ protected:
             }
         }
 
-        if (context) {
+        if (dContext) {
             // Some backends (e.g., Vulkan) require all work be completed for backend textures
             // before they are deleted. Since we don't know when we'll next have access to a
             // direct context, flush all the work now.
-            context->flush();
-            context->submit(true);
+            dContext->flush();
+            dContext->submit(true);
         }
 
         return true;
     }
 
-    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
         this->createBitmaps();
 
-        if (context && context->abandoned()) {
+        if (dContext && dContext->abandoned()) {
             // This isn't a GpuGM so a null 'context' is okay but an abandoned context
             // if forbidden.
             return DrawResult::kSkip;
         }
 
-        if (!this->createImages(context)) {
+        if (!this->createImages(dContext)) {
             *errorMsg = "Failed to create YUV images";
             return DrawResult::kFail;
         }
