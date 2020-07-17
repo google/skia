@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    The fastest choice for gradients is the flat Float32Array, the fastest choice for drawAtlas and
    MakeSkVertices is the flat Uint32Array.
  - Color arrays may also be objects created with CanvasKit.Malloc
+ - `MakeWebGLCanvasSurface` can now accept an optional dictionary of WebGL context attributes that
+   can be used to override default attributes.
 
 ### Fixed
  - `TextStyle.color` can correctly be a Malloc'd Float32Array.
