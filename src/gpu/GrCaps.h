@@ -57,6 +57,16 @@ public:
     // as it can polyfill them with instanced calls, but this cap tells us if they are supported
     // natively.)
     bool nativeDrawIndirectSupport() const { return fNativeDrawIndirectSupport; }
+    bool useClientSideIndirectBuffers() const {
+#ifdef SK_DEBUG
+        if (!fNativeDrawIndirectSupport || fNativeDrawIndexedIndirectIsBroken) {
+            // We might implement indirect draws with a polyfill, so the commands need to reside in
+            // CPU memory.
+            SkASSERT(fUseClientSideIndirectBuffers);
+        }
+#endif
+        return fUseClientSideIndirectBuffers;
+    }
     bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
     bool conservativeRasterSupport() const { return fConservativeRasterSupport; }
     bool wireframeSupport() const { return fWireframeSupport; }
@@ -460,6 +470,7 @@ protected:
     bool fMultisampleDisableSupport                  : 1;
     bool fDrawInstancedSupport                       : 1;
     bool fNativeDrawIndirectSupport                  : 1;
+    bool fUseClientSideIndirectBuffers               : 1;
     bool fMixedSamplesSupport                        : 1;
     bool fConservativeRasterSupport                  : 1;
     bool fWireframeSupport                           : 1;

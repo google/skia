@@ -205,9 +205,6 @@
 
     "functions": [
       "MultiDrawArraysInstancedBaseInstance", "MultiDrawElementsInstancedBaseVertexBaseInstance",
-    ],
-    "optional": [
-      "MultiDrawArraysInstancedBaseInstance", "MultiDrawElementsInstancedBaseVertexBaseInstance",
     ]
   },
 

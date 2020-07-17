@@ -34,6 +34,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
     fDrawRangeElementsSupport = false;
+    fANGLEMultiDrawSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseVertexBaseInstanceSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
@@ -630,11 +631,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else if (GR_IS_GR_GL_ES(standard)) {
-        fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance") ||
-                                         ctxInfo.hasExtension("GL_ANGLE_base_vertex_base_instance");
-        if (fBaseVertexBaseInstanceSupport) {
-            fNativeDrawIndirectSupport = version >= GR_GL_VER(3,1);
-            fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
+        if (ctxInfo.hasExtension("GL_ANGLE_base_vertex_base_instance")) {
+            fBaseVertexBaseInstanceSupport = true;
+            fNativeDrawIndirectSupport = true;
+            fANGLEMultiDrawSupport = true;
+            // The indirect structs need to reside in CPU memory for the ANGLE version.
+            fUseClientSideIndirectBuffers = true;
+        } else {
+            fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
+            if (fBaseVertexBaseInstanceSupport) {
+                fNativeDrawIndirectSupport = (version >= GR_GL_VER(3,1));
+                fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
+            }
         }
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     } else if (GR_IS_GR_WEBGL(standard)) {
@@ -3879,6 +3887,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
          ctxInfo.angleVendor() == GrGLANGLEVendor::kIntel &&
          ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL)) {
         fNativeDrawIndexedIndirectIsBroken = true;
+        fUseClientSideIndirectBuffers = true;
     }
 #endif
 

@@ -27,6 +27,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMultisampleDisableSupport = false;
     fDrawInstancedSupport = false;
     fNativeDrawIndirectSupport = false;
+    fUseClientSideIndirectBuffers = false;
     fMixedSamplesSupport = false;
     fConservativeRasterSupport = false;
     fWireframeSupport = false;
@@ -95,6 +96,12 @@ void GrCaps::finishInitialization(const GrContextOptions& options) {
         // We need multisample disable and dual source blending in order to support mixed samples.
         fMixedSamplesSupport = this->multisampleDisableSupport() &&
                                this->shaderCaps()->dualSourceBlendingSupport();
+    }
+
+    if (!fNativeDrawIndirectSupport) {
+        // We will implement indirect draws with a polyfill, so the commands need to reside in CPU
+        // memory.
+        fUseClientSideIndirectBuffers = true;
     }
 
     // Overrides happen last.
@@ -201,6 +208,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Multisample disable support", fMultisampleDisableSupport);
     writer->appendBool("Draw Instanced Support", fDrawInstancedSupport);
     writer->appendBool("Native Draw Indirect Support", fNativeDrawIndirectSupport);
+    writer->appendBool("Use client side indirect buffers", fUseClientSideIndirectBuffers);
     writer->appendBool("Mixed Samples Support", fMixedSamplesSupport);
     writer->appendBool("Conservative Raster Support", fConservativeRasterSupport);
     writer->appendBool("Wireframe Support", fWireframeSupport);
