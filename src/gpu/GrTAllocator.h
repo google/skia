@@ -66,6 +66,26 @@ public:
     }
 
     /**
+     * Allocate, if needed, space to hold N more Ts before another malloc will occur.
+     */
+    void reserve(int n) {
+        int avail = fAllocator->currentBlock()->template avail<alignof(T)>() / sizeof(T);
+        if (n > avail) {
+            int reserved = n - avail;
+            if (reserved <= avail) {
+                // Subtle: if reserved <= avail, the block allocator would think it already has
+                // enough contiguous bytes for the reserve request.
+                // "allocate" temporarily so that reserved will actually be allocated.
+                auto temp = fAllocator->template allocate<alignof(T)>(avail * sizeof(T));
+                fAllocator->template reserve<alignof(T)>(reserved * sizeof(T));
+                SkAssertResult(temp.fBlock->release(temp.fStart, temp.fEnd));
+            } else {
+                fAllocator->template reserve<alignof(T)>(reserved * sizeof(T));
+            }
+        }
+    }
+
+    /**
      * Remove the last item, only call if count() != 0
      */
     void pop_back() {
@@ -156,7 +176,7 @@ public:
      * Use for-range loops by calling items() or ritems() instead to access all added items in order
      */
     T& item(int i) {
-        SkASSERT(i >= 0 && i < fAllocator->metadata());
+        SkASSERT(i >= 0 && i < this->count());
 
         // Iterate over blocks until we find the one that contains i.
         for (auto* b : fAllocator->blocks()) {
@@ -236,6 +256,11 @@ public:
     // Iterate from newest to oldest using a for-range loop.
     RIter  ritems() { return RIter(fAllocator.allocator()); }
     CRIter ritems() const { return CRIter(fAllocator.allocator()); }
+
+#if GR_TEST_UTILS
+    // For introspection
+    const GrBlockAllocator* allocator() const { return fAllocator.allocator(); }
+#endif
 };
 
 /**
