@@ -486,6 +486,7 @@ config("warnings_except_public_headers") {
     cflags = [
       "-Wno-sign-conversion",
       "-Wno-unused-parameter",
+      "-Wno-psabi",
     ]
   }
 }
