@@ -22,6 +22,30 @@
       "revId": "d60856e5268547a1b5f00b287da78ebc6f499057",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d1b65f9_7d9adfc8",
+        "filename": "infra/bots/task_drivers/canary/canary.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-17T13:03:26Z",
+      "side": 1,
+      "message": "There is already a link to the CL. This is to provide useful error msgs for when a CL can not be created like merge errors or something else (android canary had an interesting error yesterday where it complained about a dependent CL being closed in googleplex-android-review).\n\nChanged it to output ResultDetails only if cl was not created.",
+      "parentUuid": "a431faf4_7bd2abf6",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 104
+      },
+      "revId": "d60856e5268547a1b5f00b287da78ebc6f499057",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
