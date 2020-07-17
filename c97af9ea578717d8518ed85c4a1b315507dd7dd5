@@ -16,6 +16,24 @@
       "revId": "c97af9ea578717d8518ed85c4a1b315507dd7dd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55b08805_7a1f3954",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T14:43:04Z",
+      "side": 1,
+      "message": "I think the problem was returning stack allocated memory across the wasm boundary",
+      "parentUuid": "d9d2c6f7_136f9e15",
+      "revId": "c97af9ea578717d8518ed85c4a1b315507dd7dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
