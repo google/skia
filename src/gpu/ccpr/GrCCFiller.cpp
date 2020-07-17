@@ -37,7 +37,7 @@ GrCCFiller::GrCCFiller(Algorithm algorithm, int numPaths, int numSkPoints, int n
 void GrCCFiller::parseDeviceSpaceFill(const SkPath& path, const SkPoint* deviceSpacePts,
                                       GrScissorTest scissorTest, const SkIRect& clippedDevIBounds,
                                       const SkIVector& devToAtlasOffset) {
-    SkASSERT(!fInstanceBuffer.gpuBuffer());  // Can't call after prepareToDraw().
+    SkASSERT(!fInstanceBuffer.hasGpuBuffer());  // Can't call after prepareToDraw().
     SkASSERT(!path.isEmpty());
 
     int currPathPointsIdx = fGeometry.points().count();
@@ -206,7 +206,7 @@ void GrCCFiller::PathInfo::tessellateFan(
 }
 
 GrCCFiller::BatchID GrCCFiller::closeCurrentBatch() {
-    SkASSERT(!fInstanceBuffer.gpuBuffer());
+    SkASSERT(!fInstanceBuffer.hasGpuBuffer());
     SkASSERT(!fBatches.empty());
 
     const auto& lastBatch = fBatches.back();
@@ -295,7 +295,7 @@ void GrCCFiller::emitTessellatedFan(
 
 bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     using Verb = GrCCFillGeometry::Verb;
-    SkASSERT(!fInstanceBuffer.gpuBuffer());
+    SkASSERT(!fInstanceBuffer.hasGpuBuffer());
     SkASSERT(fBatches.back().fEndNonScissorIndices == // Call closeCurrentBatch().
              fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled]);
     SkASSERT(fBatches.back().fEndScissorSubBatchIdx == fScissorSubBatches.count());
@@ -342,7 +342,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     int quadEndIdx = fBaseInstances[1].fConics + fTotalPrimitiveCounts[1].fConics;
 
     fInstanceBuffer.resetAndMapBuffer(onFlushRP, quadEndIdx * sizeof(QuadPointInstance));
-    if (!fInstanceBuffer.gpuBuffer()) {
+    if (!fInstanceBuffer.hasGpuBuffer()) {
         SkDebugf("WARNING: failed to allocate CCPR fill instance buffer.\n");
         return false;
     }
@@ -475,7 +475,7 @@ void GrCCFiller::drawFills(
         BatchID batchID, const SkIRect& drawBounds) const {
     using PrimitiveType = GrCCCoverageProcessor::PrimitiveType;
 
-    SkASSERT(fInstanceBuffer.gpuBuffer());
+    SkASSERT(fInstanceBuffer.hasGpuBuffer());
 
     GrResourceProvider* rp = flushState->resourceProvider();
     const PrimitiveTallies& batchTotalCounts = fBatches[batchID].fTotalPrimitiveCounts;

@@ -117,7 +117,7 @@ public:
     virtual int numSubpasses() const = 0;
     virtual void reset(PrimitiveType, int subpassIdx, GrResourceProvider*) = 0;
     void bindPipeline(GrOpFlushState*, const GrPipeline&, const SkRect& drawBounds) const;
-    virtual void bindBuffers(GrOpsRenderPass*, const GrBuffer* instanceBuffer) const = 0;
+    virtual void bindBuffers(GrOpsRenderPass*, sk_sp<const GrBuffer> instanceBuffer) const = 0;
     virtual void drawInstances(GrOpsRenderPass*, int instanceCount, int baseInstance) const = 0;
 
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
