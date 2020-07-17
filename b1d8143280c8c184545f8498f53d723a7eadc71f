@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4127f463_28a43b42",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-17T13:49:04Z",
+      "side": 1,
+      "message": "Any reason this R is capitalized? seems like it should be lower case.",
+      "range": {
+        "startLine": 95,
+        "startChar": 21,
+        "endLine": 95,
+        "endChar": 22
+      },
+      "revId": "b1d8143280c8c184545f8498f53d723a7eadc71f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b3f7fe7_2b0d1a08",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-17T13:49:04Z",
+      "side": 1,
+      "message": "I believe the builders want an \u0027override\u0027 right here.",
+      "range": {
+        "startLine": 235,
+        "startChar": 97,
+        "endLine": 235,
+        "endChar": 98
+      },
+      "revId": "b1d8143280c8c184545f8498f53d723a7eadc71f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
