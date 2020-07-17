@@ -186,6 +186,7 @@ private:
 
     void onReset() override;
 
+    const GrD3DPipelineState* fCurrentPipelineState;
     const GrD3DRootSignature* fCurrentRootSignature;
     const GrD3DBuffer* fCurrentVertexBuffer;
     size_t fCurrentVertexStride;
@@ -196,6 +197,7 @@ private:
     GrD3DConstantRingBuffer* fCurrentConstantRingBuffer;
     GrD3DConstantRingBuffer::SubmitData fConstantRingBufferSubmitData;
 
+    D3D12_GPU_VIRTUAL_ADDRESS fCurrentConstantBufferAddress;
     const ID3D12DescriptorHeap* fCurrentSRVCRVDescriptorHeap;
     const ID3D12DescriptorHeap* fCurrentSamplerDescriptorHeap;
 };

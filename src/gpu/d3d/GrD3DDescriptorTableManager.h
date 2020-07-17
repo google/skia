@@ -14,7 +14,7 @@ class GrD3DCommandList;
 class GrD3DDirectCommandList;
 class GrD3DGpu;
 
-class GrD3DDescriptorTable {
+class GrD3DDescriptorTable : public SkRefCnt {
 public:
     GrD3DDescriptorTable(D3D12_CPU_DESCRIPTOR_HANDLE baseCPU, D3D12_GPU_DESCRIPTOR_HANDLE baseGPU,
                          D3D12_DESCRIPTOR_HEAP_TYPE type)
@@ -42,9 +42,8 @@ class GrD3DDescriptorTableManager {
 public:
     GrD3DDescriptorTableManager(GrD3DGpu*);
 
-    std::unique_ptr<GrD3DDescriptorTable> createShaderOrConstantResourceTable(GrD3DGpu*,
-                                                                              unsigned int count);
-    std::unique_ptr<GrD3DDescriptorTable> createSamplerTable(GrD3DGpu*, unsigned int count);
+    sk_sp<GrD3DDescriptorTable> createShaderOrConstantResourceTable(GrD3DGpu*, unsigned int count);
+    sk_sp<GrD3DDescriptorTable> createSamplerTable(GrD3DGpu*, unsigned int count);
 
     void prepForSubmit(GrD3DGpu* gpu);
 
@@ -54,7 +53,7 @@ private:
         static sk_sp<Heap> Make(GrD3DGpu* gpu, D3D12_DESCRIPTOR_HEAP_TYPE type,
                                 unsigned int numDescriptors);
 
-        std::unique_ptr<GrD3DDescriptorTable> allocateTable(unsigned int count);
+        sk_sp<GrD3DDescriptorTable> allocateTable(unsigned int count);
         bool canAllocate(unsigned int count) const {
             return (fDescriptorCount - fNextAvailable) >= count;
         }
@@ -100,7 +99,7 @@ private:
     public:
         HeapPool(GrD3DGpu*, D3D12_DESCRIPTOR_HEAP_TYPE);
 
-        std::unique_ptr<GrD3DDescriptorTable> allocateTable(GrD3DGpu*, unsigned int count);
+        sk_sp<GrD3DDescriptorTable> allocateTable(GrD3DGpu*, unsigned int count);
         void recycle(sk_sp<Heap>);
         sk_sp<Heap>& currentDescriptorHeap();
         void prepForSubmit(GrD3DGpu* gpu);
