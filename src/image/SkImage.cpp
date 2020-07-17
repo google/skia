@@ -577,13 +577,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
-                                                const GrBackendTexture[3],
-                                                GrSurfaceOrigin origin,
-                                                sk_sp<SkColorSpace> imageColorSpace) {
-    return nullptr;
-}
-
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
         GrContext* context, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvTextures[3],
         GrSurfaceOrigin surfaceOrigin, const GrBackendTexture& backendTexture,

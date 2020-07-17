@@ -308,14 +308,6 @@ sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrDirectContext* direct, sk_sp
                                    colorType, kOpaque_SkAlphaType, nullptr);
 }
 
-sk_sp<SkImage> SkImage::MakeFromCompressed(GrContext *context, sk_sp<SkData> data, int width,
-                                           int height, CompressionType type, GrMipMapped mipMapped,
-                                           GrProtected isProtected) {
-    auto direct = GrAsDirectContext(context);
-    return MakeTextureFromCompressed(direct, std::move(data), width, height, type,
-                                     mipMapped, isProtected);
-}
-
 sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
                                                      const GrBackendTexture yuvaTextures[],
                                                      const SkYUVAIndex yuvaIndices[4], SkISize size,
@@ -421,21 +413,6 @@ static SkColorChannel get_single_channel(const GrBackendTexture& tex) {
         default: // multiple channels in the texture. Guess kR.
             return SkColorChannel::kR;
     }
-}
-
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
-                                                const GrBackendTexture yuvTextures[3],
-                                                GrSurfaceOrigin imageOrigin,
-                                                sk_sp<SkColorSpace> imageColorSpace) {
-    // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
-    SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, get_single_channel(yuvTextures[0])},
-            SkYUVAIndex{1, get_single_channel(yuvTextures[1])},
-            SkYUVAIndex{2, get_single_channel(yuvTextures[2])},
-            SkYUVAIndex{-1, SkColorChannel::kA}};
-    SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
-    return SkImage_Gpu::MakeFromYUVATexturesCopy(ctx, yuvColorSpace, yuvTextures, yuvaIndices,
-                                                 size, imageOrigin, std::move(imageColorSpace));
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(

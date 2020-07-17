@@ -313,14 +313,6 @@ public:
                                                     CompressionType type,
                                                     GrMipMapped mipMapped = GrMipMapped::kNo,
                                                     GrProtected isProtected = GrProtected::kNo);
-    /** To be deprecated. Use MakeTextureFromCompressed.
-     */
-    static sk_sp<SkImage> MakeFromCompressed(GrContext* context,
-                                             sk_sp<SkData> data,
-                                             int width, int height,
-                                             CompressionType type,
-                                             GrMipMapped mipMapped = GrMipMapped::kNo,
-                                             GrProtected isProtected = GrProtected::kNo);
 
     /** Creates a CPU-backed SkImage from compressed data.
 
@@ -578,13 +570,6 @@ public:
             const SkYUVAIndex yuvaIndices[4], SkISize imageSize, GrSurfaceOrigin imageOrigin,
             bool buildMips, bool limitToMaxTextureSize = false,
             sk_sp<SkColorSpace> imageColorSpace = nullptr);
-
-    /** To be deprecated.
-    */
-    static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
-                                                  const GrBackendTexture yuvTextures[3],
-                                                  GrSurfaceOrigin imageOrigin,
-                                                  sk_sp<SkColorSpace> imageColorSpace = nullptr);
 
     /** To be deprecated.
     */
