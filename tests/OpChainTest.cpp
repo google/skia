@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"

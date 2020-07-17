@@ -21,7 +21,6 @@
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
 #endif
 
 template <typename T> int SafeCount(const T* obj) {
