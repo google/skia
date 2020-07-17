@@ -4,8 +4,9 @@
   "description": "A WASM version of Skia's PathOps toolkit",
   "main": "bin/pathkit.js",
   "homepage": "https://github.com/google/skia/tree/master/modules/pathkit",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bugs": {
+    "url": "https://bugs.chromium.org/p/skia/issues/entry"
   },
+  "permsRepo": "skia-dev/.github",
   "license": "BSD-3-Clause"
 }
