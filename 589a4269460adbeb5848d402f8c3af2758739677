@@ -83,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "aa26acba_12aa4b09",
+        "filename": "gm/fwidth_squircle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T17:06:05Z",
+      "side": 1,
+      "message": "So according to Rob we will never call onExecute twice in a row on an op without calling prepare first. Basically all replaying of ops will be in prepare/execute pairs. Thus I thought this should be safe since onPrepare makes a new vertex buffer each time.",
+      "parentUuid": "47e4709e_ff92c487",
+      "range": {
+        "startLine": 229,
+        "startChar": 50,
+        "endLine": 229,
+        "endChar": 74
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b5c7cf9_f13135ee",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 4
@@ -94,6 +118,30 @@
       "writtenOn": "2020-07-17T16:53:56Z",
       "side": 1,
       "message": "Is there a reason you changed this? I find it hard to read.",
+      "range": {
+        "startLine": 168,
+        "startChar": 49,
+        "endLine": 169,
+        "endChar": 34
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc7850c4_a07b8a3b",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T17:06:05Z",
+      "side": 1,
+      "message": "Auto formater. I don\u0027t like this either, I\u0027ll move it back and the ones after",
+      "parentUuid": "2b5c7cf9_f13135ee",
       "range": {
         "startLine": 168,
         "startChar": 49,
@@ -129,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "12217028_1eefa077",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T17:06:05Z",
+      "side": 1,
+      "message": "I think we can move here. I saw this was inside drawStencilPass function and wasn\u0027t sure where that is called, but it seems like it is just called from onExecute. Also it looks like sub functions of onPrepare are creating the triangle buffer. Does this sound right?\n\nSo we should be in the safe state where after this call we won\u0027t try to use fTriangleBuffer again until we call prepare again.",
+      "parentUuid": "6d1736a6_45c03309",
+      "range": {
+        "startLine": 549,
+        "startChar": 50,
+        "endLine": 549,
+        "endChar": 65
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6315161c_fa22a352",
         "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
         "patchSetId": 4
@@ -140,6 +212,30 @@
       "writtenOn": "2020-07-17T16:48:15Z",
       "side": 1,
       "message": "We std::move the buffer here, but add another ref for the fill op.",
+      "range": {
+        "startLine": 351,
+        "startChar": 46,
+        "endLine": 351,
+        "endChar": 70
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "503c0b57_16d4aff1",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T17:06:05Z",
+      "side": 1,
+      "message": "See above comment, but this case was more easy to see the required prepare/execute pairing.",
+      "parentUuid": "6315161c_fa22a352",
       "range": {
         "startLine": 351,
         "startChar": 46,
