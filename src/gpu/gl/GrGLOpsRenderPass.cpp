@@ -224,6 +224,16 @@ static const void* buffer_offset_to_gl_address(const GrBuffer* drawIndirectBuffe
 
 void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
                                        int drawCount) {
+    SkASSERT(fGpu->caps()->nativeDrawIndirectSupport());
+    SkASSERT(fGpu->glCaps().baseVertexBaseInstanceSupport());
+    SkASSERT(!fActiveVertexBuffer || fGpu->glCaps().drawArraysBaseVertexIsBroken());
+
+    if (fGpu->glCaps().drawArraysBaseVertexIsBroken()) {
+        // We weren't able to bind the vertex buffer during onBindBuffers because of a driver bug
+        // affecting glDrawArrays.
+        this->bindVertexBuffer(fActiveVertexBuffer.get(), 0);
+    }
+
     fGpu->bindBuffer(GrGpuBufferType::kDrawIndirect, drawIndirectBuffer);
 
     if (fGpu->glCaps().multiDrawIndirectSupport() && drawCount > 1) {
@@ -244,6 +254,13 @@ void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
 
 void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
                                               int drawCount) {
+    SkASSERT(fGpu->caps()->nativeDrawIndirectSupport());
+    SkASSERT(!fGpu->caps()->nativeDrawIndexedIndirectIsBroken());
+    SkASSERT(fGpu->glCaps().baseVertexBaseInstanceSupport());
+    // The vertex buffer should have already gotten bound (as opposed us stashing it away during
+    // onBindBuffers and not expecting to bind it until this point).
+    SkASSERT(!fActiveVertexBuffer);
+
     fGpu->bindBuffer(GrGpuBufferType::kDrawIndirect, drawIndirectBuffer);
 
     if (fGpu->glCaps().multiDrawIndirectSupport() && drawCount > 1) {
