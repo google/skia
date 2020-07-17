@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c11e855e_5a38cd77",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T20:54:51Z",
+      "side": 1,
+      "message": "I get the utility of the new class and totally fine with using it in the opt test but just curious why we want to avoid cloning there? Avoid conflating clone bugs with optimization flag bugs?",
+      "range": {
+        "startLine": 10,
+        "startChar": 46,
+        "endLine": 13,
+        "endChar": 42
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0eef06b_0f109b07",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T20:54:51Z",
+      "side": 1,
+      "message": "Took me a sec to get the analogy to rolling dice but I like it!",
+      "range": {
+        "startLine": 336,
+        "startChar": 13,
+        "endLine": 336,
+        "endChar": 19
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87722d79_5a8032f5",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T20:54:51Z",
+      "side": 1,
+      "message": "Historically we used \"create\" all over the place before we were using smart ptrs and then switched to \"make\" to distinguish factory methods that return things that clean themselves up in their ~ (or don\u0027t need any cleanup). But that\u0027s probably so far in the past that \"create\" no longer connotes \"needs caller to cleanup\". So fine with me as is, just context.",
+      "range": {
+        "startLine": 342,
+        "startChar": 45,
+        "endLine": 342,
+        "endChar": 51
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3136bbb2_e20465e9",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T20:54:51Z",
+      "side": 1,
+      "message": "Hm, I can\u0027t say I\u0027m a fan of removing autos when the type is in the name of the enum value or the name of the getter method. To me it\u0027s more to visually parse without making it easier to understand.",
+      "range": {
+        "startLine": 392,
+        "startChar": 17,
+        "endLine": 392,
+        "endChar": 28
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

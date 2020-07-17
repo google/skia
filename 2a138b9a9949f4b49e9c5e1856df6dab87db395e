@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e87c9011_acd24e3e",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T20:54:51Z",
+      "side": 0,
+      "message": "Removing static on constexpr local vars like this feels like something we should decide to do globally or not do at all, rather than piecemeal because the file is being touched. For these examples it surely makes no difference whether they\u0027re static but in general there is a difference. A constexpr *may* be initialized at compile time but a static var *must* be initialized only once. Also if b/c of recursion/threading there are two instances of the var alive at the same time and their address may be taken then they must be at different locations in memory. It seems to me that the meaning of \"static constexpr\" is more in the spirit of what we intend for these even if in practice it generates the same code.",
+      "range": {
+        "startLine": 509,
+        "startChar": 4,
+        "endLine": 509,
+        "endChar": 10
+      },
+      "revId": "2a138b9a9949f4b49e9c5e1856df6dab87db395e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
