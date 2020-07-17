@@ -13,8 +13,13 @@ struct C {
     C() : fID(-1) { ++gInstCnt; }
     C(int id) : fID(id) { ++gInstCnt; }
     C(C&& c) : C(c.fID) {}
+    C(const C& c) : C(c.fID) {}
+
     C& operator=(C&&) = default;
+    C& operator=(const C&) = default;
+
     ~C() { --gInstCnt; }
+
     int fID;
 
     static int gInstCnt;
@@ -101,17 +106,35 @@ static void check_iterator_helper(GrTAllocator<C, N>* allocator, const std::vect
 template<int N>
 static void check_allocator(GrTAllocator<C, N>* allocator, int cnt, int popCnt,
                             skiatest::Reporter* reporter) {
+    enum ItemInitializer : int {
+        kCopyCtor,
+        kMoveCtor,
+        kCopyAssign,
+        kMoveAssign,
+        kEmplace,
+    };
+    static constexpr int kInitCount = (int) kEmplace + 1;
+
     SkASSERT(allocator);
     SkASSERT(allocator->empty());
     std::vector<C*> items;
     for (int i = 0; i < cnt; ++i) {
-        // Try both variations of push_back() and emplace_back()
-        if (i % 3 == 0) {
-            allocator->push_back(C(i));
-        } else if (i % 3 == 1) {
-            allocator->push_back() = C(i);
-        } else {
-            allocator->emplace_back(i);
+        switch((ItemInitializer) (i % kInitCount)) {
+            case kCopyCtor:
+                allocator->push_back(C(i));
+                break;
+            case kMoveCtor:
+                allocator->push_back(std::move(C(i)));
+                break;
+            case kCopyAssign:
+                allocator->push_back() = C(i);
+                break;
+            case kMoveAssign:
+                allocator->push_back() = std::move(C(i));
+                break;
+            case kEmplace:
+                allocator->emplace_back(i);
+                break;
         }
         items.push_back(&allocator->back());
     }
@@ -134,8 +157,7 @@ static void run_allocator_test(GrTAllocator<C, N>* allocator, skiatest::Reporter
 }
 
 DEF_TEST(GrTAllocator, reporter) {
-    // Test combinations of allocators with and without stack storage and with different block
-    // sizes.
+    // Test combinations of allocators with and without stack storage and with different block sizes
     GrTAllocator<C> a1(1);
     run_allocator_test(&a1, reporter);
 
