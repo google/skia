@@ -209,11 +209,10 @@ GrAtlasManager* GrOpFlushState::atlasManager() const {
 void GrOpFlushState::drawMesh(const GrSimpleMesh& mesh) {
     SkASSERT(mesh.fIsInitialized);
     if (!mesh.fIndexBuffer) {
-        this->bindBuffers(nullptr, nullptr, mesh.fVertexBuffer.get());
+        this->bindBuffers(nullptr, nullptr, mesh.fVertexBuffer);
         this->draw(mesh.fVertexCount, mesh.fBaseVertex);
     } else {
-        this->bindBuffers(mesh.fIndexBuffer.get(), nullptr, mesh.fVertexBuffer.get(),
-                          mesh.fPrimitiveRestart);
+        this->bindBuffers(mesh.fIndexBuffer, nullptr, mesh.fVertexBuffer, mesh.fPrimitiveRestart);
         if (0 == mesh.fPatternRepeatCount) {
             this->drawIndexed(mesh.fIndexCount, mesh.fBaseIndex, mesh.fMinIndexValue,
                               mesh.fMaxIndexValue, mesh.fBaseVertex);

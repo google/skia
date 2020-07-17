@@ -71,8 +71,8 @@ public:
     void bindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
                       const GrPipeline&);
 
-    void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                     const GrBuffer* vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);
+    void bindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
+                     sk_sp<const GrBuffer> vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
     // The next several draw*() methods issue draws using the current pipeline state. Before
     // drawing, the caller must configure the pipeline and dynamic state:
@@ -180,8 +180,8 @@ private:
     virtual bool onBindTextures(const GrPrimitiveProcessor&,
                                 const GrSurfaceProxy* const primProcTextures[],
                                 const GrPipeline&) = 0;
-    virtual void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                               const GrBuffer* vertexBuffer, GrPrimitiveRestart) = 0;
+    virtual void onBindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
+                               sk_sp<const GrBuffer> vertexBuffer, GrPrimitiveRestart) = 0;
     virtual void onDraw(int vertexCount, int baseVertex) = 0;
     virtual void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                                uint16_t maxIndexValue, int baseVertex) = 0;

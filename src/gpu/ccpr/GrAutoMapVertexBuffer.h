@@ -22,7 +22,8 @@ public:
         }
     }
 
-    const GrGpuBuffer* gpuBuffer() const { return fGpuBuffer.get(); }
+    bool hasGpuBuffer() const { return SkToBool(fGpuBuffer.get()); }
+    sk_sp<const GrGpuBuffer> gpuBuffer() const { return fGpuBuffer; }
     bool isMapped() const { return SkToBool(fData); }
     void* data() const { SkASSERT(this->isMapped()); return fData; }
 

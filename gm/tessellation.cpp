@@ -348,7 +348,7 @@ private:
                                   tessellationPatchVertexCount);
 
         state->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
-        state->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
+        state->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));
         state->draw(tessellationPatchVertexCount, fBaseVertex);
     }
 
