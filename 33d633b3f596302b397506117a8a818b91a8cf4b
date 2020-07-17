@@ -128,6 +128,30 @@
       "revId": "33d633b3f596302b397506117a8a818b91a8cf4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c092713_202f1960",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T18:16:04Z",
+      "side": 1,
+      "message": "Got it, missed the check on 298.",
+      "parentUuid": "7ac300c3_b20a4a59",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 5
+      },
+      "revId": "33d633b3f596302b397506117a8a818b91a8cf4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
