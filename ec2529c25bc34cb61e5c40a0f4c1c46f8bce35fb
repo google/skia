@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df0509c5_421abaa8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-17T18:28:54Z",
+      "side": 1,
+      "message": "rm \u0027 \u0027 ?",
+      "range": {
+        "startLine": 141,
+        "startChar": 49,
+        "endLine": 141,
+        "endChar": 50
+      },
+      "revId": "ec2529c25bc34cb61e5c40a0f4c1c46f8bce35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "959fbe29_9efc56fb",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-17T18:28:54Z",
+      "side": 1,
+      "message": "line these up ?",
+      "range": {
+        "startLine": 416,
+        "startChar": 0,
+        "endLine": 417,
+        "endChar": 52
+      },
+      "revId": "ec2529c25bc34cb61e5c40a0f4c1c46f8bce35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "790b3d6f_fa54d7aa",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-17T18:28:54Z",
+      "side": 1,
+      "message": "Should the ctor be private ?",
+      "revId": "ec2529c25bc34cb61e5c40a0f4c1c46f8bce35fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
