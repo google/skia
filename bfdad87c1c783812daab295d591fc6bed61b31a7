@@ -16,6 +16,24 @@
       "revId": "bfdad87c1c783812daab295d591fc6bed61b31a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60d1c95e_6143f5af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-17T16:47:02Z",
+      "side": 1,
+      "message": "Yes.  We could probably finesse that.",
+      "parentUuid": "a3364f3a_c9eb6e27",
+      "revId": "bfdad87c1c783812daab295d591fc6bed61b31a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
