@@ -16,8 +16,7 @@ GrBlockAllocator::GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementByt
         : fTail(&fHead)
         // Round up to the nearest max-aligned value, and then divide so that fBlockSizeIncrement
         // can effectively fit higher byte counts in its 16 bits of storage
-        , fBlockIncrement(SkTo<uint16_t>(GrAlignTo(blockIncrementBytes, kBlockIncrementUnits)
-                                                / kBlockIncrementUnits))
+        , fBlockIncrement(SkTo<uint16_t>(GrAlignTo(blockIncrementBytes, kBlockAlign) / kBlockAlign))
         , fGrowthPolicy(static_cast<uint64_t>(policy))
         , fN0((policy == GrowthPolicy::kLinear || policy == GrowthPolicy::kExponential) ? 1 : 0)
         , fN1(1)
@@ -184,7 +183,7 @@ void GrBlockAllocator::addBlock(int minimumSize, int maxSize) {
         // Then round to a nice boundary since the block isn't maxing out:
         //   if allocSize > 32K, aligns on 4K boundary otherwise aligns on max_align_t, to play
         //   nicely with jeMalloc (from SkArenaAlloc).
-        int mask = size > (1 << 15) ? ((1 << 12) - 1) : (kBlockIncrementUnits - 1);
+        int mask = size > (1 << 15) ? ((1 << 12) - 1) : (kBlockAlign - 1);
         return (size + mask) & ~mask;
     };
 
@@ -214,7 +213,7 @@ void GrBlockAllocator::addBlock(int minimumSize, int maxSize) {
 
         // However, must guard against overflow here, since all the size-based asserts prevented
         // alignment/addition overflows, while multiplication requires 2x bits instead of x+1.
-        int sizeIncrement = fBlockIncrement * kBlockIncrementUnits;
+        int sizeIncrement = fBlockIncrement * kBlockAlign;
         if (maxSize / sizeIncrement < nextN1) {
             // The growth policy would overflow, so use the max. We've already confirmed that
             // maxSize will be sufficient for the requested minimumSize
