@@ -10,6 +10,7 @@
 #include "include/private/SkColorData.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
@@ -197,6 +198,110 @@ skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
     return {};
 }
 
+sk_sp<SkShader> SkShaders::Multisample(sk_sp<SkShader> child,
+                                       const SkPoint samples[], int nsamples,
+                                       const SkScalar weights[]) {
+    return child ? sk_make_sp<SkShader_Multisample>(std::move(child), samples,nsamples, weights)
+                 : nullptr;
+}
+
+SkShader_Multisample::SkShader_Multisample(sk_sp<SkShader> child,
+                                           const SkPoint samples[], int nsamples,
+                                           const SkScalar weights[])
+    : fChild  (std::move(child))
+    , fSamples(samples, nsamples)
+{
+    fWeights.reset(nsamples);
+    for (SkScalar& weight : fWeights) {
+        weight = weights ? *weights++ : 1.0f/nsamples;
+    }
+}
+
+
+void SkShader_Multisample::flatten(SkWriteBuffer& b) const {
+    b.writeFlattenable(fChild.get());
+    b.writePointArray (fSamples.data(), fSamples.count());
+    b.writeScalarArray(fWeights.data(), fSamples.count());
+}
+
+sk_sp<SkFlattenable> SkShader_Multisample::CreateProc(SkReadBuffer& b) {
+    sk_sp<SkShader> child = b.readShader();
+    std::vector<SkPoint>  samples(b.getArrayCount());
+    std::vector<SkScalar> weights(samples.size());
+    if (child
+            && b.readPointArray (samples.data(), samples.size())
+            && b.readScalarArray(weights.data(), weights.size())) {
+        return SkShaders::Multisample(child, samples.data(), samples.size(), weights.data());
+    }
+    return nullptr;
+}
+
+skvm::Color SkShader_Multisample::onProgram(
+        skvm::Builder* p, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+        const SkMatrixProvider& matrices, const SkMatrix* localM,
+        SkFilterQuality quality, const SkColorInfo& dst,
+        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+
+    skvm::Color accum = {
+        p->splat(0.0f),
+        p->splat(0.0f),
+        p->splat(0.0f),
+        p->splat(0.0f),
+    };
+
+    // We can save a bunch of math if all the weights are the same.
+    bool weights_vary = false;
+    for (SkScalar w : fWeights) {
+        if (w != fWeights[0]) {
+            weights_vary = true;
+            break;
+        }
+    }
+
+    // Push up all our uniforms now.
+    std::vector<skvm::Coord> samples(fSamples.count());
+    std::vector<skvm::F32>   weights(fSamples.count());
+    for (int i = 0; i < fSamples.count(); i++) {
+        samples[i] = {p->uniformF(uniforms->pushF(fSamples[i].x())),
+                      p->uniformF(uniforms->pushF(fSamples[i].y()))};
+        if (i == 0 || weights_vary) {
+            weights[i] = p->uniformF(uniforms->pushF(fWeights[i]));
+        }
+    }
+
+    // Remember where our uniforms ended, so we can reset them between calls to child->program(),
+    // strongly assumes each call to program() will generate identical uniforms.
+    size_t saved = uniforms->buf.size();
+    for (int i = 0; i < fSamples.count(); i++) {
+        uniforms->buf.resize(saved);
+        skvm::Coord s = samples[i];
+
+        skvm::Color c = as_SB(fChild)->program(p, device,{local.x+s.x,local.y+s.y}, paint,
+                                               matrices,localM, quality,dst, uniforms,alloc);
+        if (!c) {
+            return {};
+        }
+
+        if (weights_vary) {
+            accum.r = accum.r + c.r*weights[i];
+            accum.g = accum.g + c.g*weights[i];
+            accum.b = accum.b + c.b*weights[i];
+            accum.a = accum.a + c.a*weights[i];
+        } else {
+            accum.r = accum.r + c.r;
+            accum.g = accum.g + c.g;
+            accum.b = accum.b + c.b;
+            accum.a = accum.a + c.a;
+        }
+    }
+    return weights_vary ? accum : skvm::Color {
+        accum.r * weights[0],
+        accum.g * weights[0],
+        accum.b * weights[0],
+        accum.a * weights[0],
+    };
+}
+
 #if SK_SUPPORT_GPU
 
 #include "include/gpu/GrRecordingContext.h"
@@ -223,4 +328,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
     auto fpB = as_fp(args, fSrc.get());
     return GrComposeLerpEffect::Make(std::move(fpA), std::move(fpB), fWeight);
 }
+
+// TODO: SkShader_Multisample
+
 #endif
