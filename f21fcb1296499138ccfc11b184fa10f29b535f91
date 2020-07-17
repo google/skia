@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b5b1388_c9461006",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-17T21:25:26Z",
+      "side": 1,
+      "message": "This was an optimization Brian mentioned a while back when I first wrote the GrBlockAllocator, but it also proves useful for reserving extra space w/o preventing the rest of the active block from being used first.",
+      "revId": "f21fcb1296499138ccfc11b184fa10f29b535f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
