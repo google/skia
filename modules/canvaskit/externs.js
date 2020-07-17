@@ -551,7 +551,7 @@ var CanvasKit = {
     makeImageSnapshot: function() {},
     makeSurface: function() {},
     sampleCnt: function() {},
-    reportBackendType: function() {},
+    reportBackendTypeIsGPU: function() {},
     grContext: {},
 
     // private API

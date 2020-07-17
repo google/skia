@@ -846,7 +846,7 @@ describe('Core canvas behavior', () => {
             const colorSpace = CanvasKit.SkColorSpace.DISPLAY_P3;
             const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SkColorSpace.DISPLAY_P3);
             expect(surface).toBeTruthy('Could not make surface');
-            if (surface.reportBackendType() !== 'GPU') {
+            if (!surface.reportBackendTypeIsGPU()) {
                 console.log('Not expecting color space support in cpu backed suface.');
                 return;
             }
@@ -864,7 +864,7 @@ describe('Core canvas behavior', () => {
             const colorSpace = CanvasKit.SkColorSpace.ADOBE_RGB;
             const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SkColorSpace.ADOBE_RGB);
             expect(surface).toBeTruthy('Could not make surface');
-            if (surface.reportBackendType() !== 'GPU') {
+            if (!surface.reportBackendTypeIsGPU()) {
                 console.log('Not expecting color space support in cpu backed suface.');
                 return;
             }
@@ -882,7 +882,7 @@ describe('Core canvas behavior', () => {
         it('combine draws from several color spaces', () => {
             const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SkColorSpace.ADOBE_RGB);
             expect(surface).toBeTruthy('Could not make surface');
-            if (surface.reportBackendType() !== 'GPU') {
+            if (!surface.reportBackendTypeIsGPU()) {
                 console.log('Not expecting color space support in cpu backed suface.');
                 return;
             }

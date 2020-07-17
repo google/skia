@@ -1637,16 +1637,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.makeSurface(toSkImageInfo(sii));
         }), allow_raw_pointers())
 #ifdef SK_GL
-        .function("reportBackendType", optional_override([](SkSurface& self)->std::string {
-            return self.getCanvas()->getGrContext() == nullptr ? "CPU" : "GPU";
+        .function("reportBackendTypeIsGPU", optional_override([](SkSurface& self) -> bool {
+            return self.getCanvas()->getGrContext() != nullptr;
         }))
         .function("sampleCnt", optional_override([](SkSurface& self)->int {
             auto backendRT = self.getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
             return (backendRT.isValid()) ? backendRT.sampleCnt() : 0;
         }))
 #else
-        .function("reportBackendType", optional_override([](SkSurface& self)->std::string {
-            return "CPU";
+        .function("reportBackendTypeIsGPU", optional_override([](SkSurface& self) -> bool {
+            return false;
         }))
 #endif
         .function("width", &SkSurface::width);
