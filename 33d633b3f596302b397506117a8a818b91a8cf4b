@@ -104,6 +104,30 @@
       "revId": "33d633b3f596302b397506117a8a818b91a8cf4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ac300c3_b20a4a59",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-17T18:13:24Z",
+      "side": 1,
+      "message": "Nah, nothing requires they add up to 1.  It\u0027s just that if they\u0027re even, we can move the multiply-by-weight outside the parentheses of all the math.",
+      "parentUuid": "fba8ba8b_6e5b9480",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 5
+      },
+      "revId": "33d633b3f596302b397506117a8a818b91a8cf4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
