@@ -106,6 +106,24 @@
       "revId": "10ae9934d6566234aad0b6f1b663264fe8083bce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb395811_331dd425",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T15:14:51Z",
+      "side": 1,
+      "message": "As a standalone effect it might make sense to take some information about sample spacing and possibly sample offset. For images we know we want to sample at int multiples of .5 but for an arbitrary underlying shader that may vary.",
+      "parentUuid": "2a6d02dd_bd852ee4",
+      "revId": "10ae9934d6566234aad0b6f1b663264fe8083bce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
