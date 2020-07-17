@@ -22,6 +22,7 @@ GrProcessorTestData::GrProcessorTestData(SkRandom* random,
     fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
 }
 
+GrProcessorTestData::~GrProcessorTestData() {}
 
 GrProxyProvider* GrProcessorTestData::proxyProvider() { return fContext->priv().proxyProvider(); }
 
