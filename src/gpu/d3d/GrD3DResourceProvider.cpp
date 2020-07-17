@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkOpts_spi.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandList.h"
@@ -153,13 +154,45 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
     return sampler;
 }
 
-std::unique_ptr<GrD3DDescriptorTable> GrD3DResourceProvider::createShaderOrConstantResourceTable(
-        unsigned int size) {
-    return fDescriptorTableManager.createShaderOrConstantResourceTable(fGpu, size);
+sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateShaderResourceTable(
+        unsigned int numDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE* shaderResourceViews,
+        unsigned int* rangeSizes) {
+
+    uint32_t key = SkOpts::hash_fn(shaderResourceViews,
+                                   numDescriptors * sizeof(D3D12_CPU_DESCRIPTOR_HANDLE), 0);
+    sk_sp<GrD3DDescriptorTable>* srvTablePtr = fShaderResourceDescriptorTables.find(key);
+    if (srvTablePtr) {
+        return *srvTablePtr;
+    }
+
+    sk_sp<GrD3DDescriptorTable> srvTable =
+            fDescriptorTableManager.createShaderOrConstantResourceTable(fGpu, numDescriptors);
+    fGpu->device()->CopyDescriptors(1, srvTable->baseCpuDescriptorPtr(), &numDescriptors,
+                                    numDescriptors, shaderResourceViews, rangeSizes,
+                                    srvTable->type());
+    fShaderResourceDescriptorTables.set(key, srvTable);
+
+    return srvTable;
 }
 
-std::unique_ptr<GrD3DDescriptorTable> GrD3DResourceProvider::createSamplerTable(unsigned int size) {
-    return fDescriptorTableManager.createSamplerTable(fGpu, size);
+sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateSamplerTable(
+        unsigned int numDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE* samplers,
+        unsigned int* rangeSizes) {
+    uint32_t key = SkOpts::hash_fn(samplers,
+                                   numDescriptors * sizeof(D3D12_CPU_DESCRIPTOR_HANDLE), 0);
+    sk_sp<GrD3DDescriptorTable>* srvTablePtr = fSamplerDescriptorTables.find(key);
+    if (srvTablePtr) {
+        return *srvTablePtr;
+    }
+
+    sk_sp<GrD3DDescriptorTable> srvTable =
+            fDescriptorTableManager.createSamplerTable(fGpu, numDescriptors);
+    fGpu->device()->CopyDescriptors(1, srvTable->baseCpuDescriptorPtr(), &numDescriptors,
+                                    numDescriptors, samplers, rangeSizes,
+                                    srvTable->type());
+    fSamplerDescriptorTables.set(key, srvTable);
+
+    return srvTable;
 }
 
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
@@ -193,6 +226,10 @@ D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, 
 void GrD3DResourceProvider::prepForSubmit() {
     fGpu->currentCommandList()->setCurrentConstantBuffer(fConstantBuffer);
     fDescriptorTableManager.prepForSubmit(fGpu);
+    // Any heap memory used for these will be returned when the command buffer finishes,
+    // so we have to invalidate all entries.
+    fShaderResourceDescriptorTables.reset();
+    fSamplerDescriptorTables.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

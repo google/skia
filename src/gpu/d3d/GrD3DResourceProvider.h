@@ -56,9 +56,12 @@ public:
 
     D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
 
-
-    std::unique_ptr<GrD3DDescriptorTable> createShaderOrConstantResourceTable(unsigned int size);
-    std::unique_ptr<GrD3DDescriptorTable> createSamplerTable(unsigned int size);
+    sk_sp<GrD3DDescriptorTable> findOrCreateShaderResourceTable(
+            unsigned int numDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE* shaderResourceViews,
+            unsigned int* rangeSizes);
+    sk_sp<GrD3DDescriptorTable> findOrCreateSamplerTable(
+            unsigned int numDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE* samplers,
+            unsigned int* rangeSizes);
     GrD3DDescriptorTableManager* descriptorTableMgr() {
         return &fDescriptorTableManager;
     }
@@ -123,6 +126,8 @@ private:
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
 
     SkTHashMap<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> fSamplers;
+    SkTHashMap<uint32_t, sk_sp<GrD3DDescriptorTable>> fShaderResourceDescriptorTables;
+    SkTHashMap<uint32_t, sk_sp<GrD3DDescriptorTable>> fSamplerDescriptorTables;
 };
 
 #endif

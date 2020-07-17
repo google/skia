@@ -134,21 +134,18 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu, const GrPrimitiveProc
     // fill in descriptor tables and bind to root signature
     if (fNumSamplers > 0) {
         // set up and bind shader resource view table
-        std::unique_ptr<GrD3DDescriptorTable> srvTable =
-                gpu->resourceProvider().createShaderOrConstantResourceTable(fNumSamplers);
-        gpu->device()->CopyDescriptors(1, srvTable->baseCpuDescriptorPtr(), &fNumSamplers,
-                                       fNumSamplers, shaderResourceViews.get(), rangeSizes.get(),
-                                       srvTable->type());
+        sk_sp<GrD3DDescriptorTable> srvTable =
+                gpu->resourceProvider().findOrCreateShaderResourceTable(fNumSamplers,
+                                                                        shaderResourceViews.get(),
+                                                                        rangeSizes.get());
         gpu->currentCommandList()->setGraphicsRootDescriptorTable(
                 static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kTextureDescriptorTable),
                 srvTable->baseGpuDescriptor());
 
         // set up and bind sampler table
-        std::unique_ptr<GrD3DDescriptorTable> samplerTable =
-                gpu->resourceProvider().createSamplerTable(fNumSamplers);
-        gpu->device()->CopyDescriptors(1, samplerTable->baseCpuDescriptorPtr(), &fNumSamplers,
-                                       fNumSamplers, samplers.get(), rangeSizes.get(),
-                                       samplerTable->type());
+        sk_sp<GrD3DDescriptorTable> samplerTable =
+                gpu->resourceProvider().findOrCreateSamplerTable(fNumSamplers, samplers.get(),
+                                                                 rangeSizes.get());
         gpu->currentCommandList()->setGraphicsRootDescriptorTable(
                 static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable),
                 samplerTable->baseGpuDescriptor());
