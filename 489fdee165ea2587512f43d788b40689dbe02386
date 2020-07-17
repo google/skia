@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3938c989_f67d55fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-17T13:15:40Z",
+      "side": 1,
+      "message": "We\u0027ve had similar issues before, and you *can* get away with the forward declaration. You just need to prevent the compiler from trying to synthesize the unique_ptr dtor when it sees the header, by declaring it, then defining it out-of-line in the .cpp. See \"ProgramData\" in GrRecordingContext.h for an example.",
+      "revId": "489fdee165ea2587512f43d788b40689dbe02386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
