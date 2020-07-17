@@ -51,6 +51,23 @@
       "revId": "e70e6e2d2270577028fef5566a37049e0ee58086",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1113f182_f385ac9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-17T15:00:10Z",
+      "side": 1,
+      "message": "Yeah, the fundamental problem is that getRefCnt() cannot guarantee the result it returns is correct in any situation where it might be interesting to call it.  Even unique() is only trustworthy if it returns true.",
+      "revId": "e70e6e2d2270577028fef5566a37049e0ee58086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
