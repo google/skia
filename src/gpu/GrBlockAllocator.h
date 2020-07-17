@@ -142,6 +142,12 @@ public:
         int             fSize;      // includes the size of the BlockHeader and requested metadata
         int             fCursor;    // (this + fCursor) points to next available allocation
         int             fMetadata;
+
+        // On release builds, a Block's other 2 pointers and 3 int fields leaves 4 bytes of padding
+        // for 8 and 16 aligned systems. Currently this is only manipulated in the head block for
+        // an allocator-level metadata and is explicitly not reset when the head block is "released"
+        // Down the road we could instead choose to offer multiple metadata slots per block.
+        int             fAllocatorMetadata;
     };
 
     // The size of the head block is determined by 'additionalPreallocBytes'. Subsequent heap blocks
@@ -210,6 +216,18 @@ public:
     size_t preallocUsableSpace() const {
         return fHead.fSize - kDataStart;
     }
+
+    /**
+     * Get the current value of the allocator-level metadata (a user-oriented slot). This is
+     * separate from any block-level metadata, but can serve a similar purpose to compactly support
+     * data collections on top of GrBlockAllocator.
+     */
+    int metadata() const { return fHead.fAllocatorMetadata; }
+
+    /**
+     * Set the current value of the allocator-level metadata.
+     */
+    void setMetadata(int value) { fHead.fAllocatorMetadata = value; }
 
     /**
      * Reserve space that will hold 'size' bytes. This will automatically allocate a new block if
@@ -292,7 +310,7 @@ public:
 
     /**
      * Explicitly free all blocks (invalidating all allocations), and resets the head block to its
-     * default state.
+     * default state. The allocator-level metadata is reset to 0 as well.
      */
     void reset();
 
@@ -321,9 +339,7 @@ public:
 #endif
 
 private:
-    // Smallest value of fCursor, this will automatically repurpose any alignment padding that
-    // the compiler introduced if the first allocation is aligned less than max_align_t.
-    static constexpr int kDataStart = offsetof(Block, fMetadata) + sizeof(int);
+    static constexpr int kDataStart = sizeof(Block);
     static constexpr int kBlockIncrementUnits = alignof(std::max_align_t);
 
     // Calculates the size of a new Block required to store a kMaxAllocationSize request for the
@@ -408,11 +424,14 @@ private:
 
 template<size_t Align, size_t Padding>
 constexpr size_t GrBlockAllocator::BlockOverhead() {
-    return std::max(sizeof(Block), GrAlignTo(kDataStart + Padding, Align));
+    static_assert(GrAlignTo(kDataStart + Padding, Align) >= sizeof(Block));
+    return GrAlignTo(kDataStart + Padding, Align);
 }
 
 template<size_t Align, size_t Padding>
 constexpr size_t GrBlockAllocator::Overhead() {
+    // NOTE: On most platforms, GrBlockAllocator is packed; this is not the case on debug builds
+    // due to extra fields, or on WASM due to 4byte pointers but 16byte max align.
     return std::max(sizeof(GrBlockAllocator),
                     offsetof(GrBlockAllocator, fHead) + BlockOverhead<Align, Padding>());
 }
