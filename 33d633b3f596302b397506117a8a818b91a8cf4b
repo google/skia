@@ -16,6 +16,46 @@
       "revId": "33d633b3f596302b397506117a8a818b91a8cf4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d1c7a98_98175b29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T18:10:18Z",
+      "side": 1,
+      "message": "Yeah,, definitely implementable in Ganesh.",
+      "revId": "33d633b3f596302b397506117a8a818b91a8cf4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab358e03_c00e03ff",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T18:10:18Z",
+      "side": 1,
+      "message": "Isn\u0027t this also assuming that the weights are ~1/nsamples?",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 5
+      },
+      "revId": "33d633b3f596302b397506117a8a818b91a8cf4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
