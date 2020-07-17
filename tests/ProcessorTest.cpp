@@ -229,12 +229,8 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
 
 void test_draw_op(GrContext* context,
                   GrRenderTargetContext* rtc,
-                  std::unique_ptr<GrFragmentProcessor> fp,
-                  GrSurfaceProxyView inputDataView,
-                  SkAlphaType inputAlphaType) {
+                  std::unique_ptr<GrFragmentProcessor> fp) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(GrTextureEffect::Make(std::move(inputDataView),
-                                                          inputAlphaType));
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -247,13 +243,10 @@ void test_draw_op(GrContext* context,
 void render_fp(GrContext* context,
                GrRenderTargetContext* rtc,
                std::unique_ptr<GrFragmentProcessor> fp,
-               GrSurfaceProxyView inputDataView,
-               SkAlphaType inputAlphaType,
                GrColor* buffer) {
-    test_draw_op(context, rtc, std::move(fp), inputDataView, inputAlphaType);
-    memset(buffer, 0x0,
-           sizeof(GrColor) * inputDataView.proxy()->width() * inputDataView.proxy()->height());
-    rtc->readPixels(SkImageInfo::Make(inputDataView.proxy()->dimensions(), kRGBA_8888_SkColorType,
+    test_draw_op(context, rtc, std::move(fp));
+    memset(buffer, 0x0, sizeof(GrColor) * rtc->width() * rtc->height());
+    rtc->readPixels(SkImageInfo::Make(rtc->width(), rtc->height(), kRGBA_8888_SkColorType,
                                       kPremul_SkAlphaType),
                     buffer, 0, {0, 0});
 }
@@ -539,7 +532,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         timesToInvokeFactory = 1;
 #endif
         for (int j = 0; j < timesToInvokeFactory; ++j) {
-            fp = FPFactory::MakeIdx(i, &testData);
+            // Create a randomly-configured FP.
+            fpGenerator.reroll();
+            fp = fpGenerator.create(inputTexEffect1FP->clone(), i);
 
             if (!fp->hasConstantOutputForConstantInput() && !fp->preservesOpaqueInput() &&
                 !fp->compatibleWithCoverageAsAlpha()) {
@@ -549,17 +544,19 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             // All draws use a clone so that we can continue to query fp. ProcessorCloneTest should
             // validate that clones are equivalent to the original.
             if (fp->compatibleWithCoverageAsAlpha()) {
-                // 2nd and 3rd frames are only used when checking coverage optimization
-                render_fp(context, rtc.get(), fp->clone(), inputTexture2, kPremul_SkAlphaType,
-                          readData2.get());
-                render_fp(context, rtc.get(), fp->clone(), inputTexture3, kPremul_SkAlphaType,
-                          readData3.get());
+                // Create and render two identical versions of this FP, but using different input
+                // textures, to check coverage optimization. We don't need to do this step for
+                // constant-output or preserving-opacity tests.
+                render_fp(context, rtc.get(), fpGenerator.create(inputTexEffect2FP->clone(), i),
+                          readData2.data());
+                render_fp(context, rtc.get(), fpGenerator.create(inputTexEffect3FP->clone(), i),
+                          readData3.data());
             }
 
-            // Draw base frame last so that rtc holds the original FP behavior if we need to
-            // dump the image to the log.
-            render_fp(context, rtc.get(), fp->clone(), inputTexture1, kPremul_SkAlphaType,
-                      readData1.get());
+            // Draw base frame last so that rtc holds the original FP behavior if we need to dump
+            // the image to the log.
+            render_fp(context, rtc.get(), fpGenerator.create(inputTexEffect1FP->clone(), i),
+                      readData1.data());
 
             // This test has a history of being flaky on a number of devices. If an FP is logically
             // violating the optimizations, it's reasonable to expect it to violate requirements on
@@ -775,6 +772,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
                 continue;
             }
+            SkDebugf("%s\n", describe_fp(*fp).c_str());
             const char* name = fp->name();
             REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()),
                                       "%s\n", describe_fp(*fp).c_str());
@@ -796,12 +794,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                       clone->referencesSampleCoords(),
                                       "%s\n", describe_fp(*fp).c_str());
             // Draw with original and read back the results.
-            render_fp(context, rtc.get(), std::move(fp), inputTexture, kPremul_SkAlphaType,
-                      readData1.get());
+            render_fp(context, rtc.get(), std::move(fp), readData1.data());
 
             // Draw with clone and read back the results.
-            render_fp(context, rtc.get(), std::move(clone), inputTexture, kPremul_SkAlphaType,
-                      readData2.get());
+            render_fp(context, rtc.get(), std::move(clone), readData2.data());
 
             // Check that the results are the same.
             bool passing = true;
