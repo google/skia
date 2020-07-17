@@ -76,6 +76,30 @@
     },
     {
       "key": {
+        "uuid": "28cd4e87_ba356734",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-17T20:13:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39615a28_8caeed23",
+      "range": {
+        "startLine": 313,
+        "startChar": 14,
+        "endLine": 313,
+        "endChar": 18
+      },
+      "revId": "9c8f008693f9413f5a10ebde2531998b79d00a64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46588214_313e6922",
         "filename": "src/gpu/gl/GrGLInterfaceAutogen.cpp",
         "patchSetId": 1
@@ -96,6 +120,30 @@
       "revId": "9c8f008693f9413f5a10ebde2531998b79d00a64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f9c1a36_c43797ac",
+        "filename": "src/gpu/gl/GrGLInterfaceAutogen.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-17T20:13:09Z",
+      "side": 1,
+      "message": "This is an autogen file. I\u0027m inclined to just let it do its thing.",
+      "parentUuid": "46588214_313e6922",
+      "range": {
+        "startLine": 322,
+        "startChar": 4,
+        "endLine": 322,
+        "endChar": 10
+      },
+      "revId": "9c8f008693f9413f5a10ebde2531998b79d00a64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
