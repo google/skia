@@ -389,7 +389,7 @@ protected:
 private:
     sk_sp<SkColorFilterBase> fCF0;
     sk_sp<SkColorFilterBase> fCF1;
-    const float             fWeight;
+    const float              fWeight;
 
     friend class SkColorFilter;
 
