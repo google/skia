@@ -1273,7 +1273,7 @@ void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
 }
 
 void GrD3DGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
-    fCurrentDirectCommandList->addGpuBuffer(std::move(buffer));
+    fCurrentDirectCommandList->addGrBuffer(std::move(buffer));
 }
 
 bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {

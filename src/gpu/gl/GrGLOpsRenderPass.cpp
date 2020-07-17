@@ -58,19 +58,21 @@ bool GrGLOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     return true;
 }
 
-void GrGLOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                                      const GrBuffer* vertexBuffer,
+void GrGLOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
+                                      sk_sp<const GrBuffer> instanceBuffer,
+                                      sk_sp<const GrBuffer> vertexBuffer,
                                       GrPrimitiveRestart primitiveRestart) {
     SkASSERT((primitiveRestart == GrPrimitiveRestart::kNo) || indexBuffer);
     GrGLProgram* program = fGpu->currentProgram();
     SkASSERT(program);
 
     int numAttribs = program->numVertexAttributes() + program->numInstanceAttributes();
-    fAttribArrayState = fGpu->bindInternalVertexArray(indexBuffer, numAttribs, primitiveRestart);
+    fAttribArrayState = fGpu->bindInternalVertexArray(indexBuffer.get(), numAttribs,
+                                                      primitiveRestart);
 
     if (indexBuffer) {
         if (indexBuffer->isCpuBuffer()) {
-            auto* cpuIndexBuffer = static_cast<const GrCpuBuffer*>(indexBuffer);
+            auto* cpuIndexBuffer = static_cast<const GrCpuBuffer*>(indexBuffer.get());
             fIndexPointer = reinterpret_cast<const uint16_t*>(cpuIndexBuffer->data());
         } else {
             fIndexPointer = nullptr;
@@ -79,19 +81,19 @@ void GrGLOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffe
 
     if (!fGpu->glCaps().baseVertexBaseInstanceSupport()) {
         // This platform does not support baseInstance. Defer binding of the instance buffer.
-        fActiveInstanceBuffer = sk_ref_sp(instanceBuffer);
+        fActiveInstanceBuffer = std::move(instanceBuffer);
     } else {
-        this->bindInstanceBuffer(instanceBuffer, 0);
+        this->bindInstanceBuffer(instanceBuffer.get(), 0);
     }
     if (!indexBuffer && fGpu->glCaps().drawArraysBaseVertexIsBroken()) {
         // There is a driver bug affecting glDrawArrays. Defer binding of the vertex buffer.
-        fActiveVertexBuffer = sk_ref_sp(vertexBuffer);
+        fActiveVertexBuffer = std::move(vertexBuffer);
     } else if (indexBuffer && !fGpu->glCaps().baseVertexBaseInstanceSupport()) {
         // This platform does not support baseVertex with indexed draws. Defer binding of the
         // vertex buffer.
-        fActiveVertexBuffer = sk_ref_sp(vertexBuffer);
+        fActiveVertexBuffer = std::move(vertexBuffer);
     } else {
-        this->bindVertexBuffer(vertexBuffer, 0);
+        this->bindVertexBuffer(vertexBuffer.get(), 0);
     }
 }
 
