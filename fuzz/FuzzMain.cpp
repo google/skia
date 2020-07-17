@@ -38,6 +38,7 @@ static DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file,
 static DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
 static DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a "
                                    "PNG with this name.");
+static DEFINE_int(loops, 1, "Run the fuzzer on each input this many times.");
 DEFINE_bool2(verbose, v, false, "Print more information while fuzzing.");
 
 // This cannot be inlined in DEFINE_string2 due to interleaved ifdefs
@@ -114,17 +115,27 @@ int main(int argc, char** argv) {
     SkString path = SkString(FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0]);
     SkString type = SkString(FLAGS_type.isEmpty() ? "" : FLAGS_type[0]);
 
+    int loopCount = std::max(FLAGS_loops, 1);
+
     if (!sk_isdir(path.c_str())) {
-        return fuzz_file(path, type);
+        for (int i = 0; i < loopCount; ++i) {
+            int rv = fuzz_file(path, type);
+            if (rv != 0) {
+                return rv;
+            }
+        }
+        return 0;
     }
 
     SkOSFile::Iter it(path.c_str());
     for (SkString file; it.next(&file); ) {
         SkString p = SkOSPath::Join(path.c_str(), file.c_str());
         SkDebugf("Fuzzing %s\n", p.c_str());
-        int rv = fuzz_file(p, type);
-        if (rv != 0) {
-            return rv;
+        for (int i = 0; i < loopCount; ++i) {
+            int rv = fuzz_file(p, type);
+            if (rv != 0) {
+                return rv;
+            }
         }
     }
     return 0;
