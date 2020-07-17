@@ -14,35 +14,39 @@
 #include "src/gpu/ops/GrTextureOp.h"
 #include "tests/Test.h"
 
-static std::unique_ptr<GrRenderTargetContext> new_RTC(GrContext* context) {
+static std::unique_ptr<GrRenderTargetContext> new_RTC(GrRecordingContext* rContext) {
     return GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {128, 128});
+            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {128, 128});
 }
 
-sk_sp<GrSurfaceProxy> create_proxy(GrContext* context) {
+sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
     static constexpr SkISize kDimensions = {128, 128};
 
-    const GrBackendFormat format = context->priv().caps()->getDefaultBackendFormat(
+    const GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(
                                                                            GrColorType::kRGBA_8888,
                                                                            GrRenderable::kYes);
-    return context->priv().proxyProvider()->createProxy(
+    return rContext->priv().proxyProvider()->createProxy(
             format, kDimensions, GrRenderable::kYes, 1, GrMipMapped::kNo, SkBackingFit::kExact,
             SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 }
 
 typedef GrQuadAAFlags (*PerQuadAAFunc)(int i);
 
-typedef void (*BulkRectTest)(skiatest::Reporter* reporter, GrContext* context,
-                             PerQuadAAFunc perQuadAA, GrAAType overallAA, SkBlendMode blendMode,
-                             int requestedTotNumQuads, int expectedNumOps);
+typedef void (*BulkRectTest)(skiatest::Reporter*,
+                             GrDirectContext*,
+                             PerQuadAAFunc perQuadAA,
+                             GrAAType overallAA,
+                             SkBlendMode,
+                             int requestedTotNumQuads,
+                             int expectedNumOps);
 
 //-------------------------------------------------------------------------------------------------
-static void bulk_fill_rect_create_test(skiatest::Reporter* reporter, GrContext* context,
+static void bulk_fill_rect_create_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
                                        PerQuadAAFunc perQuadAA, GrAAType overallAA,
                                        SkBlendMode blendMode,
                                        int requestedTotNumQuads, int expectedNumOps) {
 
-    std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(context);
+    std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext);
 
     auto quads = new GrRenderTargetContext::QuadSetEntry[requestedTotNumQuads];
 
@@ -55,7 +59,7 @@ static void bulk_fill_rect_create_test(skiatest::Reporter* reporter, GrContext* 
 
     GrPaint paint;
     paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
-    GrFillRectOp::AddFillRectOps(rtc.get(), nullptr, context, std::move(paint), overallAA,
+    GrFillRectOp::AddFillRectOps(rtc.get(), nullptr, dContext, std::move(paint), overallAA,
                                  SkMatrix::I(), quads, requestedTotNumQuads);
 
     GrOpsTask* opsTask = rtc->testingOnly_PeekLastOpsTask();
@@ -73,21 +77,21 @@ static void bulk_fill_rect_create_test(skiatest::Reporter* reporter, GrContext* 
     REPORTER_ASSERT(reporter, expectedNumOps == actualNumOps);
     REPORTER_ASSERT(reporter, requestedTotNumQuads == actualTotNumQuads);
 
-    context->flushAndSubmit();
+    dContext->flushAndSubmit();
 
     delete[] quads;
 }
 
 //-------------------------------------------------------------------------------------------------
-static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContext* context,
+static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
                                           PerQuadAAFunc perQuadAA, GrAAType overallAA,
                                           SkBlendMode blendMode,
                                           int requestedTotNumQuads, int expectedNumOps) {
 
-    std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(context);
+    std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext);
 
-    sk_sp<GrSurfaceProxy> proxyA = create_proxy(context);
-    sk_sp<GrSurfaceProxy> proxyB = create_proxy(context);
+    sk_sp<GrSurfaceProxy> proxyA = create_proxy(dContext);
+    sk_sp<GrSurfaceProxy> proxyB = create_proxy(dContext);
     GrSurfaceProxyView proxyViewA(std::move(proxyA), kTopLeft_GrSurfaceOrigin, GrSwizzle::RGBA());
     GrSurfaceProxyView proxyViewB(std::move(proxyB), kTopLeft_GrSurfaceOrigin, GrSwizzle::RGBA());
 
@@ -106,7 +110,7 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
         set[i].fAAFlags = perQuadAA(i);
     }
 
-    GrTextureOp::AddTextureSetOps(rtc.get(), nullptr, context, set, requestedTotNumQuads,
+    GrTextureOp::AddTextureSetOps(rtc.get(), nullptr, dContext, set, requestedTotNumQuads,
                                   requestedTotNumQuads, // We alternate so proxyCnt == cnt
                                   GrSamplerState::Filter::kNearest,
                                   GrTextureOp::Saturate::kYes,
@@ -121,7 +125,7 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
     int actualTotNumQuads = 0;
 
     if (blendMode != SkBlendMode::kSrcOver ||
-        !context->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
+        !dContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
         // In either of these two cases, GrTextureOp creates one op per quad instead. Since
         // each entry alternates proxies but overlaps geometrically, this will prevent the ops
         // from being merged back into fewer ops.
@@ -139,13 +143,13 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
     REPORTER_ASSERT(reporter, expectedNumOps == actualNumOps);
     REPORTER_ASSERT(reporter, requestedTotNumQuads == actualTotNumQuads);
 
-    context->flushAndSubmit();
+    dContext->flushAndSubmit();
 
     delete[] set;
 }
 
 //-------------------------------------------------------------------------------------------------
-static void run_test(GrContext* context, skiatest::Reporter* reporter, BulkRectTest test) {
+static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter, BulkRectTest test) {
     // This is the simple case where there is no AA at all. We expect 2 non-AA clumps of quads.
     {
         auto noAA = [](int i) -> GrQuadAAFlags {
@@ -154,7 +158,7 @@ static void run_test(GrContext* context, skiatest::Reporter* reporter, BulkRectT
 
         static const int kNumExpectedOps = 2;
 
-        test(reporter, context, noAA, GrAAType::kNone, SkBlendMode::kSrcOver,
+        test(reporter, dContext, noAA, GrAAType::kNone, SkBlendMode::kSrcOver,
              2*GrResourceProvider::MaxNumNonAAQuads(), kNumExpectedOps);
     }
 
@@ -167,7 +171,7 @@ static void run_test(GrContext* context, skiatest::Reporter* reporter, BulkRectT
 
         static const int kNumExpectedOps = 2;
 
-        test(reporter, context, noAA, GrAAType::kCoverage, SkBlendMode::kSrcOver,
+        test(reporter, dContext, noAA, GrAAType::kCoverage, SkBlendMode::kSrcOver,
              2*GrResourceProvider::MaxNumNonAAQuads(), kNumExpectedOps);
     }
 
@@ -181,7 +185,7 @@ static void run_test(GrContext* context, skiatest::Reporter* reporter, BulkRectT
         int numExpectedOps = 2*GrResourceProvider::MaxNumNonAAQuads() /
                                                  GrResourceProvider::MaxNumAAQuads();
 
-        test(reporter, context, alternateAA, GrAAType::kCoverage, SkBlendMode::kSrcOver,
+        test(reporter, dContext, alternateAA, GrAAType::kCoverage, SkBlendMode::kSrcOver,
              2*GrResourceProvider::MaxNumNonAAQuads(), numExpectedOps);
     }
 
@@ -196,7 +200,7 @@ static void run_test(GrContext* context, skiatest::Reporter* reporter, BulkRectT
 
         static const int kNumExpectedOps = 2;
 
-        test(reporter, context, runOfNonAA, GrAAType::kCoverage, SkBlendMode::kSrcOver,
+        test(reporter, dContext, runOfNonAA, GrAAType::kCoverage, SkBlendMode::kSrcOver,
              2*GrResourceProvider::MaxNumAAQuads(), kNumExpectedOps);
     }
 
@@ -211,7 +215,7 @@ static void run_test(GrContext* context, skiatest::Reporter* reporter, BulkRectT
 
         static const int kNumExpectedOps = 2;
 
-        test(reporter, context, fixedAA, GrAAType::kCoverage, SkBlendMode::kSrcATop,
+        test(reporter, dContext, fixedAA, GrAAType::kCoverage, SkBlendMode::kSrcATop,
              2*GrResourceProvider::MaxNumAAQuads(), kNumExpectedOps);
     }
 }
