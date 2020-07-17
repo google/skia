@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "de2f23a6_8b53adde",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-07-17T18:27:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c93a7ea_fd1a7e22",
+      "revId": "7bb7f5db5ac5fe4fedefb51bbdb48fd4bce1ae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a0650ab_a826f4d0",
         "filename": "modules/skshaper/src/SkShaper.cpp",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "7bb7f5db5ac5fe4fedefb51bbdb48fd4bce1ae94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0793070f_110a1e56",
+        "filename": "modules/skshaper/src/SkShaper.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-07-17T18:27:50Z",
+      "side": 1,
+      "message": "It\u0027s not used yet but it will eventually.",
+      "parentUuid": "1a0650ab_a826f4d0",
+      "revId": "7bb7f5db5ac5fe4fedefb51bbdb48fd4bce1ae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "8f59add3_e381859f",
+        "filename": "modules/skshaper/src/SkShaper_primitive.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-07-17T18:27:50Z",
+      "side": 1,
+      "message": "I think there are few solutions: either we create a silly ICU implementation for using in primitive shaper or we do not use ICU API in primitive at all. I agree, the second solution seems less unnecessary work.",
+      "parentUuid": "8f06593a_5e6d6341",
+      "revId": "7bb7f5db5ac5fe4fedefb51bbdb48fd4bce1ae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "032edf5e_10f17ef1",
         "filename": "modules/skshaper/src/SkUnicode.h",
         "patchSetId": 8
@@ -67,6 +121,24 @@
       "revId": "7bb7f5db5ac5fe4fedefb51bbdb48fd4bce1ae94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3eae93b5_0478b539",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-07-17T18:27:50Z",
+      "side": 1,
+      "message": "Right.",
+      "parentUuid": "032edf5e_10f17ef1",
+      "revId": "7bb7f5db5ac5fe4fedefb51bbdb48fd4bce1ae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
