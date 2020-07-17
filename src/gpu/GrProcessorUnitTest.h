@@ -54,8 +54,10 @@ public:
     using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
 
     GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+                        int numViews, const ViewInfo views[]);
+    GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
                         int numViews, const ViewInfo views[],
-                        std::unique_ptr<GrFragmentProcessor> inputFP = nullptr);
+                        std::unique_ptr<GrFragmentProcessor> inputFP);
     GrProcessorTestData(const GrProcessorTestData&) = delete;
     ~GrProcessorTestData();
 

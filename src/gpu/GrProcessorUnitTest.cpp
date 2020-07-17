@@ -14,6 +14,10 @@
 #if GR_TEST_UTILS
 
 GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+                                         int numViews, const ViewInfo views[])
+        : GrProcessorTestData(random, context, numViews, views, /*inputFP=*/nullptr) {}
+
+GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
                                          int numViews, const ViewInfo views[],
                                          std::unique_ptr<GrFragmentProcessor> inputFP)
         : fRandom(random), fContext(context), fInputFP(std::move(inputFP)) {
