@@ -34,6 +34,24 @@
       "revId": "c97af9ea578717d8518ed85c4a1b315507dd7dd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d781324_a2e2e9f5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-17T14:53:09Z",
+      "side": 1,
+      "message": "It would not have occurred to me that those strings were stack allocated. I\u0027m glad the tooling caught this.",
+      "parentUuid": "55b08805_7a1f3954",
+      "revId": "c97af9ea578717d8518ed85c4a1b315507dd7dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
