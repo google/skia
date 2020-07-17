@@ -54,6 +54,9 @@ std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::clone() const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDeviceSpaceEffect);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::TestCreate(GrProcessorTestData* d) {
     return GrDeviceSpaceEffect::Make(GrProcessorUnitTest::MakeChildFP(d));
 }

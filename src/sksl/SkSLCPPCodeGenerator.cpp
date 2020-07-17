@@ -1114,6 +1114,9 @@ void CPPCodeGenerator::writeTest() {
         this->writef(
                 "GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
                 "#if GR_TEST_UTILS\n"
+                "\n"
+                "#include \"src/gpu/GrProcessorTestData.h\"\n"
+                "\n"
                 "std::unique_ptr<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
                 fFullName.c_str(),
                 fFullName.c_str(),

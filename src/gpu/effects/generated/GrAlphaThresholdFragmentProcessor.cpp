@@ -97,6 +97,9 @@ std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() 
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrProcessorTestData.h"
+
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(
         GrProcessorTestData* testData) {
     // Make the inner and outer thresholds be in [0, 1].
