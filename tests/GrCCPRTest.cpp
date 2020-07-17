@@ -12,7 +12,6 @@
 #include "include/core/SkRect.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
@@ -58,11 +57,11 @@ private:
 
 class CCPRPathDrawer {
 public:
-    CCPRPathDrawer(sk_sp<GrContext> ctx, skiatest::Reporter* reporter, DoStroke doStroke)
-            : fCtx(ctx)
-            , fCCPR(fCtx->priv().drawingManager()->getCoverageCountingPathRenderer())
+    CCPRPathDrawer(sk_sp<GrDirectContext> dContext, skiatest::Reporter* reporter, DoStroke doStroke)
+            : fDContext(dContext)
+            , fCCPR(fDContext->priv().drawingManager()->getCoverageCountingPathRenderer())
             , fRTC(GrRenderTargetContext::Make(
-                      fCtx.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
+                      fDContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
                       {kCanvasSize, kCanvasSize}))
             , fDoStroke(DoStroke::kYes == doStroke) {
         if (!fCCPR) {
@@ -73,16 +72,16 @@ public:
         }
     }
 
-    GrContext* ctx() const { return fCtx.get(); }
+    GrDirectContext* dContext() const { return fDContext.get(); }
     GrCoverageCountingPathRenderer* ccpr() const { return fCCPR; }
 
     bool valid() const { return fCCPR && fRTC; }
     void clear() const { fRTC->clear(SK_PMColor4fTRANSPARENT); }
     void destroyGrContext() {
-        SkASSERT(fCtx->unique());
+        SkASSERT(fDContext->unique());
         fRTC.reset();
         fCCPR = nullptr;
-        fCtx.reset();
+        fDContext.reset();
     }
 
     void drawPath(const SkPath& path, const SkMatrix& matrix = SkMatrix::I()) const {
@@ -106,8 +105,8 @@ public:
         }
 
         fCCPR->testingOnly_drawPathDirectly({
-                fCtx.get(), std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(), nullptr,
-                &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
+                fDContext.get(), std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(),
+                nullptr, &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
     }
 
     void clipFullscreenRect(SkPath clipPath, SkPMColor4f color = { 0, 1, 0, 1 }) {
@@ -123,11 +122,11 @@ public:
 
     void flush() const {
         SkASSERT(this->valid());
-        fCtx->flushAndSubmit();
+        fDContext->flushAndSubmit();
     }
 
 private:
-    sk_sp<GrContext> fCtx;
+    sk_sp<GrDirectContext> fDContext;
     GrCoverageCountingPathRenderer* fCCPR;
     std::unique_ptr<GrRenderTargetContext> fRTC;
     const bool fDoStroke;
@@ -234,7 +233,7 @@ class CCPR_cleanupWithTexAllocFail : public CCPR_cleanup {
         mockOptions->fFailTextureAllocations = true;
     }
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
-        ((GrRecordingContext*)ccpr.ctx())->priv().incrSuppressWarningMessages();
+        ((GrRecordingContext*)ccpr.dContext())->priv().incrSuppressWarningMessages();
         this->CCPR_cleanup::onRun(reporter, ccpr);
     }
 };
@@ -393,11 +392,11 @@ private:
 
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) final {
         RecordLastMockAtlasIDs atlasIDRecorder(sk_ref_sp(ccpr.ccpr()));
-        ccpr.ctx()->priv().addOnFlushCallbackObject(&atlasIDRecorder);
+        ccpr.dContext()->priv().addOnFlushCallbackObject(&atlasIDRecorder);
 
         this->onRun(reporter, ccpr, atlasIDRecorder);
 
-        ccpr.ctx()->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&atlasIDRecorder);
+        ccpr.dContext()->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&atlasIDRecorder);
     }
 
     virtual void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
@@ -581,7 +580,7 @@ class CCPR_cache_deferredCleanup : public CCPRCacheTest {
                 REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
             }
 
-            ccpr.ctx()->performDeferredCleanup(std::chrono::milliseconds(0));
+            ccpr.dContext()->performDeferredCleanup(std::chrono::milliseconds(0));
         }
     }
 };
@@ -862,13 +861,13 @@ DEF_CCPR_TEST(CCPR_unrefPerOpsTaskPathsBeforeOps)
 
 class CCPRRenderingTest {
 public:
-    void run(skiatest::Reporter* reporter, GrContext* ctx, DoStroke doStroke) const {
-        if (auto ccpr = ctx->priv().drawingManager()->getCoverageCountingPathRenderer()) {
+    void run(skiatest::Reporter* reporter, GrDirectContext* dContext, DoStroke doStroke) const {
+        if (auto ccpr = dContext->priv().drawingManager()->getCoverageCountingPathRenderer()) {
             if (DoStroke::kYes == doStroke &&
                 GrCCAtlas::CoverageType::kA8_Multisample == ccpr->coverageType()) {
                 return;  // Stroking is not yet supported for multisample.
             }
-            CCPRPathDrawer drawer(sk_ref_sp(ctx), reporter, doStroke);
+            CCPRPathDrawer drawer(sk_ref_sp(dContext), reporter, doStroke);
             if (!drawer.valid()) {
                 return;
             }

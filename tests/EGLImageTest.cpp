@@ -26,13 +26,13 @@
 using sk_gpu_test::GLTestContext;
 
 static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx1,
-                    sk_sp<GrContext> grctx1, GrBackendTexture* backendTex1,
+                    sk_sp<GrDirectContext> dContext, GrBackendTexture* backendTex1,
                     GrEGLImage image1) {
     if (glctx1) {
         glctx1->makeCurrent();
-        if (grctx1) {
+        if (dContext) {
             if (backendTex1 && backendTex1->isValid()) {
-                grctx1->deleteBackendTexture(*backendTex1);
+                dContext->deleteBackendTexture(*backendTex1);
             }
         }
         if (GR_EGL_NO_IMAGE != image1) {

@@ -12,7 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "tests/Test.h"
 #include "tools/gpu/vk/VkTestHelper.h"
 #include "tools/gpu/vk/VkYcbcrSamplerHelper.h"

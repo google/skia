@@ -74,7 +74,7 @@ static const int kPad = 3;
 // When the bug manifests the GrDefaultPathRenderer/GrMSAAPathRenderer is/was leaving the stencil
 // buffer outside of the first content rect in a bad state and the second draw would be incorrect.
 
-static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
+static void run_test(GrRecordingContext* rContext, skiatest::Reporter* reporter) {
     SkPath invPath = make_path(SkRect::MakeXYWH(0, 0, kBigSize, kBigSize),
                                kBigSize/2-1, SkPathFillType::kInverseWinding);
     SkPath path = make_path(SkRect::MakeXYWH(0, 0, kBigSize, kBigSize),
@@ -84,7 +84,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
 
     {
         auto rtc = GrRenderTargetContext::Make(
-            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
+            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
             {kBigSize/2 + 1, kBigSize/2 + 1});
 
         rtc->clear(SK_PMColor4fBLACK);
@@ -103,7 +103,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
 
     {
         auto rtc = GrRenderTargetContext::Make(
-            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kBigSize, kBigSize});
+            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kBigSize, kBigSize});
 
         rtc->clear(SK_PMColor4fBLACK);
 
