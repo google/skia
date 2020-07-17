@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4684711e_b3d91d79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-17T17:47:08Z",
+      "side": 1,
+      "message": "OK, I think this is looking good.  You can see the new GM by clicking the [Gold] link in Gerrit.  Is this implementable in Ganesh?",
+      "revId": "33d633b3f596302b397506117a8a818b91a8cf4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
