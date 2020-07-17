@@ -35,12 +35,15 @@ class GrProxyProvider;
 class GrProcessorTestData {
 public:
     using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
-    GrProcessorTestData(SkRandom*, GrRecordingContext*, int numProxies, const ViewInfo[]);
+    GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+                        int numViews, const ViewInfo views[],
+                        std::unique_ptr<GrFragmentProcessor> inputFP = nullptr);
 
     GrRecordingContext* context() { return fContext; }
     GrProxyProvider* proxyProvider();
     const GrCaps* caps();
     SkArenaAlloc* allocator() { return fArena.get(); }
+    std::unique_ptr<GrFragmentProcessor> inputFP() { return std::move(fInputFP); }
 
     ViewInfo randomView();
     ViewInfo randomAlphaOnlyView();
@@ -51,6 +54,7 @@ private:
     GrRecordingContext* fContext;
     SkTArray<ViewInfo> fViews;
     std::unique_ptr<SkArenaAlloc> fArena;
+    std::unique_ptr<GrFragmentProcessor> fInputFP;
 };
 
 #endif  // GR_TEST_UTILS
