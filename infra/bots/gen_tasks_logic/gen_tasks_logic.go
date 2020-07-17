@@ -1442,6 +1442,11 @@ func (b *jobBuilder) puppeteer() {
 		b.isolate("perf_puppeteer.isolate")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 
+		webglversion := "2"
+		if (b.extraConfig("WebGL1")) {
+			webglversion = "1"
+		}
+
 		if b.extraConfig("SkottieFrames") {
 			b.cmd(
 				"./perf_puppeteer_skottie_frames",
@@ -1458,6 +1463,7 @@ func (b *jobBuilder) puppeteer() {
 				"--model_trace", b.parts["model"],
 				"--cpu_or_gpu_trace", b.parts["cpu_or_gpu"],
 				"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
+				"--webgl_version", webglversion, // ignore when running with cpu backend
 				"--alsologtostderr",
 			)
 			// This CIPD package was made by hand with the following invocation:
@@ -1487,6 +1493,7 @@ func (b *jobBuilder) puppeteer() {
 				"--model_trace", b.parts["model"],
 				"--cpu_or_gpu_trace", b.parts["cpu_or_gpu"],
 				"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
+				"--webgl_version", webglversion,
 				"--alsologtostderr",
 			)
 			b.asset("skp")

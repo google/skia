@@ -72,7 +72,13 @@ would display the animation (e.g. using clock time to determine where to seek, n
         const duration = animation.duration() * 1000;
         const bounds = {fLeft: 0, fTop: 0, fRight: WIDTH, fBottom: HEIGHT};
 
-        const surface = getSurface(CanvasKit);
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        let glversion = 2;
+        if (urlSearchParams.has('webgl1')) {
+          glversion = 1;
+        }
+
+        const surface = getSurface(CanvasKit, glversion);
         if (!surface) {
           console.error('Could not make surface', window._error);
           return;
