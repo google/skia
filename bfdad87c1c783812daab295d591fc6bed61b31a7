@@ -52,6 +52,24 @@
       "revId": "bfdad87c1c783812daab295d591fc6bed61b31a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "410825a7_811e7fe0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-17T17:23:59Z",
+      "side": 1,
+      "message": "PS 7 did both of these, and PS8/9 handle the even-weights special case specially.",
+      "parentUuid": "53ec29de_fbac03c1",
+      "revId": "bfdad87c1c783812daab295d591fc6bed61b31a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
