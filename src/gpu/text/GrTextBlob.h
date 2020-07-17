@@ -267,7 +267,6 @@ public:
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target);
 
     size_t vertexStride() const;
-    size_t quadOffset(size_t index) const;
     void fillVertexData(
             void* vertexDst, int offset, int count,
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
@@ -277,8 +276,6 @@ public:
 
     // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
     void prepareGrGlyphs(GrStrikeCache*);
-
-    GrGlyph* grGlyph(int i) const;
 
     const SkStrikeSpec& strikeSpec() const;
 

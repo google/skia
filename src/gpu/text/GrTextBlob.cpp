@@ -363,10 +363,6 @@ size_t GrAtlasSubRun::vertexStride() const {
     SkUNREACHABLE;
 }
 
-size_t GrAtlasSubRun::quadOffset(size_t index) const {
-    return index * kVerticesPerGlyph * this->vertexStride();
-}
-
 template <typename Rect>
 static auto ltbr(const Rect& r) {
     return std::make_tuple(r.left(), r.top(), r.right(), r.bottom());
@@ -605,10 +601,6 @@ SkRect GrAtlasSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin)
         outBounds.roundOut();
     }
     return outBounds;
-}
-
-GrGlyph* GrAtlasSubRun::grGlyph(int i) const {
-    return fVertexData[i].glyph.grGlyph;
 }
 
 void GrAtlasSubRun::setUseLCDText(bool useLCDText) { fUseLCDText = useLCDText; }
