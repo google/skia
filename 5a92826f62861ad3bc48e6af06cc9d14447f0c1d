@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27c38043_55a0dc42",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-17T18:25:37Z",
+      "side": 1,
+      "message": "\"pixel center\" seems a little ambiguous here... it\u0027s the projection of the device space pixel center to the shader\u0027s space. \"original sample point\"?",
+      "range": {
+        "startLine": 145,
+        "startChar": 41,
+        "endLine": 145,
+        "endChar": 53
+      },
+      "revId": "5a92826f62861ad3bc48e6af06cc9d14447f0c1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
