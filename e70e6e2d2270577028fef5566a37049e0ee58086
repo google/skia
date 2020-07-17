@@ -16,6 +16,41 @@
       "revId": "e70e6e2d2270577028fef5566a37049e0ee58086",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "734a9d0e_8185e303",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-17T14:52:36Z",
+      "side": 1,
+      "message": "I would need a super convincing argument that locally applying this patch for local debugging only purposes on an ad-hoc basis is crippling in some way. In particular I would never want to see any tests ever using this, even in debug only.",
+      "revId": "e70e6e2d2270577028fef5566a37049e0ee58086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63682ca7_f529c488",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-17T14:52:36Z",
+      "side": 1,
+      "message": "We don\u0027t even expose this to ourselves at the moment, only to SkRefCnt internally and only in debug. And even then it\u0027s super subtle and I feel iffy about it\u0027s use internally. In fact there are subtle issues with this method and unique and SkWeakRefCnt which we should try to fix internally.\n\nI think the bar for debugging use of this method should be making a local code change like this; I don\u0027t think it should be upstreamed. Upstreaming would \u0027normalize\u0027 and make it possible a user will check in code which calls this method because it\u0027s in base Skia and the CI may not catch it because its available there too. In other words, I think the current situation is working as intended.\n\nIt\u0027s a crazy footgun. The standard added std::shared_ptr::use_count (and even allowed in non-debug!) for some reason, but I think that\u0027s mostly around people being unwilling / unable to touch their own STL to get at it (which should be the bar, the std should at least add a big scary macro you need to define to get it, use outside a paused debugger is always a bug). The bar for local modifications to Skia headers is much lower.\n\nI might be willing to entertain the idea if Skia had a SK_MT_NONE build setting where Skia is built with no thread support at all (all mutexes do nothing / assert not held, any required \u0027threading\u0027 is all done on one thread, the thread safe refcnts are not thread safe, etc). This would require the caller to also not use any threads, which may pose an issue.",
+      "parentUuid": "e0bc2f59_234e76e2",
+      "revId": "e70e6e2d2270577028fef5566a37049e0ee58086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
