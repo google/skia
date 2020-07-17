@@ -22,6 +22,30 @@
       "revId": "bca4a7dfe386d57d416511bd81eb671caba0b28b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82a8ec5e_2a132052",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-17T15:32:15Z",
+      "side": 1,
+      "message": "This type is only used here. Everywhere else destructuring is used to get the results.",
+      "parentUuid": "08ff0518_3b2f21b7",
+      "range": {
+        "startLine": 230,
+        "startChar": 12,
+        "endLine": 230,
+        "endChar": 64
+      },
+      "revId": "bca4a7dfe386d57d416511bd81eb671caba0b28b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
