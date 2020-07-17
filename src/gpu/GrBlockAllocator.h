@@ -376,7 +376,20 @@ public:
 
 private:
     static constexpr int kDataStart = sizeof(Block);
-    static constexpr int kBlockIncrementUnits = alignof(std::max_align_t);
+    #ifdef SK_FORCE_8_BYTE_ALIGNMENT
+        // This is an issue for WASM builds using emscripten, which had std::max_align_t = 16, but
+        // was returning pointers only aligned to 8 bytes.
+        // https://github.com/emscripten-core/emscripten/issues/10072
+        //
+        // Setting this to 8 will let GrBlockAllocator properly correct for the pointer address if
+        // a 16-byte aligned allocation is requested in wasm (unlikely since we don't use long
+        // doubles).
+        static constexpr size_t kBlockAlign = 8;
+    #else
+        // The alignment Block addresses will be at (spec-compliant is pointers are aligned to
+        // max_align_t).
+        static constexpr size_t kBlockAlign = alignof(std::max_align_t);
+    #endif
 
     // Calculates the size of a new Block required to store a kMaxAllocationSize request for the
     // given alignment and padding bytes. Also represents maximum valid fCursor value in a Block.
@@ -418,7 +431,7 @@ private:
     // The head block's prev pointer may be non-null, which signifies a scratch block that may be
     // reused instead of allocating an entirely new block (this helps when allocate+release calls
     // bounce back and forth across the capacity of a block).
-    alignas(alignof(std::max_align_t)) Block fHead;
+    alignas(kBlockAlign) Block fHead;
 
     static_assert(kGrowthPolicyCount <= 4);
 };
@@ -551,7 +564,7 @@ GrBlockAllocator::Block* GrBlockAllocator::owningBlock(const void* p, int start)
     // Masking these terms by ~(Align-1) reconstructs 'block' if the alignment of the block is
     // greater than or equal to Align (since block & ~(Align-1) == (block + Align-1) & ~(Align-1)
     // in that case). Overalignment does not reduce to inequality unfortunately.
-    if /* constexpr */ (Align <= alignof(std::max_align_t)) {
+    if /* constexpr */ (Align <= kBlockAlign) {
         Block* block = reinterpret_cast<Block*>(
                 (reinterpret_cast<uintptr_t>(p) - start - Padding) & ~(Align - 1));
         SkASSERT(block->fSentinel == kAssignedMarker);
@@ -570,7 +583,7 @@ int GrBlockAllocator::Block::alignedOffset(int offset) const {
     static_assert(MaxBlockSize<Align, Padding>() + Padding + Align - 1
                         <= (size_t) std::numeric_limits<int32_t>::max());
 
-    if /* constexpr */ (Align <= alignof(std::max_align_t)) {
+    if /* constexpr */ (Align <= kBlockAlign) {
         // Same as GrAlignTo, but operates on ints instead of size_t
         return (offset + Padding + Align - 1) & ~(Align - 1);
     } else {
