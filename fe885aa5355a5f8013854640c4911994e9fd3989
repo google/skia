@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f40c23b2_0b6e40bf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T15:51:39Z",
+      "side": 1,
+      "message": "The exact improvement would depends on how much the benchmark\u0027s speed is dominated by arcTo calls, which asymptotically approaches 100% as I increase the number of iterations in the test, so I can only nail down the savings to be *at least* 15%. Sorry I\u0027ve lost the data on exactly how many milliseconds my test took. Since it depended on my arbitrary choice of how many iterations to run, I assumed it would not be of any interest to you.\n\nIn a future CL I will add a puppeteer perf test to measure this properly.",
+      "parentUuid": "770324bc_337cc806",
+      "revId": "fe885aa5355a5f8013854640c4911994e9fd3989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e924a25_c089cced",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "fe885aa5355a5f8013854640c4911994e9fd3989",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dde75e45_270ed32c",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-17T15:51:39Z",
+      "side": 1,
+      "message": "As discussed in chat, the extra level of indirection here prevents a memory leak.",
+      "parentUuid": "6e924a25_c089cced",
+      "range": {
+        "startLine": 765,
+        "startChar": 9,
+        "endLine": 765,
+        "endChar": 19
+      },
+      "revId": "fe885aa5355a5f8013854640c4911994e9fd3989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
