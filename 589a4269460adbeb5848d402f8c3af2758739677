@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdd6c75b_06a724e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-17T16:48:15Z",
+      "side": 1,
+      "message": "lgtm after some questions around whether we should std::move or ref the internal buffers during onExecute",
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a36ecbe_311f0225",
+        "filename": "gm/fwidth_squircle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-17T16:48:15Z",
+      "side": 1,
+      "message": "If we std::move it then we can only call onExecute once. Is that valid, including with DDLs?",
+      "range": {
+        "startLine": 229,
+        "startChar": 50,
+        "endLine": 229,
+        "endChar": 74
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d1736a6_45c03309",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-17T16:48:15Z",
+      "side": 1,
+      "message": "We add another ref on the buffer here, but std::move it for the stroke op.",
+      "range": {
+        "startLine": 549,
+        "startChar": 50,
+        "endLine": 549,
+        "endChar": 65
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6315161c_fa22a352",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-17T16:48:15Z",
+      "side": 1,
+      "message": "We std::move the buffer here, but add another ref for the fill op.",
+      "range": {
+        "startLine": 351,
+        "startChar": 46,
+        "endLine": 351,
+        "endChar": 70
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
