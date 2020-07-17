@@ -73,7 +73,7 @@ public:
                             ID3D12Resource* srcBuffer, uint64_t srcOffset,
                             uint64_t numBytes);
 
-    void addGpuBuffer(sk_sp<GrGpuBuffer> buffer) {
+    void addGrBuffer(sk_sp<const GrBuffer> buffer) {
         fTrackedGpuBuffers.push_back(std::move(buffer));
     }
 
@@ -114,7 +114,7 @@ protected:
 
     SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrManagedResource>> fTrackedResources;
     SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrRecycledResource>> fTrackedRecycledResources;
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrGpuBuffer>> fTrackedGpuBuffers;
+    SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrBuffer>> fTrackedGpuBuffers;
 
 
     // When we create a command list it starts in an active recording state
@@ -148,9 +148,9 @@ public:
     void setViewports(unsigned int numViewports, const D3D12_VIEWPORT* viewports);
     void setGraphicsRootSignature(const sk_sp<GrD3DRootSignature>& rootSignature);
     void setVertexBuffers(unsigned int startSlot,
-                          const GrD3DBuffer* vertexBuffer, size_t vertexStride,
-                          const GrD3DBuffer* instanceBuffer, size_t instanceStride);
-    void setIndexBuffer(const GrD3DBuffer* indexBuffer);
+                          sk_sp<const GrBuffer> vertexBuffer, size_t vertexStride,
+                          sk_sp<const GrBuffer> instanceBuffer, size_t instanceStride);
+    void setIndexBuffer(sk_sp<const GrBuffer> indexBuffer);
     void drawInstanced(unsigned int vertexCount, unsigned int instanceCount,
                        unsigned int startVertex, unsigned int startInstance);
     void drawIndexedInstanced(unsigned int indexCount, unsigned int instanceCount,
@@ -187,11 +187,11 @@ private:
     void onReset() override;
 
     const GrD3DRootSignature* fCurrentRootSignature;
-    const GrD3DBuffer* fCurrentVertexBuffer;
+    const GrBuffer* fCurrentVertexBuffer;
     size_t fCurrentVertexStride;
-    const GrD3DBuffer* fCurrentInstanceBuffer;
+    const GrBuffer* fCurrentInstanceBuffer;
     size_t fCurrentInstanceStride;
-    const GrD3DBuffer* fCurrentIndexBuffer;
+    const GrBuffer* fCurrentIndexBuffer;
 
     GrD3DConstantRingBuffer* fCurrentConstantRingBuffer;
     GrD3DConstantRingBuffer::SubmitData fConstantRingBufferSubmitData;
