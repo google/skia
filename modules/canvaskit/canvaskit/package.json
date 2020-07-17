@@ -7,5 +7,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bugs": {
+    "url": "https://bugs.chromium.org/p/skia/issues/entry"
+  },
+  "permsRepo": "skia-dev/.github",
   "license": "BSD-3-Clause"
 }
