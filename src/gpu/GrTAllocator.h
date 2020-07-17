@@ -66,6 +66,74 @@ public:
     }
 
     /**
+     * Move all items from 'other' to the end of this collection. When this returns, 'other' will
+     * be empty. Addresses to the items in 'other' may be moved as part of compacting the start
+     * of 'other' into the pre-allocated space of this list, but this is O(StartingItems) and not
+     * O(N).
+     */
+    template <int SI>
+    void concat(GrTAllocator<T, SI>&& other) {
+        // Compact items at the front of 'other' (importantly, all of the items in its head block),
+        // as well as any other blocks that happen to fit. Everything else will be stolen.
+        int numCompacted = 0;
+        for (GrBlockAllocator::Block* block : other.fAllocator->blocks()) {
+            if (block->metadata() == 0) {
+                continue; // skip empty
+            }
+
+            int blockStart = First(block);
+            int blockEnd = Last(block) + sizeof(T); // exclusive
+            int blockItemCount = (blockEnd - blockStart) / sizeof(T);
+            int avail = fAllocator->currentBlock()->template avail<alignof(T)>() / sizeof(T);
+            if (blockItemCount <= avail || block == other.fAllocator->headBlock()) {
+                // Move items into this block
+                this->reserve(blockItemCount); // no-op unless 'block' is the head
+                if /*constexpr*/ (std::is_trivially_copyable<T>::value) {
+                    // memcpy all items at once (or twice between current and reserved space).
+                    SkASSERT(std::is_trivially_destructible<T>::value);
+                    auto firstCopy = fAllocator->template allocate<alignof(T)>(avail * sizeof(T));
+                    memcpy(firstCopy.fBlock->ptr(firstCopy.fAlignedOffset),
+                           block->ptr(blockStart), avail * sizeof(T));
+                    firstCopy.fBlock->setMetadata(firstCopy.fAlignedOffset + (avail - 1) * sizeof(T));
+                    if (blockItemCount > avail) {
+                        int remaining = blockItemCount - avail;
+                        auto secondCopy = fAllocator->template allocate<alignof(T)>(remaining * sizeof(T));
+                        memcpy(secondCopy.fBlock->ptr(secondCopy.fAlignedOffset),
+                               block->ptr(blockStart + avail * sizeof(T)), remaining * sizeof(T));
+                        secondCopy.fBlock->setMetadata(secondCopy.fAlignedOffset + (remaining - 1) * sizeof(T));
+                    }
+                    // FIXME I think that this is all done, I just need to write unit tests for it.
+                    // Be sure to test copying into an empty allocator, from an empty allocator,
+                    // and from an allocator with multiple blocks.
+                } else {
+                    // Move every item over one at a time
+                    for (int i = blockStart; i < blockEnd; i += sizeof(T)) {
+                        T& toMove = GetItem(block, i);
+                        this->push_back(std::move(toMove));
+                        // Anything of interest should have been moved, but run this so we can
+                        // simply release the whole block later
+                        toMove.~T();
+                    }
+                }
+
+                other.fAllocator->releaseBlock(block);
+                numCompacted += blockItemCount;
+            } else {
+                // Do not compact a heap allocated block that won't fit in its entirety, it can
+                // just be linked to the end of the block linked list.
+                break;
+            }
+        }
+
+        // other's head block must have been fully copied since it cannot be stolen
+        SkASSERT(other.fAllocator->headBlock()->metadata() == 0);
+        fAllocator->stealHeapBlocks(other.fAllocator.allocator());
+        fAllocator->setMetadata(fAllocator->metadata() +
+                                (other.fAllocator->metadata() - numCompacted));
+        other.fAllocator->setMetadata(0);
+    }
+
+    /**
      * Allocate, if needed, space to hold N more Ts before another malloc will occur.
      */
     void reserve(int n) {
@@ -200,6 +268,11 @@ public:
     }
 
 private:
+    // Let other GrTAllocators have access (only ever used when T and S are the same but you cannot
+    // have partial specializations declared as a friend...)
+    template<typename S, int N>
+    friend class GrTAllocator;//<S, N>;
+
     static constexpr size_t StartingSize =
             GrBlockAllocator::Overhead<alignof(T)>() + StartingItems * sizeof(T);
 
