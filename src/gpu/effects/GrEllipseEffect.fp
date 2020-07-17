@@ -130,10 +130,10 @@ void main() {
     SkScalar rx = testData->fRandom->nextRangeF(0.f, 1000.f);
     SkScalar ry = testData->fRandom->nextRangeF(0.f, 1000.f);
     bool success;
-    std::unique_ptr<GrFragmentProcessor> fp;
+    std::unique_ptr<GrFragmentProcessor> fp = testData->inputFP();
     do {
         GrClipEdgeType et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        std::tie(success, fp) = GrEllipseEffect::Make(/*inputFP=*/nullptr, et, center,
+        std::tie(success, fp) = GrEllipseEffect::Make(std::move(fp), et, center,
                                                       SkPoint::Make(rx, ry),
                                                       *testData->caps()->shaderCaps());
     } while (!success);

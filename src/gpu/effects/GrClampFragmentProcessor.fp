@@ -37,5 +37,5 @@ void main() {
 }
 
 @test(d) {
-    return GrClampFragmentProcessor::Make(/*inputFP=*/nullptr, d->fRandom->nextBool());
+    return GrClampFragmentProcessor::Make(d->inputFP(), d->fRandom->nextBool());
 }

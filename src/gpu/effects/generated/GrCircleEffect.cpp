@@ -128,10 +128,10 @@ std::unique_ptr<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestD
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar radius = testData->fRandom->nextRangeF(1.f, 1000.f);
     bool success;
-    std::unique_ptr<GrFragmentProcessor> fp;
+    std::unique_ptr<GrFragmentProcessor> fp = testData->inputFP();
     do {
         GrClipEdgeType et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        std::tie(success, fp) = GrCircleEffect::Make(/*inputFP=*/nullptr, et, center, radius);
+        std::tie(success, fp) = GrCircleEffect::Make(std::move(fp), et, center, radius);
     } while (!success);
     return fp;
 }

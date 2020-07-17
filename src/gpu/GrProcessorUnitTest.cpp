@@ -13,11 +13,10 @@
 
 #if GR_TEST_UTILS
 
-GrProcessorTestData::GrProcessorTestData(SkRandom* random,
-                                         GrRecordingContext* context,
-                                         int numViews,
-                                         const ViewInfo views[])
-        : fRandom(random), fContext(context) {
+GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+                                         int numViews, const ViewInfo views[],
+                                         std::unique_ptr<GrFragmentProcessor> inputFP)
+        : fRandom(random), fContext(context), fInputFP(std::move(inputFP)) {
     fViews.reset(views, numViews);
     fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
 }
@@ -27,6 +26,8 @@ GrProcessorTestData::~GrProcessorTestData() {}
 GrProxyProvider* GrProcessorTestData::proxyProvider() { return fContext->priv().proxyProvider(); }
 
 const GrCaps* GrProcessorTestData::caps() { return fContext->priv().caps(); }
+
+std::unique_ptr<GrFragmentProcessor> GrProcessorTestData::inputFP() { return std::move(fInputFP); }
 
 GrProcessorTestData::ViewInfo GrProcessorTestData::randomView() {
     SkASSERT(!fViews.empty());

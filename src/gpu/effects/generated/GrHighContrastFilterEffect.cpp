@@ -170,7 +170,7 @@ std::unique_ptr<GrFragmentProcessor> GrHighContrastFilterEffect::TestCreate(
     SkHighContrastConfig config{/*grayscale=*/d->fRandom->nextBool(),
                                 InvertStyle(d->fRandom->nextRangeU(0, int(InvertStyle::kLast))),
                                 /*contrast=*/d->fRandom->nextF()};
-    return GrHighContrastFilterEffect::Make(/*inputFP=*/nullptr, config,
+    return GrHighContrastFilterEffect::Make(d->inputFP(), config,
                                             /*linearize=*/d->fRandom->nextBool());
 }
 #endif

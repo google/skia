@@ -366,7 +366,7 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(
     SkScalar wh = testData->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar sigma = testData->fRandom->nextRangeF(1.f, 10.f);
     SkRect circle = SkRect::MakeWH(wh, wh);
-    return GrCircleBlurFragmentProcessor::Make(/*inputFP=*/nullptr, testData->context(), circle,
+    return GrCircleBlurFragmentProcessor::Make(testData->inputFP(), testData->context(), circle,
                                                sigma);
 }
 #endif
