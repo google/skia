@@ -8,7 +8,7 @@
 #include "tools/gpu/YUVUtils.h"
 
 #include "include/core/SkData.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/gpu/GrContextPriv.h"
 
@@ -86,7 +86,8 @@ bool LazyYUVImage::ensureYUVImage(GrContext* context) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void YUVABackendReleaseContext::Unwind(GrContext* context, YUVABackendReleaseContext* beContext,
+void YUVABackendReleaseContext::Unwind(GrDirectContext* context,
+                                       YUVABackendReleaseContext* beContext,
                                        bool fullFlush) {
 
     // Some backends (e.g., Vulkan) require that all work associated w/ texture
@@ -107,9 +108,8 @@ void YUVABackendReleaseContext::Unwind(GrContext* context, YUVABackendReleaseCon
     delete beContext;
 }
 
-YUVABackendReleaseContext::YUVABackendReleaseContext(GrContext* context) : fContext(context) {
-    SkASSERT(context->priv().getGpu());
-    SkASSERT(context->asDirectContext());
+YUVABackendReleaseContext::YUVABackendReleaseContext(GrDirectContext* context)
+        : fContext(context) {
 }
 
 YUVABackendReleaseContext::~YUVABackendReleaseContext() {

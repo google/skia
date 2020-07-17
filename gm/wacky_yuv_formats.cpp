@@ -1156,7 +1156,7 @@ protected:
     }
 
     // Resize all the backend textures in 'yuvaTextures' to a quarter their size.
-    sk_sp<SkImage> resizeOnGpu(GrContext* context,
+    sk_sp<SkImage> resizeOnGpu(GrDirectContext* context,
                                YUVFormat yuvFormat,
                                SkYUVColorSpace yuvColorSpace,
                                bool opaque,
