@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd6e9298_25b0c8ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-17T16:37:08Z",
+      "side": 1,
+      "message": "Summary so far: at 23, gold produces no diffs; at 22 there\u0027s a clearly evident bug. And 30 is the upper limit to fix the fuzzer timeout.",
+      "revId": "0ebdc6b994baeff6dda78153617f35684630f175",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
