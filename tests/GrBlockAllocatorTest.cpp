@@ -463,6 +463,25 @@ DEF_TEST(GrBlockAllocatorMetadata, r) {
     REPORTER_ASSERT(r, metaBig->fX1 == 3 && metaBig->fX2 == 6);
 }
 
+DEF_TEST(GrBlockAllocatorAllocatorMetadata, r) {
+    GrSBlockAllocator<256> pool{};
+    SkDEBUGCODE(pool->validate();)
+
+    REPORTER_ASSERT(r, pool->metadata() == 0); // initial value
+
+    pool->setMetadata(4);
+    REPORTER_ASSERT(r, pool->metadata() == 4);
+
+    // Releasing the head block doesn't change the allocator's metadata (even though that's where
+    // it is stored).
+    pool->releaseBlock(pool->headBlock());
+    REPORTER_ASSERT(r, pool->metadata() == 4);
+
+    // But resetting the whole allocator brings things back to as if it were newly constructed
+    pool->reset();
+    REPORTER_ASSERT(r, pool->metadata() == 0);
+}
+
 template<size_t Align, size_t Padding>
 static void run_owning_block_test(skiatest::Reporter* r, GrBlockAllocator* pool) {
     auto br = pool->allocate<Align, Padding>(1);
