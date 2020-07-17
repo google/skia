@@ -8,7 +8,7 @@
 #include "tools/gpu/YUVUtils.h"
 
 #include "include/core/SkData.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/gpu/GrContextPriv.h"
 
@@ -86,7 +86,8 @@ bool LazyYUVImage::ensureYUVImage(GrContext* context) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void YUVABackendReleaseContext::Unwind(GrContext* context, YUVABackendReleaseContext* beContext,
+void YUVABackendReleaseContext::Unwind(GrDirectContext* dContext,
+                                       YUVABackendReleaseContext* beContext,
                                        bool fullFlush) {
 
     // Some backends (e.g., Vulkan) require that all work associated w/ texture
@@ -94,29 +95,28 @@ void YUVABackendReleaseContext::Unwind(GrContext* context, YUVABackendReleaseCon
     if (fullFlush) {
         // If the release context client performed some operations other than backend texture
         // creation then we may require a full flush to ensure that all the work is completed.
-        context->flush();
-        context->submit(true);
+        dContext->flush();
+        dContext->submit(true);
     } else {
-        context->submit();
+        dContext->submit();
 
         while (!beContext->creationCompleted()) {
-            context->checkAsyncWorkCompletion();
+            dContext->checkAsyncWorkCompletion();
         }
     }
 
     delete beContext;
 }
 
-YUVABackendReleaseContext::YUVABackendReleaseContext(GrContext* context) : fContext(context) {
-    SkASSERT(context->priv().getGpu());
-    SkASSERT(context->asDirectContext());
+YUVABackendReleaseContext::YUVABackendReleaseContext(GrDirectContext* dContext)
+        : fDContext(dContext) {
 }
 
 YUVABackendReleaseContext::~YUVABackendReleaseContext() {
     for (int i = 0; i < 4; ++i) {
         if (fBETextures[i].isValid()) {
             SkASSERT(fCreationComplete[i]);
-            fContext->deleteBackendTexture(fBETextures[i]);
+            fDContext->deleteBackendTexture(fBETextures[i]);
         }
     }
 }

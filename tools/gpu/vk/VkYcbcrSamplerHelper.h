@@ -21,7 +21,7 @@ class GrVkGpu;
 // particularly interesting because its sampler is immutable.
 class VkYcbcrSamplerHelper {
 public:
-    VkYcbcrSamplerHelper(GrContext*);
+    VkYcbcrSamplerHelper(GrDirectContext*);
     ~VkYcbcrSamplerHelper();
 
     bool isYCbCrSupported();
@@ -36,7 +36,7 @@ public:
 private:
     GrVkGpu* vkGpu();
 
-    GrContext* fContext;
+    GrDirectContext* fDContext;
 
     VkImage fImage = VK_NULL_HANDLE;
     VkDeviceMemory fImageMemory = VK_NULL_HANDLE;
