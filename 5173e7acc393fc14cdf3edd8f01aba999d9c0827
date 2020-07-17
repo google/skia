@@ -50,6 +50,24 @@
       "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1d6acfb_bcc6b124",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-17T20:06:58Z",
+      "side": 1,
+      "message": "In general this looks good, but I can\u0027t consider it low risk yet. I have permissions to check out android again so I\u0027m checking out the source code and will do the revert locally to see which parts required manual resolve.",
+      "parentUuid": "0a1af36c_fc693e44",
+      "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
