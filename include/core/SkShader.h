@@ -142,6 +142,11 @@ public:
     static sk_sp<SkShader> Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src);
     static sk_sp<SkShader> Lerp(float t, sk_sp<SkShader> dst, sk_sp<SkShader> src);
 
+    // nsamples samples made relative to pixel center,
+    // with optional weights defaulting to uniform 1.0f/nsamples.
+    static sk_sp<SkShader> Multisample(sk_sp<SkShader>,
+                                       const SkPoint samples[], int nsamples,
+                                       const SkScalar weights[] = nullptr);
 private:
     SkShaders() = delete;
 };
