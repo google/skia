@@ -16,6 +16,23 @@
       "revId": "0ebdc6b994baeff6dda78153617f35684630f175",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a12a7459_4d7786b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-17T16:46:58Z",
+      "side": 1,
+      "message": "I vote for 24 -- nice even number :) ",
+      "revId": "0ebdc6b994baeff6dda78153617f35684630f175",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
