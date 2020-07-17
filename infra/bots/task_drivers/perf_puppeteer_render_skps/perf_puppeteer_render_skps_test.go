@@ -133,6 +133,49 @@ func TestBenchSKPs_GPUHasFlag(t *testing.T) {
 	require.Empty(t, res.Exceptions)
 }
 
+func TestBenchSKPs_WebGL1(t *testing.T) {
+	skps, err := ioutil.TempDir("", "skps")
+	require.NoError(t, err)
+	defer testutils.RemoveAll(t, skps)
+
+	require.NoError(t, ioutil.WriteFile(filepath.Join(skps, "first_skp"), []byte("doesnt matter"), 0777))
+
+	const fakeNodeBinPath = "/fake/path/to/node/bin"
+	const fakeCanvasKitPath = "/fake/path/to/canvaskit"
+	const fakeBenchmarkPath = "/fake/path/to/perf-puppeteer"
+
+	perfObj := perfJSONFormat{
+		Key: map[string]string{
+			perfKeyCpuOrGPU:     "GPU",
+			perfKeyWebGLVersion: "1",
+		},
+	}
+
+	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
+		mock := exec.CommandCollector{}
+		ctx = td.WithExecRunFn(ctx, mock.Run)
+		err := benchSKPs(ctx, perfObj, fakeBenchmarkPath, fakeCanvasKitPath, skps, fakeNodeBinPath)
+		if err != nil {
+			assert.NoError(t, err)
+			return err
+		}
+		require.Len(t, mock.Commands(), 1)
+		cmd := mock.Commands()[0]
+		assert.Equal(t, "/fake/path/to/node/bin/node", cmd.Name)
+		assert.Equal(t, []string{"perf-canvaskit-with-puppeteer",
+			"--bench_html", "render-skp.html",
+			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
+			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--input_skp", filepath.Join(skps, "first_skp"),
+			"--output", "/fake/path/to/perf-puppeteer/out/first_skp.json",
+			"--use_gpu",
+			"--query_params webgl1"}, cmd.Args)
+		return nil
+	})
+	require.Empty(t, res.Errors)
+	require.Empty(t, res.Exceptions)
+}
+
 func TestProcessSkottieFramesData_GPUTwoInputsGetSummarizedAndCombined(t *testing.T) {
 	input, err := ioutil.TempDir("", "inputs")
 	require.NoError(t, err)
