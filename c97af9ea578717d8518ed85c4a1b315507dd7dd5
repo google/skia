@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9d2c6f7_136f9e15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-17T14:41:07Z",
+      "side": 1,
+      "message": "Is this a bigger problem anywhere we return strings?",
+      "revId": "c97af9ea578717d8518ed85c4a1b315507dd7dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
