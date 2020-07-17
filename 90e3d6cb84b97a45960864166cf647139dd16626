@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f200bab9_79a3e0e0",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-17T15:06:17Z",
+      "side": 1,
+      "message": "Note that we can kinda build skshaper without any icu, so always using icu correctly fails the NoDEPS bot. This is a rather tricky thing to detangle. At the very least I think you\u0027ll need to all skia_shaper_icu_sources and conditionally compile them in. This may or may not mean needing a non-icu \u0027primitive\u0027 implementation of the interface available for when icu isn\u0027t available.",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 41
+      },
+      "revId": "90e3d6cb84b97a45960864166cf647139dd16626",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
