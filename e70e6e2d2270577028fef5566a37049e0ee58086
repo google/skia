@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0bc2f59_234e76e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-17T01:57:02Z",
+      "side": 1,
+      "message": "If we expose this, need we give it a clearer (safer) name? e.g. debug_only_getRefCnt()?",
+      "revId": "e70e6e2d2270577028fef5566a37049e0ee58086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
