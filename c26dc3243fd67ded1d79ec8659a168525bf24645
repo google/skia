@@ -16,6 +16,52 @@
       "revId": "c26dc3243fd67ded1d79ec8659a168525bf24645",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd7941fc_5481a82a",
+        "filename": "src/gpu/d3d/GrD3DRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T16:08:23Z",
+      "side": 1,
+      "message": "can\u0027t we just do \"auto[msInfo, msState] \u003d ....;\" and not even need the declarations now?",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 35
+      },
+      "revId": "c26dc3243fd67ded1d79ec8659a168525bf24645",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54625c6e_fc3b03dc",
+        "filename": "src/gpu/d3d/GrD3DTextureResource.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-17T16:08:23Z",
+      "side": 1,
+      "message": "When we are rendering with MSAA and we have to make an offscreen (say for a mask). Do we make that mask multisampled or not? I actually don\u0027t know.",
+      "range": {
+        "startLine": 97,
+        "startChar": 1,
+        "endLine": 100,
+        "endChar": 28
+      },
+      "revId": "c26dc3243fd67ded1d79ec8659a168525bf24645",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
