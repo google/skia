@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d8b8630_2cfa1be6",
+        "filename": "gm/image_pict.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-17T17:10:08Z",
+      "side": 1,
+      "message": "Is this better than `auto dContext \u003d GrAsDirectContext(canvas-\u003erecordingContext())` and importing GrDirectContext?",
+      "revId": "38c5e48288bbcbb48ce25091f61d978691a55982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
