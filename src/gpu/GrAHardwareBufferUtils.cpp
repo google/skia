@@ -19,9 +19,7 @@
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
-#include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
