@@ -42,6 +42,7 @@ func main() {
 		modelTrace         = flag.String("model_trace", "", "Description of host machine.")
 		cpuOrGPUTrace      = flag.String("cpu_or_gpu_trace", "", "If this is a CPU or GPU configuration.")
 		cpuOrGPUValueTrace = flag.String("cpu_or_gpu_value_trace", "", "The hardware of this CPU/GPU")
+		webGLVersion       = flag.String("webgl_version", "", "Major WebGL version to use when creating gl drawing context. 1 or 2")
 
 		// Flags that may be required for certain configs
 		canvaskitBinPath = flag.String("canvaskit_bin_path", "", "The location of a canvaskit.js and canvaskit.wasm")
@@ -61,6 +62,7 @@ func main() {
 		"model":            *modelTrace,
 		perfKeyCpuOrGPU:    *cpuOrGPUTrace,
 		"cpu_or_gpu_value": *cpuOrGPUValueTrace,
+		"webgl_version":    *webGLVersion,
 	}
 
 	outputWithoutResults, err := makePerfObj(*gitHash, *taskID, os.Getenv("SWARMING_BOT_ID"), keys)
@@ -146,6 +148,8 @@ func setup(ctx context.Context, benchmarkPath, nodeBinPath string) error {
 	return nil
 }
 
+const perfKeyWebGLVersion = "webgl_version"
+
 // benchSKPs serves skps from a folder and runs the RenderSKPs benchmark on each of them
 // individually. The benchmark is run N times to reduce the noise of the resulting data.
 // The output for each will be a JSON file in $benchmarkPath/out/ corresponding to the skp name
@@ -188,6 +192,9 @@ func benchSKPs(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvaski
 			}
 			if perf.Key[perfKeyCpuOrGPU] != "CPU" {
 				args = append(args, "--use_gpu")
+				if perf.Key[perfKeyWebGLVersion] == "1" {
+					args = append(args, "--query_params webgl1")
+				}
 			}
 			_, err := exec.RunCwd(ctx, benchmarkPath, args...)
 			if err != nil {
@@ -243,7 +250,7 @@ func processSKPData(ctx context.Context, perf perfJSONFormat, benchmarkPath, out
 			name := strings.TrimSuffix(filepath.Base(skp), ".json")
 			config := "software"
 			if perf.Key[perfKeyCpuOrGPU] != "CPU" {
-				config = "webgl2"
+				config = "webgl" + perf.Key[perfKeyWebGLVersion]
 			}
 
 			b, err := os_steps.ReadFile(ctx, skp)
