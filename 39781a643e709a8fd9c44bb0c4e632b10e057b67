@@ -16,6 +16,24 @@
       "revId": "39781a643e709a8fd9c44bb0c4e632b10e057b67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c99fb6a_9c942a16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-17T13:06:31Z",
+      "side": 1,
+      "message": "Right, this design doesn\u0027t support passing in all the children. Generally I\u0027ve been using `inputFP` to refer to the fragment processor that plays the role of the \"sk_InColor\", i.e. the color from the previous \"stage.\" (Some FPs don\u0027t care about the in color, and would ignore this field even though they take a fragment processor.) \n\nThe concept here is to basically recreate the behavior of repeated calls to \"grPaint.addColorFragmentProcessor\". I\u0027m working on a CL which uses this technique at http://review.skia.org/303479/2\n\nWe have tests that want to draw a base texture and then layer random FPs on top of it to confirm that the optimization-flags/cloning work normally. The original CL did this via two calls: addColorFragmentProcessor(baseLayer), addColorFragmentProcessor(testFP). We aren\u0027t going to be able to call addColorFragmentProcessor twice in the future. This addition lets me plumb the base texture directly as an input to the test FP.\n\nYou can get a similar result via RunInSeries if you\u0027re willing to use a null input FP and let sample fall back to the sk_InColor, but this approach doesn\u0027t *actually* test passing a real FP as the input.",
+      "parentUuid": "a4a65f30_4474c0b4",
+      "revId": "39781a643e709a8fd9c44bb0c4e632b10e057b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
