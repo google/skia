@@ -87,42 +87,23 @@ class GrProcessorTestFactory : private SkNoncopyable {
 public:
     using MakeProc = ProcessorSmartPtr (*)(GrProcessorTestData*);
 
-    GrProcessorTestFactory(MakeProc makeProc) {
-        fMakeProc = makeProc;
-        GetFactories()->push_back(this);
-    }
+    GrProcessorTestFactory(MakeProc makeProc);
 
     /** Pick a random factory function and create a processor.  */
-    static ProcessorSmartPtr Make(GrProcessorTestData* data) {
-        VerifyFactoryCount();
-        if (GetFactories()->count() == 0) {
-            return nullptr;
-        }
-        uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
-        return MakeIdx(idx, data);
-    }
-
-    /** Number of registered factory functions */
-    static int Count() { return GetFactories()->count(); }
+    static ProcessorSmartPtr Make(GrProcessorTestData* data);
 
     /** Use factory function at Index idx to create a processor. */
-    static ProcessorSmartPtr MakeIdx(int idx, GrProcessorTestData* data) {
-        SkASSERT(idx < GetFactories()->count());
-        GrProcessorTestFactory<ProcessorSmartPtr>* factory = (*GetFactories())[idx];
-        ProcessorSmartPtr processor = factory->fMakeProc(data);
-        SkASSERT(processor);
-        return processor;
-    }
+    static ProcessorSmartPtr MakeIdx(int idx, GrProcessorTestData* data);
+
+    /** Number of registered factory functions */
+    static int Count();
 
 private:
-    /**
-     * A test function which verifies the count of factories.
-     */
+    /** A test function which verifies the count of factories. */
     static void VerifyFactoryCount();
+    static SkTArray<GrProcessorTestFactory<ProcessorSmartPtr>*, true>* GetFactories();
 
     MakeProc fMakeProc;
-
-    static SkTArray<GrProcessorTestFactory<ProcessorSmartPtr>*, true>* GetFactories();
 };
 
 using GrFragmentProcessorTestFactory = GrProcessorTestFactory<std::unique_ptr<GrFragmentProcessor>>;
@@ -132,24 +113,16 @@ class GrXPFactoryTestFactory : private SkNoncopyable {
 public:
     using GetFn = const GrXPFactory*(GrProcessorTestData*);
 
-    GrXPFactoryTestFactory(GetFn* getProc) : fGetProc(getProc) { GetFactories()->push_back(this); }
+    GrXPFactoryTestFactory(GetFn* getProc);
 
-    static const GrXPFactory* Get(GrProcessorTestData* data) {
-        VerifyFactoryCount();
-        if (GetFactories()->count() == 0) {
-            return nullptr;
-        }
-        uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
-        const GrXPFactory* xpf = (*GetFactories())[idx]->fGetProc(data);
-        SkASSERT(xpf);
-        return xpf;
-    }
+    static const GrXPFactory* Get(GrProcessorTestData* data);
 
 private:
+    /** A test function which verifies the count of factories. */
     static void VerifyFactoryCount();
+    static SkTArray<GrXPFactoryTestFactory*, true>* GetFactories();
 
     GetFn* fGetProc;
-    static SkTArray<GrXPFactoryTestFactory*, true>* GetFactories();
 };
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

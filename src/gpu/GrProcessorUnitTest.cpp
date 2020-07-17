@@ -13,6 +13,8 @@
 
 #if GR_TEST_UTILS
 
+class GrGeometryProcessor;
+
 GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
                                          int numViews, const ViewInfo views[])
         : GrProcessorTestData(random, context, numViews, views, /*inputFP=*/nullptr) {}
@@ -55,8 +57,51 @@ GrProcessorTestData::ViewInfo GrProcessorTestData::randomAlphaOnlyView() {
     SkUNREACHABLE;
 }
 
-class GrFragmentProcessor;
-class GrGeometryProcessor;
+template <class ProcessorSmartPtr>
+GrProcessorTestFactory<ProcessorSmartPtr>::GrProcessorTestFactory(MakeProc makeProc) {
+    fMakeProc = makeProc;
+    GetFactories()->push_back(this);
+}
+
+template <class ProcessorSmartPtr>
+ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::Make(GrProcessorTestData* data) {
+    VerifyFactoryCount();
+    if (GetFactories()->count() == 0) {
+        return nullptr;
+    }
+    uint32_t idx = data->fRandom->nextULessThan(GetFactories()->count());
+    return MakeIdx(idx, data);
+}
+
+template <class ProcessorSmartPtr>
+ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::MakeIdx(int idx,
+                                                                     GrProcessorTestData* data) {
+    SkASSERT(idx < GetFactories()->count());
+    GrProcessorTestFactory<ProcessorSmartPtr>* factory = (*GetFactories())[idx];
+    ProcessorSmartPtr processor = factory->fMakeProc(data);
+    SkASSERT(processor);
+    return processor;
+}
+
+template <class ProcessorSmartPtr>
+int GrProcessorTestFactory<ProcessorSmartPtr>::Count() {
+    return GetFactories()->count();
+}
+
+GrXPFactoryTestFactory::GrXPFactoryTestFactory(GetFn* getProc) : fGetProc(getProc) {
+    GetFactories()->push_back(this);
+}
+
+const GrXPFactory* GrXPFactoryTestFactory::Get(GrProcessorTestData* data) {
+    VerifyFactoryCount();
+    if (GetFactories()->count() == 0) {
+        return nullptr;
+    }
+    uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
+    const GrXPFactory* xpf = (*GetFactories())[idx]->fGetProc(data);
+    SkASSERT(xpf);
+    return xpf;
+}
 
 /*
  * Originally these were both in the processor unit test header, but then it seemed to cause linker
@@ -84,9 +129,9 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static const int kFPFactoryCount = 37;
-static const int kGPFactoryCount = 14;
-static const int kXPFactoryCount = 4;
+static constexpr int kFPFactoryCount = 37;
+static constexpr int kGPFactoryCount = 14;
+static constexpr int kXPFactoryCount = 4;
 
 template <> void GrFragmentProcessorTestFactory::VerifyFactoryCount() {
     if (kFPFactoryCount != GetFactories()->count()) {
@@ -120,4 +165,8 @@ std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcesso
     } while (fp->numNonNullChildProcessors() != 0);
     return fp;
 }
+
+template class GrProcessorTestFactory<GrGeometryProcessor*>;
+template class GrProcessorTestFactory<std::unique_ptr<GrFragmentProcessor>>;
+
 #endif
