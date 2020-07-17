@@ -15,8 +15,9 @@
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
-using Mode = GrSamplerState::WrapMode;
+using Wrap = GrSamplerState::WrapMode;
 using Filter = GrSamplerState::Filter;
+using MipmapMode = GrSamplerState::MipmapMode;
 
 struct GrTextureEffect::Sampling {
     GrSamplerState fHWSampler;
@@ -24,9 +25,9 @@ struct GrTextureEffect::Sampling {
     SkRect fShaderSubset = {0, 0, 0, 0};
     SkRect fShaderClamp  = {0, 0, 0, 0};
     float fBorder[4] = {0, 0, 0, 0};
-    Sampling(GrSamplerState::Filter filter) : fHWSampler(filter) {}
+    Sampling(Filter filter, MipmapMode mm) : fHWSampler(filter, mm) {}
     Sampling(const GrSurfaceProxy& proxy,
-             GrSamplerState sampler,
+             GrSamplerState wrap,
              const SkRect&,
              const SkRect*,
              const float border[4],
@@ -59,28 +60,29 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
         ShaderMode fShaderMode;
         Span fShaderSubset;
         Span fShaderClamp;
-        Mode fHWMode;
+        Wrap fHWWrap;
     };
 
     auto type = proxy.asTextureProxy()->textureType();
     auto filter = sampler.filter();
+    auto mm = sampler.mipmapMode();
 
-    auto resolve = [&](int size, Mode mode, Span subset, Span domain, float linearFilterInset) {
+    auto resolve = [&](int size, Wrap wrap, Span subset, Span domain, float linearFilterInset) {
         Result1D r;
         bool canDoModeInHW = true;
         // TODO: Use HW border color when available.
-        if (mode == Mode::kClampToBorder &&
+        if (wrap == Wrap::kClampToBorder &&
             (!caps.clampToBorderSupport() || border[0] || border[1] || border[2] || border[3])) {
             canDoModeInHW = false;
-        } else if (mode != Mode::kClamp && !caps.npotTextureTileSupport() && !SkIsPow2(size)) {
+        } else if (wrap != Wrap::kClamp && !caps.npotTextureTileSupport() && !SkIsPow2(size)) {
             canDoModeInHW = false;
         } else if (type != GrTextureType::k2D &&
-                   !(mode == Mode::kClamp || mode == Mode::kClampToBorder)) {
+                   !(wrap == Wrap::kClamp || wrap == Wrap::kClampToBorder)) {
             canDoModeInHW = false;
         }
         if (canDoModeInHW && size > 0 && subset.fA <= 0 && subset.fB >= size) {
             r.fShaderMode = ShaderMode::kNone;
-            r.fHWMode = mode;
+            r.fHWWrap = wrap;
             r.fShaderSubset = r.fShaderClamp = {0, 0};
             return r;
         }
@@ -107,12 +109,12 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
             // So the wrap mode effectively doesn't matter. We use kClamp since it is always
             // supported.
             r.fShaderMode = ShaderMode::kNone;
-            r.fHWMode = Mode::kClamp;
+            r.fHWWrap = Wrap::kClamp;
             r.fShaderSubset = r.fShaderClamp = {0, 0};
             return r;
         }
-        r.fShaderMode = GetShaderMode(mode, filter);
-        r.fHWMode = Mode::kClamp;
+        r.fShaderMode = GetShaderMode(wrap, filter, mm);
+        r.fHWWrap = Wrap::kClamp;
         return r;
     };
 
@@ -128,7 +130,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                           : Span{SK_FloatNegativeInfinity, SK_FloatInfinity};
     auto y = resolve(dim.height(), sampler.wrapModeY(), subsetY, domainY, linearFilterInset.fY);
 
-    fHWSampler = {x.fHWMode, y.fHWMode, filter};
+    fHWSampler = {x.fHWWrap, y.fHWWrap, filter, mm};
     fShaderModes[0] = x.fShaderMode;
     fShaderModes[1] = y.fShaderMode;
     fShaderSubset = {x.fShaderSubset.fA, y.fShaderSubset.fA,
@@ -192,14 +194,15 @@ static void get_matrix(const SkMatrix& preMatrix, const GrSurfaceProxyView& view
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView view,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
-                                                           Filter filter) {
+                                                           Filter filter,
+                                                           MipmapMode mm) {
     SkMatrix final;
     bool lazyProxyNormalization;
     get_matrix(matrix, view, &final, &lazyProxyNormalization);
     return GrMatrixEffect::Make(final, std::unique_ptr<GrFragmentProcessor>(
                                                       new GrTextureEffect(std::move(view),
                                                                           alphaType,
-                                                                          Sampling(filter),
+                                                                          Sampling(filter, mm),
                                                                           lazyProxyNormalization)));
 }
 
@@ -280,20 +283,23 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeCustomLinearFilterInse
 }
 
 GrTextureEffect::ShaderMode GrTextureEffect::GetShaderMode(GrSamplerState::WrapMode mode,
-                                                           GrSamplerState::Filter filter) {
+                                                           GrSamplerState::Filter filter,
+                                                           GrSamplerState::MipmapMode mm) {
     switch (mode) {
         case GrSamplerState::WrapMode::kMirrorRepeat:
             return ShaderMode::kMirrorRepeat;
         case GrSamplerState::WrapMode::kClamp:
             return ShaderMode::kClamp;
         case GrSamplerState::WrapMode::kRepeat:
+            if (mm != GrSamplerState::MipmapMode::kNone) {
+                // TOOD: LINEAR VS NEAREST!
+                return ShaderMode::kRepeatMipMap;
+            }
             switch (filter) {
                 case GrSamplerState::Filter::kNearest:
                     return ShaderMode::kRepeatNearest;
                 case GrSamplerState::Filter::kLinear:
                     return ShaderMode::kRepeatLinear;
-                case GrSamplerState::Filter::kMipMap:
-                    return ShaderMode::kRepeatMipMap;
             }
             SkUNREACHABLE;
         case GrSamplerState::WrapMode::kClampToBorder:
@@ -796,26 +802,15 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTestData* testData) {
     auto [view, ct, at] = testData->randomView();
-    Mode wrapModes[2];
+    Wrap wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
 
-    Filter filter;
+    Filter filter = testData->fRandom->nextBool() ? Filter::kLinear : Filter::kNearest;
+    MipmapMode mm = MipmapMode::kNone;
     if (view.asTextureProxy()->mipMapped() == GrMipMapped::kYes) {
-        switch (testData->fRandom->nextULessThan(3)) {
-            case 0:
-                filter = Filter::kNearest;
-                break;
-            case 1:
-                filter = Filter::kLinear;
-                break;
-            default:
-                filter = Filter::kMipMap;
-                break;
-        }
-    } else {
-        filter = testData->fRandom->nextBool() ? Filter::kLinear : Filter::kNearest;
+        mm = testData->fRandom->nextBool() ? MipmapMode::kLinear : MipmapMode::kNone;
     }
-    GrSamplerState params(wrapModes, filter);
+    GrSamplerState params(wrapModes, filter, mm);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
     return GrTextureEffect::Make(std::move(view), at, matrix, params, *testData->caps());

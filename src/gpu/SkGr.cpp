@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/SkGr.h"
 
 #include "include/core/SkCanvas.h"
@@ -432,21 +433,26 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int imageHeight,
-                                                       SkFilterQuality paintFilterQuality,
-                                                       const SkMatrix& viewM,
-                                                       const SkMatrix& localM,
-                                                       bool sharpenMipmappedTextures,
-                                                       bool* doBicubic) {
-    *doBicubic = false;
-    if (imageWidth <= 1 && imageHeight <= 1) {
-        return GrSamplerState::Filter::kNearest;
+// TODO: RENAME
+std::tuple<GrSamplerState::Filter,
+           GrSamplerState::MipmapMode,
+           bool /*bicubic*/>
+GrSkFilterQualityToGrFilterMode(SkISize imageDims,
+                                SkFilterQuality paintFilterQuality,
+                                const SkMatrix& viewM,
+                                const SkMatrix& localM,
+                                bool sharpenMipmappedTextures) {
+    using Filter     = GrSamplerState::Filter;
+    using MipmapMode = GrSamplerState::MipmapMode;
+    if (imageDims.area() <= 1) {
+        // TOOD: should know we're not in decal mode to do this transformation.
+        return {Filter::kNearest, MipmapMode::kNone, false};
     }
     switch (paintFilterQuality) {
         case kNone_SkFilterQuality:
-            return GrSamplerState::Filter::kNearest;
+            return {Filter::kNearest, MipmapMode::kNone, false};
         case kLow_SkFilterQuality:
-            return GrSamplerState::Filter::kLinear;
+            return {Filter::kLinear, MipmapMode::kNone, false};
         case kMedium_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
@@ -460,18 +466,21 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int image
             //        2^0.5/2 = s
             SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
             if (matrix.getMinScale() < mipScale) {
-                return GrSamplerState::Filter::kMipMap;
+                return {Filter::kLinear, MipmapMode::kLinear, false};
             } else {
-                // Don't trigger MIP level generation unnecessarily.
-                return GrSamplerState::Filter::kLinear;
+                return {Filter::kLinear, MipmapMode::kNone, false};
             }
         }
         case kHigh_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
-            GrSamplerState::Filter textureFilterMode;
-            *doBicubic = GrBicubicEffect::ShouldUseBicubic(matrix, &textureFilterMode);
-            return textureFilterMode;
+            switch (SkMatrixPriv::AdjustHighQualityFilterLevel(matrix)) {
+                case kNone_SkFilterQuality:   return {Filter::kNearest, MipmapMode::kNone  , false};
+                case kLow_SkFilterQuality:    return {Filter::kLinear , MipmapMode::kNone  , false};
+                case kMedium_SkFilterQuality: return {Filter::kLinear , MipmapMode::kLinear, false};
+                case kHigh_SkFilterQuality:   return {Filter::kNearest, MipmapMode::kNone  , true };
+            }
+            SkUNREACHABLE;
         }
     }
     SkUNREACHABLE;

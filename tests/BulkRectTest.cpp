@@ -106,14 +106,20 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
         set[i].fAAFlags = perQuadAA(i);
     }
 
-    GrTextureOp::AddTextureSetOps(rtc.get(), nullptr, context, set, requestedTotNumQuads,
+    GrTextureOp::AddTextureSetOps(rtc.get(),
+                                  nullptr,
+                                  context,
+                                  set,
+                                  requestedTotNumQuads,
                                   requestedTotNumQuads, // We alternate so proxyCnt == cnt
                                   GrSamplerState::Filter::kNearest,
+                                  GrSamplerState::MipmapMode::kNone,
                                   GrTextureOp::Saturate::kYes,
                                   blendMode,
                                   overallAA,
                                   SkCanvas::kStrict_SrcRectConstraint,
-                                  SkMatrix::I(), nullptr);
+                                  SkMatrix::I(),
+                                  nullptr);
 
     GrOpsTask* opsTask = rtc->testingOnly_PeekLastOpsTask();
     int actualNumOps = opsTask->numOpChains();
