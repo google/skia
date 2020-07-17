@@ -274,9 +274,6 @@ public:
 
     int glyphCount() const;
 
-    // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
-    void prepareGrGlyphs(GrStrikeCache*);
-
     const SkStrikeSpec& strikeSpec() const;
 
     static GrSubRun* MakeSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -352,8 +349,8 @@ private:
     int atlasPadding() const;
     SkSpan<const VertexData> vertexData() const;
 
-    // has 'prepareGrGlyphs' been called (i.e., can the GrGlyphs be accessed) ?
-    SkDEBUGCODE(bool isPrepared() const { return SkToBool(fStrike); })
+    // Acquire a GrTextStrike and convert the SkPackedGlyphIDs to GrGlyphs for this run
+    void prepareGrGlyphs(GrStrikeCache*);
 
     void resetBulkUseToken();
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
