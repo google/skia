@@ -70,6 +70,24 @@
       "revId": "10ae9934d6566234aad0b6f1b663264fe8083bce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e58eb2fa_f0094902",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-17T13:22:47Z",
+      "side": 1,
+      "message": "Yeah, I think we might be surprised how many ideas like this might pop up with that mechanism in place.  One particular area I think could benefit from filtering is hard-stop gradients, e.g. https://codepen.io/chriscoyier/pen/csgoD.  They end up with an ugly unantialiased edge, but sampled through a bilerp or bicubic wrapper the hard edge would stay in place geometrically but look a little nicer.",
+      "parentUuid": "2ef494bb_8a4e51bc",
+      "revId": "10ae9934d6566234aad0b6f1b663264fe8083bce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
