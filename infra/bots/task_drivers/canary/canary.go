@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"time"
@@ -114,6 +115,9 @@ func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId
 			if roll.Result == manual.RESULT_SUCCESS {
 				return nil
 			} else if roll.Result == manual.RESULT_FAILURE {
+				if cl == "" {
+					return td.FailStep(ctx, errors.New("Canary roll could not be created. Ask the trooper to investigate (or directly ping rmistry@)."))
+				}
 				return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] failed", cl))
 			} else if roll.Result == manual.RESULT_UNKNOWN {
 				return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] completed with an unknown result", cl))
