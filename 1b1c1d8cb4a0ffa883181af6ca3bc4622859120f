@@ -16,6 +16,23 @@
       "revId": "1b1c1d8cb4a0ffa883181af6ca3bc4622859120f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f44e060_0f8c2967",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-18T22:27:41Z",
+      "side": 1,
+      "message": "Given that there is no fract() call in the multisample effect I implemented, I do not think it can drop in right away.  I think we need to think about how weights and sample points and such interact, and whether we can spec Multisample() to match bilerp/bicubic given appropriate weights.",
+      "revId": "1b1c1d8cb4a0ffa883181af6ca3bc4622859120f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
