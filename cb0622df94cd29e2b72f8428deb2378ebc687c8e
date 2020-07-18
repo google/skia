@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "724becad_09bdf1ce",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-18T03:04:09Z",
+      "side": 1,
+      "message": "Yes, that\u0027s one reason. A bigger reason is that in a followup CL, these FPs will have different inputs being fed into them (inputTexture1/2/3) so at that point, clone() will no longer work because you can\u0027t rewire children after the fact. But that\u0027s coming next. (I have the CL pretty much written but was fighting trybots all day so it needs a rebase/fixup.)",
+      "parentUuid": "c11e855e_5a38cd77",
+      "range": {
+        "startLine": 10,
+        "startChar": 46,
+        "endLine": 13,
+        "endChar": 42
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0eef06b_0f109b07",
         "filename": "tests/ProcessorTest.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2020-07-17T20:54:51Z",
       "side": 1,
       "message": "Took me a sec to get the analogy to rolling dice but I like it!",
+      "range": {
+        "startLine": 336,
+        "startChar": 13,
+        "endLine": 336,
+        "endChar": 19
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a44ce82_3cc5681f",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-18T03:04:09Z",
+      "side": 1,
+      "message": "I didn\u0027t realize it but I think I\u0027m bringing MMO vernacular into Skia here!\nEverything random-related in WOW is discussed in terms of dice (e.g. \"3d10\"), and there\u0027s a /roll console command that players can use to pull random numbers. If there is more Skia-friendly terminology I\u0027m happy to change it.",
+      "parentUuid": "b0eef06b_0f109b07",
       "range": {
         "startLine": 336,
         "startChar": 13,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1a96dc6e_77ccb657",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-18T03:04:09Z",
+      "side": 1,
+      "message": "I\u0027m fine with `make` if that\u0027ll feel more natural for the codebase. Done.",
+      "parentUuid": "87722d79_5a8032f5",
+      "range": {
+        "startLine": 342,
+        "startChar": 45,
+        "endLine": 342,
+        "endChar": 51
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3136bbb2_e20465e9",
         "filename": "tests/ProcessorTest.cpp",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d84dede_4a20323f",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-18T03:04:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3136bbb2_e20465e9",
+      "range": {
+        "startLine": 392,
+        "startChar": 17,
+        "endLine": 392,
+        "endChar": 28
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

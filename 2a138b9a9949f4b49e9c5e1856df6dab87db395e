@@ -22,6 +22,30 @@
       "revId": "2a138b9a9949f4b49e9c5e1856df6dab87db395e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "935ec7e9_6d5b0031",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-18T03:04:09Z",
+      "side": 0,
+      "message": "I might be misunderstanding what you\u0027re trying to say, but constexpr variables can\u0027t be initialized with non-constexpr values AIUI. If you try, you get a compile error:\n\n  ../../tests/ProcessorTest.cpp:541:19: error: constexpr variable \u0027kRenderSize\u0027 must be initialized by a constant expression\n      constexpr int kRenderSize \u003d rand();\n                    ^             ~~~~~~\n  ../../tests/ProcessorTest.cpp:541:33: note: non-constexpr function \u0027rand\u0027 cannot be used in a constant expression\n      constexpr int kRenderSize \u003d rand();\n                                  ^\n\nThe `static` here tells the compiler that the variable\u0027s lifetime can extend outside of the function, e.g. if I pass \u0026kRenderSize to another function, it would not go out of scope later. I don\u0027t think that\u0027s what we want to express. Here\u0027s an example to demonstrate the difference in codegen: https://godbolt.org/z/18KPGE\n\n(You can see that with `static`, the compiler reserves a dedicated slot in the data segment for FnStat()::kFoo. Without `static`, it just pushes a value on the stack as it is needed.)\n\nThis is different from `static` at global scope, which controls linkage, because the word `static` in C++ apparently must have a different meaning in every possible context :)",
+      "parentUuid": "e87c9011_acd24e3e",
+      "range": {
+        "startLine": 509,
+        "startChar": 4,
+        "endLine": 509,
+        "endChar": 10
+      },
+      "revId": "2a138b9a9949f4b49e9c5e1856df6dab87db395e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
