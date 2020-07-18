@@ -85,6 +85,24 @@
       "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e8552541_97591871",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-18T14:11:03Z",
+      "side": 1,
+      "message": "Yes, that does fix the issue. And there is no need to submit https://skia-review.googlesource.com/c/skia/+/303019. https://skia-review.googlesource.com/c/skia/+/303721 by itself fixes everything afaict",
+      "parentUuid": "80fcedd7_50768608",
+      "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
