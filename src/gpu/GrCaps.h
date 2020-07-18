@@ -74,9 +74,13 @@ public:
     // Should we discard stencil values after a render pass? (Tilers get better performance if we
     // always load stencil buffers with a "clear" op, and then discard the content when finished.)
     bool discardStencilValuesAfterRenderPass() const {
+        // b/160958008
+        return false;
+#if 0
         // This method is actually just a duplicate of preferFullscreenClears(), with a descriptive
         // name for the sake of readability.
         return this->preferFullscreenClears();
+#endif
     }
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
