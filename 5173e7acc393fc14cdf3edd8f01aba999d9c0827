@@ -68,6 +68,23 @@
       "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80fcedd7_50768608",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-18T00:40:24Z",
+      "side": 1,
+      "message": "This revert had a lot of messy conflicts. Can you try https://skia-review.googlesource.com/c/skia/+/303721 and see if that fixes the issue instead?",
+      "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
