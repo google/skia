@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a9a4e9c_94df76fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-18T21:53:34Z",
+      "side": 1,
+      "message": "Trying out https://skia-review.googlesource.com/c/skia/+/303621\n\nIs this the right way to call it (e.g. to simulate bicubic)?",
+      "revId": "1b1c1d8cb4a0ffa883181af6ca3bc4622859120f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
