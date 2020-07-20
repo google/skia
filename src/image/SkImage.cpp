@@ -617,16 +617,16 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImage_pinAsTexture(const SkImage* image, GrContext* ctx) {
+bool SkImage_pinAsTexture(const SkImage* image, GrRecordingContext* rContext) {
     SkASSERT(image);
-    SkASSERT(ctx);
-    return as_IB(image)->onPinAsTexture(ctx);
+    SkASSERT(rContext);
+    return as_IB(image)->onPinAsTexture(rContext);
 }
 
-void SkImage_unpinAsTexture(const SkImage* image, GrContext* ctx) {
+void SkImage_unpinAsTexture(const SkImage* image, GrRecordingContext* rContext) {
     SkASSERT(image);
-    SkASSERT(ctx);
-    as_IB(image)->onUnpinAsTexture(ctx);
+    SkASSERT(rContext);
+    as_IB(image)->onUnpinAsTexture(rContext);
 }
 
 SkIRect SkImage_getSubset(const SkImage* image) {

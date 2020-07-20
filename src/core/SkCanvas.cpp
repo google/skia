@@ -50,7 +50,6 @@
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
 #include "src/gpu/SkGr.h"
 #endif
 
