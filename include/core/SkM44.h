@@ -111,6 +111,15 @@ struct SkV4 {
 
     const float* ptr() const { return &x; }
     float* ptr() { return &x; }
+
+    float operator[](int i) const {
+        SkASSERT(i >= 0 && i < 4);
+        return this->ptr()[i];
+    }
+    float& operator[](int i) {
+        SkASSERT(i >= 0 && i < 4);
+        return this->ptr()[i];
+    }
 };
 
 /**

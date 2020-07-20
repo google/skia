@@ -165,6 +165,17 @@ void SkReadBuffer::readPoint3(SkPoint3* point) {
     this->readPad32(point, sizeof(SkPoint3));
 }
 
+void SkReadBuffer::read(SkM44* matrix) {
+    if (this->isValid()) {
+        if (const float* m = (const float*)this->skip(sizeof(float) * 16)) {
+            *matrix = SkM44::ColMajor(m);
+        }
+    }
+    if (!this->isValid()) {
+        *matrix = SkM44();
+    }
+}
+
 void SkReadBuffer::readMatrix(SkMatrix* matrix) {
     size_t size = 0;
     if (this->isValid()) {
