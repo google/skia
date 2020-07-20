@@ -16,6 +16,92 @@
       "revId": "f21fcb1296499138ccfc11b184fa10f29b535f91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "54902b8f_d445396b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T13:04:29Z",
+      "side": 1,
+      "message": "wdyt about adding a bench to see the improved handling of the allocate/deallocate behavior?",
+      "revId": "f21fcb1296499138ccfc11b184fa10f29b535f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9ab87b8_773ddc53",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T13:04:29Z",
+      "side": 1,
+      "message": "becomes",
+      "range": {
+        "startLine": 110,
+        "startChar": 30,
+        "endLine": 110,
+        "endChar": 37
+      },
+      "revId": "f21fcb1296499138ccfc11b184fa10f29b535f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d7f8673_33ed5d9b",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T13:04:29Z",
+      "side": 1,
+      "message": "Round ?",
+      "range": {
+        "startLine": 184,
+        "startChar": 11,
+        "endLine": 184,
+        "endChar": 21
+      },
+      "revId": "f21fcb1296499138ccfc11b184fa10f29b535f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a455a5c_62a9c5b7",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T13:04:29Z",
+      "side": 1,
+      "message": "stashed",
+      "range": {
+        "startLine": 652,
+        "startChar": 28,
+        "endLine": 652,
+        "endChar": 35
+      },
+      "revId": "f21fcb1296499138ccfc11b184fa10f29b535f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
