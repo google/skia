@@ -75,6 +75,9 @@ func main() {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 
+	// Add documentation link for canary rolls.
+	td.StepText(ctx, "Canary roll doc", "https://goto.google.com/autoroller-canary-bots")
+
 	if err := waitForCanaryRoll(ctx, manualRollDB, req.Id); err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
