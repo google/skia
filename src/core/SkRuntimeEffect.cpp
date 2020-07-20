@@ -120,6 +120,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
+    bool hasMain = false;
     bool mainHasSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
 
     std::vector<const SkSL::Variable*> inVars;
@@ -159,6 +160,19 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                 }
             }
         }
+        // Functions
+        else if (elem.fKind == SkSL::ProgramElement::kFunction_Kind) {
+            const SkSL::FunctionDefinition& func =
+                    static_cast<const SkSL::FunctionDefinition&>(elem);
+            const SkSL::FunctionDeclaration& decl = func.fDeclaration;
+            if (decl.fName == "main") {
+                hasMain = true;
+            }
+        }
+    }
+
+    if (!hasMain) {
+        RETURN_FAILURE("missing 'main' function");
     }
 
     size_t offset = 0, uniformSize = 0;
