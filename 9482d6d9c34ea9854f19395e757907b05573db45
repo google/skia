@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a6e0326_662db1dd",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-20T15:12:38Z",
+      "side": 1,
+      "message": "I\u0027m fine with this as-is, but we could also just write it as:\n\n   SkScalar w \u003d pos ? (pos[i + 1] - pos[i]) : (SK_Scalar1 / (colorCount - 1));\n   blend +\u003d 0.5 * w * (c1 + c0);\n\nI\u0027m not 100% sure why I felt the need to have split this up, in the first place...",
+      "range": {
+        "startLine": 703,
+        "startChar": 8,
+        "endLine": 708,
+        "endChar": 61
+      },
+      "revId": "9482d6d9c34ea9854f19395e757907b05573db45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
