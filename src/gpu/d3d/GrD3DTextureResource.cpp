@@ -71,6 +71,45 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
     return true;
 }
 
+std::pair<GrD3DTextureResourceInfo, sk_sp<GrD3DResourceState>> GrD3DTextureResource::CreateMSAA(
+        GrD3DGpu* gpu, SkISize dimensions, int sampleCnt, const GrD3DTextureResourceInfo& info,
+        SkColor4f clearColor) {
+    GrD3DTextureResourceInfo msInfo;
+    sk_sp<GrD3DResourceState> msState;
+
+    // create msaa surface
+    D3D12_RESOURCE_DESC msTextureDesc = {};
+    msTextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    msTextureDesc.Alignment = 0;  // Default alignment (64KB)
+    msTextureDesc.Width = dimensions.fWidth;
+    msTextureDesc.Height = dimensions.fHeight;
+    msTextureDesc.DepthOrArraySize = 1;
+    msTextureDesc.MipLevels = 1;
+    msTextureDesc.Format = info.fFormat;
+    msTextureDesc.SampleDesc.Count = sampleCnt;
+    // quality levels are only supported for tiled resources so ignore for now
+    msTextureDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
+    msTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // Use default for dxgi format
+    msTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = info.fFormat;
+    clearValue.Color[0] = clearColor.fR;
+    clearValue.Color[1] = clearColor.fG;
+    clearValue.Color[2] = clearColor.fB;
+    clearValue.Color[3] = clearColor.fA;
+
+    if (!InitTextureResourceInfo(gpu, msTextureDesc, D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                 info.fProtected, &clearValue, &msInfo)) {
+        return {};
+    }
+
+    msState.reset(new GrD3DResourceState(
+            static_cast<D3D12_RESOURCE_STATES>(msInfo.fResourceState)));
+
+    return std::make_pair(msInfo, msState);
+}
+
 GrD3DTextureResource::~GrD3DTextureResource() {
     // Should have been reset() before
     SkASSERT(!fResource);

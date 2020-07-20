@@ -96,7 +96,6 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
     SkASSERT(info.fResource.get());
 
     SkASSERT(1 == info.fLevelCount);
-    DXGI_FORMAT dxgiFormat = info.fFormat;
 
     GrD3DDescriptorHeap::CPUHandle renderTargetView =
             gpu->resourceProvider().createRenderTargetView(info.fResource.get());
@@ -104,38 +103,12 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
     // create msaa surface if necessary
     GrD3DRenderTarget* d3dRT;
     if (sampleCnt > 1) {
-        D3D12_RESOURCE_DESC msTextureDesc = {};
-        msTextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        msTextureDesc.Alignment = 0;  // Default alignment (64KB)
-        msTextureDesc.Width = dimensions.fWidth;
-        msTextureDesc.Height = dimensions.fHeight;
-        msTextureDesc.DepthOrArraySize = 1;
-        msTextureDesc.MipLevels = 1;
-        msTextureDesc.Format = dxgiFormat;
-        msTextureDesc.SampleDesc.Count = sampleCnt;
-        // quality levels are only supported for tiled resources so ignore for now
-        msTextureDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
-        msTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // Use default for dxgi format
-        msTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-
-        D3D12_CLEAR_VALUE clearValue = {};
-        clearValue.Format = dxgiFormat;
-        // For wrapped rendertargets we assume a clear to white
-        clearValue.Color[0] = 1;
-        clearValue.Color[1] = 1;
-        clearValue.Color[2] = 1;
-        clearValue.Color[3] = 1;
-
         GrD3DTextureResourceInfo msInfo;
         sk_sp<GrD3DResourceState> msState;
-        if (!GrD3DTextureResource::InitTextureResourceInfo(gpu, msTextureDesc,
-                                                           D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                           info.fProtected, &clearValue, &msInfo)) {
-            return nullptr;
-        }
-
-        msState.reset(new GrD3DResourceState(
-                                  static_cast<D3D12_RESOURCE_STATES>(msInfo.fResourceState)));
+        // for wrapped MSAA surface we assume clear to white
+        SkColor4f clearColor = { 1, 1, 1, 1 };
+        std::tie(msInfo, msState) =
+                GrD3DTextureResource::CreateMSAA(gpu, dimensions, sampleCnt, info, clearColor);
 
         GrD3DDescriptorHeap::CPUHandle msaaRenderTargetView =
                 gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());

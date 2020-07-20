@@ -51,7 +51,11 @@ GrGpu* GrD3DOpsRenderPass::gpu() { return fGpu; }
 
 void GrD3DOpsRenderPass::onBegin() {
     GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(fRenderTarget);
-    d3dRT->setResourceState(fGpu, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    if (d3dRT->numSamples() > 1) {
+        d3dRT->msaaTextureResource()->setResourceState(fGpu, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    } else {
+        d3dRT->setResourceState(fGpu, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    }
     fGpu->currentCommandList()->setRenderTarget(d3dRT);
 
     if (GrLoadOp::kClear == fColorLoadOp) {
