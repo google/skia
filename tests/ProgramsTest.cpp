@@ -233,7 +233,7 @@ static void set_random_color_coverage_stages(GrPaint* paint,
         }
     } else {
         int numProcs = d->fRandom->nextULessThan(maxStages + 1);
-        int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
+        int numColorProcs = 1;
 
         for (int s = 0; s < numProcs; ++s) {
             std::unique_ptr<GrFragmentProcessor> fp(GrFragmentProcessorTestFactory::Make(d));

@@ -64,6 +64,7 @@ public:
      */
     void addColorFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp) {
         SkASSERT(fp);
+        SkASSERT(fColorFragmentProcessors.empty());
         fColorFragmentProcessors.push_back(std::move(fp));
         fTrivial = false;
     }
