@@ -66,6 +66,15 @@ public:
     }
 
     /**
+     * Move all items from 'other' to the end of this collection. When this returns, 'other' will
+     * be empty. Items in 'other' may be moved as part of compacting the pre-allocated start of
+     * 'other' into this list (using T's move constructor or memcpy if T is trivially copyable), but
+     * this is O(StartingItems) and not O(N). All other items are concatenated in O(1).
+     */
+    template <int SI>
+    void concat(GrTAllocator<T, SI>&& other);
+
+    /**
      * Allocate, if needed, space to hold N more Ts before another malloc will occur.
      */
     void reserve(int n) {
@@ -200,6 +209,11 @@ public:
     }
 
 private:
+    // Let other GrTAllocators have access (only ever used when T and S are the same but you cannot
+    // have partial specializations declared as a friend...)
+    template<typename S, int N>
+    friend class GrTAllocator;//<S, N>;
+
     static constexpr size_t StartingSize =
             GrBlockAllocator::Overhead<alignof(T)>() + StartingItems * sizeof(T);
 
@@ -262,6 +276,74 @@ public:
     const GrBlockAllocator* allocator() const { return fAllocator.allocator(); }
 #endif
 };
+
+template <typename T, int SI1>
+template <int SI2>
+void GrTAllocator<T, SI1>::concat(GrTAllocator<T, SI2>&& other) {
+    // Compact items at the front of 'other' (importantly, all of the items in its head block),
+    // as well as any other blocks that happen to fit. Everything else will be stolen.
+    int numCompacted = 0;
+    for (GrBlockAllocator::Block* block : other.fAllocator->blocks()) {
+        if (block->metadata() == 0) {
+            continue; // skip empty
+        }
+
+        int blockStart = First(block);
+        int blockEnd = Last(block) + sizeof(T); // exclusive
+        int blockItemCount = (blockEnd - blockStart) / sizeof(T);
+        int avail = fAllocator->currentBlock()->template avail<alignof(T)>() / sizeof(T);
+        if (blockItemCount <= avail || block == other.fAllocator->headBlock()) {
+            // Move items into this block
+            this->reserve(blockItemCount); // no-op unless 'block' is the head
+            if /*constexpr*/ (std::is_trivially_copyable<T>::value) {
+                // memcpy all items at once (or twice between current and reserved space).
+                SkASSERT(std::is_trivially_destructible<T>::value);
+                int copyCount = std::min(blockItemCount, avail);
+                auto firstCopy = fAllocator->template allocate<alignof(T)>(copyCount * sizeof(T));
+                memcpy(firstCopy.fBlock->ptr(firstCopy.fAlignedOffset),
+                        block->ptr(blockStart), copyCount * sizeof(T));
+                firstCopy.fBlock->setMetadata(
+                        firstCopy.fAlignedOffset + (copyCount - 1) * sizeof(T));
+
+                // Finish copying the remaining items from other's head block, since they otherwise
+                // won't be moved to this list with stealHeapBlocks later.
+                if (blockItemCount > avail) {
+                    int remaining = blockItemCount - avail;
+                    auto secondCopy =
+                            fAllocator->template allocate<alignof(T)>(remaining * sizeof(T));
+                    memcpy(secondCopy.fBlock->ptr(secondCopy.fAlignedOffset),
+                            block->ptr(blockStart + avail * sizeof(T)), remaining * sizeof(T));
+                    secondCopy.fBlock->setMetadata(
+                            secondCopy.fAlignedOffset + (remaining - 1) * sizeof(T));
+                }
+                fAllocator->setMetadata(fAllocator->metadata() + blockItemCount);
+            } else {
+                // Move every item over one at a time
+                for (int i = blockStart; i < blockEnd; i += sizeof(T)) {
+                    T& toMove = GetItem(block, i);
+                    this->push_back(std::move(toMove));
+                    // Anything of interest should have been moved, but run this since T isn't
+                    // a trusted type.
+                    toMove.~T(); // NOLINT(bugprone-use-after-move): calling dtor always allowed
+                }
+            }
+
+            other.fAllocator->releaseBlock(block);
+            numCompacted += blockItemCount;
+        } else {
+            // Do not compact a heap allocated block that won't fit in its entirety, it can
+            // just be linked to the end of the block linked list.
+            break;
+        }
+    }
+
+    // other's head block must have been fully copied since it cannot be stolen
+    SkASSERT(other.fAllocator->headBlock()->metadata() == 0);
+    fAllocator->stealHeapBlocks(other.fAllocator.allocator());
+    fAllocator->setMetadata(fAllocator->metadata() +
+                            (other.fAllocator->metadata() - numCompacted));
+    other.fAllocator->setMetadata(0);
+}
 
 /**
  * BlockIndexIterator provides a reusable iterator template for collections built on top of a
