@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e025fd6a_878f3115",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-20T20:41:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50ceddce_06b69d0d",
+      "range": {
+        "startLine": 351,
+        "startChar": 70,
+        "endLine": 351,
+        "endChar": 85
+      },
+      "revId": "f01fcd48a2f875bc84636071669f92c51c85cb32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ddf5d3df_83490b79",
         "filename": "include/core/SkImage.h",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "5ecb581d_3b514e8d",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1260,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-20T20:41:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ddf5d3df_83490b79",
+      "range": {
+        "startLine": 1260,
+        "startChar": 66,
+        "endLine": 1260,
+        "endChar": 73
+      },
+      "revId": "f01fcd48a2f875bc84636071669f92c51c85cb32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a66b2d64_36cbacf7",
         "filename": "tests/ImageFilterTest.cpp",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2020-07-20T20:13:30Z",
       "side": 1,
       "message": "Can these three all be recording contexts ?",
+      "range": {
+        "startLine": 332,
+        "startChar": 60,
+        "endLine": 332,
+        "endChar": 75
+      },
+      "revId": "f01fcd48a2f875bc84636071669f92c51c85cb32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "636fd476_d0da6557",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-20T20:41:29Z",
+      "side": 1,
+      "message": "Right now, we\u0027re always calling these with `ctxInfo.directContext()` and that won\u0027t change – so I figured we should take advantage of that fact. Thoughts?",
+      "parentUuid": "a66b2d64_36cbacf7",
       "range": {
         "startLine": 332,
         "startChar": 60,
