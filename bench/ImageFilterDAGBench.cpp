@@ -73,9 +73,9 @@ protected:
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkIRect discardSubset;
 
-        auto direct = GrAsDirectContext(canvas->recordingContext());
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
         // makeWithFilter will only use the GPU backend if the image is already a texture
-        sk_sp<SkImage> image = fImage->makeTextureImage(direct);
+        sk_sp<SkImage> image = fImage->makeTextureImage(dContext);
         if (!image) {
             image = fImage;
         }
@@ -90,8 +90,8 @@ protected:
 
         // But measure makeWithFilter() per loop since that's the focus of this benchmark
         for (int j = 0; j < loops; j++) {
-            image = image->makeWithFilter(mergeFilter.get(), subset, subset, &discardSubset,
-                                          &offset);
+            image = image->makeWithFilter(dContext, mergeFilter.get(), subset, subset,
+                                          &discardSubset, &offset);
             SkASSERT(image && image->dimensions() == fImage->dimensions());
         }
     }
