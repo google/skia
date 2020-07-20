@@ -30,12 +30,9 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeAllocate(const SkImageInfo& info, size_t
     if (!is_valid(info) || !info.validRowBytes(rowBytes)) {
         return nullptr;
     }
-    size_t size = 0;
-    if (!info.isEmpty() && rowBytes) {
-        size = info.computeByteSize(rowBytes);
-        if (SkImageInfo::ByteSizeOverflowed(size)) {
-            return nullptr;
-        }
+    size_t size = info.computeByteSize(rowBytes);
+    if (SkImageInfo::ByteSizeOverflowed(size)) {
+        return nullptr;
     }
     void* addr = sk_calloc_canfail(size);
     if (nullptr == addr) {

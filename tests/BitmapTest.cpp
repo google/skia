@@ -412,3 +412,38 @@ DEF_TEST(getalphaf, reporter) {
         }
     }
 }
+
+/*  computeByteSize() is documented to return 0 if height is zero, but does not
+ *  special-case width==0, so computeByteSize() can return non-zero for that
+ *  (since it is defined to return (height-1)*rb + ...
+ *
+ *  Test that allocPixels() respects this, and allocates a buffer as large as
+ *  computeByteSize()... even though the bitmap is logicallly empty.
+ */
+DEF_TEST(bitmap_zerowidth_crbug_1103827, reporter) {
+    const size_t big_rb = 1 << 16;
+
+    struct {
+        int width, height;
+        size_t rowbytes, expected_size;
+    } rec[] = {
+        { 2, 0,     big_rb,         0 },    // zero-height means zero-size
+        { 0, 2,     big_rb,    big_rb },    // zero-width is computed normally
+    };
+
+    for (const auto& r : rec) {
+        auto info = SkImageInfo::Make(r.width, r.height,
+                                      kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+        size_t size = info.computeByteSize(r.rowbytes);
+        REPORTER_ASSERT(reporter, size == r.expected_size);
+
+        SkBitmap bm;
+        bm.setInfo(info, r.rowbytes);
+        REPORTER_ASSERT(reporter, size == bm.computeByteSize());
+
+        // Be sure we can actually write to that much memory. If the bitmap underallocated
+        // the buffer, this should trash memory and crash (we hope).
+        bm.allocPixels();
+        sk_bzero(bm.getPixels(), size);
+    }
+}
