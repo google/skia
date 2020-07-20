@@ -26,6 +26,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrConfig.h"
+#include "include/gpu/GrContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkMatrixProvider.h"

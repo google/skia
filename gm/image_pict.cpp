@@ -25,7 +25,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
@@ -289,10 +289,11 @@ protected:
             return;
         }
 
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
+        // CONTEXT TODO: remove this use of the 'backdoor' to create an image
+        GrContext* tmp = canvas->recordingContext()->priv().backdoor();
 
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(dContext),
+        sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(tmp),
                                                 image->uniqueID(), std::move(view),
                                                 image->colorType(), image->alphaType(),
                                                 image->refColorSpace()));

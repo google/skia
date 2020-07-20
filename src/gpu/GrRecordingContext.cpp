@@ -7,6 +7,7 @@
 
 #include "include/gpu/GrRecordingContext.h"
 
+#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAuditTrail.h"

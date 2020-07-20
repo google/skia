@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 
 #include "include/core/SkPath.h"
+#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrContextPriv.h"
