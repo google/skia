@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72915d84_c71de0a8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T18:40:19Z",
+      "side": 1,
+      "message": "static ?",
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b43c1478_f37d3294",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T18:40:19Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be a \"GrPaint*\" ?",
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e53cc83_9387bce7",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T18:40:19Z",
+      "side": 1,
+      "message": "line up ?",
+      "range": {
+        "startLine": 293,
+        "startChar": 0,
+        "endLine": 296,
+        "endChar": 69
+      },
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf4d295_7e2bbb26",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T18:40:19Z",
+      "side": 1,
+      "message": "fPos - here and in following ?",
+      "range": {
+        "startLine": 244,
+        "startChar": 22,
+        "endLine": 244,
+        "endChar": 23
+      },
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03ba8b15_cd7e7cc3",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T18:40:19Z",
+      "side": 1,
+      "message": "So, these are the 1-1 blits ?",
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a40a36af_d073a465",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T18:40:19Z",
+      "side": 1,
+      "message": "Should the ctor be private ?",
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30586f76_63462913",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T18:40:19Z",
+      "side": 1,
+      "message": "line up ?",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 324,
+        "endChar": 49
+      },
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd31ec36_27ba2d69",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T18:40:19Z",
+      "side": 1,
+      "message": "Is this comment still correct ?",
+      "range": {
+        "startLine": 348,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 76
+      },
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
