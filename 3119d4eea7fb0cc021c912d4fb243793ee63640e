@@ -16,6 +16,23 @@
       "revId": "3119d4eea7fb0cc021c912d4fb243793ee63640e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9c40508_6fc6878c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-20T19:29:51Z",
+      "side": 1,
+      "message": "One other thing to mention is I haven\u0027t gathered the dm histogram with all the extra resources (skps, etc), which I can do if you think it\u0027d be valuable.",
+      "revId": "3119d4eea7fb0cc021c912d4fb243793ee63640e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
