@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "62bac94e_58011ac6",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-20T19:03:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72915d84_c71de0a8",
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b43c1478_f37d3294",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 4
@@ -59,6 +77,48 @@
     },
     {
       "key": {
+        "uuid": "c92e9d1d_16daf3a2",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-20T19:03:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e53cc83_9387bce7",
+      "range": {
+        "startLine": 293,
+        "startChar": 0,
+        "endLine": 296,
+        "endChar": 69
+      },
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4331c52d_b70057db",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-20T19:03:56Z",
+      "side": 1,
+      "message": "How did this work?",
+      "parentUuid": "b43c1478_f37d3294",
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9bf4d295_7e2bbb26",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 4
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "83124452_30393e05",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-20T19:03:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9bf4d295_7e2bbb26",
+      "range": {
+        "startLine": 244,
+        "startChar": 22,
+        "endLine": 244,
+        "endChar": 23
+      },
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03ba8b15_cd7e7cc3",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 4
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "89fdf414_9ad3104b",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-20T19:03:56Z",
+      "side": 1,
+      "message": "No. This is the super class of the direct and transposed sub runs. Because these are the vertices, these are shared by all atlas style draws.",
+      "parentUuid": "03ba8b15_cd7e7cc3",
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a40a36af_d073a465",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 4
@@ -113,6 +215,24 @@
       "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05bf1f05_1635643d",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-20T19:03:56Z",
+      "side": 1,
+      "message": "I can\u0027t be private because we use in the call alloc-\u003emake\u003cGrDirectMaskSubRun\u003e.",
+      "parentUuid": "a40a36af_d073a465",
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "ce2d8f22_5bf80679",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-20T19:03:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30586f76_63462913",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 324,
+        "endChar": 49
+      },
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bd31ec36_27ba2d69",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 4
@@ -159,6 +303,30 @@
       "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d76240e5_e54681ee",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-20T19:03:56Z",
+      "side": 1,
+      "message": "Fixed here and below.",
+      "parentUuid": "bd31ec36_27ba2d69",
+      "range": {
+        "startLine": 348,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 76
+      },
+      "revId": "4253be72a92db333134aff71c84e5831e8dc4edd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
