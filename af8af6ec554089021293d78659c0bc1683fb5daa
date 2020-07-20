@@ -33,6 +33,23 @@
       "revId": "af8af6ec554089021293d78659c0bc1683fb5daa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6425a9e4_c4bbe9e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-20T20:23:47Z",
+      "side": 1,
+      "message": "Ideas...\n\n   A) fix it some way like this\n   B) split SkWeakRefCnt apart from SkRefCnt, and remove unique()\n   C) remove SkWeakRefCnt\n\nSkWeakRefCnt is still just used by SkTypeface right?  I\u0027d love to just kill it off if possible (C), but maybe we could just delete SkTypeface::unique() (B)?",
+      "revId": "af8af6ec554089021293d78659c0bc1683fb5daa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
