@@ -84,8 +84,8 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
 }
 
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
-    fSubRunPtr->fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
-                               fDrawMatrix, fDrawOrigin, fClipRect);
+    fSubRun.fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
+                           fDrawMatrix, fDrawOrigin, fClipRect);
 }
 
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
@@ -230,15 +230,15 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     resetVertexBuffer();
 
     for (const Geometry& geo : SkMakeSpan(fGeoData.get(), fGeoCount)) {
-        GrAtlasSubRun* const subRun = geo.fSubRunPtr;
-        SkASSERT((int)subRun->vertexStride() == vertexStride);
+        const GrAtlasSubRun& subRun = geo.fSubRun;
+        SkASSERT((int)subRun.vertexStride() == vertexStride);
 
-        const int subRunEnd = subRun->glyphCount();
+        const int subRunEnd = subRun.glyphCount();
         for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
             // Regenerate the atlas for the remainder of the glyphs in the run, or the remainder
             // of the glyphs to fill the vertex buffer.
             int regenEnd = subRunCursor + std::min(subRunEnd - subRunCursor, quadEnd - quadCursor);
-            auto[ok, glyphsRegenerated] = subRun->regenerateAtlas(subRunCursor, regenEnd, target);
+            auto[ok, glyphsRegenerated] = subRun.regenerateAtlas(subRunCursor, regenEnd, target);
             // There was a problem allocating the glyph in the atlas. Bail.
             if (!ok) {
                 return;
