@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8c12faae_1cfaa112",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-20T21:45:40Z",
+      "side": 1,
+      "message": "Yeah, this is a quick fix. Let\u0027s only put it where it\u0027s P0. I am working to build android and get to the root cause of the issue.",
+      "parentUuid": "2ff83dd5_4cbc9229",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 41
+      },
+      "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97497f38_2cd6700a",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
