@@ -22,6 +22,30 @@
       "revId": "623c7b08fb807c08ef837a8956d9acb15e73bf8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b6d84de_b7d517df",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-20T20:18:22Z",
+      "side": 1,
+      "message": "I liked this better as well. Since I already had the growth-policy bool in reserve(), I switched over to a flag where you can optionally disable following the growth policy and disable checking the available bytes. I also updated the GrBlockAllocatorTest cases to try reserve() with different flags.",
+      "parentUuid": "4ce4e792_b8358711",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 9
+      },
+      "revId": "623c7b08fb807c08ef837a8956d9acb15e73bf8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
