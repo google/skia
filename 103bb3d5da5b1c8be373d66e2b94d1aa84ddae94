@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2ff83dd5_4cbc9229",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-20T21:00:59Z",
+      "side": 1,
+      "message": "Up to Chris I think? And I don\u0027t really know how skia merges to various android branches, and which way will minimize merge problems in the future.",
+      "parentUuid": "0f8bf448_7728c71a",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 41
+      },
+      "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97497f38_2cd6700a",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "452ab1ed_4c0fa99b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-20T21:00:59Z",
+      "side": 1,
+      "message": "Added",
+      "parentUuid": "97497f38_2cd6700a",
+      "range": {
+        "startLine": 9,
+        "startChar": 3,
+        "endLine": 9,
+        "endChar": 4
+      },
+      "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
