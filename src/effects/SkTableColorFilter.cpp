@@ -344,7 +344,6 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
 
 #if GR_TEST_UTILS
 
-#include "include/gpu/GrContext.h"
 
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     int flags = 0;
