@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "4af535c9_f07ddd98",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T17:28:20Z",
+      "side": 1,
+      "message": "In theory this is possible but in practice it does not seem to happen today. The typical logic is \"can I do this optimization \u0026\u0026 can a subset of my children do it\". Hypothetically, in a scenario with several chained randomly-selected FPs, you could get these sorts of low-probability outcomes. I added an upper limit of 2000 trials, which prints a SkDebugf warning with the random seed when it triggers.",
+      "parentUuid": "03c42724_827adac8",
+      "range": {
+        "startLine": 594,
+        "startChar": 21,
+        "endLine": 594,
+        "endChar": 37
+      },
+      "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b0f390da_7947ebb0",
         "filename": "tests/ProcessorTest.cpp",
         "patchSetId": 2
@@ -110,6 +134,30 @@
       "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a02b411_6c0139d8",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T17:28:20Z",
+      "side": 1,
+      "message": "Logging removed.",
+      "parentUuid": "abcfdb93_7f2088ec",
+      "range": {
+        "startLine": 601,
+        "startChar": 0,
+        "endLine": 610,
+        "endChar": 65
+      },
+      "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
