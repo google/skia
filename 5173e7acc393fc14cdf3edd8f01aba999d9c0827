@@ -157,6 +157,24 @@
       "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc4c6ce6_962c75c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-20T19:24:54Z",
+      "side": 1,
+      "message": "Cherry-picked Chris\u0027s CL to https://skia-review.googlesource.com/c/skia/+/304176",
+      "parentUuid": "88aae63d_91881848",
+      "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
