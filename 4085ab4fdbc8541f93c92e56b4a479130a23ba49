@@ -16,6 +16,23 @@
       "revId": "4085ab4fdbc8541f93c92e56b4a479130a23ba49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7470d154_6c55829f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-20T18:31:03Z",
+      "side": 1,
+      "message": "It occurs to me that the depth counter is actually counting number of times a particular depth is visited. Would it be more useful to report the number of times that the recursion *terminates* for each depth value?",
+      "revId": "4085ab4fdbc8541f93c92e56b4a479130a23ba49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
