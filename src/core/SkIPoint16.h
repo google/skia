@@ -51,6 +51,10 @@ struct SkIPoint16 {
         fX = SkToS16(x);
         fY = SkToS16(y);
     }
+
+    friend SkIPoint16 operator+(const SkIPoint16& a, const SkIPoint16& b) {
+        return SkIPoint16::Make(a.fX + b.fX, a.fY + b.fY );
+    }
 };
 
 #endif
