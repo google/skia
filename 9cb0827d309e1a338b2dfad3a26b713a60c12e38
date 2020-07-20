@@ -22,6 +22,30 @@
       "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c314a9af_de7b0d0f",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T17:01:18Z",
+      "side": 1,
+      "message": "It prints about 5 lines per FP type, so about 200 lines total? If that\u0027s considered excessive I can remove the logging.",
+      "parentUuid": "b0f390da_7947ebb0",
+      "range": {
+        "startLine": 601,
+        "startChar": 0,
+        "endLine": 610,
+        "endChar": 65
+      },
+      "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
