@@ -86,6 +86,30 @@
       "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abcfdb93_7f2088ec",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T17:04:34Z",
+      "side": 1,
+      "message": "In general even a single line is excessive in our test logs. If something really needs to be printed it should only print if something is wrong that the runner of the test really needs to pay attention to",
+      "parentUuid": "c314a9af_de7b0d0f",
+      "range": {
+        "startLine": 601,
+        "startChar": 0,
+        "endLine": 610,
+        "endChar": 65
+      },
+      "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
