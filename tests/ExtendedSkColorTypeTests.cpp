@@ -173,7 +173,9 @@ static void compare_pixmaps(skiatest::Reporter* reporter,
     ComparePixels(expected, actual, tols, error);
 }
 
-static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const TestCase& test) {
+static void gpu_tests(GrDirectContext* dContext,
+                      skiatest::Reporter* reporter,
+                      const TestCase& test) {
 
     const SkImageInfo nativeII = SkImageInfo::Make(kSize, kSize, test.fColorType, test.fAlphaType);
     const SkImageInfo f32Unpremul = SkImageInfo::Make(kSize, kSize, kRGBA_F32_SkColorType,
@@ -181,11 +183,11 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
 
     // We had better not be able to render to prohibited colorTypes
     if (!test.fGpuCanMakeSurfaces) {
-        auto s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, nativeII);
+        auto s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, nativeII);
         REPORTER_ASSERT(reporter, !SkToBool(s));
     }
 
-    if (!context->colorTypeSupportedAsImage(test.fColorType)) {
+    if (!dContext->colorTypeSupportedAsImage(test.fColorType)) {
         return;
     }
 
@@ -201,22 +203,22 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
             *(bool*)context = true;
         };
         if (fullInit) {
-            backendTex = context->createBackendTexture(&nativeExpected, 1,
-                                                       GrRenderable::kNo, GrProtected::kNo,
-                                                       markFinished, &finishedBECreate);
+            backendTex = dContext->createBackendTexture(&nativeExpected, 1,
+                                                        GrRenderable::kNo, GrProtected::kNo,
+                                                        markFinished, &finishedBECreate);
         } else {
-            backendTex = context->createBackendTexture(kSize, kSize, test.fColorType,
-                                                       SkColors::kWhite, GrMipMapped::kNo,
-                                                       GrRenderable::kNo, GrProtected::kNo,
-                                                       markFinished, &finishedBECreate);
+            backendTex = dContext->createBackendTexture(kSize, kSize, test.fColorType,
+                                                        SkColors::kWhite, GrMipMapped::kNo,
+                                                        GrRenderable::kNo, GrProtected::kNo,
+                                                        markFinished, &finishedBECreate);
         }
         REPORTER_ASSERT(reporter, backendTex.isValid());
-        context->submit();
+        dContext->submit();
         while (backendTex.isValid() && !finishedBECreate) {
-            context->checkAsyncWorkCompletion();
+            dContext->checkAsyncWorkCompletion();
         }
 
-        auto img = SkImage::MakeFromTexture(context, backendTex, kTopLeft_GrSurfaceOrigin,
+        auto img = SkImage::MakeFromTexture(dContext, backendTex, kTopLeft_GrSurfaceOrigin,
                                             test.fColorType, test.fAlphaType, nullptr);
         REPORTER_ASSERT(reporter, SkToBool(img));
 
@@ -232,8 +234,8 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
 
             // SkSurface::readPixels with the same colorType as the source pixels round trips
             // (when allowed)
-            if (context->colorTypeSupportedAsSurface(test.fColorType)) {
-                auto s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, nativeII);
+            if (dContext->colorTypeSupportedAsSurface(test.fColorType)) {
+                auto s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, nativeII);
                 REPORTER_ASSERT(reporter, SkToBool(s));
 
                 {
@@ -272,7 +274,7 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
                                                                      kRGBA_8888_SkColorType,
                                                                      kPremul_SkAlphaType);
 
-                auto s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, rgba8888Premul);
+                auto s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, rgba8888Premul);
                 REPORTER_ASSERT(reporter, SkToBool(s));
 
                 {
@@ -291,8 +293,8 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
         }
 
         img.reset();
-        context->flushAndSubmit();
-        context->deleteBackendTexture(backendTex);
+        dContext->flushAndSubmit();
+        dContext->deleteBackendTexture(backendTex);
     }
 }
 
