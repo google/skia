@@ -22,6 +22,30 @@
       "revId": "90d507ea56db23a2c7666c1c2bdc58c42a1e0abd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86872ba0_af8d87e4",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-20T14:01:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "debc47d2_fca05b2c",
+      "range": {
+        "startLine": 124,
+        "startChar": 72,
+        "endLine": 124,
+        "endChar": 76
+      },
+      "revId": "90d507ea56db23a2c7666c1c2bdc58c42a1e0abd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
