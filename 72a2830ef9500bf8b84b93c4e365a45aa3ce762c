@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b79113f4_cd2f8f32",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-20T14:03:29Z",
+      "side": 1,
+      "message": "Some of our builds are failing due to redefining this - it\u0027s already defined in BUILD.gn (https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/BUILD.gn;l\u003d929?q\u003dSK_FAVOR_WUFFS_V_0_3_OVER_V_0_2\u0026ss\u003dchromium\u0026originalUrl\u003dhttps:%2F%2Fcs.chromium.org%2Fsearch%2F)",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 39
+      },
+      "revId": "72a2830ef9500bf8b84b93c4e365a45aa3ce762c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
