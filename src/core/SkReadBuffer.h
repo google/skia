@@ -92,6 +92,7 @@ public:
     void readPoint(SkPoint* point);
     SkPoint readPoint() { SkPoint p; this->readPoint(&p); return p; }
     void readPoint3(SkPoint3* point);
+    void read(SkM44*);
     void readMatrix(SkMatrix* matrix);
     void readIRect(SkIRect* rect);
     void readRect(SkRect* rect);

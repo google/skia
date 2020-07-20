@@ -16,6 +16,7 @@
 
 class SkFactorySet;
 class SkImage;
+class SkM44;
 class SkPath;
 class SkRefCntSet;
 
@@ -54,6 +55,7 @@ public:
     virtual void writePoint(const SkPoint& point) = 0;
     virtual void writePointArray(const SkPoint* point, uint32_t count) = 0;
     virtual void writePoint3(const SkPoint3& point) = 0;
+    virtual void write(const SkM44&) = 0;
     virtual void writeMatrix(const SkMatrix& matrix) = 0;
     virtual void writeIRect(const SkIRect& rect) = 0;
     virtual void writeRect(const SkRect& rect) = 0;
@@ -115,6 +117,7 @@ public:
     void writePoint(const SkPoint& point) override;
     void writePointArray(const SkPoint* point, uint32_t count) override;
     void writePoint3(const SkPoint3& point) override;
+    void write(const SkM44&) override;
     void writeMatrix(const SkMatrix& matrix) override;
     void writeIRect(const SkIRect& rect) override;
     void writeRect(const SkRect& rect) override;
