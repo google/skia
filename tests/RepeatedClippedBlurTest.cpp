@@ -23,13 +23,13 @@
 // 2D canvas and compositor image filtering. In this case Chrome doesn't regularly purge
 // the cache. This would result in Ganesh quickly running up to its max cache limit.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
-    GrResourceCache* cache = context->priv().getResourceCache();
+    auto dContext = ctxInfo.directContext();
+    GrResourceCache* cache = dContext->priv().getResourceCache();
 
     const SkImageInfo ii = SkImageInfo::Make(1024, 600, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
+    sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, ii));
     if (!dst) {
         ERRORF(reporter, "Could not create surfaces for repeated clipped blur test.");
         return;
@@ -53,7 +53,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
         bm.eraseArea(SkIRect::MakeXYWH(1, 2, 1277, 1274), SK_ColorGREEN);
 
         sk_sp<SkImage> rasterImg = SkImage::MakeFromBitmap(bm);
-        bigImg = rasterImg->makeTextureImage(context);
+        bigImg = rasterImg->makeTextureImage(dContext);
     }
 
     sk_sp<SkImage> smImg;
@@ -63,7 +63,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
         SkImageInfo screenII = SkImageInfo::Make(1024, 600, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
 
-        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
+        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kYes,
                                                          screenII, 1, kTopLeft_GrSurfaceOrigin,
                                                          nullptr);
         SkCanvas* c = s->getCanvas();
@@ -74,7 +74,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
     }
 
     // flush here just to clear the playing field
-    context->flushAndSubmit();
+    dContext->flushAndSubmit();
 
     size_t beforeBytes = cache->getResourceBytes();
 
@@ -93,7 +93,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
 
         SkIRect outSubset;
         SkIPoint offset;
-        sk_sp<SkImage> filteredImg = smImg->makeWithFilter(context, blur.get(), subset, clip,
+        sk_sp<SkImage> filteredImg = smImg->makeWithFilter(dContext, blur.get(), subset, clip,
                                                            &outSubset, &offset);
 
         SkRect dstRect = SkRect::MakeXYWH(offset.fX, offset.fY,
@@ -101,7 +101,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest, reporter, ctxInfo) {
         dstCanvas->drawImageRect(filteredImg, outSubset, dstRect, nullptr);
 
         // Flush here to mimic Chrome's SkiaHelper::ApplyImageFilter
-        context->flushAndSubmit();
+        dContext->flushAndSubmit();
 
         clip.fRight -= 16;
     }
