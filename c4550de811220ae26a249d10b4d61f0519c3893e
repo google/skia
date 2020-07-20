@@ -33,6 +33,29 @@
       "revId": "c4550de811220ae26a249d10b4d61f0519c3893e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "320d7ff8_32e42c5c",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-20T18:03:44Z",
+      "side": 1,
+      "message": "I think we need to be clear that these are bicubic weights so that it\u0027s clear this isn\u0027t a matrix convolution. I\u0027d even put it in the name of the factory (makeBicubicShader).\n\nMaybe document that the passed matrix applies like this\n[c-1 c0 c+1 c+2] M [1 t t^2 t^3]^T where t ranges from 0 to 1 from one pixel center to the next and (this is 1D, actually applied in both dimensions, separably, c0 is the color at t\u003d0, etc)",
+      "range": {
+        "startLine": 797,
+        "startChar": 0,
+        "endLine": 797,
+        "endChar": 74
+      },
+      "revId": "c4550de811220ae26a249d10b4d61f0519c3893e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
