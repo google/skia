@@ -9,7 +9,6 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrTAllocator.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/gl/GrGLBuffer.h"
