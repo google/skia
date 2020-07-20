@@ -21,6 +21,16 @@
 
 #include <limits.h>
 
+// SK_OPT_OUT_OF_WUFFS_V_0_3 is the step 4 "Flip Skia-uses-Wuffs-v0.3 from
+// opt-in to opt-out" comment in the top-level BUILD.gn file.
+//
+// This SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2 machinery should all be deleted by
+// mid-to-late 2020, as part of step 5, when we end up using only Wuffs version
+// 0.3, not either of v0.3 and v0.2.
+#if !defined(SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2) && !defined(SK_OPT_OUT_OF_WUFFS_V_0_3)
+#define SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2
+#endif
+
 // Documentation on the Wuffs language and standard library (in general) and
 // its image decoding API (in particular) is at:
 //
