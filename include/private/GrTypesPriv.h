@@ -16,7 +16,6 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrSharedEnums.h"
 #include "include/private/SkImageInfoPriv.h"
-#include "include/private/SkWeakRefCnt.h"
 
 class GrBackendFormat;
 class GrCaps;
