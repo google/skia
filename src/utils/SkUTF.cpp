@@ -251,3 +251,36 @@ size_t SkUTF::ToUTF16(SkUnichar uni, uint16_t utf16[2]) {
     return 1 + extra;
 }
 
+int SkUTF::UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t srcByteLength) {
+    if (!dst) {
+        dstCapacity = 0;
+    }
+
+    int dstLength = 0;
+    uint16_t* endDst = dst + dstCapacity;
+    const char* endSrc = src + srcByteLength;
+    while (src < endSrc) {
+        SkUnichar uni = NextUTF8(&src, endSrc);
+        if (uni < 0) {
+            return -1;
+        }
+
+        uint16_t utf16[2];
+        size_t count = ToUTF16(uni, utf16);
+        if (count == 0) {
+            return -1;
+        }
+        dstLength += count;
+
+        if (dst) {
+            uint16_t* elems = utf16;
+            while (dst < endDst && count > 0) {
+                *dst++ = *elems++;
+                count -= 1;
+            }
+        }
+    }
+    return dstLength;
+}
+
+
