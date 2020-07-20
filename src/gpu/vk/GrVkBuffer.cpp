@@ -117,7 +117,13 @@ void GrVkBuffer::Resource::freeGPUData() const {
 void GrVkBuffer::vkRelease(GrVkGpu* gpu) {
     VALIDATE();
     if (this->vkIsMapped()) {
-        this->vkUnmap(gpu);
+        // Only unmap resources that are not backed by a CPU buffer. Otherwise we may end up
+        // creating a new transfer buffer resources that sends us into a spiral of creating and
+        // destroying resources if we are at our budget limit. Also there really isn't a need to
+        // upload the CPU data if we are deleting this buffer.
+        if (fDesc.fDynamic) {
+            this->vkUnmap(gpu);
+        }
     }
     fResource->recycle();
     fResource = nullptr;
