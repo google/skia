@@ -39,6 +39,30 @@
       "revId": "067c28e3d55ae5745859515a0287337a02c196a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4c9da15_e2715b26",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-20T19:15:21Z",
+      "side": 1,
+      "message": "Quite right -- changed to an SkLRUCache (which led to other cascading changes).",
+      "parentUuid": "fcb6970d_c040d48a",
+      "range": {
+        "startLine": 161,
+        "startChar": 19,
+        "endLine": 161,
+        "endChar": 55
+      },
+      "revId": "067c28e3d55ae5745859515a0287337a02c196a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
