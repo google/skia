@@ -28,7 +28,6 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 

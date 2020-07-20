@@ -89,6 +89,7 @@ skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p,
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 
+#include "include/gpu/GrContext.h"
 
 std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
         const GrFPArgs& args) const {

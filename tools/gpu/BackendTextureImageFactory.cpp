@@ -10,27 +10,27 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPixmap.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 
 namespace {
 class ManagedBackendTexture : public SkNVRefCnt<ManagedBackendTexture> {
 public:
     ~ManagedBackendTexture() {
-        if (fDContext && fTexture.isValid()) {
-            fDContext->submit(true);
-            fDContext->deleteBackendTexture(fTexture);
+        if (fContext && fTexture.isValid()) {
+            fContext->submit(true);
+            fContext->deleteBackendTexture(fTexture);
         }
     }
 
     static void Release(void* context) { static_cast<ManagedBackendTexture*>(context)->unref(); }
 
     template <typename... Args>
-    static sk_sp<ManagedBackendTexture> Make(GrDirectContext* dContext, Args&&... args) {
+    static sk_sp<ManagedBackendTexture> Make(GrContext* context, Args&&... args) {
         sk_sp<ManagedBackendTexture> mbet(new ManagedBackendTexture);
-        mbet->fDContext = dContext;
-        mbet->fTexture = dContext->createBackendTexture(std::forward<Args>(args)..., Release,
-                                                        mbet->refAndPassAsContext());
+        mbet->fContext = context;
+        mbet->fTexture = context->createBackendTexture(std::forward<Args>(args)..., Release,
+                                                       mbet->refAndPassAsContext());
         return mbet;
     }
 
@@ -43,13 +43,13 @@ public:
 
 private:
     ManagedBackendTexture() = default;
-    GrDirectContext* fDContext = nullptr;
+    GrContext* fContext = nullptr;
     GrBackendTexture fTexture;
 };
 }  // namespace
 
 namespace sk_gpu_test {
-sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
+sk_sp<SkImage> MakeBackendTextureImage(GrContext* context,
                                        const SkPixmap& pixmap,
                                        GrRenderable renderable,
                                        GrSurfaceOrigin origin) {
@@ -64,8 +64,8 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
         }
         src = &temp;
     }
-    auto mbet = ManagedBackendTexture::Make(dContext, src, 1, renderable, GrProtected::kNo);
-    return SkImage::MakeFromTexture(dContext,
+    auto mbet = ManagedBackendTexture::Make(context, src, 1, renderable, GrProtected::kNo);
+    return SkImage::MakeFromTexture(context,
                                     mbet->texture(),
                                     origin,
                                     src->colorType(),

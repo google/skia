@@ -20,6 +20,7 @@
 #include "src/shaders/SkBitmapProcShader.h"
 
 #if SK_SUPPORT_GPU
+#include "include/gpu/GrContext.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
 #endif
@@ -118,8 +119,8 @@ public:
 #if SK_SUPPORT_GPU
     GrSurfaceProxyView refPinnedView(GrRecordingContext* context,
                                      uint32_t* uniqueID) const override;
-    bool onPinAsTexture(GrRecordingContext*) const override;
-    void onUnpinAsTexture(GrRecordingContext*) const override;
+    bool onPinAsTexture(GrContext*) const override;
+    void onUnpinAsTexture(GrContext*) const override;
 #endif
 
     SkMipmap* onPeekMips() const override { return fBitmap.fMips.get(); }
@@ -213,14 +214,14 @@ GrSurfaceProxyView SkImage_Raster::refPinnedView(GrRecordingContext*, uint32_t* 
     return {};
 }
 
-bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
+bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
     if (fPinnedView) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        fPinnedView = GrRefCachedBitmapView(rContext, fBitmap, GrMipMapped::kNo);
+        fPinnedView = GrRefCachedBitmapView(ctx, fBitmap, GrMipMapped::kNo);
         if (!fPinnedView) {
             return false;
         }
@@ -232,7 +233,7 @@ bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     return true;
 }
 
-void SkImage_Raster::onUnpinAsTexture(GrRecordingContext*) const {
+void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {
     // Note: we always decrement, even if fPinnedTexture is null
     SkASSERT(fPinnedCount > 0);
     SkASSERT(fPinnedUniqueID != 0);

@@ -21,6 +21,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAIndex.h"
+#include "include/gpu/GrContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"

@@ -127,8 +127,8 @@ public:
 
     virtual bool onIsValid(GrRecordingContext*) const = 0;
 
-    virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
-    virtual void onUnpinAsTexture(GrRecordingContext*) const {}
+    virtual bool onPinAsTexture(GrContext*) const { return false; }
+    virtual void onUnpinAsTexture(GrContext*) const {}
 
     virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                         GrDirectContext*) const = 0;
