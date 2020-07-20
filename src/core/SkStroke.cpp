@@ -23,9 +23,10 @@ enum {
 };
 
 // quads with extreme widths (e.g. (0,1) (1,6) (0,3) width=5e7) recurse to point of failure
-// largest seen for normal cubics : 5, 26
+// largest seen for normal cubics : 5, 26.  Using 24 produces no diffs in gold.
 // largest seen for normal quads : 11
-static const int kRecursiveLimits[] = { 5*3, 26*3, 11*3, 11*3 }; // 3x limits seen in practice
+// 3x limits seen in practice, except for cubics (3x limit would be too much at ~75)
+static const int kRecursiveLimits[] = { 5*3, 24, 11*3, 11*3 };
 
 static_assert(0 == kTangent_RecursiveLimit, "cubic_stroke_relies_on_tangent_equalling_zero");
 static_assert(1 == kCubic_RecursiveLimit, "cubic_stroke_relies_on_cubic_equalling_one");
@@ -51,6 +52,31 @@ static_assert(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
     #define STROKER_RESULT(resultType, depth, quadPts, format, ...) \
             resultType
     #define STROKER_DEBUG_PARAMS(...)
+#endif
+
+#ifndef DEBUG_CUBIC_RECURSION_DEPTHS
+    #define DEBUG_CUBIC_RECURSION_DEPTHS 0
+#endif
+#if DEBUG_CUBIC_RECURSION_DEPTHS
+    /* Prints a histogram of recursion depths at process termination. */
+    static struct DepthHistogram {
+        static constexpr int kMaxDepth = 75;
+        int fCubicDepths[kMaxDepth + 1];
+
+        DepthHistogram() { memset(fCubicDepths, 0, sizeof(fCubicDepths)); }
+
+        ~DepthHistogram() {
+            SkDebugf("Recursion depth level (visited count):\n");
+            for (int i = 0; i <= kMaxDepth; i++) {
+                SkDebugf("  depth %d: %d\n", i, fCubicDepths[i]);
+            }
+        }
+
+        inline void incDepth(int depth) {
+            SkASSERT(depth >= 0 && depth <= kMaxDepth);
+            fCubicDepths[depth]++;
+        }
+    } sCubicDepthHistogram;
 #endif
 
 static inline bool degenerate_vector(const SkVector& v) {
@@ -1145,6 +1171,9 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
 #if QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
     SkDEBUGCODE(gMaxRecursion[fFoundTangents] = std::max(gMaxRecursion[fFoundTangents],
             fRecursionDepth + 1));
+#endif
+#if DEBUG_CUBIC_RECURSION_DEPTHS
+    sCubicDepthHistogram.incDepth(fRecursionDepth);
 #endif
     if (++fRecursionDepth > kRecursiveLimits[fFoundTangents]) {
         return false;  // just abort if projected quad isn't representable
