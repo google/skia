@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67c3c927_d2a21e9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-20T16:05:58Z",
+      "side": 1,
+      "message": "Hi Chris, could you work on submitting this asap. Android side is quite time sensitive, and argument to take fixes will get harder as time goes on.",
+      "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
