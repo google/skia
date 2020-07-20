@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6734c8e_f730f032",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T17:34:58Z",
+      "side": 1,
+      "message": "Nit: for those who don\u0027t run with -v maybe word this as \"Abandoning ProcessorOptimizationValidationTest after...\" would make it clear where this print is coming from.",
+      "range": {
+        "startLine": 605,
+        "startChar": 30,
+        "endLine": 605,
+        "endChar": 51
+      },
+      "revId": "3e6894e46c9059c64eb808b4b170edda18acd063",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
