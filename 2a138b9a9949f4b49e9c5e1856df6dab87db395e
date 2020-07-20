@@ -46,6 +46,30 @@
       "revId": "2a138b9a9949f4b49e9c5e1856df6dab87db395e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bb33086_68432011",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-20T13:27:49Z",
+      "side": 0,
+      "message": "I do think the intent is that there should only one instance of this variable, that it does not need to exist in each stack frame, and that its address (were it to be taken) should be valid everywhere. Here is an example of what I mean:\n\n#include \u003ccstdio\u003e\n\nvoid a(int i \u003d 0) {\n    constexpr int kA \u003d 2;\n    printf(\"%d: \u0026kA \u003d %p\\n\", i, \u0026kA);\n    if (!i) {\n        a(++i);\n    }\n}\n\nvoid b(int i \u003d 0) {\n    static constexpr float kB \u003d 2;\n    printf(\"%d: \u0026kB \u003d %p\\n\", i, \u0026kB);\n    if (!i) {\n        b(++i);\n    }\n}\n\nint main() {\n    a();\n    b();\n}\n\noutput:\n0: \u0026kA \u003d 0x7fff90b76ea8\n1: \u0026kA \u003d 0x7fff90b76e88\n0: \u0026kB \u003d 0x402020\n1: \u0026kB \u003d 0x402020\n\nThere is only ever one kB, That seems more aligned to me with the intent of these constants than having separate instances of kA.\n\nI can\u0027t say I\u0027m strongly attached to this position. Perhaps this is something to be put to a wider audience.",
+      "parentUuid": "935ec7e9_6d5b0031",
+      "range": {
+        "startLine": 509,
+        "startChar": 4,
+        "endLine": 509,
+        "endChar": 10
+      },
+      "revId": "2a138b9a9949f4b49e9c5e1856df6dab87db395e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
