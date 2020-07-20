@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16eb1e2f_ba2658e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-20T20:08:07Z",
+      "side": 1,
+      "message": "Not sure if I even want to check any of this in at the moment, but I was recently thinking about the deprecation of std::shared_ptr::unique and how to properly implement it. Like all such atomics issues this solution is probably wrong in some subtle way, even though I\u0027ve convinced myself it should work (at least for the next five minutes).",
+      "revId": "af8af6ec554089021293d78659c0bc1683fb5daa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
