@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.17.0] - 2020-07-20
 
 ### Added
  - Added `CanvasKit.MakeImageFromCanvasImageSource` which takes either an HTMLImageElement,
@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - renamed `reportBackendType` to `reportBackendTypeIsGPU` and made it return a boolean
  - `MakeWebGLCanvasSurface` can now accept an optional dictionary of WebGL context attributes that
    can be used to override default attributes.
+
 ### Fixed
  - `TextStyle.color` can correctly be a Malloc'd Float32Array.
  - Support wombat-dressing-room. go/npm-publish
