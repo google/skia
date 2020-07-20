@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f48bdc5c_f804ef26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-20T18:12:06Z",
+      "side": 1,
+      "message": "Reads much nicer to me! I also agree about it being nice to visit with SkSL::Analysis, but that it\u0027s non-trivial.",
+      "revId": "313fe8efeef004c57b990cd9ac4e9b543a5b8e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de7808f7_314a905b",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 4
