@@ -107,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "71822d69_ead4f39a",
+        "filename": "gm/fwidth_squircle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T15:13:50Z",
+      "side": 1,
+      "message": "Okay this GM is now fixed (i.e. doesn\u0027t crash) with latest change to hold refs to buffers in gl always. Also added debug bool to replace the asserts that active buffer was used with.",
+      "parentUuid": "aa26acba_12aa4b09",
+      "range": {
+        "startLine": 229,
+        "startChar": 50,
+        "endLine": 229,
+        "endChar": 74
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b5c7cf9_f13135ee",
         "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
         "patchSetId": 4
@@ -151,6 +175,30 @@
       "revId": "589a4269460adbeb5848d402f8c3af2758739677",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3fead91_4041198f",
+        "filename": "src/gpu/d3d/GrD3DPipelineState.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T15:13:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc7850c4_a07b8a3b",
+      "range": {
+        "startLine": 168,
+        "startChar": 49,
+        "endLine": 169,
+        "endChar": 34
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -201,6 +249,30 @@
     },
     {
       "key": {
+        "uuid": "ff50e19e_918a2f4a",
+        "filename": "src/gpu/tessellate/GrTessellatePathOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T15:13:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12217028_1eefa077",
+      "range": {
+        "startLine": 549,
+        "startChar": 50,
+        "endLine": 549,
+        "endChar": 65
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6315161c_fa22a352",
         "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
         "patchSetId": 4
@@ -245,6 +317,30 @@
       "revId": "589a4269460adbeb5848d402f8c3af2758739677",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c36cb54_5329fcf4",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T15:13:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c0b57_16d4aff1",
+      "range": {
+        "startLine": 351,
+        "startChar": 46,
+        "endLine": 351,
+        "endChar": 70
+      },
+      "revId": "589a4269460adbeb5848d402f8c3af2758739677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
