@@ -8,7 +8,6 @@
 #include "tests/Test.h"
 
 #include "include/core/SkPath.h"
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
