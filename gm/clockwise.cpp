@@ -216,7 +216,7 @@ private:
         }
 
         flushState->bindPipeline(*fProgramInfo, SkRect::MakeXYWH(0, fY, 100, 100));
-        flushState->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
+        flushState->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));
         flushState->draw(4, 0);
     }
 

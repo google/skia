@@ -530,10 +530,10 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, int subpassIdx,
 }
 
 void GrVSCoverageProcessor::bindBuffers(GrOpsRenderPass* renderPass,
-                                        const GrBuffer* instanceBuffer) const {
+                                        sk_sp<const GrBuffer> instanceBuffer) const {
     SkASSERT(fTriangleType == GrPrimitiveType::kTriangles ||
              fTriangleType == GrPrimitiveType::kTriangleStrip);
-    renderPass->bindBuffers(fIndexBuffer.get(), instanceBuffer, fVertexBuffer.get(),
+    renderPass->bindBuffers(fIndexBuffer, std::move(instanceBuffer), fVertexBuffer,
                             GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType));
 }
 

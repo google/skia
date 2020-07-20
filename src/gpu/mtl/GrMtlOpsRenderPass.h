@@ -39,8 +39,8 @@ private:
     void onSetScissorRect(const SkIRect&) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
                         const GrPipeline&) override;
-    void onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                       const GrBuffer* vertexBuffer, GrPrimitiveRestart) override;
+    void onBindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
+                       sk_sp<const GrBuffer> vertexBuffer, GrPrimitiveRestart) override;
     void onDraw(int vertexCount, int baseVertex) override;
     void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                        uint16_t maxIndexValue, int baseVertex) override;

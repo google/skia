@@ -336,7 +336,7 @@ private:
         const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-        flushState->bindBuffers(fIndexBuffer.get(), nullptr, fVertexBuffer.get());
+        flushState->bindBuffers(std::move(fIndexBuffer), nullptr, std::move(fVertexBuffer));
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         GrQuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(), vertexSpec, 0,
                                    fQuads.count(), totalNumVertices, fBaseVertex);
