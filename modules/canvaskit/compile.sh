@@ -76,16 +76,18 @@ if [[ $@ == *cpu* ]]; then
 fi
 
 SKP_JS="--pre-js $BASE_DIR/skp.js"
-GN_SKP_FLAGS="\"-DSK_DISABLE_EFFECT_DESERIALIZATION\","
+GN_SKP_FLAGS=""
 WASM_SKP="-DSK_SERIALIZE_SKP"
 if [[ $@ == *no_skp_serialization* ]]; then
   # This saves about 20kb compressed.
   SKP_JS=""
   WASM_SKP=""
-elif [[ $@ == *include_effects_deserialization* ]]; then
-    # This costs about 60kb compressed, so it is disabled by default.
-    echo "Enabling effects deserialization"
-    GN_SKP_FLAGS=""
+  GN_SKP_FLAGS="\"-DSK_DISABLE_EFFECT_DESERIALIZATION\","
+fi
+if [[ $@ == *no_effects_deserialization* ]]; then
+  # This saves about 60kb compressed.
+  echo "disabling effects deserialization"
+  GN_SKP_FLAGS="\"-DSK_DISABLE_EFFECT_DESERIALIZATION\","
 fi
 
 SKOTTIE_JS="--pre-js $BASE_DIR/skottie.js"
