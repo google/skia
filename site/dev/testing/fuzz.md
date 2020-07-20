@@ -31,3 +31,7 @@ To enumerate all supported types and names, run the following:
 
     out/ASAN/fuzz --help  # will list all types
     out/ASAN/fuzz -t api  # will list all names
+
+If the crash does not show up, try to add the flag --loops:
+
+    out/ASAN/fuzz -b /path/to/downloaded/testcase --loops <times-to-run>
