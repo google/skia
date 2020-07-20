@@ -70,6 +70,30 @@
       "revId": "2a138b9a9949f4b49e9c5e1856df6dab87db395e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56528f3e_4e74e361",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T13:37:39Z",
+      "side": 0,
+      "message": "I don\u0027t feel strongly about it as long as we\u0027re all on the same page about what it means. It\u0027s not how I\u0027ve generally seen static used in other projects--usually I\u0027ve only ever seen it used when there\u0027s an genuine need for lifetime extension--but there\u0027s not a lot of downside either. I think the compiler has enough information about the value to optimize away any hypothetical downside.",
+      "parentUuid": "1bb33086_68432011",
+      "range": {
+        "startLine": 509,
+        "startChar": 4,
+        "endLine": 509,
+        "endChar": 10
+      },
+      "revId": "2a138b9a9949f4b49e9c5e1856df6dab87db395e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
