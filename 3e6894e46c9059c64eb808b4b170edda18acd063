@@ -22,6 +22,30 @@
       "revId": "3e6894e46c9059c64eb808b4b170edda18acd063",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92e45383_43788a2f",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T17:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6734c8e_f730f032",
+      "range": {
+        "startLine": 605,
+        "startChar": 30,
+        "endLine": 605,
+        "endChar": 51
+      },
+      "revId": "3e6894e46c9059c64eb808b4b170edda18acd063",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
