@@ -65,6 +65,20 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
     , fFilterOptions(options)
 {}
 
+SkImageShader::SkImageShader(sk_sp<SkImage> img,
+                             SkTileMode tmx, SkTileMode tmy,
+                             const SkM44& weights,
+                             const SkMatrix* localMatrix)
+    : INHERITED(localMatrix)
+    , fImage(std::move(img))
+    , fTileModeX(optimize(tmx, fImage->width()))
+    , fTileModeY(optimize(tmy, fImage->height()))
+    , fFilterEnum(FilterEnum::kUse44Weights)
+    , fClampAsIfUnpremul(false)
+    , fFilterOptions({})    // ignored
+    , fWeights(new SkM44(weights))
+{}
+
 // fClampAsIfUnpremul is always false when constructed through public APIs,
 // so there's no need to read or write it here.
 
@@ -138,7 +152,7 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
-    if (fFilterEnum == kUseFilterOptions) {
+    if (fFilterEnum > kHigh) {
         return nullptr;
     }
 
@@ -231,6 +245,16 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
     }
     return sk_sp<SkShader>{
         new SkImageShader(image, tmx, tmy, options, localMatrix)
+    };
+}
+
+sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, SkTileMode tmx, SkTileMode tmy,
+                                    const SkM44& weights, const SkMatrix* localMatrix) {
+    if (!image) {
+        return sk_make_sp<SkEmptyShader>();
+    }
+    return sk_sp<SkShader>{
+        new SkImageShader(image, tmx, tmy, weights, localMatrix)
     };
 }
 
@@ -436,7 +460,9 @@ static void tweak_quality_and_inv_matrix(SkFilterQuality* quality, SkMatrix* mat
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
     SkFilterQuality quality;
     switch (fFilterEnum) {
-        case FilterEnum::kUseFilterOptions: return false;   // TODO: support these in stages
+        case FilterEnum::kUseFilterOptions:
+        case FilterEnum::kUse44Weights:
+            return false;   // TODO: support these in stages
         case FilterEnum::kInheritFromPaint:
             quality = rec.fPaint.getFilterQuality();
             break;
@@ -760,6 +786,12 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         if (lowerWeight > 0) {
             lower = &access->lowerLevel();
         }
+    } else if (fFilterEnum == kUse44Weights){
+        auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
+                                                     SkMipmapMode::kNone);
+        upper = &access->level();
+        upperInv = post_scale(upper->dimensions(), baseInv);
+        sampling = SamplingEnum::kBicubic;
     } else {
         // Convert from the filter-quality enum to our working description:
         //  sampling : nearest, bilerp, bicubic
@@ -938,7 +970,36 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
             // They're either the 16 corners of a 3x3 grid/ surrounding (x,y) at (0.5,0.5) off-center.
             skvm::F32 fx = fract(local.x + 0.5f),
                       fy = fract(local.y + 0.5f);
+            skvm::Color c;
+            c.r = c.g = c.b = c.a = p->splat(0.0f);
 
+            if (fWeights) {
+                const skvm::F32 wx[] =  { p->splat(1.0f), fx, fx*fx, fx*fx*fx };
+                const skvm::F32 tmpy[] =  { p->splat(1.0f), fy, fy*fy, fy*fy*fy };
+                skvm::F32 wy[4];
+
+                for (int row = 0; row < 4; ++row) {
+                    SkV4 r = fWeights->row(row);
+                    wy[row] = p->uniformF(uniforms->pushF(r.ptr()[0])) * tmpy[0]
+                            + p->uniformF(uniforms->pushF(r.ptr()[1])) * tmpy[1]
+                            + p->uniformF(uniforms->pushF(r.ptr()[2])) * tmpy[2]
+                            + p->uniformF(uniforms->pushF(r.ptr()[3])) * tmpy[3];
+                }
+
+                skvm::F32 sy = local.y - 1.5f;
+                for (int j = 0; j < 4; j++, sy += 1.0f) {
+                    skvm::F32 sx = local.x - 1.5f;
+                    for (int i = 0; i < 4; i++, sx += 1.0f) {
+                        skvm::Color s = sample_texel(u, sx,sy);
+                        skvm::F32   w = wx[i] * wy[j];
+
+                        c.r += s.r * w;
+                        c.g += s.g * w;
+                        c.b += s.b * w;
+                        c.a += s.a * w;
+                    }
+                }
+            } else {
             // See GrCubicEffect for details of these weights.
             // TODO: these maybe don't seem right looking at gm/bicubic and GrBicubicEffect.
             auto near = [&](skvm::F32 t) {
@@ -962,9 +1023,6 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
                 far (       fy),
             };
 
-            skvm::Color c;
-            c.r = c.g = c.b = c.a = p->splat(0.0f);
-
             skvm::F32 sy = local.y - 1.5f;
             for (int j = 0; j < 4; j++, sy += 1.0f) {
                 skvm::F32 sx = local.x - 1.5f;
@@ -977,6 +1035,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
                     c.b += s.b * w;
                     c.a += s.a * w;
                 }
+            }
             }
             return c;
         }
