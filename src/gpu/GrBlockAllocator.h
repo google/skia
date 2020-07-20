@@ -132,6 +132,9 @@ public:
         template <size_t Align, size_t Padding>
         int alignedOffset(int offset) const;
 
+        bool isScratch() const { return fCursor < 0; }
+        void markAsScratch() { fCursor = -1; }
+
         SkDEBUGCODE(int fSentinel;) // known value to check for bad back pointers to blocks
 
         Block*          fNext;      // doubly-linked list of blocks
@@ -260,6 +263,26 @@ public:
     ByteRange allocate(size_t size);
 
     /**
+     * Ensure the block allocator has 'size' contiguous available bytes. After calling this
+     * function, currentBlock()->avail<Align, Padding>() may still report less than 'size' if the
+     * reserved space was added as a scratch block. This is done so that anything remaining in
+     * the current block can still be used if a smaller-than-size allocation is requested. If 'size'
+     * is requested by a subsequent allocation, the scratch block will automatically be activated
+     * and the request will not itself trigger any malloc.
+     *
+     * If 'respectGrowthPolicy' is true, 'size' will be rounded up to the next automatically added
+     * block size. If it is false, 'size' will only be aligned to a nice boundary, making this
+     * suitable for minimizing block overhead.
+     *
+     * NOTE: This is a contiguous block of 'size' available bytes. If the current block has 'size'
+     * available, no block is added. If it does not, the allocator does not allocate 'size-avail'
+     * in the scratch block because it has no way of knowing how it can split that chunk apart
+     * (if there is a way, it should be handled by the caller).
+     */
+    template <size_t Align = 1, size_t Padding = 0>
+    void reserve(size_t size, bool respectGrowthPolicy=true);
+
+    /**
      * Return a pointer to the start of the current block. This will never be null.
      */
     const Block* currentBlock() const { return fTail; }
@@ -305,6 +328,10 @@ public:
      *
      * If 'block' represents the inline-allocated head block, its cursor and metadata are instead
      * reset to their defaults.
+     *
+     * If the block is not the head block, it may be kept as a scratch block to be reused for
+     * subsequent allocation requests, instead of making an entirely new block. A scratch block is
+     * not visible when iterating over blocks but is reported in the total size of the allocator.
      */
     void releaseBlock(Block* block);
 
@@ -313,6 +340,11 @@ public:
      * default state. The allocator-level metadata is reset to 0 as well.
      */
     void reset();
+
+    /**
+     * Remove any reserved scratch space, either from calling reserve() or releaseBlock().
+     */
+    void resetScratchSpace();
 
     template <bool Forward, bool Const> class BlockIter;
 
@@ -336,6 +368,10 @@ public:
     static constexpr int kFreedMarker    = 0xCAFEBABE;
 
     void validate() const;
+#endif
+
+#if GR_TEST_UTILS
+    int testingOnly_scratchBlockSize() const { return this->scratchBlockSize(); }
 #endif
 
 private:
@@ -369,6 +405,8 @@ private:
     // that will preserve the static guarantees GrBlockAllocator makes.
     void addBlock(int minSize, int maxSize);
 
+    int scratchBlockSize() const { return fHead.fPrev ? fHead.fPrev->fSize : 0; }
+
     Block* fTail; // All non-head blocks are heap allocated; tail will never be null.
 
     // All remaining state is packed into 64 bits to keep GrBlockAllocator at 16 bytes + head block
@@ -390,6 +428,9 @@ private:
 
     // Inline head block, must be at the end so that it can utilize any additional reserved space
     // from the initial allocation.
+    // The head block's prev pointer may be non-null, which signifies a scratch block that may be
+    // reused instead of allocating an entirely new block (this helps when allocate+release calls
+    // bounce back and forth across the capacity of a block).
     alignas(kAddressAlign) Block fHead;
 
     static_assert(kGrowthPolicyCount <= 4);
@@ -455,6 +496,26 @@ constexpr size_t GrBlockAllocator::MaxBlockSize() {
     // allocator (if it's not, the largest align will be encountered by the compiler and pass/fail
     // the same set of static asserts).
     return BlockOverhead<Align, Padding>() + kMaxAllocationSize;
+}
+
+template<size_t Align, size_t Padding>
+void GrBlockAllocator::reserve(size_t size, bool respectGrowthPolicy) {
+    if (size > kMaxAllocationSize) {
+        SK_ABORT("Allocation too large (%zu bytes requested)", size);
+    }
+    int iSize = (int) size;
+    if (this->currentBlock()->avail<Align, Padding>() < iSize) {
+        int blockSize = BlockOverhead<Align, Padding>() + iSize;
+        int maxSize = respectGrowthPolicy ? MaxBlockSize<Align, Padding>() : blockSize;
+        SkASSERT((size_t) maxSize <= (MaxBlockSize<Align, Padding>()));
+
+        SkDEBUGCODE(auto oldTail = fTail;)
+        this->addBlock(blockSize, maxSize);
+        SkASSERT(fTail != oldTail);
+        // Releasing the just added block will move it into scratch space, allowing the original
+        // tail's bytes to be used first before the scratch block is activated.
+        this->releaseBlock(fTail);
+    }
 }
 
 template <size_t Align, size_t Padding>
@@ -599,6 +660,12 @@ public:
         void advance(BlockT* block) {
             fBlock = block;
             fNext = block ? (Forward ? block->fNext : block->fPrev) : nullptr;
+            if (!Forward && fNext && fNext->isScratch()) {
+                // For reverse-iteration only, we need to stop at the head, not the scratch block
+                // possibly stashed in head->prev.
+                fNext = nullptr;
+            }
+            SkASSERT(!fNext || !fNext->isScratch());
         }
 
         BlockT* fBlock;
