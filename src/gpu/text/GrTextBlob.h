@@ -239,6 +239,40 @@ public:
             void* vertexDst, int offset, int count,
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
             SkIRect clip) const = 0;
+protected:
+    using VertexData = std::tuple<
+            SkPoint,   // glyph position.
+            GrIRect16  // glyph bounding rectangle.
+        >;
+
+    struct AtlasPt {
+        uint16_t u;
+        uint16_t v;
+    };
+
+    // Normal text mask, SDFT, or color.
+    struct Mask2DVertex {
+        SkPoint devicePos;
+        GrColor color;
+        AtlasPt atlasPos;
+    };
+    struct ARGB2DVertex {
+        ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+        SkPoint devicePos;
+        AtlasPt atlasPos;
+    };
+
+    // Perspective SDFT or SDFT forced to 3D or perspective color.
+    struct Mask3DVertex {
+        SkPoint3 devicePos;
+        GrColor color;
+        AtlasPt atlasPos;
+    };
+    struct ARGB3DVertex {
+        ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+        SkPoint3 devicePos;
+        AtlasPt atlasPos;
+    };
 };
 
 // -- GrGlyphVector --------------------------------------------------------------------------------
@@ -248,6 +282,7 @@ class GrGlyphVector {
         SkPackedGlyphID packedGlyphID;
         GrGlyph* grGlyph;
     };
+
 public:
     static GrGlyphVector Make(
             const SkStrikeSpec& spec, SkSpan<SkGlyphVariant> glyphs, SkArenaAlloc* alloc);
@@ -267,12 +302,60 @@ private:
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
 };
 
+// -- GrDirectMaskSubRun ---------------------------------------------------------------------------
+class GrDirectMaskSubRun final : public GrAtlasSubRun {
+public:
+    GrDirectMaskSubRun(GrMaskFormat format,
+                       GrTextBlob* blob,
+                       const SkRect& bounds,
+                       SkSpan<const VertexData> fVertexData,
+                       GrGlyphVector glyphs);
+
+    static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                          const SkStrikeSpec& strikeSpec,
+                          GrMaskFormat format,
+                          GrTextBlob* blob,
+                          SkArenaAlloc* alloc);
+
+    void draw(const GrClip* clip,
+              const SkMatrixProvider& viewMatrix,
+              const SkGlyphRunList& glyphRunList,
+              GrRenderTargetContext* rtc) override;
+
+    size_t vertexStride() const override;
+
+    int glyphCount() const override;
+
+    std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+    makeAtlasTextOp(const GrClip* clip,
+                    const SkMatrixProvider& viewMatrix,
+                    const SkGlyphRunList& glyphRunList,
+                    GrRenderTargetContext* rtc) override;
+
+    std::tuple<bool, int>
+    regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) override;
+
+    void fillVertexData(void* vertexDst, int offset, int count, GrColor color,
+                        const SkMatrix& drawMatrix, SkPoint drawOrigin,
+                        SkIRect clip) const override;
+private:
+    // The rectangle that surrounds all the glyph bounding boxes in device space.
+    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
+
+    const GrMaskFormat fMaskFormat;
+    GrTextBlob* const fBlob;
+    // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
+    const SkRect fVertexBounds;
+    const SkSpan<const VertexData> fVertexData;
+
+    GrGlyphVector fGlyphs;
+};
+
 // -- GrMaskSubRun ---------------------------------------------------------------------------------
 // Hold data to draw the different types of sub run. SubRuns are produced knowing all the
 // glyphs that are included in them.
 class GrMaskSubRun : public GrAtlasSubRun {
     enum SubRunType {
-        kDirectMask,
         kTransformedMask,
         kTransformedSDFT
     };
@@ -321,12 +404,6 @@ public:
                               GrTextBlob* blob,
                               SkArenaAlloc* alloc);
 
-    static GrSubRun* MakeDirectMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                    const SkStrikeSpec& strikeSpec,
-                                    GrMaskFormat format,
-                                    GrTextBlob* blob,
-                                    SkArenaAlloc* alloc);
-
     static GrSubRun* MakeTransformedMask(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                          const SkStrikeSpec& strikeSpec,
                                          GrMaskFormat format,
@@ -334,35 +411,6 @@ public:
                                          SkArenaAlloc* alloc);
 
 private:
-    struct AtlasPt {
-        uint16_t u;
-        uint16_t v;
-    };
-
-    // Normal text mask, SDFT, or color.
-    struct Mask2DVertex {
-        SkPoint devicePos;
-        GrColor color;
-        AtlasPt atlasPos;
-    };
-    struct ARGB2DVertex {
-        ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
-        SkPoint devicePos;
-        AtlasPt atlasPos;
-    };
-
-    // Perspective SDFT or SDFT forced to 3D or perspective color.
-    struct Mask3DVertex {
-        SkPoint3 devicePos;
-        GrColor color;
-        AtlasPt atlasPos;
-    };
-    struct ARGB3DVertex {
-        ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
-        SkPoint3 devicePos;
-        AtlasPt atlasPos;
-    };
-
     static GrMaskSubRun* InitForAtlas(SubRunType type,
                                       const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                       const SkStrikeSpec& strikeSpec,
@@ -382,7 +430,6 @@ private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
-    bool needsTransform() const;
     bool drawAsDistanceFields() const;
     bool needsPadding() const;
     int atlasPadding() const;
@@ -396,8 +443,7 @@ private:
 
     GrGlyphVector fGlyphs;
 
-    // The vertex bounds in device space if needsTransform() is false, otherwise the bounds in
-    // source space. The bounds are the joined rectangles of all the glyphs.
+    // The bounds in source space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
     const SkSpan<VertexData> fVertexData;
 };  // SubRun
