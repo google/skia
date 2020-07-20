@@ -1257,7 +1257,8 @@ public:
         is required storage for the actual bounds of the filtered SkImage. offset is
         required storage for translation of returned SkImage.
 
-        Returns nullptr if SkImage could not be created. If nullptr is returned, outSubset
+        Returns nullptr if SkImage could not be created or if the direct context provided does not
+        match the GPU context in which the image was created. If nullptr is returned, outSubset
         and offset are undefined.
 
         Useful for animation of SkImageFilter that varies size from frame to frame.
@@ -1266,24 +1267,31 @@ public:
         of GPU texture returned. offset translates the returned SkImage to keep subsequent
         animation frames aligned with respect to each other.
 
-        @param context     the GrContext in play - if it exists
         @param filter      how SkImage is sampled when transformed
         @param subset      bounds of SkImage processed by filter
         @param clipBounds  expected bounds of filtered SkImage
         @param outSubset   storage for returned SkImage bounds
         @param offset      storage for returned SkImage translation
+        @param context     the GrDirectContext in play - if it exists
         @return            filtered SkImage, or nullptr
+    */
+    sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+                                  const SkIRect& clipBounds, SkIRect* outSubset,
+                                  SkIPoint* offset,
+                                  GrDirectContext* context) const;
+
+#ifdef SK_IMAGE_MAKE_WITH_FILTER_LEGACY_API
+    /** Deprecated.
     */
     sk_sp<SkImage> makeWithFilter(GrContext* context,
                                   const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
 
-    /** To be deprecated.
-    */
     sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
+#endif
 
     /** Defines a callback function, taking one parameter of type GrBackendTexture with
         no return value. Function is called when back-end texture is to be released.
