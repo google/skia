@@ -109,7 +109,7 @@ public:
 private:
     TestFP(const SkTArray<GrSurfaceProxyView>& views)
             : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags) {
-        for (const auto& view : views) {
+        for (const GrSurfaceProxyView& view : views) {
             this->registerChild(GrTextureEffect::Make(view, kUnknown_SkAlphaType));
         }
     }
@@ -454,8 +454,8 @@ bool legal_modulation(const GrColor in[3], const GrColor out[3]) {
         // Use the most stepped up frame
         int maxInIdx = inf[0][i] > inf[1][i] ? 0 : 1;
         maxInIdx = inf[maxInIdx][i] > inf[2][i] ? maxInIdx : 2;
-        const auto& in = inf[maxInIdx];
-        const auto& out = outf[maxInIdx];
+        const SkPMColor4f& in = inf[maxInIdx];
+        const SkPMColor4f& out = outf[maxInIdx];
         if (in[i] > 0) {
             fpPreColorModulation[i] = out[i] / in[i];
         }
@@ -565,29 +565,51 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
     // Because processor factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < FPFactory::Count(); ++i) {
-        // Create a temp FP of this type just to see the number of children that it uses. Then
-        // increase the number of attempts if the FP has child FPs, since optimizations will depend
-        // on child optimizations being present.
-        std::unique_ptr<GrFragmentProcessor> fp = fpGenerator.make(i, /*inputFP=*/nullptr);
+        int optimizedForOpaqueInput = 0;
+        int optimizedForCoverageAsAlpha = 0;
+        int optimizedForConstantOutputForInput = 0;
 
-        int timesToInvokeFactory = 5;
-        for (int j = 0; j < fp->numChildProcessors(); ++j) {
-            // This value made a reasonable trade off between time and coverage when this test was
-            // written.
-            timesToInvokeFactory *= FPFactory::Count() / 2;
-        }
-
-#if defined(__MSVC_RUNTIME_CHECKS)
+#ifdef __MSVC_RUNTIME_CHECKS
         // This test is infuriatingly slow with MSVC runtime checks enabled
-        timesToInvokeFactory = 1;
+        static constexpr int kMinimumTrials = 1;
+        static constexpr int kMaximumTrials = 1;
+        static constexpr int kExpectedSuccesses = 1;
+#else
+        // We start by testing each fragment-processor 100 times, watching the optimization bits
+        // that appear. If we see an optimization bit appear in those first 100 trials, we keep
+        // running tests until we see at least five successful trials that have this optimization
+        // bit enabled. If we never see a particular optimization bit after 100 trials, we assume
+        // that this FP doesn't support that optimization at all.
+        static constexpr int kMinimumTrials = 100;
+        static constexpr int kMaximumTrials = 2000;
+        static constexpr int kExpectedSuccesses = 5;
 #endif
 
-        for (int j = 0; j < timesToInvokeFactory; ++j) {
+        for (int trial = 0;; ++trial) {
             // Create a randomly-configured FP.
             fpGenerator.reroll();
-            fp = fpGenerator.make(i, inputTexture1);
+            std::unique_ptr<GrFragmentProcessor> fp = fpGenerator.make(i, inputTexture1);
 
-            // Skip further testing if it has no optimization bits enabled.
+            // If we have iterated enough times and seen a sufficient number of successes on each
+            // optimization bit that can be returned, stop running trials.
+            if (trial >= kMinimumTrials) {
+                bool moreTrialsNeeded = (optimizedForOpaqueInput > 0 &&
+                                         optimizedForOpaqueInput < kExpectedSuccesses) ||
+                                        (optimizedForCoverageAsAlpha > 0 &&
+                                         optimizedForCoverageAsAlpha < kExpectedSuccesses) ||
+                                        (optimizedForConstantOutputForInput > 0 &&
+                                         optimizedForConstantOutputForInput < kExpectedSuccesses);
+                if (!moreTrialsNeeded) break;
+
+                if (trial >= kMaximumTrials) {
+                    SkDebugf("Abandoning ProcessorOptimizationValidationTest after %d trials. "
+                             "Seed: 0x%08x, processor: %s.",
+                             kMaximumTrials, fpGenerator.initialSeed(), fp->name());
+                    break;
+                }
+            }
+
+            // Skip further testing if this trial has no optimization bits enabled.
             if (!fp->hasConstantOutputForConstantInput() && !fp->preservesOpaqueInput() &&
                 !fp->compatibleWithCoverageAsAlpha()) {
                 continue;
@@ -600,6 +622,15 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 // constant-output or preserving-opacity tests.
                 render_fp(context, rtc.get(), fpGenerator.make(i, inputTexture2), readData2.data());
                 render_fp(context, rtc.get(), fpGenerator.make(i, inputTexture3), readData3.data());
+                ++optimizedForCoverageAsAlpha;
+            }
+
+            if (fp->hasConstantOutputForConstantInput()) {
+                ++optimizedForConstantOutputForInput;
+            }
+
+            if (fp->preservesOpaqueInput()) {
+                ++optimizedForOpaqueInput;
             }
 
             // Draw base frame last so that rtc holds the original FP behavior if we need to dump
