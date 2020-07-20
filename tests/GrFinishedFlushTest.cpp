@@ -21,13 +21,13 @@ static void testing_finished_proc(void* ctx) {
     *count += 1;
 }
 
-static void busy_wait_for_callback(int* count, int expectedValue, GrContext* ctx,
+static void busy_wait_for_callback(int* count, int expectedValue, GrDirectContext* dContext,
                                    skiatest::Reporter* reporter) {
     // Busy waiting should detect that the work is done.
     auto begin = std::chrono::steady_clock::now();
     auto end = begin;
     do {
-        ctx->checkAsyncWorkCompletion();
+        dContext->checkAsyncWorkCompletion();
         end = std::chrono::steady_clock::now();
     } while (*count != expectedValue && (end - begin) < std::chrono::seconds(1));
     if (*count != expectedValue) {
@@ -37,18 +37,18 @@ static void busy_wait_for_callback(int* count, int expectedValue, GrContext* ctx
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
-    auto ctx = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     SkImageInfo info =
             SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->clear(SK_ColorGREEN);
     auto image = surface->makeImageSnapshot();
 
-    ctx->flush();
-    ctx->submit(true);
+    dContext->flush();
+    dContext->submit(true);
 
     int count = 0;
 
@@ -57,22 +57,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     flushInfoFinishedProc.fFinishedContext = (void*)&count;
     // There is no work on the surface so flushing may immediately call the finished proc.
     surface->flush(flushInfoFinishedProc);
-    ctx->submit();
+    dContext->submit();
     REPORTER_ASSERT(reporter, count == 0 || count == 1);
     // Busy waiting should detect that the work is done.
-    busy_wait_for_callback(&count, 1, ctx, reporter);
+    busy_wait_for_callback(&count, 1, dContext, reporter);
 
     canvas->clear(SK_ColorRED);
 
     surface->flush(flushInfoFinishedProc);
-    ctx->submit();
+    dContext->submit();
 
+    bool fenceSupport = dContext->priv().caps()->fenceSyncSupport();
     bool expectAsyncCallback =
-            ctx->backend() == GrBackendApi::kVulkan ||
-            ((ctx->backend() == GrBackendApi::kOpenGL) && ctx->priv().caps()->fenceSyncSupport()) ||
-            ((ctx->backend() == GrBackendApi::kMetal) && ctx->priv().caps()->fenceSyncSupport()) ||
-            ctx->backend() == GrBackendApi::kDawn ||
-            ctx->backend() == GrBackendApi::kDirect3D;
+            dContext->backend() == GrBackendApi::kVulkan ||
+            ((dContext->backend() == GrBackendApi::kOpenGL) && fenceSupport) ||
+            ((dContext->backend() == GrBackendApi::kMetal) && fenceSupport) ||
+            dContext->backend() == GrBackendApi::kDawn ||
+            dContext->backend() == GrBackendApi::kDirect3D;
     if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately
         // so the finish proc may not have been called.
@@ -80,14 +81,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     } else {
         REPORTER_ASSERT(reporter, count == 2);
     }
-    ctx->flush();
-    ctx->submit(true);
+    dContext->flush();
+    dContext->submit(true);
     REPORTER_ASSERT(reporter, count == 2);
 
     // Test flushing via the SkImage
     canvas->drawImage(image, 0, 0);
-    image->flush(ctx, flushInfoFinishedProc);
-    ctx->submit();
+    image->flush(dContext, flushInfoFinishedProc);
+    dContext->submit();
     if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately
         // so the finish proc may not have been called.
@@ -95,14 +96,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     } else {
         REPORTER_ASSERT(reporter, count == 3);
     }
-    ctx->flush();
-    ctx->submit(true);
+    dContext->flush();
+    dContext->submit(true);
     REPORTER_ASSERT(reporter, count == 3);
 
-    // Test flushing via the GrContext
+    // Test flushing via the GrDirectContext
     canvas->clear(SK_ColorBLUE);
-    ctx->flush(flushInfoFinishedProc);
-    ctx->submit();
+    dContext->flush(flushInfoFinishedProc);
+    dContext->submit();
     if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately
         // so the finish proc may not have been called.
@@ -110,30 +111,30 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     } else {
         REPORTER_ASSERT(reporter, count == 4);
     }
-    ctx->flush();
-    ctx->submit(true);
+    dContext->flush();
+    dContext->submit(true);
     REPORTER_ASSERT(reporter, count == 4);
 
     // There is no work on the surface so flushing may immediately call the finished proc.
-    ctx->flush(flushInfoFinishedProc);
-    ctx->submit();
+    dContext->flush(flushInfoFinishedProc);
+    dContext->submit();
     REPORTER_ASSERT(reporter, count == 4 || count == 5);
-    busy_wait_for_callback(&count, 5, ctx, reporter);
+    busy_wait_for_callback(&count, 5, dContext, reporter);
 
     count = 0;
     int count2 = 0;
     canvas->clear(SK_ColorGREEN);
     surface->flush(flushInfoFinishedProc);
-    ctx->submit();
+    dContext->submit();
     // There is no work to be flushed here so this will return immediately, but make sure the
     // finished call from this proc isn't called till the previous surface flush also is finished.
     flushInfoFinishedProc.fFinishedContext = (void*)&count2;
-    ctx->flush(flushInfoFinishedProc);
-    ctx->submit();
+    dContext->flush(flushInfoFinishedProc);
+    dContext->submit();
     REPORTER_ASSERT(reporter, count <= 1 && count2 <= count);
 
-    ctx->flush();
-    ctx->submit(true);
+    dContext->flush();
+    dContext->submit(true);
 
     REPORTER_ASSERT(reporter, count == 1);
     REPORTER_ASSERT(reporter, count == count2);

@@ -22,18 +22,18 @@
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/vk/VkTestHelper.h"
 
-static sk_sp<SkSurface> create_protected_sksurface(GrDirectContext* direct,
+static sk_sp<SkSurface> create_protected_sksurface(GrDirectContext* dContext,
                                                    skiatest::Reporter* reporter) {
     const int kW = 8;
     const int kH = 8;
-    GrBackendTexture backendTex = direct->createBackendTexture(
+    GrBackendTexture backendTex = dContext->createBackendTexture(
         kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     REPORTER_ASSERT(reporter, backendTex.isProtected());
 
     SkSurfaceProps surfaceProps = SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(
-        direct, backendTex, kTopLeft_GrSurfaceOrigin, 1,
+        dContext, backendTex, kTopLeft_GrSurfaceOrigin, 1,
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
     REPORTER_ASSERT(reporter, surface);
     return surface;
@@ -56,24 +56,26 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
     if (!protectedTestHelper->init()) {
         return;
     }
-    REPORTER_ASSERT(reporter, protectedTestHelper->directContext() != nullptr);
+
+    auto dContext = protectedTestHelper->directContext();
+    REPORTER_ASSERT(reporter, dContext != nullptr);
 
     const int kW = 8;
     const int kH = 8;
-    GrBackendTexture backendTex =
-        protectedTestHelper->directContext()->createBackendTexture(
-            kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo,
-            GrProtected::kYes);
+    GrBackendTexture backendTex = dContext->createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
+                                                                 GrMipMapped::kNo,
+                                                                 GrRenderable::kNo,
+                                                                 GrProtected::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     REPORTER_ASSERT(reporter, backendTex.isProtected());
 
     SkSurfaceProps surfaceProps = SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
-        protectedTestHelper->directContext(), backendTex, kTopLeft_GrSurfaceOrigin, 1,
+        dContext, backendTex, kTopLeft_GrSurfaceOrigin, 1,
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
     REPORTER_ASSERT(reporter, surface);
 
-    protectedTestHelper->directContext()->deleteBackendTexture(backendTex);
+    dContext->deleteBackendTexture(backendTex);
 }
 
 DEF_GPUTEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext, reporter, options) {
@@ -144,11 +146,11 @@ DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options)
         return;
     }
 
-    auto direct = protectedTestHelper->directContext();
+    auto dContext = protectedTestHelper->directContext();
 
-    REPORTER_ASSERT(reporter, direct != nullptr);
+    REPORTER_ASSERT(reporter, dContext != nullptr);
 
-    auto surface = create_protected_sksurface(direct, reporter);
+    auto surface = create_protected_sksurface(dContext, reporter);
     REPORTER_ASSERT(reporter, surface);
     AsyncContext cbContext;
     const auto image_info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
@@ -157,13 +159,13 @@ DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options)
                                              image_info.bounds(), image_info.dimensions(),
                                              SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
                                              &async_callback, &cbContext);
-    direct->submit();
+    dContext->submit();
     while (!cbContext.fCalled) {
-        direct->checkAsyncWorkCompletion();
+        dContext->checkAsyncWorkCompletion();
     }
     REPORTER_ASSERT(reporter, !cbContext.fResult);
 
-    direct->deleteBackendTexture(
+    dContext->deleteBackendTexture(
             surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
@@ -338,7 +340,7 @@ DEF_GPUTEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface, reporter, o
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Test out DDLs using a protected Vulkan context
 
-void DDLMakeRenderTargetTestImpl(GrContext* context, skiatest::Reporter* reporter);
+void DDLMakeRenderTargetTestImpl(GrDirectContext*, skiatest::Reporter*);
 
 DEF_GPUTEST(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
     auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
@@ -350,7 +352,7 @@ DEF_GPUTEST(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
     DDLMakeRenderTargetTestImpl(protectedTestHelper->directContext(), reporter);
 }
 
-void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* reporter);
+void DDLSurfaceCharacterizationTestImpl(GrDirectContext*, skiatest::Reporter*);
 
 DEF_GPUTEST(VkProtectedContext_DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
     auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
