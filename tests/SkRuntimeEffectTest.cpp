@@ -56,6 +56,9 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("layout(marker=local_to_world) uniform float3x3 localToWorld;", "", "float4x4");
 
     test("half missing();", "color.r = missing();", "undefined function");
+
+    // Shouldn't be possible to create an SkRuntimeEffect without "main"
+    test("//", "", "main");
 }
 
 class TestEffect {
