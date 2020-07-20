@@ -671,3 +671,19 @@ sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> data) const {
     }
     return result;
 }
+
+SkM44 SkImage::GetWeights(SkImage::FilterWeights fw) {
+    switch (fw) {
+        case FilterWeights::kCentripetalCatmulRom:
+            return SkM44( 1.0f/18,  16.0f/18,   1.0f/18,  0.0f/18,
+                         -9.0f/18,   0.0f/18,   9.0f/18,  0.0f/18,
+                         15.0f/18, -36.0f/18,  27.0f/18, -6.0f/18,
+                         -7.0f/18,  21.0f/18, -21.0f/18,  7.0f/18);
+        case FilterWeights::kMitchellNetravali:
+            return SkM44( 1.0f/18,  16.0f/18,   1.0f/18,  0.0f/18,
+                         -9.0f/18,   0.0f/18,   9.0f/18,  0.0f/18,
+                         15.0f/18, -36.0f/18,  27.0f/18, -6.0f/18,
+                         -7.0f/18,  21.0f/18, -21.0f/18,  7.0f/18);
+    }
+    return SkM44(); // should not get here
+};
