@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "82f01313_23da07c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T17:03:05Z",
+      "side": 1,
+      "message": "This seems like an okay metric to try and reduce runs legnth. But TBH I\u0027m pretty removed from how all our child processors are made at this point, that I think I\u0027ll defer to Brian to make the final decision here.",
+      "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03c42724_827adac8",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T17:03:05Z",
+      "side": 1,
+      "message": "could we have some optimization that is very unlikely to happen so we end up trying tons and tons of different things and we just rarely hit it? Do we want a cap on the max number of tests? Just seems if after 100 trials and we are still far from the limit of 5 it could be awhile..",
+      "range": {
+        "startLine": 594,
+        "startChar": 21,
+        "endLine": 594,
+        "endChar": 37
+      },
+      "revId": "9cb0827d309e1a338b2dfad3a26b713a60c12e38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0f390da_7947ebb0",
         "filename": "tests/ProcessorTest.cpp",
         "patchSetId": 2
