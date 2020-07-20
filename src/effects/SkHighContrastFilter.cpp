@@ -18,7 +18,6 @@
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/effects/generated/GrHighContrastFilterEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"

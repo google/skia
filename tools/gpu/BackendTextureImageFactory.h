@@ -8,7 +8,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 
-class GrContext;
+class GrDirectContext;
 class SkImage;
 class SkPixmap;
 
@@ -20,5 +20,6 @@ namespace sk_gpu_test {
  * For testing purposes the texture can be made renderable to exercise different code paths for
  * renderable textures/formats.
  */
-sk_sp<SkImage> MakeBackendTextureImage(GrContext*, const SkPixmap&, GrRenderable, GrSurfaceOrigin);
+sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*, const SkPixmap&,
+                                       GrRenderable, GrSurfaceOrigin);
 }  // namespace sk_gpu_test
