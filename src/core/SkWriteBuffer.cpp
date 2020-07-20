@@ -9,10 +9,12 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPtrRecorder.h"
 
@@ -100,6 +102,10 @@ void SkBinaryWriteBuffer::writePoint3(const SkPoint3& point) {
 void SkBinaryWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(point, count * sizeof(SkPoint));
+}
+
+void SkBinaryWriteBuffer::write(const SkM44& matrix) {
+    fWriter.write(SkMatrixPriv::M44ColMajor(matrix), sizeof(float) * 16);
 }
 
 void SkBinaryWriteBuffer::writeMatrix(const SkMatrix& matrix) {
