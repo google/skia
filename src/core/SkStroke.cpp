@@ -25,7 +25,7 @@ enum {
 // quads with extreme widths (e.g. (0,1) (1,6) (0,3) width=5e7) recurse to point of failure
 // largest seen for normal cubics : 5, 26
 // largest seen for normal quads : 11
-static const int kRecursiveLimits[] = { 5*3, 26*3, 11*3, 11*3 }; // 3x limits seen in practice
+static const int kRecursiveLimits[] = { 5*3, 24, 11*3, 11*3 }; // 3x limits seen in practice
 
 static_assert(0 == kTangent_RecursiveLimit, "cubic_stroke_relies_on_tangent_equalling_zero");
 static_assert(1 == kCubic_RecursiveLimit, "cubic_stroke_relies_on_cubic_equalling_one");
