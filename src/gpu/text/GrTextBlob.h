@@ -188,7 +188,7 @@ public:
     virtual void draw(const GrClip* clip,
                       const SkMatrixProvider& viewMatrix,
                       const SkGlyphRunList& glyphRunList,
-                      GrRenderTargetContext* rtc) = 0;
+                      GrRenderTargetContext* rtc) const = 0;
 
 private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
@@ -203,7 +203,7 @@ public:
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
-              GrRenderTargetContext* rtc) override;
+              GrRenderTargetContext* rtc) const override;
 
     static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                           bool isAntiAliased,
@@ -232,13 +232,17 @@ public:
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
-                    GrRenderTargetContext* rtc) = 0;
-    virtual std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawOp::Target* target) = 0;
+                    GrRenderTargetContext* rtc) const = 0;
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
             SkIRect clip) const = 0;
+
+    // This call is not thread safe. It should only be called from GrDrawOp::onPrepare which
+    // is single threaded.
+    virtual std::tuple<bool, int> regenerateAtlas(
+            int begin, int end, GrMeshDrawOp::Target* target) const = 0;
+
 protected:
     using VertexData = std::tuple<
             SkPoint,   // glyph position.
@@ -286,11 +290,10 @@ class GrGlyphVector {
 public:
     static GrGlyphVector Make(
             const SkStrikeSpec& spec, SkSpan<SkGlyphVariant> glyphs, SkArenaAlloc* alloc);
-    void prepareGrGlyphs(GrStrikeCache* strikeCache);
-    std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMaskFormat maskFormat, int padding, GrMeshDrawOp::Target *target);
     SkSpan<const GrGlyph*> glyphs() const;
     SkScalar strikeToSourceRatio() const { return fStrikeSpec.strikeToSourceRatio(); }
+    std::tuple<bool, int> regenerateAtlas(
+            int begin, int end, GrMaskFormat maskFormat, int padding, GrMeshDrawOp::Target *target);
 
 private:
     GrGlyphVector(const SkStrikeSpec& spec, SkSpan<Variant> glyphs);
@@ -319,7 +322,7 @@ public:
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
-              GrRenderTargetContext* rtc) override;
+              GrRenderTargetContext* rtc) const override;
 
     size_t vertexStride() const override;
 
@@ -329,10 +332,10 @@ public:
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
-                    GrRenderTargetContext* rtc) override;
+                    GrRenderTargetContext* rtc) const override;
 
     std::tuple<bool, int>
-    regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) override;
+    regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const override;
 
     void fillVertexData(void* vertexDst, int offset, int count, GrColor color,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin,
@@ -347,7 +350,9 @@ private:
     const SkRect fVertexBounds;
     const SkSpan<const VertexData> fVertexData;
 
-    GrGlyphVector fGlyphs;
+    // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
+    // be single threaded.
+    mutable GrGlyphVector fGlyphs;
 };
 
 // -- GrMaskSubRun ---------------------------------------------------------------------------------
@@ -379,15 +384,15 @@ public:
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
-                    GrRenderTargetContext* rtc) override;
+                    GrRenderTargetContext* rtc) const override;
 
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
-              GrRenderTargetContext* rtc) override;
+              GrRenderTargetContext* rtc) const override;
 
     std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawOp::Target* target) override;
+            int begin, int end, GrMeshDrawOp::Target* target) const override;
 
     size_t vertexStride() const override;
     void fillVertexData(
@@ -440,7 +445,9 @@ private:
     bool fUseLCDText{false};
     bool fAntiAliased{false};
 
-    GrGlyphVector fGlyphs;
+    // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
+    // be single threaded.
+    mutable GrGlyphVector fGlyphs;
 
     // The bounds in source space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
