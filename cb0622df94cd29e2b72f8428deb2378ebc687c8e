@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "00523369_b0d16f8c",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-20T14:18:35Z",
+      "side": 1,
+      "message": "No, I think reroll is perfectly sensible.",
+      "parentUuid": "7a44ce82_3cc5681f",
+      "range": {
+        "startLine": 336,
+        "startChar": 13,
+        "endLine": 336,
+        "endChar": 19
+      },
+      "revId": "cb0622df94cd29e2b72f8428deb2378ebc687c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "87722d79_5a8032f5",
         "filename": "tests/ProcessorTest.cpp",
         "patchSetId": 4
