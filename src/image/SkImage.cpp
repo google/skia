@@ -142,6 +142,12 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                SkImageShader::FilterEnum(filtering));
 }
 
+sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy, const SkM44& weights,
+                                    const SkMatrix* localMatrix) const {
+    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy, weights,
+                               localMatrix);
+}
+
 sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm)) {
@@ -671,3 +677,20 @@ sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> data) const {
     }
     return result;
 }
+
+SkM44 SkImage::GetWeights(SkImage::FilterWeights fw) {
+    switch (fw) {
+        case FilterWeights::kCentripetalCatmulRom:
+            return SkM44(0.0f/2, -1.0f/2,  2.0f/2, -1.0f/2,
+                         2.0f/2,  0.0f/2, -5.0f/2,  3.0f/2,
+                         0.0f/2,  1.0f/2,  4.0f/2, -3.0f/2,
+                         0.0f/2,  0.0f/2, -1.0f/2,  1.0f/2);
+
+        case FilterWeights::kMitchellNetravali:
+            return SkM44( 1.0f/18,  -9.0f/18,  15.0f/18, -7.0f/18,
+                         16.0f/18,   0.0f/18, -36.0f/18, 21.0f/18,
+                          1.0f/18,   9.0f/18,  27.0f/18,-21.0f/18,
+                          0.0f/18,   0.0f/18,  -6.0f/18,  7.0f/18);
+    }
+    return SkM44(); // should not get here
+};
