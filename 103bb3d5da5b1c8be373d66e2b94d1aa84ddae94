@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "0f8bf448_7728c71a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-20T20:46:45Z",
+      "side": 1,
+      "message": "I\u0027m guessing we *only* want this in rvc-dev, and not in master? If that\u0027s the case, this should say:\n\n[RESTRICT AUTOMERGE]: Stop discarding stencil buffers on tilers",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 41
+      },
+      "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97497f38_2cd6700a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-20T20:46:45Z",
+      "side": 1,
+      "message": "Generally, submitting to android requires a line that says:\n\nTest:\n\ndescribing how you\u0027ve tested it. I would suggest the lines I\u0027ve used for other CLs here:\n\nTest: SystemWebViewShell.apk\n      - Tap 3 dot menu\n      - Tap \"Animation test\"\n      - Check \"Rounded corner\" checkbox\n\nMaybe we just want this stuff on the CL that will be created by the roller, though.",
+      "range": {
+        "startLine": 9,
+        "startChar": 3,
+        "endLine": 9,
+        "endChar": 4
+      },
+      "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2b491f0_dee9ef85",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -47,6 +93,23 @@
       "writtenOn": "2020-07-20T20:24:07Z",
       "side": 1,
       "message": "I don\u0027t think I have submit permission here. Any other approvals needed here?",
+      "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9e4296d_d938d7f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-20T20:46:45Z",
+      "side": 1,
+      "message": "Chris, can you state the risk of taking this in R? I\u0027m guessing it\u0027s low - maybe worse performance on some devices (where it\u0027s not broken)?",
       "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
