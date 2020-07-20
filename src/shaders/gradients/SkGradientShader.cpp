@@ -695,15 +695,18 @@ static SkColor4f average_gradient_color(const SkColor4f colors[], const SkScalar
     // intervals average color. The overall average color is thus the sum of each piece. The thing
     // to keep in mind is that the provided gradient definition may implicitly use p=0 and p=1.
     Sk4f blend(0.0);
-    // Bake 1/(colorCount - 1) uniform stop difference into this scale factor
-    SkScalar wScale = pos ? 0.5 : 0.5 / (colorCount - 1);
     for (int i = 0; i < colorCount - 1; ++i) {
         // Calculate the average color for the interval between pos(i) and pos(i+1)
         Sk4f c0 = Sk4f::Load(&colors[i]);
         Sk4f c1 = Sk4f::Load(&colors[i + 1]);
+
         // when pos == null, there are colorCount uniformly distributed stops, going from 0 to 1,
         // so pos[i + 1] - pos[i] = 1/(colorCount-1)
         SkScalar w = pos ? (pos[i + 1] - pos[i]) : SK_Scalar1;
+
+        // Bake 1/(colorCount - 1) uniform stop difference into this scale factor
+        SkScalar wScale = pos ? 0.5 : 0.5 / (colorCount - 1);
+
         blend += wScale * w * (c1 + c0);
     }
 
