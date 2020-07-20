@@ -121,6 +121,24 @@
       "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68eb8766_5d50474a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T18:37:54Z",
+      "side": 1,
+      "message": "Chris all you have to do is make a branch in your own skia checkout that targets android/next-release instead of origin/master. Make that branch, apply you change, and upload it review like any normal change.",
+      "parentUuid": "4c4c13fc_9252edaa",
+      "revId": "5173e7acc393fc14cdf3edd8f01aba999d9c0827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
