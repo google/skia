@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f1601b6_e10b90dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-20T19:16:48Z",
+      "side": 1,
+      "message": "Done. Here\u0027s the new histogram (using old limit of 78) tracking termination depth when running dm. Looks pretty similar, the peak is closer to 26 now, but I\u0027m not sure how much it matters.\n\n  depth 0: 13975\n  depth 1: 3915\n  depth 2: 8218\n  depth 3: 6710\n  depth 4: 4803\n  depth 5: 3018\n  depth 6: 1610\n  depth 7: 1069\n  depth 8: 844\n  depth 9: 834\n  depth 10: 859\n  depth 11: 1047\n  depth 12: 1300\n  depth 13: 1268\n  depth 14: 2524\n  depth 15: 3880\n  depth 16: 5869\n  depth 17: 8515\n  depth 18: 11864\n  depth 19: 25567\n  depth 20: 21005\n  depth 21: 27819\n  depth 22: 20283\n  depth 23: 34969\n  depth 24: 92641\n  depth 25: 135500\n  depth 26: 218350\n  depth 27: 10524\n  depth 28: 10463\n  depth 29: 10464\n  depth 30: 10461\n  depth 31: 10425\n  depth 32: 10463\n  depth 33: 10493\n  depth 34: 10999\n  depth 35: 4232\n  depth 36: 2134\n  depth 37: 1089\n  depth 38: 566\n  depth 39: 321\n  depth 40: 292\n  depth 41: 227\n  depth 42: 163\n  depth 43: 239\n  depth 44: 789\n  depth 45: 35\n  depth 46: 25\n  depth 47: 2\n",
+      "revId": "3119d4eea7fb0cc021c912d4fb243793ee63640e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
