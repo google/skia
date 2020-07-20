@@ -26,6 +26,10 @@ public:
         kInheritFromPaint,
         // this signals we should use the new SkFilterOptions
         kUseFilterOptions,
+        // use fWeights and ignore FilterOptions
+        kUse44Weights,
+
+        kLast = kUse44Weights,
     };
 
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
@@ -39,6 +43,12 @@ public:
                                 SkTileMode tmx,
                                 SkTileMode tmy,
                                 const SkFilterOptions&,
+                                const SkMatrix* localMatrix);
+
+    static sk_sp<SkShader> Make(sk_sp<SkImage>,
+                                SkTileMode tmx,
+                                SkTileMode tmy,
+                                const SkM44&,
                                 const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
@@ -60,6 +70,11 @@ private:
                   SkTileMode tmx,
                   SkTileMode tmy,
                   const SkFilterOptions&,
+                  const SkMatrix* localMatrix);
+    SkImageShader(sk_sp<SkImage>,
+                  SkTileMode tmx,
+                  SkTileMode tmy,
+                  const SkM44&,
                   const SkMatrix* localMatrix);
 
     void flatten(SkWriteBuffer&) const override;
@@ -95,6 +110,8 @@ private:
 
     // only use this if fFilterEnum == kUseFilterOptions
     SkFilterOptions  fFilterOptions;
+    // only use this if fFilterEnum == kUse44Weights
+    std::unique_ptr<SkM44> fWeights;
 
     friend class SkShaderBase;
     typedef SkShaderBase INHERITED;

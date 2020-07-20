@@ -102,6 +102,12 @@ void SkBinaryWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) 
     fWriter.write(point, count * sizeof(SkPoint));
 }
 
+void SkBinaryWriteBuffer::write(const SkM44& matrix) {
+    float m[16];
+    matrix.getColMajor(m);
+    fWriter.write(m, sizeof(m));
+}
+
 void SkBinaryWriteBuffer::writeMatrix(const SkMatrix& matrix) {
     fWriter.writeMatrix(matrix);
 }
