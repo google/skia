@@ -22,6 +22,30 @@
       "revId": "9482d6d9c34ea9854f19395e757907b05573db45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39bde961_46d6c975",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-20T15:23:49Z",
+      "side": 1,
+      "message": "Yeah, this is way better.  Done.",
+      "parentUuid": "1a6e0326_662db1dd",
+      "range": {
+        "startLine": 703,
+        "startChar": 8,
+        "endLine": 708,
+        "endChar": 61
+      },
+      "revId": "9482d6d9c34ea9854f19395e757907b05573db45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
