@@ -224,4 +224,35 @@ const RenderNode* BlendModeEffect::onNodeAt(const SkPoint& p) const {
     return this->INHERITED::onNodeAt(p);
 }
 
+sk_sp<LayerEffect> LayerEffect::Make(sk_sp<RenderNode> child, SkBlendMode mode) {
+    return child ? sk_sp<LayerEffect>(new LayerEffect(std::move(child), mode))
+                 : nullptr;
+}
+
+LayerEffect::LayerEffect(sk_sp<RenderNode> child, SkBlendMode mode)
+    : INHERITED(std::move(child))
+    , fMode(mode) {}
+
+LayerEffect::~LayerEffect() = default;
+
+void LayerEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    SkAutoCanvasRestore acr(canvas, false);
+
+    // Commit any potential pending paint effects to their own layer.
+    const auto local_ctx = ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(),
+                                                                         canvas->getTotalMatrix(),
+                                                                         true);
+
+    SkPaint layer_paint;
+    if (ctx) {
+        // Apply all optional context overrides upfront.
+        ctx->modulatePaint(canvas->getTotalMatrix(), &layer_paint);
+    }
+    layer_paint.setBlendMode(fMode);
+
+    canvas->saveLayer(nullptr, &layer_paint);
+
+    this->INHERITED::onRender(canvas, nullptr);
+}
+
 } // namespace sksg

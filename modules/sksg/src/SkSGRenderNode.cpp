@@ -98,7 +98,9 @@ void RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* pain
     if (fShader) {
         paint->setShader(LocalShader(fShader, fShaderCTM, ctm));
     }
-    paint->setBlendMode(fBlendMode);
+    if (fBlendMode != SkBlendMode::kSrcOver) {
+        paint->setBlendMode(fBlendMode);
+    }
 
     // Only apply the shader mask for regular paints.  Isolation layers require
     // special handling on restore.
