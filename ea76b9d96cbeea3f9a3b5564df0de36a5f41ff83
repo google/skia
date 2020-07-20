@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc8e3bfd_5e695e87",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T23:14:07Z",
+      "side": 1,
+      "message": "This is getting complex enough that it might warrant its own fuzzer.",
+      "revId": "ea76b9d96cbeea3f9a3b5564df0de36a5f41ff83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38a0de00_0eeebdfa",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T23:14:07Z",
+      "side": 1,
+      "message": "wasted ?",
+      "range": {
+        "startLine": 291,
+        "startChar": 95,
+        "endLine": 291,
+        "endChar": 100
+      },
+      "revId": "ea76b9d96cbeea3f9a3b5564df0de36a5f41ff83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
