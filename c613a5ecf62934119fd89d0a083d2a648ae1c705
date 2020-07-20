@@ -16,6 +16,24 @@
       "revId": "c613a5ecf62934119fd89d0a083d2a648ae1c705",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc48e1cc_08675b05",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T15:46:30Z",
+      "side": 1,
+      "message": "Great suggestion, agree 100%. Done.",
+      "parentUuid": "652971d4_100f2507",
+      "revId": "c613a5ecf62934119fd89d0a083d2a648ae1c705",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
