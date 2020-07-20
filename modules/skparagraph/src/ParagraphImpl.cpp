@@ -25,6 +25,12 @@
 #endif
 
 #include <math.h>
+#include <unicode/ubidi.h>
+#include <unicode/uloc.h>
+#include <unicode/umachine.h>
+#include <unicode/ustring.h>
+#include <unicode/utext.h>
+#include <unicode/utypes.h>
 #include <algorithm>
 #include <utility>
 
@@ -33,6 +39,9 @@ namespace skia {
 namespace textlayout {
 
 namespace {
+
+using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
+using ICUBiDi  = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
 
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
@@ -45,6 +54,13 @@ SkScalar littleRound(SkScalar a) {
         return SkScalarFloorToScalar(a);
     }
 }
+
+/** Replaces invalid utf-8 sequences with REPLACEMENT CHARACTER U+FFFD. */
+static inline SkUnichar utf8_next(const char** ptr, const char* end) {
+    SkUnichar val = SkUTF::NextUTF8(ptr, end);
+    return val < 0 ? 0xFFFD : val;
+}
+
 }
 
 TextRange operator*(const TextRange& a, const TextRange& b) {
@@ -83,7 +99,6 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fOldWidth(0)
         , fOldHeight(0)
         , fOrigin(SkRect::MakeEmpty()) {
-    fICU = ::skia::SkUnicode::Make();
 }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
@@ -130,7 +145,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fCodeUnitProperties.reset();
         this->fCodeUnitProperties.push_back_n(fText.size() + 1, CodeUnitFlags::kNoCodeUnitFlag);
         this->fWords.clear();
-        this->fBidiRegions.clear();
+        this->fBidiRegions.reset();
         this->fUTF8IndexForUTF16Index.reset();
         this->fUTF16IndexForUTF8Index.reset();
         this->fRuns.reset();
@@ -229,6 +244,72 @@ void ParagraphImpl::resetContext() {
     fExceededMaxLines = false;
 }
 
+class TextBreaker {
+public:
+    TextBreaker() : fInitialized(false), fPos(-1) {}
+
+    bool initialize(SkSpan<const char> text, UBreakIteratorType type) {
+
+        UErrorCode status = U_ZERO_ERROR;
+        fIterator = nullptr;
+        fSize = text.size();
+        UText sUtf8UText = UTEXT_INITIALIZER;
+        std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>> utf8UText(
+            utext_openUTF8(&sUtf8UText, text.begin(), text.size(), &status));
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Could not create utf8UText: %s", u_errorName(status));
+            return false;
+        }
+        fIterator.reset(ubrk_open(type, "en", nullptr, 0, &status));
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Could not create line break iterator: %s", u_errorName(status));
+            SK_ABORT("");
+        }
+
+        ubrk_setUText(fIterator.get(), utf8UText.get(), &status);
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Could not setText on break iterator: %s", u_errorName(status));
+            return false;
+        }
+
+        fInitialized = true;
+        fPos = 0;
+        return true;
+    }
+
+    bool initialized() const { return fInitialized; }
+
+    size_t first() {
+        fPos = ubrk_first(fIterator.get());
+        return eof() ? fSize : fPos;
+    }
+
+    size_t next() {
+        fPos = ubrk_next(fIterator.get());
+        return eof() ? fSize : fPos;
+    }
+
+    size_t preceding(size_t offset) {
+        auto pos = ubrk_preceding(fIterator.get(), offset);
+        return pos == UBRK_DONE ? 0 : pos;
+    }
+
+    size_t following(size_t offset) {
+        auto pos = ubrk_following(fIterator.get(), offset);
+        return pos == UBRK_DONE ? fSize : pos;
+    }
+
+    int32_t status() { return ubrk_getRuleStatus(fIterator.get()); }
+
+    bool eof() { return fPos == UBRK_DONE; }
+
+private:
+    std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close), ubrk_close>> fIterator;
+    bool fInitialized;
+    int32_t fPos;
+    size_t fSize;
+};
+
 // shapeTextIntoEndlessLine is the thing that calls this method
 // (that contains all ICU dependencies except for words)
 bool ParagraphImpl::computeCodeUnitProperties() {
@@ -239,41 +320,165 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     }
     #endif
 
-    // Get bidi regions
-    Direction textDirection = fParagraphStyle.getTextDirection() == TextDirection::kLtr
-                              ? Direction::kLTR
-                              : Direction::kRTL;
-    if (!fICU->getBidiRegions(fText.c_str(), fText.size(), textDirection, &fBidiRegions)) {
+    {
+        const char* start = fText.c_str();
+        const char* end = start + fText.size();
+        const char* ch = start;
+        while (ch < end) {
+            auto index = ch - start;
+            auto unichar = utf8_next(&ch, end);
+            if (u_isWhitespace(unichar)) {
+                auto ending = ch - start;
+                for (auto k = index; k < ending; ++k) {
+                  fCodeUnitProperties[k] |= CodeUnitFlags::kPartOfWhiteSpace;
+                }
+            }
+        }
+    }
+    {
+        TextBreaker breaker;
+        if (!breaker.initialize(this->text(), UBRK_LINE)) {
+            return false;
+        }
+        while (!breaker.eof()) {
+            size_t currentPos = breaker.next();
+          fCodeUnitProperties[currentPos] |=
+              breaker.status() == UBRK_LINE_HARD ? CodeUnitFlags::kHardLineBreakBefore : CodeUnitFlags::kSoftLineBreakBefore;
+        }
+    }
+    {
+        TextBreaker breaker;
+        if (!breaker.initialize(this->text(), UBRK_CHARACTER)) {
+            return false;
+        }
+
+        while (!breaker.eof()) {
+            auto currentPos = breaker.next();
+          fCodeUnitProperties[currentPos] |= CodeUnitFlags::kGraphemeStart;
+        }
+    }
+
+    return true;
+}
+
+// getWordBoundary is the thing that calls this method lazily
+bool ParagraphImpl::computeWords() {
+
+    if (!fWords.empty()) {
+        return true;
+    }
+
+    UErrorCode errorCode = U_ZERO_ERROR;
+
+    auto iter = ubrk_open(UBRK_WORD, uloc_getDefault(), nullptr, 0, &errorCode);
+    if (U_FAILURE(errorCode)) {
+        SkDEBUGF("Could not create line break iterator: %s", u_errorName(errorCode));
         return false;
     }
 
-    // Get white spaces
-    std::vector<Position> whitespaces;
-    if (!fICU->getWhitespaces(fText.c_str(), fText.size(), &whitespaces)) {
+    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+    int32_t utf16Units;
+    u_strFromUTF8(nullptr, 0, &utf16Units, fText.c_str(), fText.size(), &errorCode);
+    errorCode = U_ZERO_ERROR;
+    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
+    u_strFromUTF8(utf16.get(), utf16Units, nullptr, fText.c_str(), fText.size(), &errorCode);
+    if (U_FAILURE(errorCode)) {
+        SkDEBUGF("Invalid utf8 input: %s", u_errorName(errorCode));
         return false;
-    }
-    for (auto whitespace : whitespaces) {
-        fCodeUnitProperties[whitespace] |= CodeUnitFlags::kPartOfWhiteSpace;
     }
 
-    // Get line breaks
-    std::vector<LineBreakBefore> lineBreaks;
-    if (!fICU->getLineBreaks(fText.c_str(), fText.size(), &lineBreaks)) {
+    UText sUtf16UText = UTEXT_INITIALIZER;
+    ICUUText utf8UText(utext_openUChars(&sUtf16UText, utf16.get(), utf16Units, &errorCode));
+    if (U_FAILURE(errorCode)) {
+        SkDEBUGF("Could not create utf8UText: %s", u_errorName(errorCode));
         return false;
-    }
-    for (auto& lineBreak : lineBreaks) {
-        fCodeUnitProperties[lineBreak.pos] |= lineBreak.breakType == LineBreakType::kHardLineBreak
-                                           ? CodeUnitFlags::kHardLineBreakBefore
-                                           : CodeUnitFlags::kSoftLineBreakBefore;
     }
 
-    // Get graphemes
-    std::vector<Position> graphemes;
-    if (!fICU->getGraphemes(fText.c_str(), fText.size(), &graphemes)) {
+    ubrk_setUText(iter, utf8UText.get(), &errorCode);
+    if (U_FAILURE(errorCode)) {
+        SkDEBUGF("Could not setText on break iterator: %s", u_errorName(errorCode));
         return false;
     }
-    for (auto pos : graphemes) {
-        fCodeUnitProperties[pos] |= CodeUnitFlags::kGraphemeStart;
+
+    int32_t pos = ubrk_first(iter);
+    while (pos != UBRK_DONE) {
+        fWords.emplace_back(pos);
+        pos = ubrk_next(iter);
+    }
+
+    return true;
+}
+
+bool ParagraphImpl::getBidiRegions() {
+
+    if (!fBidiRegions.empty()) {
+        return true;
+    }
+
+    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
+    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
+    size_t utf8Bytes = fText.size();
+    const char* utf8 = fText.c_str();
+    uint8_t bidiLevel = fParagraphStyle.getTextDirection() == TextDirection::kLtr
+                            ? UBIDI_LTR
+                            : UBIDI_RTL;
+    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
+        SkDEBUGF("Bidi error: text too long");
+        return false;
+    }
+
+    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+    UErrorCode status = U_ZERO_ERROR;
+    int32_t utf16Units;
+    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
+    status = U_ZERO_ERROR;
+    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
+    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
+        return false;
+    }
+
+    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Bidi error: %s", u_errorName(status));
+        return false;
+    }
+    SkASSERT(bidi);
+
+    // The required lifetime of utf16 isn't well documented.
+    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
+    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Bidi error: %s", u_errorName(status));
+        return false;
+    }
+
+    SkTArray<BidiRegion> bidiRegions;
+    const char* start8 = utf8;
+    const char* end8 = utf8 + utf8Bytes;
+    TextRange textRange(0, 0);
+    UBiDiLevel currentLevel = 0;
+
+    int32_t pos16 = 0;
+    int32_t end16 = ubidi_getLength(bidi.get());
+    while (pos16 < end16) {
+        auto level = ubidi_getLevelAt(bidi.get(), pos16);
+        if (pos16 == 0) {
+            currentLevel = level;
+        } else if (level != currentLevel) {
+            textRange.end = start8 - utf8;
+            fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
+            currentLevel = level;
+            textRange = TextRange(textRange.end, textRange.end);
+        }
+        SkUnichar u = utf8_next(&start8, end8);
+        pos16 += SkUTF::ToUTF16(u);
+    }
+
+    textRange.end = start8 - utf8;
+    if (!textRange.empty()) {
+        fBidiRegions.emplace_back(textRange.start, textRange.end, currentLevel);
     }
 
     return true;
@@ -678,23 +883,21 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 // By "glyph" they mean a character index - indicated by Minikin's code
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
-    if (fWords.empty()) {
-        if (!fICU->getWords(fText.c_str(), fText.size(), &fWords)) {
-            return {0, 0 };
-        }
+    if (!computeWords()) {
+        return {0, 0 };
     }
 
     int32_t start = 0;
     int32_t end = 0;
     for (size_t i = 0; i < fWords.size(); ++i) {
-        auto word = fWords[i];
-        if (word <= offset) {
-            start = word;
-            end = word;
-        } else if (word > offset) {
-            end = word;
-            break;
-        }
+      auto word = fWords[i];
+      if (word <= offset) {
+        start = word;
+        end = word;
+      } else if (word > offset) {
+        end = word;
+        break;
+      }
     }
 
     //SkDebugf("getWordBoundary(%d): %d - %d\n", offset, start, end);
@@ -777,7 +980,7 @@ void ParagraphImpl::setState(InternalState state) {
             fCodeUnitProperties.reset();
             fCodeUnitProperties.push_back_n(fText.size() + 1, kNoCodeUnitFlag);
             fWords.clear();
-            fBidiRegions.clear();
+            fBidiRegions.reset();
             fUTF8IndexForUTF16Index.reset();
             fUTF16IndexForUTF8Index.reset();
             [[fallthrough]];
