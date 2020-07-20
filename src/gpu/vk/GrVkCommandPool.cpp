@@ -66,6 +66,10 @@ void GrVkCommandPool::recycleSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* 
     std::unique_ptr<GrVkSecondaryCommandBuffer> scb(buffer);
     if (fAvailableSecondaryBuffers.count() < fMaxCachedSecondaryCommandBuffers) {
         fAvailableSecondaryBuffers.push_back(std::move(scb));
+    } else {
+        VkCommandBuffer vkBuffer = buffer->vkCommandBuffer();
+        GR_VK_CALL(fGpu->vkInterface(),
+                   FreeCommandBuffers(fGpu->device(), fCommandPool, 1, &vkBuffer));
     }
 }
 
