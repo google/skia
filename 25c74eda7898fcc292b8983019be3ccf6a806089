@@ -33,6 +33,23 @@
       "revId": "25c74eda7898fcc292b8983019be3ccf6a806089",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "330b48c8_fd3d5635",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-20T15:48:09Z",
+      "side": 1,
+      "message": "side-note about the bench: is it effective to just call paint.getFillPath() rather than draw? Seems like a more pointed way to measure the relative pref.",
+      "revId": "25c74eda7898fcc292b8983019be3ccf6a806089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
