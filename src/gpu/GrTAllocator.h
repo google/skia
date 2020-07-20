@@ -66,6 +66,19 @@ public:
     }
 
     /**
+     * Allocate, if needed, space to hold N more Ts before another malloc will occur.
+     */
+    void reserve(int n) {
+        int avail = fAllocator->currentBlock()->template avail<alignof(T)>() / sizeof(T);
+        if (n > avail) {
+            int reserved = n - avail;
+            // Don't consider existing bytes since we've already determined how to split the N items
+            fAllocator->template reserve<alignof(T)>(
+                    reserved * sizeof(T), GrBlockAllocator::kIgnoreExistingBytes_Flag);
+        }
+    }
+
+    /**
      * Remove the last item, only call if count() != 0
      */
     void pop_back() {
@@ -156,7 +169,7 @@ public:
      * Use for-range loops by calling items() or ritems() instead to access all added items in order
      */
     T& item(int i) {
-        SkASSERT(i >= 0 && i < fAllocator->metadata());
+        SkASSERT(i >= 0 && i < this->count());
 
         // Iterate over blocks until we find the one that contains i.
         for (auto* b : fAllocator->blocks()) {
@@ -236,6 +249,11 @@ public:
     // Iterate from newest to oldest using a for-range loop.
     RIter  ritems() { return RIter(fAllocator.allocator()); }
     CRIter ritems() const { return CRIter(fAllocator.allocator()); }
+
+#if GR_TEST_UTILS
+    // For introspection
+    const GrBlockAllocator* allocator() const { return fAllocator.allocator(); }
+#endif
 };
 
 /**
