@@ -39,6 +39,30 @@
       "revId": "91b86631d67d89f8d08656f0f6e59e4d16fa2114",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3260d98b_f94ff9d0",
+        "filename": "site/dev/testing/fuzz.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-20T16:38:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3baa5aed_1b8f4b91",
+      "range": {
+        "startLine": 37,
+        "startChar": 8,
+        "endLine": 37,
+        "endChar": 12
+      },
+      "revId": "91b86631d67d89f8d08656f0f6e59e4d16fa2114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
