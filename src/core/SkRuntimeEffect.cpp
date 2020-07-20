@@ -74,6 +74,38 @@ static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint3
     return true;
 }
 
+static bool init_variable_type(const SkSL::Context& ctx,
+                               const SkSL::Type* type,
+                               SkRuntimeEffect::Variable* v) {
+#define SET_TYPES(cpuType, gpuType)                          \
+    do {                                                     \
+        v->fType = SkRuntimeEffect::Variable::Type::cpuType; \
+        v->fGPUType = gpuType;                               \
+        return true;                                         \
+    } while (false)
+
+    if (type == ctx.fBool_Type.get())     { SET_TYPES(kBool,     kVoid_GrSLType);     }
+    if (type == ctx.fInt_Type.get())      { SET_TYPES(kInt,      kVoid_GrSLType);     }
+    if (type == ctx.fFloat_Type.get())    { SET_TYPES(kFloat,    kFloat_GrSLType);    }
+    if (type == ctx.fHalf_Type.get())     { SET_TYPES(kFloat,    kHalf_GrSLType);     }
+    if (type == ctx.fFloat2_Type.get())   { SET_TYPES(kFloat2,   kFloat2_GrSLType);   }
+    if (type == ctx.fHalf2_Type.get())    { SET_TYPES(kFloat2,   kHalf2_GrSLType);    }
+    if (type == ctx.fFloat3_Type.get())   { SET_TYPES(kFloat3,   kFloat3_GrSLType);   }
+    if (type == ctx.fHalf3_Type.get())    { SET_TYPES(kFloat3,   kHalf3_GrSLType);    }
+    if (type == ctx.fFloat4_Type.get())   { SET_TYPES(kFloat4,   kFloat4_GrSLType);   }
+    if (type == ctx.fHalf4_Type.get())    { SET_TYPES(kFloat4,   kHalf4_GrSLType);    }
+    if (type == ctx.fFloat2x2_Type.get()) { SET_TYPES(kFloat2x2, kFloat2x2_GrSLType); }
+    if (type == ctx.fHalf2x2_Type.get())  { SET_TYPES(kFloat2x2, kHalf2x2_GrSLType);  }
+    if (type == ctx.fFloat3x3_Type.get()) { SET_TYPES(kFloat3x3, kFloat3x3_GrSLType); }
+    if (type == ctx.fHalf3x3_Type.get())  { SET_TYPES(kFloat3x3, kHalf3x3_GrSLType);  }
+    if (type == ctx.fFloat4x4_Type.get()) { SET_TYPES(kFloat4x4, kFloat4x4_GrSLType); }
+    if (type == ctx.fHalf4x4_Type.get())  { SET_TYPES(kFloat4x4, kHalf4x4_GrSLType);  }
+
+#undef SET_TYPES
+
+    return false;
+}
+
 SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     SkSL::SharedCompiler compiler;
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
@@ -122,8 +154,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
         }
         for (const auto& e : *program) {
             if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
-                SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
-                for (const auto& varStatement : v.fVars) {
+                SkSL::VarDeclarations& varDecls = (SkSL::VarDeclarations&) e;
+                for (const auto& varStatement : varDecls.fVars) {
                     const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
 
                     // Sanity check some rules that should be enforced by the IR generator.
@@ -157,50 +189,10 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                             type = &type->componentType();
                         }
 
-#if SK_SUPPORT_GPU
-#define SET_TYPES(cpuType, gpuType) do { v.fType = cpuType; v.fGPUType = gpuType;} while (false)
-#else
-#define SET_TYPES(cpuType, gpuType) do { v.fType = cpuType; } while (false)
-#endif
-
-                        if (type == ctx.fBool_Type.get()) {
-                            SET_TYPES(Variable::Type::kBool, kVoid_GrSLType);
-                        } else if (type == ctx.fInt_Type.get()) {
-                            SET_TYPES(Variable::Type::kInt, kVoid_GrSLType);
-                        } else if (type == ctx.fFloat_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat, kFloat_GrSLType);
-                        } else if (type == ctx.fHalf_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat, kHalf_GrSLType);
-                        } else if (type == ctx.fFloat2_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat2, kFloat2_GrSLType);
-                        } else if (type == ctx.fHalf2_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat2, kHalf2_GrSLType);
-                        } else if (type == ctx.fFloat3_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat3, kFloat3_GrSLType);
-                        } else if (type == ctx.fHalf3_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat3, kHalf3_GrSLType);
-                        } else if (type == ctx.fFloat4_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat4, kFloat4_GrSLType);
-                        } else if (type == ctx.fHalf4_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat4, kHalf4_GrSLType);
-                        } else if (type == ctx.fFloat2x2_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat2x2, kFloat2x2_GrSLType);
-                        } else if (type == ctx.fHalf2x2_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat2x2, kHalf2x2_GrSLType);
-                        } else if (type == ctx.fFloat3x3_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat3x3, kFloat3x3_GrSLType);
-                        } else if (type == ctx.fHalf3x3_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat3x3, kHalf3x3_GrSLType);
-                        } else if (type == ctx.fFloat4x4_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat4x4, kFloat4x4_GrSLType);
-                        } else if (type == ctx.fHalf4x4_Type.get()) {
-                            SET_TYPES(Variable::Type::kFloat4x4, kHalf4x4_GrSLType);
-                        } else {
+                        if (!init_variable_type(ctx, type, &v)) {
                             RETURN_FAILURE("Invalid input/uniform type: '%s'",
                                            type->displayName().c_str());
                         }
-
-#undef SET_TYPES
 
                         switch (v.fType) {
                             case Variable::Type::kBool:
