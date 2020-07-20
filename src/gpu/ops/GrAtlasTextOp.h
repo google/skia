@@ -29,7 +29,7 @@ public:
     struct Geometry {
         void fillVertexData(void* dst, int offset, int count) const;
 
-        GrAtlasSubRun* const fSubRunPtr;
+        const GrAtlasSubRun& fSubRun;
         const SkMatrix       fDrawMatrix;
         const SkPoint        fDrawOrigin;
         const SkIRect        fClipRect;

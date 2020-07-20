@@ -54,7 +54,7 @@ GrPathSubRun::GrPathSubRun(bool isAntiAliased,
 void GrPathSubRun::draw(const GrClip* clip,
                         const SkMatrixProvider& viewMatrix,
                         const SkGlyphRunList& glyphRunList,
-                        GrRenderTargetContext* rtc) {
+                        GrRenderTargetContext* rtc) const {
     SkASSERT(!fPaths.empty());
     SkPoint drawOrigin = glyphRunList.origin();
     const SkPaint& drawPaint = glyphRunList.paint();
@@ -142,8 +142,10 @@ SkSpan<const GrGlyph*> GrGlyphVector::glyphs() const {
     return SkMakeSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
 }
 
-std::tuple<bool, int> GrGlyphVector::regenerateAtlas(
-        int begin, int end, GrMaskFormat maskFormat, int padding, GrMeshDrawOp::Target *target) {
+std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
+                                                     GrMaskFormat maskFormat,
+                                                     int padding,
+                                                     GrMeshDrawOp::Target* target) {
     GrAtlasManager* atlasManager = target->atlasManager();
     GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
 
@@ -254,7 +256,7 @@ GrSubRun* GrDirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawabl
 }
 
 void GrDirectMaskSubRun::draw(const GrClip* clip, const SkMatrixProvider& viewMatrix,
-                              const SkGlyphRunList& glyphRunList, GrRenderTargetContext* rtc) {
+                              const SkGlyphRunList& glyphRunList, GrRenderTargetContext* rtc) const{
     auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
     if (op != nullptr) {
         rtc->priv().addDrawOp(drawingClip, std::move(op));
@@ -311,7 +313,7 @@ static SkPMColor4f calculate_colors(GrRenderTargetContext* rtc,
 std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
 GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& viewMatrix,
                                     const SkGlyphRunList& glyphRunList,
-                                    GrRenderTargetContext* rtc) {
+                                    GrRenderTargetContext* rtc) const {
     SkASSERT(this->glyphCount() != 0);
 
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
@@ -348,7 +350,7 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
     const SkPMColor4f drawingColor =
             calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
     GrAtlasTextOp::Geometry geometry = {
-            this,
+            *this,
             drawMatrix,
             drawOrigin,
             clipRect,
@@ -368,7 +370,7 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
 }
 
 std::tuple<bool, int>
-GrDirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) {
+GrDirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
 }
 
@@ -500,7 +502,7 @@ std::tuple<const GrClip*, std::unique_ptr<GrDrawOp> >
 GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
                               const SkMatrixProvider& viewMatrix,
                               const SkGlyphRunList& glyphRunList,
-                              GrRenderTargetContext* rtc) {
+                              GrRenderTargetContext* rtc) const {
     SkASSERT(this->glyphCount() != 0);
 
     SkPoint drawOrigin = glyphRunList.origin();
@@ -515,7 +517,7 @@ GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
     // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
     GrAtlasTextOp::Geometry geometry = {
-            this,
+            *this,
             drawMatrix,
             drawOrigin,
             SkIRect::MakeEmpty(),
@@ -575,7 +577,7 @@ GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
 void GrMaskSubRun::draw(const GrClip* clip,
                         const SkMatrixProvider& viewMatrix,
                         const SkGlyphRunList& glyphRunList,
-                        GrRenderTargetContext* rtc) {
+                        GrRenderTargetContext* rtc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
     if (op != nullptr) {
         rtc->priv().addDrawOp(drawingClip, std::move(op));
@@ -583,7 +585,7 @@ void GrMaskSubRun::draw(const GrClip* clip,
 }
 
 std::tuple<bool, int> GrMaskSubRun::regenerateAtlas(
-        int begin, int end, GrMeshDrawOp::Target *target) {
+        int begin, int end, GrMeshDrawOp::Target *target) const {
 
     return fGlyphs.regenerateAtlas(begin, end, this->maskFormat(), this->atlasPadding(), target);
 }
