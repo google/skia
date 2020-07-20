@@ -51,6 +51,24 @@
       "revId": "1b1c1d8cb4a0ffa883181af6ca3bc4622859120f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5baccb0_8529c8af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-20T13:34:03Z",
+      "side": 1,
+      "message": "These are different ideas. Bicubic is conceptually treating the image pixels as point samples of a smooth function and interpolating values between those samples using a piecewise cubic function (in both dimensions). It\u0027s analogous to computing intermediate points in our patch primitive.",
+      "parentUuid": "a00ab757_cf6656a3",
+      "revId": "1b1c1d8cb4a0ffa883181af6ca3bc4622859120f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
