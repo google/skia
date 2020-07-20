@@ -204,6 +204,7 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Devic
 GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                                gr_cp<ID3D12GraphicsCommandList> commandList)
     : GrD3DCommandList(std::move(allocator), std::move(commandList))
+    , fCurrentPipelineState(nullptr)
     , fCurrentRootSignature(nullptr)
     , fCurrentVertexBuffer(nullptr)
     , fCurrentVertexStride(0)
@@ -211,11 +212,14 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
     , fCurrentInstanceStride(0)
     , fCurrentIndexBuffer(nullptr)
     , fCurrentConstantRingBuffer(nullptr)
+    , fCurrentConstantBufferAddress(0)
     , fCurrentSRVCRVDescriptorHeap(nullptr)
     , fCurrentSamplerDescriptorHeap(nullptr) {
+    sk_bzero(fCurrentRootDescriptorTable, sizeof(fCurrentRootDescriptorTable));
 }
 
 void GrD3DDirectCommandList::onReset() {
+    fCurrentPipelineState = nullptr;
     fCurrentRootSignature = nullptr;
     fCurrentVertexBuffer = nullptr;
     fCurrentVertexStride = 0;
@@ -226,14 +230,19 @@ void GrD3DDirectCommandList::onReset() {
         fCurrentConstantRingBuffer->finishSubmit(fConstantRingBufferSubmitData);
         fCurrentConstantRingBuffer = nullptr;
     }
+    fCurrentConstantBufferAddress = 0;
+    sk_bzero(fCurrentRootDescriptorTable, sizeof(fCurrentRootDescriptorTable));
     fCurrentSRVCRVDescriptorHeap = nullptr;
     fCurrentSamplerDescriptorHeap = nullptr;
 }
 
 void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
     SkASSERT(fIsActive);
-    fCommandList->SetPipelineState(pipelineState->pipelineState());
-    this->addResource(std::move(pipelineState));
+    if (pipelineState.get() != fCurrentPipelineState) {
+        fCommandList->SetPipelineState(pipelineState->pipelineState());
+        this->addResource(std::move(pipelineState));
+        fCurrentPipelineState = pipelineState.get();
+    }
 }
 
 void GrD3DDirectCommandList::setCurrentConstantBuffer(
@@ -432,16 +441,26 @@ void GrD3DDirectCommandList::resolveSubresourceRegion(const GrD3DTextureResource
     }
 }
 
-
-
 void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
         unsigned int rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
-    fCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, bufferLocation);
+    SkASSERT(rootParameterIndex ==
+                (unsigned int) GrD3DRootSignature::ParamIndex::kConstantBufferView);
+    if (bufferLocation != fCurrentConstantBufferAddress) {
+        fCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, bufferLocation);
+        fCurrentConstantBufferAddress = bufferLocation;
+    }
 }
 
 void GrD3DDirectCommandList::setGraphicsRootDescriptorTable(
         unsigned int rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor) {
-    fCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, baseDescriptor);
+    SkASSERT(rootParameterIndex ==
+                    (unsigned int)GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable ||
+             rootParameterIndex ==
+                    (unsigned int)GrD3DRootSignature::ParamIndex::kTextureDescriptorTable);
+    if (fCurrentRootDescriptorTable[rootParameterIndex].ptr != baseDescriptor.ptr) {
+        fCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, baseDescriptor);
+        fCurrentRootDescriptorTable[rootParameterIndex] = baseDescriptor;
+    }
 }
 
 void GrD3DDirectCommandList::setDescriptorHeaps(sk_sp<GrRecycledResource> srvCrvHeapResource,

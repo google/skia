@@ -13,6 +13,7 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrManagedResource.h"
 #include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
+#include "src/gpu/d3d/GrD3DRootSignature.h"
 
 #include <memory>
 
@@ -186,6 +187,7 @@ private:
 
     void onReset() override;
 
+    const GrD3DPipelineState* fCurrentPipelineState;
     const GrD3DRootSignature* fCurrentRootSignature;
     const GrBuffer* fCurrentVertexBuffer;
     size_t fCurrentVertexStride;
@@ -196,6 +198,8 @@ private:
     GrD3DConstantRingBuffer* fCurrentConstantRingBuffer;
     GrD3DConstantRingBuffer::SubmitData fConstantRingBufferSubmitData;
 
+    D3D12_GPU_VIRTUAL_ADDRESS fCurrentConstantBufferAddress;
+    D3D12_GPU_DESCRIPTOR_HANDLE fCurrentRootDescriptorTable[GrD3DRootSignature::kParamIndexCount];
     const ID3D12DescriptorHeap* fCurrentSRVCRVDescriptorHeap;
     const ID3D12DescriptorHeap* fCurrentSamplerDescriptorHeap;
 };

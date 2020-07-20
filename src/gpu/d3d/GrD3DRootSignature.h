@@ -20,8 +20,11 @@ public:
     enum class ParamIndex {
         kConstantBufferView = 0,
         kSamplerDescriptorTable = 1,
-        kTextureDescriptorTable = 2
+        kTextureDescriptorTable = 2,
+
+        kLast = kTextureDescriptorTable
     };
+    static constexpr unsigned int kParamIndexCount = (unsigned int)(ParamIndex::kLast) + 1;
 
     bool isCompatible(int numTextureSamplers) const;
 

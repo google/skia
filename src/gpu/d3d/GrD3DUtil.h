@@ -74,5 +74,10 @@ static constexpr const char* GrDxgiFormatToStr(DXGI_FORMAT dxgiFormat) {
     }
 }
 
+static constexpr bool operator==(const D3D12_CPU_DESCRIPTOR_HANDLE& first,
+                                 const D3D12_CPU_DESCRIPTOR_HANDLE& second) {
+    return first.ptr == second.ptr;
+}
+
 #endif
 #endif
