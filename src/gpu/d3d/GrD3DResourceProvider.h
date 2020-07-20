@@ -56,9 +56,10 @@ public:
 
     D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
 
-
-    std::unique_ptr<GrD3DDescriptorTable> createShaderOrConstantResourceTable(unsigned int size);
-    std::unique_ptr<GrD3DDescriptorTable> createSamplerTable(unsigned int size);
+    sk_sp<GrD3DDescriptorTable> findOrCreateShaderResourceTable(
+            const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& shaderResourceViews);
+    sk_sp<GrD3DDescriptorTable> findOrCreateSamplerTable(
+            const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& samplers);
     GrD3DDescriptorTableManager* descriptorTableMgr() {
         return &fDescriptorTableManager;
     }
@@ -109,6 +110,43 @@ private:
 #endif
     };
 
+    class DescriptorTableCache : public ::SkNoncopyable {
+    public:
+        DescriptorTableCache(GrD3DGpu* gpu) : fGpu(gpu), fMap(64) {
+            // Initialize the array we pass into CopyDescriptors for ranges.
+            // At the moment any descriptor we pass into CopyDescriptors is only itself,
+            // not the beginning of a range, so each range size is always 1.
+            for (int i = 0; i < kRangeSizesCount; ++i) {
+                fRangeSizes[i] = 1;
+            }
+        }
+        ~DescriptorTableCache() = default;
+
+        void release();
+        typedef std::function<sk_sp<GrD3DDescriptorTable>(GrD3DGpu*, unsigned int)> CreateFunc;
+        sk_sp<GrD3DDescriptorTable> findOrCreateDescTable(
+                const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>&, CreateFunc);
+
+    private:
+        GrD3DGpu* fGpu;
+
+        friend bool operator==(const D3D12_CPU_DESCRIPTOR_HANDLE& first,
+                               const D3D12_CPU_DESCRIPTOR_HANDLE& second) {
+            return first.ptr == second.ptr;
+        }
+        typedef std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> DescTableKey;
+        typedef sk_sp<GrD3DDescriptorTable> DescTableValue;
+        struct DescTableHash {
+            uint32_t operator()(DescTableKey key) const {
+                return SkOpts::hash_fn(key.data(),
+                                       key.size()*sizeof(D3D12_CPU_DESCRIPTOR_HANDLE), 0);
+            }
+        };
+        SkLRUCache<DescTableKey, DescTableValue, DescTableHash> fMap;
+        static constexpr int kRangeSizesCount = 8;
+        unsigned int fRangeSizes[kRangeSizesCount];
+    };
+
     GrD3DGpu* fGpu;
 
     SkSTArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
@@ -123,6 +161,9 @@ private:
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
 
     SkTHashMap<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> fSamplers;
+
+    DescriptorTableCache fShaderResourceDescriptorTableCache;
+    DescriptorTableCache fSamplerDescriptorTableCache;
 };
 
 #endif
