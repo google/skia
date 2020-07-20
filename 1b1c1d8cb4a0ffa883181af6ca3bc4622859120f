@@ -69,6 +69,24 @@
       "revId": "1b1c1d8cb4a0ffa883181af6ca3bc4622859120f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b6418f4_c1bd556c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-20T13:45:21Z",
+      "side": 1,
+      "message": "Yeah, I think I\u0027m back around to bilerp/bicubic filtering being totally reasonable to tightly couple to image shaders, or as Brian said, as an adapter that makes most sense to use with images or hand-rolled discrete grid shaders built from images.\n\nFiltering papers over the discrete nature of the source image shader by interpolating it into something continuous, while this sampling adapter does almost the opposite, or at least something unrelated and complimentary, which is to adapt any continuous shader to the constraint of a discrete destination.",
+      "parentUuid": "b5baccb0_8529c8af",
+      "revId": "1b1c1d8cb4a0ffa883181af6ca3bc4622859120f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
