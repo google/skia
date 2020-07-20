@@ -19,7 +19,7 @@
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
@@ -60,9 +60,9 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
     }
 }
 
-GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendFormat GetBackendFormat(GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
                                  uint32_t bufferFormat, bool requireKnownFormat) {
-    GrBackendApi backend = context->backend();
+    GrBackendApi backend = dContext->backend();
 
     if (backend == GrBackendApi::kOpenGL) {
         switch (bufferFormat) {
@@ -104,7 +104,7 @@ GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBu
                 if (requireKnownFormat) {
                     return GrBackendFormat();
                 } else {
-                    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+                    GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
                     SkASSERT(gpu);
                     VkDevice device = gpu->device();
 
@@ -169,7 +169,7 @@ public:
         // eglDestroyImageKHR will remove a ref from the AHardwareBuffer
         eglDestroyImageKHR(fDisplay, fImage);
     }
-    void rebind(GrContext* grContext);
+    void rebind(GrDirectContext*);
 
 private:
     GrGLuint    fTexID;
@@ -178,7 +178,7 @@ private:
     GrGLuint    fTexTarget;
 };
 
-void GLTextureHelper::rebind(GrContext* grContext) {
+void GLTextureHelper::rebind(GrDirectContext* dContext) {
     glBindTexture(fTexTarget, fTexID);
     GLenum status = GL_NO_ERROR;
     if ((status = glGetError()) != GL_NO_ERROR) {
@@ -191,7 +191,7 @@ void GLTextureHelper::rebind(GrContext* grContext) {
         SkDebugf("glEGLImageTargetTexture2DOES failed (%#x)", (int) status);
         return;
     }
-    grContext->resetContext(kTextureBinding_GrGLBackendState);
+    dContext->resetContext(kTextureBinding_GrGLBackendState);
 }
 
 void delete_gl_texture(void* context) {
@@ -199,13 +199,13 @@ void delete_gl_texture(void* context) {
     delete cleanupHelper;
 }
 
-void update_gl_texture(void* context, GrContext* grContext) {
+void update_gl_texture(void* context, GrDirectContext* dContext) {
     GLTextureHelper* cleanupHelper = static_cast<GLTextureHelper*>(context);
-    cleanupHelper->rebind(grContext);
+    cleanupHelper->rebind(dContext);
 }
 
 static GrBackendTexture make_gl_backend_texture(
-        GrContext* context, AHardwareBuffer* hardwareBuffer,
+        GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
         int width, int height,
         DeleteImageProc* deleteProc,
         UpdateImageProc* updateProc,
@@ -253,7 +253,7 @@ static GrBackendTexture make_gl_backend_texture(
         eglDestroyImageKHR(display, image);
         return GrBackendTexture();
     }
-    context->resetContext(kTextureBinding_GrGLBackendState);
+    dContext->resetContext(kTextureBinding_GrGLBackendState);
 
     GrGLTextureInfo textureInfo;
     textureInfo.fID = texID;
@@ -294,12 +294,12 @@ void delete_vk_image(void* context) {
     delete cleanupHelper;
 }
 
-void update_vk_image(void* context, GrContext* grContext) {
+void update_vk_image(void* context, GrDirectContext* dContext) {
     // no op
 }
 
 static GrBackendTexture make_vk_backend_texture(
-        GrContext* context, AHardwareBuffer* hardwareBuffer,
+        GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
         int width, int height,
         DeleteImageProc* deleteProc,
         UpdateImageProc* updateProc,
@@ -307,8 +307,8 @@ static GrBackendTexture make_vk_backend_texture(
         bool isProtectedContent,
         const GrBackendFormat& backendFormat,
         bool isRenderable) {
-    SkASSERT(context->backend() == GrBackendApi::kVulkan);
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+    SkASSERT(dContext->backend() == GrBackendApi::kVulkan);
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
 
     VkPhysicalDevice physicalDevice = gpu->physicalDevice();
     VkDevice device = gpu->device();
@@ -510,8 +510,8 @@ static bool can_import_protected_content_eglimpl() {
     return equal || atStart || atEnd || inMiddle;
 }
 
-static bool can_import_protected_content(GrContext* context) {
-    if (GrBackendApi::kOpenGL == context->backend()) {
+static bool can_import_protected_content(GrDirectContext* dContext) {
+    if (GrBackendApi::kOpenGL == dContext->backend()) {
         // Only compute whether the extension is present once the first time this
         // function is called.
         static bool hasIt = can_import_protected_content_eglimpl();
@@ -520,7 +520,7 @@ static bool can_import_protected_content(GrContext* context) {
     return false;
 }
 
-GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendTexture MakeBackendTexture(GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
                                     int width, int height,
                                     DeleteImageProc* deleteProc,
                                     UpdateImageProc* updateProc,
@@ -528,21 +528,21 @@ GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwar
                                     bool isProtectedContent,
                                     const GrBackendFormat& backendFormat,
                                     bool isRenderable) {
-    if (context->abandoned()) {
+    if (dContext->abandoned()) {
         return GrBackendTexture();
     }
-    bool createProtectedImage = isProtectedContent && can_import_protected_content(context);
+    bool createProtectedImage = isProtectedContent && can_import_protected_content(dContext);
 
-    if (GrBackendApi::kOpenGL == context->backend()) {
-        return make_gl_backend_texture(context, hardwareBuffer, width, height, deleteProc,
+    if (GrBackendApi::kOpenGL == dContext->backend()) {
+        return make_gl_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
                                        updateProc, imageCtx, createProtectedImage, backendFormat,
                                        isRenderable);
     } else {
-        SkASSERT(GrBackendApi::kVulkan == context->backend());
+        SkASSERT(GrBackendApi::kVulkan == dContext->backend());
 #ifdef SK_VULKAN
         // Currently we don't support protected images on vulkan
         SkASSERT(!createProtectedImage);
-        return make_vk_backend_texture(context, hardwareBuffer, width, height, deleteProc,
+        return make_vk_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
                                        updateProc, imageCtx, createProtectedImage, backendFormat,
                                        isRenderable);
 #else

@@ -17,7 +17,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrContext.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrMagnifierEffect.h"
