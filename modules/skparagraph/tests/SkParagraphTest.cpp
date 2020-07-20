@@ -4579,8 +4579,7 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
     }
 }
 
-// Disable until I sort out fonts
-DEF_TEST_DISABLED(SkParagraph_JSON1, reporter) {
+DEF_TEST(SkParagraph_JSON1, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "👨‍👩‍👧‍👦";
@@ -4618,8 +4617,7 @@ DEF_TEST_DISABLED(SkParagraph_JSON1, reporter) {
     REPORTER_ASSERT(reporter, cluster <= 2);
 }
 
-// Disable until I sort out fonts
-DEF_TEST_DISABLED(SkParagraph_JSON2, reporter) {
+DEF_TEST(SkParagraph_JSON2, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "p〠q";
