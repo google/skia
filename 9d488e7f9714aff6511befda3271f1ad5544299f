@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ded97dfc_c0c2b4f2",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-20T18:17:49Z",
+      "side": 1,
+      "message": "Invoking the destructor is technically necessary here, albeit in most real cases the left-over instance won\u0027t do anything in its destructor. clang-tidy isn\u0027t smart enough to distinguish calling the destructor over regular members.",
+      "range": {
+        "startLine": 326,
+        "startChar": 20,
+        "endLine": 326,
+        "endChar": 96
+      },
+      "revId": "9d488e7f9714aff6511befda3271f1ad5544299f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f710f0cb_a9464020",
+        "filename": "tests/GrTAllocatorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-20T18:17:49Z",
+      "side": 1,
+      "message": "clang-tidy has special cases to suppress this warning for std data structures, but has no allowances for marking your own as also having known guarantees about post-move state.\n\nIn every use case I can think of for concat (during op combining), there will be no need to use the leftover collection so I\u0027m not worried about this spreading through the code.",
+      "range": {
+        "startLine": 191,
+        "startChar": 4,
+        "endLine": 191,
+        "endChar": 85
+      },
+      "revId": "9d488e7f9714aff6511befda3271f1ad5544299f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
