@@ -9,6 +9,7 @@
 #define SkWeakRefCnt_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkSpinlock.h"
 #include <atomic>
 
 /** \class SkWeakRefCnt
@@ -90,6 +91,60 @@ private:
     }
 
 public:
+
+    /** SkWeakRefCnt breaks SkRefCnt::unique. When there are weak references they may try_ref a
+     *  strong reference into existence after SkRefCnt::unique returns true.
+     *
+     *  The strong references collectively hold a single weak reference. A weak reference can only
+     *  be created by a holder of some reference. So ownership is unique if one of the following are
+     *  true
+     *  1. simultaneously check for exactly one strong and one weak reference (the one weak
+     *     reference is owned by the strong references and will not be used to try_ref)
+     *  2. that there are no strong references and only one weak reference (the last owner is weak).
+     *
+     *  In the first case if the weak reference count is compared against one first there may be two
+     *  strong references and the other may create a new weak reference and give up a strong
+     *  reference before the check that the strong reference count is one. If the strong reference
+     *  count is compared against one first there may be two weak references and the other may
+     *  try_ref a new strong reference and give up the weak reference before the weak count is
+     *  compared against one. The second case is simple since a zero strong reference count cannot
+     *  be incremented, so just check that the weak reference count is one.
+     *
+     *  Therefore it is necessary to check both values are equal to one atomically. It isn't clear
+     *  how to do this with c++11 atomics.
+     *
+     *  One way to make this work is for unique and try_ref to be mutually exclusive. This prevents
+     *  weak references from making a unique strong reference non-unique during the unique check.
+     *
+     *  Ensures that all previous owner's actions are complete.
+     */
+    bool unique() const {
+        SkAutoSpinlock lock(fWeakRefMuckingWithStrongRef);
+        // These two checks need to be done atomically, or at least exclusive of try_ref running.
+        // The order of the checks is also important, we need to aquire the uniqueness (or non-
+        // existence) of the strong reference count first, then check the weak reference count.
+
+        // If the weak reference count is compared against one first there may be two
+        // strong references and the other may create a new weak reference and give up a strong
+        // reference before the check that the strong reference count is one.
+
+        // In this case we first observe that the strong reference count is zero or one so all
+        // strong references are held by the caller. Since try_ref is blocked there is no one who
+        // can create a new strong reference, ensuring that it stays that way. Then check that the
+        // weak reference count is one; for once observed it to be one there must be a single owner
+        // (either the strong references collectively, of which there are just one at this point) or
+        // a single weak reference.
+        if ( fRefCnt.load(std::memory_order_acquire) <= 1 &&
+            fWeakCnt.load(std::memory_order_acquire) == 1)
+        {
+            // The acquire barrier is only really needed if we return true.  It
+            // prevents code conditioned on the result of unique() from running
+            // until previous owners are all totally done calling unref().
+            return true;
+        }
+        return false;
+    }
+
     /** Creates a strong reference from a weak reference, if possible. The
         caller must already be an owner. If try_ref() returns true the owner
         is in posession of an additional strong reference. Both the original
@@ -98,6 +153,7 @@ public:
         reference is in the same state as before the call.
     */
     bool SK_WARN_UNUSED_RESULT try_ref() const {
+        SkAutoSpinlock lock(fWeakRefMuckingWithStrongRef);
         if (atomic_conditional_acquire_strong_ref() != 0) {
             // Acquire barrier (L/SL), if not provided above.
             // Prevents subsequent code from happening before the increment.
@@ -163,6 +219,7 @@ private:
 
     /* Invariant: fWeakCnt = #weak + (fRefCnt > 0 ? 1 : 0) */
     mutable std::atomic<int32_t> fWeakCnt;
+    mutable SkSpinlock fWeakRefMuckingWithStrongRef;
 
     typedef SkRefCnt INHERITED;
 };
