@@ -120,6 +120,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
+    bool hasMain = false;
     bool mainHasSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
 
     std::vector<const SkSL::Variable*> inVars;
@@ -133,7 +134,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     for (const auto& elem : *program) {
         // Variables (in, uniform, varying, etc.)
         if (elem.fKind == SkSL::ProgramElement::kVar_Kind) {
-            const SkSL::VarDeclarations& varDecls = static_cast<const SkSL::VarDeclarations&>(elem);
+            const auto& varDecls = static_cast<const SkSL::VarDeclarations&>(elem);
             for (const auto& varDecl : varDecls.fVars) {
                 const SkSL::Variable& var =
                         *(static_cast<const SkSL::VarDeclaration&>(*varDecl).fVar);
@@ -159,6 +160,18 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                 }
             }
         }
+        // Functions
+        else if (elem.fKind == SkSL::ProgramElement::kFunction_Kind) {
+            const auto& func = static_cast<const SkSL::FunctionDefinition&>(elem);
+            const SkSL::FunctionDeclaration& decl = func.fDeclaration;
+            if (decl.fName == "main") {
+                hasMain = true;
+            }
+        }
+    }
+
+    if (!hasMain) {
+        RETURN_FAILURE("missing 'main' function");
     }
 
     size_t offset = 0, uniformSize = 0;
