@@ -33,6 +33,23 @@
       "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30fefb9d_294d541d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-20T20:24:07Z",
+      "side": 1,
+      "message": "I don\u0027t think I have submit permission here. Any other approvals needed here?",
+      "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
