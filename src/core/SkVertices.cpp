@@ -121,7 +121,7 @@ struct SkVertices::Sizes {
                 return;
             }
             if (attr.fMarkerName) {
-                fNameSize = safe.add(fNameSize, strlen(attr.fMarkerName));
+                fNameSize = safe.add(fNameSize, strlen(attr.fMarkerName) + 1);
             }
         }
         fNameSize = SkAlign4(fNameSize);
