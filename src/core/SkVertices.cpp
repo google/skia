@@ -121,7 +121,7 @@ struct SkVertices::Sizes {
                 return;
             }
             if (attr.fMarkerName) {
-                fNameSize = safe.add(fNameSize, strlen(attr.fMarkerName));
+                fNameSize = safe.add(fNameSize, strlen(attr.fMarkerName) + 1 /*null terminator*/);
             }
         }
         fNameSize = SkAlign4(fNameSize);
@@ -247,7 +247,7 @@ void SkVertices::Builder::init(const Desc& desc) {
         Attribute& attr(fVertices->fAttributes[i]);
         if (attr.fMarkerName) {
             attr.fMarkerName = strcpy(markerNames, attr.fMarkerName);
-            markerNames += (strlen(markerNames) + 1);
+            markerNames += (strlen(markerNames) + 1 /*null terminator*/);
         }
     }
 
