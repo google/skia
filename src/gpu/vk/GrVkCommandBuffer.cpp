@@ -179,36 +179,39 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu) {
 
 
 void GrVkCommandBuffer::bindInputBuffer(GrVkGpu* gpu, uint32_t binding,
-                                        const GrVkMeshBuffer* vbuffer) {
-    VkBuffer vkBuffer = vbuffer->buffer();
+                                        sk_sp<const GrBuffer> buffer) {
+    auto* vkMeshBuffer = static_cast<const GrVkMeshBuffer*>(buffer.get());
+    VkBuffer vkBuffer = vkMeshBuffer->buffer();
     SkASSERT(VK_NULL_HANDLE != vkBuffer);
     SkASSERT(binding < kMaxInputBuffers);
     // TODO: once vbuffer->offset() no longer always returns 0, we will need to track the offset
     // to know if we can skip binding or not.
     if (vkBuffer != fBoundInputBuffers[binding]) {
-        VkDeviceSize offset = vbuffer->offset();
+        VkDeviceSize offset = vkMeshBuffer->offset();
         GR_VK_CALL(gpu->vkInterface(), CmdBindVertexBuffers(fCmdBuffer,
                                                             binding,
                                                             1,
                                                             &vkBuffer,
                                                             &offset));
         fBoundInputBuffers[binding] = vkBuffer;
-        this->addResource(vbuffer->resource());
+        this->addResource(vkMeshBuffer->resource());
+        this->addGrBuffer(std::move(buffer));
     }
 }
 
-void GrVkCommandBuffer::bindIndexBuffer(GrVkGpu* gpu, const GrVkMeshBuffer* ibuffer) {
-    VkBuffer vkBuffer = ibuffer->buffer();
+void GrVkCommandBuffer::bindIndexBuffer(GrVkGpu* gpu, sk_sp<const GrBuffer> buffer) {
+    auto* vkMeshBuffer = static_cast<const GrVkMeshBuffer*>(buffer.get());
+    VkBuffer vkBuffer = vkMeshBuffer->buffer();
     SkASSERT(VK_NULL_HANDLE != vkBuffer);
     // TODO: once ibuffer->offset() no longer always returns 0, we will need to track the offset
     // to know if we can skip binding or not.
     if (vkBuffer != fBoundIndexBuffer) {
         GR_VK_CALL(gpu->vkInterface(), CmdBindIndexBuffer(fCmdBuffer,
-                                                          vkBuffer,
-                                                          ibuffer->offset(),
+                                                          vkBuffer, vkMeshBuffer->offset(),
                                                           VK_INDEX_TYPE_UINT16));
         fBoundIndexBuffer = vkBuffer;
-        this->addResource(ibuffer->resource());
+        this->addResource(vkMeshBuffer->resource());
+        this->addGrBuffer(std::move(buffer));
     }
 }
 
