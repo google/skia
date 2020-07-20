@@ -16,6 +16,29 @@
       "revId": "067c28e3d55ae5745859515a0287337a02c196a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcb6970d_c040d48a",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-20T14:57:19Z",
+      "side": 1,
+      "message": "I don\u0027t think this gives us uniqueness, does it? I don\u0027t believe the HashMap will do any equality checks of the objects themselves so it will just compare the keys which theoretically could clash right?",
+      "range": {
+        "startLine": 161,
+        "startChar": 19,
+        "endLine": 161,
+        "endChar": 55
+      },
+      "revId": "067c28e3d55ae5745859515a0287337a02c196a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
