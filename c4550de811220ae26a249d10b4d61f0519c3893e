@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa55836f_26e1e0e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-20T17:45:46Z",
+      "side": 1,
+      "message": "Didn\u0027t update flattening yet, but this seems to work (the mitchell looks like our current kHigh, and the Catmul looks.. brighter).",
+      "revId": "c4550de811220ae26a249d10b4d61f0519c3893e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
