@@ -36,14 +36,15 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
                                       GrMipMapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
 }
 
-static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
+static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext,
+                                          const ProxyParams& p,
                                           GrBackendTexture* backendTex) {
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
     SkColorType skColorType = GrColorTypeToSkColorType(p.fColorType);
     SkASSERT(SkColorType::kUnknown_SkColorType != skColorType);
 
-    CreateBackendTexture(context, backendTex, p.fSize, p.fSize, skColorType,
+    CreateBackendTexture(dContext, backendTex, p.fSize, p.fSize, skColorType,
                          SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
 
     if (!backendTex->isValid()) {
@@ -54,8 +55,8 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
                                              GrWrapCacheable::kNo, kRead_GrIOType);
 }
 
-static void cleanup_backend(GrContext* context, const GrBackendTexture& backendTex) {
-    context->deleteBackendTexture(backendTex);
+static void cleanup_backend(GrDirectContext* dContext, const GrBackendTexture& backendTex) {
+    dContext->deleteBackendTexture(backendTex);
 }
 
 // Basic test that two proxies with overlapping intervals and compatible descriptors are
@@ -226,10 +227,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     }
 }
 
-static void draw(GrContext* context) {
+static void draw(GrRecordingContext* rContext) {
     SkImageInfo ii = SkImageInfo::Make(1024, 1024, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes,
                                                      ii, 1, kTopLeft_GrSurfaceOrigin, nullptr);
 
     SkCanvas* c = s->getCanvas();

@@ -33,13 +33,13 @@ const int kW = 1024;
 const int kH = 1024;
 const SkColorType kColorType = SkColorType::kRGBA_8888_SkColorType;
 
-void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
+void wrap_tex_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
 
-    GrGpu* gpu = context->priv().getGpu();
+    GrGpu* gpu = dContext->priv().getGpu();
 
     GrBackendTexture origBackendTex;
-    CreateBackendTexture(context, &origBackendTex, kW, kH, kColorType, SkColors::kTransparent,
-            GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+    CreateBackendTexture(dContext, &origBackendTex, kW, kH, kColorType, SkColors::kTransparent,
+                         GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
@@ -85,11 +85,11 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
     }
 }
 
-void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrGpu* gpu = context->priv().getGpu();
+void wrap_rt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
+    GrGpu* gpu = dContext->priv().getGpu();
 
     GrBackendTexture origBackendTex;
-    CreateBackendTexture(context, &origBackendTex, kW, kH, kColorType, SkColors::kTransparent,
+    CreateBackendTexture(dContext, &origBackendTex, kW, kH, kColorType, SkColors::kTransparent,
                          GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
 
     GrVkImageInfo imageInfo;
@@ -121,14 +121,14 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // When we wrapBackendRenderTarget it is always borrowed, so we must make sure to free the
     // resource when we're done.
-    context->deleteBackendTexture(origBackendTex);
+    dContext->deleteBackendTexture(origBackendTex);
 }
 
-void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrGpu* gpu = context->priv().getGpu();
+void wrap_trt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
+    GrGpu* gpu = dContext->priv().getGpu();
 
     GrBackendTexture origBackendTex;
-    CreateBackendTexture(context, &origBackendTex, kW, kH, kColorType, SkColors::kTransparent,
+    CreateBackendTexture(dContext, &origBackendTex, kW, kH, kColorType, SkColors::kTransparent,
                          GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
 
     GrVkImageInfo imageInfo;
@@ -175,11 +175,11 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkWrapTests, reporter, ctxInfo) {
-    auto direct = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
-    wrap_tex_test(reporter, direct);
-    wrap_rt_test(reporter, direct);
-    wrap_trt_test(reporter, direct);
+    wrap_tex_test(reporter, dContext);
+    wrap_rt_test(reporter, dContext);
+    wrap_trt_test(reporter, dContext);
 }
 
 #endif

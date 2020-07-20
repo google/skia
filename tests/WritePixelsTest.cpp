@@ -431,10 +431,12 @@ DEF_TEST(WritePixels, reporter) {
     }
 }
 
-static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context, int sampleCnt) {
+static void test_write_pixels(skiatest::Reporter* reporter,
+                              GrRecordingContext* rContext,
+                              int sampleCnt) {
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(context,
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(rContext,
                                                              SkBudgeted::kNo, ii, sampleCnt,
                                                              origin, nullptr));
         if (surface) {
@@ -452,28 +454,29 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
 }
 
 static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
-                                          GrContext* context,
+                                          GrDirectContext* dContext,
                                           int sampleCnt) {
     // Dawn currently doesn't support writePixels to a texture-as-render-target.
     // See http://skbug.com/10336.
-    if (GrBackendApi::kDawn == context->backend()) {
+    if (GrBackendApi::kDawn == dContext->backend()) {
         return;
     }
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         GrBackendTexture backendTex;
-        CreateBackendTexture(context, &backendTex, DEV_W, DEV_H, kRGBA_8888_SkColorType,
-                SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
+        CreateBackendTexture(dContext, &backendTex, DEV_W, DEV_H, kRGBA_8888_SkColorType,
+                             SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes,
+                             GrProtected::kNo);
         if (!backendTex.isValid()) {
             continue;
         }
         SkColorType colorType = kN32_SkColorType;
         sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
-                context, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
+                dContext, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
         if (surface) {
             auto ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
             test_write_pixels(reporter, surface.get(), ii);
         }
-        context->deleteBackendTexture(backendTex);
+        dContext->deleteBackendTexture(backendTex);
     }
 }
 
@@ -485,11 +488,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTextureMSAA_Gpu, reporter, ctxI
     test_write_pixels_non_texture(reporter, ctxInfo.directContext(), 4);
 }
 
-static sk_sp<SkSurface> create_surf(GrContext* context, int width, int height) {
+static sk_sp<SkSurface> create_surf(GrRecordingContext* rContext, int width, int height) {
     const SkImageInfo ii = SkImageInfo::Make(width, height,
                                              kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
+    sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, ii);
     surf->flushAndSubmit();
     return surf;
 }
