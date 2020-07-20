@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de7808f7_314a905b",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T18:11:31Z",
+      "side": 1,
+      "message": "Temporarily strips const. Consider static_cast?",
+      "range": {
+        "startLine": 136,
+        "startChar": 46,
+        "endLine": 136,
+        "endChar": 70
+      },
+      "revId": "313fe8efeef004c57b990cd9ac4e9b543a5b8e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e05bac5_73d98e9a",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T18:11:31Z",
+      "side": 1,
+      "message": "Temporarily strips const",
+      "range": {
+        "startLine": 138,
+        "startChar": 46,
+        "endLine": 138,
+        "endChar": 69
+      },
+      "revId": "313fe8efeef004c57b990cd9ac4e9b543a5b8e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f15952d8_7d4b638a",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-20T18:11:31Z",
+      "side": 1,
+      "message": "Consider\n\ninAndUniformVars.reserve(inVars.size() + uniformVars.size());",
+      "range": {
+        "startLine": 164,
+        "startChar": 26,
+        "endLine": 164,
+        "endChar": 42
+      },
+      "revId": "313fe8efeef004c57b990cd9ac4e9b543a5b8e5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
