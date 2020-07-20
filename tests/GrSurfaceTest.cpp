@@ -433,60 +433,64 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
 static const int kSurfSize = 10;
 
-static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable renderable) {
+static sk_sp<GrTexture> make_wrapped_texture(GrDirectContext* dContext, GrRenderable renderable) {
     GrBackendTexture backendTexture;
-    CreateBackendTexture(context, &backendTexture, kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
+    CreateBackendTexture(dContext, &backendTexture, kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
                          SkColors::kTransparent, GrMipMapped::kNo, renderable, GrProtected::kNo);
     SkASSERT(backendTexture.isValid());
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
-        texture = context->priv().resourceProvider()->wrapRenderableBackendTexture(
+        texture = dContext->priv().resourceProvider()->wrapRenderableBackendTexture(
                 backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
     } else {
-        texture = context->priv().resourceProvider()->wrapBackendTexture(
+        texture = dContext->priv().resourceProvider()->wrapBackendTexture(
                 backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
     }
     // Add a release proc that deletes the GrBackendTexture.
     struct ReleaseContext {
-        GrContext* fContext;
+        GrDirectContext* fDContext;
         GrBackendTexture fBackendTexture;
     };
     auto release = [](void* rc) {
         auto releaseContext = static_cast<ReleaseContext*>(rc);
-        auto context = releaseContext->fContext;
-        context->deleteBackendTexture(releaseContext->fBackendTexture);
+        auto dContext = releaseContext->fDContext;
+        dContext->deleteBackendTexture(releaseContext->fBackendTexture);
         delete releaseContext;
     };
-    texture->setRelease(release, new ReleaseContext{context, backendTexture});
+    texture->setRelease(release, new ReleaseContext{dContext, backendTexture});
     return texture;
 }
 
-static sk_sp<GrTexture> make_normal_texture(GrContext* context, GrRenderable renderable) {
+static sk_sp<GrTexture> make_normal_texture(GrDirectContext* dContext, GrRenderable renderable) {
     SkISize desc;
     desc.fWidth = desc.fHeight = kSurfSize;
-    auto format =
-            context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
-    return context->priv().resourceProvider()->createTexture(
+    auto format = dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                   renderable);
+    return dContext->priv().resourceProvider()->createTexture(
             desc, format, renderable, 1, GrMipMapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
 }
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
     // Various ways of making textures.
-    auto makeWrapped = [](GrContext* context) {
-        return make_wrapped_texture(context, GrRenderable::kNo);
+    auto makeWrapped = [](GrDirectContext* dContext) {
+        return make_wrapped_texture(dContext, GrRenderable::kNo);
     };
-    auto makeWrappedRenderable = [](GrContext* context) {
-        return make_wrapped_texture(context, GrRenderable::kYes);
+    auto makeWrappedRenderable = [](GrDirectContext* dContext) {
+        return make_wrapped_texture(dContext, GrRenderable::kYes);
     };
-    auto makeNormal = [](GrContext* context) {
-        return make_normal_texture(context, GrRenderable::kNo);
+    auto makeNormal = [](GrDirectContext* dContext) {
+        return make_normal_texture(dContext, GrRenderable::kNo);
     };
-    auto makeRenderable = [](GrContext* context) {
-        return make_normal_texture(context, GrRenderable::kYes);
+    auto makeRenderable = [](GrDirectContext* dContext) {
+        return make_normal_texture(dContext, GrRenderable::kYes);
     };
 
-    std::function<sk_sp<GrTexture>(GrContext*)> makers[] = {makeWrapped, makeWrappedRenderable,
-                                                            makeNormal, makeRenderable};
+    std::function<sk_sp<GrTexture>(GrDirectContext*)> makers[] = {
+        makeWrapped,
+        makeWrappedRenderable,
+        makeNormal,
+        makeRenderable
+    };
 
     // Add a unique key, or not.
     auto addKey = [](GrTexture* texture) {
@@ -506,8 +510,8 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
             for (int type = 0; type < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++type) {
                 sk_gpu_test::GrContextFactory factory;
                 auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(type);
-                GrContext* context = factory.get(contextType);
-                if (!context) {
+                auto dContext = factory.get(contextType);
+                if (!dContext) {
                     continue;
                 }
 
@@ -524,27 +528,27 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 };
 
                 // Makes a texture, possibly adds a key, and sets the callback.
-                auto make = [&m, &keyAdder, &proc, &idleIDs](GrContext* context, int num) {
-                    sk_sp<GrTexture> texture = m(context);
+                auto make = [&m, &keyAdder, &proc, &idleIDs](GrDirectContext* dContext, int num) {
+                    sk_sp<GrTexture> texture = m(dContext);
                     texture->addIdleProc(proc, new Context{&idleIDs, num},
                                          GrTexture::IdleState::kFinished);
                     keyAdder(texture.get());
                     return texture;
                 };
 
-                auto texture = make(context, 1);
+                auto texture = make(dContext, 1);
                 REPORTER_ASSERT(reporter, idleIDs.find(1) == idleIDs.end());
                 auto renderable = GrRenderable(SkToBool(texture->asRenderTarget()));
                 auto backendFormat = texture->backendFormat();
                 texture.reset();
                 REPORTER_ASSERT(reporter, idleIDs.find(1) != idleIDs.end());
 
-                texture = make(context, 2);
+                texture = make(dContext, 2);
                 int w = texture->width();
                 int h = texture->height();
                 SkImageInfo info =
                         SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-                auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
+                auto rt = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info, 0, nullptr);
                 auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
                 auto singleUseLazyCB = [&texture](GrResourceProvider*,
                                                   const GrSurfaceProxy::LazySurfaceDesc&) {
@@ -563,12 +567,12 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 } else {
                     budgeted = SkBudgeted::kNo;
                 }
-                auto proxy = context->priv().proxyProvider()->createLazyProxy(
+                auto proxy = dContext->priv().proxyProvider()->createLazyProxy(
                         singleUseLazyCB, backendFormat, desc, renderable, 1, GrMipMapped::kNo,
                         GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,
                         GrSurfaceProxy::UseAllocator::kYes);
-                GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(
+                GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(
                         backendFormat, GrColorType::kRGBA_8888);
                 GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, readSwizzle);
                 rtc->drawTexture(nullptr, view, kPremul_SkAlphaType,
@@ -579,9 +583,9 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // We still have the proxy, which should remain instantiated, thereby keeping the
                 // texture not purgeable.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
-                context->flushAndSubmit();
+                dContext->flushAndSubmit();
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
-                context->priv().getGpu()->testingOnly_flushGpuAndSync();
+                dContext->priv().getGpu()->testingOnly_flushGpuAndSync();
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
 
                 // This time we move the proxy into the draw.
@@ -591,8 +595,8 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                  GrAA::kNo, GrQuadAAFlags::kNone,
                                  SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
-                context->flushAndSubmit();
-                context->priv().getGpu()->testingOnly_flushGpuAndSync();
+                dContext->flushAndSubmit();
+                dContext->priv().getGpu()->testingOnly_flushGpuAndSync();
                 // Now that the draw is fully consumed by the GPU, the texture should be idle.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) != idleIDs.end());
 
@@ -619,20 +623,20 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 for (auto drawType :
                      {DrawType::kNoDraw, DrawType::kDraw, DrawType::kDrawAndFlush}) {
                     for (bool unrefFirst : {false, true}) {
-                        auto possiblyDrawAndFlush = [&context, &texture, drawType, unrefFirst, w,
+                        auto possiblyDrawAndFlush = [&dContext, &texture, drawType, unrefFirst, w,
                                                      h] {
                             if (drawType == DrawType::kNoDraw) {
                                 return;
                             }
                             SkImageInfo info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType,
                                                                  kPremul_SkAlphaType);
-                            auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
+                            auto rt = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info, 0,
                                                                   nullptr);
                             auto rtc = rt->getCanvas()
                                             ->internal_private_accessTopLayerRenderTargetContext();
-                            auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
+                            auto proxy = dContext->priv().proxyProvider()->testingOnly_createWrapped(
                                     texture);
-                            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
+                            GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(
                                     proxy->backendFormat(), GrColorType::kRGBA_8888);
                             GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin,
                                                     swizzle);
@@ -643,46 +647,46 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                     GrAA::kNo, GrQuadAAFlags::kNone,
                                     SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                             if (drawType == DrawType::kDrawAndFlush) {
-                                context->flushAndSubmit();
+                                dContext->flushAndSubmit();
                             }
                             if (unrefFirst) {
                                 texture.reset();
                             }
                         };
-                        texture = make(context, id);
+                        texture = make(dContext, id);
                         possiblyDrawAndFlush();
-                        context->abandonContext();
+                        dContext->abandonContext();
                         texture.reset();
                         REPORTER_ASSERT(reporter, idleIDs.find(id) != idleIDs.end());
                         factory.destroyContexts();
-                        context = factory.get(contextType);
+                        dContext = factory.get(contextType);
                         ++id;
 
                         // Similar to previous, but reset the texture after the context was
                         // abandoned and then destroyed.
-                        texture = make(context, id);
+                        texture = make(dContext, id);
                         possiblyDrawAndFlush();
-                        context->abandonContext();
+                        dContext->abandonContext();
                         factory.destroyContexts();
                         texture.reset();
                         REPORTER_ASSERT(reporter, idleIDs.find(id) != idleIDs.end());
-                        context = factory.get(contextType);
+                        dContext = factory.get(contextType);
                         id++;
 
-                        texture = make(context, id);
+                        texture = make(dContext, id);
                         possiblyDrawAndFlush();
                         factory.destroyContexts();
                         texture.reset();
                         REPORTER_ASSERT(reporter, idleIDs.find(id) != idleIDs.end());
-                        context = factory.get(contextType);
+                        dContext = factory.get(contextType);
                         id++;
 
-                        texture = make(context, id);
+                        texture = make(dContext, id);
                         possiblyDrawAndFlush();
                         factory.releaseResourcesAndAbandonContexts();
                         texture.reset();
                         REPORTER_ASSERT(reporter, idleIDs.find(id) != idleIDs.end());
-                        context = factory.get(contextType);
+                        dContext = factory.get(contextType);
                         id++;
                     }
                 }
@@ -716,17 +720,19 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcCacheManipulationTest, reporter, con
 // Similar to above but more complicated. This flushes the context from the idle proc.
 // crbug.com/933526.
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
-    auto context = contextInfo.directContext();
+    auto dContext = contextInfo.directContext();
 
     // idle proc that flushes the context.
-    auto idleProc = [](void* context) { reinterpret_cast<GrContext*>(context)->flushAndSubmit(); };
+    auto idleProc = [](void* context) {
+        reinterpret_cast<GrDirectContext*>(context)->flushAndSubmit();
+    };
 
     for (const auto& idleMaker : {make_wrapped_texture, make_normal_texture}) {
         for (auto idleState : {GrTexture::IdleState::kFlushed, GrTexture::IdleState::kFinished}) {
-            auto idleTexture = idleMaker(context, GrRenderable::kNo);
-            idleTexture->addIdleProc(idleProc, context, idleState);
+            auto idleTexture = idleMaker(dContext, GrRenderable::kNo);
+            idleTexture->addIdleProc(idleProc, dContext, idleState);
             auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-            auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 1, nullptr);
+            auto surf = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info, 1, nullptr);
             // We'll draw two images to the canvas. One is a normal texture-backed image. The other
             // is a wrapped-texture backed image.
             surf->getCanvas()->clear(SK_ColorWHITE);
@@ -734,19 +740,19 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
 
             GrBackendTexture backendTexture;
 
-            if (!CreateBackendTexture(context, &backendTexture, info, SkColors::kBlack,
+            if (!CreateBackendTexture(dContext, &backendTexture, info, SkColors::kBlack,
                                       GrMipMapped::kNo, GrRenderable::kNo)) {
                 REPORTER_ASSERT(reporter, false);
                 continue;
             }
 
-            auto img2 = SkImage::MakeFromTexture(context, backendTexture, kTopLeft_GrSurfaceOrigin,
+            auto img2 = SkImage::MakeFromTexture(dContext, backendTexture, kTopLeft_GrSurfaceOrigin,
                                                  info.colorType(), info.alphaType(), nullptr);
             surf->getCanvas()->drawImage(std::move(img1), 0, 0);
             surf->getCanvas()->drawImage(std::move(img2), 1, 1);
             idleTexture.reset();
 
-            DeleteBackendTexture(context, backendTexture);
+            DeleteBackendTexture(dContext, backendTexture);
         }
     }
 }

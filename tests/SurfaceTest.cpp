@@ -61,22 +61,23 @@ static sk_sp<SkSurface> create_direct_surface(SkAlphaType at = kPremul_SkAlphaTy
                                                   release_direct_surface_storage,
                                                   storage);
 }
-static sk_sp<SkSurface> create_gpu_surface(GrContext* context, SkAlphaType at = kPremul_SkAlphaType,
+static sk_sp<SkSurface> create_gpu_surface(GrRecordingContext* rContext,
+                                           SkAlphaType at = kPremul_SkAlphaType,
                                            SkImageInfo* requestedInfo = nullptr) {
     const SkImageInfo info = SkImageInfo::MakeN32(10, 10, at);
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
+    return SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info);
 }
-static sk_sp<SkSurface> create_gpu_scratch_surface(GrContext* context,
+static sk_sp<SkSurface> create_gpu_scratch_surface(GrRecordingContext* rContext,
                                                    SkAlphaType at = kPremul_SkAlphaType,
                                                    SkImageInfo* requestedInfo = nullptr) {
     const SkImageInfo info = SkImageInfo::MakeN32(10, 10, at);
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
+    return SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, info);
 }
 
 DEF_TEST(SurfaceEmpty, reporter) {
@@ -684,8 +685,10 @@ DEF_TEST(surface_raster_zeroinitialized, reporter) {
     }
 }
 
-static sk_sp<SkSurface> create_gpu_surface_backend_texture(
-    GrContext* ctx, int sampleCnt, const SkColor4f& color, GrBackendTexture* outTexture) {
+static sk_sp<SkSurface> create_gpu_surface_backend_texture(GrDirectContext* dContext,
+                                                           int sampleCnt,
+                                                           const SkColor4f& color,
+                                                           GrBackendTexture* outTexture) {
 
     // On Pixel and Pixel2XL's with Adreno 530 and 540s, setting width and height to 10s reliably
     // triggers what appears to be a driver race condition where the 10x10 surface from the
@@ -713,16 +716,19 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
 
-    if (!CreateBackendTexture(ctx, outTexture, ii, color, GrMipMapped::kNo, GrRenderable::kYes)) {
+    if (!CreateBackendTexture(dContext, outTexture, ii, color,
+                              GrMipMapped::kNo, GrRenderable::kYes)) {
         return nullptr;
     }
 
-    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(ctx, *outTexture,
-                                                                 kTopLeft_GrSurfaceOrigin, sampleCnt,
+    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(dContext,
+                                                                 *outTexture,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 sampleCnt,
                                                                  kRGBA_8888_SkColorType,
                                                                  nullptr, nullptr);
     if (!surface) {
-        DeleteBackendTexture(ctx, *outTexture);
+        DeleteBackendTexture(dContext, *outTexture);
         return nullptr;
     }
     return surface;
@@ -739,7 +745,10 @@ static bool supports_readpixels(const GrCaps* caps, SkSurface* surface) {
 }
 
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
-    GrContext* ctx, int sampleCnt, const SkColor4f& color, GrBackendTexture* outTexture) {
+        GrDirectContext* dContext,
+        int sampleCnt,
+        const SkColor4f& color,
+        GrBackendTexture* outTexture) {
 
     const int kWidth = 10;
     const int kHeight = 10;
@@ -747,16 +756,17 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
 
-    if (!CreateBackendTexture(ctx, outTexture, ii, color, GrMipMapped::kNo, GrRenderable::kYes)) {
+    if (!CreateBackendTexture(dContext, outTexture, ii, color,
+                              GrMipMapped::kNo, GrRenderable::kYes)) {
         return nullptr;
     }
 
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
-            ctx, *outTexture, kTopLeft_GrSurfaceOrigin, sampleCnt, kRGBA_8888_SkColorType,
+            dContext, *outTexture, kTopLeft_GrSurfaceOrigin, sampleCnt, kRGBA_8888_SkColorType,
             nullptr, nullptr);
 
     if (!surface) {
-        DeleteBackendTexture(ctx, *outTexture);
+        DeleteBackendTexture(dContext, *outTexture);
         return nullptr;
     }
     return surface;
