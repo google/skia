@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50ceddce_06b69d0d",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T20:13:30Z",
+      "side": 1,
+      "message": "Can this be a recording context too ?",
+      "range": {
+        "startLine": 351,
+        "startChar": 70,
+        "endLine": 351,
+        "endChar": 85
+      },
+      "revId": "f01fcd48a2f875bc84636071669f92c51c85cb32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddf5d3df_83490b79",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1260,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T20:13:30Z",
+      "side": 1,
+      "message": "recording ?",
+      "range": {
+        "startLine": 1260,
+        "startChar": 66,
+        "endLine": 1260,
+        "endChar": 73
+      },
+      "revId": "f01fcd48a2f875bc84636071669f92c51c85cb32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a66b2d64_36cbacf7",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T20:13:30Z",
+      "side": 1,
+      "message": "Can these three all be recording contexts ?",
+      "range": {
+        "startLine": 332,
+        "startChar": 60,
+        "endLine": 332,
+        "endChar": 75
+      },
+      "revId": "f01fcd48a2f875bc84636071669f92c51c85cb32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9635c93_9755fc4e",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T20:13:30Z",
+      "side": 1,
+      "message": "GrRecordingContext ?",
+      "range": {
+        "startLine": 472,
+        "startChar": 57,
+        "endLine": 472,
+        "endChar": 72
+      },
+      "revId": "f01fcd48a2f875bc84636071669f92c51c85cb32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f487f211_233e17c7",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-20T20:13:30Z",
+      "side": 1,
+      "message": "GrRecordingContext + following cases too ?",
+      "range": {
+        "startLine": 670,
+        "startChar": 63,
+        "endLine": 670,
+        "endChar": 78
+      },
+      "revId": "f01fcd48a2f875bc84636071669f92c51c85cb32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
