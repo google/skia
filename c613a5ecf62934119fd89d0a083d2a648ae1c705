@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "652971d4_100f2507",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-20T14:22:28Z",
+      "side": 1,
+      "message": "I sort of like std::fill_n() over memset for readability but totally up to you.",
+      "revId": "c613a5ecf62934119fd89d0a083d2a648ae1c705",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
