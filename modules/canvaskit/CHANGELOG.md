@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Compile option to deserialize effects in skps `include_effects_deserialization`.
+ 
+### Changed
+- Pathops and SKP deserialization/serialization enabled on the npm build.
+
 ## [0.17.0] - 2020-07-20
 
 ### Added

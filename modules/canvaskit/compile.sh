@@ -76,10 +76,16 @@ if [[ $@ == *cpu* ]]; then
 fi
 
 SKP_JS="--pre-js $BASE_DIR/skp.js"
-GN_SKP_FLAGS=""
+GN_SKP_FLAGS="\"-DSK_DISABLE_EFFECT_DESERIALIZATION\","
 WASM_SKP="-DSK_SERIALIZE_SKP"
-if [[ $@ == *no_skp* ]]; then
+if [[ $@ == *no_skp_serialization* ]]; then
+  # This saves about 20kb compressed.
   SKP_JS=""
+  WASM_SKP=""
+elif [[ $@ == *include_effects_deserialization* ]]; then
+    # This costs about 60kb compressed, so it is disabled by default.
+    echo "Enabling effects deserialization"
+    GN_SKP_FLAGS=""
 fi
 
 SKOTTIE_JS="--pre-js $BASE_DIR/skottie.js"
@@ -135,6 +141,7 @@ fi
 WASM_PATHOPS="-DSK_INCLUDE_PATHOPS"
 PATHOPS_JS="--pre-js $BASE_DIR/pathops.js"
 if [[ $@ == *no_pathops* ]] ; then
+  # This saves about 2kb compressed.
   WASM_PATHOPS=""
   PATHOPS_JS=""
 fi
@@ -260,7 +267,6 @@ echo "Compiling bitcode"
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
-    \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
     ${GN_SKP_FLAGS}
