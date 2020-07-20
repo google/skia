@@ -11,6 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkString.h"
+#include "include/private/GrTypesPriv.h"
 #include "include/private/SkSLSampleUsage.h"
 
 #include <string>
@@ -18,7 +19,6 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContextOptions.h"
-#include "include/private/GrTypesPriv.h"
 #endif
 
 class GrShaderCaps;
@@ -69,13 +69,10 @@ public:
         size_t    fOffset;
         Qualifier fQualifier;
         Type      fType;
+        GrSLType  fGPUType;
         int       fCount;
         uint32_t  fFlags;
         uint32_t  fMarker;
-
-#if SK_SUPPORT_GPU
-        GrSLType fGPUType;
-#endif
 
         bool isArray() const { return SkToBool(fFlags & kArray_Flag); }
         size_t sizeInBytes() const;
