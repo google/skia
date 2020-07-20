@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkOpts_spi.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandList.h"
@@ -20,7 +21,10 @@ GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
         , fCpuDescriptorManager(gpu)
         , fDescriptorTableManager(gpu)
-        , fPipelineStateCache(new PipelineStateCache(gpu)) {}
+        , fPipelineStateCache(new PipelineStateCache(gpu))
+        , fShaderResourceDescriptorTableCache(gpu)
+        , fSamplerDescriptorTableCache(gpu) {
+}
 
 void GrD3DResourceProvider::destroyResources() {
     fSamplers.reset();
@@ -153,13 +157,22 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
     return sampler;
 }
 
-std::unique_ptr<GrD3DDescriptorTable> GrD3DResourceProvider::createShaderOrConstantResourceTable(
-        unsigned int size) {
-    return fDescriptorTableManager.createShaderOrConstantResourceTable(fGpu, size);
+sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateShaderResourceTable(
+    const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& shaderResourceViews) {
+
+    auto createFunc = [this](GrD3DGpu* gpu, unsigned int numDesc) {
+        return this->fDescriptorTableManager.createShaderOrConstantResourceTable(gpu, numDesc);
+    };
+    return fShaderResourceDescriptorTableCache.findOrCreateDescTable(shaderResourceViews,
+                                                                     createFunc);
 }
 
-std::unique_ptr<GrD3DDescriptorTable> GrD3DResourceProvider::createSamplerTable(unsigned int size) {
-    return fDescriptorTableManager.createSamplerTable(fGpu, size);
+sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateSamplerTable(
+        const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& samplers) {
+    auto createFunc = [this](GrD3DGpu* gpu, unsigned int numDesc) {
+        return this->fDescriptorTableManager.createSamplerTable(gpu, numDesc);
+    };
+    return fShaderResourceDescriptorTableCache.findOrCreateDescTable(samplers, createFunc);
 }
 
 sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
@@ -193,6 +206,10 @@ D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, 
 void GrD3DResourceProvider::prepForSubmit() {
     fGpu->currentCommandList()->setCurrentConstantBuffer(fConstantBuffer);
     fDescriptorTableManager.prepForSubmit(fGpu);
+    // Any heap memory used for these will be returned when the command buffer finishes,
+    // so we have to invalidate all entries.
+    fShaderResourceDescriptorTableCache.release();
+    fSamplerDescriptorTableCache.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,3 +292,26 @@ void GrD3DResourceProvider::PipelineStateCache::markPipelineStateUniformsDirty()
     });
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GrD3DResourceProvider::DescriptorTableCache::release() {
+    fMap.reset();
+}
+
+sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::DescriptorTableCache::findOrCreateDescTable(
+        const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& cpuDescriptors,
+        std::function<sk_sp<GrD3DDescriptorTable>(GrD3DGpu*, unsigned int numDesc)> createFunc) {
+    sk_sp<GrD3DDescriptorTable>* entry = fMap.find(cpuDescriptors);
+    if (entry) {
+        return *entry;
+    }
+
+    unsigned int numDescriptors = cpuDescriptors.size();
+    SkASSERT(numDescriptors <= kRangeSizesCount);
+    sk_sp<GrD3DDescriptorTable> descTable = createFunc(fGpu, numDescriptors);
+    fGpu->device()->CopyDescriptors(1, descTable->baseCpuDescriptorPtr(), &numDescriptors,
+                                    numDescriptors, cpuDescriptors.data(), fRangeSizes,
+                                    descTable->type());
+    entry = fMap.insert(cpuDescriptors, std::move(descTable));
+    return *entry;
+}
