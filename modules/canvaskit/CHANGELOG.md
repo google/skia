@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2020-07-20
+
 ### Added
  - Added `CanvasKit.MakeImageFromCanvasImageSource` which takes either an HTMLImageElement,
    SVGImageElement, HTMLVideoElement, HTMLCanvasElement, ImageBitmap, or OffscreenCanvas and returns
@@ -36,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - renamed `reportBackendType` to `reportBackendTypeIsGPU` and made it return a boolean
  - `MakeWebGLCanvasSurface` can now accept an optional dictionary of WebGL context attributes that
    can be used to override default attributes.
+
 ### Fixed
  - `TextStyle.color` can correctly be a Malloc'd Float32Array.
  - Support wombat-dressing-room. go/npm-publish
