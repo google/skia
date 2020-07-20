@@ -41,15 +41,21 @@ static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
 }
 
 GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerState) {
-    static MTLSamplerMinMagFilter mtlMinMagFilterModes[] = {
-        MTLSamplerMinMagFilterNearest,
-        MTLSamplerMinMagFilterLinear,
-        MTLSamplerMinMagFilterLinear
-    };
+    MTLSamplerMinMagFilter minMagFilter = [&] {
+        switch (samplerState.filter()) {
+            case GrSamplerState::Filter::kNearest: return MTLSamplerMinMagFilterNearest;
+            case GrSamplerState::Filter::kLinear:  return MTLSamplerMinMagFilterLinear;
+        }
+        SkUNREACHABLE;
+    }();
 
-    static_assert((int)GrSamplerState::Filter::kNearest == 0);
-    static_assert((int)GrSamplerState::Filter::kLinear == 1);
-    static_assert((int)GrSamplerState::Filter::kMipMap == 2);
+    MTLSamplerMipFilter mipFilter = [&] {
+      switch (samplerState.mipmapMode()) {
+          case GrSamplerState::MipmapMode::kNone:    return MTLSamplerMipFilterNotMipmapped;
+          case GrSamplerState::MipmapMode::kLinear:  return MTLSamplerMipFilterLinear;
+      }
+      SkUNREACHABLE;
+    }();
 
     auto samplerDesc = [[MTLSamplerDescriptor alloc] init];
     samplerDesc.rAddressMode = MTLSamplerAddressModeClampToEdge;
@@ -57,12 +63,11 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
                                                                 gpu->mtlCaps());
     samplerDesc.tAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeY(),
                                                                 gpu->mtlCaps());
-    samplerDesc.magFilter = mtlMinMagFilterModes[static_cast<int>(samplerState.filter())];
-    samplerDesc.minFilter = mtlMinMagFilterModes[static_cast<int>(samplerState.filter())];
-    samplerDesc.mipFilter = MTLSamplerMipFilterLinear;
+    samplerDesc.magFilter = minMagFilter;
+    samplerDesc.minFilter = minMagFilter;
+    samplerDesc.mipFilter = mipFilter;
     samplerDesc.lodMinClamp = 0.0f;
-    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter();
-    samplerDesc.lodMaxClamp = !useMipMaps ? 0.0f : 10000.0f;
+    samplerDesc.lodMaxClamp = FLT_MAX;  // default value according to docs.
     samplerDesc.maxAnisotropy = 1.0f;
     samplerDesc.normalizedCoordinates = true;
     if (@available(macOS 10.11, iOS 9.0, *)) {
