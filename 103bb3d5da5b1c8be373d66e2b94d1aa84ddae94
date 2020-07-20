@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2b491f0_dee9ef85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-20T19:24:21Z",
+      "side": 1,
+      "message": "I just cherry-picked chris\u0027s CL to android-next branch",
+      "revId": "103bb3d5da5b1c8be373d66e2b94d1aa84ddae94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
