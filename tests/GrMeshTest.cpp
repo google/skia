@@ -181,7 +181,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
              [&](DrawMeshHelper* helper) {
                  for (int y = 0; y < kBoxCountY; ++y) {
                      auto pass = helper->bindPipeline(GrPrimitiveType::kTriangles, false, true);
-                     pass->bindBuffers(nullptr, nullptr, helper->fVertBuffer.get());
+                     pass->bindBuffers(nullptr, nullptr, helper->fVertBuffer);
                      pass->draw(kBoxCountX * 6, y * kBoxCountX * 6);
                  }
              });
@@ -203,8 +203,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                     int repetitionCount = std::min(3 - baseRepetition, kBoxCount - i);
 
                     auto pass = helper->bindPipeline(GrPrimitiveType::kTriangles, false, true);
-                    pass->bindBuffers(helper->fIndexBuffer.get(), nullptr,
-                                      helper->fVertBuffer.get());
+                    pass->bindBuffers(helper->fIndexBuffer, nullptr, helper->fVertBuffer);
                     pass->drawIndexed(repetitionCount * 6, baseRepetition * 6, baseRepetition * 4,
                                       (baseRepetition + repetitionCount) * 4 - 1,
                                       (i - baseRepetition) * 4);
@@ -226,8 +225,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                 // not support a base index.
                 for (int y = 0; y < kBoxCountY; ++y) {
                     auto pass = helper->bindPipeline(GrPrimitiveType::kTriangles, false, true);
-                    pass->bindBuffers(helper->fIndexBuffer.get(), nullptr,
-                                      helper->fVertBuffer.get());
+                    pass->bindBuffers(helper->fIndexBuffer, nullptr, helper->fVertBuffer);
                     pass->drawIndexPattern(6, kBoxCountX, kIndexPatternRepeatCount, 4,
                                            y * kBoxCountX * 4);
 
@@ -263,7 +261,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                      // Draw boxes one line at a time to exercise base instance, base vertex, and
                      // null vertex buffer.
                      for (int y = 0; y < kBoxCountY; ++y) {
-                         const GrBuffer* vertexBuffer = nullptr;
+                         sk_sp<const GrBuffer> vertexBuffer;
                          int baseVertex = 0;
                          switch (y % 3) {
                              case 0:
@@ -272,10 +270,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                                  }
                                  [[fallthrough]];
                              case 1:
-                                 vertexBuffer = helper->fVertBuffer.get();
+                                 vertexBuffer = helper->fVertBuffer;
                                  break;
                              case 2:
-                                 vertexBuffer = helper->fVertBuffer2.get();
+                                 vertexBuffer = helper->fVertBuffer2;
                                  baseVertex = 2;
                                  break;
                          }
@@ -285,16 +283,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          auto pass = helper->bindPipeline(primitiveType, true,
                                                           SkToBool(vertexBuffer));
                          if (indexed) {
-                             const GrBuffer* indexBuffer = (y % 2) ?
-                                     helper->fIndexBuffer2.get() : helper->fIndexBuffer.get();
+                             sk_sp<const GrBuffer> indexBuffer = (y % 2) ?
+                                     helper->fIndexBuffer2 : helper->fIndexBuffer;
                              VALIDATE(indexBuffer);
                              int baseIndex = (y % 2);
-                             pass->bindBuffers(indexBuffer, helper->fInstBuffer.get(),
-                                               vertexBuffer);
+                             pass->bindBuffers(std::move(indexBuffer), helper->fInstBuffer,
+                                               std::move(vertexBuffer));
                              pass->drawIndexedInstanced(6, baseIndex, kBoxCountX, y * kBoxCountX,
                                                         baseVertex);
                          } else {
-                             pass->bindBuffers(nullptr, helper->fInstBuffer.get(), vertexBuffer);
+                             pass->bindBuffers(nullptr, helper->fInstBuffer,
+                                               std::move(vertexBuffer));
                              pass->drawInstanced(kBoxCountX, y * kBoxCountY, 4, baseVertex);
                          }
                      }
@@ -373,8 +372,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                      GrOpsRenderPass* pass;
                      if (indexed) {
                          pass = helper->bindPipeline(GrPrimitiveType::kTriangles, true, true);
-                         pass->bindBuffers(helper->fIndexBuffer2.get(), helper->fInstBuffer.get(),
-                                           helper->fVertBuffer.get());
+                         pass->bindBuffers(helper->fIndexBuffer2, helper->fInstBuffer,
+                                           helper->fVertBuffer);
                          for (int i = 0; i < 3; ++i) {
                              int start = kBoxCountY * i / 3;
                              int end = kBoxCountY * (i + 1) / 3;
@@ -385,8 +384,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          }
                      } else {
                          pass = helper->bindPipeline(GrPrimitiveType::kTriangleStrip, true, true);
-                         pass->bindBuffers(nullptr, helper->fInstBuffer.get(),
-                                           helper->fVertBuffer.get());
+                         pass->bindBuffers(nullptr, helper->fInstBuffer, helper->fVertBuffer);
                          for (int i = 0; i < 2; ++i) {
                              int start = kBoxCountY * i / 2;
                              int end = kBoxCountY * (i + 1) / 2;

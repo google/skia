@@ -184,8 +184,10 @@ void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,
     SkDEBUGCODE(fTextureBindingStatus = DynamicStateStatus::kConfigured);
 }
 
-void GrOpsRenderPass::bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                                  const GrBuffer* vertexBuffer, GrPrimitiveRestart primRestart) {
+void GrOpsRenderPass::bindBuffers(sk_sp<const GrBuffer> indexBuffer,
+                                  sk_sp<const GrBuffer> instanceBuffer,
+                                  sk_sp<const GrBuffer> vertexBuffer,
+                                  GrPrimitiveRestart primRestart) {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
         return;
@@ -211,7 +213,8 @@ void GrOpsRenderPass::bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* i
     }
 #endif
 
-    this->onBindBuffers(indexBuffer, instanceBuffer, vertexBuffer, primRestart);
+    this->onBindBuffers(std::move(indexBuffer), std::move(instanceBuffer), std::move(vertexBuffer),
+                        primRestart);
 }
 
 bool GrOpsRenderPass::prepareToDraw() {
