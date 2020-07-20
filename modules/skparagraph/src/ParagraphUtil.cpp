@@ -41,5 +41,9 @@ bool isControl(SkUnichar utf8) {
     return u_iscntrl(utf8);
 }
 
+bool isWhitespace(SkUnichar utf8) {
+    return u_isWhitespace(utf8);
+}
+
 }
 }
