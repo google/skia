@@ -27,14 +27,14 @@ public:
     static const int kIndicesPerGlyph = 6;
 
     struct Geometry {
-        GrTextBlob*    fBlob;
-        GrAtlasSubRun* fSubRunPtr;
-        SkMatrix       fDrawMatrix;
-        SkPoint        fDrawOrigin;
-        SkIRect        fClipRect;
-        SkPMColor4f    fColor;
-
         void fillVertexData(void* dst, int offset, int count) const;
+
+        const GrAtlasSubRun& fSubRunPtr;
+        const SkMatrix       fDrawMatrix;
+        const SkPoint        fDrawOrigin;
+        const SkIRect        fClipRect;
+        GrTextBlob* const    fBlob;
+        SkPMColor4f          fColor;
     };
 
     const char* name() const override { return "AtlasTextOp"; }
@@ -82,8 +82,8 @@ private:
                   bool needsTransform,
                   int glyphCount,
                   SkRect deviceRect,
-                  GrPaint&& paint,
-                  Geometry&& geo);
+                  const Geometry& geo,
+                  GrPaint&& paint);
 
     GrAtlasTextOp(MaskType maskType,
                   bool needsTransform,
@@ -92,8 +92,8 @@ private:
                   SkColor luminanceColor,
                   bool useGammaCorrectDistanceTable,
                   uint32_t DFGPFlags,
-                  GrPaint&& paint,
-                  Geometry&& geo);
+                  const Geometry& geo,
+                  GrPaint&& paint);
 
     struct FlushInfo {
         sk_sp<const GrBuffer> fVertexBuffer;

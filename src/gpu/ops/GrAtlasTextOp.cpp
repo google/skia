@@ -38,8 +38,8 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              bool needsTransform,
                              int glyphCount,
                              SkRect deviceRect,
-                             GrPaint&& paint,
-                             Geometry&& geo)
+                             const Geometry& geo,
+                             GrPaint&& paint)
          : INHERITED{ClassID()}
          , fMaskType{maskType}
          , fNeedsGlyphTransform{needsTransform}
@@ -49,7 +49,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
          , fGeoDataAllocSize{kMinGeometryAllocated}
          , fProcessors{std::move(paint)}
          , fNumGlyphs{glyphCount} {
-    fGeoData[0] = std::move(geo);
+    new (&fGeoData[0]) Geometry{geo};
     fGeoCount = 1;
 
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
@@ -64,8 +64,8 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              SkColor luminanceColor,
                              bool useGammaCorrectDistanceTable,
                              uint32_t DFGPFlags,
-                             GrPaint&& paint,
-                             Geometry&& geo)
+                             const Geometry& geo,
+                             GrPaint&& paint)
         : INHERITED{ClassID()}
         , fMaskType{maskType}
         , fNeedsGlyphTransform{needsTransform}
@@ -75,7 +75,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
         , fGeoDataAllocSize{kMinGeometryAllocated}
         , fProcessors{std::move(paint)}
         , fNumGlyphs{glyphCount} {
-    fGeoData[0] = std::move(geo);
+    new (&fGeoData[0]) Geometry{geo};
     fGeoCount = 1;
 
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
@@ -84,8 +84,8 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
 }
 
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
-    fSubRunPtr->fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
-                               fDrawMatrix, fDrawOrigin, fClipRect);
+    fSubRunPtr.fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
+                              fDrawMatrix, fDrawOrigin, fClipRect);
 }
 
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
@@ -230,15 +230,15 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     resetVertexBuffer();
 
     for (const Geometry& geo : SkMakeSpan(fGeoData.get(), fGeoCount)) {
-        GrAtlasSubRun* subRun = geo.fSubRunPtr;
-        SkASSERT((int)subRun->vertexStride() == vertexStride);
+        const GrAtlasSubRun& subRun = geo.fSubRunPtr;
+        SkASSERT((int)subRun.vertexStride() == vertexStride);
 
-        const int subRunEnd = subRun->glyphCount();
+        const int subRunEnd = subRun.glyphCount();
         for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
             // Regenerate the atlas for the remainder of the glyphs in the run, or the remainder
             // of the glyphs to fill the vertex buffer.
             int regenEnd = subRunCursor + std::min(subRunEnd - subRunCursor, quadEnd - quadCursor);
-            auto[ok, glyphsRegenerated] = subRun->regenerateAtlas(subRunCursor, regenEnd, target);
+            auto[ok, glyphsRegenerated] = subRun.regenerateAtlas(subRunCursor, regenEnd, target);
             // There was a problem allocating the glyph in the atlas. Bail.
             if (!ok) {
                 return;
@@ -390,12 +390,10 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingConte
 
     // We steal the ref on the blobs from the other AtlasTextOp and set its count to 0 so that
     // it doesn't try to unref them.
-    memcpy(&fGeoData[fGeoCount], that->fGeoData.get(), that->fGeoCount * sizeof(Geometry));
-#ifdef SK_DEBUG
-    for (int i = 0; i < that->fGeoCount; ++i) {
-        that->fGeoData.get()[i].fBlob = (GrTextBlob*)0x1;
+    for (int i = 0; i < that->fGeoCount; i++) {
+        new (&fGeoData[fGeoCount + i]) Geometry{that->fGeoData[i]};
     }
-#endif
+
     that->fGeoCount = 0;
     fGeoCount = newGeoCount;
 
