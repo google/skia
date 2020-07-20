@@ -248,6 +248,25 @@ private:
     using INHERITED = EffectNode;
 };
 
+class LayerEffect final : public EffectNode {
+public:
+    ~LayerEffect() override;
+
+    static sk_sp<LayerEffect> Make(sk_sp<RenderNode> child,
+                                   SkBlendMode mode = SkBlendMode::kSrcOver);
+
+    SG_ATTRIBUTE(Mode, SkBlendMode, fMode)
+
+private:
+    LayerEffect(sk_sp<RenderNode> child, SkBlendMode mode);
+
+    void onRender(SkCanvas*, const RenderContext*) const override;
+
+    SkBlendMode fMode;
+
+    using INHERITED = EffectNode;
+};
+
 } // namespace sksg
 
 #endif // SkSGRenderEffect_DEFINED
