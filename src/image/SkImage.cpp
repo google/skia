@@ -361,24 +361,22 @@ sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize&
 
 sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
-                                       SkIPoint* offset) const {
-    GrContext* context = as_IB(this)->context();
+                                       SkIPoint* offset,
+                                       GrDirectContext* dContext) const {
 
-    return this->makeWithFilter(context, filter, subset, clipBounds, outSubset, offset);
-}
-
-sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
-                                       const SkImageFilter* filter, const SkIRect& subset,
-                                       const SkIRect& clipBounds, SkIRect* outSubset,
-                                       SkIPoint* offset) const {
     if (!filter || !outSubset || !offset || !this->bounds().contains(subset)) {
         return nullptr;
     }
-    sk_sp<SkSpecialImage> srcSpecialImage =
+    sk_sp<SkSpecialImage> srcSpecialImage;
 #if SK_SUPPORT_GPU
-        SkSpecialImage::MakeFromImage(grContext, subset, sk_ref_sp(const_cast<SkImage*>(this)));
+    if (dContext && !dContext->priv().matches(as_IB(this)->context())) {
+        return nullptr;
+    }
+    srcSpecialImage = SkSpecialImage::MakeFromImage(dContext, subset,
+                                                    sk_ref_sp(const_cast<SkImage*>(this)));
 #else
-        SkSpecialImage::MakeFromImage(nullptr, subset, sk_ref_sp(const_cast<SkImage*>(this)));
+    srcSpecialImage = SkSpecialImage::MakeFromImage(nullptr, subset,
+                                                    sk_ref_sp(const_cast<SkImage*>(this)));
 #endif
     if (!srcSpecialImage) {
         return nullptr;
@@ -422,6 +420,24 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
     *outSubset = clippedDstRect;
     return result->asImage();
 }
+
+#ifdef SK_IMAGE_MAKE_WITH_FILTER_LEGACY_API
+sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
+                                       const SkImageFilter* filter, const SkIRect& subset,
+                                       const SkIRect& clipBounds, SkIRect* outSubset,
+                                       SkIPoint* offset) const {
+    auto dContext = GrAsDirectContext(grContext);
+    return this->makeWithFilter(filter, subset, clipBounds, outSubset, offset, dContext);
+
+}
+
+sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+                                       const SkIRect& clipBounds, SkIRect* outSubset,
+                                       SkIPoint* offset) const {
+    auto dContext = GrAsDirectContext(as_IB(this)->context());
+    return this->makeWithFilter(context, filter, subset, clipBounds, outSubset, offset, dContext);
+}
+#endif
 
 bool SkImage::isLazyGenerated() const {
     return as_IB(this)->onIsLazyGenerated();

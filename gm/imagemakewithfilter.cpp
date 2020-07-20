@@ -271,20 +271,20 @@ protected:
         // code paths (otherwise they may choose to do CPU filtering then upload)
         sk_sp<SkImage> mainImage, auxImage;
 
-        auto recording = canvas->recordingContext();
-        if (recording) {
-            // In a DDL context, we can't use the GPU code paths and we will drop the work – skip.
-            auto direct = GrAsDirectContext(recording);
-            if (!direct) {
+        auto rContext = canvas->recordingContext();
+        // In a DDL context, we can't use the GPU code paths and we will drop the work – skip.
+        auto dContext = GrAsDirectContext(rContext);
+        if (rContext) {
+            if (!dContext) {
                 *errorMsg = "Requires a direct context.";
                 return DrawResult::kSkip;
             }
-            if (direct->abandoned()) {
+            if (dContext->abandoned()) {
                 *errorMsg = "Direct context abandoned.";
                 return DrawResult::kSkip;
             }
-            mainImage = fMainImage->makeTextureImage(direct);
-            auxImage = fAuxImage->makeTextureImage(direct);
+            mainImage = fMainImage->makeTextureImage(dContext);
+            auxImage = fAuxImage->makeTextureImage(dContext);
         } else {
             mainImage = fMainImage;
             auxImage = fAuxImage;
@@ -292,8 +292,8 @@ protected:
         if (!mainImage || !auxImage) {
             return DrawResult::kFail;
         }
-        SkASSERT(mainImage && (mainImage->isTextureBacked() || !recording));
-        SkASSERT(auxImage && (auxImage->isTextureBacked() || !recording));
+        SkASSERT(mainImage && (mainImage->isTextureBacked() || !rContext));
+        SkASSERT(auxImage && (auxImage->isTextureBacked() || !rContext));
 
         SkScalar MARGIN = SkIntToScalar(40);
         SkScalar DX = mainImage->width() + MARGIN;
@@ -322,7 +322,7 @@ protected:
                 canvas->drawImage(mainImage, 0, 0, &alpha);
 
                 this->drawImageWithFilter(canvas, mainImage, auxImage, filters[i], clipBound,
-                                          subset, &outSubset);
+                                          subset, &outSubset, dContext);
 
                 // Draw outlines to highlight what was subset, what was cropped, and what was output
                 // (no output subset is displayed for kSaveLayer since that information isn't avail)
@@ -348,7 +348,7 @@ private:
 
     void drawImageWithFilter(SkCanvas* canvas, sk_sp<SkImage> mainImage, sk_sp<SkImage> auxImage,
                              FilterFactory filterFactory, const SkIRect& clip,
-                             const SkIRect& subset, SkIRect* dstRect) {
+                             const SkIRect& subset, SkIRect* dstRect, GrDirectContext* dContext) {
         // When creating the filter with a crop rect equal to the clip, we should expect to see no
         // difference from a filter without a crop rect. However, if the CTM isn't managed properly
         // by makeWithFilter, then the final result will be the incorrect intersection of the clip
@@ -376,7 +376,8 @@ private:
             SkIRect outSubset;
             SkIPoint offset;
 
-            result = mainImage->makeWithFilter(filter.get(), subset, clip, &outSubset, &offset);
+            result = mainImage->makeWithFilter(filter.get(), subset, clip, &outSubset,
+                                               &offset, dContext);
 
             SkASSERT(result);
             SkASSERT(mainImage->isTextureBacked() == result->isTextureBacked());
