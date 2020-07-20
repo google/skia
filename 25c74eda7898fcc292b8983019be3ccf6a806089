@@ -16,6 +16,23 @@
       "revId": "25c74eda7898fcc292b8983019be3ccf6a806089",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdc80d3e_1cc53cb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-20T15:46:46Z",
+      "side": 1,
+      "message": "Let\u0027s do update the comments. Best would be also reference how you actually arrived at the values (i.e. can you check-in the extra code you had that built the min/max/histograph?)",
+      "revId": "25c74eda7898fcc292b8983019be3ccf6a806089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
