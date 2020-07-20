@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e9348dc_9a8e4b73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-20T18:17:43Z",
+      "side": 1,
+      "message": "Depth counter added, and I fixed up the comment (happy to rephrase it further). And good suggestion to use getFillPath(), it does exercise the bug in the same way.\n\nFor posterity, the bench executes on my machine in 3.8 seconds without this CL, and 5 us (!) with it. I\u0027d be suspicious if not for gold producing no diffs.",
+      "revId": "4085ab4fdbc8541f93c92e56b4a479130a23ba49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
