@@ -113,19 +113,19 @@ public:
     // Accessors used by draw calls, once the resources have been finalized.
     const GrCCFiller& filler() const { SkASSERT(!this->isMapped()); return fFiller; }
     const GrCCStroker& stroker() const { SkASSERT(!this->isMapped()); return fStroker; }
-    const GrGpuBuffer* indexBuffer() const {
+    sk_sp<const GrGpuBuffer> indexBuffer() const {
         SkASSERT(!this->isMapped());
-        return fIndexBuffer.get();
+        return fIndexBuffer;
     }
-    const GrGpuBuffer* instanceBuffer() const {
+    sk_sp<const GrGpuBuffer> instanceBuffer() const {
         SkASSERT(!this->isMapped());
         return fPathInstanceBuffer.gpuBuffer();
     }
-    const GrGpuBuffer* vertexBuffer() const {
+    sk_sp<const GrGpuBuffer> vertexBuffer() const {
         SkASSERT(!this->isMapped());
-        return fVertexBuffer.get();
+        return fVertexBuffer;
     }
-    const GrGpuBuffer* stencilResolveBuffer() const {
+    sk_sp<const GrGpuBuffer> stencilResolveBuffer() const {
         SkASSERT(!this->isMapped());
         return fStencilResolveBuffer.gpuBuffer();
     }

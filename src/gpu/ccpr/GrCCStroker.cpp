@@ -371,7 +371,7 @@ public:
         int endConicsIdx = stroker->fBaseInstances[1].fConics +
                            stroker->fInstanceCounts[1]->fConics;
         fInstanceBuffer.resetAndMapBuffer(onFlushRP, endConicsIdx * sizeof(ConicInstance));
-        if (!fInstanceBuffer.gpuBuffer()) {
+        if (!fInstanceBuffer.hasGpuBuffer()) {
             SkDebugf("WARNING: failed to allocate CCPR stroke instance buffer.\n");
             return;
         }
@@ -504,12 +504,12 @@ public:
         }
     }
 
-    sk_sp<GrGpuBuffer> finish() {
+    sk_sp<const GrGpuBuffer> finish() {
         SkASSERT(this->isMapped());
         SkASSERT(!memcmp(fNextInstances, fEndInstances, sizeof(fNextInstances)));
         fInstanceBuffer.unmapBuffer();
         SkASSERT(!this->isMapped());
-        return sk_ref_sp(fInstanceBuffer.gpuBuffer());
+        return fInstanceBuffer.gpuBuffer();
     }
 
 private:
@@ -733,7 +733,7 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
                               GrPrimitiveType::kTriangleStrip);
 
     flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
-    flushState->bindBuffers(nullptr, fInstanceBuffer.get(), nullptr);
+    flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
 
     // Linear strokes draw a quad. Cubic strokes emit a strip with normals at "numSegments"
     // evenly-spaced points along the curve, plus one more for the final endpoint, plus two more for
@@ -772,7 +772,7 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
                                          int startScissorSubBatch,
                                          const SkIRect& drawBounds) const {
     processor.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds));
-    processor.bindBuffers(flushState->opsRenderPass(), fInstanceBuffer.get());
+    processor.bindBuffers(flushState->opsRenderPass(), fInstanceBuffer);
 
     // Append non-scissored meshes.
     int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*InstanceType;

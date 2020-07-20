@@ -166,18 +166,20 @@ bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     return true;
 }
 
-void GrDawnOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                                        const GrBuffer* vertexBuffer, GrPrimitiveRestart) {
+void GrDawnOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
+                                        sk_sp<const GrBuffer> instanceBuffer,
+                                        sk_sp<const GrBuffer> vertexBuffer,
+                                        GrPrimitiveRestart) {
     if (vertexBuffer) {
-        wgpu::Buffer vertex = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
+        wgpu::Buffer vertex = static_cast<const GrDawnBuffer*>(vertexBuffer.get())->get();
         fPassEncoder.SetVertexBuffer(0, vertex);
     }
     if (instanceBuffer) {
-        wgpu::Buffer instance = static_cast<const GrDawnBuffer*>(instanceBuffer)->get();
+        wgpu::Buffer instance = static_cast<const GrDawnBuffer*>(instanceBuffer.get())->get();
         fPassEncoder.SetVertexBuffer(1, instance);
     }
     if (indexBuffer) {
-        wgpu::Buffer index = static_cast<const GrDawnBuffer*>(indexBuffer)->get();
+        wgpu::Buffer index = static_cast<const GrDawnBuffer*>(indexBuffer.get())->get();
         fPassEncoder.SetIndexBuffer(index);
     }
 }

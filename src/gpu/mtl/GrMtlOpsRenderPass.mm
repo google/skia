@@ -254,26 +254,28 @@ void GrMtlOpsRenderPass::setupRenderPass(
     fActiveRenderCmdEncoder = nil;
 }
 
-void GrMtlOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                                       const GrBuffer* vertexBuffer,
+void GrMtlOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
+                                       sk_sp<const GrBuffer> instanceBuffer,
+                                       sk_sp<const GrBuffer> vertexBuffer,
                                        GrPrimitiveRestart primRestart) {
     SkASSERT(GrPrimitiveRestart::kNo == primRestart);
     int inputBufferIndex = 0;
     if (vertexBuffer) {
         SkASSERT(!vertexBuffer->isCpuBuffer());
-        SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer)->isMapped());
-        fActiveVertexBuffer = sk_ref_sp(static_cast<const GrMtlBuffer*>(vertexBuffer));
+        SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer.get())->isMapped());
+        fActiveVertexBuffer = std::move(vertexBuffer);
         ++inputBufferIndex;
     }
     if (instanceBuffer) {
         SkASSERT(!instanceBuffer->isCpuBuffer());
-        SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer)->isMapped());
-        this->setVertexBuffer(fActiveRenderCmdEncoder, instanceBuffer, 0, inputBufferIndex++);
+        SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer.get())->isMapped());
+        this->setVertexBuffer(fActiveRenderCmdEncoder, instanceBuffer.get(), 0, inputBufferIndex++);
+        fActiveInstanceBuffer = std::move(instanceBuffer);
     }
     if (indexBuffer) {
         SkASSERT(!indexBuffer->isCpuBuffer());
-        SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer)->isMapped());
-        fActiveIndexBuffer = sk_ref_sp(static_cast<const GrMtlBuffer*>(indexBuffer));
+        SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer.get())->isMapped());
+        fActiveIndexBuffer = std::move(indexBuffer);
     }
 }
 

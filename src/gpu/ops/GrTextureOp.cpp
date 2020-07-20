@@ -905,7 +905,8 @@ private:
         }
 
         flushState->bindPipelineAndScissorClip(*fDesc->fProgramInfo, chainBounds);
-        flushState->bindBuffers(fDesc->fIndexBuffer.get(), nullptr, fDesc->fVertexBuffer.get());
+        flushState->bindBuffers(std::move(fDesc->fIndexBuffer), nullptr,
+                                std::move(fDesc->fVertexBuffer));
 
         int totQuadsSeen = 0;
         SkDEBUGCODE(int numDraws = 0;)

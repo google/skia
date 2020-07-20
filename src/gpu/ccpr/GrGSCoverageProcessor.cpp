@@ -431,8 +431,8 @@ void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, int subpassIdx,
 }
 
 void GrGSCoverageProcessor::bindBuffers(GrOpsRenderPass* renderPass,
-                                        const GrBuffer* instanceBuffer) const {
-    renderPass->bindBuffers(nullptr, nullptr, instanceBuffer);
+                                        sk_sp<const GrBuffer> instanceBuffer) const {
+    renderPass->bindBuffers(nullptr, nullptr, std::move(instanceBuffer));
 }
 
 void GrGSCoverageProcessor::drawInstances(GrOpsRenderPass* renderPass, int instanceCount,

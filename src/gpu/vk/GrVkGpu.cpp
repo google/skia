@@ -2044,7 +2044,7 @@ void GrVkGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
 }
 
 void GrVkGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
-    this->currentCommandBuffer()->addGpuBuffer(std::move(buffer));
+    this->currentCommandBuffer()->addGrBuffer(std::move(buffer));
 }
 
 bool GrVkGpu::onSubmitToGpu(bool syncCpu) {

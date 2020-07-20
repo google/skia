@@ -348,6 +348,6 @@ void GrTessellateStrokeOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     flushState->bindPipelineAndScissorClip(programInfo, this->bounds() /*chainBounds??*/);
     flushState->bindTextures(strokeShader, nullptr, pipeline);
 
-    flushState->bindBuffers(nullptr, nullptr, fVertexBuffer.get());
+    flushState->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));
     flushState->draw(fVertexCount, fBaseVertex);
 }

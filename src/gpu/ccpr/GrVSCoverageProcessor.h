@@ -21,7 +21,7 @@ private:
     GrPrimitiveType primType() const final { return fTriangleType; }
     int numSubpasses() const override { return 1; }
     void reset(PrimitiveType, int subpassIdx, GrResourceProvider*) override;
-    void bindBuffers(GrOpsRenderPass*, const GrBuffer* instanceBuffer) const override;
+    void bindBuffers(GrOpsRenderPass*, sk_sp<const GrBuffer> instanceBuffer) const override;
     void drawInstances(GrOpsRenderPass*, int instanceCount, int baseInstance) const override;
 
     GrGLSLPrimitiveProcessor* onCreateGLSLInstance(std::unique_ptr<Shader>) const override;

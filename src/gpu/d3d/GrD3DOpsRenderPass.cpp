@@ -237,8 +237,9 @@ bool GrD3DOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     return true;
 }
 
-void GrD3DOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                                       const GrBuffer* vertexBuffer,
+void GrD3DOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
+                                       sk_sp<const GrBuffer> instanceBuffer,
+                                       sk_sp<const GrBuffer> vertexBuffer,
                                        GrPrimitiveRestart primRestart) {
     SkASSERT(GrPrimitiveRestart::kNo == primRestart);
     SkASSERT(fCurrentPipelineState);
@@ -247,10 +248,8 @@ void GrD3DOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuff
     GrD3DDirectCommandList* currCmdList = fGpu->currentCommandList();
     SkASSERT(currCmdList);
 
-    // TODO: do we need a memory barrier here?
-
-    fCurrentPipelineState->bindBuffers(fGpu, indexBuffer, instanceBuffer, vertexBuffer,
-                                       currCmdList);
+    fCurrentPipelineState->bindBuffers(fGpu, std::move(indexBuffer), std::move(instanceBuffer),
+                                       std::move(vertexBuffer), currCmdList);
 }
 
 void GrD3DOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,

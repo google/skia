@@ -282,44 +282,55 @@ void GrD3DDirectCommandList::setGraphicsRootSignature(const sk_sp<GrD3DRootSigna
 }
 
 void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
-                                              const GrD3DBuffer* vertexBuffer,
+                                              sk_sp<const GrBuffer> vertexBuffer,
                                               size_t vertexStride,
-                                              const GrD3DBuffer* instanceBuffer,
+                                              sk_sp<const GrBuffer> instanceBuffer,
                                               size_t instanceStride) {
-    if (fCurrentVertexBuffer != vertexBuffer || fCurrentVertexStride != vertexStride ||
-        fCurrentInstanceBuffer != instanceBuffer || fCurrentInstanceStride != instanceStride) {
+    if (fCurrentVertexBuffer != vertexBuffer.get() ||
+        fCurrentVertexStride != vertexStride ||
+        fCurrentInstanceBuffer != instanceBuffer.get() ||
+        fCurrentInstanceStride != instanceStride) {
+
+        fCurrentVertexBuffer = vertexBuffer.get();
+        fCurrentVertexStride = vertexStride;
+        fCurrentInstanceBuffer = instanceBuffer.get();
+        fCurrentInstanceStride = instanceStride;
+
         D3D12_VERTEX_BUFFER_VIEW views[2];
         int numViews = 0;
         if (vertexBuffer) {
-            this->addResource(vertexBuffer->resource());
-            views[numViews].BufferLocation = vertexBuffer->d3dResource()->GetGPUVirtualAddress();
+            auto* d3dBuffer = static_cast<const GrD3DBuffer*>(vertexBuffer.get());
+            this->addResource(d3dBuffer->resource());
+            views[numViews].BufferLocation = d3dBuffer->d3dResource()->GetGPUVirtualAddress();
             views[numViews].SizeInBytes = vertexBuffer->size();
             views[numViews++].StrideInBytes = vertexStride;
+            this->addGrBuffer(std::move(vertexBuffer));
         }
         if (instanceBuffer) {
-            this->addResource(instanceBuffer->resource());
-            views[numViews].BufferLocation = instanceBuffer->d3dResource()->GetGPUVirtualAddress();
+            auto* d3dBuffer = static_cast<const GrD3DBuffer*>(instanceBuffer.get());
+            this->addResource(d3dBuffer->resource());
+            views[numViews].BufferLocation = d3dBuffer->d3dResource()->GetGPUVirtualAddress();
             views[numViews].SizeInBytes = instanceBuffer->size();
             views[numViews++].StrideInBytes = instanceStride;
+            this->addGrBuffer(std::move(instanceBuffer));
         }
         fCommandList->IASetVertexBuffers(startSlot, numViews, views);
-
-        fCurrentVertexBuffer = vertexBuffer;
-        fCurrentVertexStride = vertexStride;
-        fCurrentInstanceBuffer = instanceBuffer;
-        fCurrentInstanceStride = instanceStride;
     }
 }
 
-void GrD3DDirectCommandList::setIndexBuffer(const GrD3DBuffer* indexBuffer) {
-    if (fCurrentIndexBuffer != indexBuffer) {
-        this->addResource(indexBuffer->resource());
+void GrD3DDirectCommandList::setIndexBuffer(sk_sp<const GrBuffer> indexBuffer) {
+    if (fCurrentIndexBuffer != indexBuffer.get()) {
+        auto* d3dBuffer = static_cast<const GrD3DBuffer*>(indexBuffer.get());
+        this->addResource(d3dBuffer->resource());
 
         D3D12_INDEX_BUFFER_VIEW view = {};
-        view.BufferLocation = indexBuffer->d3dResource()->GetGPUVirtualAddress();
+        view.BufferLocation = d3dBuffer->d3dResource()->GetGPUVirtualAddress();
         view.SizeInBytes = indexBuffer->size();
         view.Format = DXGI_FORMAT_R16_UINT;
         fCommandList->IASetIndexBuffer(&view);
+
+        fCurrentIndexBuffer = indexBuffer.get();
+        this->addGrBuffer(std::move(indexBuffer));
     }
 }
 

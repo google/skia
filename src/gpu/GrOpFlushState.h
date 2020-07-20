@@ -198,10 +198,11 @@ public:
                       const GrSurfaceProxy* const primProcTextures[], const GrPipeline& pipeline) {
         fOpsRenderPass->bindTextures(primProc, primProcTextures, pipeline);
     }
-    void bindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                     const GrBuffer* vertexBuffer,
+    void bindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
+                     sk_sp<const GrBuffer> vertexBuffer,
                      GrPrimitiveRestart primitiveRestart = GrPrimitiveRestart::kNo) {
-        fOpsRenderPass->bindBuffers(indexBuffer, instanceBuffer, vertexBuffer, primitiveRestart);
+        fOpsRenderPass->bindBuffers(std::move(indexBuffer), std::move(instanceBuffer),
+                                    std::move(vertexBuffer), primitiveRestart);
     }
     void draw(int vertexCount, int baseVertex) {
         fOpsRenderPass->draw(vertexCount, baseVertex);

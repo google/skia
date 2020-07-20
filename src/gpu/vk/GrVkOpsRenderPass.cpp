@@ -541,8 +541,9 @@ bool GrVkOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
                                                      this->currentCommandBuffer());
 }
 
-void GrVkOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffer* instanceBuffer,
-                                      const GrBuffer* vertexBuffer,
+void GrVkOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
+                                      sk_sp<const GrBuffer> instanceBuffer,
+                                      sk_sp<const GrBuffer> vertexBuffer,
                                       GrPrimitiveRestart primRestart) {
     SkASSERT(GrPrimitiveRestart::kNo == primRestart);
     if (!fCurrentRenderPass) {
@@ -563,20 +564,20 @@ void GrVkOpsRenderPass::onBindBuffers(const GrBuffer* indexBuffer, const GrBuffe
     // Here our vertex and instance inputs need to match the same 0-based bindings they were
     // assigned in GrVkPipeline. That is, vertex first (if any) followed by instance.
     uint32_t binding = 0;
-    if (auto* vkVertexBuffer = static_cast<const GrVkMeshBuffer*>(vertexBuffer)) {
+    if (auto* vkVertexBuffer = static_cast<const GrVkMeshBuffer*>(vertexBuffer.get())) {
         SkASSERT(!vkVertexBuffer->isCpuBuffer());
         SkASSERT(!vkVertexBuffer->isMapped());
-        currCmdBuf->bindInputBuffer(fGpu, binding++, vkVertexBuffer);
+        currCmdBuf->bindInputBuffer(fGpu, binding++, std::move(vertexBuffer));
     }
-    if (auto* vkInstanceBuffer = static_cast<const GrVkMeshBuffer*>(instanceBuffer)) {
+    if (auto* vkInstanceBuffer = static_cast<const GrVkMeshBuffer*>(instanceBuffer.get())) {
         SkASSERT(!vkInstanceBuffer->isCpuBuffer());
         SkASSERT(!vkInstanceBuffer->isMapped());
-        currCmdBuf->bindInputBuffer(fGpu, binding++, vkInstanceBuffer);
+        currCmdBuf->bindInputBuffer(fGpu, binding++, std::move(instanceBuffer));
     }
-    if (auto* vkIndexBuffer = static_cast<const GrVkMeshBuffer*>(indexBuffer)) {
+    if (auto* vkIndexBuffer = static_cast<const GrVkMeshBuffer*>(indexBuffer.get())) {
         SkASSERT(!vkIndexBuffer->isCpuBuffer());
         SkASSERT(!vkIndexBuffer->isMapped());
-        currCmdBuf->bindIndexBuffer(fGpu, vkIndexBuffer);
+        currCmdBuf->bindIndexBuffer(fGpu, std::move(indexBuffer));
     }
 }
 

@@ -117,7 +117,7 @@ private:
     InstanceTalliesAllocator fTalliesAllocator;
     const InstanceTallies* fInstanceCounts[kNumScissorModes] = {&fZeroTallies, &fZeroTallies};
 
-    sk_sp<GrGpuBuffer> fInstanceBuffer;
+    sk_sp<const GrGpuBuffer> fInstanceBuffer;
     // The indices stored in batches are relative to these base instances.
     InstanceTallies fBaseInstances[kNumScissorModes];
 };

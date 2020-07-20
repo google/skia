@@ -546,7 +546,7 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* flushState) {
         GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline,
                                               &stencilTriangleShader);
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
-        flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer.get());
+        flushState->bindBuffers(nullptr, nullptr, std::move(fTriangleBuffer));
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
     }
 
@@ -557,11 +557,11 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* flushState) {
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
         if (fIndirectDrawBuffer) {
             SkASSERT(fIndirectIndexBuffer);
-            flushState->bindBuffers(fIndirectIndexBuffer.get(), fCubicBuffer.get(), nullptr);
+            flushState->bindBuffers(fIndirectIndexBuffer, fCubicBuffer, nullptr);
             flushState->drawIndexedIndirect(fIndirectDrawBuffer.get(), fIndirectDrawOffset,
                                             fIndirectDrawCount);
         } else {
-            flushState->bindBuffers(nullptr, nullptr, fCubicBuffer.get());
+            flushState->bindBuffers(nullptr, nullptr, fCubicBuffer);
             flushState->draw(fCubicVertexCount, fBaseCubicVertex);
             if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
                 flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
@@ -655,7 +655,7 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* flushState) {
                                               &fillTriangleShader);
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
         flushState->bindTextures(fillTriangleShader, nullptr, pipeline);
-        flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer.get());
+        flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
 
         if (fStencilCubicsShader) {
@@ -675,7 +675,7 @@ void GrTessellatePathOp::drawCoverPass(GrOpFlushState* flushState) {
             // the base vertex on an instance boundary in order to accommodate this.
             SkASSERT((fCubicVertexCount % 4) == 0);
             SkASSERT((fBaseCubicVertex % 4) == 0);
-            flushState->bindBuffers(nullptr, fCubicBuffer.get(), nullptr);
+            flushState->bindBuffers(nullptr, fCubicBuffer, nullptr);
             flushState->drawInstanced(fCubicVertexCount >> 2, fBaseCubicVertex >> 2, 4, 0);
         }
         return;

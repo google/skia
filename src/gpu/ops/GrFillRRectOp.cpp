@@ -874,7 +874,8 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, this->bounds());
     flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
-    flushState->bindBuffers(fIndexBuffer.get(), fInstanceBuffer.get(), fVertexBuffer.get());
+    flushState->bindBuffers(std::move(fIndexBuffer), std::move(fInstanceBuffer),
+                            std::move(fVertexBuffer));
     flushState->drawIndexedInstanced(fIndexCount, 0, fInstanceCount, fBaseInstance, 0);
 }
 
