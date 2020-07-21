@@ -17,7 +17,7 @@ namespace {
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkPoint rotate90(const SkPoint& p) { return {-p.fY, p.fX}; }
+static SkPoint rotate90(const SkPoint& p) { return {p.fY, -p.fX}; }
 static SkPoint rotate180(const SkPoint& p) { return p * -1; }
 static SkPoint setLength(SkPoint p, float len) {
     if (!p.setLength(len)) {
@@ -161,7 +161,9 @@ void SkPathStroker2::endcap(CapLocation loc) {
 
 void SkPathStroker2::join(const PathSegment& prev, const PathSegment& curr) {
     const auto miterJoin = [this](const PathSegment& prev, const PathSegment& curr) {
+        // Common path endpoint of the two segments is the midpoint of the miter line.
         const SkPoint miterMidpt = curr.fPoints[0];
+
         SkPoint before = unitNormal(prev, 1);
         SkPoint after = unitNormal(curr, 0);
 
@@ -193,8 +195,17 @@ void SkPathStroker2::join(const PathSegment& prev, const PathSegment& curr) {
         const float halfMiterLength = fRadius / sinHalfTheta;
         miterVec.setLength(halfMiterLength);  // TODO: miter length limit
 
+        // Outer: connect to the miter point, and then to t=0 (on outside) of next segment.
+        const SkPoint dest = setLength(after, fRadius);
         outer->lineTo(miterMidpt + miterVec);
-        inner->lineTo(miterMidpt - miterVec);
+        outer->lineTo(miterMidpt + dest);
+
+        // Inner: we're already at t=1 (on inside) of 'prev'.
+        // Connect to the miter midpoint (common path endpoint of the two segments),
+        // and then to t=0 (on inside) of the next segment. This adds an interior "loop" of
+        // geometry that in many cases is unnecessary, but handles several edge cases.
+        inner->lineTo(miterMidpt);
+        inner->lineTo(miterMidpt - dest);
     };
 
     switch (fJoin) {
