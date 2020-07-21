@@ -270,7 +270,7 @@ private:
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
 
-    bool mipMapSupport = context->priv().caps()->mipMapSupport();
+    bool mipmapSupport = context->priv().caps()->mipmapSupport();
     for (int i = 0; i < SurfaceParameters::kNumParams; ++i) {
         SurfaceParameters params1(context);
         params1.modify(i);
@@ -280,7 +280,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
             continue;  // can happen on some platforms (ChromeOS)
         }
 
-        if (SurfaceParameters::kMipMipCount == i && !mipMapSupport) {
+        if (SurfaceParameters::kMipMipCount == i && !mipmapSupport) {
             // If changing the mipmap setting won't result in a different surface characterization,
             // skip this step.
             continue;
@@ -295,7 +295,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
                 continue;  // can happen on some platforms (ChromeOS)
             }
 
-            if (SurfaceParameters::kMipMipCount == j && !mipMapSupport) {
+            if (SurfaceParameters::kMipMipCount == j && !mipmapSupport) {
                 // If changing the mipmap setting won't result in a different surface
                 // characterization, skip this step.
                 continue;
@@ -399,7 +399,7 @@ void DDLSurfaceCharacterizationTestImpl(GrDirectContext* dContext, skiatest::Rep
             }
         }
 
-        if (SurfaceParameters::kMipMipCount == i && !caps->mipMapSupport()) {
+        if (SurfaceParameters::kMipMipCount == i && !caps->mipmapSupport()) {
             // If changing the mipmap setting won't result in a different surface characterization,
             // skip this step
             s = nullptr;
@@ -848,7 +848,7 @@ void DDLMakeRenderTargetTestImpl(GrDirectContext* dContext, skiatest::Reporter* 
         SurfaceParameters params(dContext);
         params.modify(i);
 
-        if (!dContext->priv().caps()->mipMapSupport()) {
+        if (!dContext->priv().caps()->mipmapSupport()) {
             params.setShouldCreateMipMaps(false);
         }
 
@@ -1220,7 +1220,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
         params.setColorType(colorType);
         params.setColorSpace(nullptr);
 
-        if (!context->priv().caps()->mipMapSupport()) {
+        if (!context->priv().caps()->mipmapSupport()) {
             params.setShouldCreateMipMaps(false);
         }
 

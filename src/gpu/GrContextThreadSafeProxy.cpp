@@ -58,7 +58,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (!fCaps->mipMapSupport()) {
+    if (!fCaps->mipmapSupport()) {
         isMipMapped = false;
     }
 

@@ -500,7 +500,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context,
         SkASSERT(view && view->asTextureProxy());
 
         if (mipMapped == GrMipmapped::kNo || view->asTextureProxy()->mipMapped() == mipMapped ||
-            !direct->priv().caps()->mipMapSupport()) {
+            !direct->priv().caps()->mipmapSupport()) {
             return sk_ref_sp(const_cast<SkImage*>(this));
         }
         auto copy = GrCopyBaseMipMapToView(direct, *view, budgeted);
@@ -605,7 +605,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     }
 
     // If non-power-of-two mipmapping isn't supported, ignore the client's request
-    if (!context->priv().caps()->mipMapSupport()) {
+    if (!context->priv().caps()->mipmapSupport()) {
         buildMips = false;
     }
 
