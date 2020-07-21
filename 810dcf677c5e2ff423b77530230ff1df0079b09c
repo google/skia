@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19e413ee_95704743",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-21T12:18:30Z",
+      "side": 1,
+      "message": "I have already uploaded 3.zip containing the mskp files\nIs this the right way to use them?",
+      "revId": "810dcf677c5e2ff423b77530230ff1df0079b09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
