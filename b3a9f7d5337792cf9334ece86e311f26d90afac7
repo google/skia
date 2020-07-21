@@ -595,6 +595,30 @@
     },
     {
       "key": {
+        "uuid": "87718b34_eb86342b",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "336e6351_3ffe72f6",
+      "range": {
+        "startLine": 106,
+        "startChar": 5,
+        "endLine": 106,
+        "endChar": 18
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "887d685c_2d5a5ff9",
         "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 5

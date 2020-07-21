@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "b66d83fb_c23e7ef3",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Will kMaxSampleCount\u003d9 be a good chioce? as a image will be divided into 9 parts",
+      "parentUuid": "033cce4d_499fb6d1",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0bcd3d6a_f2008f8d",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -47,6 +65,24 @@
       "writtenOn": "2020-07-21T19:34:37Z",
       "side": 1,
       "message": "// TODO: this is one way of making a surface characterization. The other is to extract it\n// from an existing surface. Add a new method to fuzz that approach too.",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0d4b76a_8a8d2bd6",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "I see. When using MakeRenderTarget to create surface without Characterization, it ask for GrRecordingContext instead of GrDirectContext. I wonder what is a good way to properly construct GrRecordingContext?",
+      "parentUuid": "0bcd3d6a_f2008f8d",
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -93,6 +129,48 @@
     },
     {
       "key": {
+        "uuid": "2a4b727e_f71f09e4",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Created a variable static surfaceType and assign it a value at very beginning of fuzzing",
+      "parentUuid": "a0598abf_0330ef6d",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6f2f6fe_24860d9c",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d58e55d_686e6369",
+      "range": {
+        "startLine": 41,
+        "startChar": 47,
+        "endLine": 41,
+        "endChar": 69
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "099bf8cb_6a352e54",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -113,6 +191,30 @@
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "359eb116_4ca62d49",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "099bf8cb_6a352e54",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 51
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +241,30 @@
     },
     {
       "key": {
+        "uuid": "605ed4d2_2921c42c",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d17d324_80ef44fd",
+      "range": {
+        "startLine": 60,
+        "startChar": 69,
+        "endLine": 60,
+        "endChar": 70
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c21e04f7_f5432c37",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -162,6 +288,30 @@
     },
     {
       "key": {
+        "uuid": "ec6522f8_9de38566",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c21e04f7_f5432c37",
+      "range": {
+        "startLine": 61,
+        "startChar": 32,
+        "endLine": 61,
+        "endChar": 56
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b1ea6f8_c7942ba2",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -173,6 +323,30 @@
       "writtenOn": "2020-07-21T19:34:37Z",
       "side": 1,
       "message": "We\u0027ll have to fuzz this too but only on Vulkan",
+      "range": {
+        "startLine": 62,
+        "startChar": 45,
+        "endLine": 62,
+        "endChar": 61
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15b8973c_abed985e",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Updated on this one, and I am not quit sure if my approach to check Vulkan is correct",
+      "parentUuid": "9b1ea6f8_c7942ba2",
       "range": {
         "startLine": 62,
         "startChar": 45,
@@ -208,6 +382,30 @@
     },
     {
       "key": {
+        "uuid": "6ecc191d_11feb8b4",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "199cbf11_dd9caa5a",
+      "range": {
+        "startLine": 65,
+        "startChar": 51,
+        "endLine": 65,
+        "endChar": 52
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb327ccb_9aa2bd3f",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -225,6 +423,24 @@
     },
     {
       "key": {
+        "uuid": "b3bb3170_e6e1305a",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb327ccb_9aa2bd3f",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "059de855_8fc4a9e2",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -239,6 +455,24 @@
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aa70ea0_64c995f4",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "059de855_8fc4a9e2",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -265,6 +499,30 @@
     },
     {
       "key": {
+        "uuid": "e86f54be_d01d6a08",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5568e05a_da1f70f1",
+      "range": {
+        "startLine": 76,
+        "startChar": 41,
+        "endLine": 76,
+        "endChar": 42
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "182e244a_f13272bb",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -288,6 +546,30 @@
     },
     {
       "key": {
+        "uuid": "e6ff4589_f303042f",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "182e244a_f13272bb",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 29
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5afe8864_901f970d",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -299,6 +581,30 @@
       "writtenOn": "2020-07-21T19:34:37Z",
       "side": 1,
       "message": "It is good to fuzz this independently of the value in make_characterization but note that, if they don\u0027t match, any DDL create with the characterization won\u0027t be able to be replayed into the surface.",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 71
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdbacd3c_df0643b5",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Created another static variable GrSurfaceOrigin origin and initialize it at very beginning of fuzzing. How about this?",
+      "parentUuid": "5afe8864_901f970d",
       "range": {
         "startLine": 97,
         "startChar": 0,
@@ -334,6 +640,30 @@
     },
     {
       "key": {
+        "uuid": "8edbf731_da086e8b",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2eec561c_98357262",
+      "range": {
+        "startLine": 99,
+        "startChar": 91,
+        "endLine": 99,
+        "endChar": 98
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7bc9075a_0ef71bc9",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -357,6 +687,30 @@
     },
     {
       "key": {
+        "uuid": "a9e2eaa9_9616eab9",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bc9075a_0ef71bc9",
+      "range": {
+        "startLine": 103,
+        "startChar": 7,
+        "endLine": 103,
+        "endChar": 11
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d389e04f_d9abb955",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -371,6 +725,24 @@
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79322878_981ce874",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d389e04f_d9abb955",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -394,6 +766,30 @@
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dd77ad4_d66365d7",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efe7f633_ae21e22e",
+      "range": {
+        "startLine": 108,
+        "startChar": 37,
+        "endLine": 108,
+        "endChar": 39
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -437,6 +833,48 @@
     },
     {
       "key": {
+        "uuid": "7d832e22_f4dfda2f",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46d3d6e5_564eb31b",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 73
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2da1012_57238f2b",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "213d491c_97bf9738",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1edc5e95_744786f4",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -457,6 +895,30 @@
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c36b141d_cc2361a0",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1edc5e95_744786f4",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 65
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -483,6 +945,30 @@
     },
     {
       "key": {
+        "uuid": "63280c9a_99849aff",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d40db8f1_62514e5f",
+      "range": {
+        "startLine": 135,
+        "startChar": 8,
+        "endLine": 135,
+        "endChar": 48
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53fa0854_65c5a5a5",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -506,6 +992,30 @@
     },
     {
       "key": {
+        "uuid": "69ab0826_db7811e0",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53fa0854_65c5a5a5",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 32
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "decf1ad6_10aea87b",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 7
@@ -520,6 +1030,24 @@
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75b94599_b450769e",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "decf1ad6_10aea87b",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -557,6 +1085,24 @@
         "endLine": 147,
         "endChar": 12
       },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11f664e6_ebcb6e4a",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T23:30:31Z",
+      "side": 1,
+      "message": "Got it, and is the \"life time of the DDL\" means drawing a ddl on multiple surface?",
+      "parentUuid": "0cb2533b_8f0975c8",
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
