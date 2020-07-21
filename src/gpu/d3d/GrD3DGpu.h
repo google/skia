@@ -238,7 +238,7 @@ private:
                                          SkBudgeted,
                                          GrProtected,
                                          int mipLevelCount,
-                                         GrMipMapsStatus);
+                                         GrMipmapStatus);
 
     bool uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
                          GrColorType colorType, const GrMipLevel* texels, int mipLevelCount);

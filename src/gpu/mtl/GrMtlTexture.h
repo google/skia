@@ -20,7 +20,7 @@ public:
                                               SkBudgeted budgeted,
                                               SkISize,
                                               MTLTextureDescriptor*,
-                                              GrMipMapsStatus);
+                                              GrMipmapStatus);
 
     static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*,
                                                   SkISize,
@@ -41,7 +41,7 @@ public:
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);
 
 protected:
-    GrMtlTexture(GrMtlGpu*, SkISize, id<MTLTexture>, GrMipMapsStatus);
+    GrMtlTexture(GrMtlGpu*, SkISize, id<MTLTexture>, GrMipmapStatus);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -61,13 +61,13 @@ protected:
 private:
     enum Wrapped { kWrapped };
 
-    GrMtlTexture(GrMtlGpu*, SkBudgeted, SkISize, id<MTLTexture>, GrMipMapsStatus);
+    GrMtlTexture(GrMtlGpu*, SkBudgeted, SkISize, id<MTLTexture>, GrMipmapStatus);
 
     GrMtlTexture(GrMtlGpu*,
                  Wrapped,
                  SkISize,
                  id<MTLTexture>,
-                 GrMipMapsStatus,
+                 GrMipmapStatus,
                  GrWrapCacheable,
                  GrIOType);
 
