@@ -860,10 +860,6 @@ public:
     */
     bool isValid(GrRecordingContext* context) const;
 
-    /** Deprecated.
-     */
-    bool isValid(GrContext* context) const;
-
     /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not
         texture-backed (including promise texture images) or if the the GrContext does not
         have the same context ID as the context backing the image then this is a no-op.
