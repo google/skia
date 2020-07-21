@@ -33,6 +33,81 @@
       "revId": "7f2e99640c6b9e57890534970a8b493810933c0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77880df1_d284e674",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-21T22:27:35Z",
+      "side": 1,
+      "message": "This looks good to me, but I want to fire off a few trybots before we land.\n\nSometimes when we translate things like\n\n   mad(x, y,\n   mad(z, w, k))\n\ninto\n\n    x*y + z*w + k\n\nit changes the order of operations, and that\u0027s significant when working with floats.\nI think our CQ + linux-blink-rel will be enough to let us know if any of that matters.\n\nIt certainly won\u0027t matter for speed, and I\u0027d be astonished if it produced anything visibly different, but there are sometimes low-bit changes we should be aware of (to rebaseline goldens, etc).",
+      "revId": "7f2e99640c6b9e57890534970a8b493810933c0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7daae19d_e904f006",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-21T22:27:35Z",
+      "side": 1,
+      "message": "(This is the way.)",
+      "parentUuid": "db38d958_db9508d8",
+      "revId": "7f2e99640c6b9e57890534970a8b493810933c0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "498a3d96_118365e0",
+        "filename": "src/core/SkM44.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-21T22:27:35Z",
+      "side": 1,
+      "message": "This is just me (and I stress, people seem to bizarrely disagree with me and I can\u0027t understand it), sometimes these sorts of things read more clearly if you group * more tightly than +, e.g.\n\n    return c0*r[0] + c1*r[1] + c2*r[2] + c3*r[3];\n\nYou don\u0027t have to do this, but if you would like to, I\u0027ll back you up.  :)",
+      "revId": "7f2e99640c6b9e57890534970a8b493810933c0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1228042_45b677ae",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-21T22:27:35Z",
+      "side": 1,
+      "message": "it\u0027s unusual to call locals names starting with \u0027f\u0027 like this in our codebase.  Usually that\u0027s a sign that it\u0027s a member variable.\n\nWe could just not name them?\n\n ltrb \u003d ltrb * skvx::Vec\u003c4,float\u003e{params.fIW, params.fInvH, params.fIW, params.fInvH}\n             + skvx::Vec\u003c4,float\u003e{0.f, params.fYOffset, 0.f, params.fYOffset};",
+      "range": {
+        "startLine": 151,
+        "startChar": 24,
+        "endLine": 151,
+        "endChar": 27
+      },
+      "revId": "7f2e99640c6b9e57890534970a8b493810933c0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
