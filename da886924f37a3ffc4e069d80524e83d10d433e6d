@@ -34,6 +34,24 @@
       "revId": "da886924f37a3ffc4e069d80524e83d10d433e6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22244f3c_606d0ddf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-21T14:07:50Z",
+      "side": 1,
+      "message": "Hmm, the debian bot failure seems consistent. And also it\u0027s not failing for other runs:\nhttps://task-scheduler.skia.org/jobs/search?name\u003dTest-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit\n\nI can\u0027t get anything useful from the bot on what the actual failure is though. The stdout links just says permission denied:\nhttps://ci.chromium.org/raw/build/logs.chromium.org/skia/4d86bc6a3cb97f11/+/annotations\n\nMaybe we could limit the change to android only or something like that to avoid impacting linux? No idea if skia has like a universal OS define like that..",
+      "parentUuid": "e66b3e67_43c11d85",
+      "revId": "da886924f37a3ffc4e069d80524e83d10d433e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
