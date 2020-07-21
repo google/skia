@@ -73,7 +73,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
         auto fp = std::unique_ptr<GrFragmentProcessor>(
                 new SampleMatrixVariableEffect(std::move(baseFP), ofsX, ofsY));
         GrPaint paint;
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(tx, ty),
                         SkRect::MakeIWH(256, 256));
     };

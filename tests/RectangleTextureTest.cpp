@@ -35,7 +35,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrRecordingCont
         auto fp = GrTextureEffect::Make(rectView, alphaType, SkMatrix::I(), filter);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
         rtContext->drawPaint(nullptr, std::move(paint), SkMatrix::I());
         TestReadPixels(reporter, rtContext.get(), expectedPixelValues,
                        "RectangleTexture-basic-draw");

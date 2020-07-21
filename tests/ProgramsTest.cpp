@@ -229,7 +229,7 @@ static void set_random_color_coverage_stages(GrPaint* paint,
     if (d->fRandom->nextF() < procTreeProbability) {
         std::unique_ptr<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
         if (fp) {
-            paint->addColorFragmentProcessor(std::move(fp));
+            paint->setColorFragmentProcessor(std::move(fp));
         }
     } else {
         int numProcs = d->fRandom->nextULessThan(maxStages + 1);
@@ -242,7 +242,7 @@ static void set_random_color_coverage_stages(GrPaint* paint,
             }
             // finally add the stage to the correct pipeline in the drawstate
             if (s < numColorProcs) {
-                paint->addColorFragmentProcessor(std::move(fp));
+                paint->setColorFragmentProcessor(std::move(fp));
             } else {
                 paint->addCoverageFragmentProcessor(std::move(fp));
             }
@@ -330,7 +330,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
             paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &ptd);
             auto blockFP = BlockInputFragmentProcessor::Make(std::move(fp));
-            paint.addColorFragmentProcessor(std::move(blockFP));
+            paint.setColorFragmentProcessor(std::move(blockFP));
             GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
 
             direct->flush(GrFlushInfo());
