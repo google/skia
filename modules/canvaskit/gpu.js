@@ -58,7 +58,9 @@
       CanvasKit.MakeWebGLCanvasSurface = function(idOrElement, colorSpace, attrs) {
         colorSpace = colorSpace || null;
         var canvas = idOrElement;
-        if (canvas.tagName !== 'CANVAS') {
+        var isHTMLCanvas = typeof HTMLCanvasElement !== 'undefined' && canvas instanceof HTMLCanvasElement;
+        var isOffscreenCanvas = canvas instanceof OffscreenCanvas;
+        if (!isHTMLCanvas && !isOffscreenCanvas) {
           canvas = document.getElementById(idOrElement);
           if (!canvas) {
             throw 'Canvas with id ' + idOrElement + ' was not found';
