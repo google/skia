@@ -154,7 +154,7 @@ public:
     enum NaN_Constructor {
         kNaN_Constructor
     };
-    SkM44(NaN_Constructor)
+    constexpr SkM44(NaN_Constructor)
         : fMat{SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
                SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
                SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
@@ -164,16 +164,15 @@ public:
     /**
      *  Parameters are treated as row-major.
      */
-    SkM44(SkScalar m0, SkScalar m4, SkScalar m8,  SkScalar m12,
-          SkScalar m1, SkScalar m5, SkScalar m9,  SkScalar m13,
-          SkScalar m2, SkScalar m6, SkScalar m10, SkScalar m14,
-          SkScalar m3, SkScalar m7, SkScalar m11, SkScalar m15)
-    {
-        fMat[0] = m0; fMat[4] = m4; fMat[8]  = m8;  fMat[12] = m12;
-        fMat[1] = m1; fMat[5] = m5; fMat[9]  = m9;  fMat[13] = m13;
-        fMat[2] = m2; fMat[6] = m6; fMat[10] = m10; fMat[14] = m14;
-        fMat[3] = m3; fMat[7] = m7; fMat[11] = m11; fMat[15] = m15;
-    }
+    constexpr SkM44(SkScalar m0, SkScalar m4, SkScalar m8,  SkScalar m12,
+                    SkScalar m1, SkScalar m5, SkScalar m9,  SkScalar m13,
+                    SkScalar m2, SkScalar m6, SkScalar m10, SkScalar m14,
+                    SkScalar m3, SkScalar m7, SkScalar m11, SkScalar m15)
+        : fMat{m0,  m1,  m2,  m3,
+               m4,  m5,  m6,  m7,
+               m8,  m9,  m10, m11,
+               m12, m13, m14, m15}
+    {}
 
     static SkM44 Rows(const SkV4& r0, const SkV4& r1, const SkV4& r2, const SkV4& r3) {
         SkM44 m(kUninitialized_Constructor);
