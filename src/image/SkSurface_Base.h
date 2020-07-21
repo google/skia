@@ -18,7 +18,7 @@ class SkSurface_Base : public SkSurface {
 public:
     SkSurface_Base(int width, int height, const SkSurfaceProps*);
     SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
-    virtual ~SkSurface_Base();
+    ~SkSurface_Base() override;
 
     virtual GrContext* onGetContext_deprecated();
     virtual GrRecordingContext* onGetRecordingContext();

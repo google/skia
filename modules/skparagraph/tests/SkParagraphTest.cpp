@@ -107,8 +107,6 @@ public:
         this->disableFontFallback();
     }
 
-    ~ResourceFontCollection() = default;
-
     size_t resolvedFonts() const { return fResolvedFonts; }
 
     // TODO: temp solution until we check in fonts

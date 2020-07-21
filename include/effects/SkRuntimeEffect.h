@@ -131,7 +131,7 @@ public:
     bool usesSampleCoords() const { return fMainFunctionHasSampleCoords; }
 
     static void RegisterFlattenables();
-    ~SkRuntimeEffect();
+    ~SkRuntimeEffect() override;
 
 private:
     SkRuntimeEffect(SkString sksl,

@@ -28,8 +28,6 @@ class KeyframeAnimatorBuilder;
 
 class Animator : public SkRefCnt {
 public:
-    virtual ~Animator() = default;
-
     using StateChanged = bool;
     StateChanged seek(float t) { return this->onSeek(t); }
 

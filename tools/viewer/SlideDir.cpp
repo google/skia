@@ -26,7 +26,6 @@
 
 class SlideDir::Animator : public SkRefCnt {
 public:
-    virtual ~Animator() = default;
     Animator(const Animator&) = delete;
     Animator& operator=(const Animator&) = delete;
 
@@ -195,7 +194,7 @@ public:
     }
 
 protected:
-    void onTick(float t) {
+    void onTick(float t) override {
         if (!this->isAnimating())
             return;
 

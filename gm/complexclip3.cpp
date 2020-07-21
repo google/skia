@@ -36,15 +36,15 @@ public:
 
 protected:
 
-    SkString onShortName() {
+    SkString onShortName() override {
         SkString str;
         str.printf("complexclip3_%s", fDoSimpleClipFirst ? "simple" : "complex");
         return str;
     }
 
-    SkISize onISize() { return SkISize::Make(400, 950); }
+    SkISize onISize() override { return SkISize::Make(400, 950); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         SkPath clipSimple;
         clipSimple.addCircle(SkIntToScalar(70), SkIntToScalar(50), SkIntToScalar(20));
 

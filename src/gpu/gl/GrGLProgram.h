@@ -63,7 +63,7 @@ public:
                                    int vertexStride,
                                    int instanceStride);
 
-    ~GrGLProgram();
+    ~GrGLProgram() override;
 
     /**
      * Call to abandon GL objects owned by this program.
