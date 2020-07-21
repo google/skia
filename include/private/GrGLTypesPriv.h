@@ -50,7 +50,7 @@ public:
 
         uint32_t fSwizzleKey;
         GrGLint fBaseMipMapLevel;
-        GrGLint fMaxMipMapLevel;
+        GrGLint fMaxMipmapLevel;
     };
 
     void invalidate();

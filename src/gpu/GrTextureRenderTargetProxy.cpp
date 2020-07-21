@@ -113,7 +113,7 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps& c
 
     // TODO: do we have enough information to improve this worst case estimate?
     return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                  colorSamplesPerPixel, this->proxyMipMapped(),
+                                  colorSamplesPerPixel, this->proxyMipmapped(),
                                   !this->priv().isExact());
 }
 
@@ -125,7 +125,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
     const GrUniqueKey& key = this->getUniqueKey();
 
     if (!this->instantiateImpl(resourceProvider, this->numSamples(), GrRenderable::kYes,
-                               this->mipMapped(), key.isValid() ? &key : nullptr)) {
+                               this->mipmapped(), key.isValid() ? &key : nullptr)) {
         return false;
     }
     if (key.isValid()) {
@@ -141,7 +141,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
                                                     GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numSamples(),
-                                                       GrRenderable::kYes, this->mipMapped());
+                                                       GrRenderable::kYes, this->mipmapped());
     if (!surface) {
         return nullptr;
     }
@@ -165,7 +165,7 @@ GrSurfaceProxy::LazySurfaceDesc GrTextureRenderTargetProxy::callbackDesc() const
             dims,
             fit,
             GrRenderable::kYes,
-            this->mipMapped(),
+            this->mipmapped(),
             this->numSamples(),
             this->backendFormat(),
             this->isProtected(),
@@ -177,8 +177,8 @@ GrSurfaceProxy::LazySurfaceDesc GrTextureRenderTargetProxy::callbackDesc() const
 void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrTextureProxy version
     SkASSERT(surface->asTexture());
-    SkASSERT(GrMipmapped::kNo == this->proxyMipMapped() ||
-             GrMipmapped::kYes == surface->asTexture()->texturePriv().mipMapped());
+    SkASSERT(GrMipmapped::kNo == this->proxyMipmapped() ||
+             GrMipmapped::kYes == surface->asTexture()->texturePriv().mipmapped());
 
     // Anything checked here should also be checking the GrRenderTargetProxy version
     SkASSERT(surface->asRenderTarget());

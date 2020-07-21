@@ -60,7 +60,7 @@ GrSurfaceProxyView GrTextureAdjuster::onView(GrMipmapped mipMapped) {
 
     GrTextureProxy* texProxy = fOriginal.asTextureProxy();
     SkASSERT(texProxy);
-    if (mipMapped == GrMipmapped::kNo || texProxy->mipMapped() == GrMipmapped::kYes) {
+    if (mipMapped == GrMipmapped::kNo || texProxy->mipmapped() == GrMipmapped::kYes) {
         return fOriginal;
     }
 

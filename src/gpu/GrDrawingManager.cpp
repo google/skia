@@ -278,7 +278,7 @@ bool GrDrawingManager::flush(
                 }
                 if (GrMipmapped::kYes == mipMapped) {
                     // The onFlush callback is responsible for regenerating mips if needed.
-                    SkASSERT(p->asTextureProxy() && !p->asTextureProxy()->mipMapsAreDirty());
+                    SkASSERT(p->asTextureProxy() && !p->asTextureProxy()->mipmapsAreDirty());
                 }
             });
 #endif
@@ -513,10 +513,10 @@ static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
     // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
     // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
     if (auto* textureProxy = proxy->asTextureProxy()) {
-        if (textureProxy->mipMapsAreDirty()) {
+        if (textureProxy->mipmapsAreDirty()) {
             SkASSERT(textureProxy->peekTexture());
             gpu->regenerateMipMapLevels(textureProxy->peekTexture());
-            textureProxy->markMipMapsClean();
+            textureProxy->markMipmapsClean();
         }
     }
 }
@@ -656,8 +656,8 @@ void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>
                                ddl->characterization().origin());
     }
     GrTextureProxy* newTextureProxy = newDest->asTextureProxy();
-    if (newTextureProxy && GrMipmapped::kYes == newTextureProxy->mipMapped()) {
-        newTextureProxy->markMipMapsDirty();
+    if (newTextureProxy && GrMipmapped::kYes == newTextureProxy->mipmapped()) {
+        newTextureProxy->markMipmapsDirty();
     }
 
     this->addDDLTarget(newDest, ddl->priv().targetProxy());

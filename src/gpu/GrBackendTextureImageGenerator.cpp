@@ -210,7 +210,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     if (texGenPolicy == GrImageTexGenPolicy::kDraw && origin.isZero() &&
         info.dimensions() == fBackendTexture.dimensions() &&
-        (mipMapped == GrMipmapped::kNo || proxy->mipMapped() == GrMipmapped::kYes)) {
+        (mipMapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes)) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
         return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);
     } else {

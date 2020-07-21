@@ -114,7 +114,7 @@ GrBackendTexture GrGLTexture::getBackendTexture() const {
     info.fTarget = target_from_texture_type(this->texturePriv().textureType());
     info.fID = fID;
     info.fFormat = GrGLFormatToEnum(fFormat);
-    return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(), info,
+    return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipmapped(), info,
                             fParameters);
 }
 

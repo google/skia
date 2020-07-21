@@ -237,7 +237,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
-    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipmapLevel() + 1));
 
     if (!check_max_blit_width(width)) {
         return false;
@@ -316,7 +316,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
 #endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
-        tex->texturePriv().markMipMapsDirty();
+        tex->texturePriv().markMipmapsDirty();
     }
 
     return true;
@@ -403,7 +403,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     }
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
-        tex->texturePriv().markMipMapsDirty();
+        tex->texturePriv().markMipmapsDirty();
     }
 
     return true;

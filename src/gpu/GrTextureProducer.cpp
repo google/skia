@@ -97,7 +97,7 @@ GrSurfaceProxyView GrTextureProducer::view(GrMipmapped mipMapped) {
     // Check to make sure if we requested MIPs that the returned texture has MIP maps or the format
     // is not copyable.
     SkASSERT(!result || mipMapped == GrMipmapped::kNo ||
-             result.asTextureProxy()->mipMapped() == GrMipmapped::kYes ||
+             result.asTextureProxy()->mipmapped() == GrMipmapped::kYes ||
              !caps->isFormatCopyable(result.proxy()->backendFormat()));
     return result;
 }

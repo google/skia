@@ -44,7 +44,7 @@ public:
     ~GrMockTexture() override {}
 
     GrBackendTexture getBackendTexture() const override {
-        return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(),
+        return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipmapped(),
                                 fInfo);
     }
 
@@ -210,7 +210,7 @@ private:
         }
         const GrCaps& caps = *this->getGpu()->caps();
         return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                      numColorSamples, this->texturePriv().mipMapped());
+                                      numColorSamples, this->texturePriv().mipmapped());
     }
 
     // This avoids an inherits via dominance warning on MSVC.

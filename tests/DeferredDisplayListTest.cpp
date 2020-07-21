@@ -1197,7 +1197,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
 
             GrTextureProxy* backingProxy = ((SkImage_GpuBase*) image.get())->peekProxy();
 
-            REPORTER_ASSERT(reporter, backingProxy->mipMapped() == mipMapped);
+            REPORTER_ASSERT(reporter, backingProxy->mipmapped() == mipMapped);
             if (GR_GL_TEXTURE_2D == target) {
                 REPORTER_ASSERT(reporter, !backingProxy->hasRestrictedSampling());
             } else {

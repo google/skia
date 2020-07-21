@@ -209,7 +209,7 @@ void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, GrScratchKey* key) co
     const GrTextureProxy* tp = this->asTextureProxy();
     GrMipmapped mipMapped = GrMipmapped::kNo;
     if (tp) {
-        mipMapped = tp->mipMapped();
+        mipMapped = tp->mipmapped();
     }
 
     GrTexturePriv::ComputeScratchKey(caps, this->backendFormat(), this->backingStoreDimensions(),

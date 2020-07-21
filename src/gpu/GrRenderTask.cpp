@@ -72,8 +72,8 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
                                                                  this->target(0).origin());
         }
         GrTextureProxy* textureProxy = this->target(0).asTextureProxy();
-        if (textureProxy && GrMipmapped::kYes == textureProxy->mipMapped()) {
-            textureProxy->markMipMapsDirty();
+        if (textureProxy && GrMipmapped::kYes == textureProxy->mipmapped()) {
+            textureProxy->markMipmapsDirty();
         }
     }
 
@@ -161,11 +161,11 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
     GrTextureProxy* textureProxy = dependedOn->asTextureProxy();
     if (GrMipmapped::kYes == mipMapped) {
         SkASSERT(textureProxy);
-        if (GrMipmapped::kYes != textureProxy->mipMapped()) {
+        if (GrMipmapped::kYes != textureProxy->mipmapped()) {
             // There are some cases where we might be given a non-mipmapped texture with a mipmap
             // filter. See skbug.com/7094.
             mipMapped = GrMipmapped::kNo;
-        } else if (textureProxy->mipMapsAreDirty()) {
+        } else if (textureProxy->mipmapsAreDirty()) {
             resolveFlags |= GrSurfaceProxy::ResolveFlags::kMipMaps;
         }
     }
@@ -197,7 +197,7 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
             SkASSERT(!renderTargetProxy->isMSAADirty());
         }
         if (textureProxy) {
-            SkASSERT(!textureProxy->mipMapsAreDirty());
+            SkASSERT(!textureProxy->mipmapsAreDirty());
         }
         SkASSERT(drawingMgr->getLastRenderTask(dependedOn) == fTextureResolveTask);
 #endif

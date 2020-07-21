@@ -466,7 +466,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
         success = this->uploadTexDataLinear(vkTex, left, top, width, height, srcColorType,
                                             texels[0].fPixels, texels[0].fRowBytes);
     } else {
-        SkASSERT(mipLevelCount <= vkTex->texturePriv().maxMipMapLevel() + 1);
+        SkASSERT(mipLevelCount <= vkTex->texturePriv().maxMipmapLevel() + 1);
         success = this->uploadTexDataOptimal(vkTex, left, top, width, height, srcColorType, texels,
                                              mipLevelCount);
     }
@@ -544,7 +544,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                                                     1,
                                                     &region);
 
-    vkTex->texturePriv().markMipMapsDirty();
+    vkTex->texturePriv().markMipmapsDirty();
     return true;
 }
 
@@ -784,7 +784,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
-    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipmapLevel() + 1));
 
     if (width == 0 || height == 0) {
         return false;
@@ -952,7 +952,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
                                          SkIPoint::Make(left, top)));
     }
     if (1 == mipLevelCount) {
-        tex->texturePriv().markMipMapsDirty();
+        tex->texturePriv().markMipmapsDirty();
     }
 
     return true;
