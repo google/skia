@@ -218,13 +218,13 @@ bool SkImage::isValid(GrContext* context) const {
     return this->isValid(static_cast<GrRecordingContext*>(context));
 }
 
-GrSemaphoresSubmitted SkImage::flush(GrContext* context, const GrFlushInfo& flushInfo) {
-    return as_IB(this)->onFlush(context, flushInfo);
+GrSemaphoresSubmitted SkImage::flush(GrDirectContext* dContext, const GrFlushInfo& flushInfo) {
+    return as_IB(this)->onFlush(dContext, flushInfo);
 }
 
-void SkImage::flushAndSubmit(GrContext* context) {
-    this->flush(context, {});
-    context->submit();
+void SkImage::flushAndSubmit(GrDirectContext* dContext) {
+    this->flush(dContext, {});
+    dContext->submit();
 }
 
 #else
@@ -250,11 +250,11 @@ bool SkImage::isValid(GrContext* context) const {
     return as_IB(this)->onIsValid(nullptr);
 }
 
-GrSemaphoresSubmitted SkImage::flush(GrContext*, const GrFlushInfo&) {
+GrSemaphoresSubmitted SkImage::flush(GrDirectContext*, const GrFlushInfo&) {
     return GrSemaphoresSubmitted::kNo;
 }
 
-void SkImage::flushAndSubmit(GrContext*) {}
+void SkImage::flushAndSubmit(GrDirectContext*) {}
 
 #endif
 
