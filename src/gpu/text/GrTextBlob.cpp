@@ -354,11 +354,11 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
     const SkPMColor4f drawingColor =
             calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
     GrAtlasTextOp::Geometry geometry = {
-            SkRef(fBlob),
             this,
             drawMatrix,
             drawOrigin,
             clipRect,
+            SkRef(fBlob),
             drawingColor
     };
 
@@ -367,8 +367,8 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
                                                                  false,
                                                                  this->glyphCount(),
                                                                  subRunBounds,
-                                                                 std::move(grPaint),
-                                                                 std::move(geometry));
+                                                                 geometry,
+                                                                 std::move(grPaint));
 
     return {clip, std::move(op)};
 }
@@ -520,11 +520,11 @@ GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
     // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
     GrAtlasTextOp::Geometry geometry = {
-            SkRef(fBlob),
             this,
             drawMatrix,
             drawOrigin,
             SkIRect::MakeEmpty(),
+            SkRef(fBlob),
             drawingColor
     };
     std::unique_ptr<GrDrawOp> op;
@@ -536,8 +536,8 @@ GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
                                            true,
                                            this->glyphCount(),
                                            this->deviceRect(drawMatrix, drawOrigin),
-                                           std::move(grPaint),
-                                           std::move(geometry));
+                                           geometry,
+                                           std::move(grPaint));
     } else {
         const GrColorInfo& colorInfo = rtc->colorInfo();
         const SkSurfaceProps& props = rtc->surfaceProps();
@@ -570,8 +570,8 @@ GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
                                            SkPaintPriv::ComputeLuminanceColor(drawPaint),
                                            useGammaCorrectDistanceTable,
                                            DFGPFlags,
-                                           std::move(grPaint),
-                                           std::move(geometry));
+                                           geometry,
+                                           std::move(grPaint));
     }
 
     return {clip, std::move(op)};
