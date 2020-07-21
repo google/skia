@@ -467,7 +467,7 @@ void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTarget
     GrPaint paint;
     auto fp = this->makeFragmentProcessor(std::move(srcView), matrix, srcBounds, boundaryMode,
                                           *renderTargetContext->caps());
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         dstRect, srcRect);

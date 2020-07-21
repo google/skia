@@ -230,7 +230,7 @@ std::unique_ptr<GrDrawOp> MakeRect(GrRecordingContext* context,
                                    const SkRect& localRect,
                                    const SkMatrix& localM) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
     return TestRectOp::Make(context, std::move(paint), drawRect, localRect, localM);
 }
 

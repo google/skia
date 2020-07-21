@@ -129,7 +129,7 @@ protected:
                 if (fp) {
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                    grPaint.addColorFragmentProcessor(std::move(fp));
+                    grPaint.setColorFragmentProcessor(std::move(fp));
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
                     renderTargetContext->priv().testingOnly_addDrawOp(
@@ -244,7 +244,7 @@ protected:
             if (fp) {
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
-                grPaint.addColorFragmentProcessor(std::move(fp));
+                grPaint.setColorFragmentProcessor(std::move(fp));
                 std::unique_ptr<GrDrawOp> op(GrFillRectOp::MakeNonAARect(
                         context, std::move(grPaint), viewMatrix, renderRect));
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
@@ -362,7 +362,7 @@ protected:
                                                samplerState, caps, SkMatrix::I(), subset));
                 if (fp) {
                     GrPaint grPaint;
-                    grPaint.addColorFragmentProcessor(std::move(fp));
+                    grPaint.setColorFragmentProcessor(std::move(fp));
                     renderTargetContext->drawRect(
                             nullptr, std::move(grPaint), GrAA::kYes, ctm, rect);
                 }

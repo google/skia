@@ -63,14 +63,14 @@ DEF_SIMPLE_GPU_GM(sample_matrix_constant, ctx, rtCtx, canvas, 1024, 256) {
     auto draw = [rtCtx, &wrap](std::unique_ptr<GrFragmentProcessor> baseFP, int tx, int ty) {
         auto fp = wrap(std::move(baseFP));
         GrPaint paint;
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(tx, ty),
                         SkRect::MakeIWH(256, 256));
     };
     auto draw2 = [rtCtx, &wrap](std::unique_ptr<GrFragmentProcessor> baseFP, int tx, int ty) {
       auto fp = wrap(wrap(std::move(baseFP)));
       GrPaint paint;
-      paint.addColorFragmentProcessor(std::move(fp));
+      paint.setColorFragmentProcessor(std::move(fp));
       rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(tx, ty),
                       SkRect::MakeIWH(256, 256));
     };
