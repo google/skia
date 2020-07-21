@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2cdb1b5d_ed3c2be1",
+        "filename": "demos.skia.org/demos/web_worker/shared.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T20:57:45Z",
+      "side": 1,
+      "message": "drawFrame actually has a canvas as an argument, so you don\u0027t need to grab it on line 9, you can use the param.",
+      "range": {
+        "startLine": 13,
+        "startChar": 22,
+        "endLine": 13,
+        "endChar": 24
+      },
+      "revId": "261d702ab9d8e2a43aa405df7be3d74aab2a5a31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
