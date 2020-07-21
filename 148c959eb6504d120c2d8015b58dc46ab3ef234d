@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62b07531_0b55971c",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-21T14:02:14Z",
+      "side": 1,
+      "message": "mike nit: I like \\n here\n\nconstructor\n    : a()\n    , b()\n{\n    first_line",
+      "range": {
+        "startLine": 65,
+        "startChar": 24,
+        "endLine": 65,
+        "endChar": 25
+      },
+      "revId": "148c959eb6504d120c2d8015b58dc46ab3ef234d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e5f3287_4be76b97",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-21T14:02:14Z",
+      "side": 1,
+      "message": "curious, why is this assert correctd? need dox?",
+      "range": {
+        "startLine": 110,
+        "startChar": 34,
+        "endLine": 114,
+        "endChar": 39
+      },
+      "revId": "148c959eb6504d120c2d8015b58dc46ab3ef234d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4fa375a_8a15ca78",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-21T14:02:14Z",
+      "side": 1,
+      "message": "I feel dumb. How does this related to kSrcIn?",
+      "range": {
+        "startLine": 116,
+        "startChar": 40,
+        "endLine": 116,
+        "endChar": 75
+      },
+      "revId": "148c959eb6504d120c2d8015b58dc46ab3ef234d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac1b60f4_50496f97",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-21T14:02:14Z",
+      "side": 1,
+      "message": "tab nit:",
+      "range": {
+        "startLine": 119,
+        "startChar": 10,
+        "endLine": 120,
+        "endChar": 11
+      },
+      "revId": "148c959eb6504d120c2d8015b58dc46ab3ef234d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
