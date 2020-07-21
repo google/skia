@@ -218,14 +218,24 @@ bool SkImage::isValid(GrContext* context) const {
     return this->isValid(static_cast<GrRecordingContext*>(context));
 }
 
+GrSemaphoresSubmitted SkImage::flush(GrDirectContext* dContext, const GrFlushInfo& flushInfo) {
+    return as_IB(this)->onFlush(dContext, flushInfo);
+}
+
+void SkImage::flushAndSubmit(GrDirectContext* dContext) {
+    this->flush(dContext, {});
+    dContext->submit();
+}
+
+#ifdef SK_IMAGE_FLUSH_LEGACY_API
 GrSemaphoresSubmitted SkImage::flush(GrContext* context, const GrFlushInfo& flushInfo) {
-    return as_IB(this)->onFlush(context, flushInfo);
+    return this->flush(GrAsDirectContext(context), flushInfo);
 }
 
 void SkImage::flushAndSubmit(GrContext* context) {
-    this->flush(context, {});
-    context->submit();
+    this->flushAndSubmit(GrAsDirectContext(context));
 }
+#endif
 
 #else
 
@@ -250,11 +260,19 @@ bool SkImage::isValid(GrContext* context) const {
     return as_IB(this)->onIsValid(nullptr);
 }
 
+GrSemaphoresSubmitted SkImage::flush(GrDirectContext*, const GrFlushInfo&) {
+    return GrSemaphoresSubmitted::kNo;
+}
+
+void SkImage::flushAndSubmit(GrDirectContext*) {}
+
+#ifdef SK_IMAGE_FLUSH_LEGACY_API
 GrSemaphoresSubmitted SkImage::flush(GrContext*, const GrFlushInfo&) {
     return GrSemaphoresSubmitted::kNo;
 }
 
 void SkImage::flushAndSubmit(GrContext*) {}
+#endif
 
 #endif
 
