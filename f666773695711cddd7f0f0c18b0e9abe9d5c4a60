@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f16a88e9_640c8b2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-21T20:12:01Z",
+      "side": 1,
+      "message": "The fix was to explicitly cast to GrRecordingContext in our legacy method to make CPU + Chrome happy. Tacked on the canaries this time for good measure.",
+      "revId": "f666773695711cddd7f0f0c18b0e9abe9d5c4a60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
