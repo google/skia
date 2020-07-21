@@ -8,7 +8,9 @@ Milestone 86
 ------------
 
   * Rename GrMipMapped to GrMipmapped for consistency with new APIs.
+    Also rename GrBackendTexture::hasMipMaps() to GrBackendTexture::hasMipmaps()
     https://review.skia.org/304576
+    https://review.skia.org/304598
 
   * Add option for clients to own semaphores after wait calls.
     https://review.skia.org/301216

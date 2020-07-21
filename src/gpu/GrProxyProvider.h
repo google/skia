@@ -151,7 +151,7 @@ public:
     using LazyInstantiateCallback = GrSurfaceProxy::LazyInstantiateCallback;
 
     struct TextureInfo {
-        GrMipmapped fMipMapped;
+        GrMipmapped fMipmapped;
         GrTextureType fTextureType;
     };
 

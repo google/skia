@@ -147,12 +147,12 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     GrColorType grColorType = SkColorTypeToGrColorType(info.colorType());
 
-    GrMipmapped textureIsMipMapped = fBackendTexture.hasMipMaps() ? GrMipmapped::kYes
+    GrMipmapped textureIsMipMapped = fBackendTexture.hasMipmaps() ? GrMipmapped::kYes
                                                                   : GrMipmapped::kNo;
 
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
     // mipmaps are fully fleshed out.
-    GrMipmapStatus mipmapStatus = fBackendTexture.hasMipMaps()
+    GrMipmapStatus mipmapStatus = fBackendTexture.hasMipmaps()
             ? GrMipmapStatus::kValid : GrMipmapStatus::kNotAllocated;
 
     GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);

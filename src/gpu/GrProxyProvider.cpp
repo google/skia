@@ -322,7 +322,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [bitmap](GrResourceProvider* resourceProvider, const LazySurfaceDesc& desc) {
-                SkASSERT(desc.fMipMapped == GrMipmapped::kNo);
+                SkASSERT(desc.fMipmapped == GrMipmapped::kNo);
                 GrMipLevel mipLevel = { bitmap.getPixels(), bitmap.rowBytes() };
                 auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
                 return LazyCallbackResult(resourceProvider->createTexture(
@@ -462,7 +462,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [data](GrResourceProvider* resourceProvider, const LazySurfaceDesc& desc) {
                 return LazyCallbackResult(resourceProvider->createCompressedTexture(
-                        desc.fDimensions, desc.fFormat, desc.fBudgeted, desc.fMipMapped,
+                        desc.fDimensions, desc.fFormat, desc.fBudgeted, desc.fMipmapped,
                         desc.fProtected, data.get()));
             },
             format, dimensions, GrRenderable::kNo, 1, mipMapped, mipmapStatus,
@@ -781,7 +781,7 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
         SkASSERT(!wrapsVkSecondaryCB);
         return sk_sp<GrRenderTargetProxy>(new GrTextureRenderTargetProxy(
                 *this->caps(), std::move(callback), format, dimensions, sampleCnt,
-                textureInfo->fMipMapped, mipmapStatus, fit, budgeted, isProtected, surfaceFlags,
+                textureInfo->fMipmapped, mipmapStatus, fit, budgeted, isProtected, surfaceFlags,
                 useAllocator, this->isDDLProvider()));
     }
 

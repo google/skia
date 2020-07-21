@@ -273,7 +273,9 @@ public:
     SkISize dimensions() const { return {fWidth, fHeight}; }
     int width() const { return fWidth; }
     int height() const { return fHeight; }
-    bool hasMipMaps() const { return GrMipmapped::kYes == fMipMapped; }
+    bool hasMipmaps() const { return fMipmapped == GrMipmapped::kYes; }
+    /** deprecated alias of hasMipmaps(). */
+    bool hasMipMaps() const { return this->hasMipmaps(); }
     GrBackendApi backend() const {return fBackend; }
 
     // If the backend API is GL, copies a snapshot of the GrGLTextureInfo struct into the passed in
@@ -382,7 +384,7 @@ private:
     bool fIsValid;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
-    GrMipmapped fMipMapped;
+    GrMipmapped fMipmapped;
     GrBackendApi fBackend;
 
     union {

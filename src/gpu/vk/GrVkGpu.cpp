@@ -1671,7 +1671,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         fill_in_regions(fVkCaps.get(), &fStagingBufferManager, &regions, &individualMipOffsets,
                         &slice, compression, info.fFormat, backendTexture.dimensions(),
-                        backendTexture.fMipMapped);
+                        backendTexture.fMipmapped);
 
         if (!slice.fBuffer) {
             return false;
@@ -1688,7 +1688,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
             SkASSERT(data->type() == BackendTextureData::Type::kColor);
             result = generate_compressed_data(this, (char*)slice.fOffsetMapPtr, compression,
                                               backendTexture.dimensions(),
-                                              backendTexture.fMipMapped, data->color());
+                                              backendTexture.fMipmapped, data->color());
         }
 
         cmdBuffer->copyBufferToImage(this, static_cast<GrVkTransferBuffer*>(slice.fBuffer),

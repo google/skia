@@ -70,7 +70,7 @@ public:
         SkISize fDimensions;
         SkBackingFit fFit;
         GrRenderable fRenderable;
-        GrMipmapped fMipMapped;
+        GrMipmapped fMipmapped;
         int fSampleCnt;
         const GrBackendFormat& fFormat;
         GrProtected fProtected;

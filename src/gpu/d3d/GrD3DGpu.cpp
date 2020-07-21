@@ -1076,7 +1076,7 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     SkASSERT(d3dResource);
     D3D12_RESOURCE_DESC desc = d3dResource->GetDesc();
     unsigned int mipLevelCount = 1;
-    if (backendTexture.fMipMapped == GrMipmapped::kYes) {
+    if (backendTexture.fMipmapped == GrMipmapped::kYes) {
         mipLevelCount = SkMipmap::ComputeLevelCount(backendTexture.dimensions().width(),
                                                     backendTexture.dimensions().height()) + 1;
     }
@@ -1126,10 +1126,10 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         } else {
             size_t totalCompressedSize = SkCompressedFormatDataSize(compression,
                                                                     backendTexture.dimensions(),
-                                                                    backendTexture.hasMipMaps());
+                                                                    backendTexture.hasMipmaps());
             SkAutoTMalloc<char> tempData(totalCompressedSize);
             GrFillInCompressedData(compression, backendTexture.dimensions(),
-                                   backendTexture.fMipMapped, tempData, data->color());
+                                   backendTexture.fMipmapped, tempData, data->color());
             copy_compressed_data(bufferData, info.fFormat, placedFootprints.get(), numRows.get(),
                                  rowSizeInBytes.get(), tempData.get(), info.fLevelCount);
         }

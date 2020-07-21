@@ -13,10 +13,10 @@ class CreateBackendTextureBench : public Benchmark {
 private:
     SkString fName;
     SkTArray<GrBackendTexture> fBackendTextures;
-    GrMipmapped fMipMapped;
+    GrMipmapped fMipmapped;
 
 public:
-    CreateBackendTextureBench(GrMipmapped mipMapped) : fMipMapped(mipMapped) {
+    CreateBackendTextureBench(GrMipmapped mipMapped) : fMipmapped(mipMapped) {
         fName.printf("create_backend_texture%s", mipMapped == GrMipmapped::kYes ? "_mipped" : "");
     }
 
@@ -33,7 +33,7 @@ private:
         static const int kSize = 16;
         for (int i = 0; i < loops; ++i) {
             fBackendTextures.push_back(context->createBackendTexture(
-                    kSize, kSize, kRGBA_8888_SkColorType, SkColors::kRed, fMipMapped,
+                    kSize, kSize, kRGBA_8888_SkColorType, SkColors::kRed, fMipmapped,
                     GrRenderable::kNo, GrProtected::kNo));
         }
     }

@@ -867,11 +867,11 @@ bool GrGpu::updateBackendTexture(const GrBackendTexture& backendTexture,
         }
     }
 
-    if (backendTexture.hasMipMaps() && !this->caps()->mipMapSupport()) {
+    if (backendTexture.hasMipmaps() && !this->caps()->mipMapSupport()) {
         return false;
     }
 
-    GrMipmapped mipMapped = backendTexture.hasMipMaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
+    GrMipmapped mipMapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
     if (!MipMapsAreCorrect(backendTexture.dimensions(), mipMapped, data)) {
         return false;
     }
@@ -925,11 +925,11 @@ bool GrGpu::updateCompressedBackendTexture(const GrBackendTexture& backendTextur
         return false;
     }
 
-    if (backendTexture.hasMipMaps() && !this->caps()->mipMapSupport()) {
+    if (backendTexture.hasMipmaps() && !this->caps()->mipMapSupport()) {
         return false;
     }
 
-    GrMipmapped mipMapped = backendTexture.hasMipMaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
+    GrMipmapped mipMapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
 
     if (!CompressedDataIsCorrect(backendTexture.dimensions(), compressionType, mipMapped, data)) {
         return false;

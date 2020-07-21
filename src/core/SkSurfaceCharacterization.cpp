@@ -118,7 +118,7 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         return false;
     }
 
-    if (this->isMipMapped() && !backendTex.hasMipMaps()) {
+    if (this->isMipMapped() && !backendTex.hasMipmaps()) {
         // backend texture is allowed to have mipmaps even if the characterization doesn't require
         // them.
         return false;
