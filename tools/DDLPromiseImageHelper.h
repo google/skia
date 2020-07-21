@@ -38,7 +38,7 @@ public:
             : fContext(direct)
             , fBackendFormat(backendFormat) {}
 
-    ~PromiseImageCallbackContext();
+    ~PromiseImageCallbackContext() override;
 
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
 

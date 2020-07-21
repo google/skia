@@ -13,9 +13,9 @@ public:
     StrokeRectSample() {}
 
 protected:
-    virtual SkString name() { return SkString("Stroke Rects"); }
+    SkString name() override { return SkString("Stroke Rects"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);

@@ -726,7 +726,7 @@ class SkBlockMemoryRefCnt : public SkRefCnt {
 public:
     explicit SkBlockMemoryRefCnt(SkDynamicMemoryWStream::Block* head) : fHead(head) { }
 
-    virtual ~SkBlockMemoryRefCnt() {
+    ~SkBlockMemoryRefCnt() override {
         SkDynamicMemoryWStream::Block* block = fHead;
         while (block != nullptr) {
             SkDynamicMemoryWStream::Block* next = block->fNext;

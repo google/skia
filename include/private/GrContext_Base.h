@@ -22,7 +22,7 @@ class GrRecordingContext;
 
 class GrContext_Base : public SkRefCnt {
 public:
-    virtual ~GrContext_Base();
+    ~GrContext_Base() override;
 
     /*
      * Safely downcast to a GrDirectContext.

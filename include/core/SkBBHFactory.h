@@ -16,7 +16,6 @@
 class SkBBoxHierarchy : public SkRefCnt {
 public:
     SkBBoxHierarchy() {}
-    virtual ~SkBBoxHierarchy() {}
 
     struct Metadata {
         bool isDraw;  // The corresponding SkRect bounds a draw command, not a pure state change.

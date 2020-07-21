@@ -55,7 +55,7 @@ public:
 
     enum { kDefaultTransientSize = 32 * 1024 * 1024 };
 
-    virtual ~SkImageFilterCache() {}
+    ~SkImageFilterCache() override {}
     static SkImageFilterCache* Create(size_t maxBytes);
     static SkImageFilterCache* Get();
 

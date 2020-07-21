@@ -20,7 +20,7 @@ public:
     }
 
 protected:
-    virtual SkString name() { return SkString("LayerMask"); }
+    SkString name() override { return SkString("LayerMask"); }
 
     void drawMask(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
@@ -48,7 +48,7 @@ protected:
         }
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkRect  r;
         r.setLTRB(20, 20, 120, 120);
         canvas->saveLayer(&r, nullptr);

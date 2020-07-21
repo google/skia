@@ -18,8 +18,6 @@ public:
         , fCanvas(nullptr) {
     }
 
-    virtual ~SkSpecialSurface_Base() { }
-
     // reset is called after an SkSpecialImage has been snapped
     void reset() { fCanvas.reset(); }
 

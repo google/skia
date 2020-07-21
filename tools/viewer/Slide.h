@@ -18,8 +18,6 @@ class SkMetaData;
 
 class Slide : public SkRefCnt {
 public:
-    virtual ~Slide() {}
-
     virtual SkISize getDimensions() const = 0;
 
     virtual void gpuTeardown() { }

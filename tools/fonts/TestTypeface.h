@@ -47,7 +47,7 @@ struct SkTestFontData {
 class SkTestFont : public SkRefCnt {
 public:
     SkTestFont(const SkTestFontData&);
-    virtual ~SkTestFont();
+    ~SkTestFont() override;
     SkGlyphID glyphForUnichar(SkUnichar charCode) const;
     void      init(const SkScalar* pts, const unsigned char* verbs);
 

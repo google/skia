@@ -41,8 +41,8 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(int loops, SkCanvas* canvas) {
+    const char* onGetName() override { return fName.c_str(); }
+    void onDraw(int loops, SkCanvas* canvas) override {
 
         SkPaint paint;
         this->setupPaint(&paint);
@@ -111,7 +111,7 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return fName.c_str(); }
+    const char* onGetName() override { return fName.c_str(); }
 
 
     void recurse(SkCanvas* canvas,
@@ -156,7 +156,7 @@ protected:
             canvas->restore();
     }
 
-    virtual void onDraw(int loops, SkCanvas* canvas) {
+    void onDraw(int loops, SkCanvas* canvas) override {
 
         for (int i = 0; i < loops; ++i) {
             SkPoint offset = SkPoint::Make(0, 0);
@@ -192,8 +192,8 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(int loops, SkCanvas*) {
+    const char* onGetName() override { return fName.c_str(); }
+    void onDraw(int loops, SkCanvas*) override {
         SkPaint paint;
         this->setupPaint(&paint);
 
@@ -227,8 +227,8 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() { return "aaclip_setregion"; }
-    virtual void onDraw(int loops, SkCanvas*) {
+    const char* onGetName() override { return "aaclip_setregion"; }
+    void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             SkAAClip clip;
             clip.setRegion(fRegion);
