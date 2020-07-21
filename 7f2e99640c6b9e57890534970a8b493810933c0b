@@ -16,6 +16,23 @@
       "revId": "7f2e99640c6b9e57890534970a8b493810933c0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b12ce33_3b0f824b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T21:43:19Z",
+      "side": 1,
+      "message": "This CL was prompted by mtklein@\u0027s comment here: https://skia-review.googlesource.com/c/skia/+/299705/1/include/private/SkVx.h#643",
+      "revId": "7f2e99640c6b9e57890534970a8b493810933c0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
