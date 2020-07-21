@@ -12,8 +12,6 @@
 
 class SkSVGG : public SkSVGContainer {
 public:
-    virtual ~SkSVGG() = default;
-
     static sk_sp<SkSVGG> Make() { return sk_sp<SkSVGG>(new SkSVGG()); }
 
 private:

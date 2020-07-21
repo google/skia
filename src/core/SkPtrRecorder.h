@@ -127,12 +127,12 @@ private:
  */
 class SkRefCntSet : public SkTPtrSet<SkRefCnt*> {
 public:
-    virtual ~SkRefCntSet();
+    ~SkRefCntSet() override;
 
 protected:
     // overrides
-    virtual void incPtr(void*);
-    virtual void decPtr(void*);
+    virtual void incPtr(void*) override ;
+    virtual void decPtr(void*) override ;
 };
 
 class SkFactorySet : public SkTPtrSet<SkFlattenable::Factory> {};

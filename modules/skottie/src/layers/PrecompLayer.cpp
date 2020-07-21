@@ -144,7 +144,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachExternalPrecompLayer(
             , fFps(fps) {}
 
     private:
-        StateChanged onSeek(float t) {
+        StateChanged onSeek(float t) override {
             fSGAdapter->setT(t / fFps);
 
             return true;

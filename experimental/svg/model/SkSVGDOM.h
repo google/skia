@@ -21,7 +21,6 @@ class SkSVGNode;
 class SkSVGDOM : public SkRefCnt {
 public:
     SkSVGDOM();
-    ~SkSVGDOM() = default;
 
     static sk_sp<SkSVGDOM> MakeFromDOM(const SkDOM&);
     static sk_sp<SkSVGDOM> MakeFromStream(SkStream&);

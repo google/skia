@@ -541,9 +541,7 @@ struct BiControl : public UniControl {
         ,  fValHi(fMax) {
     }
 
-    virtual ~BiControl() {}
-
-    virtual void draw(SkCanvas* canvas, const ControlPaints& paints) {
+    void draw(SkCanvas* canvas, const ControlPaints& paints) override {
         UniControl::draw(canvas, paints);
         if (!fVisible || fValHi == fValLo) {
             return;

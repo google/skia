@@ -23,7 +23,6 @@ public:
         virtual const char* getTag() = 0;
         virtual void preConcatFrameMatrix(double animationTimeMs, const SkIRect& devBounds,
                                           SkMatrix* drawMatrix) = 0;
-        virtual ~Animation() {}
     };
 
     SKPAnimationBench(const char* name, const SkPicture*, const SkIRect& devClip, sk_sp<Animation>,

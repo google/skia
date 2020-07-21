@@ -706,7 +706,7 @@ DEF_TEST(Skottie_Image_Loading, reporter) {
     private:
         sk_sp<ImageAsset> loadImageAsset(const char path[],
                                          const char name[],
-                                         const char id[]) const {
+                                         const char id[]) const override {
             return strcmp(id, "single_frame")
                     ? fMultiFrameAsset
                     : fSingleFrameAsset;

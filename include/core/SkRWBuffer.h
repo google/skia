@@ -59,7 +59,7 @@ public:
 
 private:
     SkROBuffer(const SkBufferHead* head, size_t available, const SkBufferBlock* fTail);
-    virtual ~SkROBuffer();
+    ~SkROBuffer() override;
 
     const SkBufferHead*     fHead;
     const size_t            fAvailable;

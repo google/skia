@@ -46,10 +46,10 @@ public:
         , fZoomPeriodMs(zoomPeriodMs) {
     }
 
-    virtual const char* getTag() { return "zoom"; }
+    const char* getTag() override { return "zoom"; }
 
-    virtual void preConcatFrameMatrix(double animationTimeMs, const SkIRect& devBounds,
-                                      SkMatrix* drawMatrix) {
+    void preConcatFrameMatrix(double animationTimeMs, const SkIRect& devBounds,
+                              SkMatrix* drawMatrix) override {
         double t = fmod(animationTimeMs / fZoomPeriodMs, 1.0); // t is in [0, 1).
         t = fabs(2 * t - 1); // Make t ping-pong between 0 and 1
         SkScalar zoom = static_cast<SkScalar>(pow(fZoomMax, t));

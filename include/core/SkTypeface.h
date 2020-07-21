@@ -345,7 +345,7 @@ protected:
     /** uniqueID must be unique and non-zero
     */
     SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
-    virtual ~SkTypeface();
+    ~SkTypeface() override;
 
     virtual sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const = 0;
 

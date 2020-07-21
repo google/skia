@@ -19,8 +19,6 @@ class FontCollection : public SkRefCnt {
 public:
     FontCollection();
 
-    ~FontCollection() = default;
-
     size_t getFontManagersCount() const;
 
     void setAssetFontManager(sk_sp<SkFontMgr> fontManager);

@@ -56,8 +56,8 @@ public:
         init9(fArray);
     }
 protected:
-    virtual int mulLoopCount() const { return 4; }
-    virtual void performTest() {
+    int mulLoopCount() const override { return 4; }
+    void performTest() override {
         // xoring into a volatile prevents the compiler from optimizing these checks away.
         volatile bool junk = false;
         junk ^= (fArray[6] != 0.0f || fArray[7] != 0.0f || fArray[8] != 1.0f);
@@ -75,8 +75,8 @@ public:
         init9(fArray);
     }
 protected:
-    virtual int mulLoopCount() const { return 4; }
-    virtual void performTest() {
+    int mulLoopCount() const override { return 4; }
+    void performTest() override {
         // xoring into a volatile prevents the compiler from optimizing these checks away.
         volatile int32_t junk = 0;
         junk ^= (SkScalarAs2sCompliment(fArray[6]) |

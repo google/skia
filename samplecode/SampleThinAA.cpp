@@ -21,8 +21,6 @@ public:
     static constexpr SkScalar kTileWidth = 20.f;
     static constexpr SkScalar kTileHeight = 20.f;
 
-    virtual ~ShapeRenderer() {}
-
     // Draw the shape, limited to kTileWidth x kTileHeight. It must apply the local subpixel (tx,
     // ty) translation and rotation by angle. Prior to these transform adjustments, the SkCanvas
     // will only have pixel aligned translations (these are separated to make super-sampling

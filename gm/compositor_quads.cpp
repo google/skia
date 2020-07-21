@@ -199,8 +199,6 @@ static void draw_text(SkCanvas* canvas, const char* text) {
 
 class ClipTileRenderer : public SkRefCntBase {
 public:
-    virtual ~ClipTileRenderer() {}
-
     // Draw the base rect, possibly clipped by 'clip' if that is not null. The edges to antialias
     // are specified in 'edgeAA' (to make manipulation easier than an unsigned bitfield). 'tileID'
     // represents the location of rect within the tile grid, 'quadID' is the unique ID of the clip

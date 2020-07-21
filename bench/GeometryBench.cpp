@@ -46,7 +46,7 @@ public:
 protected:
     SkRect fRects[2048];
 
-    virtual void onDelayedSetup() {
+    void onDelayedSetup() override {
         const SkScalar min = -100;
         const SkScalar max = 100;
         SkRandom rand;

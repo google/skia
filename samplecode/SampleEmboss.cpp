@@ -33,9 +33,9 @@ public:
     }
 
 protected:
-    virtual SkString name() { return SkString("Emboss"); }
+    SkString name() override { return SkString("Emboss"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
 
         paint.setAntiAlias(true);

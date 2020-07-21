@@ -55,7 +55,7 @@ namespace {
     struct FooRefCnt : public SkRefCnt {
         FooRefCnt() : x(-2), y(-3.0f) { created++; }
         FooRefCnt(int X, float Y) : x(X), y(Y) { created++; }
-        ~FooRefCnt() { destroyed++; }
+        ~FooRefCnt() override { destroyed++; }
 
         int x;
         float y;

@@ -66,15 +66,14 @@ std::unique_ptr<GrMemoryPool> A::gPool;
 class B : public A {
 public:
     B() {}
-    virtual void setValues(int v) {
+    void setValues(int v) override {
         fDouble = static_cast<double>(v);
         this->INHERITED::setValues(v);
     }
-    virtual bool checkValues(int v) {
+    bool checkValues(int v) override {
         return fDouble == static_cast<double>(v) &&
                this->INHERITED::checkValues(v);
     }
-    virtual ~B() {}
 
 private:
     double fDouble;
@@ -85,15 +84,14 @@ private:
 class C : public A {
 public:
     C() {}
-    virtual void setValues(int v) {
+    void setValues(int v) override {
         fInt64 = static_cast<int64_t>(v);
         this->INHERITED::setValues(v);
     }
-    virtual bool checkValues(int v) {
+    bool checkValues(int v) override {
         return fInt64 == static_cast<int64_t>(v) &&
                this->INHERITED::checkValues(v);
     }
-    virtual ~C() {}
 
 private:
     int64_t fInt64;
@@ -107,17 +105,17 @@ public:
     D() {
         fB = new B();
     }
-    virtual void setValues(int v) {
+    void setValues(int v) override {
         fVoidStar = reinterpret_cast<void*>(static_cast<intptr_t>(v));
         this->INHERITED::setValues(v);
         fB->setValues(v);
     }
-    virtual bool checkValues(int v) {
+    bool checkValues(int v) override {
         return fVoidStar == reinterpret_cast<void*>(static_cast<intptr_t>(v)) &&
                fB->checkValues(v) &&
                this->INHERITED::checkValues(v);
     }
-    virtual ~D() {
+    ~D() override {
         delete fB;
     }
 private:
@@ -130,13 +128,13 @@ private:
 class E : public A {
 public:
     E() {}
-    virtual void setValues(int v) {
+    void setValues(int v) override {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fIntArray); ++i) {
             fIntArray[i] = v;
         }
         this->INHERITED::setValues(v);
     }
-    virtual bool checkValues(int v) {
+    bool checkValues(int v) override {
         bool ok = true;
         for (size_t i = 0; ok && i < SK_ARRAY_COUNT(fIntArray); ++i) {
             if (fIntArray[i] != v) {
@@ -145,7 +143,6 @@ public:
         }
         return ok && this->INHERITED::checkValues(v);
     }
-    virtual ~E() {}
 private:
     int   fIntArray[20];
 

@@ -12,7 +12,6 @@
 
 class SkSVGDefs : public SkSVGHiddenContainer {
 public:
-    virtual ~SkSVGDefs() = default;
     static sk_sp<SkSVGDefs> Make() { return sk_sp<SkSVGDefs>(new SkSVGDefs()); }
 
 private:

@@ -40,7 +40,7 @@ enum class SkSVGTag {
 
 class SkSVGNode : public SkRefCnt {
 public:
-    virtual ~SkSVGNode();
+    ~SkSVGNode() override;
 
     SkSVGTag tag() const { return fTag; }
 

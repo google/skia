@@ -39,7 +39,7 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
@@ -51,7 +51,7 @@ protected:
         fName = name;
     }
 
-    virtual void onDraw(int loops, SkCanvas*) {
+    void onDraw(int loops, SkCanvas*) override {
         SkPaint paint;
         this->setupPaint(&paint);
 

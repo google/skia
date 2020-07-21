@@ -31,7 +31,6 @@ public:
         // Because of this, size needs to be a power of two.
         SkASSERT(SkIsPow2(size));
     }
-    virtual ~GrRingBuffer() = default;
 
     struct Slice {
         sk_sp<GrGpuBuffer> fBuffer;

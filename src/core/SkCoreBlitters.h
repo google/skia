@@ -35,7 +35,7 @@ public:
       */
     SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
                     SkShaderBase::Context* shaderContext);
-    virtual ~SkShaderBlitter();
+    ~SkShaderBlitter() override;
 
 protected:
     uint32_t                fShaderFlags;

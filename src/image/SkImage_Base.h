@@ -34,7 +34,7 @@ enum {
 
 class SkImage_Base : public SkImage {
 public:
-    virtual ~SkImage_Base();
+    ~SkImage_Base() override;
 
     virtual SkIRect onGetSubset() const {
         return { 0, 0, this->width(), this->height() };

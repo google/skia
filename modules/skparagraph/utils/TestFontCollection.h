@@ -8,7 +8,6 @@ namespace textlayout {
 class TestFontCollection : public FontCollection {
 public:
     TestFontCollection(const std::string& resourceDir, bool testOnly = false, bool loadFonts = true);
-    ~TestFontCollection() = default;
 
     size_t fontsFound() const { return fFontsFound; }
     bool addFontFromFile(const std::string& path, const std::string& familyName = "");

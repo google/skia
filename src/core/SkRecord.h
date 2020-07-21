@@ -28,7 +28,7 @@
 class SkRecord : public SkRefCnt {
 public:
     SkRecord() = default;
-    ~SkRecord();
+    ~SkRecord() override;
 
     // Returns the number of canvas commands in this SkRecord.
     int count() const { return fCount; }

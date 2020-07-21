@@ -728,12 +728,12 @@ public:
         , fCurrIndex(0)
     {}
 
-    ~TestAnnotationCanvas() {
+    ~TestAnnotationCanvas() override {
         REPORTER_ASSERT(fReporter, fCount == fCurrIndex);
     }
 
 protected:
-    void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) override {
         REPORTER_ASSERT(fReporter, fCurrIndex < fCount);
         REPORTER_ASSERT(fReporter, rect == fRec[fCurrIndex].fRect);
         REPORTER_ASSERT(fReporter, !strcmp(key, fRec[fCurrIndex].fKey));
