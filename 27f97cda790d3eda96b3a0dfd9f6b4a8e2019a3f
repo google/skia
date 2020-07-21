@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "801d150a_f3cea3bb",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-21T13:40:39Z",
+      "side": 1,
+      "message": "Might be easier to just define a few constexpr values?",
+      "range": {
+        "startLine": 796,
+        "startChar": 0,
+        "endLine": 801,
+        "endChar": 0
+      },
+      "revId": "27f97cda790d3eda96b3a0dfd9f6b4a8e2019a3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1133b022_32973af6",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-21T13:40:39Z",
+      "side": 1,
+      "message": "Let\u0027s just extend SkFilterOptions so everything can work together coherently?  There\u0027s no apriori reason to disallow bicubic mipmaps, is there?\n\n    enum class SkSamplingMode {\n        kNearest,\n        kLinear,\n +      kBicubic,\n    };\n    ...\n    struct SkFilterOptions {\n        SkSamplingMode  fSampling;\n        SkMipmapMode    fMipmap;\n +      SkM44           fBicubicWeights;\n    };",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 61
+      },
+      "revId": "27f97cda790d3eda96b3a0dfd9f6b4a8e2019a3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
