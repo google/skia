@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "42ffc523_82a4d50d",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-21T19:48:50Z",
+      "side": 1,
+      "message": "yep. I think this is why we didn\u0027t actually hit any errors because of the issue you pointed out in the other comment.",
+      "parentUuid": "0bb52b7f_4a04afda",
+      "range": {
+        "startLine": 323,
+        "startChar": 11,
+        "endLine": 325,
+        "endChar": 1
+      },
+      "revId": "5fd67634c8e4b2d40a8825f56b3feb2fa905f2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3cf53b1f_45e998d4",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 9
@@ -59,6 +83,30 @@
       "writtenOn": "2020-07-21T19:32:00Z",
       "side": 1,
       "message": "What happens if some of the entries don\u0027t have mipmaps but others do and upgrade the mode to kLinear? Unless we\u0027re able to change the sampler while drawing each item within the batch, my (vague) recollection was GL errored if you set a min filter mode that used mips when they weren\u0027t any",
+      "range": {
+        "startLine": 591,
+        "startChar": 20,
+        "endLine": 591,
+        "endChar": 64
+      },
+      "revId": "5fd67634c8e4b2d40a8825f56b3feb2fa905f2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a16daa8f_025082c5",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-21T19:48:50Z",
+      "side": 1,
+      "message": "Ah good point. Can we just assert that if the passed mm to TextureOp() is not kNone then all the proxies are mip mapped?",
+      "parentUuid": "dfba6d5e_f8fd8fcd",
       "range": {
         "startLine": 591,
         "startChar": 20,
