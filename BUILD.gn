@@ -2077,6 +2077,7 @@ if (skia_enable_tools) {
       "fuzz/Fuzz.cpp",
       "fuzz/FuzzCanvas.cpp",
       "fuzz/FuzzCommon.cpp",
+      "fuzz/FuzzCreateDDL.cpp",
       "fuzz/FuzzDrawFunctions.cpp",
       "fuzz/FuzzEncoders.cpp",
       "fuzz/FuzzGradients.cpp",
