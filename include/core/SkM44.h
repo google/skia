@@ -164,10 +164,10 @@ public:
     /**
      *  Parameters are treated as row-major.
      */
-    SkM44(SkScalar m0, SkScalar m4, SkScalar m8,  SkScalar m12,
-          SkScalar m1, SkScalar m5, SkScalar m9,  SkScalar m13,
-          SkScalar m2, SkScalar m6, SkScalar m10, SkScalar m14,
-          SkScalar m3, SkScalar m7, SkScalar m11, SkScalar m15)
+    constexpr SkM44(SkScalar m0, SkScalar m4, SkScalar m8,  SkScalar m12,
+                    SkScalar m1, SkScalar m5, SkScalar m9,  SkScalar m13,
+                    SkScalar m2, SkScalar m6, SkScalar m10, SkScalar m14,
+                    SkScalar m3, SkScalar m7, SkScalar m11, SkScalar m15)
     {
         fMat[0] = m0; fMat[4] = m4; fMat[8]  = m8;  fMat[12] = m12;
         fMat[1] = m1; fMat[5] = m5; fMat[9]  = m9;  fMat[13] = m13;
