@@ -147,11 +147,6 @@ size_t GrTextureProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
                                   this->proxyMipmapped(), !this->priv().isExact());
 }
 
-GrSamplerState::Filter GrTextureProxy::HighestFilterMode(GrTextureType textureType) {
-    return GrTextureTypeHasRestrictedSampling(textureType) ? GrSamplerState::Filter::kLinear
-                                                           : GrSamplerState::Filter::kMipMap;
-}
-
 bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* first,
                                                         const GrSurfaceProxy* second) {
     // In order to be compatible, the proxies should also have the same texture type. This is

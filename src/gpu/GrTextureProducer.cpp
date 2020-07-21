@@ -101,9 +101,3 @@ GrSurfaceProxyView GrTextureProducer::view(GrMipmapped mipMapped) {
              !caps->isFormatCopyable(result.proxy()->backendFormat()));
     return result;
 }
-
-GrSurfaceProxyView GrTextureProducer::view(GrSamplerState::Filter filter) {
-    auto mipMapped = filter == GrSamplerState::Filter::kMipMap ? GrMipmapped::kYes
-                                                               : GrMipmapped::kNo;
-    return this->view(mipMapped);
-}

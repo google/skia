@@ -28,17 +28,17 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrRecordingCont
                                    SkAlphaType alphaType, uint32_t expectedPixelValues[]) {
     auto rtContext = GrRenderTargetContext::Make(
             context, colorType, nullptr, SkBackingFit::kExact, rectView.proxy()->dimensions());
-    for (auto filter : {GrSamplerState::Filter::kNearest,
-                        GrSamplerState::Filter::kLinear,
-                        GrSamplerState::Filter::kMipMap}) {
-        rtContext->clear(SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA));
-        auto fp = GrTextureEffect::Make(rectView, alphaType, SkMatrix::I(), filter);
-        GrPaint paint;
-        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        paint.setColorFragmentProcessor(std::move(fp));
-        rtContext->drawPaint(nullptr, std::move(paint), SkMatrix::I());
-        TestReadPixels(reporter, rtContext.get(), expectedPixelValues,
-                       "RectangleTexture-basic-draw");
+    for (auto filter : {GrSamplerState::Filter::kNearest, GrSamplerState::Filter::kLinear}) {
+        for (auto mm : {GrSamplerState::MipmapMode::kNone, GrSamplerState::MipmapMode::kLinear}) {
+            rtContext->clear(SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA));
+            auto fp = GrTextureEffect::Make(rectView, alphaType, SkMatrix::I(), filter, mm);
+            GrPaint paint;
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+            paint.setColorFragmentProcessor(std::move(fp));
+            rtContext->drawPaint(nullptr, std::move(paint), SkMatrix::I());
+            TestReadPixels(reporter, rtContext.get(), expectedPixelValues,
+                           "RectangleTexture-basic-draw");
+        }
     }
 }
 
