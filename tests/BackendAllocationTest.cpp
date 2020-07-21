@@ -55,11 +55,10 @@ static void mark_signaled(void* context) {
 // Test wrapping of GrBackendObjects in SkSurfaces and SkImages (non-static since used in Mtl test)
 void test_wrapping(GrDirectContext* dContext,
                    skiatest::Reporter* reporter,
-                   std::function<GrBackendTexture (GrDirectContext*,
-                                                   GrMipMapped,
+                   std::function<GrBackendTexture (GrDirectContext*, GrMipmapped,
                                                    GrRenderable)> create,
                    GrColorType grColorType,
-                   GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
                    GrRenderable renderable,
                    bool* finishedBECreate) {
     GrResourceCache* cache = dContext->priv().getResourceCache();
@@ -313,12 +312,11 @@ static void check_base_readbacks(GrDirectContext* dContext, const GrBackendTextu
 void test_color_init(GrDirectContext* dContext,
                      skiatest::Reporter* reporter,
                      std::function<GrBackendTexture (GrDirectContext*,
-                                                     const SkColor4f&,
-                                                     GrMipMapped,
+                                                     const SkColor4f&, GrMipmapped,
                                                      GrRenderable)> create,
                      GrColorType grColorType,
                      const SkColor4f& color,
-                     GrMipMapped mipMapped,
+                     GrMipmapped mipMapped,
                      GrRenderable renderable,
                      bool* finishedBECreate) {
     GrBackendTexture backendTex = create(dContext, color, mipMapped, renderable);
@@ -337,7 +335,7 @@ void test_color_init(GrDirectContext* dContext,
     }
 
     auto checkBackendTexture = [&](const SkColor4f& testColor) {
-        if (mipMapped == GrMipMapped::kYes) {
+        if (mipMapped == GrMipmapped::kYes) {
             SkColor4f expectedColor = get_expected_color(testColor, skColorType);
             SkColor4f expectedColors[6] = {expectedColor, expectedColor, expectedColor,
                                            expectedColor, expectedColor, expectedColor};
@@ -450,10 +448,11 @@ static void check_mipmaps(GrDirectContext* dContext, const GrBackendTexture& bac
     }
 }
 
-static int make_pixmaps(SkColorType skColorType, GrMipMapped mipMapped,
+static int make_pixmaps(SkColorType skColorType,
+                        GrMipmapped mipMapped,
                         const SkColor4f colors[6], SkAutoPixmapStorage pixmaps[6]) {
     int levelSize = 32;
-    int numMipLevels = mipMapped == GrMipMapped::kYes ? 6 : 1;
+    int numMipLevels = mipMapped == GrMipmapped::kYes ? 6 : 1;
     SkAlphaType at = SkColorTypeIsAlwaysOpaque(skColorType) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
     for (int level = 0; level < numMipLevels; ++level) {
@@ -473,7 +472,7 @@ static void test_pixmap_init(GrDirectContext* dContext,
                                                              int numLevels,
                                                              GrRenderable)> create,
                              SkColorType skColorType,
-                             GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
                              GrRenderable renderable,
                              bool* finishedBECreate) {
     SkAutoPixmapStorage pixmapMem[6];
@@ -508,7 +507,7 @@ static void test_pixmap_init(GrDirectContext* dContext,
     }
 
     auto checkBackendTexture = [&](SkColor4f colors[6]) {
-        if (mipMapped == GrMipMapped::kYes) {
+        if (mipMapped == GrMipmapped::kYes) {
             SkColor4f expectedColors[6] = {
                     get_expected_color(colors[0], skColorType),
                     get_expected_color(colors[1], skColorType),
@@ -721,8 +720,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
             }
         }
 
-        for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
-            if (GrMipMapped::kYes == mipMapped && !caps->mipMapSupport()) {
+        for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes }) {
+            if (GrMipmapped::kYes == mipMapped && !caps->mipMapSupport()) {
                 continue;
             }
 
@@ -741,7 +740,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 
                 {
                     auto uninitCreateMtd = [colorType](GrDirectContext* dContext,
-                                                       GrMipMapped mipMapped,
+                                                       GrMipmapped mipMapped,
                                                        GrRenderable renderable) {
                         auto result = dContext->createBackendTexture(32, 32, colorType,
                                                                      mipMapped, renderable,
@@ -771,7 +770,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 
                     auto createWithColorMtd = [colorType, finishedPtr](GrDirectContext* dContext,
                                                                        const SkColor4f& color,
-                                                                       GrMipMapped mipMapped,
+                                                                       GrMipmapped mipMapped,
                                                                        GrRenderable renderable) {
                         auto result = dContext->createBackendTexture(32, 32, colorType, color,
                                                                      mipMapped, renderable,
@@ -905,8 +904,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                 }
             }
 
-            for (auto mipMapped : {GrMipMapped::kNo, GrMipMapped::kYes}) {
-                if (GrMipMapped::kYes == mipMapped &&
+            for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
+                if (GrMipmapped::kYes == mipMapped &&
                     (!glCaps->mipMapSupport() || target == GR_GL_TEXTURE_RECTANGLE)) {
                     continue;
                 }
@@ -920,7 +919,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
 
                     {
                         auto uninitCreateMtd = [format](GrDirectContext* dContext,
-                                                        GrMipMapped mipMapped,
+                                                        GrMipmapped mipMapped,
                                                         GrRenderable renderable) {
                             return dContext->createBackendTexture(32, 32, format, mipMapped,
                                                                   renderable, GrProtected::kNo);
@@ -960,7 +959,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                         auto createWithColorMtd = [format, swizzle, finishedPtr](
                                                           GrDirectContext* dContext,
                                                           const SkColor4f& color,
-                                                          GrMipMapped mipMapped,
+                                                          GrMipmapped mipMapped,
                                                           GrRenderable renderable) {
                             auto swizzledColor = swizzle.applyTo(color);
                             return dContext->createBackendTexture(
@@ -1055,8 +1054,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
 
         GrBackendFormat format = GrBackendFormat::MakeVk(combo.fFormat);
 
-        for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
-            if (GrMipMapped::kYes == mipMapped && !vkCaps->mipMapSupport()) {
+        for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes }) {
+            if (GrMipmapped::kYes == mipMapped && !vkCaps->mipMapSupport()) {
                 continue;
             }
 
@@ -1073,7 +1072,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
 
                 {
                     auto uninitCreateMtd = [format](GrDirectContext* dContext,
-                                                    GrMipMapped mipMapped,
+                                                    GrMipmapped mipMapped,
                                                     GrRenderable renderable) {
                         GrBackendTexture beTex = dContext->createBackendTexture(32, 32, format,
                                                                                 mipMapped,
@@ -1126,7 +1125,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     auto createWithColorMtd = [format, swizzle, finishedPtr](
                             GrDirectContext* dContext,
                             const SkColor4f& color,
-                            GrMipMapped mipMapped,
+                                                      GrMipmapped mipMapped,
                             GrRenderable renderable) {
                         auto swizzledColor = swizzle.applyTo(color);
                         GrBackendTexture beTex = dContext->createBackendTexture(32, 32, format,

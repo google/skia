@@ -82,7 +82,7 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
                          GrColorType colorType,
                          uint32_t expectedPixelValues[],
                          const char* testName) {
-    auto copy = GrSurfaceProxy::Copy(rContext, proxy, origin, GrMipMapped::kNo,
+    auto copy = GrSurfaceProxy::Copy(rContext, proxy, origin, GrMipmapped::kNo,
                                      SkBackingFit::kExact, SkBudgeted::kYes);
     SkASSERT(copy && copy->asTextureProxy());
     auto swizzle = rContext->priv().caps()->getReadSwizzle(copy->backendFormat(), colorType);
@@ -110,7 +110,7 @@ bool CreateBackendTexture(GrDirectContext* dContext,
                           int width, int height,
                           SkColorType colorType,
                           const SkColor4f& color,
-                          GrMipMapped mipMapped,
+                          GrMipmapped mipMapped,
                           GrRenderable renderable,
                           GrProtected isProtected) {
     SkImageInfo info = SkImageInfo::Make(width, height, colorType, kPremul_SkAlphaType);
@@ -122,7 +122,7 @@ bool CreateBackendTexture(GrDirectContext* dContext,
                           GrBackendTexture* backendTex,
                           const SkImageInfo& ii,
                           const SkColor4f& color,
-                          GrMipMapped mipMapped,
+                          GrMipmapped mipMapped,
                           GrRenderable renderable,
                           GrProtected isProtected) {
     bool finishedBECreate = false;

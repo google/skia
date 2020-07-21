@@ -72,7 +72,7 @@ public:
                                                        SkISize dimensions,
                                                        const GrBackendFormat&,
                                                        int sampleCnt,
-                                                       GrMipMapped,
+                                                       GrMipmapped,
                                                        GrProtected,
                                                        GrSurfaceOrigin,
                                                        SkBudgeted,
@@ -86,7 +86,7 @@ public:
             SkBackingFit,
             SkISize dimensions,
             int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo,
+            GrMipmapped = GrMipmapped::kNo,
             GrProtected = GrProtected::kNo,
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
             SkBudgeted = SkBudgeted::kYes,
@@ -107,7 +107,7 @@ public:
             SkBackingFit,
             SkISize dimensions,
             int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo,
+            GrMipmapped = GrMipmapped::kNo,
             GrProtected = GrProtected::kNo,
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
             SkBudgeted = SkBudgeted::kYes,
@@ -545,7 +545,7 @@ public:
     int numSamples() const { return this->asRenderTargetProxy()->numSamples(); }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
-    GrMipMapped mipMapped() const;
+    GrMipmapped mipMapped() const;
 
     // TODO: See if it makes sense for this to return a const& instead and require the callers to
     // make a copy (which refs the proxy) if needed.

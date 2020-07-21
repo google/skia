@@ -185,7 +185,7 @@ static GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* co
     GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
 
     auto proxy =
-            proxyProvider->createProxy(format, dimensions, GrRenderable::kNo, 1, GrMipMapped::kNo,
+            proxyProvider->createProxy(format, dimensions, GrRenderable::kNo, 1, GrMipmapped::kNo,
                                        fit, SkBudgeted::kYes, GrProtected::kNo);
     return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
 }

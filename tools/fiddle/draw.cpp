@@ -14,7 +14,7 @@ DrawOptions GetDrawOptions() {
     // path *should* be absolute.
     static const char path[] = "resources/images/color_wheel.png";
     return DrawOptions(256, 256, true, true, true, true, true, false, false, path,
-                       GrMipMapped::kYes, 64, 64, 0, GrMipMapped::kYes);
+                       GrMipmapped::kYes, 64, 64, 0, GrMipmapped::kYes);
 }
 void draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorWHITE);

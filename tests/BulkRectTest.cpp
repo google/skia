@@ -26,7 +26,7 @@ sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
                                                                            GrColorType::kRGBA_8888,
                                                                            GrRenderable::kYes);
     return rContext->priv().proxyProvider()->createProxy(
-            format, kDimensions, GrRenderable::kYes, 1, GrMipMapped::kNo, SkBackingFit::kExact,
+            format, kDimensions, GrRenderable::kYes, 1, GrMipmapped::kNo, SkBackingFit::kExact,
             SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 }
 

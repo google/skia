@@ -14,7 +14,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 
-GrSurfaceProxyView GrTextureMaker::onView(GrMipMapped mipMapped) {
+GrSurfaceProxyView GrTextureMaker::onView(GrMipmapped mipMapped) {
     if (this->width() > this->context()->priv().caps()->maxTextureSize() ||
         this->height() > this->context()->priv().caps()->maxTextureSize()) {
         return {};
@@ -39,5 +39,5 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createBicubicFragmentProces
         GrSamplerState::WrapMode wrapX,
         GrSamplerState::WrapMode wrapY) {
     return this->createBicubicFragmentProcessorForView(
-            this->view(GrMipMapped::kNo), textureMatrix, subset, domain, wrapX, wrapY);
+            this->view(GrMipmapped::kNo), textureMatrix, subset, domain, wrapX, wrapY);
 }

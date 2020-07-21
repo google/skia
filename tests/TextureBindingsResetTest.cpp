@@ -76,7 +76,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     // Test creating a texture and then resetting bindings.
     static constexpr SkISize kDims = {10, 10};
     auto format = gpu->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kNo);
-    auto tex = gpu->createTexture(kDims, format, GrRenderable::kNo, 1, GrMipMapped::kNo,
+    auto tex = gpu->createTexture(kDims, format, GrRenderable::kNo, 1, GrMipmapped::kNo,
                                   SkBudgeted::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, tex);
     context->resetGLTextureBindings();
@@ -106,7 +106,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     if (supportExternal) {
         GrBackendTexture texture2D = context->createBackendTexture(
                 10, 10, kRGBA_8888_SkColorType,
-                SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+                SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
         GrGLTextureInfo info2D;
         REPORTER_ASSERT(reporter, texture2D.getGLTextureInfo(&info2D));
         GrEGLImage eglImage = ctxInfo.glContext()->texture2DToEGLImage(info2D.fID);
@@ -116,7 +116,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
         infoExternal.fTarget = GR_GL_TEXTURE_EXTERNAL;
         infoExternal.fFormat = info2D.fFormat;
         REPORTER_ASSERT(reporter, infoExternal.fID);
-        GrBackendTexture backendTexture(10, 10, GrMipMapped::kNo, infoExternal);
+        GrBackendTexture backendTexture(10, 10, GrMipmapped::kNo, infoExternal);
         // Above texture creation will have messed with GL state and bindings.
         resetBindings();
         context->resetContext();
@@ -138,7 +138,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     if (supportRectangle) {
         auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         GrBackendTexture rectangleTexture =
-                context->createBackendTexture(10, 10, format, GrMipMapped::kNo, GrRenderable::kNo);
+                context->createBackendTexture(10, 10, format, GrMipmapped::kNo, GrRenderable::kNo);
         if (rectangleTexture.isValid()) {
             img = SkImage::MakeFromTexture(context, rectangleTexture, kTopLeft_GrSurfaceOrigin,
                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);

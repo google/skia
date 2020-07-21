@@ -140,11 +140,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             } else {
                                 tex = resourceProvider->createTexture(
                                         dims, format, GrRenderable::kYes, numSamples,
-                                        GrMipMapped::kNo, budgeted, GrProtected::kNo);
+                                        GrMipmapped::kNo, budgeted, GrProtected::kNo);
                             }
 
                             sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                                    format, dims, GrRenderable::kYes, numSamples, GrMipMapped::kNo,
+                                    format, dims, GrRenderable::kYes, numSamples, GrMipmapped::kNo,
                                     fit, budgeted, GrProtected::kNo);
                             REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                             if (proxy) {
@@ -176,11 +176,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             } else {
                                 tex = resourceProvider->createTexture(
                                         dims, format, GrRenderable::kNo, numSamples,
-                                        GrMipMapped::kNo, budgeted, GrProtected::kNo);
+                                        GrMipmapped::kNo, budgeted, GrProtected::kNo);
                             }
 
                             sk_sp<GrTextureProxy> proxy(proxyProvider->createProxy(
-                                    format, dims, GrRenderable::kNo, numSamples, GrMipMapped::kNo,
+                                    format, dims, GrRenderable::kNo, numSamples, GrMipmapped::kNo,
                                     fit, budgeted, GrProtected::kNo));
                             REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                             if (proxy) {
@@ -266,7 +266,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             {
                 GrBackendTexture backendTex;
                 CreateBackendTexture(direct, &backendTex, kWidthHeight, kWidthHeight, colorType,
-                                     SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes,
+                                     SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
                                      GrProtected::kNo);
                 sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTextureAsRenderTarget(
                         backendTex, supportedNumSamples);
@@ -287,7 +287,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             {
                 GrBackendTexture backendTex;
                 CreateBackendTexture(direct, &backendTex, kWidthHeight, kWidthHeight, colorType,
-                                     SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes,
+                                     SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
                                      GrProtected::kNo);
 
                 sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
@@ -311,7 +311,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Internal offscreen texture
                 GrBackendTexture backendTex;
                 CreateBackendTexture(direct, &backendTex, kWidthHeight, kWidthHeight, colorType,
-                                     SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo,
+                                     SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
                                      GrProtected::kNo);
 
                 sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTexture(
@@ -349,7 +349,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                                 renderable);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
-                            format, {width, height}, renderable, 1, GrMipMapped::kNo, fit,
+                            format, {width, height}, renderable, 1, GrMipmapped::kNo, fit,
                             SkBudgeted::kNo, GrProtected::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
                 }

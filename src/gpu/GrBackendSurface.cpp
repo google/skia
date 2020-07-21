@@ -396,7 +396,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fMipMapped(GrMipMapped(dawnInfo.fLevelCount > 1))
+        , fMipMapped(GrMipmapped(dawnInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kDawn)
         , fDawnInfo(dawnInfo) {}
 #endif
@@ -415,7 +415,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fMipMapped(GrMipMapped(vkInfo.fLevelCount > 1))
+        , fMipMapped(GrMipmapped(vkInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kVulkan)
         , fVkInfo(vkInfo)
         , fMutableState(std::move(mutableState)) {}
@@ -424,7 +424,7 @@ GrBackendTexture::GrBackendTexture(int width,
 #ifdef SK_GL
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   GrMipMapped mipMapped,
+                                   GrMipmapped mipMapped,
                                    const GrGLTextureInfo glInfo,
                                    sk_sp<GrGLTextureParameters> params)
         : fIsValid(true)
@@ -445,7 +445,7 @@ sk_sp<GrGLTextureParameters> GrBackendTexture::getGLTextureParams() const {
 #ifdef SK_METAL
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   GrMipMapped mipMapped,
+                                   GrMipmapped mipMapped,
                                    const GrMtlTextureInfo& mtlInfo)
         : fIsValid(true)
         , fWidth(width)
@@ -469,7 +469,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fMipMapped(GrMipMapped(d3dInfo.fLevelCount > 1))
+        , fMipMapped(GrMipmapped(d3dInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kDirect3D)
         , fD3DInfo(d3dInfo, state.release()) {}
 #endif
@@ -477,7 +477,7 @@ GrBackendTexture::GrBackendTexture(int width,
 #ifdef SK_GL
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   GrMipMapped mipMapped,
+                                   GrMipmapped mipMapped,
                                    const GrGLTextureInfo& glInfo)
         : GrBackendTexture(width, height, mipMapped, glInfo, sk_make_sp<GrGLTextureParameters>()) {
     // Make no assumptions about client's texture's parameters.
@@ -487,7 +487,7 @@ GrBackendTexture::GrBackendTexture(int width,
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   GrMipMapped mipMapped,
+                                   GrMipmapped mipMapped,
                                    const GrMockTextureInfo& mockInfo)
         : fIsValid(true)
         , fWidth(width)

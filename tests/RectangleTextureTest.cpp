@@ -137,8 +137,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         GrBackendTexture rectangleTex = direct->createBackendTexture(kWidth,
                                                                      kHeight,
-                                                                     format,
-                                                                     GrMipMapped::kNo,
+                                                                     format, GrMipmapped::kNo,
                                                                      GrRenderable::kYes);
         if (!rectangleTex.isValid()) {
             continue;
@@ -164,8 +163,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             continue;
         }
 
-        SkASSERT(rectProxy->mipMapped() == GrMipMapped::kNo);
-        SkASSERT(rectProxy->peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
+        SkASSERT(rectProxy->mipMapped() == GrMipmapped::kNo);
+        SkASSERT(rectProxy->peekTexture()->texturePriv().mipMapped() == GrMipmapped::kNo);
 
         SkASSERT(rectProxy->textureType() == GrTextureType::kRectangle);
         SkASSERT(rectProxy->peekTexture()->texturePriv().textureType() ==

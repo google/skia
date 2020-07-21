@@ -308,12 +308,12 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
 
 bool GrCaps::validateSurfaceParams(const SkISize& dimensions, const GrBackendFormat& format,
                                    GrRenderable renderable, int renderTargetSampleCnt,
-                                   GrMipMapped mipped) const {
+                                   GrMipmapped mipped) const {
     if (!this->isFormatTexturable(format)) {
         return false;
     }
 
-    if (GrMipMapped::kYes == mipped && !this->mipMapSupport()) {
+    if (GrMipmapped::kYes == mipped && !this->mipMapSupport()) {
         return false;
     }
 

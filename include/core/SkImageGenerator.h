@@ -154,7 +154,8 @@ public:
      *  retained by the generator (kDraw).
      */
     GrSurfaceProxyView generateTexture(GrRecordingContext*, const SkImageInfo& info,
-                                       const SkIPoint& origin, GrMipMapped, GrImageTexGenPolicy);
+                                       const SkIPoint& origin,
+                                       GrMipmapped, GrImageTexGenPolicy);
 
 #endif
 
@@ -191,7 +192,8 @@ protected:
 #if SK_SUPPORT_GPU
     // returns nullptr
     virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                                 const SkIPoint&, GrMipMapped, GrImageTexGenPolicy);
+                                                 const SkIPoint&,
+                                                 GrMipmapped, GrImageTexGenPolicy);
 #endif
 
 private:

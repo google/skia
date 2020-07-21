@@ -189,7 +189,7 @@ protected:
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext* rContext,
                                          const SkImageInfo& info,
                                          const SkIPoint& origin,
-                                         GrMipMapped mipMapped,
+                                         GrMipmapped mipMapped,
                                          GrImageTexGenPolicy policy) override {
         SkASSERT(rContext);
         SkASSERT(rContext == fRContext.get());
@@ -275,8 +275,7 @@ protected:
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
-        GrSurfaceProxyView view = as_IB(image)->refView(canvas->recordingContext(),
-                                                        GrMipMapped::kNo);
+        GrSurfaceProxyView view = as_IB(image)->refView(canvas->recordingContext(), GrMipmapped::kNo);
         if (!view) {
             // show placeholder if we have no texture
             SkPaint paint;

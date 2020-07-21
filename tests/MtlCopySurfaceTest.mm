@@ -47,7 +47,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
     auto dstProxy = GrSurfaceProxy::Copy(context,
                                          srcProxy.get(),
                                          kTopLeft_GrSurfaceOrigin,
-                                         GrMipMapped::kNo,
+                                         GrMipmapped::kNo,
                                          SkBackingFit::kExact,
                                          SkBudgeted::kYes);
 
@@ -62,7 +62,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
     GrSurface* src = srcProxy->peekSurface();
     sk_sp<GrTexture> dst =
             gpu->createTexture({kWidth, kHeight}, backendFormat, GrRenderable::kNo, 1,
-                               GrMipMapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+                               GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
 
     bool result = gpu->copySurface(dst.get(), src, SkIRect::MakeXYWH(0, 0, kWidth, kHeight),
                                    SkIPoint::Make(0, 0));
