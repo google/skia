@@ -567,6 +567,12 @@ public:
                               GrGpuFinishedProc finishedProc,
                               GrGpuFinishedContext finishedContext);
 
+    bool updateBackendTexture(const GrBackendTexture&,
+                              SkColorType skColorType,
+                              const SkColor4f& color,
+                              GrGpuFinishedProc finishedProc,
+                              GrGpuFinishedContext finishedContext);
+
     /**
      * If possible, updates a backend texture filled with the provided pixmap data. The client
      * should check the return value to see if the update was successful. The client can pass in a
