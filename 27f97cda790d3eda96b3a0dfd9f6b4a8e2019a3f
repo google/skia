@@ -93,6 +93,30 @@
       "revId": "27f97cda790d3eda96b3a0dfd9f6b4a8e2019a3f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "180091f6_9cc5ec31",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-21T14:31:13Z",
+      "side": 1,
+      "message": "If we were going this direction then we should go all the way and allow tricubic (cubic interp across four MIP levels)",
+      "parentUuid": "de7964da_8a81fd57",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 61
+      },
+      "revId": "27f97cda790d3eda96b3a0dfd9f6b4a8e2019a3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
