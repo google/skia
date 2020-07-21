@@ -128,6 +128,24 @@ static D3D12_TEXTURE_ADDRESS_MODE wrap_mode_to_d3d_address_mode(GrSamplerState::
     SK_ABORT("Unknown wrap mode.");
 }
 
+static D3D12_FILTER d3d_filter(GrSamplerState sampler) {
+    switch (sampler.mipmapMode()) {
+        case GrSamplerState::MipmapMode::kNone:
+            switch (sampler.filter()) {
+                case GrSamplerState::Filter::kNearest: return D3D12_FILTER_MIN_MAG_MIP_POINT;
+                case GrSamplerState::Filter::kLinear:  return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+            }
+            SkUNREACHABLE;
+        case GrSamplerState::MipmapMode::kLinear:
+            switch (sampler.filter()) {
+                case GrSamplerState::Filter::kNearest: return D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+                case GrSamplerState::Filter::kLinear:  return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+            }
+            SkUNREACHABLE;
+    }
+    SkUNREACHABLE;
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler(
         const GrSamplerState& params) {
     uint32_t key = params.asIndex();
@@ -136,17 +154,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
         return *samplerPtr;
     }
 
-    static D3D12_FILTER d3dFilterModes[] = {
-        D3D12_FILTER_MIN_MAG_MIP_POINT,
-        D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT,
-        D3D12_FILTER_MIN_MAG_MIP_LINEAR
-    };
-
-    static_assert((int)GrSamplerState::Filter::kNearest == 0);
-    static_assert((int)GrSamplerState::Filter::kLinear == 1);
-    static_assert((int)GrSamplerState::Filter::kMipMap == 2);
-
-    D3D12_FILTER filter = d3dFilterModes[static_cast<int>(params.filter())];
+    D3D12_FILTER filter = d3d_filter(params);
     D3D12_TEXTURE_ADDRESS_MODE addressModeU = wrap_mode_to_d3d_address_mode(params.wrapModeX());
     D3D12_TEXTURE_ADDRESS_MODE addressModeV = wrap_mode_to_d3d_address_mode(params.wrapModeY());
 
