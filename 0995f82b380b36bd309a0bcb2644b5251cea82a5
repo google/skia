@@ -16,6 +16,110 @@
       "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa9cc02_36555e16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T17:03:12Z",
+      "side": 1,
+      "message": "Deferring to Robert for C++ style and API use",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61841377_e8cbe8c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T17:03:12Z",
+      "side": 1,
+      "message": "You should figure out why that is. Maybe it\u0027s a problem that is affecting other API fuzzers.",
+      "parentUuid": "4c28ca99_9da56c23",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cf1c717_646a2c2a",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T17:03:12Z",
+      "side": 1,
+      "message": "What does this 1 mean? Make it a named constant for readibility.",
+      "range": {
+        "startLine": 98,
+        "startChar": 69,
+        "endLine": 98,
+        "endChar": 70
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5974a09e_565a3255",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T17:03:12Z",
+      "side": 1,
+      "message": "This should not go here - it should go in a file under oss-fuzz",
+      "range": {
+        "startLine": 151,
+        "startChar": 15,
+        "endLine": 151,
+        "endChar": 37
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10ab7d49_931b3fb7",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T17:03:12Z",
+      "side": 1,
+      "message": "This won\u0027t compile - see other oss-fuzz examples for the proper name for an API fuzzer",
+      "range": {
+        "startLine": 156,
+        "startChar": 4,
+        "endLine": 156,
+        "endChar": 17
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
