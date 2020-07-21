@@ -19,6 +19,52 @@
     },
     {
       "key": {
+        "uuid": "cd5abc6d_6fe8fd23",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-21T01:21:57Z",
+      "side": 1,
+      "message": "Maybe an assert that other-\u003efTail !\u003d \u0026other-\u003efHead? (Since this should be taken care of by the above if).",
+      "range": {
+        "startLine": 152,
+        "startChar": 8,
+        "endLine": 152,
+        "endChar": 29
+      },
+      "revId": "ea76b9d96cbeea3f9a3b5564df0de36a5f41ff83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5760922d_6aa36e43",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-21T01:21:57Z",
+      "side": 1,
+      "message": "I wonder if it\u0027s necessary to compact more than just the head. It takes more time to compact the other elements, and if we\u0027re using an SkArenaAlloc, that block is already allocated and won\u0027t go away until the arena itself is destructed anyway. Why not copy only the head and then steal the rest of the blocks? Is the concern fragmentation?\n\nFor my stroke Op I want the head block to hold exactly one item, which would make the concat extremely simple if implemented this way:\n\n  this-\u003epush_back(std::move(other.headItem()));\n  stealHeapBlocks();",
+      "range": {
+        "startLine": 276,
+        "startChar": 7,
+        "endLine": 276,
+        "endChar": 53
+      },
+      "revId": "ea76b9d96cbeea3f9a3b5564df0de36a5f41ff83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "38a0de00_0eeebdfa",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 6
