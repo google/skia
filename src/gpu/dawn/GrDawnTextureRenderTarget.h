@@ -26,7 +26,7 @@ public:
                               const wgpu::TextureView textureView,
                               int sampleCnt,
                               const GrDawnTextureInfo& textureInfo,
-                              GrMipMapsStatus mipMapsStatus);
+                              GrMipmapStatus mipmapStatus);
 
     bool canAttemptStencilAttachment() const override;
 

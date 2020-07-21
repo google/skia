@@ -152,8 +152,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
     // mipmaps are fully fleshed out.
-    GrMipMapsStatus mipMapsStatus = fBackendTexture.hasMipMaps()
-            ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = fBackendTexture.hasMipMaps()
+            ? GrMipmapStatus::kValid : GrMipmapStatus::kNotAllocated;
 
     GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
 
@@ -202,7 +202,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                 return {std::move(tex), true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
             backendFormat, fBackendTexture.dimensions(), GrRenderable::kNo, 1, textureIsMipMapped,
-            mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
+            mipmapStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
             GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
     if (!proxy) {
         return {};

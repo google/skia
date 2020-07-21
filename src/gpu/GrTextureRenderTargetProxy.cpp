@@ -29,7 +29,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        SkISize dimensions,
                                                        int sampleCnt,
                                                        GrMipmapped mipMapped,
-                                                       GrMipMapsStatus mipMapsStatus,
+                                                       GrMipmapStatus mipmapStatus,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
@@ -40,7 +40,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
         // for now textures w/ data are always wrapped
         , GrRenderTargetProxy(caps, format, dimensions, sampleCnt, fit, budgeted, isProtected,
                               surfaceFlags, useAllocator)
-        , GrTextureProxy(format, dimensions, mipMapped, mipMapsStatus, fit, budgeted, isProtected,
+        , GrTextureProxy(format, dimensions, mipMapped, mipmapStatus, fit, budgeted, isProtected,
                          surfaceFlags, useAllocator, creatingProvider) {
     this->initSurfaceFlags(caps);
 }
@@ -52,7 +52,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        SkISize dimensions,
                                                        int sampleCnt,
                                                        GrMipmapped mipMapped,
-                                                       GrMipMapsStatus mipMapsStatus,
+                                                       GrMipmapStatus mipmapStatus,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
@@ -66,7 +66,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
         , GrRenderTargetProxy(LazyInstantiateCallback(), format, dimensions, sampleCnt, fit,
                               budgeted, isProtected, surfaceFlags, useAllocator,
                               WrapsVkSecondaryCB::kNo)
-        , GrTextureProxy(LazyInstantiateCallback(), format, dimensions, mipMapped, mipMapsStatus,
+        , GrTextureProxy(LazyInstantiateCallback(), format, dimensions, mipMapped, mipmapStatus,
                          fit, budgeted, isProtected, surfaceFlags, useAllocator,
                          creatingProvider) {
     this->initSurfaceFlags(caps);

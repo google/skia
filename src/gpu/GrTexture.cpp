@@ -23,14 +23,14 @@
 #endif
 
 void GrTexture::markMipMapsDirty() {
-    if (GrMipMapsStatus::kValid == fMipMapsStatus) {
-        fMipMapsStatus = GrMipMapsStatus::kDirty;
+    if (GrMipmapStatus::kValid == fMipMapsStatus) {
+        fMipMapsStatus = GrMipmapStatus::kDirty;
     }
 }
 
 void GrTexture::markMipMapsClean() {
-    SkASSERT(GrMipMapsStatus::kNotAllocated != fMipMapsStatus);
-    fMipMapsStatus = GrMipMapsStatus::kValid;
+    SkASSERT(GrMipmapStatus::kNotAllocated != fMipMapsStatus);
+    fMipMapsStatus = GrMipmapStatus::kValid;
 }
 
 size_t GrTexture::onGpuMemorySize() const {
@@ -44,11 +44,11 @@ GrTexture::GrTexture(GrGpu* gpu,
                      const SkISize& dimensions,
                      GrProtected isProtected,
                      GrTextureType textureType,
-                     GrMipMapsStatus mipMapsStatus)
+                     GrMipmapStatus mipmapStatus)
         : INHERITED(gpu, dimensions, isProtected)
         , fTextureType(textureType)
-        , fMipMapsStatus(mipMapsStatus) {
-    if (GrMipMapsStatus::kNotAllocated == fMipMapsStatus) {
+        , fMipMapsStatus(mipmapStatus) {
+    if (GrMipmapStatus::kNotAllocated == fMipMapsStatus) {
         fMaxMipMapLevel = 0;
     } else {
         fMaxMipMapLevel = SkMipmap::ComputeLevelCount(this->width(), this->height());

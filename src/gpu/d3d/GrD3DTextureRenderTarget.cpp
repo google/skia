@@ -17,10 +17,10 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
         const GrD3DTextureResourceInfo& msaaInfo, sk_sp<GrD3DResourceState> msaaState,
         const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
         const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
-        GrMipMapsStatus mipMapsStatus)
+        GrMipmapStatus mipmapStatus)
     : GrSurface(gpu, dimensions, info.fProtected)
     , GrD3DTextureResource(info, state)
-    , GrD3DTexture(gpu, dimensions, info, state, shaderResourceView, mipMapsStatus)
+    , GrD3DTexture(gpu, dimensions, info, state, shaderResourceView, mipmapStatus)
     , GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, state, msaaInfo,
                         std::move(msaaState), colorRenderTargetView, resolveRenderTargetView) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
@@ -32,10 +32,10 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
         const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state,
         const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
         const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
-        GrMipMapsStatus mipMapsStatus)
+        GrMipmapStatus mipmapStatus)
     : GrSurface(gpu, dimensions, info.fProtected)
     , GrD3DTextureResource(info, state)
-    , GrD3DTexture(gpu, dimensions, info, state, shaderResourceView, mipMapsStatus)
+    , GrD3DTexture(gpu, dimensions, info, state, shaderResourceView, mipmapStatus)
     , GrD3DRenderTarget(gpu, dimensions, info, state, renderTargetView) {
     this->registerWithCache(budgeted);
 }
@@ -47,11 +47,11 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
         const GrD3DTextureResourceInfo& msaaInfo, sk_sp<GrD3DResourceState> msaaState,
         const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
         const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
-        GrMipMapsStatus mipMapsStatus,
+        GrMipmapStatus mipmapStatus,
         GrWrapCacheable cacheable)
     : GrSurface(gpu, dimensions, info.fProtected)
     , GrD3DTextureResource(info, state)
-    , GrD3DTexture(gpu, dimensions, info, state, shaderResourceView, mipMapsStatus)
+    , GrD3DTexture(gpu, dimensions, info, state, shaderResourceView, mipmapStatus)
     , GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, state, msaaInfo,
                         std::move(msaaState), colorRenderTargetView, resolveRenderTargetView) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
@@ -63,11 +63,11 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
         const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state,
         const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
         const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
-        GrMipMapsStatus mipMapsStatus,
+        GrMipmapStatus mipmapStatus,
         GrWrapCacheable cacheable)
     : GrSurface(gpu, dimensions, info.fProtected)
     , GrD3DTextureResource(info, state)
-    , GrD3DTexture(gpu, dimensions, info, state, shaderResourceView, mipMapsStatus)
+    , GrD3DTexture(gpu, dimensions, info, state, shaderResourceView, mipmapStatus)
     , GrD3DRenderTarget(gpu, dimensions, info, state, renderTargetView) {
     this->registerWithCacheWrapped(cacheable);
 }
@@ -79,7 +79,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
         int sampleCnt,
         const D3D12_RESOURCE_DESC& resourceDesc,
         GrProtected isProtected,
-        GrMipMapsStatus mipMapsStatus) {
+        GrMipmapStatus mipmapStatus) {
 
     GrD3DTextureResourceInfo info;
     D3D12_RESOURCE_STATES initialState = sampleCnt > 1 ? D3D12_RESOURCE_STATE_RESOLVE_DEST
@@ -118,12 +118,12 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
 
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, budgeted, dimensions, sampleCnt, info, std::move(state), shaderResourceView,
-                msInfo, std::move(msState), msaaRenderTargetView, renderTargetView, mipMapsStatus);
+                msInfo, std::move(msState), msaaRenderTargetView, renderTargetView, mipmapStatus);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, budgeted, dimensions, info, std::move(state), shaderResourceView,
-                renderTargetView, mipMapsStatus);
+                renderTargetView, mipmapStatus);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     }
 }
@@ -140,8 +140,8 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
     //SkASSERT(VK_NULL_HANDLE != info.fImage &&
     //         (kBorrow_GrWrapOwnership == wrapOwnership || VK_NULL_HANDLE != info.fAlloc.fMemory));
 
-    GrMipMapsStatus mipMapsStatus = info.fLevelCount > 1 ? GrMipMapsStatus::kDirty
-                                                         : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = info.fLevelCount > 1 ? GrMipmapStatus::kDirty
+                                                       : GrMipmapStatus::kNotAllocated;
 
     const GrD3DDescriptorHeap::CPUHandle shaderResourceView =
             gpu->resourceProvider().createShaderResourceView(info.fResource.get());
@@ -162,13 +162,13 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
 
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, dimensions, sampleCnt, info, std::move(state), shaderResourceView,
-                msInfo, std::move(msState), msaaRenderTargetView, renderTargetView, mipMapsStatus,
+                msInfo, std::move(msState), msaaRenderTargetView, renderTargetView, mipmapStatus,
                 cacheable);
         return sk_sp<GrD3DTextureRenderTarget>(trt);
     } else {
         return sk_sp<GrD3DTextureRenderTarget>(new GrD3DTextureRenderTarget(
                 gpu, dimensions, info, std::move(state), shaderResourceView, renderTargetView,
-                mipMapsStatus, cacheable));
+                mipmapStatus, cacheable));
     }
 }
 

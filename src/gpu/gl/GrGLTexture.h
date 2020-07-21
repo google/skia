@@ -28,7 +28,7 @@ public:
 
     static GrTextureType TextureTypeFromTarget(GrGLenum textureTarget);
 
-    GrGLTexture(GrGLGpu*, SkBudgeted, const Desc&, GrMipMapsStatus);
+    GrGLTexture(GrGLGpu*, SkBudgeted, const Desc&, GrMipmapStatus);
 
     ~GrGLTexture() override {}
 
@@ -51,7 +51,7 @@ public:
     void baseLevelWasBoundToFBO() { fBaseLevelHasBeenBoundToFBO = true; }
 
     static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*,
-                                          GrMipMapsStatus,
+                                          GrMipmapStatus,
                                           const Desc&,
                                           sk_sp<GrGLTextureParameters>,
                                           GrWrapCacheable, GrIOType);
@@ -60,12 +60,12 @@ public:
 
 protected:
     // Constructor for subclasses.
-    GrGLTexture(GrGLGpu*, const Desc&, sk_sp<GrGLTextureParameters>, GrMipMapsStatus);
+    GrGLTexture(GrGLGpu*, const Desc&, sk_sp<GrGLTextureParameters>, GrMipmapStatus);
 
     // Constructor for instances wrapping backend objects.
     GrGLTexture(GrGLGpu*,
                 const Desc&,
-                GrMipMapsStatus,
+                GrMipmapStatus,
                 sk_sp<GrGLTextureParameters>,
                 GrWrapCacheable,
                 GrIOType);

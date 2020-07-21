@@ -35,16 +35,16 @@ public:
 
     bool mipMapsAreDirty() const {
         SkASSERT((GrMipmapped::kNo == fMipMapped) ==
-                 (GrMipMapsStatus::kNotAllocated == fMipMapsStatus));
-        return GrMipmapped::kYes == fMipMapped && GrMipMapsStatus::kValid != fMipMapsStatus;
+                 (GrMipmapStatus::kNotAllocated == fMipMapsStatus));
+        return GrMipmapped::kYes == fMipMapped && GrMipmapStatus::kValid != fMipMapsStatus;
     }
     void markMipMapsDirty() {
         SkASSERT(GrMipmapped::kYes == fMipMapped);
-        fMipMapsStatus = GrMipMapsStatus::kDirty;
+        fMipMapsStatus = GrMipmapStatus::kDirty;
     }
     void markMipMapsClean() {
         SkASSERT(GrMipmapped::kYes == fMipMapped);
-        fMipMapsStatus = GrMipMapsStatus::kValid;
+        fMipMapsStatus = GrMipmapStatus::kValid;
     }
 
     // Returns the GrMipmapped value of the proxy from creation time regardless of whether it has
@@ -114,7 +114,7 @@ protected:
     GrTextureProxy(const GrBackendFormat&,
                    SkISize,
                    GrMipmapped,
-                   GrMipMapsStatus,
+                   GrMipmapStatus,
                    SkBackingFit,
                    SkBudgeted,
                    GrProtected,
@@ -136,7 +136,7 @@ protected:
                    const GrBackendFormat&,
                    SkISize,
                    GrMipmapped,
-                   GrMipMapsStatus,
+                   GrMipmapStatus,
                    SkBackingFit,
                    SkBudgeted,
                    GrProtected,
@@ -170,14 +170,14 @@ private:
     // This tracks the mipmap status at the proxy level and is thus somewhat distinct from the
     // backing GrTexture's mipmap status. In particular, this status is used to determine when
     // mipmap levels need to be explicitly regenerated during the execution of a DAG of opsTasks.
-    GrMipMapsStatus  fMipMapsStatus;
-    // TEMPORARY: We are in the process of moving GrMipMapsStatus from the texture to the proxy.
+    GrMipmapStatus  fMipMapsStatus;
+    // TEMPORARY: We are in the process of moving GrMipmapStatus from the texture to the proxy.
     // We track the fInitialMipMapsStatus here so we can assert that the proxy did indeed expect
     // the correct mipmap status immediately after instantiation.
     //
     // NOTE: fMipMapsStatus may no longer be equal to fInitialMipMapsStatus by the time the texture
     // is instantiated, since it tracks mipmaps in the time frame in which the DAG is being built.
-    SkDEBUGCODE(const GrMipMapsStatus fInitialMipMapsStatus;)
+    SkDEBUGCODE(const GrMipmapStatus fInitialMipMapsStatus;)
 
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 
