@@ -122,8 +122,8 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrContext* context, const GrFlushInfo& info) {
-    if (!context || !fContext->priv().matches(context) || fContext->abandoned()) {
+GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrDirectContext* dContext, const GrFlushInfo& info) {
+    if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
@@ -143,7 +143,7 @@ GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrContext* context, const GrFlush
         proxies[0] = fRGBView.proxy();
         numProxies = 1;
     }
-    return context->priv().flushSurfaces(proxies, numProxies, info);
+    return dContext->priv().flushSurfaces(proxies, numProxies, info);
 }
 
 GrTextureProxy* SkImage_GpuYUVA::peekProxy() const { return fRGBView.asTextureProxy(); }
