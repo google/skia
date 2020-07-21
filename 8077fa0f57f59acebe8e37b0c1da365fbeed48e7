@@ -16,6 +16,29 @@
       "revId": "8077fa0f57f59acebe8e37b0c1da365fbeed48e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b9718cb1_2e809d23",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-21T19:22:43Z",
+      "side": 1,
+      "message": "Are you planning to clean up some of GrProcessorSet after this? I notice that fFragmentProcessors is still an SkAutoSTArray\u003c4, ...\u003e, so we\u0027re definitely holding two wasted slots. It also still has count and offset to track the total number, etc... which all seems like overkill at this point.\n\nActually, it\u0027s got a whole thing for tracking how many FPs to eliminate based on analysis, but that\u0027s all way overengineered now, too - either we eliminate all or none (of the color processors). Anyways - things to look at next?",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 27
+      },
+      "revId": "8077fa0f57f59acebe8e37b0c1da365fbeed48e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
