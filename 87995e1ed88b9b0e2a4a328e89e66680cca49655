@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a241629_8bb80b99",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-21T13:35:47Z",
+      "side": 1,
+      "message": "Other than these two lines, RELEASE_NOTES.txt, and the change description this was 100% search and replace. I\u0027ve not changed any variable or function names, just the name of the type (so far).",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 32
+      },
+      "revId": "87995e1ed88b9b0e2a4a328e89e66680cca49655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
