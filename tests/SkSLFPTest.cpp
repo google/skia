@@ -788,6 +788,63 @@ DEF_TEST(SkSLFPBadIn, r) {
          "custom @setData function\n1 error\n");
 }
 
+DEF_TEST(SkSLFPNoFPLocals, r) {
+    test_failure(r,
+    R"__SkSL__(
+        void main() {
+            fragmentProcessor child;
+        }
+    )__SkSL__",
+    "error");
+}
+
+DEF_TEST(SkSLFPNoFPParams, r) {
+    test_failure(r,
+    R"__SkSL__(
+        in fragmentProcessor child;
+        half4 helper(fragmentProcessor fp) { return sample(fp); }
+        void main() {
+            sk_OutColor = helper(child);
+        }
+    )__SkSL__",
+    "error");
+}
+
+DEF_TEST(SkSLFPNoFPReturns, r) {
+    test_failure(r,
+    R"__SkSL__(
+        in fragmentProcessor child;
+        fragmentProcessor get_child() { return child; }
+        void main() {
+            sk_OutColor = sample(get_child());
+        }
+    )__SkSL__",
+    "error");
+}
+
+DEF_TEST(SkSLFPNoFPConstructors, r) {
+    test_failure(r,
+    R"__SkSL__(
+        in fragmentProcessor child;
+        void main() {
+            sk_OutColor = sample(fragmentProcessor(child));
+        }
+    )__SkSL__",
+    "error");
+}
+
+DEF_TEST(SkSLFPNoFPExpressions, r) {
+    test_failure(r,
+    R"__SkSL__(
+        in fragmentProcessor child1;
+        in fragmentProcessor child2;
+        void main(float2 coord) {
+            sk_OutColor = sample(coord.x > 10 ? child1 : child2);
+        }
+    )__SkSL__",
+    "error");
+}
+
 DEF_TEST(SkSLFPSampleCoords, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
