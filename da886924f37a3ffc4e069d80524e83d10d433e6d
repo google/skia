@@ -88,6 +88,24 @@
       "revId": "da886924f37a3ffc4e069d80524e83d10d433e6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "417eb6d0_1434cdc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-21T16:25:30Z",
+      "side": 1,
+      "message": "All the other bots are green now.",
+      "parentUuid": "1bf8f470_a89bfe9a",
+      "revId": "da886924f37a3ffc4e069d80524e83d10d433e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
