@@ -120,7 +120,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         // want to ever retarget the SkSurface at another buffer we create. Force a copy now to
         // avoid copy-on-write.
         auto rect = subset ? *subset : SkIRect::MakeSize(rtc->dimensions());
-        srcView = GrSurfaceProxyView::Copy(context, std::move(srcView), rtc->mipMapped(), rect,
+        srcView = GrSurfaceProxyView::Copy(context, std::move(srcView), rtc->mipmapped(), rect,
                                            SkBackingFit::kExact, budgeted);
     }
 
@@ -215,7 +215,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
 
     size_t maxResourceBytes = direct->getResourceCacheLimit();
 
-    bool mipmapped = rtc->asTextureProxy() ? GrMipmapped::kYes == rtc->asTextureProxy()->mipMapped()
+    bool mipmapped = rtc->asTextureProxy() ? GrMipmapped::kYes == rtc->asTextureProxy()->mipmapped()
                                            : false;
 
     SkColorType ct = GrColorTypeToSkColorType(rtc->colorInfo().colorType());
@@ -310,7 +310,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
 
         if (characterization.isMipMapped() &&
-            GrMipmapped::kNo == rtc->asTextureProxy()->mipMapped()) {
+            GrMipmapped::kNo == rtc->asTextureProxy()->mipmapped()) {
             // Fail if the DDL's surface was mipmapped but the replay surface is not.
             // Allow drawing to proceed if the DDL was not mipmapped but the replay surface is.
             return false;

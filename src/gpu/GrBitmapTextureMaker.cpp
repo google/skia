@@ -70,7 +70,7 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipmapped
         if (proxy) {
             swizzle = this->context()->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                      this->colorType());
-            if (mipMapped == GrMipmapped::kNo || proxy->mipMapped() == GrMipmapped::kYes) {
+            if (mipMapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes) {
                 return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
             }
         }
@@ -92,7 +92,7 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipmapped
         if (proxy) {
             swizzle = this->context()->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                      this->colorType());
-            SkASSERT(mipMapped == GrMipmapped::kNo || proxy->mipMapped() == GrMipmapped::kYes);
+            SkASSERT(mipMapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes);
             if (fKey.isValid()) {
                 installKey(proxy.get());
             }
@@ -102,7 +102,7 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipmapped
 
     if (proxy) {
         SkASSERT(mipMapped == GrMipmapped::kYes);
-        SkASSERT(proxy->mipMapped() == GrMipmapped::kNo);
+        SkASSERT(proxy->mipmapped() == GrMipmapped::kNo);
         SkASSERT(fKey.isValid());
         // We need a mipped proxy, but we found a proxy earlier that wasn't mipped. Thus we generate
         // a new mipped surface and copy the original proxy into the base layer. We will then let

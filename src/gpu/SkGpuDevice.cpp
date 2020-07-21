@@ -251,7 +251,7 @@ void SkGpuDevice::replaceRenderTargetContext(SkSurface::ContentChangeMode mode) 
                                           fRenderTargetContext->numSamples(),
                                           fRenderTargetContext->origin(),
                                           &this->surfaceProps(),
-                                          fRenderTargetContext->mipMapped());
+                                          fRenderTargetContext->mipmapped());
     if (!newRTC) {
         return;
     }

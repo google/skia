@@ -55,7 +55,7 @@ private:
     }
     void markRenderTargetDirty() {
         if (auto* tex = fRenderTarget->asTexture()) {
-            tex->texturePriv().markMipMapsDirty();
+            tex->texturePriv().markMipmapsDirty();
         }
     }
 

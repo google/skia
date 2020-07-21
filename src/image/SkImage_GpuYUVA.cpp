@@ -106,7 +106,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     }
     for (int i = 0; i < fNumViews; ++i) {
         auto* t = fViews[i].asTextureProxy();
-        if (t->mipMapped() == GrMipmapped::kNo && (t->width() > 1 || t->height() > 1)) {
+        if (t->mipmapped() == GrMipmapped::kNo && (t->width() > 1 || t->height() > 1)) {
             if (!(newViews[i] = GrCopyBaseMipMapToView(context, fViews[i]))) {
                 return false;
             }
@@ -187,7 +187,7 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
 GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) const {
     // if invalid or already has miplevels
     this->flattenToRGB(context);
-    if (!fRGBView || fRGBView.asTextureProxy()->mipMapped() == GrMipmapped::kYes) {
+    if (!fRGBView || fRGBView.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
         return fRGBView;
     }
 

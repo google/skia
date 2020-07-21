@@ -181,5 +181,5 @@ size_t GrD3DTextureRenderTarget::onGpuMemorySize() const {
     const GrCaps& caps = *this->getGpu()->caps();
     return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
                                   numColorSamples,  // TODO: this still correct?
-                                  this->texturePriv().mipMapped());
+                                  this->texturePriv().mipmapped());
 }

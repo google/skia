@@ -499,7 +499,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context,
         const GrSurfaceProxyView* view = as_IB(this)->view(direct);
         SkASSERT(view && view->asTextureProxy());
 
-        if (mipMapped == GrMipmapped::kNo || view->asTextureProxy()->mipMapped() == mipMapped ||
+        if (mipMapped == GrMipmapped::kNo || view->asTextureProxy()->mipmapped() == mipMapped ||
             !direct->priv().caps()->mipmapSupport()) {
             return sk_ref_sp(const_cast<SkImage*>(this));
         }

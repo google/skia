@@ -24,12 +24,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
     auto isMipped = [] (SkSurface* surf) {
         SkImage_GpuBase* image = static_cast<SkImage_GpuBase*>(as_IB(surf->makeImageSnapshot()));
         const GrTexture* texture = image->getTexture();
-        return GrMipmapped::kYes == texture->texturePriv().mipMapped();
+        return GrMipmapped::kYes == texture->texturePriv().mipmapped();
     };
 
     auto mipsAreDirty = [] (SkSurface* surf) {
         SkImage_GpuBase* image = static_cast<SkImage_GpuBase*>(as_IB(surf->makeImageSnapshot()));
-        return image->getTexture()->texturePriv().mipMapsAreDirty();
+        return image->getTexture()->texturePriv().mipmapsAreDirty();
     };
 
     auto info = SkImageInfo::MakeN32Premul(256, 256);

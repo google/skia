@@ -2576,7 +2576,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
 
     if (samplerState.filter() == GrSamplerState::Filter::kMipMap) {
         if (!this->caps()->mipmapSupport() ||
-            texture->texturePriv().mipMapped() == GrMipmapped::kNo) {
+            texture->texturePriv().mipmapped() == GrMipmapped::kNo) {
             samplerState.setFilterMode(GrSamplerState::Filter::kLinear);
         }
     }
@@ -2584,7 +2584,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
 #ifdef SK_DEBUG
     // We were supposed to ensure MipMaps were up-to-date before getting here.
     if (samplerState.filter() == GrSamplerState::Filter::kMipMap) {
-        SkASSERT(!texture->texturePriv().mipMapsAreDirty());
+        SkASSERT(!texture->texturePriv().mipmapsAreDirty());
     }
 #endif
 
@@ -2661,7 +2661,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     }
     GrGLTextureParameters::NonsamplerState newNonsamplerState;
     newNonsamplerState.fBaseMipMapLevel = 0;
-    newNonsamplerState.fMaxMipMapLevel = texture->texturePriv().maxMipMapLevel();
+    newNonsamplerState.fMaxMipmapLevel = texture->texturePriv().maxMipmapLevel();
 
     const GrGLTextureParameters::NonsamplerState& oldNonsamplerState =
             texture->parameters()->nonsamplerState();
@@ -2693,10 +2693,10 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_BASE_LEVEL,
                                   newNonsamplerState.fBaseMipMapLevel));
         }
-        if (newNonsamplerState.fMaxMipMapLevel != oldNonsamplerState.fMaxMipMapLevel) {
+        if (newNonsamplerState.fMaxMipmapLevel != oldNonsamplerState.fMaxMipmapLevel) {
             this->setTextureUnit(unitIdx);
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LEVEL,
-                                  newNonsamplerState.fMaxMipMapLevel));
+                                  newNonsamplerState.fMaxMipmapLevel));
         }
     }
     texture->parameters()->set(samplerStateToRecord, newNonsamplerState,
@@ -3411,7 +3411,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     int width = texture->width();
     int height = texture->height();
     int levelCount = SkMipmap::ComputeLevelCount(width, height) + 1;
-    SkASSERT(levelCount == texture->texturePriv().maxMipMapLevel() + 1);
+    SkASSERT(levelCount == texture->texturePriv().maxMipmapLevel() + 1);
 
     // Create (if necessary), then bind temporary FBO:
     if (0 == fTempDstFBOID) {
@@ -3638,7 +3638,7 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
             GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_BASE_LEVEL, 0));
             nonsamplerState.fBaseMipMapLevel = 0;
         }
-        if (params->nonsamplerState().fMaxMipMapLevel != (numMipLevels - 1)) {
+        if (params->nonsamplerState().fMaxMipmapLevel != (numMipLevels - 1)) {
             GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MAX_LEVEL, numMipLevels - 1));
             nonsamplerState.fBaseMipMapLevel = numMipLevels - 1;
         }

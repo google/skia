@@ -159,7 +159,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
     auto tex = this->createTextureCommon(dimensions, format, renderable, renderTargetSampleCnt,
                                          budgeted, isProtected, mipLevelCount, levelClearMask);
     if (tex && mipMapped == GrMipmapped::kYes && levelClearMask) {
-        tex->texturePriv().markMipMapsClean();
+        tex->texturePriv().markMipmapsClean();
     }
     return tex;
 }
@@ -215,7 +215,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
             markMipLevelsClean = true;
         }
         if (markMipLevelsClean) {
-            tex->texturePriv().markMipMapsClean();
+            tex->texturePriv().markMipmapsClean();
         }
     }
     return tex;
@@ -552,8 +552,8 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(this->caps()->mipmapSupport());
-    SkASSERT(texture->texturePriv().mipMapped() == GrMipmapped::kYes);
-    if (!texture->texturePriv().mipMapsAreDirty()) {
+    SkASSERT(texture->texturePriv().mipmapped() == GrMipmapped::kYes);
+    if (!texture->texturePriv().mipmapsAreDirty()) {
         // This can happen when the proxy expects mipmaps to be dirty, but they are not dirty on the
         // actual target. This may be caused by things that the drawingManager could not predict,
         // i.e., ops that don't draw anything, aborting a draw for exceptional circumstances, etc.
@@ -564,7 +564,7 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
         return false;
     }
     if (this->onRegenerateMipMapLevels(texture)) {
-        texture->texturePriv().markMipMapsClean();
+        texture->texturePriv().markMipmapsClean();
         return true;
     }
     return false;
@@ -589,7 +589,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     if (nullptr == bounds || !bounds->isEmpty()) {
         GrTexture* texture = surface->asTexture();
         if (texture && 1 == mipLevels) {
-            texture->texturePriv().markMipMapsDirty();
+            texture->texturePriv().markMipmapsDirty();
         }
     }
 }

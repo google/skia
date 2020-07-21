@@ -18,27 +18,27 @@
     implemented privately in GrTexture with a inline public method here). */
 class GrTexturePriv {
 public:
-    void markMipMapsDirty() {
-        fTexture->markMipMapsDirty();
+    void markMipmapsDirty() {
+        fTexture->markMipmapsDirty();
     }
 
-    void markMipMapsClean() {
-        fTexture->markMipMapsClean();
+    void markMipmapsClean() {
+        fTexture->markMipmapsClean();
     }
 
-    GrMipmapStatus mipmapStatus() const { return fTexture->fMipMapsStatus; }
+    GrMipmapStatus mipmapStatus() const { return fTexture->fMipmapStatus; }
 
-    bool mipMapsAreDirty() const { return GrMipmapStatus::kValid != this->mipmapStatus(); }
+    bool mipmapsAreDirty() const { return GrMipmapStatus::kValid != this->mipmapStatus(); }
 
-    GrMipmapped mipMapped() const {
+    GrMipmapped mipmapped() const {
         if (GrMipmapStatus::kNotAllocated != this->mipmapStatus()) {
             return GrMipmapped::kYes;
         }
         return GrMipmapped::kNo;
     }
 
-    int maxMipMapLevel() const {
-        return fTexture->fMaxMipMapLevel;
+    int maxMipmapLevel() const {
+        return fTexture->fMaxMipmapLevel;
     }
 
     GrTextureType textureType() const { return fTexture->fTextureType; }

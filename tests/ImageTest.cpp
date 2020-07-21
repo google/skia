@@ -422,11 +422,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 SkASSERT(copyProxy);
                 bool shouldBeMipped =
                         mipMapped == GrMipmapped::kYes && context->priv().caps()->mipmapSupport();
-                if (shouldBeMipped && copyProxy->mipMapped() == GrMipmapped::kNo) {
+                if (shouldBeMipped && copyProxy->mipmapped() == GrMipmapped::kNo) {
                     ERRORF(reporter, "makeTextureImage returned non-mipmapped texture.");
                     continue;
                 }
-                bool origIsMipped = origProxy && origProxy->mipMapped() == GrMipmapped::kYes;
+                bool origIsMipped = origProxy && origProxy->mipmapped() == GrMipmapped::kYes;
                 if (image->isTextureBacked() && (!shouldBeMipped || origIsMipped)) {
                     if (origProxy->underlyingUniqueID() != copyProxy->underlyingUniqueID()) {
                         ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");

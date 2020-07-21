@@ -164,8 +164,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             continue;
         }
 
-        SkASSERT(rectProxy->mipMapped() == GrMipmapped::kNo);
-        SkASSERT(rectProxy->peekTexture()->texturePriv().mipMapped() == GrMipmapped::kNo);
+        SkASSERT(rectProxy->mipmapped() == GrMipmapped::kNo);
+        SkASSERT(rectProxy->peekTexture()->texturePriv().mipmapped() == GrMipmapped::kNo);
 
         SkASSERT(rectProxy->textureType() == GrTextureType::kRectangle);
         SkASSERT(rectProxy->peekTexture()->texturePriv().textureType() ==

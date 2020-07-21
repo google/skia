@@ -89,12 +89,12 @@ protected:
 
 private:
     size_t onGpuMemorySize() const override;
-    void markMipMapsDirty();
-    void markMipMapsClean();
+    void markMipmapsDirty();
+    void markMipmapsClean();
 
     GrTextureType                 fTextureType;
-    GrMipmapStatus               fMipMapsStatus;
-    int                           fMaxMipMapLevel;
+    GrMipmapStatus                fMipmapStatus;
+    int                           fMaxMipmapLevel;
     friend class GrTexturePriv;
     friend class GrTextureResource;
 

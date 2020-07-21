@@ -428,7 +428,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
             GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
             GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
             if (mipMapped == GrMipmapped::kNo ||
-                view.asTextureProxy()->mipMapped() == GrMipmapped::kYes) {
+                view.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
                 return view;
             } else {
                 // We need a mipped proxy, but we found a cached proxy that wasn't mipped. Thus we

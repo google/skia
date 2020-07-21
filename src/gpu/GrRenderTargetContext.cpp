@@ -370,9 +370,9 @@ inline GrAAType GrRenderTargetContext::chooseAAType(GrAA aa) {
     return (this->numSamples() > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
 }
 
-GrMipmapped GrRenderTargetContext::mipMapped() const {
+GrMipmapped GrRenderTargetContext::mipmapped() const {
     if (const GrTextureProxy* proxy = this->asTextureProxy()) {
-        return proxy->mipMapped();
+        return proxy->mipmapped();
     }
     return GrMipmapped::kNo;
 }

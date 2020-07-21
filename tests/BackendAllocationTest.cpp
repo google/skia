@@ -116,9 +116,9 @@ void test_wrapping(GrDirectContext* dContext,
             GrTextureProxy* proxy = ib->peekProxy();
             REPORTER_ASSERT(reporter, proxy);
 
-            REPORTER_ASSERT(reporter, mipMapped == proxy->proxyMipMapped());
+            REPORTER_ASSERT(reporter, mipMapped == proxy->proxyMipmapped());
             REPORTER_ASSERT(reporter, proxy->isInstantiated());
-            REPORTER_ASSERT(reporter, mipMapped == proxy->mipMapped());
+            REPORTER_ASSERT(reporter, mipMapped == proxy->mipmapped());
 
             REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
         }
