@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e06ea5ad_76ee17e9",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T20:57:50Z",
+      "side": 1,
+      "message": "At the moment, draw_texture also only ever provides MipmapMode::kNone to GrRTC::drawTexture or drawTextureQuad. That one can probably be safely expanded to support mipmapped textures with the GrTextureOp.",
+      "parentUuid": "42ffc523_82a4d50d",
+      "range": {
+        "startLine": 323,
+        "startChar": 11,
+        "endLine": 325,
+        "endChar": 1
+      },
+      "revId": "5fd67634c8e4b2d40a8825f56b3feb2fa905f2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3cf53b1f_45e998d4",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 9
@@ -107,6 +131,30 @@
       "side": 1,
       "message": "Ah good point. Can we just assert that if the passed mm to TextureOp() is not kNone then all the proxies are mip mapped?",
       "parentUuid": "dfba6d5e_f8fd8fcd",
+      "range": {
+        "startLine": 591,
+        "startChar": 20,
+        "endLine": 591,
+        "endChar": 64
+      },
+      "revId": "5fd67634c8e4b2d40a8825f56b3feb2fa905f2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7be3d4ab_80d892e0",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T20:57:50Z",
+      "side": 1,
+      "message": "I think that is reasonable. Then in SkGpuDevice::drawEdgeAAImageSet we\u0027d just split into a new bulk GrTextureOp if the next entry\u0027s proxy had a different mip map mode. (or start at mipped based on the paint\u0027s filter quality and then reduce to none if any of the entries didn\u0027t have mipmaps).",
+      "parentUuid": "a16daa8f_025082c5",
       "range": {
         "startLine": 591,
         "startChar": 20,
