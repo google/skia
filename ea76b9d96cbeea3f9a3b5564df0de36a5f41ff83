@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "c1148329_8d9dc743",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T13:48:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd5abc6d_6fe8fd23",
+      "range": {
+        "startLine": 152,
+        "startChar": 8,
+        "endLine": 152,
+        "endChar": 29
+      },
+      "revId": "ea76b9d96cbeea3f9a3b5564df0de36a5f41ff83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5760922d_6aa36e43",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 6
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "8d93b536_f2dbe61f",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T13:48:51Z",
+      "side": 1,
+      "message": "You\u0027re right, there\u0027s not much point in compacting extra blocks if everything is already backed on top of an arena. I had been worried about not being able to fill up any dangling space at the old tail block, but I think it\u0027s reasonable to start with just compacting the head block.\n\nThe code was simpler too without the for loop, although I still have it written to handle a variable number of starting items from the template, and to use a bulk memcpy if possible. But when the template arg is 1, like in your case, the concat should basically reduce to a single push_back() + steal.",
+      "parentUuid": "5760922d_6aa36e43",
+      "range": {
+        "startLine": 276,
+        "startChar": 7,
+        "endLine": 276,
+        "endChar": 53
+      },
+      "revId": "ea76b9d96cbeea3f9a3b5564df0de36a5f41ff83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38a0de00_0eeebdfa",
         "filename": "src/gpu/GrTAllocator.h",
         "patchSetId": 6
@@ -85,6 +133,30 @@
       "revId": "ea76b9d96cbeea3f9a3b5564df0de36a5f41ff83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9ae9255_803908cc",
+        "filename": "src/gpu/GrTAllocator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T13:48:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38a0de00_0eeebdfa",
+      "range": {
+        "startLine": 291,
+        "startChar": 95,
+        "endLine": 291,
+        "endChar": 100
+      },
+      "revId": "ea76b9d96cbeea3f9a3b5564df0de36a5f41ff83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
