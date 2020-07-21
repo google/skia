@@ -16,6 +16,293 @@
       "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b47c3f57_1aa91d0b",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "This should be set up as an API fuzzer, since it uses the bytes in a Fuzz",
+      "range": {
+        "startLine": 459,
+        "startChar": 8,
+        "endLine": 459,
+        "endChar": 28
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de398db0_7e0bb52e",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "This is a somewhat complex fuzzer. Please add some comments explaining what the various parts are.",
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad6fc46f_7cc6e675",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "Move this down to just before it first gets used.",
+      "range": {
+        "startLine": 24,
+        "startChar": 11,
+        "endLine": 24,
+        "endChar": 27
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9efb187_da7668a0",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "move declaration down to where it gets initialized.",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 32
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d1dba94_c096c1a9",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "Wrap all of your C++ lines to 100 cols wide. (here and below)",
+      "range": {
+        "startLine": 27,
+        "startChar": 65,
+        "endLine": 27,
+        "endChar": 67
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b5cd41d_e7090729",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "Why were these values chosen? Should they be fuzzed? Should they be constants?",
+      "range": {
+        "startLine": 40,
+        "startChar": 58,
+        "endLine": 40,
+        "endChar": 101
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e923fcdc_d389a90f",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "Is this just a starting point for the fuzzer? Drawing a colored rectangle? I imagine for full coverage we\u0027ll want to test as much of the API as we can.",
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e36a85f_7cccb10e",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "Replace both of these with fuzz_enum; it\u0027s more clear.",
+      "range": {
+        "startLine": 75,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 44
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7ee1ff9_deceb6b2",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "we have a fuzz-\u003enextEnum for specifically this case.",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 39
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a4540bd_695946ab",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "Why was this value chosen? Should it be a named constant?",
+      "range": {
+        "startLine": 92,
+        "startChar": 39,
+        "endLine": 92,
+        "endChar": 41
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afe8dd1e_11f37779",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "Why is colorType fuzzed but not this?",
+      "range": {
+        "startLine": 93,
+        "startChar": 36,
+        "endLine": 93,
+        "endChar": 55
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "336e6351_3ffe72f6",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "As I mention earlier, use DEF_FUZZ",
+      "range": {
+        "startLine": 106,
+        "startChar": 5,
+        "endLine": 106,
+        "endChar": 18
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "887d685c_2d5a5ff9",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:18:00Z",
+      "side": 1,
+      "message": "How do you know if this succeeds?",
+      "range": {
+        "startLine": 113,
+        "startChar": 8,
+        "endLine": 113,
+        "endChar": 39
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
