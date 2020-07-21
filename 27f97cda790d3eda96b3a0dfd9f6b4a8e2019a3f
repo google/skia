@@ -45,6 +45,30 @@
       "revId": "27f97cda790d3eda96b3a0dfd9f6b4a8e2019a3f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59a0382a_70b997f7",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-21T14:28:34Z",
+      "side": 1,
+      "message": "This is something that I don\u0027t see us implementing on the GPU backend because HW sampling doesn\u0027t support it. We could implement it on the subset of GPUs where we can access individual texels in individual levels, but it\u0027d be probably expensive than just the extra reads/math alone would indicate because we wouldn\u0027t be taking advantage of HW filtering.",
+      "parentUuid": "1133b022_32973af6",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 61
+      },
+      "revId": "27f97cda790d3eda96b3a0dfd9f6b4a8e2019a3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
