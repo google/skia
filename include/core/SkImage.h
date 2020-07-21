@@ -1257,7 +1257,8 @@ public:
         is required storage for the actual bounds of the filtered SkImage. offset is
         required storage for translation of returned SkImage.
 
-        Returns nullptr if SkImage could not be created. If nullptr is returned, outSubset
+        Returns nullptr if SkImage could not be created or if the recording context provided doesn't
+        match the GPU context in which the image was created. If nullptr is returned, outSubset
         and offset are undefined.
 
         Useful for animation of SkImageFilter that varies size from frame to frame.
@@ -1266,7 +1267,7 @@ public:
         of GPU texture returned. offset translates the returned SkImage to keep subsequent
         animation frames aligned with respect to each other.
 
-        @param context     the GrContext in play - if it exists
+        @param context     the GrRecordingContext in play - if it exists
         @param filter      how SkImage is sampled when transformed
         @param subset      bounds of SkImage processed by filter
         @param clipBounds  expected bounds of filtered SkImage
@@ -1274,16 +1275,16 @@ public:
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
     */
-    sk_sp<SkImage> makeWithFilter(GrContext* context,
+    sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
                                   const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
 
-    /** To be deprecated.
-    */
+#ifdef SK_IMAGE_MAKE_WITH_FILTER_LEGACY_API
     sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
+#endif
 
     /** Defines a callback function, taking one parameter of type GrBackendTexture with
         no return value. Function is called when back-end texture is to be released.
