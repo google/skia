@@ -117,6 +117,30 @@
       "revId": "d9af8ad5aea68aa265d6a75ddd8138dc8c84426e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "def36814_34328041",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 996,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T19:32:00Z",
+      "side": 1,
+      "message": "I would love samplers as dynamic states, would mean skia renderer wouldn\u0027t have to split across nearest and linear filtering changes.",
+      "parentUuid": "90186a38_969de523",
+      "range": {
+        "startLine": 995,
+        "startChar": 12,
+        "endLine": 996,
+        "endChar": 49
+      },
+      "revId": "d9af8ad5aea68aa265d6a75ddd8138dc8c84426e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

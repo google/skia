@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0bb52b7f_4a04afda",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T19:32:00Z",
+      "side": 1,
+      "message": "eventually we\u0027ll want to update this function so that textures with mips can still go through the drawTexture functions.",
+      "range": {
+        "startLine": 323,
+        "startChar": 11,
+        "endLine": 325,
+        "endChar": 1
+      },
+      "revId": "5fd67634c8e4b2d40a8825f56b3feb2fa905f2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cf53b1f_45e998d4",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T19:32:00Z",
+      "side": 1,
+      "message": "Do we want to check for downscaling only in \u0027mm\u0027 since we\u0027re splitting things up?",
+      "range": {
+        "startLine": 77,
+        "startChar": 12,
+        "endLine": 77,
+        "endChar": 93
+      },
+      "revId": "5fd67634c8e4b2d40a8825f56b3feb2fa905f2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfba6d5e_f8fd8fcd",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T19:32:00Z",
+      "side": 1,
+      "message": "What happens if some of the entries don\u0027t have mipmaps but others do and upgrade the mode to kLinear? Unless we\u0027re able to change the sampler while drawing each item within the batch, my (vague) recollection was GL errored if you set a min filter mode that used mips when they weren\u0027t any",
+      "range": {
+        "startLine": 591,
+        "startChar": 20,
+        "endLine": 591,
+        "endChar": 64
+      },
+      "revId": "5fd67634c8e4b2d40a8825f56b3feb2fa905f2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
