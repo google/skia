@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73307d1f_fc3a245d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T19:33:41Z",
+      "side": 1,
+      "message": "I was planning on making a more complex demo with more canvases, but this lead to page performance / user experience degradation. \n\nSince performance is the main goal of running CanvasKit in a worker, it would be good to show that CanvasKit in a worker can be more performant than CanvasKit outside of a worker. Although this would be good to show, if CanvasKit outside of a worker is performing poorly, the whole demo page will perform poorly, leading to a poor user experience. Furthermore, users with faster machines would not notice the performance issues, while the page would be a laggy mess for people with slower machines.\n\nSo, I have opted to go with this simple demo. It shows two Skotties being animated using CanvasKit, one is animated in the page\u0027s JavaScript like normal, and one is animated in a Web Worker. The user can click a button which simulates doing other, non-canvaskit, work in the page\u0027s JavaScript, causing the normal CanvasKit Skottie to lag for 1.3 seconds while the Web Worker Skottie continues to perform well.\n\nThe demo has minimal styling, but it should be pretty useable across people and devices.",
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
