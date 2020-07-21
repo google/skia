@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "2af2fc47_890e4d4b",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-21T14:12:33Z",
+      "side": 1,
+      "message": "The modes are determined by the mask types, and there\u0027s a limited set of them - see GetMaskInfo up top.  So the invariant is enforced in the constructor code, just double-checking here in case we add mode modes later.",
+      "parentUuid": "2e5f3287_4be76b97",
+      "range": {
+        "startLine": 110,
+        "startChar": 34,
+        "endLine": 114,
+        "endChar": 39
+      },
+      "revId": "148c959eb6504d120c2d8015b58dc46ab3ef234d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4fa375a_8a15ca78",
         "filename": "modules/skottie/src/Layer.cpp",
         "patchSetId": 3
@@ -59,6 +83,30 @@
       "writtenOn": "2020-07-21T14:02:14Z",
       "side": 1,
       "message": "I feel dumb. How does this related to kSrcIn?",
+      "range": {
+        "startLine": 116,
+        "startChar": 40,
+        "endLine": 116,
+        "endChar": 75
+      },
+      "revId": "148c959eb6504d120c2d8015b58dc46ab3ef234d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4965d36_e6e22450",
+        "filename": "modules/skottie/src/Layer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-21T14:12:33Z",
+      "side": 1,
+      "message": "Say we have a large layer (1000x1000), and a mask stack.  One of the masks is a small circle (100x100), intersect mode.\n\nIf we just drawCircle(kSrcIn), we\u0027re correctly masking 100x100 of the layer - but we really want to also clear everything outside that area too.",
+      "parentUuid": "b4fa375a_8a15ca78",
       "range": {
         "startLine": 116,
         "startChar": 40,

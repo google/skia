@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8527813_72b2a844",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-21T14:12:33Z",
+      "side": 1,
+      "message": "Sorry, I eagerly clicked the submit button.  I\u0027ll address these in a follow up.",
+      "revId": "a524ea266d721948b91723148241674c48a19fa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
