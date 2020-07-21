@@ -102,7 +102,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
         }
 
         for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
-            if (GrMipmapped::kYes == mipMapped && !mtlCaps->mipMapSupport()) {
+            if (GrMipmapped::kYes == mipMapped && !mtlCaps->mipmapSupport()) {
                 continue;
             }
 
