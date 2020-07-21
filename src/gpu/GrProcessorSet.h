@@ -33,18 +33,14 @@ public:
 
     ~GrProcessorSet();
 
-    int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
-    int numCoverageFragmentProcessors() const {
-        return this->numFragmentProcessors() - fColorFragmentProcessorCnt;
-    }
+    bool hasColorFragmentProcessor() const { return fColorFragmentProcessor != nullptr; }
+    bool hasCoverageFragmentProcessor() const { return fCoverageFragmentProcessor != nullptr; }
 
-    const GrFragmentProcessor* colorFragmentProcessor(int idx) const {
-        SkASSERT(idx < fColorFragmentProcessorCnt);
-        return fFragmentProcessors[idx + fFragmentProcessorOffset].get();
+    const GrFragmentProcessor* colorFragmentProcessor() const {
+        return fColorFragmentProcessor.get();
     }
-    const GrFragmentProcessor* coverageFragmentProcessor(int idx) const {
-        return fFragmentProcessors[idx + fColorFragmentProcessorCnt +
-                                   fFragmentProcessorOffset].get();
+    const GrFragmentProcessor* coverageFragmentProcessor() const {
+        return fCoverageFragmentProcessor.get();
     }
 
     const GrXferProcessor* xferProcessor() const {
@@ -56,14 +52,12 @@ public:
         return sk_ref_sp(fXP.fProcessor);
     }
 
-    std::unique_ptr<const GrFragmentProcessor> detachColorFragmentProcessor(int idx) {
-        SkASSERT(idx < fColorFragmentProcessorCnt);
-        return std::move(fFragmentProcessors[idx + fFragmentProcessorOffset]);
+    std::unique_ptr<const GrFragmentProcessor> detachColorFragmentProcessor() {
+        return std::move(fColorFragmentProcessor);
     }
 
-    std::unique_ptr<const GrFragmentProcessor> detachCoverageFragmentProcessor(int idx) {
-        return std::move(
-                fFragmentProcessors[idx + fFragmentProcessorOffset + fColorFragmentProcessorCnt]);
+    std::unique_ptr<const GrFragmentProcessor> detachCoverageFragmentProcessor() {
+        return std::move(fCoverageFragmentProcessor);
     }
 
     /** Comparisons are only legal on finalized processor sets. */
@@ -159,14 +153,8 @@ private:
     GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}
 
     int numFragmentProcessors() const {
-        return fFragmentProcessors.count() - fFragmentProcessorOffset;
+        return (fColorFragmentProcessor ? 1 : 0) + (fCoverageFragmentProcessor ? 1 : 0);
     }
-
-    const GrFragmentProcessor* fragmentProcessor(int idx) const {
-        return fFragmentProcessors[idx + fFragmentProcessorOffset].get();
-    }
-
-    static constexpr int kMaxColorProcessors = 1;
 
     enum Flags : uint16_t { kFinalized_Flag = 0x1 };
 
@@ -186,11 +174,10 @@ private:
         return fXP.fFactory;
     }
 
-    SkAutoSTArray<4, std::unique_ptr<GrFragmentProcessor>> fFragmentProcessors;
+    std::unique_ptr<GrFragmentProcessor> fColorFragmentProcessor;
+    std::unique_ptr<GrFragmentProcessor> fCoverageFragmentProcessor;
     XP fXP;
-    uint8_t fColorFragmentProcessorCnt = 0;
-    uint8_t fFragmentProcessorOffset = 0;
-    uint8_t fFlags;
+    uint8_t fFlags = 0;
 };
 
 #endif

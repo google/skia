@@ -230,7 +230,7 @@ private:
 
     friend bool operator&(Flags, InputFlags);
 
-    using FragmentProcessorArray = SkAutoSTArray<8, std::unique_ptr<const GrFragmentProcessor>>;
+    using FragmentProcessorArray = SkAutoSTArray<6, std::unique_ptr<const GrFragmentProcessor>>;
 
     GrSurfaceProxyView fDstProxyView;
     SkIPoint fDstTextureOffset;
