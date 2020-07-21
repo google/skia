@@ -161,6 +161,7 @@ private:
     void setRefKind(const Expression& expr, VariableReference::RefKind kind);
     void getConstantInt(const Expression& value, int64_t* out);
     bool checkSwizzleWrite(const Swizzle& swizzle);
+    bool checkType(const Type& type);
 
     std::unique_ptr<ASTFile> fFile;
     const FunctionDeclaration* fCurrentFunction;
