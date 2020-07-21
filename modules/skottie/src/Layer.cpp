@@ -62,7 +62,8 @@ class MaskAdapter final : public AnimatablePropertyContainer {
 public:
     MaskAdapter(const skjson::ObjectValue& jmask, const AnimationBuilder& abuilder, SkBlendMode bm)
         : fMaskPaint(sksg::Color::Make(SK_ColorBLACK))
-        , fBlendMode(bm) {
+        , fBlendMode(bm)
+    {
         fMaskPaint->setAntiAlias(true);
         if (!this->requires_isolation()) {
             // We can mask at draw time.
@@ -116,8 +117,8 @@ private:
         // Some mask modes touch pixels outside the immediate draw geometry.
         // These require a layer.
         switch (fBlendMode) {
-        case (SkBlendMode::kSrcIn): return true;
-        default:                    return false;
+            case (SkBlendMode::kSrcIn): return true;
+            default                   : return false;
         }
         SkUNREACHABLE;
     }
