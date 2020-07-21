@@ -120,6 +120,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fCmdBuffer(nullptr)
         , fCompiler(new SkSL::Compiler())
         , fResourceProvider(this)
+        , fStagingBufferManager(this)
         , fDisconnected(false)
         , fFinishCallbacks(this) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
@@ -138,8 +139,9 @@ void GrMtlGpu::disconnect(DisconnectType type) {
     if (DisconnectType::kCleanup == type) {
         this->destroyResources();
     } else {
-        delete fCmdBuffer;
-        fCmdBuffer = nullptr;
+        fCmdBuffer.reset();
+
+        fStagingBufferManager.reset();
 
         fResourceProvider.destroyResources();
 
@@ -153,6 +155,7 @@ void GrMtlGpu::disconnect(DisconnectType type) {
 void GrMtlGpu::destroyResources() {
     // Will implicitly delete the command buffer
     this->submitCommandBuffer(SyncQueue::kForce_SyncQueue);
+    fStagingBufferManager.reset();
     fResourceProvider.destroyResources();
 
     fQueue = nil;
@@ -178,15 +181,18 @@ GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
     if (!fCmdBuffer) {
         fCmdBuffer = GrMtlCommandBuffer::Create(fQueue);
     }
-    return fCmdBuffer;
+    return fCmdBuffer.get();
+}
+
+void GrMtlGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+    fCmdBuffer->addGpuBuffer(std::move(buffer));
 }
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     if (fCmdBuffer) {
-        fResourceProvider.addBufferCompletionHandler(fCmdBuffer);
+        fResourceProvider.addBufferCompletionHandler(fCmdBuffer.get());
         fCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
-        delete fCmdBuffer;
-        fCmdBuffer = nullptr;
+        fCmdBuffer.reset();
     }
 }
 
@@ -272,13 +278,15 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             bpp, {width, height}, &individualMipOffsets, mipLevelCount);
     SkASSERT(combinedBufferSize);
 
-    size_t bufferOffset;
-    id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(combinedBufferSize,
-                                                                             &bufferOffset);
-    if (!transferBuffer) {
+    //**** We're not sure what the usage of the next allocation will be --
+    // to be safe we'll use 16 byte alignment.
+    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            combinedBufferSize, 16);
+    if (!slice.fBuffer) {
         return false;
     }
-    char* buffer = (char*) transferBuffer.contents + bufferOffset;
+    char* bufferData = (char*)slice.fOffsetMapPtr;
+    GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
 
     int currentWidth = width;
     int currentHeight = height;
@@ -293,12 +301,12 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
             // copy data into the buffer, skipping any trailing bytes
-            char* dst = buffer + individualMipOffsets[currentMipLevel];
+            char* dst = bufferData + individualMipOffsets[currentMipLevel];
             const char* src = (const char*)texels[currentMipLevel].fPixels;
             SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
 
-            [blitCmdEncoder copyFromBuffer: transferBuffer
-                              sourceOffset: bufferOffset + individualMipOffsets[currentMipLevel]
+            [blitCmdEncoder copyFromBuffer: mtlBuffer->mtlBuffer()
+                              sourceOffset: slice.fOffset + individualMipOffsets[currentMipLevel]
                          sourceBytesPerRow: trimRowBytes
                        sourceBytesPerImage: trimRowBytes*currentHeight
                                 sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
@@ -312,7 +320,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         layerHeight = currentHeight;
     }
 #ifdef SK_BUILD_FOR_MAC
-    [transferBuffer didModifyRange: NSMakeRange(bufferOffset, combinedBufferSize)];
+    [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
 #endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
