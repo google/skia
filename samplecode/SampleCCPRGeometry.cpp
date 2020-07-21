@@ -115,14 +115,25 @@ private:
 
 class CCPRGeometryView::VisualizeCoverageCountFP : public GrFragmentProcessor {
 public:
-    VisualizeCoverageCountFP() : GrFragmentProcessor(kTestFP_ClassID, kNone_OptimizationFlags) {}
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new VisualizeCoverageCountFP(std::move(inputFP)));
+    }
 
 private:
     const char* name() const override {
-        return "[Testing/Sample code] CCPRGeometryView::VisualizeCoverageCountFP";
+        return "VisualizeCoverageCountFP";
     }
     std::unique_ptr<GrFragmentProcessor> clone() const override {
-        return std::make_unique<VisualizeCoverageCountFP>();
+        return std::unique_ptr<GrFragmentProcessor>(new VisualizeCoverageCountFP(*this));
+    }
+    VisualizeCoverageCountFP(std::unique_ptr<GrFragmentProcessor> inputFP)
+            : GrFragmentProcessor(kTestFP_ClassID, kNone_OptimizationFlags) {
+        this->registerChild(std::move(inputFP));
+    }
+    VisualizeCoverageCountFP(const VisualizeCoverageCountFP& that)
+            : GrFragmentProcessor(kTestFP_ClassID, kNone_OptimizationFlags) {
+        this->cloneAndRegisterAllChildProcessors(that);
     }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
@@ -130,7 +141,9 @@ private:
     class Impl : public GrGLSLFragmentProcessor {
         void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-            f->codeAppendf("half count = %s.a;", args.fInputColor);
+            static constexpr int kInputFPIndex = 0;
+            SkString inputColor = this->invokeChild(kInputFPIndex, args);
+            f->codeAppendf("half count = %s.a;", inputColor.c_str());
             f->codeAppendf("%s = half4(clamp(-count, 0, 1), clamp(+count, 0, 1), 0, abs(count));",
                            args.fOutputColor);
         }
@@ -204,10 +217,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
         // Visualize coverage count in main canvas.
         GrPaint paint;
-        paint.addColorFragmentProcessor(
-                GrTextureEffect::Make(ccbuff->readSurfaceView(), ccbuff->colorInfo().alphaType()));
-        paint.addColorFragmentProcessor(
-                std::make_unique<VisualizeCoverageCountFP>());
+        paint.addColorFragmentProcessor(VisualizeCoverageCountFP::Make(
+                GrTextureEffect::Make(ccbuff->readSurfaceView(), ccbuff->colorInfo().alphaType())));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
         rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                       SkRect::MakeIWH(this->width(), this->height()));
