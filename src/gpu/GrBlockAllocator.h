@@ -343,6 +343,19 @@ public:
     void releaseBlock(Block* block);
 
     /**
+     * Detach every heap-allocated block owned by 'other' and concatenate them to this allocator's
+     * list of blocks. This memory is now managed by this allocator. Since this only transfers
+     * ownership of a Block, and a Block itself does not move, any previous allocations remain
+     * valid and associated with their original Block instances. GrBlockAllocator-level functions
+     * that accept allocated pointers (e.g. findOwningBlock), must now use this allocator and not
+     * 'other' for these allocations.
+     *
+     * The head block of 'other' cannot be stolen, so higher-level allocators and memory structures
+     * must handle that data differently.
+     */
+    void stealHeapBlocks(GrBlockAllocator* other);
+
+    /**
      * Explicitly free all blocks (invalidating all allocations), and resets the head block to its
      * default state. The allocator-level metadata is reset to 0 as well.
      */
