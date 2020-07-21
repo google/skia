@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c28ca99_9da56c23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T16:54:42Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look. \nAn issue is that while the fuzzer run as binary fuzzer the speed is around 500/sec, yet when it is run as api fuzzer the speed goes down to 20/sec",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
