@@ -13,13 +13,12 @@
 
 GrPaint::GrPaint(const GrPaint& that)
         : fXPFactory(that.fXPFactory)
-        , fColorFragmentProcessors(that.fColorFragmentProcessors.count())
         , fCoverageFragmentProcessors(that.fCoverageFragmentProcessors.count())
         , fTrivial(that.fTrivial)
         , fColor(that.fColor) {
-    for (int i = 0; i < that.fColorFragmentProcessors.count(); ++i) {
-        fColorFragmentProcessors.push_back(that.fColorFragmentProcessors[i]->clone());
-        SkASSERT(fColorFragmentProcessors[i]);
+    if (that.fColorFragmentProcessor) {
+        fColorFragmentProcessor = that.fColorFragmentProcessor->clone();
+        SkASSERT(fColorFragmentProcessor);
     }
     for (int i = 0; i < that.fCoverageFragmentProcessors.count(); ++i) {
         fCoverageFragmentProcessors.push_back(that.fCoverageFragmentProcessors[i]->clone());

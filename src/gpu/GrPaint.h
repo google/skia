@@ -64,7 +64,8 @@ public:
      */
     void addColorFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp) {
         SkASSERT(fp);
-        fColorFragmentProcessors.push_back(std::move(fp));
+        SkASSERT(fColorFragmentProcessor == nullptr);
+        fColorFragmentProcessor = std::move(fp);
         fTrivial = false;
     }
 
@@ -77,7 +78,7 @@ public:
         fTrivial = false;
     }
 
-    int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
+    int numColorFragmentProcessors() const { return fColorFragmentProcessor ? 1 : 0; }
     int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }
     int numTotalFragmentProcessors() const { return this->numColorFragmentProcessors() +
                                               this->numCoverageFragmentProcessors(); }
@@ -85,7 +86,9 @@ public:
     const GrXPFactory* getXPFactory() const { return fXPFactory; }
 
     GrFragmentProcessor* getColorFragmentProcessor(int i) const {
-        return fColorFragmentProcessors[i].get();
+        SkASSERT(i == 0);
+        SkASSERT(fColorFragmentProcessor != nullptr);
+        return fColorFragmentProcessor.get();
     }
     GrFragmentProcessor* getCoverageFragmentProcessor(int i) const {
         return fCoverageFragmentProcessors[i].get();
@@ -118,7 +121,7 @@ private:
     friend class GrProcessorSet;
 
     const GrXPFactory* fXPFactory = nullptr;
-    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fColorFragmentProcessors;
+    std::unique_ptr<GrFragmentProcessor> fColorFragmentProcessor;
     SkSTArray<2, std::unique_ptr<GrFragmentProcessor>> fCoverageFragmentProcessors;
     bool fTrivial = true;
     SkPMColor4f fColor = SK_PMColor4fWHITE;

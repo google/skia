@@ -28,16 +28,15 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
         fColorFragmentProcessorCnt = paint.numColorFragmentProcessors();
         fFragmentProcessors.reset(paint.numTotalFragmentProcessors());
         int i = 0;
-        for (auto& fp : paint.fColorFragmentProcessors) {
-            SkASSERT(fp.get());
-            fFragmentProcessors[i++] = std::move(fp);
+        if (paint.fColorFragmentProcessor) {
+            fFragmentProcessors[i++] = std::move(paint.fColorFragmentProcessor);
         }
         for (auto& fp : paint.fCoverageFragmentProcessors) {
             SkASSERT(fp.get());
             fFragmentProcessors[i++] = std::move(fp);
         }
     } else {
-        SkDebugf("Insane number of color fragment processors in paint. Dropping all processors.");
+        SkDEBUGFAIL("Multiple color fragment processors in paint. Dropping all processors.");
         fColorFragmentProcessorCnt = 0;
     }
     SkDEBUGCODE(paint.fAlive = false;)
