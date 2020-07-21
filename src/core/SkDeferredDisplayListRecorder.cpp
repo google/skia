@@ -172,7 +172,7 @@ bool SkDeferredDisplayListRecorder::init() {
             fCharacterization.sampleCount(),
             surfaceFlags,
             optionalTextureInfo,
-            GrMipMapsStatus::kNotAllocated,
+            GrMipmapStatus::kNotAllocated,
             SkBackingFit::kExact,
             SkBudgeted::kYes,
             fCharacterization.isProtected(),

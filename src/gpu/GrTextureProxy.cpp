@@ -19,7 +19,7 @@
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                SkISize dimensions,
                                GrMipmapped mipMapped,
-                               GrMipMapsStatus mipMapsStatus,
+                               GrMipmapStatus mipmapStatus,
                                SkBackingFit fit,
                                SkBudgeted budgeted,
                                GrProtected isProtected,
@@ -28,7 +28,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                GrDDLProvider creatingProvider)
         : INHERITED(format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
-        , fMipMapsStatus(mipMapsStatus)
+        , fMipMapsStatus(mipmapStatus)
         SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)
@@ -41,7 +41,7 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format,
                                SkISize dimensions,
                                GrMipmapped mipMapped,
-                               GrMipMapsStatus mipMapsStatus,
+                               GrMipmapStatus mipmapStatus,
                                SkBackingFit fit,
                                SkBudgeted budgeted,
                                GrProtected isProtected,
@@ -51,7 +51,7 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
         : INHERITED(std::move(callback), format, dimensions, fit, budgeted, isProtected,
                     surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
-        , fMipMapsStatus(mipMapsStatus)
+        , fMipMapsStatus(mipmapStatus)
         SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)
@@ -65,7 +65,7 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
                                GrDDLProvider creatingProvider)
         : INHERITED(std::move(surf), SkBackingFit::kExact, useAllocator)
         , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
-        , fMipMapsStatus(fTarget->asTexture()->texturePriv().mipMapsStatus())
+        , fMipMapsStatus(fTarget->asTexture()->texturePriv().mipmapStatus())
         SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)

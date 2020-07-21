@@ -26,14 +26,14 @@ public:
         fTexture->markMipMapsClean();
     }
 
-    GrMipMapsStatus mipMapsStatus() const { return fTexture->fMipMapsStatus; }
+    GrMipmapStatus mipmapStatus() const { return fTexture->fMipMapsStatus; }
 
     bool mipMapsAreDirty() const {
-        return GrMipMapsStatus::kValid != this->mipMapsStatus();
+        return GrMipmapStatus::kValid != this->mipmapStatus();
     }
 
     GrMipmapped mipMapped() const {
-        if (GrMipMapsStatus::kNotAllocated != this->mipMapsStatus()) {
+        if (GrMipmapStatus::kNotAllocated != this->mipmapStatus()) {
             return GrMipmapped::kYes;
         }
         return GrMipmapped::kNo;
