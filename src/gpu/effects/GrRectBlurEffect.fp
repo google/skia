@@ -94,7 +94,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
     bitmap.setImmutable();
 
     GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    auto view = maker.view(GrMipMapped::kNo);
+    auto view = maker.view(GrMipmapped::kNo);
     if (!view) {
         return {};
     }

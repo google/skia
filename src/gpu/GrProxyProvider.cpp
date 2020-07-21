@@ -146,7 +146,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
                                                     renderTargetSampleCnt, isProtected);
     } else {
         tex = resourceProvider->createTexture(dimensions, format, renderable, renderTargetSampleCnt,
-                                              GrMipMapped::kNo, budgeted, isProtected);
+                                              GrMipmapped::kNo, budgeted, isProtected);
     }
     if (!tex) {
         return nullptr;
@@ -254,11 +254,11 @@ GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const G
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,
-                                                             GrMipMapped mipMapped,
+                                                             GrMipmapped mipMapped,
                                                              SkBackingFit fit,
                                                              SkBudgeted budgeted) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(fit == SkBackingFit::kExact || mipMapped == GrMipMapped::kNo);
+    SkASSERT(fit == SkBackingFit::kExact || mipMapped == GrMipmapped::kNo);
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -269,7 +269,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     }
 
     ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%ux%u]",
-                             GrMipMapped::kYes == mipMapped ? "MipMap " : "",
+                             GrMipmapped::kYes == mipMapped ? "MipMap " : "",
                              bitmap.width(), bitmap.height());
 
     // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
@@ -285,7 +285,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     }
 
     sk_sp<GrTextureProxy> proxy;
-    if (mipMapped == GrMipMapped::kNo ||
+    if (mipMapped == GrMipmapped::kNo ||
         0 == SkMipmap::ComputeLevelCount(copyBitmap.width(), copyBitmap.height())) {
         proxy = this->createNonMippedProxyFromBitmap(copyBitmap, fit, budgeted);
     } else {
@@ -322,14 +322,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [bitmap](GrResourceProvider* resourceProvider, const LazySurfaceDesc& desc) {
-                SkASSERT(desc.fMipMapped == GrMipMapped::kNo);
+                SkASSERT(desc.fMipMapped == GrMipmapped::kNo);
                 GrMipLevel mipLevel = { bitmap.getPixels(), bitmap.rowBytes() };
                 auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc.fDimensions, desc.fFormat, colorType, desc.fRenderable,
                         desc.fSampleCnt, desc.fBudgeted, desc.fFit, desc.fProtected, mipLevel));
             },
-            format, dims, GrRenderable::kNo, 1, GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated,
+            format, dims, GrRenderable::kNo, 1, GrMipmapped::kNo, GrMipMapsStatus::kNotAllocated,
             GrInternalSurfaceFlags::kNone, fit, budgeted, GrProtected::kNo, UseAllocator::kYes);
 
     if (!proxy) {
@@ -377,7 +377,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                         desc.fDimensions, desc.fFormat, colorType, GrRenderable::kNo, 1,
                         desc.fBudgeted, GrProtected::kNo, texels.get(), mipLevelCount));
             },
-            format, dims, GrRenderable::kNo, 1, GrMipMapped::kYes, GrMipMapsStatus::kValid,
+            format, dims, GrRenderable::kNo, 1, GrMipmapped::kYes, GrMipMapsStatus::kValid,
             GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, budgeted, GrProtected::kNo,
             UseAllocator::kYes);
 
@@ -394,7 +394,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                    SkISize dimensions,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
-                                                   GrMipMapped mipMapped,
+                                                   GrMipmapped mipMapped,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected,
@@ -412,11 +412,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
         return nullptr;
     }
 
-    if (GrMipMapped::kYes == mipMapped) {
+    if (GrMipmapped::kYes == mipMapped) {
         // SkMipmap doesn't include the base level in the level count so we have to add 1
         int mipCount = SkMipmap::ComputeLevelCount(dimensions.fWidth, dimensions.fHeight) + 1;
         if (1 == mipCount) {
-            mipMapped = GrMipMapped::kNo;
+            mipMapped = GrMipmapped::kNo;
         }
     }
 
@@ -424,7 +424,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                      mipMapped)) {
         return nullptr;
     }
-    GrMipMapsStatus mipMapsStatus = (GrMipMapped::kYes == mipMapped)
+    GrMipMapsStatus mipMapsStatus = (GrMipmapped::kYes == mipMapped)
             ? GrMipMapsStatus::kDirty
             : GrMipMapsStatus::kNotAllocated;
     if (renderable == GrRenderable::kYes) {
@@ -443,7 +443,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
-        SkISize dimensions, SkBudgeted budgeted, GrMipMapped mipMapped, GrProtected isProtected,
+        SkISize dimensions, SkBudgeted budgeted, GrMipmapped mipMapped, GrProtected isProtected,
         SkImage::CompressionType compressionType, sk_sp<SkData> data) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
@@ -456,7 +456,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
         return nullptr;
     }
 
-    GrMipMapsStatus mipMapsStatus = (GrMipMapped::kYes == mipMapped)
+    GrMipMapsStatus mipMapsStatus = (GrMipmapped::kYes == mipMapped)
                                                                 ? GrMipMapsStatus::kValid
                                                                 : GrMipMapsStatus::kNotAllocated;
 
@@ -699,7 +699,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
                                                        SkISize dimensions,
                                                        GrRenderable renderable,
                                                        int renderTargetSampleCnt,
-                                                       GrMipMapped mipMapped,
+                                                       GrMipmapped mipMapped,
                                                        GrMipMapsStatus mipMapsStatus,
                                                        GrInternalSurfaceFlags surfaceFlags,
                                                        SkBackingFit fit,
@@ -815,11 +815,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
     if (GrRenderable::kYes == renderable) {
         return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(
                 caps, std::move(callback), format, kLazyDims, renderTargetSampleCnt,
-                GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, SkBackingFit::kApprox,
+                GrMipmapped::kNo, GrMipMapsStatus::kNotAllocated, SkBackingFit::kApprox,
                 SkBudgeted::kYes, isProtected, surfaceFlags, useAllocator, GrDDLProvider::kNo));
     } else {
         return sk_sp<GrTextureProxy>(
-                new GrTextureProxy(std::move(callback), format, kLazyDims, GrMipMapped::kNo,
+                new GrTextureProxy(std::move(callback), format, kLazyDims, GrMipmapped::kNo,
                                    GrMipMapsStatus::kNotAllocated, SkBackingFit::kApprox,
                                    SkBudgeted::kYes, isProtected, surfaceFlags, useAllocator,
                                    GrDDLProvider::kNo));

@@ -95,7 +95,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context,
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context, SkBudgeted budgeted,
                                      const SkImageInfo& info, int sampleCount,
                                      GrSurfaceOrigin origin, const SkSurfaceProps* props,
-                                     GrMipMapped mipMapped, InitContents init) {
+                                     GrMipmapped mipMapped, InitContents init) {
     unsigned flags;
     if (!context->colorTypeSupportedAsSurface(info.colorType()) ||
         !CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
@@ -144,7 +144,7 @@ std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
         int sampleCount,
         GrSurfaceOrigin origin,
         const SkSurfaceProps* surfaceProps,
-        GrMipMapped mipMapped) {
+        GrMipmapped mipMapped) {
     if (!context) {
         return nullptr;
     }
@@ -762,7 +762,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
         // texture that matches the device contents
         view = GrSurfaceProxyView::Copy(fContext.get(),
                                         std::move(view),
-                                        GrMipMapped::kNo,  // Don't auto generate mips
+                                        GrMipmapped::kNo,  // Don't auto generate mips
                                         subset,
                                         SkBackingFit::kApprox,
                                         SkBudgeted::kYes);  // Always budgeted
@@ -1064,7 +1064,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     auto rtc = GrRenderTargetContext::MakeWithFallback(
             fContext.get(), SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
             fRenderTargetContext->colorInfo().refColorSpace(), fit, cinfo.fInfo.dimensions(),
-            fRenderTargetContext->numSamples(), GrMipMapped::kNo,
+            fRenderTargetContext->numSamples(), GrMipmapped::kNo,
             fRenderTargetContext->asSurfaceProxy()->isProtected(), kBottomLeft_GrSurfaceOrigin,
             SkBudgeted::kYes, &props);
     if (!rtc) {

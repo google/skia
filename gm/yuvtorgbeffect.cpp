@@ -97,7 +97,7 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i], GrImageTexGenPolicy::kDraw);
-            views[i] = maker.view(GrMipMapped::kNo);
+            views[i] = maker.view(GrMipmapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -213,7 +213,7 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i], GrImageTexGenPolicy::kDraw);
-            views[i] = maker.view(GrMipMapped::kNo);
+            views[i] = maker.view(GrMipmapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -318,7 +318,7 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i], GrImageTexGenPolicy::kDraw);
-            views[i] = maker.view(GrMipMapped::kNo);
+            views[i] = maker.view(GrMipmapped::kNo);
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;

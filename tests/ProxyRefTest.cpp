@@ -28,7 +28,7 @@ static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                  GrRenderable::kYes);
     return proxyProvider->createProxy(format, {kWidthHeight, kWidthHeight}, GrRenderable::kYes, 1,
-                                      GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
+                                      GrMipmapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
                                       GrProtected::kNo);
 }
 

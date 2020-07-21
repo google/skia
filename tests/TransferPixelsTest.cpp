@@ -116,7 +116,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
 
     sk_sp<GrTexture> tex =
             resourceProvider->createTexture(kTexDims, backendFormat, renderable, 1,
-                                            GrMipMapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+                                            GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
     if (!tex) {
         ERRORF(reporter, "Could not create texture");
         return;

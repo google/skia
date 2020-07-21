@@ -1001,7 +1001,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
 
     GrBackendTexture backendTex;
     CreateBackendTexture(ctx, &backendTex, 100, 100, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo);
 
     GrXferProcessor::DstProxyView fakeDstProxyView;
     {

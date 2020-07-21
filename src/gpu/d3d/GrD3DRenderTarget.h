@@ -83,7 +83,7 @@ protected:
         }
         const GrCaps& caps = *this->getGpu()->caps();
         return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                      numColorSamples, GrMipMapped::kNo);
+                                      numColorSamples, GrMipmapped::kNo);
     }
 
 private:

@@ -311,7 +311,7 @@ public:
                                                     sk_sp<SkData> data,
                                                     int width, int height,
                                                     CompressionType type,
-                                                    GrMipMapped mipMapped = GrMipMapped::kNo,
+                                                    GrMipmapped mipMapped = GrMipmapped::kNo,
                                                     GrProtected isProtected = GrProtected::kNo);
 
     /** Creates a CPU-backed SkImage from compressed data.
@@ -1196,7 +1196,7 @@ public:
 
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
         compatible with SkSurface created with dstColorSpace. The returned SkImage respects
-        mipMapped setting; if mipMapped equals GrMipMapped::kYes, the backing texture
+        mipMapped setting; if mipMapped equals GrMipmapped::kYes, the backing texture
         allocates mip map levels.
 
         The mipMapped parameter is effectively treated as kNo if MIP maps are not supported by the
@@ -1209,18 +1209,18 @@ public:
         GrDirectContext.
 
         @param GrDirectContext the GrDirectContext in play, if it exists
-        @param GrMipMapped     whether created SkImage texture must allocate mip map levels
+        @param GrMipmapped     whether created SkImage texture must allocate mip map levels
         @param SkBudgeted      whether to count a newly created texture for the returned image
                                counts against the GrContext's budget.
         @return                created SkImage, or nullptr
     */
 #ifndef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
     sk_sp<SkImage> makeTextureImage(GrDirectContext*,
-                                    GrMipMapped = GrMipMapped::kNo,
+                                    GrMipmapped = GrMipmapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;
 #else
     sk_sp<SkImage> makeTextureImage(GrContext*,
-                                    GrMipMapped = GrMipMapped::kNo,
+                                    GrMipmapped = GrMipmapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;
 #endif
 

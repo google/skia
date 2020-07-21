@@ -73,7 +73,7 @@ public:
     inline const GrSurfacePriv surfacePriv() const;
 
     static size_t ComputeSize(const GrCaps&, const GrBackendFormat&, SkISize dimensions,
-                              int colorSamplesPerPixel, GrMipMapped, bool binSize = false);
+                              int colorSamplesPerPixel, GrMipmapped, bool binSize = false);
 
     /**
      * The pixel values of this surface cannot be modified (e.g. doesn't support write pixels or

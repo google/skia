@@ -32,7 +32,7 @@ public:
         return (fEnableHWAA) ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
     }
     void visitProxies(const VisitProxyFunc& fn) const override {
-        fn(fAtlasProxy.get(), GrMipMapped::kNo);
+        fn(fAtlasProxy.get(), GrMipmapped::kNo);
         fProcessors.visitProxies(fn);
     }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,

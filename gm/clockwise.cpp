@@ -249,7 +249,7 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
     GrColorType rtcColorType = rtc->colorInfo().colorType();
     if (auto topLeftRTC = GrRenderTargetContext::Make(
                 ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
-                GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+                GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
@@ -264,7 +264,7 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
     // Draw the test to an off-screen, bottom-up render target.
     if (auto topLeftRTC = GrRenderTargetContext::Make(
                 ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
-                GrMipMapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+                GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));

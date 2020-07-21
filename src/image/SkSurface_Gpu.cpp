@@ -215,7 +215,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
 
     size_t maxResourceBytes = direct->getResourceCacheLimit();
 
-    bool mipmapped = rtc->asTextureProxy() ? GrMipMapped::kYes == rtc->asTextureProxy()->mipMapped()
+    bool mipmapped = rtc->asTextureProxy() ? GrMipmapped::kYes == rtc->asTextureProxy()->mipMapped()
                                            : false;
 
     SkColorType ct = GrColorTypeToSkColorType(rtc->colorInfo().colorType());
@@ -310,7 +310,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
 
         if (characterization.isMipMapped() &&
-            GrMipMapped::kNo == rtc->asTextureProxy()->mipMapped()) {
+            GrMipmapped::kNo == rtc->asTextureProxy()->mipMapped()) {
             // Fail if the DDL's surface was mipmapped but the replay surface is not.
             // Allow drawing to proceed if the DDL was not mipmapped but the replay surface is.
             return false;
@@ -385,7 +385,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
 
     auto rtc = GrRenderTargetContext::Make(
             context, grColorType, c.refColorSpace(), SkBackingFit::kExact,
-            {c.width(), c.height()}, c.sampleCount(), GrMipMapped(c.isMipMapped()), c.isProtected(),
+            {c.width(), c.height()}, c.sampleCount(), GrMipmapped(c.isMipMapped()), c.isProtected(),
             c.origin(), budgeted, &c.surfaceProps());
     if (!rtc) {
         return nullptr;
@@ -498,10 +498,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* ctx, SkBudgeted
         return nullptr;
     }
     sampleCount = std::max(1, sampleCount);
-    GrMipMapped mipMapped = shouldCreateWithMips ? GrMipMapped::kYes : GrMipMapped::kNo;
+    GrMipmapped mipMapped = shouldCreateWithMips ? GrMipmapped::kYes : GrMipmapped::kNo;
 
     if (!ctx->priv().caps()->mipMapSupport()) {
-        mipMapped = GrMipMapped::kNo;
+        mipMapped = GrMipmapped::kNo;
     }
 
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(

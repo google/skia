@@ -58,7 +58,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
         return nullptr;
     }
 
-    GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+    GrMipmapped mipMapped = mipLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo;
     if (!fCaps->validateSurfaceParams(dimensions, format, renderable, renderTargetSampleCnt,
                                       mipMapped)) {
         return nullptr;
@@ -93,7 +93,7 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(SkISize dimensions,
                                                      GrRenderable renderable,
                                                      int renderTargetSampleCnt,
                                                      SkBudgeted budgeted,
-                                                     GrMipMapped mipMapped,
+                                                     GrMipmapped mipMapped,
                                                      GrProtected isProtected) {
     sk_sp<GrTexture> tex(this->refScratchTexture(dimensions, format, renderable,
                                                  renderTargetSampleCnt, mipMapped, isProtected));
@@ -124,7 +124,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
             return nullptr;
         }
         if (!fCaps->validateSurfaceParams(dimensions, format, renderable, renderTargetSampleCnt,
-                                          GrMipMapped::kNo)) {
+                                          GrMipmapped::kNo)) {
             return nullptr;
         }
 
@@ -143,7 +143,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
 sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(SkISize dimensions,
                                                              const GrBackendFormat& format,
                                                              SkBudgeted budgeted,
-                                                             GrMipMapped mipMapped,
+                                                             GrMipmapped mipMapped,
                                                              GrProtected isProtected,
                                                              SkData* data) {
     ASSERT_SINGLE_OWNER
@@ -158,7 +158,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    const GrBackendFormat& format,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
-                                                   GrMipMapped mipMapped,
+                                                   GrMipmapped mipMapped,
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
@@ -175,7 +175,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
     // textures should be created through the createCompressedTexture function.
     SkASSERT(!this->caps()->isFormatCompressed(format));
 
-    // TODO: Support GrMipMapped::kYes in scratch texture lookup here.
+    // TODO: Support GrMipmapped::kYes in scratch texture lookup here.
     sk_sp<GrTexture> tex =
             this->getExactScratch(dimensions, format, renderable, renderTargetSampleCnt, budgeted,
                                   mipMapped, isProtected);
@@ -232,32 +232,32 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
     SkASSERT(!this->caps()->isFormatCompressed(format));
 
     if (!fCaps->validateSurfaceParams(dimensions, format, renderable, renderTargetSampleCnt,
-                                      GrMipMapped::kNo)) {
+                                      GrMipmapped::kNo)) {
         return nullptr;
     }
 
     auto copyDimensions = MakeApprox(dimensions);
 
     if (auto tex = this->refScratchTexture(copyDimensions, format, renderable,
-                                           renderTargetSampleCnt, GrMipMapped::kNo, isProtected)) {
+                                           renderTargetSampleCnt, GrMipmapped::kNo, isProtected)) {
         return tex;
     }
 
     return fGpu->createTexture(copyDimensions, format, renderable, renderTargetSampleCnt,
-                               GrMipMapped::kNo, SkBudgeted::kYes, isProtected);
+                               GrMipmapped::kNo, SkBudgeted::kYes, isProtected);
 }
 
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
                                                        const GrBackendFormat& format,
                                                        GrRenderable renderable,
                                                        int renderTargetSampleCnt,
-                                                       GrMipMapped mipMapped,
+                                                       GrMipmapped mipMapped,
                                                        GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!this->caps()->isFormatCompressed(format));
     SkASSERT(fCaps->validateSurfaceParams(dimensions, format, renderable, renderTargetSampleCnt,
-                                          GrMipMapped::kNo));
+                                          GrMipmapped::kNo));
 
     // We could make initial clears work with scratch textures but it is a rare case so we just opt
     // to fall back to making a new texture.

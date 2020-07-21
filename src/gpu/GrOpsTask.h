@@ -91,7 +91,7 @@ public:
     void addOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrOp> op,
                GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         auto addDependency = [ drawingMgr, textureResolveManager, &caps, this ] (
-                GrSurfaceProxy* p, GrMipMapped mipmapped) {
+                GrSurfaceProxy* p, GrMipmapped mipmapped) {
             this->addDependency(drawingMgr, p, mipmapped, textureResolveManager, caps);
         };
 
@@ -111,7 +111,7 @@ public:
                    GrAppliedClip&& clip, const DstProxyView& dstProxyView,
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         auto addDependency = [ drawingMgr, textureResolveManager, &caps, this ] (
-                GrSurfaceProxy* p, GrMipMapped mipmapped) {
+                GrSurfaceProxy* p, GrMipmapped mipmapped) {
             this->addSampledTexture(p);
             this->addDependency(drawingMgr, p, mipmapped, textureResolveManager, caps);
         };
@@ -120,7 +120,7 @@ public:
         clip.visitProxies(addDependency);
         if (dstProxyView.proxy()) {
             this->addSampledTexture(dstProxyView.proxy());
-            addDependency(dstProxyView.proxy(), GrMipMapped::kNo);
+            addDependency(dstProxyView.proxy(), GrMipmapped::kNo);
         }
 
         this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,

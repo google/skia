@@ -29,7 +29,7 @@ SkISize GrCompressedDimensions(SkImage::CompressionType, SkISize baseDimensions)
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount);
 
-void GrFillInCompressedData(SkImage::CompressionType, SkISize dimensions, GrMipMapped, char* dest,
+void GrFillInCompressedData(SkImage::CompressionType, SkISize dimensions, GrMipmapped, char* dest,
                             const SkColor4f& color);
 
 // Swizzle param is applied after loading and before converting from srcInfo to dstInfo.

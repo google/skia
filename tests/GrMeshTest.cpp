@@ -95,7 +95,7 @@ struct Box {
  * produce exact matches.
  */
 
-static void run_test(GrContext* context, const char* testName, skiatest::Reporter*,
+static void run_test(GrRecordingContext*, const char* testName, skiatest::Reporter*,
                      const std::unique_ptr<GrRenderTargetContext>&, const SkBitmap& gold,
                      std::function<void(DrawMeshHelper*)> prepareFn,
                      std::function<void(DrawMeshHelper*)> executeFn);
@@ -108,10 +108,10 @@ DEF_GPUTEST_FOR_CONTEXTS(GrMeshTest, IsContextTypeForOutputPNGs, reporter, ctxIn
 #else
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 #endif
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     auto rtc = GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
+            dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kImageWidth, kImageHeight});
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
@@ -165,7 +165,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         }                                        \
     } while (0)
 
-    run_test(context, "draw", reporter, rtc, gold,
+    run_test(dContext, "draw", reporter, rtc, gold,
              [&](DrawMeshHelper* helper) {
                  SkTArray<Box> expandedVertexData;
                  for (int i = 0; i < kBoxCount; ++i) {
@@ -186,7 +186,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                  }
              });
 
-    run_test(context, "drawIndexed", reporter, rtc, gold,
+    run_test(dContext, "drawIndexed", reporter, rtc, gold,
              [&](DrawMeshHelper* helper) {
                 helper->fIndexBuffer = helper->getIndexBuffer();
                 VALIDATE(helper->fIndexBuffer);
@@ -213,7 +213,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                 }
             });
 
-    run_test(context, "drawIndexPattern", reporter, rtc, gold,
+    run_test(dContext, "drawIndexPattern", reporter, rtc, gold,
              [&](DrawMeshHelper* helper) {
                  helper->fIndexBuffer = helper->getIndexBuffer();
                  VALIDATE(helper->fIndexBuffer);
@@ -233,11 +233,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
              });
 
     for (bool indexed : {false, true}) {
-        if (!context->priv().caps()->drawInstancedSupport()) {
+        if (!dContext->priv().caps()->drawInstancedSupport()) {
             break;
         }
 
-        run_test(context, indexed ? "drawIndexedInstanced" : "drawInstanced",
+        run_test(dContext, indexed ? "drawIndexedInstanced" : "drawInstanced",
                  reporter, rtc, gold,
                  [&](DrawMeshHelper* helper) {
                      helper->fIndexBuffer = indexed ? helper->getIndexBuffer() : nullptr;
@@ -265,7 +265,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                          int baseVertex = 0;
                          switch (y % 3) {
                              case 0:
-                                 if (context->priv().caps()->shaderCaps()->vertexIDSupport()) {
+                                 if (dContext->priv().caps()->shaderCaps()->vertexIDSupport()) {
                                      break;
                                  }
                                  [[fallthrough]];
@@ -301,11 +301,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
     }
 
     for (bool indexed : {false, true}) {
-        if (!context->priv().caps()->drawInstancedSupport()) {
+        if (!dContext->priv().caps()->drawInstancedSupport()) {
             break;
         }
 
-        run_test(context, (indexed) ? "drawIndexedIndirect" : "drawIndirect",
+        run_test(dContext, (indexed) ? "drawIndexedIndirect" : "drawIndirect",
                  reporter, rtc, gold,
                  [&](DrawMeshHelper* helper) {
                      SkTArray<uint16_t> baseIndexData;
@@ -404,10 +404,10 @@ class GrMeshTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext,
                                           std::function<void(DrawMeshHelper*)> prepareFn,
                                           std::function<void(DrawMeshHelper*)> executeFn) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
+        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
 
         return pool->allocate<GrMeshTestOp>(prepareFn, executeFn);
     }
@@ -581,7 +581,8 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
     return fState->opsRenderPass();
 }
 
-static void run_test(GrContext* context, const char* testName, skiatest::Reporter* reporter,
+static void run_test(GrRecordingContext* rContext, const char* testName,
+                     skiatest::Reporter* reporter,
                      const std::unique_ptr<GrRenderTargetContext>& rtc, const SkBitmap& gold,
                      std::function<void(DrawMeshHelper*)> prepareFn,
                      std::function<void(DrawMeshHelper*)> executeFn) {
@@ -598,7 +599,7 @@ static void run_test(GrContext* context, const char* testName, skiatest::Reporte
 
     SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
     rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
-    rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(context, prepareFn, executeFn));
+    rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(rContext, prepareFn, executeFn));
 
     rtc->readPixels(gold.info(), resultPx, rowBytes, {0, 0});
 

@@ -800,7 +800,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTest
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
 
     Filter filter;
-    if (view.asTextureProxy()->mipMapped() == GrMipMapped::kYes) {
+    if (view.asTextureProxy()->mipMapped() == GrMipmapped::kYes) {
         switch (testData->fRandom->nextULessThan(3)) {
             case 0:
                 filter = Filter::kNearest;

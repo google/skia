@@ -599,7 +599,7 @@ bool GrDrawOpAtlas::createPages(
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
         GrSwizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
         sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(
-                fFormat, dims, GrRenderable::kNo, 1, GrMipMapped::kNo, SkBackingFit::kExact,
+                fFormat, dims, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBackingFit::kExact,
                 SkBudgeted::kYes, GrProtected::kNo, GrInternalSurfaceFlags::kNone,
                 GrSurfaceProxy::UseAllocator::kNo);
         if (!proxy) {

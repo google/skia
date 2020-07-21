@@ -102,7 +102,7 @@ GrBackendFormat GrGLRenderTarget::backendFormat() const {
 size_t GrGLRenderTarget::onGpuMemorySize() const {
     const GrCaps& caps = *this->getGpu()->caps();
     return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                  fNumSamplesOwnedPerPixel, GrMipMapped::kNo);
+                                  fNumSamplesOwnedPerPixel, GrMipmapped::kNo);
 }
 
 bool GrGLRenderTarget::completeStencilAttachment() {
@@ -220,7 +220,7 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
     if (fMSColorRenderbufferID) {
         const GrCaps& caps = *this->getGpu()->caps();
         size_t size = GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                             this->msaaSamples(), GrMipMapped::kNo);
+                                             this->msaaSamples(), GrMipmapped::kNo);
 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer

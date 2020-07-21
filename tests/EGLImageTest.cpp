@@ -89,7 +89,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     static const int kSize = 100;
 
     CreateBackendTexture(context1.get(), &backendTexture1, kSize, kSize, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo,
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
                          GrProtected::kNo);
 
     if (!backendTexture1.isValid()) {
@@ -154,7 +154,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     }
 
     // Wrap this texture ID in a GrTexture
-    GrBackendTexture backendTex(kSize, kSize, GrMipMapped::kNo, externalTexture);
+    GrBackendTexture backendTex(kSize, kSize, GrMipmapped::kNo, externalTexture);
 
     GrColorType colorType = GrColorType::kRGBA_8888;
     SkAlphaType alphaType = kPremul_SkAlphaType;
@@ -181,8 +181,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     }
 
     GrTextureProxy* proxy = surfaceContext->asTextureProxy();
-    REPORTER_ASSERT(reporter, proxy->mipMapped() == GrMipMapped::kNo);
-    REPORTER_ASSERT(reporter, proxy->peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, proxy->mipMapped() == GrMipmapped::kNo);
+    REPORTER_ASSERT(reporter, proxy->peekTexture()->texturePriv().mipMapped() == GrMipmapped::kNo);
 
     REPORTER_ASSERT(reporter, proxy->textureType() == GrTextureType::kExternal);
     REPORTER_ASSERT(reporter,

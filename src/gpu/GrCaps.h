@@ -400,7 +400,7 @@ public:
     }
 
     bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrRenderable renderable,
-                               int renderTargetSampleCnt, GrMipMapped) const;
+                               int renderTargetSampleCnt, GrMipmapped) const;
 
     bool areColorTypeAndFormatCompatible(GrColorType grCT, const GrBackendFormat& format) const;
 

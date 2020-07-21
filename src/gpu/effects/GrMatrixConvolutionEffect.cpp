@@ -125,7 +125,7 @@ GrMatrixConvolutionEffect::KernelWrapper::Make(GrRecordingContext* context,
         }
         bm.setImmutable();
         GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        view = maker.view(GrMipMapped::kNo);
+        view = maker.view(GrMipmapped::kNo);
         if (!view) {
             return {};
         }
