@@ -52,6 +52,24 @@
       "revId": "da886924f37a3ffc4e069d80524e83d10d433e6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f0e3c2e_6dab3d00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-07-21T15:17:36Z",
+      "side": 1,
+      "message": "Oh, I think it is infra issue. All the passing runs are CLs on the master branch I think. Comparing the exact command that\u0027s failing, jobs for android/next-release seems to be missing this command line arg to docker: --user 1002:1003\n\nGrepping around, I noticed stuff under infra/bots is wildly different between master branch and android/next-release branch. Eg this file only exists in master branch:\ninfra/bots/recipes/perf_pathkit.expected/Perf-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit.json\n\nIs it ok to ignore the bot and force this through? Is there a way to do that?",
+      "parentUuid": "22244f3c_606d0ddf",
+      "revId": "da886924f37a3ffc4e069d80524e83d10d433e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
