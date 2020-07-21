@@ -18,9 +18,15 @@
 
 class GrBicubicEffect::Impl : public GrGLSLFragmentProcessor {
 public:
+    Impl() : fCoefficients(SkM44::kNaN_Constructor) {}
     void emitCode(EmitArgs&) override;
 
+protected:
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+
 private:
+    SkM44 fCoefficients;
+    UniformHandle fCoefficientUni;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
@@ -29,48 +35,9 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-    if (bicubicEffect.fKernel == GrBicubicEffect::Kernel::kMitchell) {
-        /*
-         * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in\
-         * Computer * Graphics', ACM SIGGRAPH Computer Graphics 22, 4 (Aug. 1988).
-         * ACM DL: http://dl.acm.org/citation.cfm?id=378514
-         * Free:
-         * http://www.cs.utexas.edu/users/fussell/courses/cs384g/lectures/mitchell/Mitchell.pdf
-         *
-         * The authors define a family of cubic filters with two free parameters (B and C):
-         *
-         *            { (12 - 9B - 6C)|x|^3 + (-18 + 12B + 6C)|x|^2 + (6 - 2B)          |x| < 1
-         * k(x) = 1/6 { (-B - 6C)|x|^3 + (6B + 30C)|x|^2 + (-12B - 48C)|x| + (8B + 24C) 1 <= |x| < 2
-         *            { 0                                                               otherwise
-         *
-         * Various well-known cubic splines can be generated, and the authors select (1/3, 1/3) as
-         * their favorite overall spline - this is now commonly known as the Mitchell filter, and
-         * is the source of the specific weights below.
-         *
-         * This is SkSL, so the matrix is column-major (transposed from standard matrix notation).
-         */
-        fragBuilder->codeAppend(
-                "half4x4 kCoefficients = half4x4("
-                " 1.0 / 18.0,  16.0 / 18.0,   1.0 / 18.0,  0.0 / 18.0,"
-                "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
-                "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
-                "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
-    } else {
-        /*
-         * Centripetal variant of the Catmull-Rom spline.
-         *
-         * Catmull, Edwin; Rom, Raphael (1974). "A class of local interpolating splines". In
-         * Barnhill, Robert E.; Riesenfeld, Richard F. (eds.). Computer Aided Geometric Design.
-         * pp. 317–326.
-         */
-        SkASSERT(bicubicEffect.fKernel == GrBicubicEffect::Kernel::kCatmullRom);
-        fragBuilder->codeAppend(
-                "half4x4 kCoefficients = 0.5 * half4x4("
-                " 0,  2,  0,  0,"
-                "-1,  0,  1,  0,"
-                " 2, -5,  4, -1,"
-                "-1,  3, -3,  1);");
-    }
+    const char* coeffs;
+    fCoefficientUni = args.fUniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
+                                                       kHalf4x4_GrSLType, "coefficients", &coeffs);
     // We determine our fractional offset (f) within the texel. We then snap coord to a texel
     // center. The snap prevents cases where the starting coords are near a texel boundary and
     // offsets with imperfect precision would cause us to skip/double hit a texel.
@@ -80,10 +47,10 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("float2 coord = %s - float2(0.5);", args.fSampleCoord);
         fragBuilder->codeAppend("half2 f = half2(fract(coord));");
         fragBuilder->codeAppend("coord += 0.5 - f;");
-        fragBuilder->codeAppend(
-                "half4 wx = kCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
-        fragBuilder->codeAppend(
-                "half4 wy = kCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
+        fragBuilder->codeAppendf("half4 wx = %s * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);",
+                                 coeffs);
+        fragBuilder->codeAppendf("half4 wy = %s * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);",
+                                 coeffs);
         fragBuilder->codeAppend("half4 rowColors[4];");
         for (int y = 0; y < 4; ++y) {
             for (int x = 0; x < 4; ++x) {
@@ -106,7 +73,7 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
         fragBuilder->codeAppend("half f = half(fract(coord));");
         fragBuilder->codeAppend("coord += 0.5 - f;");
         fragBuilder->codeAppend("half f2 = f * f;");
-        fragBuilder->codeAppend("half4 w = kCoefficients * half4(1.0, f, f2, f2 * f);");
+        fragBuilder->codeAppendf("half4 w = %s * half4(1.0, f, f2, f2 * f);", coeffs);
         fragBuilder->codeAppend("half4 c[4];");
         for (int i = 0; i < 4; ++i) {
             SkString coord;
@@ -133,6 +100,53 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
             break;
     }
     fragBuilder->codeAppendf("%s = bicubicColor;", args.fOutputColor);
+}
+
+void GrBicubicEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
+                                      const GrFragmentProcessor& fp) {
+    auto& bicubicEffect = fp.cast<GrBicubicEffect>();
+    const SkM44* coeffs = nullptr;
+    switch (bicubicEffect.fKernel) {
+        case Kernel::kMitchell: {
+            /*
+            Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in\
+            Computer * Graphics', ACM SIGGRAPH Computer Graphics 22, 4 (Aug. 1988).
+            ACM DL: http://dl.acm.org/citation.cfm?id=378514
+
+            The authors define a family of cubic filters with two free parameters (B and C):
+                       {(12 - 9B - 6C)|x|^3 + (-18 + 12B + 6C)|x|^2 + (6 - 2B)          |x| < 1
+            k(x) = 1/6 {(-B - 6C)|x|^3 + (6B + 30C)|x|^2 + (-12B - 48C)|x| + (8B + 24C) 1 <= |x| < 2
+                       {0                                                               otherwise
+
+            Various well-known cubic splines can be generated, and the authors select (1/3, 1/3) as
+            their favorite overall spline - this is now commonly known as the Mitchell filter, and
+            is the source of the specific weights below.
+            */
+            static constexpr SkM44 kMitchell( 1.f/18.f, -9.f/18.f,  15.f/18.f,  -7.f/18.f,
+                                             16.f/18.f,  0.f/18.f, -36.f/18.f,  21.f/18.f,
+                                              1.f/18.f,  9.f/18.f,  27.f/18.f, -21.f/18.f,
+                                              0.f/18.f,  0.f/18.f,  -6.f/18.f,   7.f/18.f);
+            coeffs = &kMitchell;
+            break;
+        }
+        case Kernel::kCatmullRom: {
+            /*
+            Centripetal Catmull-Rom filter. From the same family with (B, C) = (0, 1/2).
+            Catmull, Edwin; Rom, Raphael (1974). "A class of local interpolating splines". In
+            Barnhill, Robert E.; Riesenfeld, Richard F. (eds.). Computer Aided Geometric Design.
+            pp. 317–326.
+            */
+            static constexpr SkM44 kCatmullRom(0.0f, -0.5f,  1.0f, -0.5f,
+                                               1.0f,  0.0f, -2.5f,  1.5f,
+                                               0.0f,  0.5f,  2.0f, -1.5f,
+                                               0.0f,  0.0f, -0.5f,  0.5f);
+            coeffs = &kCatmullRom;
+            break;
+        }
+    }
+    if (*coeffs != fCoefficients) {
+        pdm.setSkM44(fCoefficientUni, *coeffs);
+    }
 }
 
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView view,
@@ -242,9 +256,7 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
 
 void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
-    uint32_t key = (static_cast<uint32_t>(fKernel)    << 0)
-                 | (static_cast<uint32_t>(fDirection) << 1)
-                 | (static_cast<uint32_t>(fClamp)     << 3);
+    uint32_t key = (static_cast<uint32_t>(fDirection) << 0) | (static_cast<uint32_t>(fClamp) << 2);
     b->add32(key);
 }
 
