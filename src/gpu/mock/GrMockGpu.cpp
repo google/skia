@@ -150,17 +150,17 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(SkISize dimensions,
     GrColorType ct = format.asMockColorType();
     SkASSERT(ct != GrColorType::kUnknown);
 
-    GrMipMapsStatus mipMapsStatus =
-            mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus =
+            mipLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
     GrMockTextureInfo texInfo(ct, SkImage::CompressionType::kNone, NextInternalTextureID());
     if (renderable == GrRenderable::kYes) {
         GrMockRenderTargetInfo rtInfo(ct, NextInternalRenderTargetID());
         return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, budgeted, dimensions,
                                                               renderTargetSampleCnt, isProtected,
-                                                              mipMapsStatus, texInfo, rtInfo));
+                                                              mipmapStatus, texInfo, rtInfo));
     }
     return sk_sp<GrTexture>(
-            new GrMockTexture(this, budgeted, dimensions, isProtected, mipMapsStatus, texInfo));
+            new GrMockTexture(this, budgeted, dimensions, isProtected, mipmapStatus, texInfo));
 }
 
 // TODO: why no 'isProtected' ?!
@@ -180,15 +180,15 @@ sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(SkISize dimensions,
     SkASSERT(compression != SkImage::CompressionType::kNone);
 #endif
 
-    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipmapped::kYes)
-                                                                ? GrMipMapsStatus::kValid
-                                                                : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = (mipMapped == GrMipmapped::kYes)
+                                                                ? GrMipmapStatus::kValid
+                                                                : GrMipmapStatus::kNotAllocated;
     GrMockTextureInfo texInfo(GrColorType::kUnknown,
                               format.asMockCompressionType(),
                               NextInternalTextureID());
 
     return sk_sp<GrTexture>(
-            new GrMockTexture(this, budgeted, dimensions, isProtected, mipMapsStatus, texInfo));
+            new GrMockTexture(this, budgeted, dimensions, isProtected, mipmapStatus, texInfo));
 }
 
 sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
@@ -203,10 +203,10 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
         return nullptr;
     }
 
-    GrMipMapsStatus mipMapsStatus = tex.hasMipMaps() ? GrMipMapsStatus::kValid
-                                                     : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = tex.hasMipMaps() ? GrMipmapStatus::kValid
+                                                   : GrMipmapStatus::kNotAllocated;
     auto isProtected = GrProtected(tex.isProtected());
-    return sk_sp<GrTexture>(new GrMockTexture(this, tex.dimensions(), isProtected, mipMapsStatus,
+    return sk_sp<GrTexture>(new GrMockTexture(this, tex.dimensions(), isProtected, mipmapStatus,
                                               texInfo, wrapType, ioType));
 }
 
@@ -224,15 +224,15 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     SkAssertResult(tex.getMockTextureInfo(&texInfo));
     SkASSERT(texInfo.compressionType() == SkImage::CompressionType::kNone);
 
-    GrMipMapsStatus mipMapsStatus =
-            tex.hasMipMaps() ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus =
+            tex.hasMipMaps() ? GrMipmapStatus::kValid : GrMipmapStatus::kNotAllocated;
 
     // The client gave us the texture ID but we supply the render target ID.
     GrMockRenderTargetInfo rtInfo(texInfo.colorType(), NextInternalRenderTargetID());
 
     auto isProtected = GrProtected(tex.isProtected());
     return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, tex.dimensions(), sampleCnt,
-                                                          isProtected, mipMapsStatus, texInfo,
+                                                          isProtected, mipmapStatus, texInfo,
                                                           rtInfo, cacheable));
 }
 

@@ -224,7 +224,7 @@ sk_sp<GrD3DTexture> GrD3DGpu::createD3DTexture(SkISize dimensions,
                                                SkBudgeted budgeted,
                                                GrProtected isProtected,
                                                int mipLevelCount,
-                                               GrMipMapsStatus mipMapsStatus) {
+                                               GrMipmapStatus mipmapStatus) {
     D3D12_RESOURCE_FLAGS usageFlags = D3D12_RESOURCE_FLAG_NONE;
     if (renderable == GrRenderable::kYes) {
         usageFlags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
@@ -253,10 +253,10 @@ sk_sp<GrD3DTexture> GrD3DGpu::createD3DTexture(SkISize dimensions,
     if (renderable == GrRenderable::kYes) {
         return GrD3DTextureRenderTarget::MakeNewTextureRenderTarget(
                 this, budgeted, dimensions, renderTargetSampleCnt, resourceDesc, isProtected,
-                mipMapsStatus);
+                mipmapStatus);
     } else {
         return GrD3DTexture::MakeNewTexture(this, budgeted, dimensions, resourceDesc, isProtected,
-                                            mipMapsStatus);
+                                            mipmapStatus);
     }
 }
 
@@ -272,12 +272,12 @@ sk_sp<GrTexture> GrD3DGpu::onCreateTexture(SkISize dimensions,
     SkAssertResult(format.asDxgiFormat(&dxgiFormat));
     SkASSERT(!GrDxgiFormatIsCompressed(dxgiFormat));
 
-    GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kDirty
-                                                      : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = mipLevelCount > 1 ? GrMipmapStatus::kDirty
+                                                    : GrMipmapStatus::kNotAllocated;
 
     sk_sp<GrD3DTexture> tex = this->createD3DTexture(dimensions, dxgiFormat, renderable,
                                                      renderTargetSampleCnt, budgeted, isProtected,
-                                                     mipLevelCount, mipMapsStatus);
+                                                     mipLevelCount, mipmapStatus);
     if (!tex) {
         return nullptr;
     }
@@ -326,12 +326,12 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
     if (mipMapped == GrMipmapped::kYes) {
         mipLevelCount = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
-    GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
-                                                      : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = mipLevelCount > 1 ? GrMipmapStatus::kValid
+                                                    : GrMipmapStatus::kNotAllocated;
 
     sk_sp<GrD3DTexture> d3dTex = this->createD3DTexture(dimensions, dxgiFormat, GrRenderable::kNo,
                                                      1, budgeted, isProtected,
-                                                     mipLevelCount, mipMapsStatus);
+                                                     mipLevelCount, mipmapStatus);
     if (!d3dTex) {
         return nullptr;
     }

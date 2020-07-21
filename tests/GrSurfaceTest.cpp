@@ -569,7 +569,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 }
                 auto proxy = dContext->priv().proxyProvider()->createLazyProxy(
                         singleUseLazyCB, backendFormat, desc, renderable, 1, GrMipmapped::kNo,
-                        GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
+                        GrMipmapStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,
                         GrSurfaceProxy::UseAllocator::kYes);
                 GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(

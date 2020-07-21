@@ -888,7 +888,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         copyTexture = GrVkTexture::MakeNewTexture(this, SkBudgeted::kYes, {width, height},
-                                                  imageDesc, GrMipMapsStatus::kNotAllocated);
+                                                  imageDesc, GrMipmapStatus::kNotAllocated);
         if (!copyTexture) {
             return false;
         }
@@ -1059,15 +1059,15 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fIsProtected = isProtected;
 
-    GrMipMapsStatus mipMapsStatus =
-            mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus =
+            mipLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
 
     sk_sp<GrVkTexture> tex;
     if (renderable == GrRenderable::kYes) {
         tex = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, budgeted, dimensions, renderTargetSampleCnt, imageDesc, mipMapsStatus);
+                this, budgeted, dimensions, renderTargetSampleCnt, imageDesc, mipmapStatus);
     } else {
-        tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipMapsStatus);
+        tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipmapStatus);
     }
 
     if (!tex) {
@@ -1144,11 +1144,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fIsProtected = isProtected;
 
-    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipmapped::kYes)
-                                                                ? GrMipMapsStatus::kValid
-                                                                : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = (mipMapped == GrMipmapped::kYes) ? GrMipmapStatus::kValid
+                                                                   : GrMipmapStatus::kNotAllocated;
 
-    auto tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipMapsStatus);
+    auto tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipmapStatus);
     if (!tex) {
         return nullptr;
     }
@@ -2332,7 +2331,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
         copySurface = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
                 this, SkBudgeted::kYes, {width, height}, 1, imageDesc,
-                GrMipMapsStatus::kNotAllocated);
+                GrMipmapStatus::kNotAllocated);
         if (!copySurface) {
             return false;
         }

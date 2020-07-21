@@ -276,7 +276,7 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
     SkISize dims = {p.fSize, p.fSize};
     return proxyProvider->createLazyProxy(callback, format, dims, p.fRenderable, p.fSampleCnt,
-                                          GrMipmapped::kNo, GrMipMapsStatus::kNotAllocated, flags,
+                                          GrMipmapped::kNo, GrMipmapStatus::kNotAllocated, flags,
                                           p.fFit, p.fBudgeted, GrProtected::kNo,
                                           GrSurfaceProxy::UseAllocator::kYes);
 }

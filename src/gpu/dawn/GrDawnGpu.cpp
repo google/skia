@@ -203,11 +203,11 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(SkISize dimensions,
         return nullptr;
     }
 
-    GrMipMapsStatus mipMapsStatus =
-        mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus =
+        mipLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
 
     return GrDawnTexture::Make(this, dimensions, format, renderable, renderTargetSampleCnt,
-                               budgeted, mipLevelCount, mipMapsStatus);
+                               budgeted, mipLevelCount, mipmapStatus);
 }
 
 sk_sp<GrTexture> GrDawnGpu::onCreateCompressedTexture(SkISize dimensions, const GrBackendFormat&,
@@ -227,7 +227,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapBackendTexture(const GrBackendTexture& backend
     }
 
     SkISize dimensions = { backendTex.width(), backendTex.height() };
-    GrMipMapsStatus status = GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus status = GrMipmapStatus::kNotAllocated;
     return GrDawnTexture::MakeWrapped(this, dimensions, GrRenderable::kNo, 1, status, cacheable,
                                       ioType, info);
 }
@@ -253,7 +253,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
         return nullptr;
     }
 
-    GrMipMapsStatus status = GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus status = GrMipmapStatus::kNotAllocated;
     return GrDawnTexture::MakeWrapped(this, dimensions, GrRenderable::kYes, sampleCnt, status,
                                       cacheable, kRW_GrIOType, info);
 }

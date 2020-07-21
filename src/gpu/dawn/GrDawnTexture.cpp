@@ -16,9 +16,9 @@ GrDawnTexture::GrDawnTexture(GrDawnGpu* gpu,
                              SkISize dimensions,
                              wgpu::TextureView textureView,
                              const GrDawnTextureInfo& info,
-                             GrMipMapsStatus mipMapsStatus)
+                             GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrTexture(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipMapsStatus)
+        , GrTexture(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipmapStatus)
         , fInfo(info)
         , fTextureView(textureView) {}
 
@@ -26,7 +26,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, SkISize dimensions,
                                          wgpu::TextureFormat format,
                                          GrRenderable renderable, int sampleCnt,
                                          SkBudgeted budgeted, int mipLevels,
-                                         GrMipMapsStatus status) {
+                                         GrMipmapStatus status) {
     bool renderTarget = renderable == GrRenderable::kYes;
     wgpu::TextureDescriptor textureDesc;
 
@@ -84,7 +84,7 @@ GrBackendFormat GrDawnTexture::backendFormat() const {
 
 sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, SkISize dimensions,
                                                 GrRenderable renderable,
-                                                int sampleCnt, GrMipMapsStatus status,
+                                                int sampleCnt, GrMipmapStatus status,
                                                 GrWrapCacheable cacheable,
                                                 GrIOType ioType,
                                                 const GrDawnTextureInfo& info) {

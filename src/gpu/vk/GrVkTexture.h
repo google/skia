@@ -25,7 +25,7 @@ public:
                                              SkBudgeted budgeted,
                                              SkISize dimensions,
                                              const GrVkImage::ImageDesc&,
-                                             GrMipMapsStatus);
+                                             GrMipmapStatus);
 
     static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*,
                                                  SkISize dimensions,
@@ -63,7 +63,7 @@ protected:
                 const GrVkImageInfo&,
                 sk_sp<GrBackendSurfaceMutableStateImpl>,
                 const GrVkImageView*,
-                GrMipMapsStatus,
+                GrMipmapStatus,
                 GrBackendObjectOwnership);
 
     GrVkGpu* getVkGpu() const;
@@ -80,9 +80,9 @@ protected:
 private:
     GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, const GrVkImageInfo&,
                 sk_sp<GrBackendSurfaceMutableStateImpl>, const GrVkImageView* imageView,
-                GrMipMapsStatus);
+                GrMipmapStatus);
     GrVkTexture(GrVkGpu*, SkISize, const GrVkImageInfo&, sk_sp<GrBackendSurfaceMutableStateImpl>,
-                const GrVkImageView*, GrMipMapsStatus, GrBackendObjectOwnership, GrWrapCacheable,
+                const GrVkImageView*, GrMipmapStatus, GrBackendObjectOwnership, GrWrapCacheable,
                 GrIOType, bool isExternal);
 
     // In Vulkan we call the release proc after we are finished with the underlying

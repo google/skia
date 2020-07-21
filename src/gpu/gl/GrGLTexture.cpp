@@ -43,10 +43,10 @@ static inline GrGLenum target_from_texture_type(GrTextureType type) {
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const Desc& desc,
-                         GrMipMapsStatus mipMapsStatus)
+                         GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, desc.fSize, GrProtected::kNo)
         , INHERITED(gpu, desc.fSize, GrProtected::kNo,
-                    TextureTypeFromTarget(desc.fTarget), mipMapsStatus)
+                    TextureTypeFromTarget(desc.fTarget), mipmapStatus)
         , fParameters(sk_make_sp<GrGLTextureParameters>()) {
     this->init(desc);
     this->registerWithCache(budgeted);
@@ -55,12 +55,12 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const Desc& desc,
     }
 }
 
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, const Desc& desc, GrMipMapsStatus mipMapsStatus,
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, const Desc& desc, GrMipmapStatus mipmapStatus,
                          sk_sp<GrGLTextureParameters> parameters, GrWrapCacheable cacheable,
                          GrIOType ioType)
         : GrSurface(gpu, desc.fSize, GrProtected::kNo)
         , INHERITED(gpu, desc.fSize, GrProtected::kNo,
-                    TextureTypeFromTarget(desc.fTarget), mipMapsStatus)
+                    TextureTypeFromTarget(desc.fTarget), mipmapStatus)
         , fParameters(std::move(parameters)) {
     SkASSERT(fParameters);
     this->init(desc);
@@ -71,10 +71,10 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const Desc& desc, GrMipMapsStatus mipMaps
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const Desc& desc, sk_sp<GrGLTextureParameters> parameters,
-                         GrMipMapsStatus mipMapsStatus)
+                         GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, desc.fSize, GrProtected::kNo)
         , INHERITED(gpu, desc.fSize, GrProtected::kNo,
-                    TextureTypeFromTarget(desc.fTarget), mipMapsStatus) {
+                    TextureTypeFromTarget(desc.fTarget), mipmapStatus) {
     SkASSERT(parameters || desc.fOwnership == GrBackendObjectOwnership::kOwned);
     fParameters = parameters ? std::move(parameters) : sk_make_sp<GrGLTextureParameters>();
     this->init(desc);
@@ -124,13 +124,13 @@ GrBackendFormat GrGLTexture::backendFormat() const {
 }
 
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu,
-                                            GrMipMapsStatus mipMapsStatus,
+                                            GrMipmapStatus mipmapStatus,
                                             const Desc& desc,
                                             sk_sp<GrGLTextureParameters> parameters,
                                             GrWrapCacheable cacheable,
                                             GrIOType ioType) {
     return sk_sp<GrGLTexture>(
-            new GrGLTexture(gpu, desc, mipMapsStatus, std::move(parameters), cacheable, ioType));
+            new GrGLTexture(gpu, desc, mipmapStatus, std::move(parameters), cacheable, ioType));
 }
 
 bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,

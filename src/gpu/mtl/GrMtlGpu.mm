@@ -467,13 +467,13 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
         texDesc.usage |= (renderable == GrRenderable::kYes) ? MTLTextureUsageRenderTarget : 0;
     }
 
-    GrMipMapsStatus mipMapsStatus =
-            mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus =
+            mipLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
     if (renderable == GrRenderable::kYes) {
         tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, budgeted, dimensions, renderTargetSampleCnt, texDesc, mipMapsStatus);
+                this, budgeted, dimensions, renderTargetSampleCnt, texDesc, mipmapStatus);
     } else {
-        tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, texDesc, mipMapsStatus);
+        tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, texDesc, mipmapStatus);
     }
 
     if (!tex) {
@@ -534,11 +534,11 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
         texDesc.usage = MTLTextureUsageShaderRead;
     }
 
-    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipmapped::kYes)
-                                                                ? GrMipMapsStatus::kValid
-                                                                : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = (mipMapped == GrMipmapped::kYes)
+                                                                ? GrMipmapStatus::kValid
+                                                                : GrMipmapStatus::kNotAllocated;
 
-    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, texDesc, mipMapsStatus);
+    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, texDesc, mipmapStatus);
     if (!tex) {
         return nullptr;
     }

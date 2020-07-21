@@ -647,10 +647,10 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         desc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
-    GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kValid
-                                                            : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = backendTex.hasMipMaps() ? GrMipmapStatus::kValid
+                                                          : GrMipmapStatus::kNotAllocated;
 
-    auto texture = GrGLTexture::MakeWrapped(this, mipMapsStatus, desc,
+    auto texture = GrGLTexture::MakeWrapped(this, mipmapStatus, desc,
                                             backendTex.getGLTextureParams(), cacheable, ioType);
     // We don't know what parameters are already set on wrapped textures.
     texture->textureParamsModified();
@@ -699,10 +699,10 @@ sk_sp<GrTexture> GrGLGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         desc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
-    GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kValid
-                                                            : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = backendTex.hasMipMaps() ? GrMipmapStatus::kValid
+                                                          : GrMipmapStatus::kNotAllocated;
 
-    auto texture = GrGLTexture::MakeWrapped(this, mipMapsStatus, desc,
+    auto texture = GrGLTexture::MakeWrapped(this, mipmapStatus, desc,
                                             backendTex.getGLTextureParams(), cacheable,
                                             kRead_GrIOType);
     // We don't know what parameters are already set on wrapped textures.
@@ -743,12 +743,12 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kDirty
-                                                            : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = backendTex.hasMipMaps() ? GrMipmapStatus::kDirty
+                                                          : GrMipmapStatus::kNotAllocated;
 
     sk_sp<GrGLTextureRenderTarget> texRT(GrGLTextureRenderTarget::MakeWrapped(
             this, sampleCnt, desc, backendTex.getGLTextureParams(), rtIDs, cacheable,
-            mipMapsStatus));
+            mipmapStatus));
     texRT->baseLevelWasBoundToFBO();
     // We don't know what parameters are already set on wrapped textures.
     texRT->textureParamsModified();
@@ -1274,8 +1274,8 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
     SkASSERT(GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType() || renderTargetSampleCnt == 1);
 
     SkASSERT(mipLevelCount > 0);
-    GrMipMapsStatus mipMapsStatus =
-            mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus =
+            mipLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc texDesc;
     texDesc.fSize = dimensions;
@@ -1316,10 +1316,10 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
             return return_null_texture();
         }
         tex = sk_make_sp<GrGLTextureRenderTarget>(
-                this, budgeted, renderTargetSampleCnt, texDesc, rtIDDesc, mipMapsStatus);
+                this, budgeted, renderTargetSampleCnt, texDesc, rtIDDesc, mipmapStatus);
         tex->baseLevelWasBoundToFBO();
     } else {
-        tex = sk_make_sp<GrGLTexture>(this, budgeted, texDesc, mipMapsStatus);
+        tex = sk_make_sp<GrGLTexture>(this, budgeted, texDesc, mipmapStatus);
     }
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
@@ -1396,11 +1396,11 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     // Unbind this texture from the scratch texture unit.
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
 
-    GrMipMapsStatus mipMapsStatus = mipMapped == GrMipmapped::kYes
-                                                            ? GrMipMapsStatus::kValid
-                                                            : GrMipMapsStatus::kNotAllocated;
+    GrMipmapStatus mipmapStatus = mipMapped == GrMipmapped::kYes
+                                                            ? GrMipmapStatus::kValid
+                                                            : GrMipmapStatus::kNotAllocated;
 
-    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, mipMapsStatus);
+    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, mipmapStatus);
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);
