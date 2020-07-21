@@ -565,7 +565,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
                                                      const SkColorSpace* colorSpace,
                                                      GrProtected isProtected) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto renderTargetContext = GrRenderTargetContext::Make(

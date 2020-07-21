@@ -1073,7 +1073,7 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         if (saturate == GrTextureOp::Saturate::kYes) {
             fp = GrClampFragmentProcessor::Make(std::move(fp), /*clampToPremul=*/false);
         }
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
         return GrFillRectOp::Make(context, std::move(paint), aaType, quad);
     }
 }

@@ -345,7 +345,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     }
 
     if (paintFP) {
-        grPaint->addColorFragmentProcessor(std::move(paintFP));
+        grPaint->setColorFragmentProcessor(std::move(paintFP));
     }
 
     return true;

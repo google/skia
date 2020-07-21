@@ -229,7 +229,7 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
 void test_draw_op(GrContext* context, GrRenderTargetContext* rtc,
                   std::unique_ptr<GrFragmentProcessor> fp) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto op = GrFillRectOp::MakeNonAARect(context, std::move(paint), SkMatrix::I(),
