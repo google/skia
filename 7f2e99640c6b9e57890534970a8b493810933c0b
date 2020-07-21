@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db38d958_db9508d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T21:39:25Z",
+      "side": 1,
+      "message": "I don\u0027t know of a way to find all usages of a method in a namespace in C++, so I just removed all definitions of mad from skvx.h and followed the compiler error breadcrumbs until I had fixed all usages of it. Skia builds now, so I believe I have removed all usages of mad.",
+      "revId": "7f2e99640c6b9e57890534970a8b493810933c0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
