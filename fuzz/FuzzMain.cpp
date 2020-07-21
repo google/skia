@@ -47,6 +47,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "animated_image_decode\n"
                                          "api\n"
                                          "color_deserialize\n"
+                                         "create_ddl\n"
                                          "filter_fuzz (equivalent to Chrome's filter_fuzz_stub)\n"
                                          "image_decode\n"
                                          "image_decode_incremental\n"
@@ -79,6 +80,7 @@ static void fuzz_android_codec(sk_sp<SkData>);
 static void fuzz_animated_img(sk_sp<SkData>);
 static void fuzz_api(sk_sp<SkData> bytes, SkString name);
 static void fuzz_color_deserialize(sk_sp<SkData>);
+static void fuzz_create_ddl(sk_sp<SkData>);
 static void fuzz_filter_fuzz(sk_sp<SkData>);
 static void fuzz_image_decode(sk_sp<SkData>);
 static void fuzz_image_decode_incremental(sk_sp<SkData>);
@@ -172,6 +174,10 @@ static int fuzz_file(SkString path, SkString type) {
     }
     if (type.equals("color_deserialize")) {
         fuzz_color_deserialize(bytes);
+        return 0;
+    }
+    if (type.equals("create_ddl")) {
+        fuzz_create_ddl(bytes);
         return 0;
     }
     if (type.equals("filter_fuzz")) {
@@ -285,6 +291,7 @@ static std::map<std::string, std::string> cf_api_map = {
 static std::map<std::string, std::string> cf_map = {
     {"android_codec", "android_codec"},
     {"animated_image_decode", "animated_image_decode"},
+    {"create_ddl", "create_ddl"},
     {"image_decode", "image_decode"},
     {"image_decode_incremental", "image_decode_incremental"},
     {"image_filter_deserialize", "filter_fuzz"},
@@ -443,6 +450,17 @@ static void fuzz_android_codec(sk_sp<SkData> bytes) {
         return;
     }
     SkDebugf("[terminated] Could not use Android Codec sampleSize=%u!\n", sampleSize);
+}
+
+bool FuzzCreateDDL(Fuzz* fuzz);
+static void fuzz_create_ddl(sk_sp<SkData> bytes) {
+    SkDebugf("start ddl\n");
+    Fuzz fuzz(std::move(bytes));
+    if (FuzzCreateDDL(&fuzz)) {
+        SkDebugf("[terminated] Suceessfully created DDL\n");
+    } else {
+        SkDebugf("[terminated] Failed to create DDL\n");
+    }
 }
 
 // This is a "legacy" fuzzer that likely does too much. It was based off of how
