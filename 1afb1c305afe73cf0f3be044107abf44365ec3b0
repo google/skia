@@ -16,6 +16,24 @@
       "revId": "1afb1c305afe73cf0f3be044107abf44365ec3b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9912d79_c2d7695f",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-21T15:31:18Z",
+      "side": 1,
+      "message": "Agreed, good catch! In a followup CL (which updates the API to reflect the lack of multiple processor support) this if block is removed entirely. This should hit your inbox later today.",
+      "parentUuid": "4e917258_9dfc0525",
+      "revId": "1afb1c305afe73cf0f3be044107abf44365ec3b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
