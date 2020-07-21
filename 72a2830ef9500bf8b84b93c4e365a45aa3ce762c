@@ -46,6 +46,30 @@
       "revId": "72a2830ef9500bf8b84b93c4e365a45aa3ce762c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4b1b226_516730ba",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-21T13:39:13Z",
+      "side": 1,
+      "message": "At the bottom there is a section that says \"Tasks\". The left one has a green rectangle (meaning it passed) and the right one has two red rectangles. Click one of the red rectangles, and it will open a new page like https://chromium-swarm.appspot.com/task?id\u003d4d82fad5d5728c10. From that page, I find it most helpful to right click \"Rich Output\" and open that link in a new tab. That takes you to a page like https://ci.chromium.org/raw/build/logs.chromium.org/skia/4d82fad5d5728c11/+/annotations, which has details about which steps failed. Then you can click on e.g. \"stdout\" or \"execution details\".",
+      "parentUuid": "1d93b4f7_4f007629",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 39
+      },
+      "revId": "72a2830ef9500bf8b84b93c4e365a45aa3ce762c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
