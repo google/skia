@@ -160,7 +160,11 @@ public:
         // When rendering into a known transparent buffer, clients can pass
         // this flag to avoid some unnecessary compositing overhead for
         // animations using layer blend modes.
-        kSkipTopLevelIsolation = 0x01,
+        kSkipTopLevelIsolation   = 0x01,
+        // By default, content is clipped to the intrinsic animation
+        // bounds (as determined by its size).  If this flag is set,
+        // then the animation can draw outside of the bounds.
+        kDisableTopLevelClipping = 0x02,
     };
     using RenderFlags = uint32_t;
 

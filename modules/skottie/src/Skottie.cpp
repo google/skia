@@ -473,7 +473,9 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
         canvas->concat(SkMatrix::MakeRectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));
     }
 
-    canvas->clipRect(srcR);
+    if (!(renderFlags & RenderFlag::kDisableTopLevelClipping)) {
+        canvas->clipRect(srcR);
+    }
 
     if ((fFlags & Flags::kRequiresTopLevelIsolation) &&
         !(renderFlags & RenderFlag::kSkipTopLevelIsolation)) {
