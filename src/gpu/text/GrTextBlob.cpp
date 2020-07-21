@@ -138,18 +138,6 @@ GrGlyphVector GrGlyphVector::Make(
     return GrGlyphVector{spec, SkMakeSpan(variants, glyphs.size())};
 }
 
-void GrGlyphVector::prepareGrGlyphs(GrStrikeCache* strikeCache) {
-    if (fStrike) {
-        return;
-    }
-
-    fStrike = fStrikeSpec.findOrCreateGrStrike(strikeCache);
-
-    for (auto& variant : fGlyphs) {
-        variant.grGlyph = fStrike->getGlyph(variant.packedGlyphID);
-    }
-}
-
 SkSpan<const GrGlyph*> GrGlyphVector::glyphs() const {
     return SkMakeSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
 }
@@ -161,7 +149,13 @@ std::tuple<bool, int> GrGlyphVector::regenerateAtlas(
 
     uint64_t currentAtlasGen = atlasManager->atlasGeneration(maskFormat);
 
-    this->prepareGrGlyphs(target->strikeCache());
+    if (fStrike == nullptr) {
+        fStrike = fStrikeSpec.findOrCreateGrStrike(target->strikeCache());
+
+        for (auto& variant : fGlyphs) {
+            variant.grGlyph = fStrike->getGlyph(variant.packedGlyphID);
+        }
+    }
 
     if (fAtlasGeneration != currentAtlasGen) {
         // Calculate the texture coordinates for the vertexes during first use (fAtlasGeneration
