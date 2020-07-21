@@ -284,6 +284,11 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
     if (!baseType) {
         return nullptr;
     }
+    if (baseType->nonnullable() == *fContext.fFragmentProcessor_Type &&
+        storage != Variable::kGlobal_Storage) {
+        fErrors.error(decls.fOffset,
+                      "variables of type '" + baseType->displayName() + "' must be global");
+    }
     if (fKind != Program::kFragmentProcessor_Kind) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
             baseType->kind() == Type::Kind::kMatrix_Kind) {
@@ -829,6 +834,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     if (!returnType) {
         return;
     }
+    if (returnType->nonnullable() == *fContext.fFragmentProcessor_Type) {
+        fErrors.error(f.fOffset,
+                      "functions may not return type '" + returnType->displayName() + "'");
+        return;
+    }
     const ASTNode::FunctionData& fd = f.getFunctionData();
     std::vector<const Variable*> parameters;
     for (size_t i = 0; i < fd.fParameterCount; ++i) {
@@ -838,6 +848,12 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         auto paramIter = param.begin();
         const Type* type = this->convertType(*(paramIter++));
         if (!type) {
+            return;
+        }
+        // Only the (builtin) declarations of 'sample' are allowed to have FP parameters
+        if (type->nonnullable() == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) {
+            fErrors.error(param.fOffset,
+                          "parameters of type '" + type->displayName() + "' not allowed");
             return;
         }
         for (int j = (int) pd.fSizeCount; j >= 1; j--) {
@@ -1878,6 +1894,11 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
                                     ifFalse->fType.displayName() + "'");
         return nullptr;
     }
+    if (trueType->nonnullable() == *fContext.fFragmentProcessor_Type) {
+        fErrors.error(node.fOffset,
+                      "ternary expression of type '" + trueType->displayName() + "' not allowed");
+        return nullptr;
+    }
     ifTrue = this->coerce(std::move(ifTrue), *trueType);
     if (!ifTrue) {
         return nullptr;
@@ -2616,11 +2637,12 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
                                                     const Type& type,
                                                     std::vector<std::unique_ptr<Expression>> args) {
     // FIXME: add support for structs
-    Type::Kind kind = type.kind();
-    if (args.size() == 1 && args[0]->fType == type) {
+    if (args.size() == 1 && args[0]->fType == type &&
+        type.nonnullable() != *fContext.fFragmentProcessor_Type) {
         // argument is already the right type, just return it
         return std::move(args[0]);
     }
+    Type::Kind kind = type.kind();
     if (type.isNumber()) {
         return this->convertNumberConstructor(offset, type, std::move(args));
     } else if (kind == Type::kArray_Kind) {

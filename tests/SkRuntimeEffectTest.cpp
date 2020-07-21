@@ -61,6 +61,23 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
 
     // Shouldn't be possible to create an SkRuntimeEffect without "main"
     test("//", "", "main");
+
+    // Various places that shaders (fragmentProcessors) should not be allowed
+    test("",
+         "shader child;",
+         "must be global");
+    test("in shader child; half4 helper(shader fp) { return sample(fp); }",
+         "color = helper(child);",
+         "parameter");
+    test("in shader child; shader get_child() { return child; }",
+         "color = sample(get_child());",
+         "return");
+    test("in shader child;",
+         "color = sample(shader(child));",
+         "construct");
+    test("in shader child1; in shader child2;",
+         "color = sample(p.x > 10 ? child1 : child2);",
+         "expression");
 }
 
 class TestEffect {
