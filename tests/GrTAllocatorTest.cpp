@@ -30,6 +30,11 @@ struct C {
     static int gInstCnt;
 };
 int C::gInstCnt = 0;
+
+struct D {
+    int fID;
+};
+
 }
 
 // Checks that the allocator has the correct count, etc and that the element IDs are correct.
@@ -160,6 +165,72 @@ static void run_allocator_test(GrTAllocator<C, N>* allocator, skiatest::Reporter
     check_allocator(allocator, 100, 10, reporter);
 }
 
+template<int N1, int N2>
+static void run_concat_test(skiatest::Reporter* reporter, int aCount, int bCount) {
+
+    GrTAllocator<C, N1> listA;
+    GrTAllocator<C, N2> listB;
+
+    for (int i = 0; i < aCount; ++i) {
+        listA.emplace_back(i);
+    }
+    for (int i = 0; i < bCount; ++i) {
+        listB.emplace_back(aCount + i);
+    }
+
+    // Sanity check
+    REPORTER_ASSERT(reporter, listA.count() == aCount && listB.count() == bCount);
+    REPORTER_ASSERT(reporter, C::gInstCnt == aCount + bCount);
+
+    // Concatenate B into A and verify.
+    listA.concat(std::move(listB));
+    REPORTER_ASSERT(reporter, listA.count() == aCount + bCount);
+    // GrTAllocator guarantees the moved list is empty, but clang-tidy doesn't know about it; in
+    // practice we won't really be using moved lists so this won't pollute our main code base with
+    // lots of warning disables.
+    REPORTER_ASSERT(reporter, listB.count() == 0); // NOLINT(bugprone-use-after-move)
+    REPORTER_ASSERT(reporter, C::gInstCnt == aCount + bCount);
+
+    int i = 0;
+    for (const C& item : listA.items()) {
+        // By construction of A and B originally, the concatenated id sequence is continuous
+        REPORTER_ASSERT(reporter, i == item.fID);
+        i++;
+    }
+    REPORTER_ASSERT(reporter, i == (aCount + bCount));
+}
+
+template<int N1, int N2>
+static void run_concat_trivial_test(skiatest::Reporter* reporter, int aCount, int bCount) {
+    static_assert(std::is_trivially_copyable<D>::value);
+
+    // This is similar to run_concat_test(), except since D is trivial we can't verify the instant
+    // counts that are tracked via ctor/dtor.
+    GrTAllocator<D, N1> listA;
+    GrTAllocator<D, N2> listB;
+
+    for (int i = 0; i < aCount; ++i) {
+        listA.push_back({i});
+    }
+    for (int i = 0; i < bCount; ++i) {
+        listB.push_back({aCount + i});
+    }
+
+    // Sanity check
+    REPORTER_ASSERT(reporter, listA.count() == aCount && listB.count() == bCount);
+    // Concatenate B into A and verify.
+    listA.concat(std::move(listB));
+    REPORTER_ASSERT(reporter, listA.count() == aCount + bCount);
+    REPORTER_ASSERT(reporter, listB.count() == 0); // NOLINT(bugprone-use-after-move): see above
+
+    int i = 0;
+    for (const D& item : listA.items()) {
+        // By construction of A and B originally, the concatenated id sequence is continuous
+        REPORTER_ASSERT(reporter, i == item.fID);
+        i++;
+    }
+    REPORTER_ASSERT(reporter, i == (aCount + bCount));
+}
 
 template<int N>
 static void run_reserve_test(skiatest::Reporter* reporter) {
@@ -242,4 +313,14 @@ DEF_TEST(GrTAllocator, reporter) {
     run_reserve_test<3>(reporter);
     run_reserve_test<4>(reporter);
     run_reserve_test<5>(reporter);
+
+    run_concat_test<1, 1>(reporter, 10, 10);
+    run_concat_test<5, 1>(reporter, 50, 10);
+    run_concat_test<1, 5>(reporter, 10, 50);
+    run_concat_test<5, 5>(reporter, 100, 100);
+
+    run_concat_trivial_test<1, 1>(reporter, 10, 10);
+    run_concat_trivial_test<5, 1>(reporter, 50, 10);
+    run_concat_trivial_test<1, 5>(reporter, 10, 50);
+    run_concat_trivial_test<5, 5>(reporter, 100, 100);
 }
