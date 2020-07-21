@@ -347,7 +347,7 @@ public:
                     dims.fHeight = kAtlasTileSize;
 
                     return resourceProvider->createTexture(dims, desc.fFormat, desc.fRenderable,
-                                                           desc.fSampleCnt, desc.fMipMapped,
+                                                           desc.fSampleCnt, desc.fMipmapped,
                                                            desc.fBudgeted, desc.fProtected);
                 },
                 format,
