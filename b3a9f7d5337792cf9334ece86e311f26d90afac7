@@ -175,6 +175,30 @@
     },
     {
       "key": {
+        "uuid": "b899170e_ecb1c2eb",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:47:34Z",
+      "side": 1,
+      "message": "That\u0027s fine. Let\u0027s leave some TODO comments",
+      "parentUuid": "e82194df_090f4247",
+      "range": {
+        "startLine": 40,
+        "startChar": 58,
+        "endLine": 40,
+        "endChar": 101
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e923fcdc_d389a90f",
         "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 5
@@ -204,6 +228,24 @@
       "side": 1,
       "message": "Well - each helper method here is going to be one axis of fuzzing but I proposed that we land something and iterate.\n\nThe immediate next steps are to add reading back the image (so we can very that the DDL drawing is correct) and to generate multiple DDLs for a single surface (feeding each one the same content).\n\nNote that we haven\u0027t even gotten to threads and promise images yet.",
       "parentUuid": "e923fcdc_d389a90f",
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4238d566_971fd1a2",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T12:47:34Z",
+      "side": 1,
+      "message": "Sounds good - let\u0027s leave some comments indicating the direction this is going.",
+      "parentUuid": "0bf44c19_fba760e6",
       "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
