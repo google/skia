@@ -464,7 +464,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         GrBackendTexture backendTex;
         CreateBackendTexture(dContext, &backendTex, DEV_W, DEV_H, kRGBA_8888_SkColorType,
-                             SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes,
+                             SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
                              GrProtected::kNo);
         if (!backendTex.isValid()) {
             continue;
@@ -537,7 +537,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
                                                                      GrRenderable::kNo);
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
-                format, kDims, GrRenderable::kNo, 1, GrMipMapped::kNo, SkBackingFit::kApprox,
+                format, kDims, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBackingFit::kApprox,
                 SkBudgeted::kYes, GrProtected::kNo);
         temp->instantiate(context->priv().resourceProvider());
     }

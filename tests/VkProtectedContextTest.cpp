@@ -27,7 +27,7 @@ static sk_sp<SkSurface> create_protected_sksurface(GrDirectContext* dContext,
     const int kW = 8;
     const int kH = 8;
     GrBackendTexture backendTex = dContext->createBackendTexture(
-        kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kYes);
+        kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kYes, GrProtected::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     REPORTER_ASSERT(reporter, backendTex.isProtected());
 
@@ -63,7 +63,7 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
     const int kW = 8;
     const int kH = 8;
     GrBackendTexture backendTex = dContext->createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
-                                                                 GrMipMapped::kNo,
+                                                                 GrMipmapped::kNo,
                                                                  GrRenderable::kNo,
                                                                  GrProtected::kYes);
     REPORTER_ASSERT(reporter, backendTex.isValid());
@@ -89,7 +89,7 @@ DEF_GPUTEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext, repo
     const int kH = 8;
     GrBackendTexture backendTex =
         protectedTestHelper->directContext()->createBackendTexture(
-            kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo,
+            kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo,
             GrProtected::kNo);
     REPORTER_ASSERT(reporter, !backendTex.isValid());
 }
@@ -105,7 +105,7 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedTextureInNonprotectedContext, repo
     const int kH = 8;
     GrBackendTexture backendTex =
         protectedTestHelper->directContext()->createBackendTexture(
-            kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo,
+            kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo,
             GrProtected::kYes);
     REPORTER_ASSERT(reporter, !backendTex.isValid());
 }

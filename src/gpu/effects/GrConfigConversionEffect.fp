@@ -65,7 +65,7 @@ in fragmentProcessor inputFP;
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto dataView = maker.view(GrMipMapped::kNo);
+        auto dataView = maker.view(GrMipmapped::kNo);
         if (!dataView) {
             return false;
         }

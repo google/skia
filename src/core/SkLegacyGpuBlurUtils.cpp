@@ -117,7 +117,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
                                                                    SkBackingFit dstFit) {
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, srcColorType, std::move(finalCS), dstFit, dstBounds.size(), 1,
-            GrMipMapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
+            GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -158,7 +158,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     // and then capturing the 'dstBounds' portion in a new RTC where the top left of 'dstBounds' is
     // at {0, 0} in the new RTC.
     auto dstRenderTargetContext = GrRenderTargetContext::Make(
-            context, srcColorType, std::move(finalCS), fit, dstBounds.size(), 1, GrMipMapped::kNo,
+            context, srcColorType, std::move(finalCS), fit, dstBounds.size(), 1, GrMipmapped::kNo,
             srcView.proxy()->isProtected(), srcView.origin());
     if (!dstRenderTargetContext) {
         return nullptr;
@@ -294,7 +294,7 @@ static GrSurfaceProxyView decimate(GrRecordingContext* context,
 
         dstRenderTargetContext = GrRenderTargetContext::Make(
                 context, srcColorType, finalCS, SkBackingFit::kApprox,
-                {dstRect.fRight, dstRect.fBottom}, 1, GrMipMapped::kNo,
+                {dstRect.fRight, dstRect.fBottom}, 1, GrMipmapped::kNo,
                 srcView.proxy()->isProtected(), srcView.origin());
         if (!dstRenderTargetContext) {
             return {};
@@ -359,7 +359,7 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(GrRecordingContext* conte
     src.reset(); // no longer needed
 
     auto dstRenderTargetContext = GrRenderTargetContext::Make(
-            context, srcColorType, std::move(colorSpace), fit, dstSize, 1, GrMipMapped::kNo,
+            context, srcColorType, std::move(colorSpace), fit, dstSize, 1, GrMipmapped::kNo,
             srcView.proxy()->isProtected(), srcView.origin());
     if (!dstRenderTargetContext) {
         return nullptr;

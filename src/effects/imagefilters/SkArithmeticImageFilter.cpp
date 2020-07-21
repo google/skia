@@ -371,7 +371,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox, bounds.size(),
-            1, GrMipMapped::kNo, isProtected, kBottomLeft_GrSurfaceOrigin);
+            1, GrMipmapped::kNo, isProtected, kBottomLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }

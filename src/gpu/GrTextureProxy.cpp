@@ -18,7 +18,7 @@
 // Deferred version - no data
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrMipMapped mipMapped,
+                               GrMipmapped mipMapped,
                                GrMipMapsStatus mipMapsStatus,
                                SkBackingFit fit,
                                SkBudgeted budgeted,
@@ -40,7 +40,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrMipMapped mipMapped,
+                               GrMipmapped mipMapped,
                                GrMipMapsStatus mipMapsStatus,
                                SkBackingFit fit,
                                SkBudgeted budgeted,
@@ -135,7 +135,7 @@ void GrTextureProxyPriv::resetDeferredUploader() {
     fTextureProxy->fDeferredUploader.reset();
 }
 
-GrMipMapped GrTextureProxy::mipMapped() const {
+GrMipmapped GrTextureProxy::mipMapped() const {
     if (this->isInstantiated()) {
         return this->peekTexture()->texturePriv().mipMapped();
     }
@@ -209,8 +209,8 @@ void GrTextureProxy::onValidateSurface(const GrSurface* surface) {
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asTexture());
     // It is possible to fulfill a non-mipmapped proxy with a mipmapped texture.
-    SkASSERT(GrMipMapped::kNo == this->proxyMipMapped() ||
-             GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
+    SkASSERT(GrMipmapped::kNo == this->proxyMipMapped() ||
+             GrMipmapped::kYes == surface->asTexture()->texturePriv().mipMapped());
 
     SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
 

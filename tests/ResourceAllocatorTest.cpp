@@ -33,7 +33,7 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
                                            const ProxyParams& p) {
     const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
     return proxyProvider->createProxy(format, {p.fSize, p.fSize}, p.fRenderable, p.fSampleCnt,
-                                      GrMipMapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
+                                      GrMipmapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext,
@@ -45,7 +45,7 @@ static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext,
     SkASSERT(SkColorType::kUnknown_SkColorType != skColorType);
 
     CreateBackendTexture(dContext, backendTex, p.fSize, p.fSize, skColorType,
-                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo);
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo);
 
     if (!backendTex->isValid()) {
         return nullptr;
@@ -276,7 +276,7 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
     SkISize dims = {p.fSize, p.fSize};
     return proxyProvider->createLazyProxy(callback, format, dims, p.fRenderable, p.fSampleCnt,
-                                          GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, flags,
+                                          GrMipmapped::kNo, GrMipMapsStatus::kNotAllocated, flags,
                                           p.fFit, p.fBudgeted, GrProtected::kNo,
                                           GrSurfaceProxy::UseAllocator::kYes);
 }

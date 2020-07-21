@@ -127,7 +127,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         SkISize dimensions,
         const GrBackendFormat& format,
         int sampleCnt,
-        GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
@@ -163,7 +163,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         SkBackingFit fit,
         SkISize dimensions,
         int sampleCnt,
-        GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
@@ -222,7 +222,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeWithFallback(
         SkBackingFit fit,
         SkISize dimensions,
         int sampleCnt,
-        GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
@@ -370,11 +370,11 @@ inline GrAAType GrRenderTargetContext::chooseAAType(GrAA aa) {
     return (this->numSamples() > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
 }
 
-GrMipMapped GrRenderTargetContext::mipMapped() const {
+GrMipmapped GrRenderTargetContext::mipMapped() const {
     if (const GrTextureProxy* proxy = this->asTextureProxy()) {
         return proxy->mipMapped();
     }
-    return GrMipMapped::kNo;
+    return GrMipmapped::kNo;
 }
 
 GrOpsTask* GrRenderTargetContext::getOpsTask() {
@@ -2093,7 +2093,7 @@ bool GrRenderTargetContext::setupDstProxyView(const GrOp& op,
         fit = SkBackingFit::kApprox;
     }
     auto copy =
-            GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), this->origin(), GrMipMapped::kNo,
+            GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), this->origin(), GrMipmapped::kNo,
                                  copyRect, fit, SkBudgeted::kYes, restrictions.fRectsMustMatch);
     SkASSERT(copy);
 

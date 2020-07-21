@@ -183,7 +183,7 @@ protected:
         GrBackendTexture resultTexture = context->createBackendTexture(
                 fRGBABmp.dimensions().width(), fRGBABmp.dimensions().height(),
                 kRGBA_8888_SkColorType, SkColors::kTransparent,
-                GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo,
+                GrMipmapped::kNo, GrRenderable::kYes, GrProtected::kNo,
                 YUVABackendReleaseContext::CreationCompleteProc(0),
                 rgbaReleaseContext);
         if (!resultTexture.isValid()) {

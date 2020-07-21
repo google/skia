@@ -87,7 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
 
     sk_sp<SkBaseDevice> gpuDev(SkGpuDevice::Make(context, SkBudgeted::kNo, ii,
                                                  1, kBottomLeft_GrSurfaceOrigin, nullptr,
-                                                 GrMipMapped::kNo,
+                                                 GrMipmapped::kNo,
                                                  SkGpuDevice::kClear_InitContents));
 
     SkBitmap bm;

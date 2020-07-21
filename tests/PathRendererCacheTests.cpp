@@ -85,7 +85,7 @@ static void test_path(skiatest::Reporter* reporter,
 
     auto rtc = GrRenderTargetContext::Make(
             dContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800}, 1,
-            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtc) {
         return;
     }

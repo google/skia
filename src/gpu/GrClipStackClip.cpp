@@ -359,7 +359,7 @@ GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* cont
 
     auto rtc = GrRenderTargetContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox,
-            {reducedClip.width(), reducedClip.height()}, 1, GrMipMapped::kNo, GrProtected::kNo,
+            {reducedClip.width(), reducedClip.height()}, 1, GrMipmapped::kNo, GrProtected::kNo,
             kMaskOrigin);
     if (!rtc) {
         return {};
@@ -492,7 +492,7 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
                                                 maskSpaceIBounds.size(),
                                                 GrRenderable::kNo,
                                                 1,
-                                                GrMipMapped::kNo,
+                                                GrMipmapped::kNo,
                                                 SkBackingFit::kApprox,
                                                 SkBudgeted::kYes,
                                                 GrProtected::kNo);

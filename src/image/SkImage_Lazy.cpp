@@ -230,7 +230,7 @@ bool SkImage_Lazy::onIsValid(GrRecordingContext* context) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipMapped mipMapped) const {
+GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipmapped mipMapped) const {
     if (!context) {
         return {};
     }
@@ -386,7 +386,7 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
  */
 GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
                                                       GrImageTexGenPolicy texGenPolicy,
-                                                      GrMipMapped mipMapped) const {
+                                                      GrMipmapped mipMapped) const {
     // Values representing the various texture lock paths we can take. Used for logging the path
     // taken to a histogram.
     enum LockTexturePath {
@@ -427,8 +427,8 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
                                      kLockTexturePathCount);
             GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
             GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
-            if (mipMapped == GrMipMapped::kNo ||
-                view.asTextureProxy()->mipMapped() == GrMipMapped::kYes) {
+            if (mipMapped == GrMipmapped::kNo ||
+                view.asTextureProxy()->mipMapped() == GrMipmapped::kYes) {
                 return view;
             } else {
                 // We need a mipped proxy, but we found a cached proxy that wasn't mipped. Thus we
@@ -462,7 +462,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
 
     // 3. Ask the generator to return YUV planes, which the GPU can convert. If we will be mipping
     //    the texture we skip this step so the CPU generate non-planar MIP maps for us.
-    if (mipMapped == GrMipMapped::kNo && !ctx->priv().options().fDisableGpuYUVConversion) {
+    if (mipMapped == GrMipmapped::kNo && !ctx->priv().options().fDisableGpuYUVConversion) {
         SkColorType colorType = this->colorType();
 
         ScopedGenerator generator(fSharedGenerator);

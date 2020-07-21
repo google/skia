@@ -43,7 +43,7 @@ public:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView refView(GrRecordingContext*, GrMipMapped) const override;
+    GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const override;
     sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
                                   SkYUVColorSpace*, const void* planes[4]) override;
 #endif
@@ -62,7 +62,7 @@ public:
     // cached in CPU memory. We will always cache the generated texture on success.
     GrSurfaceProxyView lockTextureProxyView(GrRecordingContext*,
                                             GrImageTexGenPolicy,
-                                            GrMipMapped) const;
+                                            GrMipmapped) const;
 
     // Returns the GrColorType to use with the GrTextureProxy returned from lockTextureProxy. This
     // may be different from the color type on the image in the case where we need up upload CPU

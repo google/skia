@@ -82,7 +82,7 @@ public:
     const char* name() const override { return "CopyAtlasOp (CCPR)"; }
 
     void visitProxies(const VisitProxyFunc& fn) const override {
-        fn(fSrcProxy.get(), GrMipMapped::kNo);
+        fn(fSrcProxy.get(), GrMipmapped::kNo);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

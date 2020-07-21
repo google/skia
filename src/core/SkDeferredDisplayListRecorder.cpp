@@ -27,7 +27,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         const GrBackendFormat& backendFormat,
         int width,
         int height,
-        GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
         GrSurfaceOrigin origin,
         SkColorType colorType,
         SkAlphaType alphaType,
@@ -147,8 +147,8 @@ bool SkDeferredDisplayListRecorder::init() {
                fCharacterization.isTextureable()) {
         surfaceFlags |= GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
     }
-    // FIXME: Why do we use GrMipMapped::kNo instead of SkSurfaceCharacterization::fIsMipMapped?
-    static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipMapped::kNo,
+    // FIXME: Why do we use GrMipmapped::kNo instead of SkSurfaceCharacterization::fIsMipMapped?
+    static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipmapped::kNo,
                                                                GrTextureType::k2D};
     const GrProxyProvider::TextureInfo* optionalTextureInfo = nullptr;
     if (fCharacterization.isTextureable()) {
@@ -235,7 +235,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         const GrBackendFormat& backendFormat,
         int width,
         int height,
-        GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
         GrSurfaceOrigin origin,
         SkColorType colorType,
         SkAlphaType alphaType,

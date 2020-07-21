@@ -31,25 +31,25 @@ public:
     // claim to not need mips at creation time, but the instantiation happens to give us a mipped
     // target. In that case we should use that for our benefit to avoid possible copies/mip
     // generation later.
-    GrMipMapped mipMapped() const;
+    GrMipmapped mipMapped() const;
 
     bool mipMapsAreDirty() const {
-        SkASSERT((GrMipMapped::kNo == fMipMapped) ==
+        SkASSERT((GrMipmapped::kNo == fMipMapped) ==
                  (GrMipMapsStatus::kNotAllocated == fMipMapsStatus));
-        return GrMipMapped::kYes == fMipMapped && GrMipMapsStatus::kValid != fMipMapsStatus;
+        return GrMipmapped::kYes == fMipMapped && GrMipMapsStatus::kValid != fMipMapsStatus;
     }
     void markMipMapsDirty() {
-        SkASSERT(GrMipMapped::kYes == fMipMapped);
+        SkASSERT(GrMipmapped::kYes == fMipMapped);
         fMipMapsStatus = GrMipMapsStatus::kDirty;
     }
     void markMipMapsClean() {
-        SkASSERT(GrMipMapped::kYes == fMipMapped);
+        SkASSERT(GrMipmapped::kYes == fMipMapped);
         fMipMapsStatus = GrMipMapsStatus::kValid;
     }
 
-    // Returns the GrMipMapped value of the proxy from creation time regardless of whether it has
+    // Returns the GrMipmapped value of the proxy from creation time regardless of whether it has
     // been instantiated or not.
-    GrMipMapped proxyMipMapped() const { return fMipMapped; }
+    GrMipmapped proxyMipMapped() const { return fMipMapped; }
 
     GrTextureType textureType() const { return this->backendFormat().textureType(); }
 
@@ -113,7 +113,7 @@ protected:
     // Deferred version - no data.
     GrTextureProxy(const GrBackendFormat&,
                    SkISize,
-                   GrMipMapped,
+                   GrMipmapped,
                    GrMipMapsStatus,
                    SkBackingFit,
                    SkBudgeted,
@@ -135,7 +135,7 @@ protected:
     GrTextureProxy(LazyInstantiateCallback&&,
                    const GrBackendFormat&,
                    SkISize,
-                   GrMipMapped,
+                   GrMipmapped,
                    GrMipMapsStatus,
                    SkBackingFit,
                    SkBudgeted,
@@ -165,7 +165,7 @@ private:
     // that particular class don't require it. Changing the size of this object can move the start
     // address of other types, leading to this problem.
 
-    GrMipMapped      fMipMapped;
+    GrMipmapped      fMipMapped;
 
     // This tracks the mipmap status at the proxy level and is thus somewhat distinct from the
     // backing GrTexture's mipmap status. In particular, this status is used to determine when

@@ -208,7 +208,7 @@ static void gpu_tests(GrDirectContext* dContext,
                                                         markFinished, &finishedBECreate);
         } else {
             backendTex = dContext->createBackendTexture(kSize, kSize, test.fColorType,
-                                                        SkColors::kWhite, GrMipMapped::kNo,
+                                                        SkColors::kWhite, GrMipmapped::kNo,
                                                         GrRenderable::kNo, GrProtected::kNo,
                                                         markFinished, &finishedBECreate);
         }

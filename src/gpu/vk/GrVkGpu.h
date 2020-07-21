@@ -194,11 +194,11 @@ private:
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
-                                            GrMipMapped,
+                                            GrMipmapped,
                                             GrProtected) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
-                                                      GrMipMapped,
+                                                      GrMipmapped,
                                                       GrProtected) override;
 
     bool onUpdateBackendTexture(const GrBackendTexture&,
@@ -225,7 +225,7 @@ private:
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
                                                SkBudgeted,
-                                               GrMipMapped,
+                                               GrMipmapped,
                                                GrProtected,
                                                const void* data, size_t dataSize) override;
 
@@ -307,7 +307,7 @@ private:
     bool uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int width, int height,
                               GrColorType colorType, const GrMipLevel texels[], int mipLevelCount);
     bool uploadTexDataCompressed(GrVkTexture* tex, SkImage::CompressionType compression,
-                                 VkFormat vkFormat, SkISize dimensions, GrMipMapped mipMapped,
+                                 VkFormat vkFormat, SkISize dimensions, GrMipmapped mipMapped,
                                  const void* data, size_t dataSize);
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
@@ -316,7 +316,7 @@ private:
                                         SkISize dimensions,
                                         GrTexturable,
                                         GrRenderable,
-                                        GrMipMapped,
+                                        GrMipmapped,
                                         GrVkImageInfo*,
                                         GrProtected);
 

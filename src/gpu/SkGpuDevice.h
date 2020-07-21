@@ -56,7 +56,7 @@ public:
      */
     static sk_sp<SkGpuDevice> Make(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
                                    int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
-                                   GrMipMapped mipMapped, InitContents);
+                                   GrMipmapped mipMapped, InitContents);
 
     ~SkGpuDevice() override {}
 
@@ -176,7 +176,7 @@ private:
                                                                           int sampleCount,
                                                                           GrSurfaceOrigin,
                                                                           const SkSurfaceProps*,
-                                                                          GrMipMapped);
+                                                                          GrMipmapped);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps

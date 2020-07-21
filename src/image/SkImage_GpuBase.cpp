@@ -143,7 +143,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
     const GrSurfaceProxyView* view = this->view(direct);
     SkASSERT(view && view->proxy());
 
-    auto copyView = GrSurfaceProxyView::Copy(direct, *view, GrMipMapped::kNo, subset,
+    auto copyView = GrSurfaceProxyView::Copy(direct, *view, GrMipmapped::kNo, subset,
                                              SkBackingFit::kExact, view->proxy()->isBudgeted());
 
     if (!copyView) {
@@ -182,7 +182,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 }
 
 GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
-                                            GrMipMapped mipMapped) const {
+                                            GrMipmapped mipMapped) const {
     if (!context || !fContext->priv().matches(context)) {
         SkASSERT(0);
         return {};
@@ -332,7 +332,7 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
 
 sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         GrRecordingContext* context, int width, int height,
-        GrBackendFormat backendFormat, GrMipMapped mipMapped,
+        GrBackendFormat backendFormat, GrMipmapped mipMapped,
         PromiseImageTextureFulfillProc fulfillProc, PromiseImageTextureReleaseProc releaseProc,
         PromiseImageTextureDoneProc doneProc, PromiseImageTextureContext textureContext,
         PromiseImageApiVersion version) {
@@ -345,7 +345,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         return nullptr;
     }
 
-    if (mipMapped == GrMipMapped::kYes &&
+    if (mipMapped == GrMipmapped::kYes &&
         GrTextureTypeHasRestrictedSampling(backendFormat.textureType())) {
         // It is invalid to have a GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE and have mips as
         // well.
@@ -494,7 +494,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
     // mipmaps are fully fleshed out.
-    GrMipMapsStatus mipMapsStatus = (GrMipMapped::kYes == mipMapped)
+    GrMipMapsStatus mipMapsStatus = (GrMipmapped::kYes == mipMapped)
             ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
 
     // We pass kReadOnly here since we should treat content of the client's texture as immutable.

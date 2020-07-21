@@ -26,7 +26,7 @@ DEF_SIMPLE_GPU_GM(swizzle, ctx, rtCtx, canvas, 512, 512) {
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
     GrBitmapTextureMaker maker(ctx, bmp, GrImageTexGenPolicy::kDraw);
-    auto view = maker.view(GrMipMapped::kNo);
+    auto view = maker.view(GrMipmapped::kNo);
     if (!view) {
         return;
     }

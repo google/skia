@@ -37,9 +37,9 @@ private:
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
      *  caching of the original if desired.
      */
-    virtual GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) = 0;
+    virtual GrSurfaceProxyView refOriginalTextureProxyView(GrMipmapped) = 0;
 
-    GrSurfaceProxyView onView(GrMipMapped) final;
+    GrSurfaceProxyView onView(GrMipmapped) final;
 
     typedef GrTextureProducer INHERITED;
 };

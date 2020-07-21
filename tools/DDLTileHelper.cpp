@@ -192,7 +192,7 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImage(SkDeferredDisplayListRe
                                     fCallbackContext->backendFormat(),
                                     fClip.width(),
                                     fClip.height(),
-                                    GrMipMapped::kNo,
+                                    GrMipmapped::kNo,
                                     GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
                                     fCharacterization.colorType(),
                                     kPremul_SkAlphaType,

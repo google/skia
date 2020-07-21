@@ -277,7 +277,7 @@ public:
         const GrSurfaceProxyView* views = fAtlas->getViews();
         for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
             SkASSERT(views[i].proxy());
-            func(views[i].proxy(), GrMipMapped::kNo);
+            func(views[i].proxy(), GrMipmapped::kNo);
         }
     }
 

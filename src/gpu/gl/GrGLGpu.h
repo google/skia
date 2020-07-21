@@ -195,12 +195,12 @@ private:
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
-                                            GrMipMapped,
+                                            GrMipmapped,
                                             GrProtected) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
-                                                      GrMipMapped,
+                                                      GrMipmapped,
                                                       GrProtected) override;
 
     bool onUpdateBackendTexture(const GrBackendTexture&,
@@ -230,7 +230,7 @@ private:
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
                                                SkBudgeted,
-                                               GrMipMapped,
+                                               GrMipmapped,
                                                GrProtected,
                                                const void* data, size_t dataSize) override;
 
@@ -272,7 +272,7 @@ private:
     GrGLuint createCompressedTexture2D(SkISize dimensions,
                                        SkImage::CompressionType compression,
                                        GrGLFormat,
-                                       GrMipMapped,
+                                       GrMipmapped,
                                        GrGLTextureParameters::SamplerOverriddenState*);
 
     bool onReadPixels(GrSurface*, int left, int top, int width, int height,
@@ -455,7 +455,7 @@ private:
     bool uploadCompressedTexData(SkImage::CompressionType compressionType,
                                  GrGLFormat,
                                  SkISize dimensions,
-                                 GrMipMapped,
+                                 GrMipmapped,
                                  GrGLenum target,
                                  const void* data, size_t dataSize);
 

@@ -231,7 +231,7 @@ public:
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendTexture(int width,
                      int height,
-                     GrMipMapped,
+                     GrMipmapped,
                      const GrGLTextureInfo& glInfo);
 
 #ifdef SK_VULKAN
@@ -243,7 +243,7 @@ public:
 #ifdef SK_METAL
     GrBackendTexture(int width,
                      int height,
-                     GrMipMapped,
+                     GrMipmapped,
                      const GrMtlTextureInfo& mtlInfo);
 #endif
 
@@ -261,7 +261,7 @@ public:
 
     GrBackendTexture(int width,
                      int height,
-                     GrMipMapped,
+                     GrMipmapped,
                      const GrMockTextureInfo& mockInfo);
 
     GrBackendTexture(const GrBackendTexture& that);
@@ -273,7 +273,7 @@ public:
     SkISize dimensions() const { return {fWidth, fHeight}; }
     int width() const { return fWidth; }
     int height() const { return fHeight; }
-    bool hasMipMaps() const { return GrMipMapped::kYes == fMipMapped; }
+    bool hasMipMaps() const { return GrMipmapped::kYes == fMipMapped; }
     GrBackendApi backend() const {return fBackend; }
 
     // If the backend API is GL, copies a snapshot of the GrGLTextureInfo struct into the passed in
@@ -352,7 +352,7 @@ private:
     friend class GrGLGpu;    // for getGLTextureParams
     GrBackendTexture(int width,
                      int height,
-                     GrMipMapped,
+                     GrMipmapped,
                      const GrGLTextureInfo,
                      sk_sp<GrGLTextureParameters>);
     sk_sp<GrGLTextureParameters> getGLTextureParams() const;
@@ -382,7 +382,7 @@ private:
     bool fIsValid;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
-    GrMipMapped fMipMapped;
+    GrMipmapped fMipMapped;
     GrBackendApi fBackend;
 
     union {

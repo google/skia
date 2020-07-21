@@ -720,9 +720,9 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, GrStagingBufferManager* stagingB
                               SkTArray<size_t>* individualMipOffsets,
                               GrStagingBufferManager::Slice* slice,
                               SkImage::CompressionType compression,
-                              VkFormat vkFormat, SkISize dimensions, GrMipMapped mipMapped) {
+                              VkFormat vkFormat, SkISize dimensions, GrMipmapped mipMapped) {
     int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
+    if (mipMapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -738,7 +738,7 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, GrStagingBufferManager* stagingB
                                                               numMipLevels);
     } else {
         combinedBufferSize = SkCompressedDataSize(compression, dimensions, individualMipOffsets,
-                                                  mipMapped == GrMipMapped::kYes);
+                                                  mipMapped == GrMipmapped::kYes);
     }
     SkASSERT(individualMipOffsets->count() == numMipLevels);
 
@@ -962,7 +962,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 // but for now it's easier to maintain as a separate entity.
 bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
                                       SkImage::CompressionType compression, VkFormat vkFormat,
-                                      SkISize dimensions, GrMipMapped mipMapped,
+                                      SkISize dimensions, GrMipmapped mipMapped,
                                       const void* data, size_t dataSize) {
     if (!this->currentCommandBuffer()) {
         return false;
@@ -1018,7 +1018,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// TODO: make this take a GrMipMapped
+// TODO: make this take a GrMipmapped
 sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
@@ -1110,7 +1110,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
 sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const GrBackendFormat& format,
                                                     SkBudgeted budgeted,
-                                                    GrMipMapped mipMapped,
+                                                    GrMipmapped mipMapped,
                                                     GrProtected isProtected,
                                                     const void* data, size_t dataSize) {
     VkFormat pixelFormat;
@@ -1128,7 +1128,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
     int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
+    if (mipMapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
     }
 
@@ -1144,7 +1144,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fIsProtected = isProtected;
 
-    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipMapped::kYes)
+    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipmapped::kYes)
                                                                 ? GrMipMapsStatus::kValid
                                                                 : GrMipMapsStatus::kNotAllocated;
 
@@ -1554,7 +1554,7 @@ bool copy_compressed_data(GrVkGpu* gpu, char* mapPtr,
 
 bool generate_compressed_data(GrVkGpu* gpu, char* mapPtr,
                               SkImage::CompressionType compression, SkISize dimensions,
-                              GrMipMapped mipMapped, const SkColor4f& color) {
+                              GrMipmapped mipMapped, const SkColor4f& color) {
     SkASSERT(mapPtr);
     GrFillInCompressedData(compression, dimensions, mipMapped, mapPtr, color);
 
@@ -1565,7 +1565,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                              SkISize dimensions,
                                              GrTexturable texturable,
                                              GrRenderable renderable,
-                                             GrMipMapped mipMapped,
+                                             GrMipmapped mipMapped,
                                              GrVkImageInfo* info,
                                              GrProtected isProtected) {
     SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
@@ -1583,7 +1583,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     }
 
     int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
+    if (mipMapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -1712,7 +1712,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  GrRenderable renderable,
-                                                 GrMipMapped mipMapped,
+                                                 GrMipmapped mipMapped,
                                                  GrProtected isProtected) {
     this->handleDirtyContext();
 
@@ -1747,7 +1747,7 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
 }
 
 GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
-        SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
+        SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipMapped,
         GrProtected isProtected) {
     return this->onCreateBackendTexture(dimensions, format, GrRenderable::kNo, mipMapped,
                                         isProtected);
@@ -1935,7 +1935,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
 
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, {w, h}, GrTexturable::kNo,
-                                              GrRenderable::kYes, GrMipMapped::kNo,
+                                              GrRenderable::kYes, GrMipmapped::kNo,
                                               &info, GrProtected::kNo)) {
       return {};
     }

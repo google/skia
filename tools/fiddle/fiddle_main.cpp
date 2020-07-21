@@ -155,7 +155,7 @@ static bool setup_backend_objects(GrContext* context,
             }
             pixmap = &rgbaPixmap;
         }
-        int mipLevelCount = GrMipMapped::kYes == options.fMipMapping
+        int mipLevelCount = GrMipmapped::kYes == options.fMipMapping
                                     ? SkMipmap::ComputeLevelCount(bm.width(), bm.height())
                                     : 1;
         std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
@@ -212,7 +212,7 @@ static bool setup_backend_objects(GrContext* context,
 
     {
         int mipLevelCount =
-                GrMipMapped::kYes == options.fOffScreenMipMapping
+                GrMipmapped::kYes == options.fOffScreenMipMapping
                         ? SkMipmap::ComputeLevelCount(offscreenDims.width(), offscreenDims.height())
                         : 1;
         std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);

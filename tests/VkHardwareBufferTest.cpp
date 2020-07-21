@@ -262,7 +262,7 @@ sk_sp<SkImage> EGLTestHelper::importHardwareBufferForRead(skiatest::Reporter* re
     textureInfo.fID = fTexID;
     textureInfo.fFormat = GR_GL_RGBA8;
 
-    GrBackendTexture backendTex(DEV_W, DEV_H, GrMipMapped::kNo, textureInfo);
+    GrBackendTexture backendTex(DEV_W, DEV_H, GrMipmapped::kNo, textureInfo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     sk_sp<SkImage> image = SkImage::MakeFromTexture(fDirectContext,
@@ -290,7 +290,7 @@ sk_sp<SkSurface> EGLTestHelper::importHardwareBufferForWrite(skiatest::Reporter*
     textureInfo.fID = fTexID;
     textureInfo.fFormat = GR_GL_RGBA8;
 
-    GrBackendTexture backendTex(DEV_W, DEV_H, GrMipMapped::kNo, textureInfo);
+    GrBackendTexture backendTex(DEV_W, DEV_H, GrMipmapped::kNo, textureInfo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(fDirectContext,

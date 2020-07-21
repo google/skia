@@ -106,7 +106,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     }
     for (int i = 0; i < fNumViews; ++i) {
         auto* t = fViews[i].asTextureProxy();
-        if (t->mipMapped() == GrMipMapped::kNo && (t->width() > 1 || t->height() > 1)) {
+        if (t->mipMapped() == GrMipmapped::kNo && (t->width() > 1 || t->height() > 1)) {
             if (!(newViews[i] = GrCopyBaseMipMapToView(context, fViews[i]))) {
                 return false;
             }
@@ -160,7 +160,7 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, this->refColorSpace(), SkBackingFit::kExact,
-            this->dimensions(), 1, GrMipMapped::kNo, GrProtected::kNo, fOrigin);
+            this->dimensions(), 1, GrMipmapped::kNo, GrProtected::kNo, fOrigin);
     if (!renderTargetContext) {
         return;
     }
@@ -187,7 +187,7 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
 GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) const {
     // if invalid or already has miplevels
     this->flattenToRGB(context);
-    if (!fRGBView || fRGBView.asTextureProxy()->mipMapped() == GrMipMapped::kYes) {
+    if (!fRGBView || fRGBView.asTextureProxy()->mipMapped() == GrMipmapped::kYes) {
         return fRGBView;
     }
 
@@ -309,7 +309,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrContext* context, SkYUVColorSpace 
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
         GrBitmapTextureMaker bitmapMaker(context, bmp, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
+        GrMipmapped mipMapped = buildMips ? GrMipmapped::kYes : GrMipmapped::kNo;
         GrSurfaceProxyView view;
         tempViews[i] = bitmapMaker.view(mipMapped);
         if (!tempViews[i]) {
@@ -391,7 +391,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
         auto proxy = MakePromiseImageLazyProxy(
                 context, yuvaSizes[texIdx].width(), yuvaSizes[texIdx].height(),
-                yuvaFormats[texIdx], GrMipMapped::kNo, textureFulfillProc, textureReleaseProc,
+                yuvaFormats[texIdx], GrMipmapped::kNo, textureFulfillProc, textureReleaseProc,
                 promiseDoneProc, textureContexts[texIdx], version);
         ++proxiesCreated;
         if (!proxy) {

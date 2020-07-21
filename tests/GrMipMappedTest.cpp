@@ -39,7 +39,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
         return;
     }
 
-    for (auto mipMapped : {GrMipMapped::kNo, GrMipMapped::kYes}) {
+    for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             // createBackendTexture currently doesn't support uploading data to mip maps
             // so we don't send any. However, we pretend there is data for the checks below which is
@@ -91,15 +91,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                 return;
             }
 
-            if (GrMipMapped::kYes == mipMapped) {
-                REPORTER_ASSERT(reporter, GrMipMapped::kYes == texture->texturePriv().mipMapped());
+            if (GrMipmapped::kYes == mipMapped) {
+                REPORTER_ASSERT(reporter, GrMipmapped::kYes == texture->texturePriv().mipMapped());
                 if (GrRenderable::kYes == renderable) {
                     REPORTER_ASSERT(reporter, texture->texturePriv().mipMapsAreDirty());
                 } else {
                     REPORTER_ASSERT(reporter, !texture->texturePriv().mipMapsAreDirty());
                 }
             } else {
-                REPORTER_ASSERT(reporter, GrMipMapped::kNo == texture->texturePriv().mipMapped());
+                REPORTER_ASSERT(reporter, GrMipmapped::kNo == texture->texturePriv().mipMapped());
             }
             context->deleteBackendTexture(backendTex);
         }
@@ -114,8 +114,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
         return;
     }
 
-    for (auto betMipMapped : {GrMipMapped::kNo, GrMipMapped::kYes}) {
-        for (auto requestMipMapped : {GrMipMapped::kNo, GrMipMapped::kYes}) {
+    for (auto betMipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
+        for (auto requestMipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
             GrBackendTexture backendTex;
             CreateBackendTexture(context, &backendTex, kSize, kSize, kRGBA_8888_SkColorType,
                                  SkColors::kTransparent, betMipMapped, GrRenderable::kNo);
@@ -190,7 +190,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 GrGLTextureInfo origTexInfo;
                 if (genBackendTex.getGLTextureInfo(&genTexInfo) &&
                     backendTex.getGLTextureInfo(&origTexInfo)) {
-                    if (requestMipMapped == GrMipMapped::kYes && betMipMapped == GrMipMapped::kNo) {
+                    if (requestMipMapped == GrMipmapped::kYes && betMipMapped == GrMipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origTexInfo.fID != genTexInfo.fID);
                     } else {
@@ -205,7 +205,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 GrVkImageInfo origImageInfo;
                 if (genBackendTex.getVkImageInfo(&genImageInfo) &&
                     backendTex.getVkImageInfo(&origImageInfo)) {
-                    if (requestMipMapped == GrMipMapped::kYes && betMipMapped == GrMipMapped::kNo) {
+                    if (requestMipMapped == GrMipmapped::kYes && betMipMapped == GrMipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origImageInfo.fImage != genImageInfo.fImage);
                     } else {
@@ -221,7 +221,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 GrMtlTextureInfo origImageInfo;
                 if (genBackendTex.getMtlTextureInfo(&genImageInfo) &&
                     backendTex.getMtlTextureInfo(&origImageInfo)) {
-                    if (requestMipMapped == GrMipMapped::kYes && betMipMapped == GrMipMapped::kNo) {
+                    if (requestMipMapped == GrMipmapped::kYes && betMipMapped == GrMipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origImageInfo.fTexture != genImageInfo.fTexture);
                     } else {
@@ -258,7 +258,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 
     for (auto willUseMips : {false, true}) {
         for (auto isWrapped : {false, true}) {
-            GrMipMapped mipMapped = willUseMips ? GrMipMapped::kYes : GrMipMapped::kNo;
+            GrMipmapped mipMapped = willUseMips ? GrMipmapped::kYes : GrMipmapped::kNo;
             sk_sp<SkSurface> surface;
             GrBackendTexture backendTex;
             CreateBackendTexture(context, &backendTex, kSize, kSize, kRGBA_8888_SkColorType,
@@ -352,7 +352,7 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
         GrRecordingContext* context, GrProxyProvider* proxyProvider, GrColorType colorType,
         SkAlphaType alphaType, GrSurfaceProxyView mipmapView, GrSamplerState::Filter filter) {
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
-            mipmapView.proxy()->backendFormat(), {1, 1}, GrRenderable::kYes, 1, GrMipMapped::kNo,
+            mipmapView.proxy()->backendFormat(), {1, 1}, GrRenderable::kYes, 1, GrMipmapped::kNo,
             SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
 
     auto rtc = GrRenderTargetContext::Make(
@@ -396,7 +396,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         // Create a mipmapped render target.
 
         sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
-                format, {4, 4}, GrRenderable::kYes, 1, GrMipMapped::kYes, SkBackingFit::kExact,
+                format, {4, 4}, GrRenderable::kYes, 1, GrMipmapped::kYes, SkBackingFit::kExact,
                 SkBudgeted::kYes, GrProtected::kNo);
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked

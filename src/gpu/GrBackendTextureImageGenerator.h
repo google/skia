@@ -44,7 +44,7 @@ protected:
     }
 
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
-                                         GrMipMapped mipMapped, GrImageTexGenPolicy) override;
+                                         GrMipmapped mipMapped, GrImageTexGenPolicy) override;
 
 private:
     GrBackendTextureImageGenerator(const SkImageInfo& info, GrTexture*, GrSurfaceOrigin,

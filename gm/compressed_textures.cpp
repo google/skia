@@ -234,7 +234,7 @@ private:
             image = SkImage::MakeTextureFromCompressed(direct, std::move(data),
                                                        fImgDimensions.width(),
                                                        fImgDimensions.height(),
-                                                       compression, GrMipMapped::kYes);
+                                                       compression, GrMipmapped::kYes);
         } else {
             image = SkImage::MakeRasterFromCompressed(std::move(data),
                                                       fImgDimensions.width(),

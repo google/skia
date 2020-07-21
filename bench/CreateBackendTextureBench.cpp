@@ -13,11 +13,11 @@ class CreateBackendTextureBench : public Benchmark {
 private:
     SkString fName;
     SkTArray<GrBackendTexture> fBackendTextures;
-    GrMipMapped fMipMapped;
+    GrMipmapped fMipMapped;
 
 public:
-    CreateBackendTextureBench(GrMipMapped mipMapped) : fMipMapped(mipMapped) {
-        fName.printf("create_backend_texture%s", mipMapped == GrMipMapped::kYes ? "_mipped" : "");
+    CreateBackendTextureBench(GrMipmapped mipMapped) : fMipMapped(mipMapped) {
+        fName.printf("create_backend_texture%s", mipMapped == GrMipmapped::kYes ? "_mipped" : "");
     }
 
 private:
@@ -53,5 +53,5 @@ private:
     }
 };
 
-DEF_BENCH(return new CreateBackendTextureBench(GrMipMapped::kNo);)
-DEF_BENCH(return new CreateBackendTextureBench(GrMipMapped::kYes);)
+DEF_BENCH(return new CreateBackendTextureBench(GrMipmapped::kNo);)
+DEF_BENCH(return new CreateBackendTextureBench(GrMipmapped::kYes);)

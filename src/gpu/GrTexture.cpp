@@ -105,7 +105,7 @@ void GrTexturePriv::ComputeScratchKey(const GrCaps& caps,
                                       SkISize dimensions,
                                       GrRenderable renderable,
                                       int sampleCnt,
-                                      GrMipMapped mipMapped,
+                                      GrMipmapped mipMapped,
                                       GrProtected isProtected,
                                       GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();

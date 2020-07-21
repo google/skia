@@ -198,11 +198,11 @@ private:
             return fCallbackContexts[index];
         }
 
-        GrMipMapped mipMapped(int index) const {
+        GrMipmapped mipMapped(int index) const {
             if (this->isYUV()) {
-                return GrMipMapped::kNo;
+                return GrMipmapped::kNo;
             }
-            return fMipLevels ? GrMipMapped::kYes : GrMipMapped::kNo;
+            return fMipLevels ? GrMipmapped::kYes : GrMipmapped::kNo;
         }
         const GrBackendFormat& backendFormat(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));

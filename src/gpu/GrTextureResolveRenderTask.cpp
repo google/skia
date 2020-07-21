@@ -37,14 +37,14 @@ void GrTextureResolveRenderTask::addProxy(GrDrawingManager* drawingMgr,
 
     if (GrSurfaceProxy::ResolveFlags::kMipMaps & flags) {
         GrTextureProxy* textureProxy = proxy->asTextureProxy();
-        SkASSERT(GrMipMapped::kYes == textureProxy->mipMapped());
+        SkASSERT(GrMipmapped::kYes == textureProxy->mipMapped());
         SkASSERT(textureProxy->mipMapsAreDirty());
         textureProxy->markMipMapsClean();
     }
 
     // Add the proxy as a dependency: We will read the existing contents of this texture while
     // generating mipmap levels and/or resolving MSAA.
-    this->addDependency(drawingMgr, proxy, GrMipMapped::kNo,
+    this->addDependency(drawingMgr, proxy, GrMipmapped::kNo,
                         GrTextureResolveManager(nullptr), caps);
     this->addTarget(drawingMgr, GrSurfaceProxyView(std::move(proxyRef)));
 }

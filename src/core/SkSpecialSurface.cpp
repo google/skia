@@ -172,7 +172,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* c
     }
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, colorType, std::move(colorSpace), SkBackingFit::kApprox, {width, height}, 1,
-            GrMipMapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+            GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
             props);
     if (!renderTargetContext) {
         return nullptr;

@@ -38,11 +38,11 @@ class GLTestContext;
 struct DrawOptions {
     DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16,
                 bool textOnly, const char* s,
-                GrMipMapped mipMapping,
+                GrMipmapped mipMapping,
                 int offScreenWidth,
                 int offScreenHeight,
                 int offScreenSampleCount,
-                GrMipMapped offScreenMipMapping)
+                GrMipmapped offScreenMipMapping)
         : size(SkISize::Make(w, h))
         , raster(r)
         , gpu(g)
@@ -74,7 +74,7 @@ struct DrawOptions {
     // In this case the resource is created with extra room to accomodate mipmaps.
     // TODO: The SkImage::makeTextureImage API would need to be widened to allow this to be true
     // for the non-backend gpu SkImages.
-    GrMipMapped fMipMapping;
+    GrMipmapped fMipMapping;
 
     // Parameters for an GPU offscreen resource exposed as a GrBackendRenderTarget
     int         fOffScreenWidth;
@@ -82,7 +82,7 @@ struct DrawOptions {
     int         fOffScreenSampleCount;
     // TODO: should we also expose stencilBits here? How about the config?
 
-    GrMipMapped fOffScreenMipMapping; // only applicable if the offscreen is also textureable
+    GrMipmapped fOffScreenMipMapping; // only applicable if the offscreen is also textureable
 };
 
 extern DrawOptions GetDrawOptions();

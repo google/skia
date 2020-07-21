@@ -79,7 +79,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (this->isLazy()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, GrRenderable::kYes, GrMipMapped::kNo,
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, GrRenderable::kYes, GrMipmapped::kNo,
                                nullptr)) {
         return false;
     }
@@ -100,7 +100,7 @@ bool GrRenderTargetProxy::canChangeStencilAttachment() const {
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt,
-                                                       GrRenderable::kYes, GrMipMapped::kNo);
+                                                       GrRenderable::kYes, GrMipmapped::kNo);
     if (!surface) {
         return nullptr;
     }
@@ -118,7 +118,7 @@ size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) co
 
     // TODO: do we have enough information to improve this worst case estimate?
     return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                  colorSamplesPerPixel, GrMipMapped::kNo, !this->priv().isExact());
+                                  colorSamplesPerPixel, GrMipmapped::kNo, !this->priv().isExact());
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {
@@ -138,7 +138,7 @@ GrSurfaceProxy::LazySurfaceDesc GrRenderTargetProxy::callbackDesc() const {
             this->dimensions(),
             SkBackingFit::kExact,
             GrRenderable::kYes,
-            GrMipMapped::kNo,
+            GrMipmapped::kNo,
             this->numSamples(),
             this->backendFormat(),
             this->isProtected(),

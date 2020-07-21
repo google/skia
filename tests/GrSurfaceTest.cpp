@@ -34,7 +34,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     auto format = context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kYes);
     sk_sp<GrSurface> texRT1 =
-            resourceProvider->createTexture(kDesc, format, GrRenderable::kYes, 1, GrMipMapped::kNo,
+            resourceProvider->createTexture(kDesc, format, GrRenderable::kYes, 1, GrMipmapped::kNo,
                                             SkBudgeted::kNo, GrProtected::kNo);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
@@ -47,7 +47,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     sk_sp<GrTexture> tex1 =
-            resourceProvider->createTexture(kDesc, format, GrRenderable::kNo, 1, GrMipMapped::kNo,
+            resourceProvider->createTexture(kDesc, format, GrRenderable::kNo, 1, GrMipmapped::kNo,
                                             SkBudgeted::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
@@ -55,7 +55,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
 
     GrBackendTexture backendTex = context->createBackendTexture(
         256, 256, kRGBA_8888_SkColorType,
-        SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+        SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
             backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
@@ -93,12 +93,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             auto size = SkCompressedDataSize(compression, dimensions, nullptr, false);
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
-            GrFillInCompressedData(compression, dimensions, GrMipMapped::kNo,
+            GrFillInCompressedData(compression, dimensions, GrMipmapped::kNo,
                                    (char*)data->writable_data(), color);
             return rp->createCompressedTexture(dimensions, format, SkBudgeted::kNo,
-                                               GrMipMapped::kNo, GrProtected::kNo, data.get());
+                                               GrMipmapped::kNo, GrProtected::kNo, data.get());
         } else {
-            return rp->createTexture(dimensions, format, renderable, 1, GrMipMapped::kNo,
+            return rp->createTexture(dimensions, format, renderable, 1, GrMipmapped::kNo,
                                      SkBudgeted::kNo, GrProtected::kNo);
         }
     };
@@ -138,7 +138,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             bool expectedMipMapability = isTexturable && caps->mipMapSupport() && !isCompressed;
 
             sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                    combo.fFormat, kDims, GrRenderable::kNo, 1, GrMipMapped::kYes,
+                    combo.fFormat, kDims, GrRenderable::kNo, 1, GrMipmapped::kYes,
                     SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) == expectedMipMapability,
                             "ct:%s format:%s, tex:%d, expectedMipMapability:%d",
@@ -151,7 +151,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             bool isRenderable = caps->isFormatRenderable(combo.fFormat, 1);
 
             sk_sp<GrSurface> tex = resourceProvider->createTexture(
-                    kDims, combo.fFormat, GrRenderable::kYes, 1, GrMipMapped::kNo, SkBudgeted::kNo,
+                    kDims, combo.fFormat, GrRenderable::kYes, 1, GrMipmapped::kNo, SkBudgeted::kNo,
                     GrProtected::kNo);
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "ct:%s format:%s, tex:%d, isRenderable:%d",
@@ -164,7 +164,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             bool isRenderable = caps->isFormatRenderable(combo.fFormat, 2);
 
             sk_sp<GrSurface> tex = resourceProvider->createTexture(
-                    kDims, combo.fFormat, GrRenderable::kYes, 2, GrMipMapped::kNo, SkBudgeted::kNo,
+                    kDims, combo.fFormat, GrRenderable::kYes, 2, GrMipmapped::kNo, SkBudgeted::kNo,
                     GrProtected::kNo);
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "ct:%s format:%s, tex:%d, isRenderable:%d",
@@ -290,12 +290,12 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         if (renderable == GrRenderable::kYes) {
                             surfCtx = GrRenderTargetContext::Make(
                                     context, combo.fColorType, nullptr, fit,
-                                    {desc.fWidth, desc.fHeight}, 1, GrMipMapped::kNo,
+                                    {desc.fWidth, desc.fHeight}, 1, GrMipmapped::kNo,
                                     GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
                         } else {
                             surfCtx = GrSurfaceContext::Make(
                                     context, {desc.fWidth, desc.fHeight}, combo.fFormat,
-                                    GrRenderable::kNo, 1, GrMipMapped::kNo, GrProtected::kNo,
+                                    GrRenderable::kNo, 1, GrMipmapped::kNo, GrProtected::kNo,
                                     kTopLeft_GrSurfaceOrigin, combo.fColorType,
                                     kUnknown_SkAlphaType, nullptr, fit, SkBudgeted::kYes);
                         }
@@ -400,7 +400,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
         GrBitmapTextureMaker maker(context, copySrcBitmap,
                                    GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto copySrc = maker.view(GrMipMapped::kNo);
+        auto copySrc = maker.view(GrMipmapped::kNo);
 
         REPORTER_ASSERT(reporter, copySrc.proxy());
         auto copyResult = surfContext->testCopy(copySrc.proxy());
@@ -417,7 +417,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
             DeleteBackendTexture(context, backendTex);
             backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes,
+                    SkColors::kTransparent, GrMipmapped::kYes, GrRenderable::kYes,
                     GrProtected::kNo);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
                                                       GrWrapCacheable::kNo, ioType);
@@ -436,7 +436,7 @@ static const int kSurfSize = 10;
 static sk_sp<GrTexture> make_wrapped_texture(GrDirectContext* dContext, GrRenderable renderable) {
     GrBackendTexture backendTexture;
     CreateBackendTexture(dContext, &backendTexture, kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipMapped::kNo, renderable, GrProtected::kNo);
+                         SkColors::kTransparent, GrMipmapped::kNo, renderable, GrProtected::kNo);
     SkASSERT(backendTexture.isValid());
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
@@ -467,7 +467,7 @@ static sk_sp<GrTexture> make_normal_texture(GrDirectContext* dContext, GrRendera
     auto format = dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                    renderable);
     return dContext->priv().resourceProvider()->createTexture(
-            desc, format, renderable, 1, GrMipMapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+            desc, format, renderable, 1, GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
 }
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
@@ -568,7 +568,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                     budgeted = SkBudgeted::kNo;
                 }
                 auto proxy = dContext->priv().proxyProvider()->createLazyProxy(
-                        singleUseLazyCB, backendFormat, desc, renderable, 1, GrMipMapped::kNo,
+                        singleUseLazyCB, backendFormat, desc, renderable, 1, GrMipmapped::kNo,
                         GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,
                         GrSurfaceProxy::UseAllocator::kYes);
@@ -741,7 +741,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
             GrBackendTexture backendTexture;
 
             if (!CreateBackendTexture(dContext, &backendTexture, info, SkColors::kBlack,
-                                      GrMipMapped::kNo, GrRenderable::kNo)) {
+                                      GrMipmapped::kNo, GrRenderable::kNo)) {
                 REPORTER_ASSERT(reporter, false);
                 continue;
             }

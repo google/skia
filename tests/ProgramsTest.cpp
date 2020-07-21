@@ -160,7 +160,7 @@ static std::unique_ptr<GrRenderTargetContext> random_render_target_context(GrCon
 
     return GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderTargetWidth, kRenderTargetHeight}, sampleCnt, GrMipMapped::kNo,
+            {kRenderTargetWidth, kRenderTargetHeight}, sampleCnt, GrMipmapped::kNo,
             GrProtected::kNo, origin);
 }
 
@@ -262,7 +262,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     GrProcessorTestData::ViewInfo views[2];
 
     // setup dummy textures
-    GrMipMapped mipMapped = GrMipMapped(caps->mipMapSupport());
+    GrMipmapped mipMapped = GrMipmapped(caps->mipMapSupport());
     {
         static constexpr SkISize kDummyDims = {34, 18};
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,

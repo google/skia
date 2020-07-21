@@ -46,7 +46,7 @@ public:
 
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, SkISize dimensions,
                                                   const GrBackendFormat&, GrRenderable,
-                                                  int renderTargetSampleCnt, GrMipMapped,
+                                                  int renderTargetSampleCnt, GrMipmapped,
                                                   GrProtected, GrSurfaceOrigin, GrColorType,
                                                   SkAlphaType, sk_sp<SkColorSpace>, SkBackingFit,
                                                   SkBudgeted);

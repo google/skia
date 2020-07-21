@@ -46,7 +46,7 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
 void GrFragmentProcessor::visitProxies(const GrOp::VisitProxyFunc& func) const {
     this->visitTextureEffects([&func](const GrTextureEffect& te) {
         bool mipped = (GrSamplerState::Filter::kMipMap == te.samplerState().filter());
-        func(te.view().proxy(), GrMipMapped(mipped));
+        func(te.view().proxy(), GrMipmapped(mipped));
     });
 }
 

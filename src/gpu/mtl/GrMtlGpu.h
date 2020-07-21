@@ -134,7 +134,7 @@ private:
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
-                                            GrMipMapped,
+                                            GrMipmapped,
                                             GrProtected) override;
 
     bool onUpdateBackendTexture(const GrBackendTexture&,
@@ -143,7 +143,7 @@ private:
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
-                                                      GrMipMapped,
+                                                      GrMipmapped,
                                                       GrProtected) override;
 
     bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
@@ -161,7 +161,7 @@ private:
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
                                                SkBudgeted,
-                                               GrMipMapped,
+                                               GrMipmapped,
                                                GrProtected,
                                                const void* data, size_t dataSize) override;
 
@@ -230,7 +230,7 @@ private:
                                            SkISize dimensions,
                                            GrTexturable,
                                            GrRenderable,
-                                           GrMipMapped,
+                                           GrMipmapped,
                                            GrMtlTextureInfo*);
 
 #if GR_TEST_UTILS

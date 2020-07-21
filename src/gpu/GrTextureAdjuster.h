@@ -36,7 +36,7 @@ public:
             GrSamplerState::WrapMode wrapY) override;
 
 private:
-    GrSurfaceProxyView onView(GrMipMapped) override;
+    GrSurfaceProxyView onView(GrMipmapped) override;
 
     GrSurfaceProxyView makeMippedCopy();
 

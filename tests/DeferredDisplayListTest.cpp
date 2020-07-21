@@ -186,9 +186,9 @@ public:
     sk_sp<SkSurface> make(GrDirectContext* dContext, GrBackendTexture* backend) const {
         const SkSurfaceCharacterization c = this->createCharacterization(dContext);
 
-        GrMipMapped mipmapped = !fIsTextureable
-                                        ? GrMipMapped::kNo
-                                        : GrMipMapped(fShouldCreateMipMaps);
+        GrMipmapped mipmapped = !fIsTextureable
+                                        ? GrMipmapped::kNo
+                                        : GrMipmapped(fShouldCreateMipMaps);
 
 #ifdef SK_GL
         if (fUsesGLFBO0) {
@@ -881,7 +881,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
 
     GrBackendTexture backendTex;
     CreateBackendTexture(context, &backendTex, kSize, kSize, kRGBA_8888_SkColorType,
-            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+            SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     if (!backendTex.isValid()) {
         return;
     }
@@ -972,7 +972,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         SkASSERT(format.isValid());
 
         sk_sp<SkImage> image = recorder.makePromiseTexture(
-                format, 32, 32, GrMipMapped::kNo,
+                format, 32, 32, GrMipmapped::kNo,
                 kTopLeft_GrSurfaceOrigin,
                 kRGBA_8888_SkColorType,
                 kPremul_SkAlphaType, nullptr,
@@ -1042,7 +1042,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
 
     GrBackendTexture backendTexture;
 
-    if (!CreateBackendTexture(context, &backendTexture, ii, SkColors::kCyan, GrMipMapped::kNo,
+    if (!CreateBackendTexture(context, &backendTexture, ii, SkColors::kCyan, GrMipmapped::kNo,
                               GrRenderable::kNo)) {
         REPORTER_ASSERT(reporter, false);
         return;
@@ -1061,7 +1061,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
         SkASSERT(format.isValid());
 
         sk_sp<SkImage> promiseImage = recorder.makePromiseTexture(
-                format, 32, 32, GrMipMapped::kNo,
+                format, 32, 32, GrMipmapped::kNo,
                 kTopLeft_GrSurfaceOrigin,
                 kRGBA_8888_SkColorType,
                 kPremul_SkAlphaType, nullptr,
@@ -1176,7 +1176,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
     SkDeferredDisplayListRecorder recorder(characterization);
 
     for (GrGLenum target : { GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_2D } ) {
-        for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
+        for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
             GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
 
             sk_sp<SkImage> image = recorder.makePromiseTexture(
@@ -1189,7 +1189,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
                     dummy_done_proc,
                     nullptr,
                     SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
-            if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipMapped::kYes) {
+            if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipmapped::kYes) {
                 REPORTER_ASSERT(reporter, !image);
                 continue;
             }

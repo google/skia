@@ -178,7 +178,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
 
                 return tex;
             },
-            backendFormat, {width, height}, GrRenderable::kNo, 1, GrMipMapped::kNo,
+            backendFormat, {width, height}, GrRenderable::kNo, 1, GrMipmapped::kNo,
             GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
             SkBudgeted::kNo, GrProtected(fIsProtectedContent), GrSurfaceProxy::UseAllocator::kYes);
 
@@ -191,7 +191,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
         GrRecordingContext* context,
         const SkImageInfo& info,
         const SkIPoint& origin,
-        GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
         GrImageTexGenPolicy texGenPolicy) {
     GrSurfaceProxyView texProxyView = this->makeView(context);
     if (!texProxyView.proxy()) {
@@ -200,7 +200,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
     SkASSERT(texProxyView.asTextureProxy());
 
     if (texGenPolicy == GrImageTexGenPolicy::kDraw && origin.isZero() &&
-        info.dimensions() == this->getInfo().dimensions() && mipMapped == GrMipMapped::kNo) {
+        info.dimensions() == this->getInfo().dimensions() && mipMapped == GrMipmapped::kNo) {
         // If the caller wants the full non-MIP mapped texture we're done.
         return texProxyView;
     }

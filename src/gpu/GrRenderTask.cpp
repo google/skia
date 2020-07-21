@@ -72,7 +72,7 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
                                                                  this->target(0).origin());
         }
         GrTextureProxy* textureProxy = this->target(0).asTextureProxy();
-        if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
+        if (textureProxy && GrMipmapped::kYes == textureProxy->mipMapped()) {
             textureProxy->markMipMapsDirty();
         }
     }
@@ -118,7 +118,7 @@ void GrRenderTask::addDependenciesFromOtherTask(GrRenderTask* otherTask) {
 
 // Convert from a GrSurface-based dependency to a GrRenderTask one
 void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* dependedOn,
-                                 GrMipMapped mipMapped,
+                                 GrMipmapped mipMapped,
                                  GrTextureResolveManager textureResolveManager,
                                  const GrCaps& caps) {
     // If it is still receiving dependencies, this GrRenderTask shouldn't be closed
@@ -129,7 +129,7 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
     if (dependedOnTask == this) {
         // self-read - presumably for dst reads. We don't need to do anything in this case. The
         // XferProcessor will detect what is happening and insert a texture barrier.
-        SkASSERT(GrMipMapped::kNo == mipMapped);
+        SkASSERT(GrMipmapped::kNo == mipMapped);
         // We should never attempt a self-read on a surface that has a separate MSAA renderbuffer.
         SkASSERT(!dependedOn->requiresManualMSAAResolve());
         SkASSERT(!dependedOn->asTextureProxy() ||
@@ -159,12 +159,12 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
     }
 
     GrTextureProxy* textureProxy = dependedOn->asTextureProxy();
-    if (GrMipMapped::kYes == mipMapped) {
+    if (GrMipmapped::kYes == mipMapped) {
         SkASSERT(textureProxy);
-        if (GrMipMapped::kYes != textureProxy->mipMapped()) {
+        if (GrMipmapped::kYes != textureProxy->mipMapped()) {
             // There are some cases where we might be given a non-mipmapped texture with a mipmap
             // filter. See skbug.com/7094.
-            mipMapped = GrMipMapped::kNo;
+            mipMapped = GrMipmapped::kNo;
         } else if (textureProxy->mipMapsAreDirty()) {
             resolveFlags |= GrSurfaceProxy::ResolveFlags::kMipMaps;
         }

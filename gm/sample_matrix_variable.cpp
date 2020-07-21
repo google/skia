@@ -82,7 +82,7 @@ DEF_SIMPLE_GPU_GM(sample_matrix_variable, ctx, rtCtx, canvas, 512, 256) {
         SkBitmap bmp;
         GetResourceAsBitmap("images/mandrill_256.png", &bmp);
         GrBitmapTextureMaker maker(ctx, bmp, GrImageTexGenPolicy::kDraw);
-        auto view = maker.view(GrMipMapped::kNo);
+        auto view = maker.view(GrMipmapped::kNo);
         std::unique_ptr<GrFragmentProcessor> imgFP =
                 GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
         draw(std::move(imgFP), -128, 256, 0, 0);

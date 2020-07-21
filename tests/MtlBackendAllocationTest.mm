@@ -16,10 +16,10 @@
 void test_wrapping(GrDirectContext*,
                    skiatest::Reporter*,
                    std::function<GrBackendTexture (GrDirectContext*,
-                                                   GrMipMapped,
+                                                   GrMipmapped,
                                                    GrRenderable)> create,
                    GrColorType,
-                   GrMipMapped,
+                   GrMipmapped,
                    GrRenderable,
                    bool* finishedBackendCreation);
 
@@ -27,11 +27,11 @@ void test_color_init(GrDirectContext*,
                      skiatest::Reporter*,
                      std::function<GrBackendTexture (GrDirectContext*,
                                                      const SkColor4f&,
-                                                     GrMipMapped,
+                                                     GrMipmapped,
                                                      GrRenderable)> create,
                      GrColorType,
                      const SkColor4f&,
-                     GrMipMapped,
+                     GrMipmapped,
                      GrRenderable,
                      bool* finishedBackendCreation);
 
@@ -101,8 +101,8 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
-            if (GrMipMapped::kYes == mipMapped && !mtlCaps->mipMapSupport()) {
+        for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
+            if (GrMipmapped::kYes == mipMapped && !mtlCaps->mipMapSupport()) {
                 continue;
             }
 
@@ -119,7 +119,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
                 {
                     auto uninitCreateMtd = [format](GrDirectContext* dContext,
-                                                    GrMipMapped mipMapped,
+                                                    GrMipmapped mipMapped,
                                                     GrRenderable renderable) {
                         return dContext->createBackendTexture(32, 32, format,
                                                               mipMapped, renderable,
@@ -160,7 +160,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                     auto createWithColorMtd = [format, swizzle, finishedPtr](
                             GrDirectContext* dContext,
                             const SkColor4f& color,
-                            GrMipMapped mipMapped,
+                            GrMipmapped mipMapped,
                             GrRenderable renderable) {
                         auto swizzledColor = swizzle.applyTo(color);
                         return dContext->createBackendTexture(32, 32, format, swizzledColor,

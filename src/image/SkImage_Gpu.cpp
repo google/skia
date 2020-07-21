@@ -279,7 +279,7 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
 
 sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrDirectContext* direct, sk_sp<SkData> data,
                                                   int width, int height, CompressionType type,
-                                                  GrMipMapped mipMapped,
+                                                  GrMipmapped mipMapped,
                                                   GrProtected isProtected) {
     if (!direct || !data) {
         return nullptr;
@@ -349,7 +349,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
                                                  sk_sp<SkColorSpace> imageColorSpace) {
     auto renderTargetContext = GrRenderTargetContext::Make(
             ctx, GrColorType::kRGBA_8888, std::move(imageColorSpace), SkBackingFit::kExact,
-            imageSize, 1, GrMipMapped::kNo, GrProtected::kNo, imageOrigin);
+            imageSize, 1, GrMipmapped::kNo, GrProtected::kNo, imageOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -466,7 +466,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
 }
 
 static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
-                                                 uint32_t id, GrMipMapped mipMapped) {
+                                                 uint32_t id, GrMipmapped mipMapped) {
     auto view = producer->view(mipMapped);
     if (!view) {
         return nullptr;
@@ -478,11 +478,11 @@ static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTexturePr
 
 #ifndef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
 sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* direct,
-                                         GrMipMapped mipMapped,
+                                         GrMipmapped mipMapped,
                                          SkBudgeted budgeted) const {
 #else
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context,
-                                         GrMipMapped mipMapped,
+                                         GrMipmapped mipMapped,
                                          SkBudgeted budgeted) const {
     auto direct = GrAsDirectContext(context);
 #endif
@@ -499,7 +499,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context,
         const GrSurfaceProxyView* view = as_IB(this)->view(direct);
         SkASSERT(view && view->asTextureProxy());
 
-        if (mipMapped == GrMipMapped::kNo || view->asTextureProxy()->mipMapped() == mipMapped ||
+        if (mipMapped == GrMipmapped::kNo || view->asTextureProxy()->mipMapped() == mipMapped ||
             !direct->priv().caps()->mipMapSupport()) {
             return sk_ref_sp(const_cast<SkImage*>(this));
         }
@@ -531,7 +531,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
                                                const GrBackendFormat& backendFormat,
                                                int width,
                                                int height,
-                                               GrMipMapped mipMapped,
+                                               GrMipmapped mipMapped,
                                                GrSurfaceOrigin origin,
                                                SkColorType colorType,
                                                SkAlphaType alphaType,
@@ -627,7 +627,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     SkBitmap bmp;
     bmp.installPixels(*pixmap);
     GrBitmapTextureMaker bitmapMaker(context, bmp, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
+    GrMipmapped mipMapped = buildMips ? GrMipmapped::kYes : GrMipmapped::kNo;
     auto view = bitmapMaker.view(mipMapped);
     if (!view) {
         return SkImage::MakeRasterCopy(*pixmap);

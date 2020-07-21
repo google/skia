@@ -52,7 +52,7 @@ public:
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrDrawingManager*, GrSurfaceProxy* dependedOn, GrMipMapped,
+    void addDependency(GrDrawingManager*, GrSurfaceProxy* dependedOn, GrMipmapped,
                        GrTextureResolveManager, const GrCaps& caps);
 
     /*
@@ -89,7 +89,7 @@ public:
     void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
         for (int i = 0; i < this->numTargets(); ++i) {
-            fn(this->target(i).proxy(), GrMipMapped::kNo);
+            fn(this->target(i).proxy(), GrMipmapped::kNo);
         }
     }
 #endif

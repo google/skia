@@ -80,7 +80,7 @@ public:
     // the same origin and swizzle as the src view.
     static GrSurfaceProxyView Copy(GrRecordingContext* context,
                                    GrSurfaceProxyView src,
-                                   GrMipMapped mipMapped,
+                                   GrMipmapped mipMapped,
                                    SkIRect srcRect,
                                    SkBackingFit fit,
                                    SkBudgeted budgeted) {

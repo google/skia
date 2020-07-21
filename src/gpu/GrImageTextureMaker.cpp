@@ -34,7 +34,7 @@ GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context,
     SkASSERT(client->isLazyGenerated());
 }
 
-GrSurfaceProxyView GrImageTextureMaker::refOriginalTextureProxyView(GrMipMapped mipMapped) {
+GrSurfaceProxyView GrImageTextureMaker::refOriginalTextureProxyView(GrMipmapped mipMapped) {
     return fImage->lockTextureProxyView(this->context(), fTexGenPolicy, mipMapped);
 }
 
@@ -46,8 +46,8 @@ GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrRecordingContext* context, co
     SkASSERT(as_IB(client)->isYUVA());
 }
 
-GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(GrMipMapped mipMapped) {
-    if (mipMapped == GrMipMapped::kYes) {
+GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(GrMipmapped mipMapped) {
+    if (mipMapped == GrMipmapped::kYes) {
         return fImage->refMippedView(this->context());
     } else {
         if (const GrSurfaceProxyView* view = fImage->view(this->context())) {

@@ -45,7 +45,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     SkISize dims = {(int)metalLayer.drawableSize.width, (int)metalLayer.drawableSize.height};
 
     GrProxyProvider::TextureInfo texInfo;
-    texInfo.fMipMapped = GrMipMapped::kNo;
+    texInfo.fMipMapped = GrMipmapped::kNo;
     texInfo.fTextureType = GrTextureType::k2D;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
@@ -116,7 +116,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
     SkISize dims = {(int)mtkView.drawableSize.width, (int)mtkView.drawableSize.height};
 
     GrProxyProvider::TextureInfo texInfo;
-    texInfo.fMipMapped = GrMipMapped::kNo;
+    texInfo.fMipMapped = GrMipmapped::kNo;
     texInfo.fTextureType = GrTextureType::k2D;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(

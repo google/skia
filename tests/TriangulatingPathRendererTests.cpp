@@ -735,7 +735,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) 
     auto ctx = ctxInfo.directContext();
     auto rtc = GrRenderTargetContext::Make(
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800}, 1,
-            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtc) {
         return;
     }

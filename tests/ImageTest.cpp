@@ -392,7 +392,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 otherContextInfo.directContext()->flushAndSubmit();
                 return otherContextImage;
             }};
-    for (auto mipMapped : {GrMipMapped::kNo, GrMipMapped::kYes}) {
+    for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
         for (auto factory : imageFactories) {
             sk_sp<SkImage> image(factory());
             if (!image) {
@@ -421,12 +421,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 GrTextureProxy* copyProxy = as_IB(texImage)->peekProxy()->asTextureProxy();
                 SkASSERT(copyProxy);
                 bool shouldBeMipped =
-                        mipMapped == GrMipMapped::kYes && context->priv().caps()->mipMapSupport();
-                if (shouldBeMipped && copyProxy->mipMapped() == GrMipMapped::kNo) {
+                        mipMapped == GrMipmapped::kYes && context->priv().caps()->mipMapSupport();
+                if (shouldBeMipped && copyProxy->mipMapped() == GrMipmapped::kNo) {
                     ERRORF(reporter, "makeTextureImage returned non-mipmapped texture.");
                     continue;
                 }
-                bool origIsMipped = origProxy && origProxy->mipMapped() == GrMipMapped::kYes;
+                bool origIsMipped = origProxy && origProxy->mipMapped() == GrMipmapped::kYes;
                 if (image->isTextureBacked() && (!shouldBeMipped || origIsMipped)) {
                     if (origProxy->underlyingUniqueID() != copyProxy->underlyingUniqueID()) {
                         ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");
@@ -486,7 +486,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
 
         GrBackendTexture backendTex;
         CreateBackendTexture(context, &backendTex, kSize, kSize, colorType, SkColors::kTransparent,
-                             GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+                             GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
         auto img = SkImage::MakeFromTexture(context, backendTex, kTopLeft_GrSurfaceOrigin,
                                             colorType, kOpaque_SkAlphaType, nullptr);
@@ -823,7 +823,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
     GrBackendTexture backendTex;
-    if (!CreateBackendTexture(ctx, &backendTex, ii, SkColors::kRed, GrMipMapped::kNo,
+    if (!CreateBackendTexture(ctx, &backendTex, ii, SkColors::kRed, GrMipmapped::kNo,
                               GrRenderable::kNo)) {
         ERRORF(reporter, "couldn't create backend texture\n");
     }
@@ -972,17 +972,17 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             sk_sp<SkImage> refImg(imageMaker(ctx));
 
             // Any context should be able to borrow the texture at this point
-            GrSurfaceProxyView view = as_IB(refImg)->refView(ctx, GrMipMapped::kNo);
+            GrSurfaceProxyView view = as_IB(refImg)->refView(ctx, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, view);
 
             // But once it's borrowed, no other context should be able to borrow
             otherTestContext->makeCurrent();
-            GrSurfaceProxyView otherView = as_IB(refImg)->refView(otherCtx, GrMipMapped::kNo);
+            GrSurfaceProxyView otherView = as_IB(refImg)->refView(otherCtx, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, !otherView);
 
             // Original context (that's already borrowing) should be okay
             testContext->makeCurrent();
-            GrSurfaceProxyView viewSecondRef = as_IB(refImg)->refView(ctx, GrMipMapped::kNo);
+            GrSurfaceProxyView viewSecondRef = as_IB(refImg)->refView(ctx, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, viewSecondRef);
 
             // Release first ref from the original context
@@ -991,7 +991,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             // We released one proxy but not the other from the current borrowing context. Make sure
             // a new context is still not able to borrow the texture.
             otherTestContext->makeCurrent();
-            otherView = as_IB(refImg)->refView(otherCtx, GrMipMapped::kNo);
+            otherView = as_IB(refImg)->refView(otherCtx, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, !otherView);
 
             // Release second ref from the original context
@@ -1000,7 +1000,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             // Now we should be able to borrow the texture from the other context
             otherTestContext->makeCurrent();
-            otherView = as_IB(refImg)->refView(otherCtx, GrMipMapped::kNo);
+            otherView = as_IB(refImg)->refView(otherCtx, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, otherView);
 
             // Release everything
@@ -1041,7 +1041,7 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false);
             REPORTER_ASSERT(reporter, image);
 
-            GrSurfaceProxyView view = as_IB(image)->refView(ctx, GrMipMapped::kNo);
+            GrSurfaceProxyView view = as_IB(image)->refView(ctx, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, view);
 
             bool expectAlpha = kAlpha_8_SkColorType == ct;

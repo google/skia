@@ -22,7 +22,7 @@ public:
     GrImageTextureMaker(GrRecordingContext*, const SkImage* client, GrImageTexGenPolicy);
 
 private:
-    GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(GrMipmapped) override;
 
     const SkImage_Lazy*     fImage;
     GrImageTexGenPolicy     fTexGenPolicy;
@@ -50,7 +50,7 @@ public:
     bool isPlanar() const override { return true; }
 
 private:
-    GrSurfaceProxyView refOriginalTextureProxyView(GrMipMapped) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(GrMipmapped) override;
 
     const SkImage_GpuYUVA*  fImage;
 

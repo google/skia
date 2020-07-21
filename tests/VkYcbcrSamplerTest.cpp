@@ -130,7 +130,7 @@ DEF_GPUTEST(VkYCbcrSampler_NoYcbcrSurface, reporter, options) {
 
     GrBackendTexture texture = testHelper.directContext()->createBackendTexture(
             kImageWidth, kImageHeight, GrBackendFormat::MakeVk(VK_FORMAT_G8_B8R8_2PLANE_420_UNORM),
-            GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+            GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     if (texture.isValid()) {
         ERRORF(reporter,
                "GrContext::createBackendTexture() didn't fail as expected for Ycbcr format.");

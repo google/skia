@@ -98,7 +98,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
 
     *backingSurface =
             resourceProvider->createTexture(dimensions, format, GrRenderable::kYes, sampleCnt,
-                                            GrMipMapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+                                            GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
     if (!(*backingSurface)) {
         return nullptr;
     }

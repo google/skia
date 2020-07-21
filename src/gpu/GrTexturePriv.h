@@ -32,11 +32,11 @@ public:
         return GrMipMapsStatus::kValid != this->mipMapsStatus();
     }
 
-    GrMipMapped mipMapped() const {
+    GrMipmapped mipMapped() const {
         if (GrMipMapsStatus::kNotAllocated != this->mipMapsStatus()) {
-            return GrMipMapped::kYes;
+            return GrMipmapped::kYes;
         }
-        return GrMipMapped::kNo;
+        return GrMipmapped::kNo;
     }
 
     int maxMipMapLevel() const {
@@ -53,7 +53,7 @@ public:
                                   SkISize dimensions,
                                   GrRenderable,
                                   int sampleCnt,
-                                  GrMipMapped,
+                                  GrMipmapped,
                                   GrProtected,
                                   GrScratchKey* key);
 

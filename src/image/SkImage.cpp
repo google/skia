@@ -592,11 +592,11 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
 }
 
 #ifndef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
-sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipMapped, SkBudgeted) const {
+sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipmapped, SkBudgeted) const {
     return nullptr;
 }
 #else
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, GrMipMapped, SkBudgeted) const {
+sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, GrMipmapped, SkBudgeted) const {
     return nullptr;
 }
 #endif

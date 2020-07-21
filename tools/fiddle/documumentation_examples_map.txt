@@ -1331,7 +1331,7 @@ sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
 
 [Image_makeTextureImage]
 SkImage
-sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace, GrMipMapped mipMapped = GrMipMapped::kNo) const;
+sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace, GrMipmapped mipMapped = GrMipmapped::kNo) const;
 
 [Image_makeWithFilter]
 SkImage

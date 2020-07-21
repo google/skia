@@ -166,7 +166,7 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override {
         bool mipped = (GrSamplerState::Filter::kMipMap == fFilter);
-        func(fView.proxy(), GrMipMapped(mipped));
+        func(fView.proxy(), GrMipmapped(mipped));
         if (fProgramInfo) {
             fProgramInfo->visitFPProxies(func);
         } else {
@@ -442,7 +442,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
                                                               dims,
                                                               GrRenderable::kNo,
                                                               1,
-                                                              GrMipMapped::kNo,
+                                                              GrMipmapped::kNo,
                                                               SkBackingFit::kExact,
                                                               SkBudgeted::kYes,
                                                               GrProtected::kNo);
