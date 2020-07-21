@@ -77,7 +77,7 @@ in fragmentProcessor inputFP;
         // We then verify that two reads produced the same values.
 
         GrPaint paint1;
-        paint1.addColorFragmentProcessor(GrConfigConversionEffect::Make(
+        paint1.setColorFragmentProcessor(GrConfigConversionEffect::Make(
                 GrTextureEffect::Make(std::move(dataView), kPremul_SkAlphaType),
                 PMConversion::kToUnpremul));
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -92,7 +92,7 @@ in fragmentProcessor inputFP;
         tempRTC->discard();
 
         GrPaint paint2;
-        paint2.addColorFragmentProcessor(GrConfigConversionEffect::Make(
+        paint2.setColorFragmentProcessor(GrConfigConversionEffect::Make(
                 GrTextureEffect::Make(readRTC->readSurfaceView(), kUnpremul_SkAlphaType),
                 PMConversion::kToPremul));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -100,7 +100,7 @@ in fragmentProcessor inputFP;
         tempRTC->fillRectToRect(nullptr, std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect, kRect);
 
         GrPaint paint3;
-        paint3.addColorFragmentProcessor(GrConfigConversionEffect::Make(
+        paint3.setColorFragmentProcessor(GrConfigConversionEffect::Make(
                 GrTextureEffect::Make(tempRTC->readSurfaceView(), kPremul_SkAlphaType),
                 PMConversion::kToUnpremul));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);

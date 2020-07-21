@@ -2119,7 +2119,7 @@ bool GrRenderTargetContext::blitTexture(GrSurfaceProxyView view, const SkIRect& 
     if (!fp) {
         return false;
     }
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
 
     this->fillRectToRect(
             nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),

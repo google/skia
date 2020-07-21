@@ -711,7 +711,7 @@ static void test_path(GrContext* ctx,
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
     if (fp) {
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
     }
 
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
