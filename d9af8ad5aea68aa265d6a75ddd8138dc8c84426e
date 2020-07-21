@@ -93,6 +93,30 @@
       "revId": "d9af8ad5aea68aa265d6a75ddd8138dc8c84426e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90186a38_969de523",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 996,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-21T19:20:53Z",
+      "side": 1,
+      "message": "Yeah. D3D and Dawn already bind textures and samplers separately. Vulkan still makes combined texture sampler objects, but even that could be made to work with dynamic state. The only time we can\u0027t use dynamic samplers is in vulkan when we have a ycbcr sampler which has to get baked into the pipeline.",
+      "parentUuid": "57cb82b3_6c58eb23",
+      "range": {
+        "startLine": 995,
+        "startChar": 12,
+        "endLine": 996,
+        "endChar": 49
+      },
+      "revId": "d9af8ad5aea68aa265d6a75ddd8138dc8c84426e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
