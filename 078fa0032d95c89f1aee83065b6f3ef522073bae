@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e5c68e6_e982bb4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-21T18:20:56Z",
+      "side": 1,
+      "message": "Fix is in PS1-\u003ePS2. x86 bots pass now.",
+      "revId": "078fa0032d95c89f1aee83065b6f3ef522073bae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
