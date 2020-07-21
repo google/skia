@@ -286,10 +286,12 @@ class GrGlyphVector {
 public:
     static GrGlyphVector Make(
             const SkStrikeSpec& spec, SkSpan<SkGlyphVariant> glyphs, SkArenaAlloc* alloc);
-    void prepareGrGlyphs(GrStrikeCache* strikeCache);
+
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end, GrMaskFormat maskFormat, int padding, GrMeshDrawOp::Target *target);
+
     SkSpan<const GrGlyph*> glyphs() const;
+
     SkScalar strikeToSourceRatio() const { return fStrikeSpec.strikeToSourceRatio(); }
 
 private:
