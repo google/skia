@@ -488,6 +488,46 @@ DEF_TEST(GrBlockAllocatorScratchBlockReserve, r) {
     REPORTER_ASSERT(r, (size_t) pool->testingOnly_scratchBlockSize() == scratchAvail);
 }
 
+DEF_TEST(GrBlockAllocatorStealBlocks, r) {
+    GrSBlockAllocator<256> poolA;
+    GrSBlockAllocator<128> poolB;
+
+    add_block(poolA);
+    add_block(poolA);
+    add_block(poolA);
+
+    add_block(poolB);
+    add_block(poolB);
+
+    char* bAlloc = (char*) alloc_byte(poolB);
+    *bAlloc = 't';
+
+    const GrBlockAllocator::Block* allocOwner = poolB->findOwningBlock(bAlloc);
+
+    REPORTER_ASSERT(r, block_count(poolA) == 4);
+    REPORTER_ASSERT(r, block_count(poolB) == 3);
+
+    size_t aSize = poolA->totalSize();
+    size_t bSize = poolB->totalSize();
+    size_t theftSize = bSize - poolB->preallocSize();
+
+    // This steal should move B's 2 heap blocks to A, bringing A to 6 and B to just its head
+    poolA->stealHeapBlocks(poolB.allocator());
+    REPORTER_ASSERT(r, block_count(poolA) == 6);
+    REPORTER_ASSERT(r, block_count(poolB) == 1);
+    REPORTER_ASSERT(r, poolB->preallocSize() == poolB->totalSize());
+    REPORTER_ASSERT(r, poolA->totalSize() == aSize + theftSize);
+
+    REPORTER_ASSERT(r, *bAlloc == 't');
+    REPORTER_ASSERT(r, (uintptr_t) poolA->findOwningBlock(bAlloc) == (uintptr_t) allocOwner);
+    REPORTER_ASSERT(r, !poolB->findOwningBlock(bAlloc));
+
+    // Redoing the steal now that B is just a head block should be a no-op
+    poolA->stealHeapBlocks(poolB.allocator());
+    REPORTER_ASSERT(r, block_count(poolA) == 6);
+    REPORTER_ASSERT(r, block_count(poolB) == 1);
+}
+
 // These tests ensure that the allocation padding mechanism works as intended
 struct TestMeta {
     int fX1;

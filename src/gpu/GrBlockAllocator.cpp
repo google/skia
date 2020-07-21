@@ -142,6 +142,21 @@ void GrBlockAllocator::releaseBlock(Block* block) {
     SkASSERT(fN1 >= 1 && fN0 >= 0);
 }
 
+void GrBlockAllocator::stealHeapBlocks(GrBlockAllocator* other) {
+    Block* toSteal = other->fHead.fNext;
+    if (toSteal) {
+        // The other's next block connects back to this allocator's current tail, and its new tail
+        // becomes the end of other's block linked list.
+        SkASSERT(other->fTail != &other->fHead);
+        toSteal->fPrev = fTail;
+        fTail->fNext = toSteal;
+        fTail = other->fTail;
+        // The other allocator becomes just its inline head block
+        other->fTail = &other->fHead;
+        other->fHead.fNext = nullptr;
+    } // else no block to steal
+}
+
 void GrBlockAllocator::reset() {
     for (Block* b : this->rblocks()) {
         if (b == &fHead) {
