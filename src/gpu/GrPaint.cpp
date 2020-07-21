@@ -43,7 +43,7 @@ bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {
         *constantColor = SK_PMColor4fTRANSPARENT;
         return true;
     }
-    if (this->numColorFragmentProcessors()) {
+    if (this->hasColorFragmentProcessor()) {
         return false;
     }
     if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {

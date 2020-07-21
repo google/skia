@@ -35,7 +35,7 @@ DEF_SIMPLE_GPU_GM(swizzle, ctx, rtCtx, canvas, 512, 512) {
     auto fp = GrFragmentProcessor::SwizzleOutput(std::move(imgFP), GrSwizzle("grb1"));
 
     GrPaint grPaint;
-    grPaint.addColorFragmentProcessor(std::move(fp));
+    grPaint.setColorFragmentProcessor(std::move(fp));
 
     rtCtx->priv().testingOnly_addDrawOp(
         GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix(), bounds));

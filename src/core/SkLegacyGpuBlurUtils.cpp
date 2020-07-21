@@ -96,7 +96,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
             std::move(srcView), srcAlphaType, direction, radius, sigma, wm, subset, nullptr,
             *renderTargetContext->caps()));
-    paint.addColorFragmentProcessor(std::move(conv));
+    paint.setColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     auto srcRect = SkRect::Make(rtcRect.makeOffset(rtcToSrcOffset));
     renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
@@ -130,7 +130,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
                                                         size, 1.0, 0.0, kernelOffset, wm, true,
                                                         sigmaX, sigmaY,
                                                         *renderTargetContext->caps());
-    paint.addColorFragmentProcessor(std::move(conv));
+    paint.setColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     // 'dstBounds' is actually in 'srcView' proxy space. It represents the blurred area from src
@@ -313,7 +313,7 @@ static GrSurfaceProxyView decimate(GrRecordingContext* context,
             fp = GrTextureEffect::Make(std::move(srcView), srcAlphaType, SkMatrix::I(),
                                        GrSamplerState::Filter::kLinear);
         }
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         dstRenderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo,
@@ -370,7 +370,7 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(GrRecordingContext* conte
     auto fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
                                           GrSamplerState::Filter::kLinear, SkRect::Make(srcBounds),
                                           caps);
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     // TODO: using dstII as dstRect results in some image diffs - why?

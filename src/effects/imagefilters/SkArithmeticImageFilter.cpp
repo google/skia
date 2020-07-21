@@ -361,10 +361,10 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP),
                                              foreground->getColorSpace(), foreground->alphaType(),
                                              ctx.colorSpace(), kPremul_SkAlphaType);
-        paint.addColorFragmentProcessor(
+        paint.setColorFragmentProcessor(
                 GrArithmeticProcessor::Make(std::move(fgFP), std::move(bgFP), fInputs));
     } else {
-        paint.addColorFragmentProcessor(std::move(bgFP));
+        paint.setColorFragmentProcessor(std::move(bgFP));
     }
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

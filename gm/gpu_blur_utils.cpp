@@ -160,7 +160,7 @@ static void run(GrRecordingContext* ctx, GrRenderTargetContext* rtc, bool subset
                 fp = GrFragmentProcessor::ModulateRGBA(std::move(fp),
                                                        {kAlpha, kAlpha, kAlpha, kAlpha});
                 GrPaint paint;
-                paint.addColorFragmentProcessor(std::move(fp));
+                paint.setColorFragmentProcessor(std::move(fp));
                 rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, m, SkRect::Make(testArea));
             }
             // If we're in ref mode we will create a temp image that has the original image
@@ -181,7 +181,7 @@ static void run(GrRecordingContext* ctx, GrRenderTargetContext* rtc, bool subset
                 auto fp = GrTextureEffect::MakeSubset(src, kPremul_SkAlphaType, tm, sampler,
                                                       SkRect::Make(srcRect), caps);
                 GrPaint paint;
-                paint.addColorFragmentProcessor(std::move(fp));
+                paint.setColorFragmentProcessor(std::move(fp));
                 refSrc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                  SkRect::Make(refRect.size()));
             }
@@ -215,7 +215,7 @@ static void run(GrRecordingContext* ctx, GrRenderTargetContext* rtc, bool subset
                     // (SkBlendMode::kSrc).
                     fp = GrXfermodeFragmentProcessor::Make(std::move(fp), /*dst=*/nullptr,
                                                            SkBlendMode::kSrcOver);
-                    paint.addColorFragmentProcessor(std::move(fp));
+                    paint.setColorFragmentProcessor(std::move(fp));
                     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                     rtc->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, m,
                                         SkRect::Make(dstRect), SkRect::Make(blurView.dimensions()));

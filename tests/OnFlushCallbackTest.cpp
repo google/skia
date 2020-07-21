@@ -476,7 +476,7 @@ static GrSurfaceProxyView make_upstream_image(GrContext* context, AtlasObject* o
 
         auto fp = GrTextureEffect::Make(atlasView, atlasAlphaType);
         GrPaint paint;
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         std::unique_ptr<AtlasedRectOp> op(AtlasedRectOp::Make(context,
                                                               std::move(paint), r, start + i));
@@ -594,7 +594,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         GrPaint paint;
         auto fp = GrTextureEffect::Make(std::move(views[i]), kPremul_SkAlphaType, t);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
 
         rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), r);
     }

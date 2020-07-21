@@ -324,7 +324,7 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
     if (colorSpaceXform) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
     }
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
 
     renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
     return true;

@@ -24,21 +24,18 @@ GrProcessorSet GrProcessorSet::MakeEmptySet() {
 
 GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
     fFlags = 0;
-    if (paint.numColorFragmentProcessors() <= kMaxColorProcessors) {
-        fColorFragmentProcessorCnt = paint.numColorFragmentProcessors();
-        fFragmentProcessors.reset(paint.numTotalFragmentProcessors());
-        int i = 0;
-        if (paint.fColorFragmentProcessor) {
-            fFragmentProcessors[i++] = std::move(paint.fColorFragmentProcessor);
-        }
-        for (auto& fp : paint.fCoverageFragmentProcessors) {
-            SkASSERT(fp.get());
-            fFragmentProcessors[i++] = std::move(fp);
-        }
-    } else {
-        SkDEBUGFAIL("Multiple color fragment processors in paint. Dropping all processors.");
-        fColorFragmentProcessorCnt = 0;
+    fColorFragmentProcessorCnt = paint.hasColorFragmentProcessor() ? 1 : 0;
+    fFragmentProcessors.reset(paint.numTotalFragmentProcessors());
+
+    int i = 0;
+    if (paint.fColorFragmentProcessor) {
+        fFragmentProcessors[i++] = std::move(paint.fColorFragmentProcessor);
     }
+    for (auto& fp : paint.fCoverageFragmentProcessors) {
+        SkASSERT(fp.get());
+        fFragmentProcessors[i++] = std::move(fp);
+    }
+
     SkDEBUGCODE(paint.fAlive = false;)
 }
 

@@ -60,11 +60,9 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     // The lack of vertex shaders means we can't move transform matrices into the vertex shader. We
     // could do the transform in the fragment processor, but that would be very slow, so instead we
     // just avoid using this path renderer in the face of transformed FPs.
-    if (args.fPaint) {
-        for (int i = args.fPaint->numColorFragmentProcessors() - 1; i >= 0; --i) {
-            if (has_matrix(*args.fPaint->getColorFragmentProcessor(i))) {
-                return CanDrawPath::kNo;
-            }
+    if (args.fPaint && args.fPaint->hasColorFragmentProcessor()) {
+        if (has_matrix(*args.fPaint->getColorFragmentProcessor())) {
+            return CanDrawPath::kNo;
         }
     }
     return CanDrawPath::kYes;

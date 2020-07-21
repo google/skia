@@ -484,8 +484,8 @@ GrFragmentProcessor::CIter::CIter(const GrPaint& paint) {
     for (int i = paint.numCoverageFragmentProcessors() - 1; i >= 0; --i) {
         fFPStack.push_back(paint.getCoverageFragmentProcessor(i));
     }
-    for (int i = paint.numColorFragmentProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(paint.getColorFragmentProcessor(i));
+    if (paint.hasColorFragmentProcessor()) {
+        fFPStack.push_back(paint.getColorFragmentProcessor());
     }
 }
 

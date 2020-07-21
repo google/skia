@@ -284,7 +284,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
         fp = GrXfermodeFragmentProcessor::Make(std::move(fgFP), std::move(fp), fMode);
     }
 
-    paint.addColorFragmentProcessor(std::move(fp));
+    paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto renderTargetContext = GrRenderTargetContext::Make(

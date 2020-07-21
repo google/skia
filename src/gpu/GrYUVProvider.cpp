@@ -181,7 +181,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
             GrColorSpaceXformEffect::Make(std::move(yuvToRgbProcessor),
                                           srcColorSpace, kOpaque_SkAlphaType,
                                           dstColorSpace, kOpaque_SkAlphaType);
-    paint.addColorFragmentProcessor(std::move(colorConversionProcessor));
+    paint.setColorFragmentProcessor(std::move(colorConversionProcessor));
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     const SkRect r = SkRect::MakeIWH(yuvSizeInfo.fSizes[0].fWidth,

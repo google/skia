@@ -235,7 +235,7 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 380, 306) {
             fp = wrap(std::move(fp), effectType);
         }
         GrPaint paint;
-        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setColorFragmentProcessor(std::move(fp));
         rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(x, y),
                         SkRect::MakeIWH(64, 64));
         nextCol();

@@ -372,7 +372,7 @@ static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
                                   const float range[2],
                                   MorphDirection direction) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(/*inputFP=*/nullptr, std::move(view),
+    paint.setColorFragmentProcessor(GrMorphologyEffect::Make(/*inputFP=*/nullptr, std::move(view),
                                                              srcAlphaType, direction, radius,
                                                              morphType, range));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -390,7 +390,7 @@ static void apply_morphology_rect_no_bounds(GrRenderTargetContext* renderTargetC
                                             MorphType morphType,
                                             MorphDirection direction) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(
+    paint.setColorFragmentProcessor(GrMorphologyEffect::Make(
             /*inputFP=*/nullptr, std::move(view), srcAlphaType, direction, radius, morphType));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(/*clip=*/nullptr, std::move(paint), GrAA::kNo,
