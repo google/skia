@@ -16,7 +16,7 @@ class GrMockCaps : public GrCaps {
 public:
     GrMockCaps(const GrContextOptions& contextOptions, const GrMockOptions& options)
             : INHERITED(contextOptions), fOptions(options) {
-        fMipMapSupport = options.fMipMapSupport;
+        fMipmapSupport = options.fMipmapSupport;
         fDrawInstancedSupport = options.fDrawInstancedSupport;
         fHalfFloatVertexAttributeSupport = options.fHalfFloatVertexAttributeSupport;
         fMapBufferFlags = options.fMapBufferFlags;
