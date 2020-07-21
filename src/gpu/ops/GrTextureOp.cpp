@@ -148,8 +148,9 @@ static SkRect normalize_and_inset_subset(GrSamplerState::Filter filter,
     ltrb = skvx::min(ltrb*flipHi, mid*flipHi)*flipHi;
 
     // Normalize and offset
-    ltrb = mad(ltrb, {params.fIW, params.fInvH, params.fIW, params.fInvH},
-               {0.f, params.fYOffset, 0.f, params.fYOffset});
+    skvx::Vec<4, float> fI = {params.fIW, params.fInvH, params.fIW, params.fInvH};
+    skvx::Vec<4, float> offsets = {0.f, params.fYOffset, 0.f, params.fYOffset};
+    ltrb = ltrb * fI + offsets;
     if (params.fInvH < 0.f) {
         // Flip top and bottom to keep the rect sorted when loaded back to SkRect.
         ltrb = skvx::shuffle<0, 3, 2, 1>(ltrb);
@@ -166,7 +167,7 @@ static void normalize_src_quad(const NormalizationParams& params,
     // The src quad should not have any perspective
     SkASSERT(!srcQuad->hasPerspective());
     skvx::Vec<4, float> xs = srcQuad->x4f() * params.fIW;
-    skvx::Vec<4, float> ys = mad(srcQuad->y4f(), params.fInvH, params.fYOffset);
+    skvx::Vec<4, float> ys = srcQuad->y4f() * params.fInvH + params.fYOffset;
     xs.store(srcQuad->xs());
     ys.store(srcQuad->ys());
 }
