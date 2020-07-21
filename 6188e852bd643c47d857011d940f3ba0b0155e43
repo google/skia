@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b05d1762_c1f70e91",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-21T20:03:09Z",
+      "side": 1,
+      "message": "resolved",
+      "range": {
+        "startLine": 10,
+        "startChar": 19,
+        "endLine": 10,
+        "endChar": 27
+      },
+      "revId": "6188e852bd643c47d857011d940f3ba0b0155e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7577ce24_3bf7eaa3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-21T20:03:09Z",
+      "side": 1,
+      "message": "This seems to glue all trailing whitespaces to an unresolved block, but if we come to a resolved non-whitespace, shouldn\u0027t the current run of whitespace be allowed to resolve with it? In other words, it seems only internal whitespaces (whitespaces surrounded by unresolved) should go into the longer unresolved block.",
+      "revId": "6188e852bd643c47d857011d940f3ba0b0155e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69a7c7a9_71fe72cb",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-21T20:03:09Z",
+      "side": 1,
+      "message": "Should at least note that this only considers the first codepoint of each glyph cluster (and possibly multiple times if multiple glyphs are in a cluster). This may lead to surprising results with Times New Roman in which \u003cspace\u003e\u003cT\u003e may be one glyph cluster. (I can\u0027t remember if Times New Roman forces them into the same cluster though its positioning rules, but there are fonts that do something like this.)",
+      "revId": "6188e852bd643c47d857011d940f3ba0b0155e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
