@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "4720da1b_e3bd9dc1",
+        "filename": "demos.skia.org/demos/web_worker/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "whoops. done",
+      "parentUuid": "7903dfaa_e5a61328",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 18
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6450a872_1ebe08e1",
         "filename": "demos.skia.org/demos/web_worker/index.html",
         "patchSetId": 3
@@ -62,6 +86,30 @@
       "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f4c0508_1f9b8ac9",
+        "filename": "demos.skia.org/demos/web_worker/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6450a872_1ebe08e1",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 0
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +159,54 @@
     },
     {
       "key": {
+        "uuid": "e250c48f_c5f331d0",
+        "filename": "demos.skia.org/demos/web_worker/main.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "You\u0027re right, no need.",
+      "parentUuid": "feb06f46_f5256377",
+      "range": {
+        "startLine": 20,
+        "startChar": 14,
+        "endLine": 20,
+        "endChar": 29
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c034865c_e54b55d5",
+        "filename": "demos.skia.org/demos/web_worker/main.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "That is good to know, but I have removed this line as per your other comment.",
+      "parentUuid": "83bdb38e_4f8a1749",
+      "range": {
+        "startLine": 20,
+        "startChar": 47,
+        "endLine": 20,
+        "endChar": 63
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb6e02e4_961596e0",
         "filename": "demos.skia.org/demos/web_worker/main.js",
         "patchSetId": 3
@@ -131,6 +227,30 @@
       "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81bf97b7_8b462a86",
+        "filename": "demos.skia.org/demos/web_worker/main.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb6e02e4_961596e0",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 5
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +277,30 @@
     },
     {
       "key": {
+        "uuid": "82dbf135_6b1f8d2f",
+        "filename": "demos.skia.org/demos/web_worker/shared.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58210e75_0a38f3a0",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 7
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db767495_c330d163",
         "filename": "demos.skia.org/demos/web_worker/shared.js",
         "patchSetId": 3
@@ -180,6 +324,30 @@
     },
     {
       "key": {
+        "uuid": "9b534d0c_ac1e5783",
+        "filename": "demos.skia.org/demos/web_worker/shared.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "Done. Thanks, I understand the purpose of surface.requestAnimationFrame a little bit better now.",
+      "parentUuid": "db767495_c330d163",
+      "range": {
+        "startLine": 19,
+        "startChar": 17,
+        "endLine": 19,
+        "endChar": 22
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c04dd2b2_d25b0c73",
         "filename": "demos.skia.org/demos/web_worker/shared.js",
         "patchSetId": 3
@@ -200,6 +368,30 @@
       "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11a12abc_53dc661a",
+        "filename": "demos.skia.org/demos/web_worker/shared.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c04dd2b2_d25b0c73",
+      "range": {
+        "startLine": 22,
+        "startChar": 4,
+        "endLine": 22,
+        "endChar": 25
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -246,6 +438,54 @@
       "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8f7bfdb_328260e2",
+        "filename": "demos.skia.org/demos/web_worker/worker.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "763f40f0_db8b8b94",
+      "range": {
+        "startLine": 21,
+        "startChar": 14,
+        "endLine": 21,
+        "endChar": 29
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0506fc08_01ba00f0",
+        "filename": "demos.skia.org/demos/web_worker/worker.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-21T20:48:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4875f7df_543f269a",
+      "range": {
+        "startLine": 21,
+        "startChar": 47,
+        "endLine": 21,
+        "endChar": 64
+      },
+      "revId": "1f579fb09f24ade058bac3d5edf1078e9e13c9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
