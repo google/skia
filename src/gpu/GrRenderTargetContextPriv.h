@@ -22,7 +22,7 @@ struct GrUserStencilSettings;
     additional data members or virtual methods. */
 class GrRenderTargetContextPriv {
 public:
-    GrRecordingContext* getContext() { return fRenderTargetContext->fContext; }
+    GrRecordingContext* recordingContext() { return fRenderTargetContext->fContext; }
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
     void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
