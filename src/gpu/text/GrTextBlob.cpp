@@ -84,7 +84,7 @@ void GrPathSubRun::draw(const GrClip* clip,
 
             GrStyledShape shape(path, drawPaint);
             GrBlurUtils::drawShapeWithMaskFilter(
-                    rtc->priv().getContext(), rtc, clip, runPaint, strikeToDevice, shape);
+                    rtc->priv().recordingContext(), rtc, clip, runPaint, strikeToDevice, shape);
         }
     } else {
         // Transform the path to device because the deviceMatrix must be unchanged to
@@ -101,7 +101,7 @@ void GrPathSubRun::draw(const GrClip* clip,
             deviceOutline.setIsVolatile(true);
             GrStyledShape shape(deviceOutline, drawPaint);
             GrBlurUtils::drawShapeWithMaskFilter(
-                    rtc->priv().getContext(), rtc, clip, runPaint, viewMatrix, shape);
+                    rtc->priv().recordingContext(), rtc, clip, runPaint, viewMatrix, shape);
         }
     }
 }
@@ -251,8 +251,8 @@ GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     SkPoint drawOrigin = glyphRunList.origin();
     const SkPaint& drawPaint = glyphRunList.paint();
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-    GrRecordingContext* context = rtc->priv().getContext();
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    GrRecordingContext* rContext = rtc->priv().recordingContext();
+    GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
     const GrColorInfo& colorInfo = rtc->colorInfo();
 
     // This is the color the op will use to draw.
@@ -261,10 +261,10 @@ GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     if (this->maskFormat() == kARGB_GrMaskFormat) {
         drawingColor = SK_PMColor4fWHITE;
         SkPaintToGrPaintWithPrimitiveColor(
-                context, colorInfo, drawPaint, viewMatrix, &grPaint);
+                rContext, colorInfo, drawPaint, viewMatrix, &grPaint);
     } else {
         drawingColor = generate_filtered_color(drawPaint, colorInfo);
-        SkPaintToGrPaint(context, colorInfo, drawPaint, viewMatrix, &grPaint);
+        SkPaintToGrPaint(rContext, colorInfo, drawPaint, viewMatrix, &grPaint);
     }
 
     // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
