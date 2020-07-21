@@ -207,15 +207,11 @@ GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
     return as_IB(this)->onGetBackendTexture(flushPendingGrContextIO, origin);
 }
 
-bool SkImage::isValid(GrRecordingContext* context) const {
-    if (context && context->abandoned()) {
+bool SkImage::isValid(GrRecordingContext* rContext) const {
+    if (rContext && rContext->abandoned()) {
         return false;
     }
-    return as_IB(this)->onIsValid(context);
-}
-
-bool SkImage::isValid(GrContext* context) const {
-    return this->isValid(static_cast<GrRecordingContext*>(context));
+    return as_IB(this)->onIsValid(rContext);
 }
 
 GrSemaphoresSubmitted SkImage::flush(GrContext* context, const GrFlushInfo& flushInfo) {
@@ -236,15 +232,8 @@ GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
     return GrBackendTexture(); // invalid
 }
 
-bool SkImage::isValid(GrRecordingContext* context) const {
-    if (context) {
-        return false;
-    }
-    return as_IB(this)->onIsValid(nullptr);
-}
-
-bool SkImage::isValid(GrContext* context) const {
-    if (context) {
+bool SkImage::isValid(GrRecordingContext* rContext) const {
+    if (rContext) {
         return false;
     }
     return as_IB(this)->onIsValid(nullptr);
