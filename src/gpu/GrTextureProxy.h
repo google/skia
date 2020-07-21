@@ -34,22 +34,22 @@ public:
     GrMipmapped mipMapped() const;
 
     bool mipMapsAreDirty() const {
-        SkASSERT((GrMipmapped::kNo == fMipMapped) ==
+        SkASSERT((GrMipmapped::kNo == fMipmapped) ==
                  (GrMipmapStatus::kNotAllocated == fMipMapsStatus));
-        return GrMipmapped::kYes == fMipMapped && GrMipmapStatus::kValid != fMipMapsStatus;
+        return GrMipmapped::kYes == fMipmapped && GrMipmapStatus::kValid != fMipMapsStatus;
     }
     void markMipMapsDirty() {
-        SkASSERT(GrMipmapped::kYes == fMipMapped);
+        SkASSERT(GrMipmapped::kYes == fMipmapped);
         fMipMapsStatus = GrMipmapStatus::kDirty;
     }
     void markMipMapsClean() {
-        SkASSERT(GrMipmapped::kYes == fMipMapped);
+        SkASSERT(GrMipmapped::kYes == fMipmapped);
         fMipMapsStatus = GrMipmapStatus::kValid;
     }
 
     // Returns the GrMipmapped value of the proxy from creation time regardless of whether it has
     // been instantiated or not.
-    GrMipmapped proxyMipMapped() const { return fMipMapped; }
+    GrMipmapped proxyMipMapped() const { return fMipmapped; }
 
     GrTextureType textureType() const { return this->backendFormat().textureType(); }
 
@@ -165,7 +165,7 @@ private:
     // that particular class don't require it. Changing the size of this object can move the start
     // address of other types, leading to this problem.
 
-    GrMipmapped      fMipMapped;
+    GrMipmapped      fMipmapped;
 
     // This tracks the mipmap status at the proxy level and is thus somewhat distinct from the
     // backing GrTexture's mipmap status. In particular, this status is used to determine when

@@ -22,7 +22,7 @@
 //-------------------------------------------------------------------------------------------------
 struct ImageInfo {
     SkISize                  fDim;
-    GrMipmapped              fMipMapped;
+    GrMipmapped              fMipmapped;
     SkImage::CompressionType fCompressionType;
 };
 
@@ -113,13 +113,13 @@ static sk_sp<SkData> load_ktx(const char* filename, ImageInfo* imageInfo) {
     }
 
     if (numberOfMipmapLevels == 1) {
-        imageInfo->fMipMapped = GrMipmapped::kNo;
+        imageInfo->fMipmapped = GrMipmapped::kNo;
     } else {
         int numRequiredMipLevels = SkMipmap::ComputeLevelCount(pixelWidth, pixelHeight)+1;
         if (numberOfMipmapLevels != numRequiredMipLevels) {
             return nullptr;
         }
-        imageInfo->fMipMapped = GrMipmapped::kYes;
+        imageInfo->fMipmapped = GrMipmapped::kYes;
     }
 
     if (bytesOfKeyValueData != 0) {
@@ -131,7 +131,7 @@ static sk_sp<SkData> load_ktx(const char* filename, ImageInfo* imageInfo) {
     size_t dataSize = SkCompressedDataSize(imageInfo->fCompressionType,
                                            { (int) pixelWidth, (int) pixelHeight },
                                            &individualMipOffsets,
-                                           imageInfo->fMipMapped == GrMipmapped::kYes);
+                                           imageInfo->fMipmapped == GrMipmapped::kYes);
     SkASSERT(individualMipOffsets.size() == (size_t) numberOfMipmapLevels);
 
     sk_sp<SkData> data = SkData::MakeUninitialized(dataSize);
@@ -254,17 +254,17 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
     int numberOfMipmapLevels = 1;
     if (header.dwFlags & kDDSD_MIPMAPCOUNT) {
         if (header.dwMipMapCount == 1) {
-            imageInfo->fMipMapped = GrMipmapped::kNo;
+            imageInfo->fMipmapped = GrMipmapped::kNo;
         } else {
             int numRequiredLevels = SkMipmap::ComputeLevelCount(header.dwWidth, header.dwHeight)+1;
             if (header.dwMipMapCount != (unsigned) numRequiredLevels) {
                 return nullptr;
             }
-            imageInfo->fMipMapped = GrMipmapped::kYes;
+            imageInfo->fMipmapped = GrMipmapped::kYes;
             numberOfMipmapLevels = numRequiredLevels;
         }
     } else {
-        imageInfo->fMipMapped = GrMipmapped::kNo;
+        imageInfo->fMipmapped = GrMipmapped::kNo;
     }
 
     if (!(header.ddspf.dwFlags & kDDPF_FOURCC)) {
@@ -285,7 +285,7 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
     size_t dataSize = SkCompressedDataSize(imageInfo->fCompressionType,
                                            { (int) header.dwWidth, (int) header.dwHeight },
                                            &individualMipOffsets,
-                                           imageInfo->fMipMapped == GrMipmapped::kYes);
+                                           imageInfo->fMipmapped == GrMipmapped::kYes);
     SkASSERT(individualMipOffsets.size() == (size_t) numberOfMipmapLevels);
 
     sk_sp<SkData> data = SkData::MakeUninitialized(dataSize);
@@ -308,7 +308,7 @@ static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
                                                   info.fDim.fWidth,
                                                   info.fDim.fHeight,
                                                   info.fCompressionType,
-                                                  info.fMipMapped);
+                                                  info.fMipmapped);
     } else {
         return SkImage::MakeRasterFromCompressed(std::move(data),
                                                  info.fDim.fWidth,
@@ -343,7 +343,7 @@ protected:
             sk_sp<SkData> data = load_ktx(GetResourcePath("images/flower-etc1.ktx").c_str(), &info);
             if (data) {
                 SkASSERT(info.fDim.equals(kImgWidthHeight, kImgWidthHeight));
-                SkASSERT(info.fMipMapped == GrMipmapped::kNo);
+                SkASSERT(info.fMipmapped == GrMipmapped::kNo);
                 SkASSERT(info.fCompressionType == SkImage::CompressionType::kETC2_RGB8_UNORM);
 
                 fETC1Image = data_to_img(direct, std::move(data), info);
@@ -357,7 +357,7 @@ protected:
             sk_sp<SkData> data = load_dds(GetResourcePath("images/flower-bc1.dds").c_str(), &info);
             if (data) {
                 SkASSERT(info.fDim.equals(kImgWidthHeight, kImgWidthHeight));
-                SkASSERT(info.fMipMapped == GrMipmapped::kNo);
+                SkASSERT(info.fMipmapped == GrMipmapped::kNo);
                 SkASSERT(info.fCompressionType == SkImage::CompressionType::kBC1_RGB8_UNORM);
 
                 fBC1Image = data_to_img(direct, std::move(data), info);

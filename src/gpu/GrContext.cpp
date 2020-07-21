@@ -681,7 +681,7 @@ bool GrContext::updateBackendTexture(const GrBackendTexture& backendTexture,
     }
 
     int numExpectedLevels = 1;
-    if (backendTexture.hasMipMaps()) {
+    if (backendTexture.hasMipmaps()) {
         numExpectedLevels = SkMipmap::ComputeLevelCount(backendTexture.width(),
                                                         backendTexture.height()) + 1;
     }

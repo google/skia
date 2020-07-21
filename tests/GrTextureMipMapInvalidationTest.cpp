@@ -90,7 +90,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, 
         // ERRORF(reporter, "Could not turn image into texture");
         return;
     }
-    REPORTER_ASSERT(reporter, btex.hasMipMaps());
+    REPORTER_ASSERT(reporter, btex.hasMipmaps());
     // Reimport the texture as an image and perform a downsampling draw with medium quality which
     // should use the upper MIP levels.
     img = SkImage::MakeFromTexture(ctx, btex, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
