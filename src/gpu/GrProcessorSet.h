@@ -166,8 +166,7 @@ private:
         return fFragmentProcessors[idx + fFragmentProcessorOffset].get();
     }
 
-    // This absurdly large limit allows Analysis and this to pack fields together.
-    static constexpr int kMaxColorProcessors = UINT8_MAX;
+    static constexpr int kMaxColorProcessors = 1;
 
     enum Flags : uint16_t { kFinalized_Flag = 0x1 };
 
