@@ -52,6 +52,24 @@
       "revId": "73923522fd679a4f001d2ff63b476e38b6a58ff1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d33adbd9_eee51749",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-21T16:28:48Z",
+      "side": 1,
+      "message": "This landed in v0.17.1 of CanvasKit which is live on npm.",
+      "parentUuid": "97138588_3e117e0e",
+      "revId": "73923522fd679a4f001d2ff63b476e38b6a58ff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
