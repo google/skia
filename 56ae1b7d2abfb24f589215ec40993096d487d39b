@@ -33,6 +33,23 @@
       "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c02ce08_398e1bf5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-21T16:01:01Z",
+      "side": 1,
+      "message": "Chris, how important is this class to CCPR? The shader builder use cases are not important and we could replace with something like std::vector (and make copies of some values returned to callers). I\u0027m wondering if this is something we need to keep at all.",
+      "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
