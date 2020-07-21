@@ -30,9 +30,18 @@ release_full: clean_examples
 	cp ../../out/skottiekit/skottiekit.js       ./examples/bin
 	cp ../../out/skottiekit/skottiekit.wasm     ./examples/bin
 
+npm: clean_npm
+	./compile.sh full-build
+	cp ../../out/skottiekit/skottiekit.js       ./skottiekit/bin
+	cp ../../out/skottiekit/skottiekit.wasm     ./skottiekit/bin
+
 clean_examples:
 	rm -f ./examples/bin/*
 	mkdir -p ./examples/bin
+
+clean_npm:
+	rm -f ./skottiekit/bin/*
+	mkdir -p ./skottiekit/bin
 
 serve:
 	echo "Go check out http://localhost:8001/"
