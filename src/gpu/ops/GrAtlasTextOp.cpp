@@ -476,14 +476,15 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
         return nullptr;
     }
 
-    const GrRecordingContextPriv& contextPriv = rtc->priv().getContext()->priv();
-    GrSDFTOptions SDFOptions = contextPriv.SDFTOptions();
+
+    auto rContext = rtc->priv().recordingContext();
+    GrSDFTOptions SDFOptions = rContext->priv().SDFTOptions();
 
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
     SkGlyphRunListPainter* painter = rtc->priv().testingOnly_glyphRunPainter();
     painter->processGlyphRunList(
             glyphRunList, drawMatrix, rtc->surfaceProps(),
-            contextPriv.caps()->shaderCaps()->supportsDistanceFieldText(),
+            rContext->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
     if (!blob->subRunList().head()) {
         return nullptr;

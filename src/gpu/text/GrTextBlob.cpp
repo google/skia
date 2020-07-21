@@ -84,7 +84,7 @@ void GrPathSubRun::draw(const GrClip* clip,
 
             GrStyledShape shape(path, drawPaint);
             GrBlurUtils::drawShapeWithMaskFilter(
-                    rtc->priv().getContext(), rtc, clip, runPaint, strikeToDevice, shape);
+                    rtc->priv().recordingContext(), rtc, clip, runPaint, strikeToDevice, shape);
         }
     } else {
         // Transform the path to device because the deviceMatrix must be unchanged to
@@ -101,7 +101,7 @@ void GrPathSubRun::draw(const GrClip* clip,
             deviceOutline.setIsVolatile(true);
             GrStyledShape shape(deviceOutline, drawPaint);
             GrBlurUtils::drawShapeWithMaskFilter(
-                    rtc->priv().getContext(), rtc, clip, runPaint, viewMatrix, shape);
+                    rtc->priv().recordingContext(), rtc, clip, runPaint, viewMatrix, shape);
         }
     }
 }
@@ -288,13 +288,13 @@ static SkPMColor4f calculate_colors(GrRenderTargetContext* rtc,
                                     const SkMatrixProvider& matrix,
                                     GrMaskFormat grMaskFormat,
                                     GrPaint* grPaint) {
-    GrRecordingContext* context = rtc->priv().getContext();
+    GrRecordingContext* rContext = rtc->priv().recordingContext();
     const GrColorInfo& colorInfo = rtc->colorInfo();
     if (grMaskFormat == kARGB_GrMaskFormat) {
-        SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, paint, matrix, grPaint);
+        SkPaintToGrPaintWithPrimitiveColor(rContext, colorInfo, paint, matrix, grPaint);
         return SK_PMColor4fWHITE;
     } else {
-        SkPaintToGrPaint(context, colorInfo, paint, matrix, grPaint);
+        SkPaintToGrPaint(rContext, colorInfo, paint, matrix, grPaint);
 
         // Calculate the drawing color.
         SkColor4f c = paint.getColor4f();
@@ -356,7 +356,7 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
             drawingColor
     };
 
-    GrOpMemoryPool* const pool = rtc->priv().getContext()->priv().opMemoryPool();
+    GrOpMemoryPool* const pool = rtc->priv().recordingContext()->priv().opMemoryPool();
     std::unique_ptr<GrDrawOp> op = pool->allocate<GrAtlasTextOp>(op_mask_type(fMaskFormat),
                                                                  false,
                                                                  this->glyphCount(),
@@ -506,7 +506,8 @@ GrMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     SkPoint drawOrigin = glyphRunList.origin();
     const SkPaint& drawPaint = glyphRunList.paint();
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-    GrOpMemoryPool* pool = rtc->priv().getContext()->priv().opMemoryPool();
+    GrRecordingContext* rContext = rtc->priv().recordingContext();
+    GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
 
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
