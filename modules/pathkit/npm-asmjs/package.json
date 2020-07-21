@@ -8,5 +8,8 @@
     "url": "https://bugs.chromium.org/p/skia/issues/entry"
   },
   "permsRepo": "skia-dev/.github",
+  "publishConfig": {
+    "registry":"https://wombat-dressing-room.appspot.com"
+  },
   "license": "BSD-3-Clause"
 }
