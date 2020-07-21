@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d93ab8c1_fbb44ee4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T14:50:28Z",
+      "side": 1,
+      "message": "Do you think this needs a test where the SkColorType and the backend format are incompatible?",
+      "revId": "2c8bdaa66798bcc95ac62f4a956024a8f3dc0670",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
