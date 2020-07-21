@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b6c4aae_52f19437",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T00:28:26Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look. The fuzzer currently runs around 500/sec",
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
