@@ -16,6 +16,24 @@
       "revId": "2c8bdaa66798bcc95ac62f4a956024a8f3dc0670",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d439f7c_f890ef94",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-21T14:59:47Z",
+      "side": 1,
+      "message": "I don\u0027t really think so. I mean we don\u0027t have tests that try to do any sort of things with incompatible format/colortype combinations.",
+      "parentUuid": "d93ab8c1_fbb44ee4",
+      "revId": "2c8bdaa66798bcc95ac62f4a956024a8f3dc0670",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
