@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e917258_9dfc0525",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-21T15:21:18Z",
+      "side": 1,
+      "message": "Feels like this check (and the resulting debugfail/drop code) could just be an assert here now, given that we know (statically) that numColorFragmentProcessors can only return 0 or 1?",
+      "revId": "1afb1c305afe73cf0f3be044107abf44365ec3b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
