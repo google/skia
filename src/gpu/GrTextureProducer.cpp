@@ -89,7 +89,7 @@ GrSurfaceProxyView GrTextureProducer::view(GrMipmapped mipMapped) {
     const GrCaps* caps = this->context()->priv().caps();
     // Sanitize the MIP map request.
     if (mipMapped == GrMipmapped::kYes) {
-        if ((this->width() == 1 && this->height() == 1) || !caps->mipMapSupport()) {
+        if ((this->width() == 1 && this->height() == 1) || !caps->mipmapSupport()) {
             mipMapped = GrMipmapped::kNo;
         }
     }

@@ -100,7 +100,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
         return false;
     }
     GrSurfaceProxyView newViews[4];
-    if (!context->priv().caps()->mipMapSupport()) {
+    if (!context->priv().caps()->mipmapSupport()) {
         // We succeed in this case by doing nothing.
         return true;
     }
@@ -282,7 +282,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrContext* context, SkYUVColorSpace 
         return nullptr;
     }
 
-    if (!context->priv().caps()->mipMapSupport()) {
+    if (!context->priv().caps()->mipmapSupport()) {
         buildMips = false;
     }
 

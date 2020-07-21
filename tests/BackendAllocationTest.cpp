@@ -722,7 +722,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         }
 
         for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
-            if (GrMipmapped::kYes == mipMapped && !caps->mipMapSupport()) {
+            if (GrMipmapped::kYes == mipMapped && !caps->mipmapSupport()) {
                 continue;
             }
 
@@ -907,7 +907,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
 
             for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
                 if (GrMipmapped::kYes == mipMapped &&
-                    (!glCaps->mipMapSupport() || target == GR_GL_TEXTURE_RECTANGLE)) {
+                    (!glCaps->mipmapSupport() || target == GR_GL_TEXTURE_RECTANGLE)) {
                     continue;
                 }
 
@@ -1056,7 +1056,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         GrBackendFormat format = GrBackendFormat::MakeVk(combo.fFormat);
 
         for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
-            if (GrMipmapped::kYes == mipMapped && !vkCaps->mipMapSupport()) {
+            if (GrMipmapped::kYes == mipMapped && !vkCaps->mipmapSupport()) {
                 continue;
             }
 

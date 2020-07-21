@@ -37,7 +37,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     /**************************************************************************
      * GrCaps fields
      **************************************************************************/
-    fMipMapSupport = true;   // always available in Vulkan
+    fMipmapSupport = true;   // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out

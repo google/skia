@@ -341,7 +341,7 @@ public:
     /// Are textures with GL_TEXTURE_RECTANGLE type supported.
     bool rectangleTextureSupport() const { return fRectangleTextureSupport; }
 
-    bool mipMapLevelAndLodControlSupport() const { return fMipMapLevelAndLodControlSupport; }
+    bool mipmapLevelAndLodControlSupport() const { return fMipmapLevelAndLodControlSupport; }
 
     bool doManualMipmapping() const { return fDoManualMipmapping; }
 
@@ -399,8 +399,8 @@ public:
     bool neverDisableColorWrites() const { return fNeverDisableColorWrites; }
 
     // Texture parameters must be used to enable MIP mapping even when a sampler object is used.
-    bool mustSetTexParameterMinFilterToEnableMipMapping() const {
-        return fMustSetTexParameterMinFilterToEnableMipMapping;
+    bool mustSetTexParameterMinFilterToEnableMipmapping() const {
+        return fMustSetTexParameterMinFilterToEnableMipmapping;
     }
 
     // Returns the observed maximum number of instances the driver can handle in a single draw call
@@ -534,7 +534,7 @@ private:
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
     bool fRectangleTextureSupport : 1;
-    bool fMipMapLevelAndLodControlSupport : 1;
+    bool fMipmapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
     bool fUseBufferDataNullHint                : 1;
     bool fClearTextureSupport : 1;
@@ -556,7 +556,7 @@ private:
     bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
     bool fDontSetBaseOrMaxLevelForExternalTextures : 1;
     bool fNeverDisableColorWrites : 1;
-    bool fMustSetTexParameterMinFilterToEnableMipMapping : 1;
+    bool fMustSetTexParameterMinFilterToEnableMipmapping : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
