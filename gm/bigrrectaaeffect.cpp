@@ -98,7 +98,7 @@ protected:
                     GrPaint grPaint;
                     grPaint.setColor4f({ 0, 0, 0, 1.f });
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                    grPaint.addCoverageFragmentProcessor(std::move(fp));
+                    grPaint.setCoverageFragmentProcessor(std::move(fp));
 
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));

@@ -89,7 +89,7 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, rtCtx, canvas, 512, 512,
     auto fp = std::unique_ptr<GrFragmentProcessor>(new SampleCoordEffect(std::move(imgFP)));
 
     GrPaint grPaint;
-    grPaint.addCoverageFragmentProcessor(std::move(fp));
+    grPaint.setCoverageFragmentProcessor(std::move(fp));
 
     rtCtx->priv().testingOnly_addDrawOp(GrFillRectOp::MakeNonAARect(ctx,
                                                                     std::move(grPaint),

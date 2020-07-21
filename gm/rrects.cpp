@@ -124,7 +124,7 @@ protected:
                         if (success) {
                             GrPaint grPaint;
                             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                            grPaint.addCoverageFragmentProcessor(std::move(fp));
+                            grPaint.setCoverageFragmentProcessor(std::move(fp));
                             grPaint.setColor4f({ 0, 0, 0, 1.f });
 
                             SkRect bounds = rrect.getBounds();

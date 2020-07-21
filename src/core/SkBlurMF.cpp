@@ -769,7 +769,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         if (!fp) {
             return false;
         }
-        paint.addCoverageFragmentProcessor(std::move(fp));
+        paint.setCoverageFragmentProcessor(std::move(fp));
 
         SkRect srcProxyRect = srcRRect.rect();
         SkScalar outsetX = 3.0f*fSigma;
@@ -804,7 +804,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         memcpy(builder.indices(), fullIndices, sizeof(fullIndices));
         sk_sp<SkVertices> vertices = builder.detach();
 
-        paint.addCoverageFragmentProcessor(std::move(fp));
+        paint.setCoverageFragmentProcessor(std::move(fp));
         SkSimpleMatrixProvider matrixProvider(viewMatrix);
         renderTargetContext->drawVertices(clip, std::move(paint), matrixProvider,
                                           std::move(vertices));
@@ -818,7 +818,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         SkRect proxyRect = devRRect.rect();
         proxyRect.outset(extra, extra);
 
-        paint.addCoverageFragmentProcessor(std::move(fp));
+        paint.setCoverageFragmentProcessor(std::move(fp));
         renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo,
                                                      SkMatrix::I(), proxyRect, inverse);
     }
@@ -896,7 +896,7 @@ GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* conte
     if (!isNormalBlur) {
         GrPaint paint;
         // Blend pathTexture over blurTexture.
-        paint.addCoverageFragmentProcessor(GrTextureEffect::Make(std::move(srcView), srcAlphaType));
+        paint.setCoverageFragmentProcessor(GrTextureEffect::Make(std::move(srcView), srcAlphaType));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);

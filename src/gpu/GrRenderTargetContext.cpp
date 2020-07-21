@@ -776,8 +776,7 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip* clip,
 
     SkPMColor4f* constColor = nullptr;
     SkPMColor4f paintColor;
-    if (!ss && !paint.numCoverageFragmentProcessors() &&
-        paint.isConstantBlendedColor(&paintColor)) {
+    if (!ss && !paint.hasCoverageFragmentProcessor() && paint.isConstantBlendedColor(&paintColor)) {
         // Only consider clears/rrects when it's easy to guarantee 100% fill with single color
         constColor = &paintColor;
     }
@@ -1444,7 +1443,7 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip* clip,
         return false;
     }
 
-    paint.addCoverageFragmentProcessor(std::move(fp));
+    paint.setCoverageFragmentProcessor(std::move(fp));
 
     SkRect bounds = outer->getBounds();
     if (GrAAType::kCoverage == aaType) {

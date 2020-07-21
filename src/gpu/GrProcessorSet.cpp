@@ -31,9 +31,8 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
     if (paint.fColorFragmentProcessor) {
         fFragmentProcessors[i++] = std::move(paint.fColorFragmentProcessor);
     }
-    for (auto& fp : paint.fCoverageFragmentProcessors) {
-        SkASSERT(fp.get());
-        fFragmentProcessors[i++] = std::move(fp);
+    if (paint.fCoverageFragmentProcessor) {
+        fFragmentProcessors[i++] = std::move(paint.fCoverageFragmentProcessor);
     }
 
     SkDEBUGCODE(paint.fAlive = false;)
