@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12fb59cb_fa7532e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-21T16:07:18Z",
+      "side": 1,
+      "message": "Fixed usage of multiple color processors in CCPR test code.",
+      "revId": "c4c2692932aff86ac4d403ef19d3f840fdfc0a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
