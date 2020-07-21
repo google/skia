@@ -340,7 +340,7 @@ public:
         if (count > kCount) {
             if (fPtr == fTStorage) {
                 fPtr = (T*)sk_malloc_throw(count, sizeof(T));
-                memcpy(fPtr, fTStorage, kCount * sizeof(T));
+                memcpy((void*)fPtr, fTStorage, kCount * sizeof(T));
             } else {
                 fPtr = (T*)sk_realloc_throw(fPtr, count, sizeof(T));
             }

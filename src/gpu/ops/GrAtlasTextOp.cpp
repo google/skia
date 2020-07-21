@@ -38,8 +38,8 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              bool needsTransform,
                              int glyphCount,
                              SkRect deviceRect,
-                             GrPaint&& paint,
-                             Geometry&& geo)
+                             const Geometry& geo,
+                             GrPaint&& paint)
          : INHERITED{ClassID()}
          , fMaskType{maskType}
          , fNeedsGlyphTransform{needsTransform}
@@ -49,7 +49,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
          , fGeoDataAllocSize{kMinGeometryAllocated}
          , fProcessors{std::move(paint)}
          , fNumGlyphs{glyphCount} {
-    fGeoData[0] = std::move(geo);
+    new (&fGeoData[0]) Geometry{geo};
     fGeoCount = 1;
 
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
@@ -64,8 +64,8 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              SkColor luminanceColor,
                              bool useGammaCorrectDistanceTable,
                              uint32_t DFGPFlags,
-                             GrPaint&& paint,
-                             Geometry&& geo)
+                             const Geometry& geo,
+                             GrPaint&& paint)
         : INHERITED{ClassID()}
         , fMaskType{maskType}
         , fNeedsGlyphTransform{needsTransform}
@@ -75,7 +75,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
         , fGeoDataAllocSize{kMinGeometryAllocated}
         , fProcessors{std::move(paint)}
         , fNumGlyphs{glyphCount} {
-    fGeoData[0] = std::move(geo);
+    new (&fGeoData[0]) Geometry{geo};
     fGeoCount = 1;
 
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
@@ -230,7 +230,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     resetVertexBuffer();
 
     for (const Geometry& geo : SkMakeSpan(fGeoData.get(), fGeoCount)) {
-        GrAtlasSubRun* subRun = geo.fSubRunPtr;
+        GrAtlasSubRun* const subRun = geo.fSubRunPtr;
         SkASSERT((int)subRun->vertexStride() == vertexStride);
 
         const int subRunEnd = subRun->glyphCount();
@@ -390,12 +390,10 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingConte
 
     // We steal the ref on the blobs from the other AtlasTextOp and set its count to 0 so that
     // it doesn't try to unref them.
-    memcpy(&fGeoData[fGeoCount], that->fGeoData.get(), that->fGeoCount * sizeof(Geometry));
-#ifdef SK_DEBUG
-    for (int i = 0; i < that->fGeoCount; ++i) {
-        that->fGeoData.get()[i].fBlob = (GrTextBlob*)0x1;
+    for (int i = 0; i < that->fGeoCount; i++) {
+        new (&fGeoData[fGeoCount + i]) Geometry{that->fGeoData[i]};
     }
-#endif
+
     that->fGeoCount = 0;
     fGeoCount = newGeoCount;
 
