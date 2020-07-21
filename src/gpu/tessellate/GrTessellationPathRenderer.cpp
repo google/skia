@@ -143,7 +143,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
             !args.fCaps->shaderCaps()->tessellationSupport() ||
             GrAAType::kCoverage == args.fAAType || !args.fViewMatrix->isSimilarity() ||
             !args.fPaint->isConstantBlendedColor(&constantColor) ||
-            args.fPaint->numCoverageFragmentProcessors()) {
+            args.fPaint->hasCoverageFragmentProcessor()) {
             return CanDrawPath::kNo;
         }
     }
