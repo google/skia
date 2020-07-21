@@ -203,7 +203,7 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex,
         return nullptr;
     }
 
-    GrMipmapStatus mipmapStatus = tex.hasMipMaps() ? GrMipmapStatus::kValid
+    GrMipmapStatus mipmapStatus = tex.hasMipmaps() ? GrMipmapStatus::kValid
                                                    : GrMipmapStatus::kNotAllocated;
     auto isProtected = GrProtected(tex.isProtected());
     return sk_sp<GrTexture>(new GrMockTexture(this, tex.dimensions(), isProtected, mipmapStatus,
@@ -225,7 +225,7 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     SkASSERT(texInfo.compressionType() == SkImage::CompressionType::kNone);
 
     GrMipmapStatus mipmapStatus =
-            tex.hasMipMaps() ? GrMipmapStatus::kValid : GrMipmapStatus::kNotAllocated;
+            tex.hasMipmaps() ? GrMipmapStatus::kValid : GrMipmapStatus::kNotAllocated;
 
     // The client gave us the texture ID but we supply the render target ID.
     GrMockRenderTargetInfo rtInfo(texInfo.colorType(), NextInternalRenderTargetID());
