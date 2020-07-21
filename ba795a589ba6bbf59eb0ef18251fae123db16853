@@ -16,6 +16,23 @@
       "revId": "ba795a589ba6bbf59eb0ef18251fae123db16853",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d5478f4_1f3ca6de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-07-21T19:35:28Z",
+      "side": 1,
+      "message": "CQ+1 -- this is just sample code and I got a \"go ahead\" from Mike",
+      "revId": "ba795a589ba6bbf59eb0ef18251fae123db16853",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
