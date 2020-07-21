@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b9aa5bd_121e6095",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-21T18:54:37Z",
+      "side": 1,
+      "message": "nit: either just \"if\" or \"it when\"",
+      "range": {
+        "startLine": 73,
+        "startChar": 47,
+        "endLine": 73,
+        "endChar": 55
+      },
+      "revId": "d9af8ad5aea68aa265d6a75ddd8138dc8c84426e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91b01c14_547e3fd5",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 996,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-21T18:54:37Z",
+      "side": 1,
+      "message": "would be nice if samplers could be dynamic state.",
+      "range": {
+        "startLine": 995,
+        "startChar": 12,
+        "endLine": 996,
+        "endChar": 49
+      },
+      "revId": "d9af8ad5aea68aa265d6a75ddd8138dc8c84426e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
