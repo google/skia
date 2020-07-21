@@ -1418,10 +1418,9 @@ namespace skvm {
             sat = mx - mn;
 
         // Map min channel to 0, max channel to s, and scale the middle proportionally.
-        auto scale = [&](auto c) {
-            // TODO: better to divide and check for non-finite result?
-            return select(sat == 0.0f, 0.0f
-                                     , ((c - mn) * s) / sat);
+        auto scale = [&](skvm::F32 c) {
+            auto scaled = ((c - mn) * s) / sat;
+            return select(is_finite(scaled), scaled, 0.0f);
         };
         *r = scale(*r);
         *g = scale(*g);
@@ -1568,7 +1567,6 @@ namespace skvm {
 
             case SkBlendMode::kColorBurn:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    // TODO: divide and check for non-finite result instead of checking for s == 0.
                     auto mn   = min(dst.a,
                                     src.a * (dst.a - d) / s),
                          burn = src.a * (dst.a - mn) + mma(s, 1-dst.a, d, 1-src.a);
@@ -1579,7 +1577,6 @@ namespace skvm {
 
             case SkBlendMode::kColorDodge:
                 return apply_rgb_srcover_a([&](auto s, auto d) {
-                    // TODO: divide and check for non-finite result instead of checking for s == sa.
                     auto dodge = src.a * min(dst.a,
                                              d * src.a / (src.a - s))
                                        + mma(s, 1-dst.a, d, 1-src.a);
