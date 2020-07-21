@@ -137,6 +137,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
                 (componentHeight != yuvSizeInfo.fSizes[0].fHeight)
                     ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
+        // TODO: It can't be correct in general to assume a bit depth and single channel here.
         SkImageInfo imageInfo = SkImageInfo::MakeA8(componentWidth, componentHeight);
         SkCachedData* dataStoragePtr = dataStorage.get();
         // We grab a ref to cached yuv data. When the SkBitmap we create below goes away it will
@@ -160,6 +161,11 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
         }
 
         SkASSERT(yuvViews[i].proxy()->dimensions() == yuvSizeInfo.fSizes[i]);
+    }
+    // Regardless of what getPlanes() told us, we just created proxy views where we expect the
+    // channel data to be in the views' alpha channels.
+    for (int i = 0; i < 4; ++i) {
+        yuvaIndices[i].fChannel = SkColorChannel::kA;
     }
 
     // TODO: investigate preallocating mip maps here

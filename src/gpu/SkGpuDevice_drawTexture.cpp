@@ -869,6 +869,10 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             if (!view) {
                 view = image->refView(this->recordingContext(), GrMipmapped::kNo);
             }
+            if (image->isAlphaOnly()) {
+                GrSwizzle swizzle = GrSwizzle::Concat(view.swizzle(), GrSwizzle("aaaa"));
+                view = {view.detachProxy(), view.origin(), swizzle};
+            }
         }
 
         if (!view) {

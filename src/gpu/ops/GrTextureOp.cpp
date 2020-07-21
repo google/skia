@@ -1106,8 +1106,9 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         } else {
             fp = GrTextureEffect::Make(std::move(proxyView), alphaType, SkMatrix::I(), filter);
         }
-        fp = GrXfermodeFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
+
+        fp = GrXfermodeFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
         if (saturate == GrTextureOp::Saturate::kYes) {
             fp = GrClampFragmentProcessor::Make(std::move(fp), /*clampToPremul=*/false);
         }

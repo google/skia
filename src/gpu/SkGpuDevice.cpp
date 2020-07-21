@@ -41,6 +41,7 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTracing.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/image/SkImage_Base.h"
@@ -673,13 +674,9 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
             result->getColorSpace(), result->alphaType(),
             fRenderTargetContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
     if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
-        fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
-    } else {
-        if (paint.getColor4f().isOpaque()) {
-            fp = GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
-        } else {
-            fp = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
-        }
+        fp = GrXfermodeFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kSrcIn);
+    } else if (!paint.getColor4f().isOpaque()) {
+        fp = GrXfermodeFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
     }
 
     GrPaint grPaint;

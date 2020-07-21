@@ -67,6 +67,10 @@ static sk_sp<SkImage> make_image(GrContext* context) {
             pixmaps[i].reset(SkImageInfo::MakeA8(info.fSizes[i]), planes[i], info.fWidthBytes[i]);
         }
     }
+    // We just ignored the indices returned by getPlanes and made alpha-only pixmaps.
+    for (int i = 0; i < 4; ++i) {
+        indices[i].fChannel = SkColorChannel::kA;
+    }
     return SkImage::MakeFromYUVAPixmaps(context, cs, pixmaps, indices, image->dimensions(),
                                         kTopLeft_GrSurfaceOrigin, false);
 }
