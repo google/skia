@@ -23,7 +23,8 @@ public:
             GrSurfaceProxyView,
             SkAlphaType,
             const SkMatrix& = SkMatrix::I(),
-            GrSamplerState::Filter = GrSamplerState::Filter::kNearest);
+            GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
+            GrSamplerState::MipmapMode mipmapMode = GrSamplerState::MipmapMode::kNone);
 
     /**
      * Make from a full GrSamplerState. Caps are required to determine support for kClampToBorder.
@@ -124,16 +125,19 @@ private:
      * filter.
      */
     enum class ShaderMode : uint16_t {
-        kNone,                  // Using HW mode
-        kClamp,                 // Shader based clamp, no filter specialization
-        kRepeatNearest,         // Simple repeat for nearest sampling
-        kRepeatLinear,          // Filter across the subset boundary for kRepeat mode
-        kRepeatMipMap,          // Logic for LOD selection with kRepeat mode.
-        kMirrorRepeat,          // Mirror repeat (doesn't depend on filter))
-        kClampToBorderNearest,  // Logic for hard transition to border color when not filtering.
-        kClampToBorderFilter,   // Logic for fading to border color when filtering.
+        kNone,                   // Using HW mode
+        kClamp,                  // Shader based clamp, no filter specialization
+        kRepeat_Nearest_None,    // Simple repeat for nearest sampling, no mipmapping
+        kRepeat_Linear_None,     // Filter the subset boundary for kRepeat mode, no mip mapping
+        kRepeat_Linear_Mipmap,   // Logic for linear filtering and LOD selection with kRepeat mode.
+        kRepeat_Nearest_Mipmap,  // Logic for nearest filtering and LOD selection with kRepeat mode.
+        kMirrorRepeat,           // Mirror repeat (doesn't depend on filter))
+        kClampToBorder_Nearest,  // Logic for hard transition to border color when not filtering.
+        kClampToBorder_Filter,   // Logic for fading to border color when filtering.
     };
-    static ShaderMode GetShaderMode(GrSamplerState::WrapMode, GrSamplerState::Filter);
+    static ShaderMode GetShaderMode(GrSamplerState::WrapMode,
+                                    GrSamplerState::Filter,
+                                    GrSamplerState::MipmapMode);
     static bool ShaderModeIsClampToBorder(ShaderMode);
 
     GrSurfaceProxyView fView;
