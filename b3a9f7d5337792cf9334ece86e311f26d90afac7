@@ -151,6 +151,30 @@
     },
     {
       "key": {
+        "uuid": "e82194df_090f4247",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T12:45:49Z",
+      "side": 1,
+      "message": "Ultimately they will be fuzzed but I wanted to get something landed and then iterate.",
+      "parentUuid": "8b5cd41d_e7090729",
+      "range": {
+        "startLine": 40,
+        "startChar": 58,
+        "endLine": 40,
+        "endChar": 101
+      },
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e923fcdc_d389a90f",
         "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 5
@@ -162,6 +186,24 @@
       "writtenOn": "2020-07-21T12:18:00Z",
       "side": 1,
       "message": "Is this just a starting point for the fuzzer? Drawing a colored rectangle? I imagine for full coverage we\u0027ll want to test as much of the API as we can.",
+      "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bf44c19_fba760e6",
+        "filename": "fuzz/oss_fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T12:45:49Z",
+      "side": 1,
+      "message": "Well - each helper method here is going to be one axis of fuzzing but I proposed that we land something and iterate.\n\nThe immediate next steps are to add reading back the image (so we can very that the DDL drawing is correct) and to generate multiple DDLs for a single surface (feeding each one the same content).\n\nNote that we haven\u0027t even gotten to threads and promise images yet.",
+      "parentUuid": "e923fcdc_d389a90f",
       "revId": "b3a9f7d5337792cf9334ece86e311f26d90afac7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
