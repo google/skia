@@ -54,6 +54,274 @@
     },
     {
       "key": {
+        "uuid": "0cef6012_7febea45",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "This fuzzer aims ?",
+      "range": {
+        "startLine": 24,
+        "startChar": 3,
+        "endLine": 24,
+        "endChar": 17
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b4e9a2e_b2e53fef",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "consists ?",
+      "range": {
+        "startLine": 24,
+        "startChar": 75,
+        "endLine": 24,
+        "endChar": 83
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37dfd800_9789dd44",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "and use ?",
+      "range": {
+        "startLine": 24,
+        "startChar": 30,
+        "endLine": 24,
+        "endChar": 39
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86a364d1_9719cb1f",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Pass this as \"const SkImageInfo\u0026 ii\"",
+      "range": {
+        "startLine": 38,
+        "startChar": 94,
+        "endLine": 38,
+        "endChar": 106
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa1caf34_e04f3fd7",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Add newlines here",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e04345a_434cc05f",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Line this up with the \u0027kRGBA\u0027",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a37a7ce_c3d9d1fd",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Line this up with the \u0027\"\u0027",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8157f4d6_07701743",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Delete these unnecessary lines",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c5c9a60_4be1490b",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Pass this as \"const SkSurfaceCharacterization\u0026\"",
+      "range": {
+        "startLine": 70,
+        "startChar": 84,
+        "endLine": 70,
+        "endChar": 110
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db580a17_b4f7b37d",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Add a newline here",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3af747a5_4899f032",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Move this up a line",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f45576ad_a3cb6f32",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Add a comment here like:\n\n// For now we only draw a rect into the DDL. This will be scaled up to draw more varied content.",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3263d682_ba0f2266",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Can this be \"SkPaint paint(color);\" ?",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db8d37ae_12763d56",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "You make the paint but don\u0027t use it here?",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0cf1c717_646a2c2a",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 6
@@ -70,6 +338,29 @@
         "startChar": 69,
         "endLine": 98,
         "endChar": 70
+      },
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6318cd5_91b17a3e",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T17:16:24Z",
+      "side": 1,
+      "message": "Define a type for this to shorten this line. I.e., \n\nusing SurfaceAndChar std::tuple\u003csk_sp\u003cSkSurface\u003e, SkSurfaceCharacterization\u003e;\n\nand then:\n\nstatic SurfaceAndChar create ...",
+      "range": {
+        "startLine": 106,
+        "startChar": 7,
+        "endLine": 106,
+        "endChar": 62
       },
       "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
