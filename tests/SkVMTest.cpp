@@ -2260,3 +2260,27 @@ DEF_TEST(SkVM_64bit, r) {
         });
     }
 }
+
+DEF_TEST(SkVM_is_NaN_is_finite, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg src = b.varying<float>(),
+                  nan = b.varying<int>(),
+                  fin = b.varying<int>();
+        b.store32(nan, is_NaN   (b.loadF(src)));
+        b.store32(fin, is_finite(b.loadF(src)));
+    }
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        // ±NaN, ±0, ±1, ±inf
+        const uint32_t bits[] = {0x7f80'0001, 0xff80'0001, 0x0000'0000, 0x8000'0000,
+                                 0x3f80'0000, 0xbf80'0000, 0x7f80'0000, 0xff80'0000};
+        uint32_t nan[8], fin[8];
+        program.eval(8, bits, nan,fin);
+
+        for (int i = 0; i < 8; i++) {
+            REPORTER_ASSERT(r, nan[i] == ((i == 0 || i == 1) ? 0xffffffff : 0));
+            REPORTER_ASSERT(r, fin[i] == ((i == 2 || i == 3 ||
+                                           i == 4 || i == 5) ? 0xffffffff : 0));
+        }
+    });
+}

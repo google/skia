@@ -659,7 +659,8 @@ namespace skvm {
         F32  fract(F32 x) { return sub(x, floor(x)); }
         F32   ceil(F32);
         F32  floor(F32);
-        I32 is_NaN(F32 x) { return neq(x,x); }
+        I32 is_NaN   (F32 x) { return neq(x,x); }
+        I32 is_finite(F32 x) { return lt(bit_and(bit_cast(x), 0x7f80'0000), 0x7f80'0000); }
 
         I32 trunc(F32 x);
         I32 round(F32 x);  // Round to int using current rounding mode (as if lrintf()).
@@ -1001,12 +1002,13 @@ namespace skvm {
     static inline F32 approx_atan(F32 x) { return x->approx_atan(x); }
     static inline F32 approx_atan2(F32 y, F32 x) { return x->approx_atan2(y, x); }
 
-    static inline F32 clamp01(F32 x) { return x->clamp01(x); }
-    static inline F32     abs(F32 x) { return x->    abs(x); }
-    static inline F32    ceil(F32 x) { return x->   ceil(x); }
-    static inline F32   fract(F32 x) { return x->  fract(x); }
-    static inline F32   floor(F32 x) { return x->  floor(x); }
-    static inline I32  is_NaN(F32 x) { return x-> is_NaN(x); }
+    static inline F32   clamp01(F32 x) { return x->  clamp01(x); }
+    static inline F32       abs(F32 x) { return x->      abs(x); }
+    static inline F32      ceil(F32 x) { return x->     ceil(x); }
+    static inline F32     fract(F32 x) { return x->    fract(x); }
+    static inline F32     floor(F32 x) { return x->    floor(x); }
+    static inline I32    is_NaN(F32 x) { return x->   is_NaN(x); }
+    static inline I32 is_finite(F32 x) { return x->is_finite(x); }
 
     static inline I32     trunc(F32 x) { return x->    trunc(x); }
     static inline I32     round(F32 x) { return x->    round(x); }
