@@ -45,7 +45,7 @@ public:
     bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
         only for POT textures) */
-    bool mipMapSupport() const { return fMipMapSupport; }
+    bool mipmapSupport() const { return fMipmapSupport; }
 
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
@@ -460,7 +460,7 @@ protected:
     sk_sp<GrShaderCaps> fShaderCaps;
 
     bool fNPOTTextureTileSupport                     : 1;
-    bool fMipMapSupport                              : 1;
+    bool fMipmapSupport                              : 1;
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;

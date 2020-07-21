@@ -262,7 +262,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     GrProcessorTestData::ViewInfo views[2];
 
     // setup dummy textures
-    GrMipmapped mipMapped = GrMipmapped(caps->mipMapSupport());
+    GrMipmapped mipMapped = GrMipmapped(caps->mipmapSupport());
     {
         static constexpr SkISize kDummyDims = {34, 18};
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,

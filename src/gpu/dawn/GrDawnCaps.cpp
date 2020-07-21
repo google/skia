@@ -14,7 +14,7 @@
 #include "src/gpu/GrStencilSettings.h"
 
 GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(contextOptions) {
-    fMipMapSupport = false;  // FIXME: implement onRegenerateMipMapLevels in GrDawnGpu.
+    fMipmapSupport = false;  // FIXME: implement onRegenerateMipMapLevels in GrDawnGpu.
     fBufferMapThreshold = SK_MaxS32;  // FIXME: get this from Dawn?
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
     fMaxTextureSize = fMaxRenderTargetSize = 8192; // FIXME

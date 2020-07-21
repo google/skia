@@ -265,7 +265,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fOversizedStencilSupport = true;
 
-    fMipMapSupport = true;   // always available in Metal
+    fMipmapSupport = true;   // always available in Metal
     fNPOTTextureTileSupport = true;  // always available in Metal
 
     fReuseScratchTextures = true; // Assuming this okay

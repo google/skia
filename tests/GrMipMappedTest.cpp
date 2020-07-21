@@ -35,7 +35,7 @@ static constexpr int kSize = 8;
 // SkImages and SkSurfaces
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
-    if (!context->priv().caps()->mipMapSupport()) {
+    if (!context->priv().caps()->mipmapSupport()) {
         return;
     }
 
@@ -110,7 +110,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
 // based on if we will use mips in the draw and the mip status of the GrBackendTexture.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
-    if (!context->priv().caps()->mipMapSupport()) {
+    if (!context->priv().caps()->mipmapSupport()) {
         return;
     }
 
@@ -250,7 +250,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
 // resource we took the snapshot of.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
-    if (!context->priv().caps()->mipMapSupport()) {
+    if (!context->priv().caps()->mipmapSupport()) {
         return;
     }
 
@@ -315,7 +315,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 // to use mips. This test passes by not crashing or hitting asserts in code.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
-    if (!context->priv().caps()->mipMapSupport()) {
+    if (!context->priv().caps()->mipmapSupport()) {
         return;
     }
 
@@ -373,7 +373,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
 
     for (auto enableSortingAndReduction : {Enable::kYes, Enable::kNo}) {
         GrMockOptions mockOptions;
-        mockOptions.fMipMapSupport = true;
+        mockOptions.fMipmapSupport = true;
         GrContextOptions ctxOptions;
         ctxOptions.fReduceOpsTaskSplitting = enableSortingAndReduction;
         sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&mockOptions, ctxOptions);
@@ -384,7 +384,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
             continue;
         }
 
-        SkASSERT(context->priv().caps()->mipMapSupport());
+        SkASSERT(context->priv().caps()->mipmapSupport());
 
         GrBackendFormat format = context->defaultBackendFormat(
                 kRGBA_8888_SkColorType, GrRenderable::kYes);

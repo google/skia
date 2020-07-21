@@ -421,7 +421,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 GrTextureProxy* copyProxy = as_IB(texImage)->peekProxy()->asTextureProxy();
                 SkASSERT(copyProxy);
                 bool shouldBeMipped =
-                        mipMapped == GrMipmapped::kYes && context->priv().caps()->mipMapSupport();
+                        mipMapped == GrMipmapped::kYes && context->priv().caps()->mipmapSupport();
                 if (shouldBeMipped && copyProxy->mipMapped() == GrMipmapped::kNo) {
                     ERRORF(reporter, "makeTextureImage returned non-mipmapped texture.");
                     continue;

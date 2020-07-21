@@ -27,7 +27,7 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     /**************************************************************************
      * GrCaps fields
      **************************************************************************/
-    fMipMapSupport = true;   // always available in Direct3D
+    fMipmapSupport = true;   // always available in Direct3D
     fNPOTTextureTileSupport = true;  // available in feature level 10_0 and up
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out

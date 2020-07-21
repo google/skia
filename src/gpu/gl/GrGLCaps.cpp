@@ -44,7 +44,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRGBA8888PixelsOpsAreSlow = false;
     fPartialFBOReadIsSlow = false;
     fBindUniformLocationSupport = false;
-    fMipMapLevelAndLodControlSupport = false;
+    fMipmapLevelAndLodControlSupport = false;
     fRGBAToBGRAReadbackConversionsAreSlow = false;
     fUseBufferDataNullHint = false;
     fDoManualMipmapping = false;
@@ -57,7 +57,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fDontSetBaseOrMaxLevelForExternalTextures = false;
     fNeverDisableColorWrites = false;
-    fMustSetTexParameterMinFilterToEnableMipMapping = false;
+    fMustSetTexParameterMinFilterToEnableMipmapping = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -270,10 +270,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } // no WebGL support
 
     if (GR_IS_GR_GL(standard)) {
-        fMipMapLevelAndLodControlSupport = true;
+        fMipmapLevelAndLodControlSupport = true;
     } else if (GR_IS_GR_GL_ES(standard)) {
         if (version >= GR_GL_VER(3,0)) {
-            fMipMapLevelAndLodControlSupport = true;
+            fMipmapLevelAndLodControlSupport = true;
         }
     } // no WebGL support
 
@@ -527,7 +527,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (GR_IS_GR_GL(standard)) {
         fNPOTTextureTileSupport = true;
-        fMipMapSupport = true;
+        fMipmapSupport = true;
     } else if (GR_IS_GR_GL_ES(standard)) {
         // Unextended ES2 supports NPOT textures with clamp_to_edge and non-mip filters only
         // ES3 has no limitations.
@@ -537,13 +537,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // support. The OES extension or ES 3.0 allow for MIPS on NPOT textures. So, apparently,
         // does the undocumented GL_IMG_texture_npot extension. This extension does not seem to
         // to alllow arbitrary wrap modes, however.
-        fMipMapSupport = fNPOTTextureTileSupport || ctxInfo.hasExtension("GL_IMG_texture_npot");
+        fMipmapSupport = fNPOTTextureTileSupport || ctxInfo.hasExtension("GL_IMG_texture_npot");
     } else if (GR_IS_GR_WEBGL(standard)) {
         // Texture access works in the WebGL 2.0 API as in the OpenGL ES 3.0 API
         fNPOTTextureTileSupport = version >= GR_GL_VER(2,0);
         // All mipmapping and all wrapping modes are supported for non-power-of-
         // two images [in WebGL 2.0].
-        fMipMapSupport = fNPOTTextureTileSupport;
+        fMipmapSupport = fNPOTTextureTileSupport;
     }
 
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
@@ -3460,7 +3460,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // Using MIPs on this GPU seems to be a source of trouble.
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer()) {
-        fMipMapSupport = false;
+        fMipmapSupport = false;
     }
 
     // https://b.corp.google.com/issues/143074513
@@ -3569,7 +3569,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // We saw this bug on a TecnoSpark 3 Pro with a PowerVR GE8300.
         // GL_VERSION: "OpenGL ES 3.2 build 1.10@51309121"
         // Possibly this could be more limited by driver version or HW generation.
-        fMustSetTexParameterMinFilterToEnableMipMapping = true;
+        fMustSetTexParameterMinFilterToEnableMipmapping = true;
     }
 #endif
 
@@ -3589,7 +3589,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // bugs on some cards/drivers that produce incorrect mip-maps for sRGB textures when using
     // glGenerateMipmap. Our implementation requires mip-level sampling control. Additionally,
     // it can be much slower (especially on mobile GPUs), so we opt-in only when necessary:
-    if (fMipMapLevelAndLodControlSupport &&
+    if (fMipmapLevelAndLodControlSupport &&
         (contextOptions.fDoManualMipmapping ||
          (kIntel_GrGLVendor == ctxInfo.vendor()) ||
          (kNVIDIA_GrGLDriver == ctxInfo.driver() && isMAC) ||

@@ -551,7 +551,7 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width,
 bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
-    SkASSERT(this->caps()->mipMapSupport());
+    SkASSERT(this->caps()->mipmapSupport());
     SkASSERT(texture->texturePriv().mipMapped() == GrMipmapped::kYes);
     if (!texture->texturePriv().mipMapsAreDirty()) {
         // This can happen when the proxy expects mipmaps to be dirty, but they are not dirty on the
@@ -843,7 +843,7 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (mipMapped == GrMipmapped::kYes && !this->caps()->mipMapSupport()) {
+    if (mipMapped == GrMipmapped::kYes && !this->caps()->mipmapSupport()) {
         return {};
     }
 
@@ -867,7 +867,7 @@ bool GrGpu::updateBackendTexture(const GrBackendTexture& backendTexture,
         }
     }
 
-    if (backendTexture.hasMipmaps() && !this->caps()->mipMapSupport()) {
+    if (backendTexture.hasMipmaps() && !this->caps()->mipmapSupport()) {
         return false;
     }
 
@@ -901,7 +901,7 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (mipMapped == GrMipmapped::kYes && !this->caps()->mipMapSupport()) {
+    if (mipMapped == GrMipmapped::kYes && !this->caps()->mipmapSupport()) {
         return {};
     }
 
@@ -925,7 +925,7 @@ bool GrGpu::updateCompressedBackendTexture(const GrBackendTexture& backendTextur
         return false;
     }
 
-    if (backendTexture.hasMipmaps() && !this->caps()->mipMapSupport()) {
+    if (backendTexture.hasMipmaps() && !this->caps()->mipmapSupport()) {
         return false;
     }
 

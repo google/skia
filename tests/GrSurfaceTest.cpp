@@ -135,7 +135,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
             // Check that the lack of mipmap support blocks the creation of mipmapped
             // proxies
-            bool expectedMipMapability = isTexturable && caps->mipMapSupport() && !isCompressed;
+            bool expectedMipMapability = isTexturable && caps->mipmapSupport() && !isCompressed;
 
             sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                     combo.fFormat, kDims, GrRenderable::kNo, 1, GrMipmapped::kYes,
@@ -413,7 +413,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));
 
         // Mip regen should not work with a read only texture.
-        if (context->priv().caps()->mipMapSupport()) {
+        if (context->priv().caps()->mipmapSupport()) {
             DeleteBackendTexture(context, backendTex);
             backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,

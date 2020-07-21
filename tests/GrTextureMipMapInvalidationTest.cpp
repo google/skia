@@ -17,7 +17,7 @@
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
-    if (!context->priv().caps()->mipMapSupport()) {
+    if (!context->priv().caps()->mipmapSupport()) {
         return;
     }
 
@@ -66,7 +66,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, ctxInfo) {
     auto ctx = ctxInfo.directContext();
-    if (!ctx->priv().caps()->mipMapSupport()) {
+    if (!ctx->priv().caps()->mipmapSupport()) {
         return;
     }
     static constexpr auto kCreateWithMipMaps = true;

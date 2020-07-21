@@ -2575,7 +2575,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     }
 
     if (samplerState.filter() == GrSamplerState::Filter::kMipMap) {
-        if (!this->caps()->mipMapSupport() ||
+        if (!this->caps()->mipmapSupport() ||
             texture->texturePriv().mipMapped() == GrMipmapped::kNo) {
             samplerState.setFilterMode(GrSamplerState::Filter::kLinear);
         }
@@ -2595,7 +2595,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     GrGLTextureParameters::SamplerOverriddenState newSamplerState;
     if (fSamplerObjectCache) {
         fSamplerObjectCache->bindSampler(unitIdx, samplerState);
-        if (this->glCaps().mustSetTexParameterMinFilterToEnableMipMapping()) {
+        if (this->glCaps().mustSetTexParameterMinFilterToEnableMipmapping()) {
             if (samplerState.filter() == GrSamplerState::Filter::kMipMap) {
                 const GrGLTextureParameters::SamplerOverriddenState& oldSamplerState =
                         texture->parameters()->samplerOverriddenState();
@@ -2632,7 +2632,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
             this->setTextureUnit(unitIdx);
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, newSamplerState.fMinFilter));
         }
-        if (this->glCaps().mipMapLevelAndLodControlSupport()) {
+        if (this->glCaps().mipmapLevelAndLodControlSupport()) {
             if (setAll || newSamplerState.fMinLOD != oldSamplerState.fMinLOD) {
                 this->setTextureUnit(unitIdx);
                 GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MIN_LOD, newSamplerState.fMinLOD));
@@ -2685,7 +2685,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
         }
     }
     // These are not supported in ES2 contexts
-    if (this->glCaps().mipMapLevelAndLodControlSupport() &&
+    if (this->glCaps().mipmapLevelAndLodControlSupport() &&
         (texture->texturePriv().textureType() != GrTextureType::kExternal ||
          !this->glCaps().dontSetBaseOrMaxLevelForExternalTextures())) {
         if (newNonsamplerState.fBaseMipMapLevel != oldNonsamplerState.fBaseMipMapLevel) {
@@ -3631,7 +3631,7 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
     // If we have mips make sure the base level is set to 0 and the max level set to numMipLevels-1
     // so that the uploads go to the right levels.
-    if (numMipLevels && this->glCaps().mipMapLevelAndLodControlSupport()) {
+    if (numMipLevels && this->glCaps().mipmapLevelAndLodControlSupport()) {
         auto params = backendTexture.getGLTextureParams();
         GrGLTextureParameters::NonsamplerState nonsamplerState = params->nonsamplerState();
         if (params->nonsamplerState().fBaseMipMapLevel != 0) {

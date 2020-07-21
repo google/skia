@@ -1428,7 +1428,7 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     const GrVkCaps& caps = this->vkCaps();
     if (!caps.formatCanBeDstofBlit(vkTex->imageFormat(), false) ||
         !caps.formatCanBeSrcofBlit(vkTex->imageFormat(), false) ||
-        !caps.mipMapSupport()) {
+        !caps.mipmapSupport()) {
         return false;
     }
 

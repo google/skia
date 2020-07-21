@@ -500,7 +500,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* ctx, SkBudgeted
     sampleCount = std::max(1, sampleCount);
     GrMipmapped mipMapped = shouldCreateWithMips ? GrMipmapped::kYes : GrMipmapped::kNo;
 
-    if (!ctx->priv().caps()->mipMapSupport()) {
+    if (!ctx->priv().caps()->mipmapSupport()) {
         mipMapped = GrMipmapped::kNo;
     }
 

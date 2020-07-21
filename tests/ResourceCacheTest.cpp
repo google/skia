@@ -1649,7 +1649,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     }
 
     // Mipmapped versions
-    if (caps->mipMapSupport()) {
+    if (caps->mipmapSupport()) {
         sk_sp<GrTextureProxy> proxy;
 
         proxy = make_mipmap_proxy(context, GrRenderable::kYes, kSize, 1);

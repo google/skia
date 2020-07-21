@@ -260,7 +260,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ct
         }
 
         for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
-            if (GrMipmapped::kYes == mipMapped && !caps->mipMapSupport()) {
+            if (GrMipmapped::kYes == mipMapped && !caps->mipmapSupport()) {
                 continue;
             }
 
