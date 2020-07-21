@@ -647,7 +647,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         desc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
-    GrMipmapStatus mipmapStatus = backendTex.hasMipMaps() ? GrMipmapStatus::kValid
+    GrMipmapStatus mipmapStatus = backendTex.hasMipmaps() ? GrMipmapStatus::kValid
                                                           : GrMipmapStatus::kNotAllocated;
 
     auto texture = GrGLTexture::MakeWrapped(this, mipmapStatus, desc,
@@ -699,7 +699,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         desc.fOwnership = GrBackendObjectOwnership::kOwned;
     }
 
-    GrMipmapStatus mipmapStatus = backendTex.hasMipMaps() ? GrMipmapStatus::kValid
+    GrMipmapStatus mipmapStatus = backendTex.hasMipmaps() ? GrMipmapStatus::kValid
                                                           : GrMipmapStatus::kNotAllocated;
 
     auto texture = GrGLTexture::MakeWrapped(this, mipmapStatus, desc,
@@ -743,7 +743,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    GrMipmapStatus mipmapStatus = backendTex.hasMipMaps() ? GrMipmapStatus::kDirty
+    GrMipmapStatus mipmapStatus = backendTex.hasMipmaps() ? GrMipmapStatus::kDirty
                                                           : GrMipmapStatus::kNotAllocated;
 
     sk_sp<GrGLTextureRenderTarget> texRT(GrGLTextureRenderTarget::MakeWrapped(
@@ -1462,7 +1462,7 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
     }
     SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
 
-    GrMipmapped mipMapped = backendTexture.hasMipMaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
+    GrMipmapped mipMapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
 
     const char* rawData = nullptr;
     size_t rawDataSize = 0;
@@ -1475,7 +1475,7 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
         SkASSERT(compression != SkImage::CompressionType::kNone);
 
         rawDataSize = SkCompressedDataSize(compression, backendTexture.dimensions(), nullptr,
-                                           backendTexture.hasMipMaps());
+                                           backendTexture.hasMipmaps());
 
         am.reset(rawDataSize);
 
@@ -3620,7 +3620,7 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     SkAssertResult(backendTexture.getGLTextureInfo(&info));
 
     int numMipLevels = 1;
-    if (backendTexture.hasMipMaps()) {
+    if (backendTexture.hasMipmaps()) {
         numMipLevels =
                 SkMipmap::ComputeLevelCount(backendTexture.width(), backendTexture.height()) + 1;
     }
