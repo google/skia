@@ -16,6 +16,550 @@
       "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "033cce4d_499fb6d1",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Add comment: // TODO: all of these constants will need to be fuzzed",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bcd3d6a_f2008f8d",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "// TODO: this is one way of making a surface characterization. The other is to extract it\n// from an existing surface. Add a new method to fuzz that approach too.",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d58e55d_686e6369",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Probably pull this out to a:\n\nconst SkColorType kSurfaceType \u003d kRGBA_8888_SkColorType;\n\nand use that instead.",
+      "range": {
+        "startLine": 41,
+        "startChar": 47,
+        "endLine": 41,
+        "endChar": 69
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0598abf_0330ef6d",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "// For now, we only create a kRGBA_8888 surface. This too will need to be fuzzed.",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "099bf8cb_6a352e54",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Pull this and the following \"SkSurfaceProps(0x0, pixel)\" call into a gen_fuzzed_surface_props method ?",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 51
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d17d324_80ef44fd",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "kSampleCount",
+      "range": {
+        "startLine": 60,
+        "startChar": 69,
+        "endLine": 60,
+        "endChar": 70
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c21e04f7_f5432c37",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "We\u0027ll have to fuzz this later too",
+      "range": {
+        "startLine": 61,
+        "startChar": 32,
+        "endLine": 61,
+        "endChar": 56
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b1ea6f8_c7942ba2",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "We\u0027ll have to fuzz this too but only on Vulkan",
+      "range": {
+        "startLine": 62,
+        "startChar": 45,
+        "endLine": 62,
+        "endChar": 61
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "199cbf11_dd9caa5a",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "in the backend:",
+      "range": {
+        "startLine": 65,
+        "startChar": 51,
+        "endLine": 65,
+        "endChar": 52
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb327ccb_9aa2bd3f",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Line this up with the \u0027\"\u0027",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "059de855_8fc4a9e2",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Add a new line after this method",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5568e05a_da1f70f1",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "for backend:",
+      "range": {
+        "startLine": 76,
+        "startChar": 41,
+        "endLine": 76,
+        "endChar": 42
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "182e244a_f13272bb",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "It seems like this should really be a helper like: gen_fuzzed_color",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 29
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5afe8864_901f970d",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "It is good to fuzz this independently of the value in make_characterization but note that, if they don\u0027t match, any DDL create with the characterization won\u0027t be able to be replayed into the surface.",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 71
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eec561c_98357262",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Replace this with the result of a call to gen_fuzzed_surface_props",
+      "range": {
+        "startLine": 99,
+        "startChar": 91,
+        "endLine": 99,
+        "endChar": 98
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bc9075a_0ef71bc9",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "bool",
+      "range": {
+        "startLine": 103,
+        "startChar": 7,
+        "endLine": 103,
+        "endChar": 11
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d389e04f_d9abb955",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "return the result of this call",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efe7f633_ae21e22e",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "_and_characterization",
+      "range": {
+        "startLine": 108,
+        "startChar": 37,
+        "endLine": 108,
+        "endChar": 39
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "213d491c_97bf9738",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Line this up with \"kWidth\"",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46d3d6e5_564eb31b",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "If you\u0027re going to do this, you should probably have a gen_fuzzed_imageinfo call",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 73
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1edc5e95_744786f4",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Just do \"auto[surface, c] \u003d\" here",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 65
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d40db8f1_62514e5f",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Just \"!surface\"",
+      "range": {
+        "startLine": 135,
+        "startChar": 8,
+        "endLine": 135,
+        "endChar": 48
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53fa0854_65c5a5a5",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Don\u0027t need this if you do \"auto[surface, c] \u003d\"",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 32
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "decf1ad6_10aea87b",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Move up a line",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cb2533b_8f0975c8",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "// TODO: currently we just pass the ownership of the DDL into draw_ddl. In the future we should\n// add a version that retains ownership of the DDL in order to fuzz the lifetime of the DDL.",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df7a5264_0aafdec8",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T19:34:37Z",
+      "side": 1,
+      "message": "Catch the return value here",
+      "range": {
+        "startLine": 147,
+        "startChar": 4,
+        "endLine": 147,
+        "endChar": 12
+      },
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
