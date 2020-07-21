@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6a123b0_9ea0d58a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-21T19:08:35Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look.\nThe code is compiled with Ninja and run with afl with type api_create_ddl. The speed now is around 600/sec",
+      "revId": "394ab5f15600414a49fdfc8789f16c90b190eeff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
