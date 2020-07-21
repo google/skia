@@ -805,6 +805,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     if (!returnType) {
         return;
     }
+    if (returnType->nonnullable() == *fContext.fFragmentProcessor_Type) {
+        fErrors.error(f.fOffset, "functions may not return type '" + returnType->name() + "'");
+        return;
+    }
     const ASTNode::FunctionData& fd = f.getFunctionData();
     std::vector<const Variable*> parameters;
     for (size_t i = 0; i < fd.fParameterCount; ++i) {
