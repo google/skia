@@ -357,12 +357,8 @@ void test_color_init(GrDirectContext* dContext,
 
     SkColor4f newColor = {color.fB , color.fR, color.fG, color.fA };
 
-    // Reupload the new data and make sure everything still works. We test with an SkColorType so
-    // we may actually swizzle the input during the create path. The update does not do any swizzle
-    // of the passed in color. So we manually do it here so we get the same expected results.
-    SkColor4f swizzledColor = dContext->priv().caps()->getWriteSwizzle(
-            backendTex.getBackendFormat(), grColorType).applyTo(newColor);
-    dContext->updateBackendTexture(backendTex, swizzledColor, mark_signaled, finishedBECreate);
+    dContext->updateBackendTexture(backendTex, skColorType, newColor, mark_signaled,
+                                   finishedBECreate);
 
     checkBackendTexture(newColor);
 

@@ -659,6 +659,37 @@ bool GrContext::updateBackendTexture(const GrBackendTexture& backendTexture,
 }
 
 bool GrContext::updateBackendTexture(const GrBackendTexture& backendTexture,
+                                     SkColorType skColorType,
+                                     const SkColor4f& color,
+                                     GrGpuFinishedProc finishedProc,
+                                     GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> finishedCallback;
+    if (finishedProc) {
+        finishedCallback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (!this->asDirectContext()) {
+        return false;
+    }
+
+    if (this->abandoned()) {
+        return false;
+    }
+
+    GrBackendFormat format = backendTexture.getBackendFormat();
+    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(this->caps(), skColorType, format);
+
+    if (!this->caps()->areColorTypeAndFormatCompatible(grColorType, format)) {
+        return false;
+    }
+
+    GrSwizzle swizzle = this->caps()->getWriteSwizzle(format, grColorType);
+    GrGpu::BackendTextureData data(swizzle.applyTo(color));
+
+    return fGpu->updateBackendTexture(backendTexture, std::move(finishedCallback), &data);
+}
+
+bool GrContext::updateBackendTexture(const GrBackendTexture& backendTexture,
                                      const SkPixmap srcData[],
                                      int numLevels,
                                      GrGpuFinishedProc finishedProc,
