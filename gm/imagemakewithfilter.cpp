@@ -271,20 +271,20 @@ protected:
         // code paths (otherwise they may choose to do CPU filtering then upload)
         sk_sp<SkImage> mainImage, auxImage;
 
-        auto recording = canvas->recordingContext();
-        if (recording) {
-            // In a DDL context, we can't use the GPU code paths and we will drop the work – skip.
-            auto direct = GrAsDirectContext(recording);
-            if (!direct) {
+        auto rContext = canvas->recordingContext();
+        // In a DDL context, we can't use the GPU code paths and we will drop the work – skip.
+        auto dContext = GrAsDirectContext(rContext);
+        if (rContext) {
+            if (!dContext) {
                 *errorMsg = "Requires a direct context.";
                 return DrawResult::kSkip;
             }
-            if (direct->abandoned()) {
+            if (dContext->abandoned()) {
                 *errorMsg = "Direct context abandoned.";
                 return DrawResult::kSkip;
             }
-            mainImage = fMainImage->makeTextureImage(direct);
-            auxImage = fAuxImage->makeTextureImage(direct);
+            mainImage = fMainImage->makeTextureImage(dContext);
+            auxImage = fAuxImage->makeTextureImage(dContext);
         } else {
             mainImage = fMainImage;
             auxImage = fAuxImage;
@@ -292,8 +292,8 @@ protected:
         if (!mainImage || !auxImage) {
             return DrawResult::kFail;
         }
-        SkASSERT(mainImage && (mainImage->isTextureBacked() || !recording));
-        SkASSERT(auxImage && (auxImage->isTextureBacked() || !recording));
+        SkASSERT(mainImage && (mainImage->isTextureBacked() || !rContext));
+        SkASSERT(auxImage && (auxImage->isTextureBacked() || !rContext));
 
         SkScalar MARGIN = SkIntToScalar(40);
         SkScalar DX = mainImage->width() + MARGIN;
@@ -376,7 +376,9 @@ private:
             SkIRect outSubset;
             SkIPoint offset;
 
-            result = mainImage->makeWithFilter(filter.get(), subset, clip, &outSubset, &offset);
+            auto rContext = canvas->recordingContext();
+            result = mainImage->makeWithFilter(rContext, filter.get(), subset, clip,
+                                               &outSubset, &offset);
 
             SkASSERT(result);
             SkASSERT(mainImage->isTextureBacked() == result->isTextureBacked());
