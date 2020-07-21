@@ -70,6 +70,30 @@
       "revId": "72a2830ef9500bf8b84b93c4e365a45aa3ce762c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0827c863_00ce22a7",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-07-21T23:34:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d4b1b226_516730ba",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 39
+      },
+      "revId": "72a2830ef9500bf8b84b93c4e365a45aa3ce762c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
