@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f31b42f6_69e85069",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T13:13:21Z",
+      "side": 1,
+      "message": "Can this go up a line ?",
+      "revId": "a23d9be735936a2e9b0ac0506acab9cf3109fdf9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba1188c8_955892c2",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-21T13:13:21Z",
+      "side": 1,
+      "message": "Seems like you might as well add a \u0027\\n\u0027 here",
+      "range": {
+        "startLine": 313,
+        "startChar": 53,
+        "endLine": 313,
+        "endChar": 54
+      },
+      "revId": "a23d9be735936a2e9b0ac0506acab9cf3109fdf9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
