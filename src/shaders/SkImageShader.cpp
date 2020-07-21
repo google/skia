@@ -65,6 +65,20 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
     , fFilterOptions(options)
 {}
 
+SkImageShader::SkImageShader(sk_sp<SkImage> img,
+                             SkTileMode tmx, SkTileMode tmy,
+                             const SkM44& weights,
+                             const SkMatrix* localMatrix)
+    : INHERITED(localMatrix)
+    , fImage(std::move(img))
+    , fTileModeX(optimize(tmx, fImage->width()))
+    , fTileModeY(optimize(tmy, fImage->height()))
+    , fFilterEnum(FilterEnum::kUse44Weights)
+    , fClampAsIfUnpremul(false)
+    , fFilterOptions({})    // ignored
+    , fWeights(new SkM44(weights))
+{}
+
 // fClampAsIfUnpremul is always false when constructed through public APIs,
 // so there's no need to read or write it here.
 
@@ -74,13 +88,29 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
 
     FilterEnum fe = kInheritFromPaint;
     if (!buffer.isVersionLT(SkPicturePriv::kFilterEnumInImageShader_Version)) {
-        fe = buffer.read32LE<FilterEnum>(kUseFilterOptions);
+        fe = buffer.read32LE<FilterEnum>(kLast);
     }
 
-    SkFilterOptions fo = { SkSamplingMode::kNearest, SkMipmapMode::kNone };
-    if (!buffer.isVersionLT(SkPicturePriv::kFilterOptionsInImageShader_Version)) {
-        fo.fSampling = buffer.read32LE<SkSamplingMode>(SkSamplingMode::kLinear);
-        fo.fMipmap   = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+    SkFilterOptions fo{ SkSamplingMode::kNearest, SkMipmapMode::kNone };
+    SkM44 mx;
+
+    if (buffer.isVersionLT(SkPicturePriv::kBicubicInImageShader_Version)) {
+        if (!buffer.isVersionLT(SkPicturePriv::kFilterOptionsInImageShader_Version)) {
+            fo.fSampling = buffer.read32LE<SkSamplingMode>(SkSamplingMode::kLinear);
+            fo.fMipmap   = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+        }
+    } else {
+        switch (fe) {
+            case kUseFilterOptions:
+                fo.fSampling = buffer.read32LE<SkSamplingMode>(SkSamplingMode::kLinear);
+                fo.fMipmap   = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+                break;
+            case kUse44Weights:
+                buffer.read(&mx);
+                break;
+            default:
+                break;
+        }
     }
 
     SkMatrix localMatrix;
@@ -90,17 +120,32 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return (fe == kUseFilterOptions)
-          ? SkImageShader::Make(std::move(img), tmx, tmy, fo, &localMatrix)
-          : SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix, fe);
+    switch (fe) {
+        case kUseFilterOptions:
+            return SkImageShader::Make(std::move(img), tmx, tmy, fo, &localMatrix);
+        case kUse44Weights:
+            return SkImageShader::Make(std::move(img), tmx, tmy, mx, &localMatrix);
+        default:
+            break;
+    }
+    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix, fe);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt((unsigned)fTileModeX);
     buffer.writeUInt((unsigned)fTileModeY);
     buffer.writeUInt((unsigned)fFilterEnum);
-    buffer.writeUInt((unsigned)fFilterOptions.fSampling);
-    buffer.writeUInt((unsigned)fFilterOptions.fMipmap);
+    switch (fFilterEnum) {
+        case kUse44Weights:
+            buffer.write(*fWeights);
+            break;
+        case kUseFilterOptions:
+            buffer.writeUInt((unsigned)fFilterOptions.fSampling);
+            buffer.writeUInt((unsigned)fFilterOptions.fMipmap);
+            break;
+        default:
+            break;
+    }
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
@@ -138,7 +183,7 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
-    if (fFilterEnum == kUseFilterOptions) {
+    if (fFilterEnum > kHigh) {
         return nullptr;
     }
 
@@ -231,6 +276,16 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
     }
     return sk_sp<SkShader>{
         new SkImageShader(image, tmx, tmy, options, localMatrix)
+    };
+}
+
+sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, SkTileMode tmx, SkTileMode tmy,
+                                    const SkM44& weights, const SkMatrix* localMatrix) {
+    if (!image) {
+        return sk_make_sp<SkEmptyShader>();
+    }
+    return sk_sp<SkShader>{
+        new SkImageShader(image, tmx, tmy, weights, localMatrix)
     };
 }
 
@@ -436,7 +491,9 @@ static void tweak_quality_and_inv_matrix(SkFilterQuality* quality, SkMatrix* mat
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
     SkFilterQuality quality;
     switch (fFilterEnum) {
-        case FilterEnum::kUseFilterOptions: return false;   // TODO: support these in stages
+        case FilterEnum::kUseFilterOptions:
+        case FilterEnum::kUse44Weights:
+            return false;   // TODO: support these in stages
         case FilterEnum::kInheritFromPaint:
             quality = rec.fPaint.getFilterQuality();
             break;
@@ -760,6 +817,12 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         if (lowerWeight > 0) {
             lower = &access->lowerLevel();
         }
+    } else if (fFilterEnum == kUse44Weights){
+        auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
+                                                     SkMipmapMode::kNone);
+        upper = &access->level();
+        upperInv = post_scale(upper->dimensions(), baseInv);
+        sampling = SamplingEnum::kBicubic;
     } else {
         // Convert from the filter-quality enum to our working description:
         //  sampling : nearest, bilerp, bicubic
@@ -938,29 +1001,42 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
             // They're either the 16 corners of a 3x3 grid/ surrounding (x,y) at (0.5,0.5) off-center.
             skvm::F32 fx = fract(local.x + 0.5f),
                       fy = fract(local.y + 0.5f);
+            skvm::F32 wx[4],
+                      wy[4];
 
-            // See GrCubicEffect for details of these weights.
-            // TODO: these maybe don't seem right looking at gm/bicubic and GrBicubicEffect.
-            auto near = [&](skvm::F32 t) {
-                // 1/18 + 9/18t + 27/18t^2 - 21/18t^3 == t ( t ( -21/18t + 27/18) + 9/18) + 1/18
-                return t * (t * (t * (-21/18.0f) + 27/18.0f) + 9/18.0f) + 1/18.0f;
-            };
-            auto far = [&](skvm::F32 t) {
-                // 0/18 + 0/18*t - 6/18t^2 + 7/18t^3 == t^2 (7/18t - 6/18)
-                return t * t * (t * (7/18.0f) - 6/18.0f);
-            };
-            const skvm::F32 wx[] =  {
-                far (1.0f - fx),
-                near(1.0f - fx),
-                near(       fx),
-                far (       fx),
-            };
-            const skvm::F32 wy[] = {
-                far (1.0f - fy),
-                near(1.0f - fy),
-                near(       fy),
-                far (       fy),
-            };
+            if (fWeights) {
+                auto dot = [](const skvm::F32 a[], const skvm::F32 b[]) {
+                    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3];
+                };
+                const skvm::F32 tmpx[] =  { p->splat(1.0f), fx, fx*fx, fx*fx*fx };
+                const skvm::F32 tmpy[] =  { p->splat(1.0f), fy, fy*fy, fy*fy*fy };
+
+                for (int row = 0; row < 4; ++row) {
+                    SkV4 r = fWeights->row(row);
+                    skvm::F32 ru[] = {
+                        p->uniformF(uniforms->pushF(r[0])),
+                        p->uniformF(uniforms->pushF(r[1])),
+                        p->uniformF(uniforms->pushF(r[2])),
+                        p->uniformF(uniforms->pushF(r[3])),
+                    };
+                    wx[row] = dot(ru, tmpx);
+                    wy[row] = dot(ru, tmpy);
+                }
+            } else {    // legacy hard-codec weights
+                auto near = [&](skvm::F32 t) {
+                    // 1/18 + 9/18t + 27/18t^2 - 21/18t^3 == t ( t ( -21/18t + 27/18) + 9/18) + 1/18
+                    return t * (t * (t * (-21/18.0f) + 27/18.0f) + 9/18.0f) + 1/18.0f;
+                };
+                auto far = [&](skvm::F32 t) {
+                    // 0/18 + 0/18*t - 6/18t^2 + 7/18t^3 == t^2 (7/18t - 6/18)
+                    return t * t * (t * (7/18.0f) - 6/18.0f);
+                };
+
+                wx[0] = far (1.0f - fx);  wy[0] = far (1.0f - fy);
+                wx[1] = near(1.0f - fx);  wy[1] = near(1.0f - fy);
+                wx[2] = near(       fx);  wy[2] = near(       fy);
+                wx[3] = far (       fx);  wy[3] = far (       fy);
+            }
 
             skvm::Color c;
             c.r = c.g = c.b = c.a = p->splat(0.0f);
