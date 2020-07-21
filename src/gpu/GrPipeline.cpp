@@ -121,6 +121,6 @@ void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
         fp->visitProxies(func);
     }
     if (fDstProxyView.asTextureProxy()) {
-        func(fDstProxyView.asTextureProxy(), GrMipMapped::kNo);
+        func(fDstProxyView.asTextureProxy(), GrMipmapped::kNo);
     }
 }

@@ -93,7 +93,7 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
     auto format =
             provider->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kYes);
     sk_sp<GrTexture> tex(provider->createTexture({size, size}, format, GrRenderable::kYes,
-                                                 sampleCount, GrMipMapped::kNo, budgeted,
+                                                 sampleCount, GrMipmapped::kNo, budgeted,
                                                  GrProtected::kNo));
     if (!tex || !tex->asRenderTarget()) {
         return nullptr;
@@ -197,10 +197,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     static const int kH = 100;
 
     CreateBackendTexture(context, &backendTextures[0], kW, kH, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo,
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
                          GrProtected::kNo);
     CreateBackendTexture(context, &backendTextures[1], kW, kH, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo,
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
                          GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTextures[0].isValid());
     REPORTER_ASSERT(reporter, backendTextures[1].isValid());
@@ -1469,7 +1469,7 @@ static void test_free_texture_messages(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < 3; ++i) {
         backends[i] = dContext->createBackendTexture(16, 16, SkColorType::kRGBA_8888_SkColorType,
-                                                     GrMipMapped::kNo, GrRenderable::kNo);
+                                                     GrMipmapped::kNo, GrRenderable::kNo);
         wrapped[i] = gpu->wrapBackendTexture(backends[i],
                                              GrWrapOwnership::kBorrow_GrWrapOwnership,
                                              (i < 2) ? GrWrapCacheable::kYes : GrWrapCacheable::kNo,
@@ -1551,7 +1551,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxIn
 
     GrBackendTexture backend = context->createBackendTexture(16, 16,
                                                              SkColorType::kRGBA_8888_SkColorType,
-                                                             GrMipMapped::kNo, GrRenderable::kNo);
+                                                             GrMipmapped::kNo, GrRenderable::kNo);
     GrTexture* tex = gpu->wrapBackendTexture(backend,
                                              GrWrapOwnership::kBorrow_GrWrapOwnership,
                                              GrWrapCacheable::kYes,
@@ -1596,7 +1596,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             SkISize dims,
                                             int sampleCnt) {
     auto format = provider->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
-    return provider->createTexture(dims, format, renderable, sampleCnt, GrMipMapped::kNo,
+    return provider->createTexture(dims, format, renderable, sampleCnt, GrMipmapped::kNo,
                                    SkBudgeted::kYes, GrProtected::kNo);
 }
 
@@ -1611,7 +1611,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrContext* context,
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                  GrRenderable::kNo);
 
-    return proxyProvider->createProxy(format, dims, renderable, sampleCnt, GrMipMapped::kYes,
+    return proxyProvider->createProxy(format, dims, renderable, sampleCnt, GrMipmapped::kYes,
                                       SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 }
 

@@ -638,7 +638,7 @@ private:
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fFalloffView.proxy(), GrMipMapped(false));
+        func(fFalloffView.proxy(), GrMipmapped(false));
         if (fProgramInfo) {
             fProgramInfo->visitFPProxies(func);
         }
@@ -690,7 +690,7 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* context) {
     bitmap.setImmutable();
 
     GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    auto view = maker.view(GrMipMapped::kNo);
+    auto view = maker.view(GrMipmapped::kNo);
     SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
 
     if (view) {

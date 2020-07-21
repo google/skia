@@ -1194,7 +1194,7 @@ protected:
             GrBackendTexture tmp = dContext->createBackendTexture(shrunkPlaneSize.width(),
                                                                   shrunkPlaneSize.height(),
                                                                   curTex.getBackendFormat(),
-                                                                  GrMipMapped::kNo,
+                                                                  GrMipmapped::kNo,
                                                                   GrRenderable::kYes);
             if (!tmp.isValid()) {
                 YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);

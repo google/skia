@@ -109,7 +109,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
             GrBackendTexture backendTex;
             CreateBackendTexture(context, &backendTex, kSize, kSize, colorType,
-                                 SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes,
+                                 SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
                                  GrProtected::kNo);
             surf = SkSurface::MakeFromBackendTexture(context, backendTex,
                                                      kTopLeft_GrSurfaceOrigin, 0, colorType,
@@ -140,7 +140,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
 
             GrBackendTexture backendTex;
             CreateBackendTexture(context, &backendTex, kSize, kSize, colorType,
-                                 SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes,
+                                 SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
                                  GrProtected::kNo);
             surf = SkSurface::MakeFromBackendTexture(context, backendTex,
                                                      kTopLeft_GrSurfaceOrigin, kSampleCnt,
@@ -216,7 +216,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
 
         GrBackendTexture backendTex;
         CreateBackendTexture(context, &backendTex, kSize, kSize, colorType,
-                             SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes,
+                             SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
                              GrProtected::kNo);
         if (!backendTex.isValid()) {
             continue;
@@ -717,7 +717,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(GrDirectContext* dCon
                                        kPremul_SkAlphaType);
 
     if (!CreateBackendTexture(dContext, outTexture, ii, color,
-                              GrMipMapped::kNo, GrRenderable::kYes)) {
+                              GrMipmapped::kNo, GrRenderable::kYes)) {
         return nullptr;
     }
 
@@ -757,7 +757,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
                                        kPremul_SkAlphaType);
 
     if (!CreateBackendTexture(dContext, outTexture, ii, color,
-                              GrMipMapped::kNo, GrRenderable::kYes)) {
+                              GrMipmapped::kNo, GrRenderable::kYes)) {
         return nullptr;
     }
 
@@ -957,7 +957,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu, reporter, ctxI
         if (useTexture) {
             SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                                kPremul_SkAlphaType);
-            if (!CreateBackendTexture(ctx, &backendTex, ii, SkColors::kRed, GrMipMapped::kNo,
+            if (!CreateBackendTexture(ctx, &backendTex, ii, SkColors::kRed, GrMipmapped::kNo,
                                       GrRenderable::kYes)) {
                 continue;
             }
@@ -1041,14 +1041,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture, reporter, ctxIn
         GrBackendTexture backendTexture1;
         auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
         if (!CreateBackendTexture(context, &backendTexture1, ii, SkColors::kTransparent,
-                                  GrMipMapped::kNo, GrRenderable::kYes)) {
+                                  GrMipmapped::kNo, GrRenderable::kYes)) {
             continue;
         }
         SkScopeExit delete1(
                 [context, &backendTexture1] { DeleteBackendTexture(context, backendTexture1); });
         GrBackendTexture backendTexture2;
         if (!CreateBackendTexture(context, &backendTexture2, ii, SkColors::kTransparent,
-                                  GrMipMapped::kNo, GrRenderable::kYes)) {
+                                  GrMipmapped::kNo, GrRenderable::kYes)) {
             ERRORF(reporter, "Expected to be able to make second texture");
             continue;
         }
@@ -1057,7 +1057,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture, reporter, ctxIn
         auto ii2 = ii.makeWH(8, 8);
         GrBackendTexture backendTexture3;
         if (!CreateBackendTexture(context, &backendTexture3, ii2, SkColors::kTransparent,
-                                  GrMipMapped::kNo, GrRenderable::kYes)) {
+                                  GrMipmapped::kNo, GrRenderable::kYes)) {
             ERRORF(reporter, "Couldn't create different sized texture.");
             continue;
         }

@@ -64,7 +64,7 @@ public:
         }
 
         void visitProxies(const VisitProxyFunc& func) const override {
-            func(fProxy.get(), GrMipMapped::kNo);
+            func(fProxy.get(), GrMipmapped::kNo);
         }
 
         void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
@@ -231,7 +231,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                                                            GrRenderable::kNo);
 
     auto tex = ctx->priv().resourceProvider()->createTexture({kSize, kSize}, format,
-                                                             GrRenderable::kNo, 1, GrMipMapped::kNo,
+                                                             GrRenderable::kNo, 1, GrMipmapped::kNo,
                                                              SkBudgeted::kNo, GrProtected::kNo);
     using LazyInstantiationResult = GrSurfaceProxy::LazyCallbackResult;
     for (bool doInstantiate : {true, false}) {
@@ -273,7 +273,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
             };
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
                     TestCallback(&testCount, releaseCallback, tex), format, {kSize, kSize},
-                    GrRenderable::kNo, 1, GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated,
+                    GrRenderable::kNo, 1, GrMipmapped::kNo, GrMipMapsStatus::kNotAllocated,
                     GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
                     GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 
@@ -315,7 +315,7 @@ public:
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fLazyProxy.get(), GrMipMapped::kNo);
+        func(fLazyProxy.get(), GrMipmapped::kNo);
     }
 
 private:
@@ -343,7 +343,7 @@ private:
                                               desc.fProtected),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
-                format, dims, GrRenderable::kNo, 1, GrMipMapped::kNo,
+                format, dims, GrRenderable::kNo, 1, GrMipmapped::kNo,
                 GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
                 SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 

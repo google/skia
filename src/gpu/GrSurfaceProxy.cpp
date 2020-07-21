@@ -111,8 +111,8 @@ GrSurfaceProxy::~GrSurfaceProxy() {
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
                                                    int sampleCnt,
                                                    GrRenderable renderable,
-                                                   GrMipMapped mipMapped) const {
-    SkASSERT(mipMapped == GrMipMapped::kNo || fFit == SkBackingFit::kExact);
+                                                   GrMipmapped mipMapped) const {
+    SkASSERT(mipMapped == GrMipmapped::kNo || fFit == SkBackingFit::kExact);
     SkASSERT(!this->isLazy());
     SkASSERT(!fTarget);
 
@@ -165,7 +165,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 }
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                     GrRenderable renderable, GrMipMapped mipMapped,
+                                     GrRenderable renderable, GrMipmapped mipMapped,
                                      const GrUniqueKey* uniqueKey) {
     SkASSERT(!this->isLazy());
     if (fTarget) {
@@ -207,7 +207,7 @@ void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, GrScratchKey* key) co
     }
 
     const GrTextureProxy* tp = this->asTextureProxy();
-    GrMipMapped mipMapped = GrMipMapped::kNo;
+    GrMipmapped mipMapped = GrMipmapped::kNo;
     if (tp) {
         mipMapped = tp->mipMapped();
     }
@@ -249,7 +249,7 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            GrSurfaceProxy* src,
                                            GrSurfaceOrigin origin,
-                                           GrMipMapped mipMapped,
+                                           GrMipmapped mipMapped,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted,
@@ -300,7 +300,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            GrSurfaceProxy* src,
                                            GrSurfaceOrigin origin,
-                                           GrMipMapped mipMapped,
+                                           GrMipmapped mipMapped,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted) {
     SkASSERT(!src->isFullyLazy());

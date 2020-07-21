@@ -97,7 +97,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
         GrRecordingContext* context,
         const SkImageInfo& info,
         const SkIPoint& origin,
-        GrMipMapped mipMapped,
+        GrMipmapped mipMapped,
         GrImageTexGenPolicy texGenPolicy) {
     SkASSERT(context);
 
@@ -147,8 +147,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     GrColorType grColorType = SkColorTypeToGrColorType(info.colorType());
 
-    GrMipMapped textureIsMipMapped = fBackendTexture.hasMipMaps() ? GrMipMapped::kYes
-                                                                  : GrMipMapped::kNo;
+    GrMipmapped textureIsMipMapped = fBackendTexture.hasMipMaps() ? GrMipmapped::kYes
+                                                                  : GrMipmapped::kNo;
 
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
     // mipmaps are fully fleshed out.
@@ -210,7 +210,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     if (texGenPolicy == GrImageTexGenPolicy::kDraw && origin.isZero() &&
         info.dimensions() == fBackendTexture.dimensions() &&
-        (mipMapped == GrMipMapped::kNo || proxy->mipMapped() == GrMipMapped::kYes)) {
+        (mipMapped == GrMipmapped::kNo || proxy->mipMapped() == GrMipmapped::kYes)) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
         return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);
     } else {

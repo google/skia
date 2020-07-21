@@ -264,7 +264,7 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override {
         bool mipped = (GrSamplerState::Filter::kMipMap == fMetadata.filter());
         for (unsigned p = 0; p <  fMetadata.fProxyCount; ++p) {
-            func(fViewCountPairs[p].fProxy.get(), GrMipMapped(mipped));
+            func(fViewCountPairs[p].fProxy.get(), GrMipmapped(mipped));
         }
         if (fDesc && fDesc->fProgramInfo) {
             fDesc->fProgramInfo->visitFPProxies(func);
@@ -1270,9 +1270,9 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     dims.fHeight = random->nextULessThan(90) + 10;
     dims.fWidth = random->nextULessThan(90) + 10;
     auto origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-    GrMipMapped mipMapped = random->nextBool() ? GrMipMapped::kYes : GrMipMapped::kNo;
+    GrMipmapped mipMapped = random->nextBool() ? GrMipmapped::kYes : GrMipmapped::kNo;
     SkBackingFit fit = SkBackingFit::kExact;
-    if (mipMapped == GrMipMapped::kNo) {
+    if (mipMapped == GrMipmapped::kNo) {
         fit = random->nextBool() ? SkBackingFit::kApprox : SkBackingFit::kExact;
     }
     const GrBackendFormat format =
@@ -1293,7 +1293,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(SkColorToPremulGrColor(random->nextU()));
     GrSamplerState::Filter filter = (GrSamplerState::Filter)random->nextULessThan(
             static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
-    while (mipMapped == GrMipMapped::kNo && filter == GrSamplerState::Filter::kMipMap) {
+    while (mipMapped == GrMipmapped::kNo && filter == GrSamplerState::Filter::kMipMap) {
         filter = (GrSamplerState::Filter)random->nextULessThan(
                 static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
     }

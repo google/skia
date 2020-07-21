@@ -269,7 +269,7 @@ uniform half4 circleData;
         bm.setImmutable();
 
         GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto profileView = maker.view(GrMipMapped::kNo);
+        auto profileView = maker.view(GrMipmapped::kNo);
         if (!profileView) {
             return nullptr;
         }

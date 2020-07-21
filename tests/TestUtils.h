@@ -37,7 +37,7 @@ bool CreateBackendTexture(GrDirectContext*,
                           int width, int height,
                           SkColorType colorType,
                           const SkColor4f& color,
-                          GrMipMapped,
+                          GrMipmapped,
                           GrRenderable,
                           GrProtected = GrProtected::kNo);
 
@@ -45,7 +45,7 @@ bool CreateBackendTexture(GrDirectContext*,
                           GrBackendTexture* backendTex,
                           const SkImageInfo& ii,
                           const SkColor4f& color,
-                          GrMipMapped,
+                          GrMipmapped,
                           GrRenderable,
                           GrProtected = GrProtected::kNo);
 

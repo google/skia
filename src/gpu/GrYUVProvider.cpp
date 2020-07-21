@@ -153,7 +153,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(ctx, bitmap, fit);
-        yuvViews[i] = maker.view(GrMipMapped::kNo);
+        yuvViews[i] = maker.view(GrMipmapped::kNo);
 
         if (!yuvViews[i]) {
             return {};
@@ -164,7 +164,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
 
     // TODO: investigate preallocating mip maps here
     auto renderTargetContext = GrRenderTargetContext::Make(
-            ctx, colorType, nullptr, SkBackingFit::kExact, dimensions, 1, GrMipMapped::kNo,
+            ctx, colorType, nullptr, SkBackingFit::kExact, dimensions, 1, GrMipmapped::kNo,
             GrProtected::kNo, kTopLeft_GrSurfaceOrigin, budgeted);
     if (!renderTargetContext) {
         return {};

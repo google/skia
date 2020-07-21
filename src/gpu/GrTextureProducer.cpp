@@ -85,25 +85,25 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createBicubicFragmentPro
     }
 }
 
-GrSurfaceProxyView GrTextureProducer::view(GrMipMapped mipMapped) {
+GrSurfaceProxyView GrTextureProducer::view(GrMipmapped mipMapped) {
     const GrCaps* caps = this->context()->priv().caps();
     // Sanitize the MIP map request.
-    if (mipMapped == GrMipMapped::kYes) {
+    if (mipMapped == GrMipmapped::kYes) {
         if ((this->width() == 1 && this->height() == 1) || !caps->mipMapSupport()) {
-            mipMapped = GrMipMapped::kNo;
+            mipMapped = GrMipmapped::kNo;
         }
     }
     auto result = this->onView(mipMapped);
     // Check to make sure if we requested MIPs that the returned texture has MIP maps or the format
     // is not copyable.
-    SkASSERT(!result || mipMapped == GrMipMapped::kNo ||
-             result.asTextureProxy()->mipMapped() == GrMipMapped::kYes ||
+    SkASSERT(!result || mipMapped == GrMipmapped::kNo ||
+             result.asTextureProxy()->mipMapped() == GrMipmapped::kYes ||
              !caps->isFormatCopyable(result.proxy()->backendFormat()));
     return result;
 }
 
 GrSurfaceProxyView GrTextureProducer::view(GrSamplerState::Filter filter) {
-    auto mipMapped = filter == GrSamplerState::Filter::kMipMap ? GrMipMapped::kYes
-                                                               : GrMipMapped::kNo;
+    auto mipMapped = filter == GrSamplerState::Filter::kMipMap ? GrMipmapped::kYes
+                                                               : GrMipmapped::kNo;
     return this->view(mipMapped);
 }

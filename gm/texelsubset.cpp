@@ -77,9 +77,9 @@ protected:
 
     DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        GrMipMapped mipMapped = fFilter == GrSamplerState::Filter::kMipMap &&
+        GrMipmapped mipMapped = fFilter == GrSamplerState::Filter::kMipMap &&
                                 context->priv().caps()->mipMapSupport()
-                ? GrMipMapped::kYes : GrMipMapped::kNo;
+                ? GrMipmapped::kYes : GrMipmapped::kNo;
         GrBitmapTextureMaker maker(context, fBitmap, GrImageTexGenPolicy::kDraw);
         auto view = maker.view(mipMapped);
         if (!view) {

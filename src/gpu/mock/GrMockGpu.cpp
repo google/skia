@@ -167,7 +167,7 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(SkISize dimensions,
 sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(SkISize dimensions,
                                                       const GrBackendFormat& format,
                                                       SkBudgeted budgeted,
-                                                      GrMipMapped mipMapped,
+                                                      GrMipmapped mipMapped,
                                                       GrProtected isProtected,
                                                       const void* data, size_t dataSize) {
     if (fMockOptions.fFailTextureAllocations) {
@@ -180,7 +180,7 @@ sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(SkISize dimensions,
     SkASSERT(compression != SkImage::CompressionType::kNone);
 #endif
 
-    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipMapped::kYes)
+    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipmapped::kYes)
                                                                 ? GrMipMapsStatus::kValid
                                                                 : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo texInfo(GrColorType::kUnknown,
@@ -276,7 +276,7 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(
 GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& format,
                                                    GrRenderable,
-                                                   GrMipMapped mipMapped,
+                                                   GrMipmapped mipMapped,
                                                    GrProtected) {
     SkImage::CompressionType compression = format.asMockCompressionType();
     if (compression != SkImage::CompressionType::kNone) {
@@ -295,7 +295,7 @@ GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
 }
 
 GrBackendTexture GrMockGpu::onCreateCompressedBackendTexture(
-        SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
+        SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipMapped,
          GrProtected) {
     SkImage::CompressionType compression = format.asMockCompressionType();
     if (compression == SkImage::CompressionType::kNone) {

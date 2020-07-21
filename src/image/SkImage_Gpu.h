@@ -73,7 +73,7 @@ public:
                                              const GrBackendFormat& backendFormat,
                                              int width,
                                              int height,
-                                             GrMipMapped mipMapped,
+                                             GrMipmapped mipMapped,
                                              GrSurfaceOrigin origin,
                                              SkColorType colorType,
                                              SkAlphaType alphaType,

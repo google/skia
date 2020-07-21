@@ -146,7 +146,7 @@ void GrOpsTask::OpChain::visitProxies(const GrOp::VisitProxyFunc& func) const {
         op.visitProxies(func);
     }
     if (fDstProxyView.proxy()) {
-        func(fDstProxyView.proxy(), GrMipMapped::kNo);
+        func(fDstProxyView.proxy(), GrMipmapped::kNo);
     }
     if (fAppliedClip) {
         fAppliedClip->visitProxies(func);
@@ -700,7 +700,7 @@ void GrOpsTask::dump(bool printDependencies) const {
 }
 
 void GrOpsTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
-    auto textureFunc = [ func ] (GrSurfaceProxy* tex, GrMipMapped mipmapped) {
+    auto textureFunc = [ func ] (GrSurfaceProxy* tex, GrMipmapped mipmapped) {
         func(tex, mipmapped);
     };
 
@@ -716,7 +716,7 @@ void GrOpsTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
 bool GrOpsTask::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     bool used = false;
 
-    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p, GrMipMapped) {
+    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p, GrMipmapped) {
         if (p == proxyToCheck) {
             used = true;
         }
@@ -730,7 +730,7 @@ bool GrOpsTask::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
 
 void GrOpsTask::handleInternalAllocationFailure() {
     bool hasUninstantiatedProxy = false;
-    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p, GrMipMapped) {
+    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p, GrMipmapped) {
         if (!p->isInstantiated()) {
             hasUninstantiatedProxy = true;
         }
@@ -772,7 +772,7 @@ void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         alloc->incOps();
     }
 
-    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, GrMipMapped) {
+    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, GrMipmapped) {
         alloc->addInterval(p, alloc->curOp(), alloc->curOp(), GrResourceAllocator::ActualUse::kYes
                            SkDEBUGCODE(, this->target(0).proxy() == p));
     };

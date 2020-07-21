@@ -135,14 +135,14 @@ public:
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
-                                   GrMipMapped mipMapped,
+                                   GrMipmapped mipMapped,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected);
 
     sk_sp<GrTexture> createCompressedTexture(SkISize dimensions,
                                              const GrBackendFormat& format,
                                              SkBudgeted budgeted,
-                                             GrMipMapped mipMapped,
+                                             GrMipmapped mipMapped,
                                              GrProtected isProtected,
                                              const void* data, size_t dataSize);
 
@@ -607,7 +607,7 @@ public:
     GrBackendTexture createBackendTexture(SkISize dimensions,
                                           const GrBackendFormat&,
                                           GrRenderable,
-                                          GrMipMapped,
+                                          GrMipmapped,
                                           GrProtected);
 
     bool updateBackendTexture(const GrBackendTexture&,
@@ -620,7 +620,7 @@ public:
      */
     GrBackendTexture createCompressedBackendTexture(SkISize dimensions,
                                                     const GrBackendFormat&,
-                                                    GrMipMapped,
+                                                    GrMipmapped,
                                                     GrProtected);
 
     bool updateCompressedBackendTexture(const GrBackendTexture&,
@@ -705,9 +705,9 @@ public:
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
 protected:
-    static bool MipMapsAreCorrect(SkISize dimensions, GrMipMapped, const BackendTextureData*);
+    static bool MipMapsAreCorrect(SkISize dimensions, GrMipmapped, const BackendTextureData*);
     static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
-                                        GrMipMapped, const BackendTextureData*);
+                                        GrMipmapped, const BackendTextureData*);
 
     // Handles cases where a surface will be updated without a call to flushRenderTarget.
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
@@ -724,11 +724,11 @@ private:
     virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                                     const GrBackendFormat&,
                                                     GrRenderable,
-                                                    GrMipMapped,
+                                                    GrMipmapped,
                                                     GrProtected) = 0;
 
     virtual GrBackendTexture onCreateCompressedBackendTexture(
-            SkISize dimensions, const GrBackendFormat&, GrMipMapped, GrProtected) = 0;
+            SkISize dimensions, const GrBackendFormat&, GrMipmapped, GrProtected) = 0;
 
     virtual bool onUpdateBackendTexture(const GrBackendTexture&,
                                         sk_sp<GrRefCntedCallback> finishedCallback,
@@ -764,7 +764,7 @@ private:
     virtual sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                        const GrBackendFormat&,
                                                        SkBudgeted,
-                                                       GrMipMapped,
+                                                       GrMipmapped,
                                                        GrProtected,
                                                        const void* data, size_t dataSize) = 0;
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,

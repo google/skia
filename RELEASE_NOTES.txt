@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 86
 ------------
 
+  * Rename GrMipMapped to GrMipmapped for consistency with new APIs.
+    https://review.skia.org/304576
+
   * Add option for clients to own semaphores after wait calls.
     https://review.skia.org/301216
 

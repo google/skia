@@ -99,7 +99,7 @@ private:
         SkASSERT(content.colorType() == kRGBA_8888_SkColorType);
         auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         auto bet = context->createBackendTexture(content.width(), content.height(), format,
-                                                 GrMipMapped::kNo, GrRenderable::kNo);
+                                                 GrMipmapped::kNo, GrRenderable::kNo);
         if (!bet.isValid()) {
             return nullptr;
         }

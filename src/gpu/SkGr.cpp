@@ -99,7 +99,7 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
         return {};
     }
-    auto copy = GrSurfaceProxy::Copy(ctx, baseProxy, origin, GrMipMapped::kYes,
+    auto copy = GrSurfaceProxy::Copy(ctx, baseProxy, origin, GrMipmapped::kYes,
                                      SkBackingFit::kExact, budgeted);
     if (!copy) {
         return {};
@@ -118,7 +118,7 @@ GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext* context,
 }
 
 GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext* ctx, const SkBitmap& bitmap,
-                                         GrMipMapped mipMapped) {
+                                         GrMipmapped mipMapped) {
     GrBitmapTextureMaker maker(ctx, bitmap, GrImageTexGenPolicy::kDraw);
     return maker.view(mipMapped);
 }
@@ -130,7 +130,7 @@ GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context,
     }
 
     GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kDraw);
-    return maker.view(GrMipMapped::kNo);
+    return maker.view(GrMipmapped::kNo);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@
 #include "tests/TestUtils.h"
 
 void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColorType ct,
-                               GrRenderable renderable, bool doDataUpload, GrMipMapped mipMapped) {
+                               GrRenderable renderable, bool doDataUpload, GrMipmapped mipMapped) {
     auto direct = context->asDirectContext();
     if (!direct) {
         return;
@@ -42,7 +42,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     GrBackendTexture backendTex;
 
     if (doDataUpload) {
-        SkASSERT(GrMipMapped::kNo == mipMapped);
+        SkASSERT(GrMipmapped::kNo == mipMapped);
 
         FillPixelData(kWidth, kHeight, expectedPixels.writable_addr32(0, 0));
 
@@ -98,11 +98,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTestingBackendTextureUploadTest, reporter, 
         for (auto renderable: { GrRenderable::kYes, GrRenderable::kNo }) {
             for (bool doDataUpload: {true, false}) {
                 testing_only_texture_test(reporter, ctxInfo.directContext(), colorType,
-                                          renderable, doDataUpload, GrMipMapped::kNo);
+                                          renderable, doDataUpload, GrMipmapped::kNo);
 
                 if (!doDataUpload) {
                     testing_only_texture_test(reporter, ctxInfo.directContext(), colorType,
-                                              renderable, doDataUpload, GrMipMapped::kYes);
+                                              renderable, doDataUpload, GrMipmapped::kYes);
                 }
             }
         }

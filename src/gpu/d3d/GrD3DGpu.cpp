@@ -311,7 +311,7 @@ static void copy_compressed_data(char* mapPtr, DXGI_FORMAT dxgiFormat,
 sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
                                                      const GrBackendFormat& format,
                                                      SkBudgeted budgeted,
-                                                     GrMipMapped mipMapped,
+                                                     GrMipmapped mipMapped,
                                                      GrProtected isProtected,
                                                      const void* data, size_t dataSize) {
     DXGI_FORMAT dxgiFormat;
@@ -320,10 +320,10 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
 
     SkDEBUGCODE(SkImage::CompressionType compression = GrBackendFormatToCompressionType(format));
     SkASSERT(dataSize == SkCompressedFormatDataSize(compression, dimensions,
-                                                    mipMapped == GrMipMapped::kYes));
+                                                    mipMapped == GrMipmapped::kYes));
 
     int mipLevelCount = 1;
-    if (mipMapped == GrMipMapped::kYes) {
+    if (mipMapped == GrMipmapped::kYes) {
         mipLevelCount = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
@@ -914,7 +914,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                       SkISize dimensions,
                                                       GrTexturable texturable,
                                                       GrRenderable renderable,
-                                                      GrMipMapped mipMapped,
+                                                      GrMipmapped mipMapped,
                                                       GrD3DTextureResourceInfo* info,
                                                       GrProtected isProtected) {
     SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
@@ -932,7 +932,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     }
 
     int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
+    if (mipMapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -983,7 +983,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
 GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
                                                   const GrBackendFormat& format,
                                                   GrRenderable renderable,
-                                                  GrMipMapped mipMapped,
+                                                  GrMipmapped mipMapped,
                                                   GrProtected isProtected) {
     this->handleDirtyContext();
 
@@ -1076,7 +1076,7 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     SkASSERT(d3dResource);
     D3D12_RESOURCE_DESC desc = d3dResource->GetDesc();
     unsigned int mipLevelCount = 1;
-    if (backendTexture.fMipMapped == GrMipMapped::kYes) {
+    if (backendTexture.fMipMapped == GrMipmapped::kYes) {
         mipLevelCount = SkMipmap::ComputeLevelCount(backendTexture.dimensions().width(),
                                                     backendTexture.dimensions().height()) + 1;
     }
@@ -1152,7 +1152,7 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 }
 
 GrBackendTexture GrD3DGpu::onCreateCompressedBackendTexture(
-    SkISize dimensions, const GrBackendFormat& format, GrMipMapped mipMapped,
+    SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipMapped,
     GrProtected isProtected) {
     return this->onCreateBackendTexture(dimensions, format, GrRenderable::kNo, mipMapped,
                                         isProtected);
@@ -1200,7 +1200,7 @@ GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(int w, int 
 
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, { w, h }, GrTexturable::kNo,
-                                                      GrRenderable::kYes, GrMipMapped::kNo,
+                                                      GrRenderable::kYes, GrMipmapped::kNo,
                                                       &info, GrProtected::kNo)) {
         return {};
     }

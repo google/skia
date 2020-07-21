@@ -171,7 +171,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
 
     GrBackendTexture backendTex = ctx->createBackendTexture(
             kWidth, kHeight, kRGBA_8888_SkColorType,
-            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
+            SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
@@ -182,7 +182,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     sk_sp<SkImage> refImg(
             SkImage_Gpu::MakePromiseTexture(
                     ctx, backendFormat, kWidth, kHeight,
-                    GrMipMapped::kNo, texOrigin,
+                    GrMipmapped::kNo, texOrigin,
                     kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                     nullptr,
                     PromiseTextureChecker::Fulfill,
@@ -272,7 +272,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
 
             GrBackendTexture backendTex;
             CreateBackendTexture(ctx, &backendTex, kWidth, kHeight, kAlpha_8_SkColorType,
-                    SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+                    SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
             REPORTER_ASSERT(reporter, backendTex.isValid());
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
@@ -282,7 +282,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
 
             PromiseTextureChecker promiseChecker(backendTex, reporter, false);
             sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(
-                    ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
+                    ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipmapped::kNo,
                     kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
                     PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
                     PromiseTextureChecker::Done, &promiseChecker,
@@ -311,7 +311,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
 
     GrBackendTexture backendTex = ctx->createBackendTexture(
             kWidth, kHeight, kAlpha_8_SkColorType,
-            SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+            SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     SkImageInfo info =
@@ -321,7 +321,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
     sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(
-            ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
+            ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipmapped::kNo,
             kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
             PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
             PromiseTextureChecker::Done, &promiseChecker,
@@ -337,7 +337,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
         auto format = ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kNo);
         textures.emplace_back(ctx->priv().resourceProvider()->createTexture(
-                {100, 100}, format, GrRenderable::kNo, 1, GrMipMapped::kNo, SkBudgeted::kYes,
+                {100, 100}, format, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBudgeted::kYes,
                 GrProtected::kNo));
         REPORTER_ASSERT(reporter, textures[i]);
     }
@@ -379,7 +379,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     // Do all this just to get a valid backend format for the image.
     GrBackendTexture backendTex;
     CreateBackendTexture(ctx, &backendTex, kWidth, kHeight, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes,
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
                          GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
@@ -403,7 +403,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(
-            ctx, backendFormat, kWidth, kHeight, GrMipMapped::kNo, texOrigin,
+            ctx, backendFormat, kWidth, kHeight, GrMipmapped::kNo, texOrigin,
             kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, fulfill, release, done, &counts,
             SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
 

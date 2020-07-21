@@ -277,7 +277,7 @@ static GrBackendTexture make_gl_backend_texture(
     *updateProc = update_gl_texture;
     *imageCtx = new GLTextureHelper(texID, image, display, target);
 
-    return GrBackendTexture(width, height, GrMipMapped::kNo, textureInfo);
+    return GrBackendTexture(width, height, GrMipmapped::kNo, textureInfo);
 }
 
 #ifdef SK_VULKAN

@@ -30,7 +30,7 @@ public:
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                       int srcX, int srcY, CachingHint) const override;
 
-    GrSurfaceProxyView refView(GrRecordingContext*, GrMipMapped) const final;
+    GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const final;
 
     GrSurfaceProxyView refPinnedView(GrRecordingContext* context, uint32_t* uniqueID) const final {
         *uniqueID = this->uniqueID();
@@ -82,7 +82,7 @@ protected:
     // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
     // be null.
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
-            GrRecordingContext*, int width, int height, GrBackendFormat, GrMipMapped,
+            GrRecordingContext*, int width, int height, GrBackendFormat, GrMipmapped,
             PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext, PromiseImageApiVersion);
 
