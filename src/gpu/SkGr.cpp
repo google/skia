@@ -313,7 +313,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         // We may have set this before passing to the SkShader.
         fpArgs.fInputColorIsOpaque = false;
         if (auto mfFP = maskFilter->asFragmentProcessor(fpArgs)) {
-            grPaint->addCoverageFragmentProcessor(std::move(mfFP));
+            grPaint->setCoverageFragmentProcessor(std::move(mfFP));
         }
     }
 

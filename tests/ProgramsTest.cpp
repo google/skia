@@ -232,20 +232,11 @@ static void set_random_color_coverage_stages(GrPaint* paint,
             paint->setColorFragmentProcessor(std::move(fp));
         }
     } else {
-        int numProcs = d->fRandom->nextULessThan(maxStages + 1);
-        int numColorProcs = 1;
-
-        for (int s = 0; s < numProcs; ++s) {
-            std::unique_ptr<GrFragmentProcessor> fp(GrFragmentProcessorTestFactory::Make(d));
-            if (!fp) {
-                continue;
-            }
-            // finally add the stage to the correct pipeline in the drawstate
-            if (s < numColorProcs) {
-                paint->setColorFragmentProcessor(std::move(fp));
-            } else {
-                paint->addCoverageFragmentProcessor(std::move(fp));
-            }
+        if (std::unique_ptr<GrFragmentProcessor> fp = GrFragmentProcessorTestFactory::Make(d)) {
+            paint->setColorFragmentProcessor(std::move(fp));
+        }
+        if (std::unique_ptr<GrFragmentProcessor> fp = GrFragmentProcessorTestFactory::Make(d)) {
+            paint->setCoverageFragmentProcessor(std::move(fp));
         }
     }
 }
