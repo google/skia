@@ -77,7 +77,7 @@ public:
     virtual GrContext* context() const { return nullptr; }
 
 #if SK_SUPPORT_GPU
-    virtual GrSemaphoresSubmitted onFlush(GrContext* context, const GrFlushInfo&) {
+    virtual GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) {
         return GrSemaphoresSubmitted::kNo;
     }
 
