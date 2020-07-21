@@ -43,21 +43,21 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
         : GrPipeline(args, processors.refXferProcessor(), appliedClip.hardClip()) {
     SkASSERT(processors.isFinalized());
     // Copy GrFragmentProcessors from GrProcessorSet to Pipeline
-    fNumColorProcessors = processors.numColorFragmentProcessors();
+    fNumColorProcessors = processors.hasColorFragmentProcessor() ? 1 : 0;
     int numTotalProcessors = fNumColorProcessors +
-                             processors.numCoverageFragmentProcessors() +
+                             (processors.hasCoverageFragmentProcessor() ? 1 : 0) +
                              appliedClip.numClipCoverageFragmentProcessors();
     fFragmentProcessors.reset(numTotalProcessors);
 
     int currFPIdx = 0;
-    for (int i = 0; i < processors.numColorFragmentProcessors(); ++i, ++currFPIdx) {
-        fFragmentProcessors[currFPIdx] = processors.detachColorFragmentProcessor(i);
+    if (processors.hasColorFragmentProcessor()) {
+        fFragmentProcessors[currFPIdx++] = processors.detachColorFragmentProcessor();
     }
-    for (int i = 0; i < processors.numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
-        fFragmentProcessors[currFPIdx] = processors.detachCoverageFragmentProcessor(i);
+    if (processors.hasCoverageFragmentProcessor()) {
+        fFragmentProcessors[currFPIdx++] = processors.detachCoverageFragmentProcessor();
     }
-    for (int i = 0; i < appliedClip.numClipCoverageFragmentProcessors(); ++i, ++currFPIdx) {
-        fFragmentProcessors[currFPIdx] = appliedClip.detachClipCoverageFragmentProcessor(i);
+    for (int i = 0; i < appliedClip.numClipCoverageFragmentProcessors(); ++i) {
+        fFragmentProcessors[currFPIdx++] = appliedClip.detachClipCoverageFragmentProcessor(i);
     }
 }
 
@@ -88,15 +88,15 @@ void GrPipeline::genKey(GrProcessorKeyBuilder* b, const GrCaps& caps) const {
     // kSnapVerticesToPixelCenters is implemented in a shader.
     InputFlags ignoredFlags = InputFlags::kSnapVerticesToPixelCenters;
     if (!caps.multisampleDisableSupport()) {
-        // Ganesh will omit kHWAntialias regardless multisampleDisableSupport.
+        // Ganesh will omit kHWAntialias regardless of multisampleDisableSupport.
         ignoredFlags |= InputFlags::kHWAntialias;
     }
     b->add32((uint32_t)fFlags & ~(uint32_t)ignoredFlags);
 
     const GrXferProcessor::BlendInfo& blendInfo = this->getXferProcessor().getBlendInfo();
 
-    static const uint32_t kBlendWriteShift = 1;
-    static const uint32_t kBlendCoeffShift = 5;
+    static constexpr uint32_t kBlendWriteShift = 1;
+    static constexpr uint32_t kBlendCoeffShift = 5;
     static_assert(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
     static_assert(kFirstAdvancedGrBlendEquation - 1 < 4);
 
