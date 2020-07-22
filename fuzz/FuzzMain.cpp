@@ -264,6 +264,7 @@ static int fuzz_file(SkString path, SkString type) {
 }
 
 static std::map<std::string, std::string> cf_api_map = {
+    {"api_create_ddl", "CreateDDL"},
     {"api_draw_functions", "DrawFunctions"},
     {"api_gradients", "Gradients"},
     {"api_image_filter", "ImageFilter"},
