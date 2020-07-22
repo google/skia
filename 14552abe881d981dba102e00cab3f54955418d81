@@ -66,6 +66,30 @@
     },
     {
       "key": {
+        "uuid": "58ad8120_e6c9fc3b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 3574,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-22T15:46:57Z",
+      "side": 1,
+      "message": "Let me know if the updated comment is more understandable.",
+      "parentUuid": "70e112b2_42f52ad4",
+      "range": {
+        "startLine": 3573,
+        "startChar": 20,
+        "endLine": 3574,
+        "endChar": 31
+      },
+      "revId": "14552abe881d981dba102e00cab3f54955418d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "06605f3d_1ad2590a",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 18
@@ -151,6 +175,24 @@
       "revId": "14552abe881d981dba102e00cab3f54955418d81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ff51b52_418476d2",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 2623,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-22T15:46:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0af52561_c6e7bad8",
+      "revId": "14552abe881d981dba102e00cab3f54955418d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
