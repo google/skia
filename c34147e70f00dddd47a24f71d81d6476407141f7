@@ -175,6 +175,52 @@
       "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97b16b64_16cfb963",
+        "filename": "include/utils/SkBicubicFilterCoefficients.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T14:44:47Z",
+      "side": 1,
+      "message": "If these stick around, weird to use \u003d {} on one and () on the other?  Might be nice to line up all the .\u0027s vertically?",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 0
+      },
+      "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b950b979_089faed5",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T14:44:47Z",
+      "side": 1,
+      "message": "coded?",
+      "range": {
+        "startLine": 1025,
+        "startChar": 39,
+        "endLine": 1025,
+        "endChar": 44
+      },
+      "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
