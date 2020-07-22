@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9194c1e3_5b5c9ee3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T19:52:18Z",
+      "side": 1,
+      "message": "Adding bsalomon@ even though the API change is just whitespace",
+      "revId": "f2fc67b5b4e348a08aa437f2b2af435a8d3648a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
