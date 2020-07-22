@@ -817,6 +817,7 @@ static GrSamplerState::Filter compute_lattice_filter_mode(const SkPaint& paint) 
     if (paint.getFilterQuality() == kNone_SkFilterQuality) {
         return GrSamplerState::Filter::kNearest;
     }
+
     return GrSamplerState::Filter::kLinear;
 }
 
@@ -860,7 +861,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
     auto dstColorSpace = fRenderTargetContext->colorInfo().colorSpace();
     const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
-    auto view = producer->view(GrMipmapped::kNo);
+    auto view = producer->view(filter);
     if (!view) {
         return;
     }
