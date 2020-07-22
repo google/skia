@@ -88,6 +88,9 @@ public:
      */
     GrSurfaceProxyView view(GrMipmapped);
 
+    /** Helper version of above that determines MIP mapping requirement from Filter. */
+    GrSurfaceProxyView view(GrSamplerState::Filter);
+
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
     SkISize dimensions() const { return fImageInfo.dimensions(); }
