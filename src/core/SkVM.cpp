@@ -1987,6 +1987,9 @@ namespace skvm {
     void Assembler::vpackusdw(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x2b, dst,x,y); }
     void Assembler::vpackuswb(Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0x67, dst,x,y); }
 
+    void Assembler::vpunpckldq(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x62, dst,x,y); }
+    void Assembler::vpunpckhdq(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x6a, dst,x,y); }
+
     void Assembler::vpcmpeqd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x76, dst,x,y); }
     void Assembler::vpcmpgtd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x66, dst,x,y); }
 
@@ -2036,6 +2039,11 @@ namespace skvm {
         // A bit unusual among the instructions we use, this is 64-bit operation, so we set W.
         this->op(0x66,0x3a0f,0x00, dst,x,W1);
         this->imm_byte_after_operand(x, imm);
+    }
+
+    void Assembler::vperm2f128(Ymm dst, Ymm x, Operand y, int imm) {
+        this->op(0x66,0x3a0f,0x06, dst,x,y);
+        this->imm_byte_after_operand(y, imm);
     }
 
     void Assembler::vroundps(Ymm dst, Operand x, Rounding imm) {
@@ -3338,7 +3346,6 @@ namespace skvm {
 
                 case Op::load64_lo:
                 case Op::load64_hi:
-                case Op::store64:
                     // TODO
                     return false;
 
@@ -3373,6 +3380,25 @@ namespace skvm {
                 case Op::store32: if (scalar) { a->vmovd  (A::Mem{arg[immy]}, (A::Xmm)r(x)); }
                                   else        { a->vmovups(A::Mem{arg[immy]},         r(x)); }
                                   break;
+
+                case Op::store64: if (scalar) {
+                                      a->vmovd(A::Mem{arg[immz],0}, (A::Xmm)r(x));
+                                      a->vmovd(A::Mem{arg[immz],4}, (A::Xmm)r(y));
+                                  } else {
+                                      // r(x) = {a,b,c,d|e,f,g,h}
+                                      // r(y) = {i,j,k,l|m,n,o,p}
+                                      // We want to write a,i,b,j,c,k,d,l,e,m...
+                                      A::Ymm L = alloc_tmp(),
+                                             H = alloc_tmp();
+                                      a->vpunpckldq(L, r(x), any(y));  // L = {a,i,b,j|e,m,f,n}
+                                      a->vpunpckhdq(H, r(x), any(y));  // H = {c,k,d,l|g,o,h,p}
+                                      a->vperm2f128(dst(), L,H, 0x20); //   = {a,i,b,j|c,k,d,l}
+                                      a->vmovups(A::Mem{arg[immz], 0}, dst());
+                                      a->vperm2f128(dst(), L,H, 0x31); //   = {e,m,f,n|g,o,h,p}
+                                      a->vmovups(A::Mem{arg[immz],32}, dst());
+                                      free_tmp(L);
+                                      free_tmp(H);
+                                  } break;
 
                 case Op::load8:  if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
