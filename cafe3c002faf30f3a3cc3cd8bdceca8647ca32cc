@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f117408e_6eed5b20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-22T19:35:03Z",
+      "side": 1,
+      "message": "We should still make \u0027Run\u0027 a lot smaller. I\u0027m not sure if Paragraph is a candidate for a bump allocator like SkAreanaAlloc, but it would be good if it were.",
+      "revId": "cafe3c002faf30f3a3cc3cd8bdceca8647ca32cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
