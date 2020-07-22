@@ -852,6 +852,56 @@ bool GrContext::setBackendTextureState(const GrBackendTexture& backendTexture,
     return fGpu->setBackendTextureState(backendTexture, state, std::move(callback));
 }
 
+bool GrContext::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,
+                                               const SkColor4f& color,
+                                               GrGpuFinishedProc finishedProc,
+                                               GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> finishedCallback;
+    if (finishedProc) {
+        finishedCallback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (!this->asDirectContext()) {
+        return false;
+    }
+
+    if (this->abandoned()) {
+        return false;
+    }
+
+    GrGpu::BackendTextureData data(color);
+    return fGpu->updateCompressedBackendTexture(backendTexture, std::move(finishedCallback), &data);
+}
+
+bool GrContext::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,
+                                               const void* compressedData,
+                                               size_t dataSize,
+                                               GrGpuFinishedProc finishedProc,
+                                               GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> finishedCallback;
+    if (finishedProc) {
+        finishedCallback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (!this->asDirectContext()) {
+        return false;
+    }
+
+    if (this->abandoned()) {
+        return false;
+    }
+
+    if (!compressedData) {
+        return false;
+    }
+
+    GrGpu::BackendTextureData data(compressedData, dataSize);
+
+    return fGpu->updateCompressedBackendTexture(backendTexture, std::move(finishedCallback), &data);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool GrContext::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
                                             const GrBackendSurfaceMutableState& state,
                                             GrGpuFinishedProc finishedProc,
