@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+## [0.17.2] - 2020-07-22
+
+### Fixed
  - Shader programs are no longer generated with `do-while` loops in WebGL 1.0.
 
 ## [0.17.1] - 2020-07-21
