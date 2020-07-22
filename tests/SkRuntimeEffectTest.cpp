@@ -11,6 +11,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTLazy.h"
+#include "src/gpu/GrColor.h"
 #include "tests/Test.h"
 
 #include <algorithm>
@@ -63,16 +64,18 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
 
 class TestEffect {
 public:
-    TestEffect(skiatest::Reporter* r, const char* hdr, const char* body) {
+    TestEffect(skiatest::Reporter* r, sk_sp<SkSurface> surface)
+            : fReporter(r), fSurface(std::move(surface)) {}
+
+    void build(const char* header, const char* body) {
         SkString src = SkStringPrintf("%s void main(float2 p, inout half4 color) { %s }",
-                                      hdr, body);
+                                      header, body);
         auto[effect, errorText] = SkRuntimeEffect::Make(src);
         if (!effect) {
-            REPORT_FAILURE(r, "effect",
+            REPORT_FAILURE(fReporter, "effect",
                            SkStringPrintf("Effect didn't compile: %s", errorText.c_str()));
             return;
         }
-
         fBuilder.init(std::move(effect));
     }
 
@@ -80,30 +83,36 @@ public:
         return fBuilder->input(name);
     }
 
-    void test(skiatest::Reporter* r, sk_sp<SkSurface> surface,
-              uint32_t TL, uint32_t TR, uint32_t BL, uint32_t BR, SkScalar rotate = 0.0f) {
+    using PreTestFn = std::function<void(SkCanvas*)>;
+
+    void test(GrColor TL, GrColor TR, GrColor BL, GrColor BR,
+              PreTestFn preTestCallback = nullptr) {
         auto shader = fBuilder->makeShader(nullptr, false);
         if (!shader) {
-            REPORT_FAILURE(r, "shader", SkString("Effect didn't produce a shader"));
+            REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));
             return;
         }
 
         SkPaint paint;
         paint.setShader(std::move(shader));
         paint.setBlendMode(SkBlendMode::kSrc);
-        surface->getCanvas()->rotate(rotate);
-        surface->getCanvas()->drawPaint(paint);
 
-        uint32_t actual[4];
-        SkImageInfo info = surface->imageInfo();
-        if (!surface->readPixels(info, actual, info.minRowBytes(), 0, 0)) {
-            REPORT_FAILURE(r, "readPixels", SkString("readPixels failed"));
+        if (preTestCallback) {
+            preTestCallback(fSurface->getCanvas());
+        }
+
+        fSurface->getCanvas()->drawPaint(paint);
+
+        GrColor actual[4];
+        SkImageInfo info = fSurface->imageInfo();
+        if (!fSurface->readPixels(info, actual, info.minRowBytes(), 0, 0)) {
+            REPORT_FAILURE(fReporter, "readPixels", SkString("readPixels failed"));
             return;
         }
 
-        uint32_t expected[4] = {TL, TR, BL, BR};
+        GrColor expected[4] = {TL, TR, BL, BR};
         if (memcmp(actual, expected, sizeof(actual)) != 0) {
-            REPORT_FAILURE(r, "Runtime effect didn't match expectations",
+            REPORT_FAILURE(fReporter, "Runtime effect didn't match expectations",
                            SkStringPrintf("\n"
                                           "Expected: [ %08x %08x %08x %08x ]\n"
                                           "Got     : [ %08x %08x %08x %08x ]\n"
@@ -113,54 +122,59 @@ public:
         }
     }
 
-    void test(skiatest::Reporter* r, sk_sp<SkSurface> surface, uint32_t expected) {
-        this->test(r, surface, expected, expected, expected, expected);
+    void test(GrColor expected, PreTestFn preTestCallback = nullptr) {
+        this->test(expected, expected, expected, expected, preTestCallback);
     }
 
 private:
+    skiatest::Reporter*             fReporter;
+    sk_sp<SkSurface>                fSurface;
     SkTLazy<SkRuntimeShaderBuilder> fBuilder;
 };
 
 static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context) {
     SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface;
-    if (context) {
-        surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
-    } else {
-        surface = SkSurface::MakeRaster(info);
-    }
+    sk_sp<SkSurface> surface = context ? SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info)
+                                       : SkSurface::MakeRaster(info);
     REPORTER_ASSERT(r, surface);
-
-    TestEffect xy(r, "", "color = half4(half2(p - 0.5), 0, 1);");
-    xy.test(r, surface, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
+    TestEffect effect(r, surface);
 
     using float4 = std::array<float, 4>;
 
-    // NOTE: For now, we always emit valid premul colors, until CPU and GPU agree on clamping
-    TestEffect uniformColor(r, "uniform float4 gColor;", "color = half4(gColor);");
+    // Local coords
+    effect.build("", "color = half4(half2(p - 0.5), 0, 1);");
+    effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
-    uniformColor["gColor"] = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
-    uniformColor.test(r, surface, 0xFFBF4000);
+    // Use of a simple uniform. (Draw twice with two values to ensure it's updated).
+    effect.build("uniform float4 gColor;",
+                 "color = half4(gColor);");
+    effect["gColor"] = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
+    effect.test(0xFFBF4000);
+    effect["gColor"] = float4{ 0.75f, 0.25f, 0.0f, 1.0f };
+    effect.test(0xFF0040BF);
 
-    uniformColor["gColor"] = float4{ 0.75f, 0.25f, 0.0f, 1.0f };
-    uniformColor.test(r, surface, 0xFF0040BF);
+    // Indexing a uniform array with an 'in' integer
+    effect.build("in int flag; uniform half4 gColors[2];",
+                 "color = gColors[flag];");
+    effect["gColors"] = std::array<float4, 2>{float4{1.0f, 0.0f, 0.0f, 0.498f},
+                                              float4{0.0f, 1.0f, 0.0f, 1.0f  }};
+    effect["flag"] = 0;
+    effect.test(0x7F00007F);  // Tests that we clamp to valid premul
+    effect["flag"] = 1;
+    effect.test(0xFF00FF00);
 
-    TestEffect pickColor(r, "in int flag; uniform half4 gColors[2];", "color = gColors[flag];");
-    pickColor["gColors"] =
-            std::array<float4, 2>{float4{1.0f, 0.0f, 0.0f, 0.498f}, float4{0.0f, 1.0f, 0.0f, 1.0f}};
-    pickColor["flag"] = 0;
-    pickColor.test(r, surface, 0x7F00007F);  // Tests that we clamp to valid premul
-    pickColor["flag"] = 1;
-    pickColor.test(r, surface, 0xFF00FF00);
+    // 'in' half (functionally a uniform, but handled very differently internally)
+    effect.build("in half c;",
+                 "color = half4(c, c, c, 1);");
+    effect["c"] = 0.498f;
+    effect.test(0xFF7F7F7F);
 
-    TestEffect inlineColor(r, "in half c;", "color = half4(c, c, c, 1);");
-    inlineColor["c"] = 0.498f;
-    inlineColor.test(r, surface, 0xFF7F7F7F);
-
-    // Test sk_FragCoord, which we output to color. Since the surface is 2x2, we should see
-    // (0,0), (1,0), (0,1), (1,1), multiply by 0.498 to make sure we're not saturating unexpectedly.
-    TestEffect fragCoord(r, "", "color = half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1);");
-    fragCoord.test(r, surface, 0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F, 45.0f);
+    // Test sk_FragCoord (device coords). Rotate the canvas to be sure we're seeing device coords.
+    // Since the surface is 2x2, we should see (0,0), (1,0), (0,1), (1,1). Multiply by 0.498 to
+    // make sure we're not saturating unexpectedly.
+    effect.build("", "color = half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1);");
+    effect.test(0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F,
+           [](SkCanvas* canvas) { canvas->rotate(45.0f); });
 }
 
 DEF_TEST(SkRuntimeEffectSimple, r) {
