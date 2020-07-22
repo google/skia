@@ -26,6 +26,10 @@ public:
         kInheritFromPaint,
         // this signals we should use the new SkFilterOptions
         kUseFilterOptions,
+        // use fCubic and ignore FilterOptions
+        kUseCubicResampler,
+
+        kLast = kUseCubicResampler,
     };
 
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
@@ -41,11 +45,19 @@ public:
                                 const SkFilterOptions&,
                                 const SkMatrix* localMatrix);
 
+    static sk_sp<SkShader> Make(sk_sp<SkImage>,
+                                SkTileMode tmx,
+                                SkTileMode tmy,
+                                SkImage::CubicResampler,
+                                const SkMatrix* localMatrix);
+
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
+
+    static SkM44 CubicResamplerMatrix(float B, float C);
 
 private:
     SK_FLATTENABLE_HOOKS(SkImageShader)
@@ -60,6 +72,11 @@ private:
                   SkTileMode tmx,
                   SkTileMode tmy,
                   const SkFilterOptions&,
+                  const SkMatrix* localMatrix);
+    SkImageShader(sk_sp<SkImage>,
+                  SkTileMode tmx,
+                  SkTileMode tmy,
+                  SkImage::CubicResampler,
                   const SkMatrix* localMatrix);
 
     void flatten(SkWriteBuffer&) const override;
@@ -80,8 +97,9 @@ private:
 
     SkFilterQuality resolveFiltering(SkFilterQuality paintQuality) const {
         switch (fFilterEnum) {
-            case kUseFilterOptions: return kNone_SkFilterQuality;   // TODO
-            case kInheritFromPaint: return paintQuality;
+            case kUseCubicResampler: return kHigh_SkFilterQuality;   // TODO: handle explicitly
+            case kUseFilterOptions:  return kNone_SkFilterQuality;   // TODO: handle explicitly
+            case kInheritFromPaint:  return paintQuality;
             default: break;
         }
         return (SkFilterQuality)fFilterEnum;
@@ -95,6 +113,8 @@ private:
 
     // only use this if fFilterEnum == kUseFilterOptions
     SkFilterOptions  fFilterOptions;
+    // only use this if fFilterEnum == kUseCubicResampler
+    SkImage::CubicResampler fCubic;
 
     friend class SkShaderBase;
     typedef SkShaderBase INHERITED;
