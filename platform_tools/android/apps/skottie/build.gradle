@@ -21,7 +21,7 @@ android {
     }
     flavorDimensions "tier"
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 26
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -39,6 +39,6 @@ android {
     //    arm64.out.dir=[out file for xarm64]
     //    arm.out.dir=[out file for arm]
 
-    productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
+    productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan {}; }
 
 }
