@@ -1218,10 +1218,12 @@ DEF_TEST(SkVM_Assembler, r) {
 
     test_asm(r, [&](A& a) {
         A::Label l;
+        a.vpermps(A::ymm1, A::ymm2, A::Mem{A::rdi, 32});
         a.vperm2f128(A::ymm1, A::ymm2, &l, 0x20);
         a.vpermq(A::ymm1, A::ymm2, 5);
         a.label(&l);  // 6 bytes after vperm2f128
     },{
+        0xc4,0xe2,0x6d,0x16,0x4f,0x20,
         0xc4,0xe3,0x6d,0x06,0x0d,0x06,0x00,0x00,0x00,0x20,
         0xc4,0xe3,0xfd, 0x00,0xca, 0x05,
     });
