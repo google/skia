@@ -73,7 +73,6 @@ static wgpu::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
         case GrSamplerState::Filter::kNearest:
             return wgpu::FilterMode::Nearest;
         case GrSamplerState::Filter::kLinear:
-        case GrSamplerState::Filter::kMipMap:
             return wgpu::FilterMode::Linear;
         default:
             SkASSERT(!"unsupported filter mode");

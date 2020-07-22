@@ -70,11 +70,10 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     }
 
     // Check to see if the client has given us pre-mipped textures or we can generate them
-    // If not, fall back to linear filtering. Also fall back to linear filtering when a domain is
-    // requested.
-    if (samplerState.filter() == GrSamplerState::Filter::kMipMap &&
+    // If not disable mip mapping. Also disable when a subset is requested.
+    if (samplerState.mipmapped() == GrMipmapped::kYes &&
         (subset || !fImage->setupMipmapsForPlanes(this->context()))) {
-        samplerState.setFilterMode(GrSamplerState::Filter::kLinear);
+        samplerState.setMipmapMode(GrSamplerState::MipmapMode::kNone);
     }
 
     const auto& caps = *fImage->context()->priv().caps();

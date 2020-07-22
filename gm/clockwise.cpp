@@ -254,10 +254,19 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(nullptr, topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
-                         GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
-                         {0, 0, 100, 200}, {100, 0, 200, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
-                         SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
+        rtc->drawTexture(nullptr,
+                         topLeftRTC->readSurfaceView(),
+                         rtc->colorInfo().alphaType(),
+                         GrSamplerState::Filter::kNearest,
+                         GrSamplerState::MipmapMode::kNone,
+                         SkBlendMode::kSrcOver,
+                         SK_PMColor4fWHITE,
+                         {0, 0, 100, 200},
+                         {100, 0, 200, 200},
+                         GrAA::kNo,
+                         GrQuadAAFlags::kNone,
+                         SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint,
+                         SkMatrix::I(),
                          nullptr);
     }
 
@@ -269,10 +278,19 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(nullptr, topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
-                         GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
-                         {0, 0, 100, 200}, {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
-                         SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
+        rtc->drawTexture(nullptr,
+                         topLeftRTC->readSurfaceView(),
+                         rtc->colorInfo().alphaType(),
+                         GrSamplerState::Filter::kNearest,
+                         GrSamplerState::MipmapMode::kNone,
+                         SkBlendMode::kSrcOver,
+                         SK_PMColor4fWHITE,
+                         {0, 0, 100, 200},
+                         {200, 0, 300, 200},
+                         GrAA::kNo,
+                         GrQuadAAFlags::kNone,
+                         SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint,
+                         SkMatrix::I(),
                          nullptr);
     }
 }

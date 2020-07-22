@@ -158,7 +158,7 @@ void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,
 
         const GrTexture* tex = proxy->peekTexture();
         SkASSERT(tex);
-        if (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter() &&
+        if (sampler.samplerState().mipmapped() == GrMipmapped::kYes &&
             (tex->width() != 1 || tex->height() != 1)) {
             // There are some cases where we might be given a non-mipmapped texture with a mipmap
             // filter. See skbug.com/7094.
