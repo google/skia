@@ -65,8 +65,8 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, GrSurfaceP
 
 SkImage_Gpu::~SkImage_Gpu() {}
 
-GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrContext* context, const GrFlushInfo& info) {
-    if (!context || !fContext->priv().matches(context) || fContext->abandoned()) {
+GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrDirectContext* dContext, const GrFlushInfo& info) {
+    if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
@@ -77,7 +77,7 @@ GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrContext* context, const GrFlushInfo
     }
 
     GrSurfaceProxy* p[1] = {fView.proxy()};
-    return context->priv().flushSurfaces(p, 1, info);
+    return dContext->priv().flushSurfaces(p, 1, info);
 }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
