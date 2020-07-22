@@ -16,6 +16,98 @@
       "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab66e611_025d09b0",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T15:46:15Z",
+      "side": 1,
+      "message": "Are we planning on using the SkPaint param in future CLs? Right now it\u0027s never used.",
+      "range": {
+        "startLine": 85,
+        "startChar": 41,
+        "endLine": 85,
+        "endChar": 50
+      },
+      "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca0a0644_be02835f",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T15:46:15Z",
+      "side": 1,
+      "message": "Do we have a more descriptive type we could use for these color inputs? (e.g. something like GrColor but not Ganesh-specific) From their names alone they seem more like point coordinates.",
+      "range": {
+        "startLine": 87,
+        "startChar": 14,
+        "endLine": 87,
+        "endChar": 22
+      },
+      "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e078e211_11881521",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T15:46:15Z",
+      "side": 1,
+      "message": "I actually prefer how the old version uses a more descriptive variable name. `e` feels less readable than `effect` to me. Coming into this code blind, `e` doesn\u0027t tell me anything at all without looking at the type.",
+      "range": {
+        "startLine": 139,
+        "startChar": 4,
+        "endLine": 139,
+        "endChar": 16
+      },
+      "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71d39cb1_e9a4a1ed",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T15:46:15Z",
+      "side": 1,
+      "message": "Please move back to its own line (throughout)",
+      "range": {
+        "startLine": 150,
+        "startChar": 53,
+        "endLine": 150,
+        "endChar": 73
+      },
+      "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
