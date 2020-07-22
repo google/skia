@@ -2183,8 +2183,16 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 ctInfo.fWriteSwizzle = GrSwizzle::AAAA();
                 this->setColorTypeFormat(GrColorType::kAlpha_F16, GrGLFormat::kR16F);
 
+                {
+                    // In a pinch, back A16 with R16F
+                    int a16Idx = static_cast<int>(GrColorType::kAlpha_16);
+                    if (fColorTypeToFormatTable[a16Idx] == GrGLFormat::kUnknown) {
+                        this->setColorTypeFormat(GrColorType::kAlpha_16, GrGLFormat::kR16F);
+                    }
+                }
+
                 // External IO ColorTypes:
-                ctInfo.fExternalIOFormatCount = 2;
+                ctInfo.fExternalIOFormatCount = 3;
                 ctInfo.fExternalIOFormats.reset(
                         new ColorTypeInfo::ExternalIOFormats[ctInfo.fExternalIOFormatCount]());
                 int ioIdx = 0;
@@ -2206,6 +2214,15 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ioFormat.fExternalType = GR_GL_FLOAT;
                     ioFormat.fExternalTexImageFormat = 0;
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                }
+
+                // Format: R16F, Surface: kAlpha_F16, Data: kAlpha_16
+                {
+                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                    ioFormat.fColorType = GrColorType::kAlpha_16;
+                    ioFormat.fExternalType = GR_GL_UNSIGNED_SHORT;
+                    ioFormat.fExternalTexImageFormat = GR_GL_RED;
+                    ioFormat.fExternalReadFormat = GR_GL_RED;
                 }
             }
         }
@@ -2271,8 +2288,16 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     this->setColorTypeFormat(GrColorType::kAlpha_F16, GrGLFormat::kLUMINANCE16F);
                 }
 
+                {
+                    // In a pinch, back A16 with LUM16F
+                    int a16Idx = static_cast<int>(GrColorType::kAlpha_16);
+                    if (fColorTypeToFormatTable[a16Idx] == GrGLFormat::kUnknown) {
+                        this->setColorTypeFormat(GrColorType::kAlpha_16, GrGLFormat::kLUMINANCE16F);
+                    }
+                }
+
                 // External IO ColorTypes:
-                ctInfo.fExternalIOFormatCount = 2;
+                ctInfo.fExternalIOFormatCount = 3;
                 ctInfo.fExternalIOFormats.reset(
                         new ColorTypeInfo::ExternalIOFormats[ctInfo.fExternalIOFormatCount]());
                 int ioIdx = 0;
@@ -2292,6 +2317,15 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ioFormat.fExternalType = GR_GL_FLOAT;
                     ioFormat.fExternalTexImageFormat = 0;
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                }
+
+                // Format: LUMINANCE16F, Surface: kAlpha_F16, Data: kAlpha_16
+                {
+                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                    ioFormat.fColorType = GrColorType::kAlpha_16;
+                    ioFormat.fExternalType = GR_GL_UNSIGNED_SHORT;
+                    ioFormat.fExternalTexImageFormat = GR_GL_LUMINANCE;
+                    ioFormat.fExternalReadFormat = 0;
                 }
             }
         }
