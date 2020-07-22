@@ -142,6 +142,12 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                SkImageShader::FilterEnum(filtering));
 }
 
+sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy, CubicResampler cubic,
+                                           const SkMatrix* localMatrix) const {
+    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy, cubic,
+                               localMatrix);
+}
+
 sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm)) {
