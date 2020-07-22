@@ -587,14 +587,16 @@ private:
                 // The only way netFilter != filter is if linear is requested and we haven't yet
                 // found a quad that requires linear (so net is still nearest). Similar for mip
                 // mapping.
-                SkASSERT(netFilter <= filter);
-                SkASSERT(netMM <= mm);
+                SkASSERT(filter == netFilter ||
+                         (netFilter == GrSamplerState::Filter::kNearest && filter > netFilter));
+                SkASSERT(mm == netMM ||
+                         (netMM == GrSamplerState::MipmapMode::kNone && mm > netMM));
                 auto [mustFilter, mustMM] = filter_and_mm_have_effect(quad.fLocal, quad.fDevice);
                 if (mustFilter && filter != GrSamplerState::Filter::kNearest) {
-                    netFilter = GrSamplerState::Filter::kLinear;
+                    netFilter = filter;
                 }
                 if (mustMM && mm != GrSamplerState::MipmapMode::kNone) {
-                    netMM = GrSamplerState::MipmapMode::kLinear;
+                    netMM = mm;
                 }
             }
 

@@ -17,7 +17,7 @@
 class GrSamplerState {
 public:
     enum class Filter     : uint8_t { kNearest, kLinear, kLast = kLinear };
-    enum class MipmapMode : uint8_t { kNone, /*kNearest,*/ kLinear, kLast = kLinear };
+    enum class MipmapMode : uint8_t { kNone, kNearest, kLinear, kLast = kLinear };
 
     enum class WrapMode : uint8_t {
         kClamp,

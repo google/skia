@@ -186,6 +186,12 @@ static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter,
     switch (mm) {
         case GrSamplerState::MipmapMode::kNone:
             return filter_to_gl_mag_filter(filter);
+        case GrSamplerState::MipmapMode::kNearest:
+            switch (filter) {
+                case GrSamplerState::Filter::kNearest: return GR_GL_NEAREST_MIPMAP_NEAREST;
+                case GrSamplerState::Filter::kLinear:  return GR_GL_LINEAR_MIPMAP_NEAREST;
+            }
+            SkUNREACHABLE;
         case GrSamplerState::MipmapMode::kLinear:
             switch (filter) {
                 case GrSamplerState::Filter::kNearest: return GR_GL_NEAREST_MIPMAP_LINEAR;
