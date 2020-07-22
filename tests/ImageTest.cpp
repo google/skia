@@ -1471,3 +1471,33 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     i2->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 }
+
+#include "src/shaders/SkImageShader.h"
+
+constexpr SkM44 gCentripetalCatmulRom
+    (0.0f/2, -1.0f/2,  2.0f/2, -1.0f/2,
+     2.0f/2,  0.0f/2, -5.0f/2,  3.0f/2,
+     0.0f/2,  1.0f/2,  4.0f/2, -3.0f/2,
+     0.0f/2,  0.0f/2, -1.0f/2,  1.0f/2);
+
+constexpr SkM44 gMitchellNetravali
+    ( 1.0f/18, -9.0f/18,  15.0f/18,  -7.0f/18,
+     16.0f/18,  0.0f/18, -36.0f/18,  21.0f/18,
+      1.0f/18,  9.0f/18,  27.0f/18, -21.0f/18,
+      0.0f/18,  0.0f/18,  -6.0f/18,   7.0f/18);
+
+DEF_TEST(image_cubicresampler, reporter) {
+    auto diff = [reporter](const SkM44& a, const SkM44& b) {
+        const float tolerance = 0.000001f;
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                float d = std::abs(a.rc(r, c) - b.rc(r, c));
+                REPORTER_ASSERT(reporter, d <= tolerance);
+            }
+        }
+    };
+
+    diff(SkImageShader::CubicResamplerMatrix(1.0f/3, 1.0f/3), gMitchellNetravali);
+
+    diff(SkImageShader::CubicResamplerMatrix(0, 1.0f/2), gCentripetalCatmulRom);
+}
