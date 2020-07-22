@@ -303,13 +303,14 @@ class LazyFailedInstantiationTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext,
                                           GrProxyProvider* proxyProvider,
                                           int* testExecuteValue,
                                           bool shouldFailInstantiation) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
+        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
 
-        return pool->allocate<LazyFailedInstantiationTestOp>(context, proxyProvider,
+        return pool->allocate<LazyFailedInstantiationTestOp>(rContext->priv().caps(),
+                                                             proxyProvider,
                                                              testExecuteValue,
                                                              shouldFailInstantiation);
     }
@@ -321,14 +322,13 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    LazyFailedInstantiationTestOp(GrContext* ctx, GrProxyProvider* proxyProvider,
+    LazyFailedInstantiationTestOp(const GrCaps* caps, GrProxyProvider* proxyProvider,
                                   int* testExecuteValue, bool shouldFailInstantiation)
             : INHERITED(ClassID())
             , fTestExecuteValue(testExecuteValue) {
         SkISize dims = {kSize, kSize};
-        GrBackendFormat format =
-            ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
-                                                        GrRenderable::kNo);
+        GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                               GrRenderable::kNo);
 
         fLazyProxy = proxyProvider->createLazyProxy(
                 [testExecuteValue, shouldFailInstantiation](
