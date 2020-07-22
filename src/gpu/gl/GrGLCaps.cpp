@@ -57,7 +57,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fDontSetBaseOrMaxLevelForExternalTextures = false;
     fNeverDisableColorWrites = false;
-    fMustSetTexParameterMinFilterToEnableMipmapping = false;
+    fMustSetAnyTexParameterToEnableMipmapping = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -3569,7 +3569,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // We saw this bug on a TecnoSpark 3 Pro with a PowerVR GE8300.
         // GL_VERSION: "OpenGL ES 3.2 build 1.10@51309121"
         // Possibly this could be more limited by driver version or HW generation.
-        fMustSetTexParameterMinFilterToEnableMipmapping = true;
+        // When using samplers, sometimes it is just fine to set the min filter level when it has
+        // changed. However, other times we have to force set any of the sampling/mip state always
+        // for it fixes the bug.
+        fMustSetAnyTexParameterToEnableMipmapping = true;
     }
 #endif
 
