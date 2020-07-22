@@ -376,6 +376,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
     return GrOverrideInputFragmentProcessor::Make(std::move(fp), color, useUniform);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
         std::unique_ptr<GrFragmentProcessor> series[], int cnt) {
     class SeriesFragmentProcessor : public GrFragmentProcessor {
@@ -475,6 +477,99 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
         series = replacementSeries.begin();
     }
     return SeriesFragmentProcessor::Make(series, cnt);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
+        std::unique_ptr<GrFragmentProcessor> f, std::unique_ptr<GrFragmentProcessor> g) {
+    class ComposeProcessor : public GrFragmentProcessor {
+    public:
+        static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> f,
+                                                         std::unique_ptr<GrFragmentProcessor> g) {
+            return std::unique_ptr<GrFragmentProcessor>(new ComposeProcessor(std::move(f),
+                                                                             std::move(g)));
+        }
+
+        const char* name() const override { return "Compose"; }
+
+        std::unique_ptr<GrFragmentProcessor> clone() const override {
+            return std::unique_ptr<GrFragmentProcessor>(new ComposeProcessor(*this));
+        }
+
+    private:
+        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+            class GLFP : public GrGLSLFragmentProcessor {
+            public:
+                void emitCode(EmitArgs& args) override {
+                    SkString result = this->invokeChild(0, args);
+                    result = this->invokeChild(1, result.c_str(), args);
+                    args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, result.c_str());
+                }
+            };
+            return new GLFP;
+        }
+
+        ComposeProcessor(std::unique_ptr<GrFragmentProcessor> f,
+                         std::unique_ptr<GrFragmentProcessor> g)
+                : INHERITED(kSeriesFragmentProcessor_ClassID,
+                            f->optimizationFlags() & g->optimizationFlags()) {
+            this->registerChild(std::move(f));
+            this->registerChild(std::move(g));
+        }
+
+        ComposeProcessor(const ComposeProcessor& that)
+                : INHERITED(kSeriesFragmentProcessor_ClassID, that.optimizationFlags()) {
+            this->cloneAndRegisterAllChildProcessors(that);
+        }
+
+        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+
+        bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
+            SkPMColor4f color = inColor;
+            color = ConstantOutputForConstantInput(this->childProcessor(0), color);
+            color = ConstantOutputForConstantInput(this->childProcessor(1), color);
+            return color;
+        }
+
+        typedef GrFragmentProcessor INHERITED;
+    };
+
+    // Allow either of the composed functions to be null.
+    if (f == nullptr) {
+        return g;
+    }
+    if (g == nullptr) {
+        return f;
+    }
+
+    // Run an optimization pass on this composition.
+    GrProcessorAnalysisColor inputColor;
+    inputColor.setToUnknown();
+
+    std::unique_ptr<GrFragmentProcessor> series[2] = {std::move(f), std::move(g)};
+    GrColorFragmentProcessorAnalysis info(inputColor, series, SK_ARRAY_COUNT(series));
+
+    SkPMColor4f knownColor;
+    int leadingFPsToEliminate = info.initialProcessorsToEliminate(&knownColor);
+    switch (leadingFPsToEliminate) {
+        default:
+            // We shouldn't eliminate more than we started with.
+            SkASSERT(leadingFPsToEliminate <= 2);
+            [[fallthrough]];
+        case 0:
+            // Compose the two processors as requested.
+            return ComposeProcessor::Make(std::move(series[0]), std::move(series[1]));
+        case 1:
+            // Replace the first processor with a constant color.
+            return ComposeProcessor::Make(GrConstColorProcessor::Make(knownColor),
+                                          std::move(series[1]));
+        case 2:
+            // Replace the entire composition with a constant color.
+            return GrConstColorProcessor::Make(knownColor);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -415,8 +415,7 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
             if (!shaderFP) {
                 return false;
             }
-            std::unique_ptr<GrFragmentProcessor> fpSeries[] = { std::move(shaderFP), std::move(fp) };
-            shaderFP = GrFragmentProcessor::RunInSeries(fpSeries, 2);
+            shaderFP = GrFragmentProcessor::Compose(std::move(shaderFP), std::move(fp));
         } else {
             shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
         }

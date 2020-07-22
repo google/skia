@@ -698,12 +698,8 @@ public:
         }
 
         // Runtime effect scripts are written to take an input color, not a fragment processor.
-        // We need to evaluate the input and pass it to the runtime filter via RunInSeries.
-        std::unique_ptr<GrFragmentProcessor> fp[] = {
-            std::move(inputFP),
-            std::move(runtimeFP),
-        };
-        return GrFPSuccess(GrFragmentProcessor::RunInSeries(fp, SK_ARRAY_COUNT(fp)));
+        // We need to pass the input to the runtime filter using Compose.
+        return GrFPSuccess(GrFragmentProcessor::Compose(std::move(inputFP), std::move(runtimeFP)));
     }
 #endif
 
