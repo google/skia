@@ -11,7 +11,7 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrTAllocator.h"
+#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
 class GrGLSLProgramBuilder;
@@ -149,8 +149,8 @@ protected:
         GrShaderFlags    fVisibility;
     };
 
-    typedef GrTAllocator<VaryingInfo> VaryingList;
-    typedef GrTAllocator<GrShaderVar> VarArray;
+    typedef GrTBlockList<VaryingInfo> VaryingList;
+    typedef GrTBlockList<GrShaderVar> VarArray;
     typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
 
     VaryingList    fVaryings;
