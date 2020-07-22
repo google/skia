@@ -16,6 +16,24 @@
       "revId": "d0bb34e983935b8d4588c715e9bf536ff57344a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66c7305a_3428370a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T16:54:41Z",
+      "side": 1,
+      "message": "Yeah... I wonder if this is one of the many things AVX-512 fixed.\nOn ARM the best thing to do is use vst2.32 of course.",
+      "parentUuid": "a7de4e8e_e9dde808",
+      "revId": "d0bb34e983935b8d4588c715e9bf536ff57344a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
