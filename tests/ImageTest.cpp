@@ -856,20 +856,20 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
 
 static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
                                      const char* testName,
-                                     std::function<sk_sp<SkImage>(GrContext*)> imageMaker) {
+                                     std::function<sk_sp<SkImage>(GrDirectContext*)> imageMaker) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory testFactory(options);
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
-        auto ctx = ctxInfo.directContext();
-        if (!ctx) {
+        auto dContext = ctxInfo.directContext();
+        if (!dContext) {
             continue;
         }
 
         // If we don't have proper support for this feature, the factory will fallback to returning
         // codec-backed images. Those will "work", but some of our checks will fail because we
         // expect the cross-context images not to work on multiple contexts at once.
-        if (!ctx->priv().caps()->crossContextTextureSupport()) {
+        if (!dContext->priv().caps()->crossContextTextureSupport()) {
             continue;
         }
 
@@ -883,12 +883,12 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
         // Case #1: Create image, free image
         {
-            sk_sp<SkImage> refImg(imageMaker(ctx));
+            sk_sp<SkImage> refImg(imageMaker(dContext));
             refImg.reset(nullptr); // force a release of the image
         }
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-        sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+        sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
         if (!surface) {
             ERRORF(reporter, "SkSurface::MakeRenderTarget failed for %s.", testName);
             continue;
@@ -898,7 +898,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
         // Case #2: Create image, draw, flush, free image
         {
-            sk_sp<SkImage> refImg(imageMaker(ctx));
+            sk_sp<SkImage> refImg(imageMaker(dContext));
 
             canvas->drawImage(refImg, 0, 0);
             surface->flushAndSubmit();
@@ -908,7 +908,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
         // Case #3: Create image, draw, free image, flush
         {
-            sk_sp<SkImage> refImg(imageMaker(ctx));
+            sk_sp<SkImage> refImg(imageMaker(dContext));
 
             canvas->drawImage(refImg, 0, 0);
             refImg.reset(nullptr); // force a release of the image
@@ -919,7 +919,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         // Configure second context
         sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
 
-        ContextInfo otherContextInfo = testFactory.getSharedContextInfo(ctx);
+        ContextInfo otherContextInfo = testFactory.getSharedContextInfo(dContext);
         auto otherCtx = otherContextInfo.directContext();
         sk_gpu_test::TestContext* otherTestContext = otherContextInfo.testContext();
 
@@ -934,7 +934,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         // Case #4: Create image, draw*, flush*, free image
         {
             testContext->makeCurrent();
-            sk_sp<SkImage> refImg(imageMaker(ctx));
+            sk_sp<SkImage> refImg(imageMaker(dContext));
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
@@ -947,7 +947,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         // Case #5: Create image, draw*, free image, flush*
         {
             testContext->makeCurrent();
-            sk_sp<SkImage> refImg(imageMaker(ctx));
+            sk_sp<SkImage> refImg(imageMaker(dContext));
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
@@ -969,10 +969,10 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             GrRecordingContextPriv::AutoSuppressWarningMessages aswm(otherCtx);
 
             testContext->makeCurrent();
-            sk_sp<SkImage> refImg(imageMaker(ctx));
+            sk_sp<SkImage> refImg(imageMaker(dContext));
 
             // Any context should be able to borrow the texture at this point
-            GrSurfaceProxyView view = as_IB(refImg)->refView(ctx, GrMipmapped::kNo);
+            GrSurfaceProxyView view = as_IB(refImg)->refView(dContext, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, view);
 
             // But once it's borrowed, no other context should be able to borrow
@@ -982,7 +982,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             // Original context (that's already borrowing) should be okay
             testContext->makeCurrent();
-            GrSurfaceProxyView viewSecondRef = as_IB(refImg)->refView(ctx, GrMipmapped::kNo);
+            GrSurfaceProxyView viewSecondRef = as_IB(refImg)->refView(dContext, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, viewSecondRef);
 
             // Release first ref from the original context
@@ -1018,8 +1018,8 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
         return;
     }
     test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromPixmapRelease",
-                             [&pixmap](GrContext* ctx) {
-        return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false);
+                             [&pixmap](GrDirectContext* dContext) {
+        return SkImage::MakeCrossContextFromPixmap(dContext, pixmap, false);
     });
 }
 
@@ -1033,15 +1033,15 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             GrContextFactory testFactory(options);
             GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
             ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
-            auto ctx = ctxInfo.directContext();
-            if (!ctx || !ctx->priv().caps()->crossContextTextureSupport()) {
+            auto dContext = ctxInfo.directContext();
+            if (!dContext || !dContext->priv().caps()->crossContextTextureSupport()) {
                 continue;
             }
 
-            sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false);
+            sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(dContext, pixmap, false);
             REPORTER_ASSERT(reporter, image);
 
-            GrSurfaceProxyView view = as_IB(image)->refView(ctx, GrMipmapped::kNo);
+            GrSurfaceProxyView view = as_IB(image)->refView(dContext, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, view);
 
             bool expectAlpha = kAlpha_8_SkColorType == ct;
