@@ -1486,6 +1486,25 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
     }
 
     this->bindTextureToScratchUnit(info.fTarget, info.fID);
+
+    // If we have mips make sure the base level is set to 0 and the max level set to numMipLevels-1
+    // so that the uploads go to the right levels.
+    if (backendTexture.hasMipMaps() && this->glCaps().mipmapLevelAndLodControlSupport()) {
+        auto params = backendTexture.getGLTextureParams();
+        GrGLTextureParameters::NonsamplerState nonsamplerState = params->nonsamplerState();
+        if (params->nonsamplerState().fBaseMipMapLevel != 0) {
+            GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_BASE_LEVEL, 0));
+            nonsamplerState.fBaseMipMapLevel = 0;
+        }
+        int numMipLevels =
+                SkMipmap::ComputeLevelCount(backendTexture.width(), backendTexture.height()) + 1;
+        if (params->nonsamplerState().fMaxMipmapLevel != (numMipLevels - 1)) {
+            GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MAX_LEVEL, numMipLevels - 1));
+            nonsamplerState.fBaseMipMapLevel = numMipLevels - 1;
+        }
+        params->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
+    }
+
     bool result = this->uploadCompressedTexData(
             compression, glFormat, backendTexture.dimensions(),  mipMapped, GR_GL_TEXTURE_2D,
             rawData, rawDataSize);
@@ -2601,10 +2620,21 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
                         texture->parameters()->samplerOverriddenState();
                 if (setAll || oldSamplerState.fMinFilter != GR_GL_LINEAR_MIPMAP_LINEAR) {
                     this->setTextureUnit(unitIdx);
+                    SkDebugf("Workaround is being called\n");
                     GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER,
                                           GR_GL_LINEAR_MIPMAP_LINEAR));
+                   // GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAG_FILTER, GR_GL_LINEAR));
+                    if (this->glCaps().mipmapLevelAndLodControlSupport()) {
+                        SkDebugf("setting workaround lod\n");
+                        //GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MIN_LOD, -1000));
+                       // GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MAX_LOD, 1000));
+                    }
+
                     newSamplerState = oldSamplerState;
                     newSamplerState.fMinFilter = GR_GL_LINEAR_MIPMAP_LINEAR;
+                 //   newSamplerState.fMagFilter = GR_GL_LINEAR;
+                  //  newSamplerState.fMinLOD = -1000;
+                 //   newSamplerState.fMaxLOD = 1000;
                     samplerStateToRecord = &newSamplerState;
                 }
             }
@@ -2666,6 +2696,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     const GrGLTextureParameters::NonsamplerState& oldNonsamplerState =
             texture->parameters()->nonsamplerState();
     if (!this->caps()->shaderCaps()->textureSwizzleAppliedInShader()) {
+        SkDebugf("In the swizzle section\n");
         newNonsamplerState.fSwizzleKey = swizzle.asKey();
         if (setAll || swizzle.asKey() != oldNonsamplerState.fSwizzleKey) {
             GrGLenum glValues[4];
@@ -2690,11 +2721,13 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
          !this->glCaps().dontSetBaseOrMaxLevelForExternalTextures())) {
         if (newNonsamplerState.fBaseMipMapLevel != oldNonsamplerState.fBaseMipMapLevel) {
             this->setTextureUnit(unitIdx);
+            SkDebugf("setting base level\n");
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_BASE_LEVEL,
                                   newNonsamplerState.fBaseMipMapLevel));
         }
-        if (newNonsamplerState.fMaxMipmapLevel != oldNonsamplerState.fMaxMipmapLevel) {
+        if (true || newNonsamplerState.fMaxMipmapLevel != oldNonsamplerState.fMaxMipmapLevel) {
             this->setTextureUnit(unitIdx);
+            SkDebugf("setting max level\n");
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LEVEL,
                                   newNonsamplerState.fMaxMipmapLevel));
         }
