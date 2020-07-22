@@ -113,8 +113,8 @@ private:
 
     // only use this if fFilterEnum == kUseFilterOptions
     SkFilterOptions  fFilterOptions;
-    // only use this if fFilterEnum == kUseCubicResampler
-    SkImage::CubicResampler fCubic;
+    // only use this if fFilterEnum == kUseCubicResampler or kHigh
+    SkImage::CubicResampler fCubic = {1/3.0f, 1/3.0f};  // Default to Mitchell-Netravali.
 
     friend class SkShaderBase;
     typedef SkShaderBase INHERITED;
