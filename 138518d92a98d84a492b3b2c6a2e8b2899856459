@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7683db5e_38d60035",
+        "filename": "bench/SKPAnimationBench.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-22T01:04:14Z",
+      "side": 0,
+      "message": "In cases where we had default destructors in headers I chose to delete them rather than mark them override. My rationale was that if somehow something changed where the class wasn\u0027t inheriting from a class with a virtual destructor we\u0027d get another warning like -Wdelete-abstract-non-virtual-dtor or -Wdelete-non-abstract-non-virtual-dtor (if we\u0027re actually deleting them from a ptr to a non-final class). But I\u0027m happy to put them back and add override.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 31
+      },
+      "revId": "138518d92a98d84a492b3b2c6a2e8b2899856459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
