@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 86
 ------------
 
+  * Add GrContext api to update compressed backend textures.
+    https://review.skia.org/302265
+
   * Rename GrMipMapped to GrMipmapped for consistency with new APIs.
     Also rename GrBackendTexture::hasMipMaps() to GrBackendTexture::hasMipmaps()
     https://review.skia.org/304576
