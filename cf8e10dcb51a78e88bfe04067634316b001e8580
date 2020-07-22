@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "f20af64a_75f38a20",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-22T20:03:20Z",
+      "side": 1,
+      "message": "Yea. Just wanted to do that separately.... just in case there\u0027s some low bit somewhere in a golden image.",
+      "parentUuid": "94f1daba_42b284a7",
+      "range": {
+        "startLine": 1045,
+        "startChar": 12,
+        "endLine": 1059,
+        "endChar": 13
+      },
+      "revId": "cf8e10dcb51a78e88bfe04067634316b001e8580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "613225be_8de1848a",
         "filename": "tests/ImageTest.cpp",
         "patchSetId": 19
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "939351bf_d777d71c",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1494,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-22T20:03:20Z",
+      "side": 1,
+      "message": "already done :)",
+      "parentUuid": "613225be_8de1848a",
+      "range": {
+        "startLine": 1491,
+        "startChar": 0,
+        "endLine": 1494,
+        "endChar": 23
+      },
+      "revId": "cf8e10dcb51a78e88bfe04067634316b001e8580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e3c271ea_0b3a1f5d",
         "filename": "tests/ImageTest.cpp",
         "patchSetId": 19
@@ -76,6 +124,24 @@
       "writtenOn": "2020-07-22T20:01:44Z",
       "side": 1,
       "message": "REPORTER_ASSERT(reporter, d \u003c\u003d tolerance) ?",
+      "revId": "cf8e10dcb51a78e88bfe04067634316b001e8580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60ef0328_33400204",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1501,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-22T20:03:20Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "e3c271ea_0b3a1f5d",
       "revId": "cf8e10dcb51a78e88bfe04067634316b001e8580",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
