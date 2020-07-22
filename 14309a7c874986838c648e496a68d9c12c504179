@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b067c8b4_50ad7d4f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-22T18:07:41Z",
+      "side": 1,
+      "message": "Well, it happened. We need to update Android – AutobackendTextureRelease.cpp:75 relies on this function.\n\nI\u0027m on it.",
+      "revId": "14309a7c874986838c648e496a68d9c12c504179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
