@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db4e110a_ff644502",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-22T18:03:37Z",
+      "side": 1,
+      "message": "Test preview: https://imgur.com/a/jXtWwTz\n\nOn GPU, max choke yields irregular edges (looks like the blur outer envelope is more irregular than CPU).  Maybe it\u0027ll get better if/when we switch to analytical image filters, as the limited alpha channel resolution definitely doesn\u0027t help.  But no a huge deal - AE is also pretty bad with max choke.",
+      "revId": "0d984420853583c520f1ba96195865527298995a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
