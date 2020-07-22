@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1041fdad_51e28ded",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-22T14:42:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61841377_e8cbe8c5",
+      "revId": "0995f82b380b36bd309a0bcb2644b5251cea82a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cef6012_7febea45",
         "filename": "fuzz/FuzzCreateDDL.cpp",
         "patchSetId": 6
