@@ -469,6 +469,10 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 		} else if b.os("iOS") {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
+			// iPhone11 requires xcode 11.4.1 which requires >10.15.2.
+			if b.parts["model"] == "iPhone11" {
+				task_os = "Mac10.15.5"
+			}
 		} else if b.matchOs("Win") {
 			task_os = "Win"
 		} else if b.compiler("GCC") {
@@ -532,21 +536,22 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 	}
 	if os, ok := b.parts["os"]; ok {
 		d["os"], ok = map[string]string{
-			"Android":  "Android",
-			"ChromeOS": "ChromeOS",
-			"Debian9":  DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
-			"Debian10": DEFAULT_OS_LINUX_GCE,
-			"Mac":      DEFAULT_OS_MAC,
-			"Mac10.13": "Mac-10.13.6",
-			"Mac10.14": "Mac-10.14.3",
-			"Mac10.15": "Mac-10.15.1",
-			"Ubuntu18": "Ubuntu-18.04",
-			"Win":      DEFAULT_OS_WIN,
-			"Win10":    "Windows-10-18363",
-			"Win2019":  DEFAULT_OS_WIN,
-			"Win7":     "Windows-7-SP1",
-			"Win8":     "Windows-8.1-SP0",
-			"iOS":      "iOS-13.3.1",
+			"Android":    "Android",
+			"ChromeOS":   "ChromeOS",
+			"Debian9":    DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
+			"Debian10":   DEFAULT_OS_LINUX_GCE,
+			"Mac":        DEFAULT_OS_MAC,
+			"Mac10.13":   "Mac-10.13.6",
+			"Mac10.14":   "Mac-10.14.3",
+			"Mac10.15":   "Mac-10.15.1",
+			"Mac10.15.5": "Mac-10.15.5", // We have some builders at 10.15.5 to run Xcode 11.4.1
+			"Ubuntu18":   "Ubuntu-18.04",
+			"Win":        DEFAULT_OS_WIN,
+			"Win10":      "Windows-10-18363",
+			"Win2019":    DEFAULT_OS_WIN,
+			"Win7":       "Windows-7-SP1",
+			"Win8":       "Windows-8.1-SP0",
+			"iOS":        "iOS-13.3.1",
 		}[os]
 		if !ok {
 			log.Fatalf("Entry %q not found in OS mapping.", os)
@@ -566,6 +571,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		if b.parts["model"] == "iPhone6" {
 			// This is the latest iOS that supports iPhone6.
 			d["os"] = "iOS-12.4.5"
+		}
+		if b.parts["model"] == "iPhone11" {
+			d["os"] = "iOS-13.6"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -987,6 +995,12 @@ func (b *taskBuilder) maybeAddIosDevImage() {
 				asset = "ios-dev-image-12.4"
 			case "13.3.1":
 				asset = "ios-dev-image-13.3"
+			case "13.4.1":
+				asset = "ios-dev-image-13.4"
+			case "13.5.1":
+				asset = "ios-dev-image-13.5"
+			case "13.6":
+				asset = "ios-dev-image-13.6"
 			default:
 				log.Fatalf("Unable to determine correct ios-dev-image asset for %s. If %s is a new iOS release, you must add a CIPD package containing the corresponding iOS dev image; see ios-dev-image-11.4 for an example.", b.Name, m[1])
 			}
