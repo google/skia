@@ -27,7 +27,9 @@ static VkSamplerAddressMode wrap_mode_to_vk_sampler_address(GrSamplerState::Wrap
 static VkSamplerMipmapMode mipmap_mode_to_vk_sampler_mipmap_mode(GrSamplerState::MipmapMode mm) {
     switch (mm) {
         // There is no disable mode. We use max level to disable mip mapping.
-        case GrSamplerState::MipmapMode::kNone:   return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        // It may make more sense to use NEAREST for kNone but Chrome pixel tests seam dependent
+        // on subtle rendering differences introduced by switching this.
+        case GrSamplerState::MipmapMode::kNone:   return VK_SAMPLER_MIPMAP_MODE_LINEAR;
         case GrSamplerState::MipmapMode::kLinear: return VK_SAMPLER_MIPMAP_MODE_LINEAR;
     }
     SkUNREACHABLE;
