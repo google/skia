@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50ed29d9_6a6322e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-22T23:38:18Z",
+      "side": 1,
+      "message": "Greg- Michael has been bearing the brunt of the load for stroking reviews, but this seems to also be in your wheelhouse. Do you mind taking a look?",
+      "revId": "4be602da1cb70f4a57b315a926777d5ad2960289",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fbd5117_c50deef0",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-22T23:38:18Z",
+      "side": 1,
+      "message": "Don\u0027t worry too much about this file. When CCPR gets deleted it will either be deleted or converted to a simpler stroke visualizer.\n\nMy changes here simply rip out the parts that test CCPR stroking and instead just draw a normal stroke. I\u0027ve been using this to test tessellated stroking.",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 79,
+        "endChar": 26
+      },
+      "revId": "4be602da1cb70f4a57b315a926777d5ad2960289",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
