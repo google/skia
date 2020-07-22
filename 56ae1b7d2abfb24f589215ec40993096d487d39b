@@ -50,6 +50,24 @@
       "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9dfdfb30_e74842f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-22T18:28:39Z",
+      "side": 1,
+      "message": "After talking with Brian, we agreed to keep GrTBlockLinkedList around for some of the new use cases I\u0027m pursuing (clip and op storage). The new tessellating path renderer will likely be able to use it and related types to replace GrSTArenaList and the CCPR uses may go away when tessellation supersedes it. GrTBlockLinkedList\u0027s use in the shader building is total overkill and ought to be simplified to a std::vector.\n\nSee https://docs.google.com/document/d/1wznNz9LxI0T3btezQpgSdbfJg_S-JSJFxDjcuaT1Uos/edit?usp\u003dsharing for more details on how this type can be used in the future.",
+      "parentUuid": "1c02ce08_398e1bf5",
+      "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
