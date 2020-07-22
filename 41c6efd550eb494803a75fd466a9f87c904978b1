@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee1c366a_9570c385",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-22T18:28:14Z",
+      "side": 1,
+      "message": "Not needed, unless we switch RunInSeries to GrXfermodeFragmentProcessor(clip coverage, paint coverage, SkBlendMode::kModulate)",
+      "range": {
+        "startLine": 14,
+        "startChar": 26,
+        "endLine": 14,
+        "endChar": 53
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6d4c75d_99be7494",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-22T18:28:14Z",
+      "side": 1,
+      "message": "Since we\u0027re renaming this, can we call it hasCoverageFragmentProcessor()? The clip is redundant with it being on GrAppliedClip, and then it matches the name on GrPaint.",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 40
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4341ffbc_e2a24849",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-22T18:28:14Z",
+      "side": 1,
+      "message": "RunInSeries for just 2 FPs feels a little clunky, what did you think of GrXfermodeFP for the two?",
+      "range": {
+        "startLine": 126,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 95
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92e44784_6a527a84",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-22T18:28:14Z",
+      "side": 1,
+      "message": "A comment along the lines of \"color + paint coverage + clip coverage\" would help the choice in size",
+      "range": {
+        "startLine": 233,
+        "startChar": 49,
+        "endLine": 233,
+        "endChar": 50
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
