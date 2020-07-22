@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f78668f_74ac2206",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-22T18:47:41Z",
+      "side": 1,
+      "message": "Flutter does use this one so you might want to make sure that Canary succeeds before landing.",
+      "revId": "be17a7e384018e2d2037839ae0f8a8bc93d51fe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
