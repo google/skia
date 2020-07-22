@@ -51,6 +51,23 @@
       "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "430be92c_563768aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-22T13:48:43Z",
+      "side": 1,
+      "message": "We (still) good to support arbitrary matrices? If so, I think this could land, with follow-ups:\n- gpu backend\n- more experiments around sample matrices (e.g. B,C)\n",
+      "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
