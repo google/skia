@@ -111,6 +111,14 @@ public:
                                                             int cnt);
 
     /**
+     * Returns a fragment processor that composes two fragment processors `f` and `g` into f(g(x)).
+     * This is equivalent to running them in series. This is not the same as transfer-mode
+     * composition; there is no blending step.
+     */
+    static std::unique_ptr<GrFragmentProcessor> Compose(std::unique_ptr<GrFragmentProcessor> f,
+                                                        std::unique_ptr<GrFragmentProcessor> g);
+
+    /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
      */

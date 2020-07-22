@@ -121,12 +121,8 @@ public:
         if (fCoverageFP == nullptr) {
             fCoverageFP = std::move(fp);
         } else {
-            // Run this coverage FP in series with the previously-added coverage.
-            std::unique_ptr<GrFragmentProcessor> series[] = {
-                std::move(fCoverageFP),
-                std::move(fp),
-            };
-            fCoverageFP = GrFragmentProcessor::RunInSeries(series, SK_ARRAY_COUNT(series));
+            // Compose this coverage FP with the previously-added coverage.
+            fCoverageFP = GrFragmentProcessor::Compose(std::move(fCoverageFP), std::move(fp));
         }
     }
 
