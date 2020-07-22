@@ -927,18 +927,7 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticEleme
         }
     }
 
-    // Combine the clip and shader FPs using RunInSeries. (RunInSeries will automatically return the
-    // input as-is if we only have one.)
-    SkSTArray<2, std::unique_ptr<GrFragmentProcessor>> seriesFPs;
-    if (clipFP != nullptr) {
-        seriesFPs.push_back(std::move(clipFP));
-    }
-    if (shaderFP != nullptr) {
-        seriesFPs.push_back(std::move(shaderFP));
-    }
-
-    return seriesFPs.empty()
-               ? nullptr
-               : GrFragmentProcessor::RunInSeries(&seriesFPs.front(), seriesFPs.size());
+    // Compose the clip and shader FPs.
+    return GrFragmentProcessor::Compose(std::move(clipFP), std::move(shaderFP));
 }
 
