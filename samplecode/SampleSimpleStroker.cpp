@@ -348,15 +348,16 @@ float SkPathStroker2::squaredLineLength(const PathSegment& lineSeg) {
 //////////////////////////////////////////////////////////////////////////////
 
 class SimpleStroker : public Sample {
-    bool fShowSkiaStroke, fShowHidden;
+    bool fShowSkiaStroke, fShowHidden, fShowSkeleton;
     float fWidth = 175;
-    SkPaint fPtsPaint, fStrokePaint, fNewFillPaint, fHiddenPaint;
+    SkPaint fPtsPaint, fStrokePaint, fMirrorStrokePaint, fNewFillPaint, fHiddenPaint,
+            fSkeletonPaint;
     static constexpr int kN = 3;
 
 public:
     SkPoint fPts[kN];
 
-    SimpleStroker() : fShowSkiaStroke(true), fShowHidden(false) {
+    SimpleStroker() : fShowSkiaStroke(true), fShowHidden(true), fShowSkeleton(true) {
         fPts[0] = {500, 200};
         fPts[1] = {300, 200};
         fPts[2] = {100, 100};
@@ -369,12 +370,20 @@ public:
         fStrokePaint.setStyle(SkPaint::kStroke_Style);
         fStrokePaint.setColor(0x80FF0000);
 
+        fMirrorStrokePaint.setAntiAlias(true);
+        fMirrorStrokePaint.setStyle(SkPaint::kStroke_Style);
+        fMirrorStrokePaint.setColor(0x80FFFF00);
+
         fNewFillPaint.setAntiAlias(true);
         fNewFillPaint.setColor(0x8000FF00);
 
         fHiddenPaint.setAntiAlias(true);
         fHiddenPaint.setStyle(SkPaint::kStroke_Style);
         fHiddenPaint.setColor(0xFF0000FF);
+
+        fSkeletonPaint.setAntiAlias(true);
+        fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
+        fSkeletonPaint.setColor(SK_ColorRED);
     }
 
     void toggle(bool& value) { value = !value; }
@@ -385,9 +394,12 @@ protected:
     bool onChar(SkUnichar uni) override {
         switch (uni) {
             case '1':
-                this->toggle(fShowSkiaStroke);
+                this->toggle(fShowSkeleton);
                 return true;
             case '2':
+                this->toggle(fShowSkiaStroke);
+                return true;
+            case '3':
                 this->toggle(fShowHidden);
                 return true;
             case '-':
@@ -430,8 +442,23 @@ protected:
         if (fShowHidden) {
             canvas->drawPath(fillPath, fHiddenPaint);
         }
-
+        if (fShowSkeleton) {
+            canvas->drawPath(path, fSkeletonPaint);
+        }
         canvas->drawPoints(SkCanvas::kPoints_PointMode, kN, fPts, fPtsPaint);
+
+        // Draw a mirror but using Skia's stroker.
+        canvas->translate(0, 400);
+        fMirrorStrokePaint.setStrokeWidth(fWidth);
+        canvas->drawPath(path, fMirrorStrokePaint);
+        if (fShowHidden) {
+            SkPath hidden;
+            fStrokePaint.getFillPath(path, &hidden);
+            canvas->drawPath(hidden, fHiddenPaint);
+        }
+        if (fShowSkeleton) {
+            canvas->drawPath(path, fSkeletonPaint);
+        }
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
