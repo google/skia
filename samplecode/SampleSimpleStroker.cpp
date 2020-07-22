@@ -65,6 +65,9 @@ private:
 
     // Returns the segment unit normal
     static SkPoint unitNormal(const PathSegment& seg, float t);
+
+    // Returns squared magnitude of line segments.
+    static float squaredLineLength(const PathSegment& lineSeg);
 };
 
 void SkPathStroker2::initForPath(const SkPath& path, const SkPaint& paint) {
@@ -195,17 +198,45 @@ void SkPathStroker2::join(const PathSegment& prev, const PathSegment& curr) {
         const float halfMiterLength = fRadius / sinHalfTheta;
         miterVec.setLength(halfMiterLength);  // TODO: miter length limit
 
-        // Outer: connect to the miter point, and then to t=0 (on outside) of next segment.
+        // Outer: connect to the miter point, and then to t=0 (on outside stroke) of next segment.
         const SkPoint dest = setLength(after, fRadius);
         outer->lineTo(miterMidpt + miterVec);
         outer->lineTo(miterMidpt + dest);
 
-        // Inner: we're already at t=1 (on inside) of 'prev'.
-        // Connect to the miter midpoint (common path endpoint of the two segments),
-        // and then to t=0 (on inside) of the next segment. This adds an interior "loop" of
-        // geometry that in many cases is unnecessary, but handles several edge cases.
-        inner->lineTo(miterMidpt);
-        inner->lineTo(miterMidpt - dest);
+        // Inner miter is more involved. We're already at t=1 (on inside stroke) of 'prev'.
+        // Check 2 cases to see we can directly connect to the inner miter point
+        // (midpoint - miterVec), or if we need to add extra "loop" geometry.
+        const SkPoint prevUnitTangent = rotate90(before);
+        const float radiusSquared = fRadius * fRadius;
+        // 'alpha' is angle between prev tangent and the curr inwards normal
+        const float cosAlpha = prevUnitTangent.dot(-after);
+        // Solve triangle for len^2:  radius^2 = len^2 + (radius * sin(alpha))^2
+        // This is the point at which the inside "corner" of curr at t=0 will lie on a
+        // line connecting the inner and outer corners of prev at t=0. If len is below
+        // this threshold, the inside corner of curr will "poke through" the start of prev,
+        // and we'll need the inner loop geometry.
+        const float threshold1 = radiusSquared * cosAlpha * cosAlpha;
+        // Solve triangle for len^2:  halfMiterLen^2 = radius^2 + len^2
+        // This is the point at which the inner miter point will lie on the inner stroke
+        // boundary of the curr segment. If len is below this threshold, the miter point
+        // moves 'inside' of the stroked outline, and we'll need the inner loop geometry.
+        const float threshold2 = halfMiterLength * halfMiterLength - radiusSquared;
+        // If a segment length is smaller than the larger of the two thresholds,
+        // we'll have to add the inner loop geometry.
+        const float maxLenSqd = std::max(threshold1, threshold2);
+        const bool needsInnerLoop =
+                squaredLineLength(prev) < maxLenSqd || squaredLineLength(curr) < maxLenSqd;
+        if (needsInnerLoop) {
+            // Connect to the miter midpoint (common path endpoint of the two segments),
+            // and then to t=0 (on inside) of the next segment. This adds an interior "loop" of
+            // geometry that handles edge cases where segment lengths are shorter than the
+            // stroke width.
+            inner->lineTo(miterMidpt);
+            inner->lineTo(miterMidpt - dest);
+        } else {
+            // Directly connect to inner miter point.
+            inner->setLastPt(miterMidpt - miterVec);
+        }
     };
 
     switch (fJoin) {
@@ -256,6 +287,12 @@ SkPoint SkPathStroker2::unitNormal(const PathSegment& seg, float t) {
     const SkPoint tangent = seg.fPoints[1] - seg.fPoints[0];
     const SkPoint normal = rotate90(tangent);
     return setLength(normal, 1);
+}
+
+float SkPathStroker2::squaredLineLength(const PathSegment& lineSeg) {
+    SkASSERT(lineSeg.fVerb == SkPath::kLine_Verb);
+    const SkPoint diff = lineSeg.fPoints[1] - lineSeg.fPoints[0];
+    return diff.dot(diff);
 }
 
 }  // namespace
