@@ -85,6 +85,24 @@
       "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3151bbf2_b1925c7c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T14:10:12Z",
+      "side": 1,
+      "message": "Yeah, and I do find those arguments that lead to B,C parameterization principled.\n\nIs the symmetry what let me use fewer constants last time around?  Does it save math or just reduce the number of uniforms needed?",
+      "parentUuid": "b8f9e926_0800bb76",
+      "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
