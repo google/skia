@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "c1279d16_d19dd4c4",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-22T22:03:27Z",
+      "side": 1,
+      "message": "I don\u0027t disagree that the distinction between a coverage FP on a paint and a coverage FP on a clip is important, but we don\u0027t lose that distinction really because in GrPipeline we\u0027d just have:\n\n   if (appliedClip.hasCoverageProcessor()) {\n       fFragmentProcessors[currFPIdx++] \u003d appliedClip.detachCoverageFragmentProcessor();\n   }\n\npaint.hasCoverageProcessor() and appliedClip.hasCoverageProcessor() still show that distinction when looking at GrPipeline code IMO. If I\u0027m already inside GrAppliedClip, any coverage FP will technically be a \"clip\" coverage FP.",
+      "parentUuid": "49fe4916_bbdc474e",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 40
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4341ffbc_e2a24849",
         "filename": "src/gpu/GrAppliedClip.h",
         "patchSetId": 4
@@ -140,6 +164,30 @@
       "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1568a11_4c4e4859",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-22T22:03:27Z",
+      "side": 1,
+      "message": "Ah that\u0027s right; I was thrown off a bit with the extra header and wasn\u0027t sure which way we intended to go. Not necessary now, but I think a Compose(fp1, fp2) would be a handy wrapper around RunInSeries.",
+      "parentUuid": "f057e835_d0679bf2",
+      "range": {
+        "startLine": 126,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 95
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
