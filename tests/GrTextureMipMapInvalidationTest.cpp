@@ -65,13 +65,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, ctxInfo) {
-    auto ctx = ctxInfo.directContext();
-    if (!ctx->priv().caps()->mipmapSupport()) {
+    auto dContext = ctxInfo.directContext();
+    if (!dContext->priv().caps()->mipmapSupport()) {
         return;
     }
     static constexpr auto kCreateWithMipMaps = true;
     auto surf = SkSurface::MakeRenderTarget(
-            ctx, SkBudgeted::kYes,
+            dContext, SkBudgeted::kYes,
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1,
             kTopLeft_GrSurfaceOrigin, nullptr, kCreateWithMipMaps);
     if (!surf) {
@@ -85,7 +85,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, 
     surf.reset();
     GrBackendTexture btex;
     SkImage::BackendTextureReleaseProc texRelease;
-    if (!SkImage::MakeBackendTextureFromSkImage(ctx, std::move(img), &btex, &texRelease)) {
+    if (!SkImage::MakeBackendTextureFromSkImage(dContext, std::move(img), &btex, &texRelease)) {
         // Not all backends support stealing textures yet.
         // ERRORF(reporter, "Could not turn image into texture");
         return;
@@ -93,11 +93,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, 
     REPORTER_ASSERT(reporter, btex.hasMipmaps());
     // Reimport the texture as an image and perform a downsampling draw with medium quality which
     // should use the upper MIP levels.
-    img = SkImage::MakeFromTexture(ctx, btex, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
+    img = SkImage::MakeFromTexture(dContext, btex, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
                                    kPremul_SkAlphaType, nullptr);
     const auto singlePixelInfo =
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-    surf = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, singlePixelInfo, 1,
+    surf = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kYes, singlePixelInfo, 1,
                                        kTopLeft_GrSurfaceOrigin, nullptr);
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
