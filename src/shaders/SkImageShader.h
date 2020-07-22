@@ -26,6 +26,10 @@ public:
         kInheritFromPaint,
         // this signals we should use the new SkFilterOptions
         kUseFilterOptions,
+        // use fWeights and ignore FilterOptions
+        kUse44Weights,
+
+        kLast = kUse44Weights,
     };
 
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
@@ -39,6 +43,12 @@ public:
                                 SkTileMode tmx,
                                 SkTileMode tmy,
                                 const SkFilterOptions&,
+                                const SkMatrix* localMatrix);
+
+    static sk_sp<SkShader> Make(sk_sp<SkImage>,
+                                SkTileMode tmx,
+                                SkTileMode tmy,
+                                const SkM44&,
                                 const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
@@ -61,6 +71,11 @@ private:
                   SkTileMode tmy,
                   const SkFilterOptions&,
                   const SkMatrix* localMatrix);
+    SkImageShader(sk_sp<SkImage>,
+                  SkTileMode tmx,
+                  SkTileMode tmy,
+                  const SkM44&,
+                  const SkMatrix* localMatrix);
 
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -80,7 +95,8 @@ private:
 
     SkFilterQuality resolveFiltering(SkFilterQuality paintQuality) const {
         switch (fFilterEnum) {
-            case kUseFilterOptions: return kNone_SkFilterQuality;   // TODO
+            case kUse44Weights:     return kHigh_SkFilterQuality;   // TODO: handle explicitly
+            case kUseFilterOptions: return kNone_SkFilterQuality;   // TODO: handle explicitly
             case kInheritFromPaint: return paintQuality;
             default: break;
         }
@@ -95,6 +111,8 @@ private:
 
     // only use this if fFilterEnum == kUseFilterOptions
     SkFilterOptions  fFilterOptions;
+    // only use this if fFilterEnum == kUse44Weights
+    std::unique_ptr<SkM44> fWeights;
 
     friend class SkShaderBase;
     typedef SkShaderBase INHERITED;
