@@ -16,6 +16,23 @@
       "revId": "37bf7fe08128bb332727579ab8659c28c067b2ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c0bcff3b_cab51ab0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-22T12:56:11Z",
+      "side": 1,
+      "message": "The G3 roll failure is a tooling problem, I think we should proceed.",
+      "revId": "37bf7fe08128bb332727579ab8659c28c067b2ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
