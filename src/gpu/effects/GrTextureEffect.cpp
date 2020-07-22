@@ -297,6 +297,7 @@ GrTextureEffect::ShaderMode GrTextureEffect::GetShaderMode(Wrap wrap,
                         case Filter::kLinear:  return ShaderMode::kRepeat_Linear_None;
                     }
                     SkUNREACHABLE;
+                case MipmapMode::kNearest:
                 case MipmapMode::kLinear:
                     switch (filter) {
                         case Filter::kNearest: return ShaderMode::kRepeat_Nearest_Mipmap;

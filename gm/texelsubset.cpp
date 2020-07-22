@@ -51,19 +51,22 @@ public:
 protected:
     SkString onShortName() override {
         SkString name("texel_subset");
-        switch (fMipmapMode) {
-            case MipmapMode::kNone:
-                break;
-            case MipmapMode::kLinear:
-                name.append("_linear_mipmap");
-                break;
-        }
         switch (fFilter) {
             case Filter::kNearest:
                 name.append("_nearest");
                 break;
             case Filter::kLinear:
                 name.append("_linear");
+                break;
+        }
+        switch (fMipmapMode) {
+            case MipmapMode::kNone:
+                break;
+            case MipmapMode::kNearest:
+                name.append("_mipmap_nearest");
+                break;
+            case MipmapMode::kLinear:
+                name.append("_mipmap_linear");
                 break;
         }
         name.append(fUpscale ? "_up" : "_down");
@@ -222,12 +225,14 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kNone  , false);)
-DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kNone  , true);)
-DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kNone  , false);)
-DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kNone  , true);)
+DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kNone   , false);)
+DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kNone   , true );)
+DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kNone   , false);)
+DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kNone   , true );)
 // It doesn't make sense to have upscaling MIP map.
-DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kLinear, false);)
-DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kLinear, false);)
+DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kNearest, false);)
+DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kNearest, false);)
+DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kLinear , false);)
+DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kLinear , false);)
 
 }

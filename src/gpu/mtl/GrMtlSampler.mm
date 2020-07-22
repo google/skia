@@ -52,6 +52,7 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
     MTLSamplerMipFilter mipFilter = [&] {
       switch (samplerState.mipmapMode()) {
           case GrSamplerState::MipmapMode::kNone:    return MTLSamplerMipFilterNotMipmapped;
+          case GrSamplerState::MipmapMode::kNearest: return MTLSamplerMipFilterNearest;
           case GrSamplerState::MipmapMode::kLinear:  return MTLSamplerMipFilterLinear;
       }
       SkUNREACHABLE;

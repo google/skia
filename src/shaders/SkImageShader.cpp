@@ -375,11 +375,28 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // quality setting. This completely ignores the complexity of the drawVertices case
     // where explicit local coords are provided by the caller.
     bool sharpen = args.fContext->priv().options().fSharpenMipmappedTextures;
-    auto [fm, mm, bicubic] = GrInterpretFilterQuality(fImage->dimensions(),
-                                                      this->resolveFiltering(args.fFilterQuality),
-                                                      args.fMatrixProvider.localToDevice(),
-                                                      *lm,
-                                                      sharpen);
+    GrSamplerState::Filter fm;
+    GrSamplerState::MipmapMode mm;
+    bool bicubic;
+    if (fFilterEnum == kUseFilterOptions) {
+        bicubic = false;
+        switch (fFilterOptions.fSampling) {
+            case SkSamplingMode::kNearest: fm = GrSamplerState::Filter::kNearest; break;
+            case SkSamplingMode::kLinear : fm = GrSamplerState::Filter::kLinear ; break;
+        }
+        switch (fFilterOptions.fMipmap) {
+            case SkMipmapMode::kNone   : mm = GrSamplerState::MipmapMode::kNone   ; break;
+            case SkMipmapMode::kNearest: mm = GrSamplerState::MipmapMode::kNearest; break;
+            case SkMipmapMode::kLinear : mm = GrSamplerState::MipmapMode::kLinear ; break;
+        }
+    } else {
+        std::tie(fm, mm, bicubic) =
+                GrInterpretFilterQuality(fImage->dimensions(),
+                                         this->resolveFiltering(args.fFilterQuality),
+                                         args.fMatrixProvider.localToDevice(),
+                                         *lm,
+                                         sharpen);
+    }
     std::unique_ptr<GrFragmentProcessor> fp;
     if (bicubic) {
         fp = producer->createBicubicFragmentProcessor(lmInverse, nullptr, nullptr, wmX, wmY);
