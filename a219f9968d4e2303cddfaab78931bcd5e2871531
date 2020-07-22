@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c07b099_9a19abd9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-22T19:13:21Z",
+      "side": 1,
+      "message": "this version takes B,C in the factory\n\nHappy to change the names of things",
+      "revId": "a219f9968d4e2303cddfaab78931bcd5e2871531",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
