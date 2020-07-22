@@ -121,6 +121,24 @@
       "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b45dafcb_6ad6f608",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-22T14:14:00Z",
+      "side": 1,
+      "message": "Ditto. I even went back to my desmos spreadsheet I made when I looked into this, and still couldn\u0027t figure out all the values. Many of them jump out as the coefficients from the paper (with B \u0026 C set to 1/3), but the others I think involve evaluating at various values of x?",
+      "parentUuid": "0c3cb7ea_87c50e83",
+      "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
