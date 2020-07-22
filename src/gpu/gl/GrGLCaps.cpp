@@ -57,7 +57,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fDontSetBaseOrMaxLevelForExternalTextures = false;
     fNeverDisableColorWrites = false;
-    fMustSetTexParameterMinFilterToEnableMipmapping = false;
+    fMustSetAnyTexParameterToEnableMipmapping = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -3574,7 +3574,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // We saw this bug on a TecnoSpark 3 Pro with a PowerVR GE8300.
         // GL_VERSION: "OpenGL ES 3.2 build 1.10@51309121"
         // Possibly this could be more limited by driver version or HW generation.
-        fMustSetTexParameterMinFilterToEnableMipmapping = true;
+        // When using samplers, we are seeing a bug where the gpu is sometimes not sampling the
+        // correct mip level data. A workaround to this issue is that when binding a texture we also
+        // set some texture state, and it seems like any inividual state works (e.g. min/mag filter,
+        // base level, max level, etc.). Currently we just set the min filter level every time we
+        // bind a texture as the workaround.
+        fMustSetAnyTexParameterToEnableMipmapping = true;
     }
 #endif
 
