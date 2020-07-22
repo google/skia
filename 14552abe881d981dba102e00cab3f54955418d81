@@ -42,6 +42,53 @@
     },
     {
       "key": {
+        "uuid": "70e112b2_42f52ad4",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 3574,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-22T15:01:45Z",
+      "side": 1,
+      "message": "I don\u0027t really follow this comment. Is it something like \"When using a sampler object we still must set the texture min filter to enable MIP filtering (even if it was previously set to enable MIP filtering and not subsequently changed).\"",
+      "parentUuid": "3279739f_ae572584",
+      "range": {
+        "startLine": 3573,
+        "startChar": 20,
+        "endLine": 3574,
+        "endChar": 31
+      },
+      "revId": "14552abe881d981dba102e00cab3f54955418d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06605f3d_1ad2590a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 3575,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-22T15:01:45Z",
+      "side": 1,
+      "message": "This reads to me like we can set any of the tex parameters and then mip filtering will work. Is that right?",
+      "range": {
+        "startLine": 3575,
+        "startChar": 16,
+        "endLine": 3575,
+        "endChar": 19
+      },
+      "revId": "14552abe881d981dba102e00cab3f54955418d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0af52561_c6e7bad8",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 18
