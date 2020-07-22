@@ -8,13 +8,16 @@
 #ifndef GrMtlGpu_DEFINED
 #define GrMtlGpu_DEFINED
 
+#include "include/private/SkDeque.h"
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/GrTexture.h"
 
 #include "src/gpu/mtl/GrMtlCaps.h"
+#include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
 #include "src/gpu/mtl/GrMtlStencilAttachment.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
@@ -130,6 +133,11 @@ private:
     }
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
+
+    GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
+    void takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer>) override;
+
+    void checkForFinishedCommandBuffers();
 
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
@@ -247,11 +255,24 @@ private:
     id<MTLDevice> fDevice;
     id<MTLCommandQueue> fQueue;
 
-    GrMtlCommandBuffer* fCmdBuffer;
+    sk_sp<GrMtlCommandBuffer> fCurrentCmdBuffer;
+
+    struct OutstandingCommandBuffer {
+        OutstandingCommandBuffer(sk_sp<GrMtlCommandBuffer> commandBuffer,
+                               GrFence fence)
+            : fCommandBuffer(std::move(commandBuffer)), fFence(fence) {
+        }
+        sk_sp<GrMtlCommandBuffer> fCommandBuffer;
+        GrFence fFence;
+    };
+
+    SkDeque fOutstandingCommandBuffers;
+
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
 
     GrMtlResourceProvider fResourceProvider;
+    GrStagingBufferManager fStagingBufferManager;
 
     bool fDisconnected;
 

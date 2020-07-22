@@ -112,14 +112,21 @@ sk_sp<GrGpu> GrMtlGpu::Make(GrDirectContext* direct, const GrContextOptions& opt
     return sk_sp<GrGpu>(new GrMtlGpu(direct, options, device, queue, featureSet));
 }
 
+// This constant determines how many OutstandingCommandBuffers are allocated together as a block in
+// the deque. As such it needs to balance allocating too much memory vs. incurring
+// allocation/deallocation thrashing. It should roughly correspond to the max number of outstanding
+// command lists we expect to see.
+static const int kDefaultOutstandingAllocCnt = 8;
+
 GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
                    id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet)
         : INHERITED(direct)
         , fDevice(device)
         , fQueue(queue)
-        , fCmdBuffer(nullptr)
+         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
         , fCompiler(new SkSL::Compiler())
         , fResourceProvider(this)
+        , fStagingBufferManager(this)
         , fDisconnected(false)
         , fFinishCallbacks(this) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
@@ -134,25 +141,25 @@ GrMtlGpu::~GrMtlGpu() {
 
 void GrMtlGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);
-
-    if (DisconnectType::kCleanup == type) {
+    if (!fDisconnected) {
         this->destroyResources();
-    } else {
-        delete fCmdBuffer;
-        fCmdBuffer = nullptr;
-
-        fResourceProvider.destroyResources();
-
-        fQueue = nil;
-        fDevice = nil;
-
         fDisconnected = true;
     }
 }
 
 void GrMtlGpu::destroyResources() {
-    // Will implicitly delete the command buffer
     this->submitCommandBuffer(SyncQueue::kForce_SyncQueue);
+
+    // We used a placement new for each object in fOutstandingCommandBuffers, so we're responsible
+    // for calling the destructor on each of them as well.
+    while (!fOutstandingCommandBuffers.empty()) {
+        OutstandingCommandBuffer* buffer =
+                (OutstandingCommandBuffer*)fOutstandingCommandBuffers.front();
+        buffer->~OutstandingCommandBuffer();
+        fOutstandingCommandBuffers.pop_front();
+    }
+
+    fStagingBufferManager.reset();
     fResourceProvider.destroyResources();
 
     fQueue = nil;
@@ -175,18 +182,49 @@ void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {
 }
 
 GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
-    if (!fCmdBuffer) {
-        fCmdBuffer = GrMtlCommandBuffer::Create(fQueue);
+    if (!fCurrentCmdBuffer) {
+        fCurrentCmdBuffer = GrMtlCommandBuffer::Create(fQueue);
+
+        // This should be done after we have a new command buffer in case the freeing of any
+        // resources held by a finished command buffer causes us send a new command to the gpu
+        // (like changing the resource state).
+        this->checkForFinishedCommandBuffers();
     }
-    return fCmdBuffer;
+    return fCurrentCmdBuffer.get();
+}
+
+void GrMtlGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+    fCurrentCmdBuffer->addGrBuffer(std::move(buffer));
 }
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
-    if (fCmdBuffer) {
-        fResourceProvider.addBufferCompletionHandler(fCmdBuffer);
-        fCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
-        delete fCmdBuffer;
-        fCmdBuffer = nullptr;
+    // TODO: handle sync with empty command buffer
+    if (fCurrentCmdBuffer) {
+        fResourceProvider.addBufferCompletionHandler(fCurrentCmdBuffer.get());
+
+        GrFence fence = this->insertFence();
+        new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(
+                fCurrentCmdBuffer, fence);
+
+        fCurrentCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
+        fCurrentCmdBuffer.reset();
+    }
+}
+
+void GrMtlGpu::checkForFinishedCommandBuffers() {
+    // Iterate over all the outstanding command buffers to see if any have finished. The command
+    // buffers are in order from oldest to newest, so we start at the front to check if their fence
+    // has signaled. If so we pop it off and move onto the next.
+    // Repeat till we find a command list that has not finished yet (and all others afterwards are
+    // also guaranteed to not have finished).
+    OutstandingCommandBuffer* front = (OutstandingCommandBuffer*)fOutstandingCommandBuffers.front();
+    while (front && this->waitFence(front->fFence)) {
+        sk_sp<GrMtlCommandBuffer> currBuffer(std::move(front->fCommandBuffer));
+        // Since we used placement new we are responsible for calling the destructor manually.
+        front->~OutstandingCommandBuffer();
+        fOutstandingCommandBuffers.pop_front();
+        currBuffer.reset();
+        front = (OutstandingCommandBuffer*)fOutstandingCommandBuffers.front();
     }
 }
 
@@ -272,13 +310,15 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             bpp, {width, height}, &individualMipOffsets, mipLevelCount);
     SkASSERT(combinedBufferSize);
 
-    size_t bufferOffset;
-    id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(combinedBufferSize,
-                                                                             &bufferOffset);
-    if (!transferBuffer) {
+    //**** We're not sure what the usage of the next allocation will be --
+    // to be safe we'll use 16 byte alignment.
+    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            combinedBufferSize, 16);
+    if (!slice.fBuffer) {
         return false;
     }
-    char* buffer = (char*) transferBuffer.contents + bufferOffset;
+    char* bufferData = (char*)slice.fOffsetMapPtr;
+    GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
 
     int currentWidth = width;
     int currentHeight = height;
@@ -293,12 +333,12 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
             // copy data into the buffer, skipping any trailing bytes
-            char* dst = buffer + individualMipOffsets[currentMipLevel];
+            char* dst = bufferData + individualMipOffsets[currentMipLevel];
             const char* src = (const char*)texels[currentMipLevel].fPixels;
             SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
 
-            [blitCmdEncoder copyFromBuffer: transferBuffer
-                              sourceOffset: bufferOffset + individualMipOffsets[currentMipLevel]
+            [blitCmdEncoder copyFromBuffer: mtlBuffer->mtlBuffer()
+                              sourceOffset: slice.fOffset + individualMipOffsets[currentMipLevel]
                          sourceBytesPerRow: trimRowBytes
                        sourceBytesPerImage: trimRowBytes*currentHeight
                                 sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
@@ -312,7 +352,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         layerHeight = currentHeight;
     }
 #ifdef SK_BUILD_FOR_MAC
-    [transferBuffer didModifyRange: NSMakeRange(bufferOffset, combinedBufferSize)];
+    [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
 #endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
@@ -1254,7 +1294,6 @@ bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int w
     }
 
     GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer);
-    grMtlBuffer->bind();
 
     size_t transBufferRowBytes = bpp * width;
     size_t transBufferImageBytes = transBufferRowBytes * height;
@@ -1312,7 +1351,10 @@ GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
         dispatch_semaphore_signal(semaphore);
+        SkDebugf("command buffer %p done\n", semaphore);
     });
+
+    SkDebugf("insertFence %p: %p\n", cmdBuffer, semaphore);
 
     const void* cfFence = (__bridge_retained const void*) semaphore;
     return (GrFence) cfFence;
@@ -1323,6 +1365,8 @@ bool GrMtlGpu::waitFence(GrFence fence) {
     dispatch_semaphore_t semaphore = (__bridge dispatch_semaphore_t)cfFence;
 
     long result = dispatch_semaphore_wait(semaphore, 0);
+
+    SkDebugf("waitFence %p: %ld\n", semaphore, result);
 
     return !result;
 }
