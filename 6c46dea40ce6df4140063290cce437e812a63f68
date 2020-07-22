@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "3ec152df_d87fa8d1",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-22T17:46:56Z",
+      "side": 1,
+      "message": "Future CL will be testing the behavior of sampling null children by setting the paint color, but I removed that for now.",
+      "parentUuid": "ab66e611_025d09b0",
+      "range": {
+        "startLine": 85,
+        "startChar": 41,
+        "endLine": 85,
+        "endChar": 50
+      },
+      "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca0a0644_be02835f",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 1
@@ -53,6 +77,30 @@
       "writtenOn": "2020-07-22T15:46:15Z",
       "side": 1,
       "message": "Do we have a more descriptive type we could use for these color inputs? (e.g. something like GrColor but not Ganesh-specific) From their names alone they seem more like point coordinates.",
+      "range": {
+        "startLine": 87,
+        "startChar": 14,
+        "endLine": 87,
+        "endChar": 22
+      },
+      "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9abf3284_af749ead",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-22T17:46:56Z",
+      "side": 1,
+      "message": "Not a great one, no. I could use GrColor, which is spec\u0027d to always be RGBA. SkColor is defined to be unpremul (and BGRA). SkPMColor is premul, but the byte order depends on compile flags. I switched them to GrColor (we can safely use that in unit tests, because we always have the GPU backend present).",
+      "parentUuid": "ca0a0644_be02835f",
       "range": {
         "startLine": 87,
         "startChar": 14,
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "7d5e66f2_3c25fe8e",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-22T17:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e078e211_11881521",
+      "range": {
+        "startLine": 139,
+        "startChar": 4,
+        "endLine": 139,
+        "endChar": 16
+      },
+      "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71d39cb1_e9a4a1ed",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 1
@@ -108,6 +180,30 @@
       "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a9d6efc_61259787",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-22T17:46:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71d39cb1_e9a4a1ed",
+      "range": {
+        "startLine": 150,
+        "startChar": 53,
+        "endLine": 150,
+        "endChar": 73
+      },
+      "revId": "6c46dea40ce6df4140063290cce437e812a63f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
