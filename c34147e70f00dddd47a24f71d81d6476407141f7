@@ -68,6 +68,23 @@
       "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8f9e926_0800bb76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-22T14:07:20Z",
+      "side": 1,
+      "message": "We could also go all the way, and only take B,C in the shader factory. Limits the family of matrices, but is\n- simpler\n- ensures we have symmetric matrices which may allow (slightly) faster impls\n",
+      "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
