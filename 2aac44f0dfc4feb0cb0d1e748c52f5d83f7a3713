@@ -16,6 +16,52 @@
       "revId": "2aac44f0dfc4feb0cb0d1e748c52f5d83f7a3713",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b97e162e_f054c304",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-22T11:11:01Z",
+      "side": 1,
+      "message": "This seems strange to me to have a non-const file variable and potentially problematic if you want to do threaded things.",
+      "range": {
+        "startLine": 38,
+        "startChar": 19,
+        "endLine": 38,
+        "endChar": 30
+      },
+      "revId": "2aac44f0dfc4feb0cb0d1e748c52f5d83f7a3713",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "deebd888_e02aa22d",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-22T11:11:01Z",
+      "side": 1,
+      "message": "nit: align #ifdef all the way to the left of the file (to match the style of existing code).",
+      "range": {
+        "startLine": 88,
+        "startChar": 5,
+        "endLine": 88,
+        "endChar": 10
+      },
+      "revId": "2aac44f0dfc4feb0cb0d1e748c52f5d83f7a3713",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
