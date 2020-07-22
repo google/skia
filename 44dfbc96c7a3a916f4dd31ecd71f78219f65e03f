@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d95c4ff_68acc5b3",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T20:47:31Z",
+      "side": 1,
+      "message": "This should allow kInheritFromPaint,right?",
+      "revId": "44dfbc96c7a3a916f4dd31ecd71f78219f65e03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
