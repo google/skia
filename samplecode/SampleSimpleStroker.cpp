@@ -28,8 +28,62 @@ static SkPoint setLength(SkPoint p, float len) {
 static bool isClockwise(const SkPoint& a, const SkPoint& b) { return a.cross(b) > 0; }
 
 //////////////////////////////////////////////////////////////////////////////
-
 // Testing ground for a new stroker implementation
+
+/** Helper class for constructing paths, with undo support */
+class PathRecorder {
+public:
+    SkPath getPath() const {
+        return SkPath::Make(fPoints.data(), fPoints.size(), fVerbs.data(), fVerbs.size(), nullptr,
+                            0, SkPathFillType::kWinding);
+    }
+
+    void moveTo(SkPoint p) {
+        fVerbs.push_back(SkPath::kMove_Verb);
+        fPoints.push_back(p);
+    }
+
+    void lineTo(SkPoint p) {
+        fVerbs.push_back(SkPath::kLine_Verb);
+        fPoints.push_back(p);
+    }
+
+    void close() { fVerbs.push_back(SkPath::kClose_Verb); }
+
+    void rewind() {
+        fVerbs.clear();
+        fPoints.clear();
+    }
+
+    int countPoints() const { return fPoints.size(); }
+
+    int countVerbs() const { return fVerbs.size(); }
+
+    bool getLastPt(SkPoint* lastPt) const {
+        if (fPoints.empty()) {
+            return false;
+        }
+        *lastPt = fPoints.back();
+        return true;
+    }
+
+    void setLastPt(SkPoint lastPt) {
+        if (fPoints.empty()) {
+            moveTo(lastPt);
+        } else {
+            fPoints.back().set(lastPt.fX, lastPt.fY);
+        }
+    }
+
+    const std::vector<uint8_t>& verbs() const { return fVerbs; }
+
+    const std::vector<SkPoint>& points() const { return fPoints; }
+
+private:
+    std::vector<uint8_t> fVerbs;
+    std::vector<SkPoint> fPoints;
+};
+
 class SkPathStroker2 {
 public:
     // Returns the fill path
@@ -44,8 +98,7 @@ private:
     float fRadius;
     SkPaint::Cap fCap;
     SkPaint::Join fJoin;
-    SkPath fInnerPath, fOuterPath;
-    SkPath *fInner = &fInnerPath, *fOuter = &fOuterPath;
+    PathRecorder fInner, fOuter;
 
     // Initialize stroker state
     void initForPath(const SkPath& path, const SkPaint& paint);
@@ -61,7 +114,7 @@ private:
     void join(const PathSegment& prev, const PathSegment& curr);
 
     // Appends path in reverse to result
-    static void appendPathReversed(const SkPath* path, SkPath* result);
+    static void appendPathReversed(const PathRecorder& path, PathRecorder* result);
 
     // Returns the segment unit normal
     static SkPoint unitNormal(const PathSegment& seg, float t);
@@ -74,10 +127,8 @@ void SkPathStroker2::initForPath(const SkPath& path, const SkPaint& paint) {
     fRadius = paint.getStrokeWidth() / 2;
     fCap = paint.getStrokeCap();
     fJoin = paint.getStrokeJoin();
-    fInnerPath.rewind();
-    fOuterPath.rewind();
-    fInner = &fInnerPath;
-    fOuter = &fOuterPath;
+    fInner.rewind();
+    fOuter.rewind();
 }
 
 SkPath SkPathStroker2::getFillPath(const SkPath& path, const SkPaint& paint) {
@@ -120,10 +171,10 @@ SkPath SkPathStroker2::getFillPath(const SkPath& path, const SkPaint& paint) {
     }
 
     // Walk inner path in reverse, appending to result
-    appendPathReversed(fInner, fOuter);
+    appendPathReversed(fInner, &fOuter);
     endcap(CapLocation::Start);
 
-    return fOuterPath;
+    return fOuter.getPath();
 }
 
 void SkPathStroker2::strokeLine(const PathSegment& line, bool needsMove) {
@@ -131,23 +182,23 @@ void SkPathStroker2::strokeLine(const PathSegment& line, bool needsMove) {
     const SkPoint normal = rotate90(tangent);
     const SkPoint offset = setLength(normal, fRadius);
     if (needsMove) {
-        fOuter->moveTo(line.fPoints[0] + offset);
-        fInner->moveTo(line.fPoints[0] - offset);
+        fOuter.moveTo(line.fPoints[0] + offset);
+        fInner.moveTo(line.fPoints[0] - offset);
     }
-    fOuter->lineTo(line.fPoints[1] + offset);
-    fInner->lineTo(line.fPoints[1] - offset);
+    fOuter.lineTo(line.fPoints[1] + offset);
+    fInner.lineTo(line.fPoints[1] - offset);
 }
 
 void SkPathStroker2::endcap(CapLocation loc) {
     const auto buttCap = [this](CapLocation loc) {
         if (loc == CapLocation::Start) {
             // Back at the start of the path: just close the stroked outline
-            fOuter->close();
+            fOuter.close();
         } else {
             // Inner last pt == first pt when appending in reverse
             SkPoint innerLastPt;
-            fInner->getLastPt(&innerLastPt);
-            fOuter->lineTo(innerLastPt);
+            fInner.getLastPt(&innerLastPt);
+            fOuter.lineTo(innerLastPt);
         }
     };
 
@@ -171,7 +222,7 @@ void SkPathStroker2::join(const PathSegment& prev, const PathSegment& curr) {
         SkPoint after = unitNormal(curr, 0);
 
         // Check who's inside and who's outside.
-        SkPath *outer = fOuter, *inner = fInner;
+        PathRecorder *outer = &fOuter, *inner = &fInner;
         if (!isClockwise(before, after)) {
             std::swap(inner, outer);
             before = rotate180(before);
@@ -250,14 +301,11 @@ void SkPathStroker2::join(const PathSegment& prev, const PathSegment& curr) {
     }
 }
 
-void SkPathStroker2::appendPathReversed(const SkPath* path, SkPath* result) {
-    const int numVerbs = path->countVerbs();
-    const int numPoints = path->countPoints();
-    std::unique_ptr<uint8_t[]> verbs = std::make_unique<uint8_t[]>(numVerbs);
-    std::unique_ptr<SkPoint[]> points = std::make_unique<SkPoint[]>(numPoints);
-
-    path->getVerbs(verbs.get(), numVerbs);
-    path->getPoints(points.get(), numPoints);
+void SkPathStroker2::appendPathReversed(const PathRecorder& path, PathRecorder* result) {
+    const int numVerbs = path.countVerbs();
+    const int numPoints = path.countPoints();
+    const std::vector<uint8_t>& verbs = path.verbs();
+    const std::vector<SkPoint>& points = path.points();
 
     for (int i = numVerbs - 1, j = numPoints; i >= 0; i--) {
         auto verb = static_cast<SkPath::Verb>(verbs[i]);
