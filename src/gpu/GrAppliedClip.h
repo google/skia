@@ -104,59 +104,57 @@ public:
     const GrWindowRectsState& windowRectsState() const { return fHardClip.windowRectsState(); }
     uint32_t stencilStackID() const { return fHardClip.stencilStackID(); }
     bool hasStencilClip() const { return fHardClip.hasStencilClip(); }
-    int numClipCoverageFragmentProcessors() const { return fClipCoverageFPs.count(); }
-    const GrFragmentProcessor* clipCoverageFragmentProcessor(int i) const {
-        SkASSERT(fClipCoverageFPs[i]);
-        return fClipCoverageFPs[i].get();
+    int hasCoverageFragmentProcessor() const { return fCoverageFP != nullptr; }
+    const GrFragmentProcessor* coverageFragmentProcessor() const {
+        SkASSERT(fCoverageFP != nullptr);
+        return fCoverageFP.get();
     }
-    std::unique_ptr<const GrFragmentProcessor> detachClipCoverageFragmentProcessor(int i) {
-        SkASSERT(fClipCoverageFPs[i]);
-        return std::move(fClipCoverageFPs[i]);
+    std::unique_ptr<const GrFragmentProcessor> detachCoverageFragmentProcessor() {
+        SkASSERT(fCoverageFP != nullptr);
+        return std::move(fCoverageFP);
     }
 
     const GrAppliedHardClip& hardClip() const { return fHardClip; }
     GrAppliedHardClip& hardClip() { return fHardClip; }
 
     void addCoverageFP(std::unique_ptr<GrFragmentProcessor> fp) {
-        SkASSERT(fp);
-        fClipCoverageFPs.push_back(std::move(fp));
+        if (fCoverageFP == nullptr) {
+            fCoverageFP = std::move(fp);
+        } else {
+            // Run this coverage FP in series with the previously-added coverage.
+            std::unique_ptr<GrFragmentProcessor> series[] = {
+                std::move(fCoverageFP),
+                std::move(fp),
+            };
+            fCoverageFP = GrFragmentProcessor::RunInSeries(series, SK_ARRAY_COUNT(series));
+        }
     }
 
     bool doesClip() const {
-        return fHardClip.doesClip() || !fClipCoverageFPs.empty();
+        return fHardClip.doesClip() || fCoverageFP != nullptr;
     }
 
     bool operator==(const GrAppliedClip& that) const {
         if (fHardClip != that.fHardClip ||
-            fClipCoverageFPs.count() != that.fClipCoverageFPs.count()) {
+            this->hasCoverageFragmentProcessor() != that.hasCoverageFragmentProcessor()) {
             return false;
         }
-        for (int i = 0; i < fClipCoverageFPs.count(); ++i) {
-            if (!fClipCoverageFPs[i] || !that.fClipCoverageFPs[i]) {
-                if (fClipCoverageFPs[i] == that.fClipCoverageFPs[i]) {
-                    continue; // Both are null.
-                }
-                return false;
-            }
-            if (!fClipCoverageFPs[i]->isEqual(*that.fClipCoverageFPs[i])) {
-                return false;
-            }
+        if (fCoverageFP != nullptr && !fCoverageFP->isEqual(*that.fCoverageFP)) {
+            return false;
         }
         return true;
     }
     bool operator!=(const GrAppliedClip& that) const { return !(*this == that); }
 
     void visitProxies(const GrOp::VisitProxyFunc& func) const {
-        for (const std::unique_ptr<GrFragmentProcessor>& fp : fClipCoverageFPs) {
-            if (fp) { // This might be called after detach.
-                fp->visitProxies(func);
-            }
+        if (fCoverageFP != nullptr) {
+            fCoverageFP->visitProxies(func);
         }
     }
 
 private:
     GrAppliedHardClip fHardClip;
-    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fClipCoverageFPs;
+    std::unique_ptr<GrFragmentProcessor> fCoverageFP;
 };
 
 #endif
