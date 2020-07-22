@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbd476b4_757f9160",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-22T19:18:42Z",
+      "side": 1,
+      "message": "I made this Correctness activity to generate PNGs of lotties. I tested it on a virtual Android device and it seems to work. PNGs are saved to the device\u0027s downloads folder.",
+      "revId": "3687c76f39ade55177d7db8fd53c3e5f13e87346",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
