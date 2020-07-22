@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "46b8c247_a529edde",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-07-22T19:14:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b05d1762_c1f70e91",
+      "range": {
+        "startLine": 10,
+        "startChar": 19,
+        "endLine": 10,
+        "endChar": 27
+      },
+      "revId": "6188e852bd643c47d857011d940f3ba0b0155e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7577ce24_3bf7eaa3",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2020-07-21T20:03:09Z",
       "side": 1,
       "message": "This seems to glue all trailing whitespaces to an unresolved block, but if we come to a resolved non-whitespace, shouldn\u0027t the current run of whitespace be allowed to resolve with it? In other words, it seems only internal whitespaces (whitespaces surrounded by unresolved) should go into the longer unresolved block.",
+      "revId": "6188e852bd643c47d857011d940f3ba0b0155e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28c0d02b_f6eee9fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-07-22T19:14:59Z",
+      "side": 1,
+      "message": "To be honest, I tried to be consistent here and always add trailing whitespaces to the whatever block.\nHowever, I can see your point. Since this fix is a hack of a sort, we can limit it to only internal whitespaces.",
+      "parentUuid": "7577ce24_3bf7eaa3",
       "revId": "6188e852bd643c47d857011d940f3ba0b0155e43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -56,6 +98,24 @@
       "revId": "6188e852bd643c47d857011d940f3ba0b0155e43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c334571a_57184b2a",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-07-22T19:14:59Z",
+      "side": 1,
+      "message": "I only define unresolved blocks here; later I extend them to grapheme cluster edges so the \"_T\" in TNR will not be broken. Also, now I could as unresolved only whitespaces inside the unresolved blocks and to have this situation \"_T\" must be resolved.",
+      "parentUuid": "69a7c7a9_71fe72cb",
+      "revId": "6188e852bd643c47d857011d940f3ba0b0155e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
