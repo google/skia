@@ -178,23 +178,18 @@ static GrGLenum filter_to_gl_mag_filter(GrSamplerState::Filter filter) {
     switch (filter) {
         case GrSamplerState::Filter::kNearest: return GR_GL_NEAREST;
         case GrSamplerState::Filter::kLinear:  return GR_GL_LINEAR;
+        case GrSamplerState::Filter::kMipMap:  return GR_GL_LINEAR;
     }
-    SkUNREACHABLE;
+    SK_ABORT("Unknown filter");
 }
 
-static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter,
-                                        GrSamplerState::MipmapMode mm) {
-    switch (mm) {
-        case GrSamplerState::MipmapMode::kNone:
-            return filter_to_gl_mag_filter(filter);
-        case GrSamplerState::MipmapMode::kLinear:
-            switch (filter) {
-                case GrSamplerState::Filter::kNearest: return GR_GL_NEAREST_MIPMAP_LINEAR;
-                case GrSamplerState::Filter::kLinear:  return GR_GL_LINEAR_MIPMAP_LINEAR;
-            }
-            SkUNREACHABLE;
+static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter) {
+    switch (filter) {
+        case GrSamplerState::Filter::kNearest: return GR_GL_NEAREST;
+        case GrSamplerState::Filter::kLinear:  return GR_GL_LINEAR;
+        case GrSamplerState::Filter::kMipMap:  return GR_GL_LINEAR_MIPMAP_LINEAR;
     }
-    SkUNREACHABLE;
+    SK_ABORT("Unknown filter");
 }
 
 static inline GrGLenum wrap_mode_to_gl_wrap(GrSamplerState::WrapMode wrapMode,
@@ -208,7 +203,7 @@ static inline GrGLenum wrap_mode_to_gl_wrap(GrSamplerState::WrapMode wrapMode,
             SkASSERT(caps.clampToBorderSupport());
             return GR_GL_CLAMP_TO_BORDER;
     }
-    SkUNREACHABLE;
+    SK_ABORT("Unknown wrap mode");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,10 +240,10 @@ public:
                 return;
             }
             fSamplers[index] = s;
-            GrGLenum minFilter = filter_to_gl_min_filter(state.filter(), state.mipmapMode());
-            GrGLenum magFilter = filter_to_gl_mag_filter(state.filter());
-            GrGLenum wrapX = wrap_mode_to_gl_wrap(state.wrapModeX(), fGpu->glCaps());
-            GrGLenum wrapY = wrap_mode_to_gl_wrap(state.wrapModeY(), fGpu->glCaps());
+            auto minFilter = filter_to_gl_min_filter(state.filter());
+            auto magFilter = filter_to_gl_mag_filter(state.filter());
+            auto wrapX = wrap_mode_to_gl_wrap(state.wrapModeX(), fGpu->glCaps());
+            auto wrapY = wrap_mode_to_gl_wrap(state.wrapModeY(), fGpu->glCaps());
             GR_GL_CALL(fGpu->glInterface(),
                        SamplerParameteri(s, GR_GL_TEXTURE_MIN_FILTER, minFilter));
             GR_GL_CALL(fGpu->glInterface(),
@@ -2598,31 +2593,36 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
         fHWTextureUnitBindings[unitIdx].setBoundID(target, textureID);
     }
 
-    if (samplerState.mipmapped() == GrMipmapped::kYes) {
+    if (samplerState.filter() == GrSamplerState::Filter::kMipMap) {
         if (!this->caps()->mipmapSupport() ||
             texture->texturePriv().mipmapped() == GrMipmapped::kNo) {
-            samplerState.setMipmapMode(GrSamplerState::MipmapMode::kNone);
-        } else {
-            SkASSERT(!texture->texturePriv().mipmapsAreDirty());
+            samplerState.setFilterMode(GrSamplerState::Filter::kLinear);
         }
     }
 
+#ifdef SK_DEBUG
+    // We were supposed to ensure MipMaps were up-to-date before getting here.
+    if (samplerState.filter() == GrSamplerState::Filter::kMipMap) {
+        SkASSERT(!texture->texturePriv().mipmapsAreDirty());
+    }
+#endif
+
     auto timestamp = texture->parameters()->resetTimestamp();
     bool setAll = timestamp < fResetTimestampForTextureParameters;
+
     const GrGLTextureParameters::SamplerOverriddenState* samplerStateToRecord = nullptr;
     GrGLTextureParameters::SamplerOverriddenState newSamplerState;
     if (fSamplerObjectCache) {
         fSamplerObjectCache->bindSampler(unitIdx, samplerState);
         if (this->glCaps().mustSetAnyTexParameterToEnableMipmapping()) {
-            if (samplerState.mipmapped() == GrMipmapped::kYes) {
-                GrGLenum minFilter = filter_to_gl_min_filter(samplerState.filter(),
-                                                             samplerState.mipmapMode());
+            if (samplerState.filter() == GrSamplerState::Filter::kMipMap) {
                 const GrGLTextureParameters::SamplerOverriddenState& oldSamplerState =
                         texture->parameters()->samplerOverriddenState();
                 this->setTextureUnit(unitIdx);
-                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, minFilter));
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER,
+                                              GR_GL_LINEAR_MIPMAP_LINEAR));
                 newSamplerState = oldSamplerState;
-                newSamplerState.fMinFilter = minFilter;
+                newSamplerState.fMinFilter = GR_GL_LINEAR_MIPMAP_LINEAR;
                 samplerStateToRecord = &newSamplerState;
             }
         }
@@ -2631,8 +2631,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
                 texture->parameters()->samplerOverriddenState();
         samplerStateToRecord = &newSamplerState;
 
-        newSamplerState.fMinFilter = filter_to_gl_min_filter(samplerState.filter(),
-                                                             samplerState.mipmapMode());
+        newSamplerState.fMinFilter = filter_to_gl_min_filter(samplerState.filter());
         newSamplerState.fMagFilter = filter_to_gl_mag_filter(samplerState.filter());
 
         newSamplerState.fWrapS = wrap_mode_to_gl_wrap(samplerState.wrapModeX(), this->glCaps());
