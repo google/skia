@@ -103,6 +103,24 @@
       "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c3cb7ea_87c50e83",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-22T14:10:54Z",
+      "side": 1,
+      "message": "Yeah I\u0027m leaning this way. I must admit I can\u0027t recall how the matrix we use for the Mitchell filter is derived, though.\n\nHere is a decent explanation of the Catmull-Rom matrix. But it must be more constrained because it only has 1 free parameter:\n\nhttp://graphics.cs.cmu.edu/nsp/course/15-462/Fall04/assts/catmullRom.pdf",
+      "parentUuid": "b8f9e926_0800bb76",
+      "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
