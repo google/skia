@@ -791,6 +791,9 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view,
         , fClamp(sampling.fShaderClamp)
         , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]}
         , fLazyProxyNormalization(lazyProxyNormalization) {
+    if (fSamplerState.mipmapped() == GrMipmapped::kYes) {
+        fSamplerState.setFilterMode(GrSamplerState::Filter::kLinear);
+    }
     // We always compare the range even when it isn't used so assert we have canonical don't care
     // values.
     SkASSERT(fShaderModes[0] != ShaderMode::kNone || (fSubset.fLeft == 0 && fSubset.fRight == 0));
