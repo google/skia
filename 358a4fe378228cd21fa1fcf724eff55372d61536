@@ -33,6 +33,69 @@
       "revId": "358a4fe378228cd21fa1fcf724eff55372d61536",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "057a29f7_49c54504",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T19:11:02Z",
+      "side": 1,
+      "message": "Let\u0027s land it as is and then iterate.",
+      "revId": "358a4fe378228cd21fa1fcf724eff55372d61536",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd32d7a4_ab48ffcb",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T19:11:02Z",
+      "side": 1,
+      "message": "Maybe make this a helper method in a follow up?",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 5
+      },
+      "revId": "358a4fe378228cd21fa1fcf724eff55372d61536",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4131f926_0d64ffc2",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T19:11:02Z",
+      "side": 1,
+      "message": "This too - in a follow up?",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 5
+      },
+      "revId": "358a4fe378228cd21fa1fcf724eff55372d61536",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
