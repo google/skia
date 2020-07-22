@@ -145,6 +145,9 @@ namespace skvm {
         void vpackusdw(Ymm dst, Ymm x, Operand y);
         void vpackuswb(Ymm dst, Ymm x, Operand y);
 
+        void vpunpckldq(Ymm dst, Ymm x, Operand y);
+        void vpunpckhdq(Ymm dst, Ymm x, Operand y);
+
         void vpcmpeqd(Ymm dst, Ymm x, Operand y);
         void vpcmpgtd(Ymm dst, Ymm x, Operand y);
 
@@ -160,7 +163,8 @@ namespace skvm {
         void vpsrad(Ymm dst, Ymm x, int imm);
         void vpsrlw(Ymm dst, Ymm x, int imm);
 
-        void vpermq(Ymm dst, Operand x, int imm);
+        void vpermq    (Ymm dst, Operand x, int imm);
+        void vperm2f128(Ymm dst, Ymm x, Operand y, int imm);
 
         enum Rounding { NEAREST, FLOOR, CEIL, TRUNC, CURRENT };
         void vroundps(Ymm dst, Operand x, Rounding);
