@@ -16,6 +16,23 @@
       "revId": "0d984420853583c520f1ba96195865527298995a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ad390e2_35eddcce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-22T18:18:13Z",
+      "side": 1,
+      "message": "Looks good to me, this also looks like a reasonable first candidate for a runtime image filter, either to collapse all the nested color filter logic into one filter, or to explore non-linear transformations to the alpha channel for the choke. ",
+      "revId": "0d984420853583c520f1ba96195865527298995a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
