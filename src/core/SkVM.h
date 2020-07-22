@@ -165,6 +165,7 @@ namespace skvm {
 
         void vpermq    (Ymm dst, Operand x, int imm);
         void vperm2f128(Ymm dst, Ymm x, Operand y, int imm);
+        void vpermps   (Ymm dst, Ymm ix, Operand src);        // dst[i] = src[ix[i]]
 
         enum Rounding { NEAREST, FLOOR, CEIL, TRUNC, CURRENT };
         void vroundps(Ymm dst, Operand x, Rounding);
