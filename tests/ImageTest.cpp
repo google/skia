@@ -1033,15 +1033,15 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             GrContextFactory testFactory(options);
             GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
             ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
-            auto ctx = ctxInfo.directContext();
-            if (!ctx || !ctx->priv().caps()->crossContextTextureSupport()) {
+            auto dContext = ctxInfo.directContext();
+            if (!dContext || !dContext->priv().caps()->crossContextTextureSupport()) {
                 continue;
             }
 
-            sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false);
+            sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(dContext, pixmap, false);
             REPORTER_ASSERT(reporter, image);
 
-            GrSurfaceProxyView view = as_IB(image)->refView(ctx, GrMipmapped::kNo);
+            GrSurfaceProxyView view = as_IB(image)->refView(dContext, GrMipmapped::kNo);
             REPORTER_ASSERT(reporter, view);
 
             bool expectAlpha = kAlpha_8_SkColorType == ct;
