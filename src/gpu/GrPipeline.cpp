@@ -46,7 +46,7 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
     fNumColorProcessors = processors.hasColorFragmentProcessor() ? 1 : 0;
     int numTotalProcessors = fNumColorProcessors +
                              (processors.hasCoverageFragmentProcessor() ? 1 : 0) +
-                             appliedClip.numClipCoverageFragmentProcessors();
+                             (appliedClip.hasCoverageFragmentProcessor() ? 1 : 0);
     fFragmentProcessors.reset(numTotalProcessors);
 
     int currFPIdx = 0;
@@ -56,8 +56,8 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
     if (processors.hasCoverageFragmentProcessor()) {
         fFragmentProcessors[currFPIdx++] = processors.detachCoverageFragmentProcessor();
     }
-    for (int i = 0; i < appliedClip.numClipCoverageFragmentProcessors(); ++i) {
-        fFragmentProcessors[currFPIdx++] = appliedClip.detachClipCoverageFragmentProcessor(i);
+    if (appliedClip.hasCoverageFragmentProcessor()) {
+        fFragmentProcessors[currFPIdx++] = appliedClip.detachCoverageFragmentProcessor();
     }
 }
 

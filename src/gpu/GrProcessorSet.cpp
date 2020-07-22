@@ -148,13 +148,11 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
         }
         coverageUsesLocalCoords |= fCoverageFragmentProcessor->usesVaryingCoords();
     }
-    if (clip) {
-        hasCoverageFP = hasCoverageFP || clip->numClipCoverageFragmentProcessors();
-        for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
-            const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
-            analysis.fCompatibleWithCoverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
-            coverageUsesLocalCoords |= clipFP->usesVaryingCoords();
-        }
+    if (clip && clip->hasCoverageFragmentProcessor()) {
+        hasCoverageFP = true;
+        const GrFragmentProcessor* clipFP = clip->coverageFragmentProcessor();
+        analysis.fCompatibleWithCoverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
+        coverageUsesLocalCoords |= clipFP->usesVaryingCoords();
     }
     int colorFPsToEliminate = colorAnalysis.initialProcessorsToEliminate(overrideInputColor);
     analysis.fInputColorType = static_cast<Analysis::PackedInputColorType>(
