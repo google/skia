@@ -230,7 +230,8 @@ private:
 
     friend bool operator&(Flags, InputFlags);
 
-    using FragmentProcessorArray = SkAutoSTArray<6, std::unique_ptr<const GrFragmentProcessor>>;
+    // A pipeline can contain up to three processors: color, paint coverage, and clip coverage.
+    using FragmentProcessorArray = SkAutoSTArray<3, std::unique_ptr<const GrFragmentProcessor>>;
 
     GrSurfaceProxyView fDstProxyView;
     SkIPoint fDstTextureOffset;

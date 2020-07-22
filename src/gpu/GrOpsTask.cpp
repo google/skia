@@ -311,10 +311,9 @@ bool GrOpsTask::OpChain::prependChain(OpChain* that, const GrCaps& caps,
     fBounds = that->fBounds;
 
     that->fDstProxyView.setProxyView({});
-    if (that->fAppliedClip) {
-        for (int i = 0; i < that->fAppliedClip->numClipCoverageFragmentProcessors(); ++i) {
-            that->fAppliedClip->detachClipCoverageFragmentProcessor(i);
-        }
+    if (that->fAppliedClip && that->fAppliedClip->hasClipCoverageFragmentProcessor()) {
+        // Obliterates the processor.
+        that->fAppliedClip->detachClipCoverageFragmentProcessor();
     }
     this->validate();
     return true;
