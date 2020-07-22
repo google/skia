@@ -115,6 +115,7 @@ bench_sources = [
   "$_bench/SkSLInterpreterBench.cpp",
   "$_bench/SkVMBench.cpp",
   "$_bench/SortBench.cpp",
+  "$_bench/StackBench.cpp",
   "$_bench/StreamBench.cpp",
   "$_bench/StrokeBench.cpp",
   "$_bench/SwizzleBench.cpp",

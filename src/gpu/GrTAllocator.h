@@ -40,7 +40,7 @@ public:
      * @param   itemsPerBlock   the number of items to allocate at once
      */
     explicit GrTAllocator(int itemsPerBlock)
-            : fAllocator(GrBlockAllocator::GrowthPolicy::kFixed,
+            : fAllocator(GrBlockAllocator::GrowthPolicy::kFibonacci,
                          GrBlockAllocator::BlockOverhead<alignof(T)>() + sizeof(T)*itemsPerBlock) {}
 
     ~GrTAllocator() { this->reset(); }
