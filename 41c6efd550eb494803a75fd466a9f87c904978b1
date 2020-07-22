@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "9f66338e_b300a1bd",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T22:18:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1279d16_d19dd4c4",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 40
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4341ffbc_e2a24849",
         "filename": "src/gpu/GrAppliedClip.h",
         "patchSetId": 4
