@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8021dc78_0bd66d18",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T20:54:39Z",
+      "side": 1,
+      "message": "Done (removed)\n\nI don\u0027t think we want to force the processor to modulate. I asked about this in chat this morning and it seemed like the group consensus was that we want coverage processors to take the current coverage as input, and return the new coverage as output, and they can have latitude to do whatever they want in the middle. (This #include was left over by mistake when I was experimenting with using an xfermode)",
+      "parentUuid": "ee1c366a_9570c385",
+      "range": {
+        "startLine": 14,
+        "startChar": 26,
+        "endLine": 14,
+        "endChar": 53
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6d4c75d_99be7494",
         "filename": "src/gpu/GrAppliedClip.h",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2020-07-22T18:28:14Z",
       "side": 1,
       "message": "Since we\u0027re renaming this, can we call it hasCoverageFragmentProcessor()? The clip is redundant with it being on GrAppliedClip, and then it matches the name on GrPaint.",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 40
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49fe4916_bbdc474e",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T20:54:39Z",
+      "side": 1,
+      "message": "I\u0027m fine with renaming it if you want, but FWIW I am not sure that matching the name on GrPaint is necessarily a useful quality. If you look at how the GrPipeline is assembled: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/GrPipeline.cpp;l\u003d51\n\n... it combines the `coverage` from the GrPaint and the `clipCoverage` from the GrAppliedClip. I was just taking in that code for the first time today, and to me this separation in names provided a useful distinction. But I don\u0027t feel strongly about it at all.",
+      "parentUuid": "a6d4c75d_99be7494",
       "range": {
         "startLine": 108,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f057e835_d0679bf2",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T20:54:39Z",
+      "side": 1,
+      "message": "Based on the discussion in chat this morning I don\u0027t think we want an Xfermode, because we don\u0027t want to enforce how clip processors choose to mix their inputs. They should be responsible for taking the input and modifying it as they see fit; forcing a particular blend mode on them prevents that.",
+      "parentUuid": "4341ffbc_e2a24849",
+      "range": {
+        "startLine": 126,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 95
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "92e44784_6a527a84",
         "filename": "src/gpu/GrPipeline.h",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d24db818_a4f28a34",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-22T20:54:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92e44784_6a527a84",
+      "range": {
+        "startLine": 233,
+        "startChar": 49,
+        "endLine": 233,
+        "endChar": 50
+      },
+      "revId": "41c6efd550eb494803a75fd466a9f87c904978b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
