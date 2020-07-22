@@ -32,8 +32,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
         return skiagm::DrawResult::kFail;
     }
 
-    auto direct = context->asDirectContext();
-    if (!direct) {
+    auto dContext = context->asDirectContext();
+    if (!dContext) {
         *errorMsg = "CrossContext image creation requires a direct context.";
         return skiagm::DrawResult::kSkip;
     }
@@ -46,8 +46,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
     SkAssertResult(images[0]->asLegacyBitmap(&bmp) &&
                    bmp.peekPixels(&pixmap));
 
-    images[1] = SkImage::MakeCrossContextFromPixmap(direct, pixmap, false);
-    images[2] = SkImage::MakeCrossContextFromPixmap(direct, pixmap, true);
+    images[1] = SkImage::MakeCrossContextFromPixmap(dContext, pixmap, false);
+    images[2] = SkImage::MakeCrossContextFromPixmap(dContext, pixmap, true);
 
     canvas->translate(10, 10);
 
@@ -57,7 +57,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
         canvas->drawImage(images[i], 0, 0);
         canvas->translate(0, 256 + 10);
 
-        canvas->drawImage(images[i]->makeSubset(SkIRect::MakeXYWH(64, 64, 128, 128), direct), 0, 0);
+        canvas->drawImage(images[i]->makeSubset(SkIRect::MakeXYWH(64, 64, 128, 128), dContext),
+                          0, 0);
         canvas->translate(128, 0);
 
         SkPaint paint;
