@@ -81,7 +81,7 @@ private:
     class BufferSuballocator : public SkRefCnt {
     public:
         BufferSuballocator(id<MTLDevice> device, size_t size);
-        ~BufferSuballocator() {
+        ~BufferSuballocator() override {
             fBuffer = nil;
             fTotalSize = 0;
         }

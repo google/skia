@@ -22,7 +22,7 @@ class GrMtlDepthStencil : public SkRefCnt {
 public:
     static GrMtlDepthStencil* Create(const GrMtlGpu*, const GrStencilSettings&, GrSurfaceOrigin);
 
-    ~GrMtlDepthStencil() { fMtlDepthStencilState = nil; }
+    ~GrMtlDepthStencil() override { fMtlDepthStencilState = nil; }
 
     id<MTLDepthStencilState> mtlDepthStencil() const { return fMtlDepthStencilState; }
 

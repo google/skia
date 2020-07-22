@@ -20,7 +20,7 @@ class GrMtlGpu;
 class GrMtlSampler : public SkRefCnt {
 public:
     static GrMtlSampler* Create(const GrMtlGpu* gpu, GrSamplerState);
-    ~GrMtlSampler() { fMtlSamplerState = nil; }
+    ~GrMtlSampler() override { fMtlSamplerState = nil; }
 
     id<MTLSamplerState> mtlSampler() const { return fMtlSamplerState; }
 
