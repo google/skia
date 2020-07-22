@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18e6d1ac_3b6b9cbb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-22T14:32:18Z",
+      "side": 1,
+      "message": "Okay this reland is ready. Diff against patch set #3, which is the two original CLs plus some rebase fixes. The general fix for the tecno is to expand the setting of the min filter to always happen even if our tracking says it is the same as the old. I actually found that if I set any one of the sampling/texture property (min filter, mag filter, base level, max level, etc.), it seems to fix the issue. Just stick with min filter since the code is already there.",
+      "revId": "14552abe881d981dba102e00cab3f54955418d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
