@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31695fc7_e700cbbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-22T20:38:36Z",
+      "side": 1,
+      "message": "I addressed the previous comments, but then I went back and added several more unit tests, so the paint parameter is back on the callback.",
+      "revId": "2849350bc97696897669ede08b44b869b4dd02a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
