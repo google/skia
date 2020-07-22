@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "244ae1e8_0956fc32",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-22T18:43:32Z",
+      "side": 1,
+      "message": "More brainstorming:\n\nGrTLinkedBlockList?\n\nI think BlockList is pretty good.",
+      "range": {
+        "startLine": 12,
+        "startChar": 34,
+        "endLine": 12,
+        "endChar": 63
+      },
+      "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "60b03def_b1b4269d",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -65,6 +88,59 @@
       "side": 1,
       "message": "After talking with Brian, we agreed to keep GrTBlockLinkedList around for some of the new use cases I\u0027m pursuing (clip and op storage). The new tessellating path renderer will likely be able to use it and related types to replace GrSTArenaList and the CCPR uses may go away when tessellation supersedes it. GrTBlockLinkedList\u0027s use in the shader building is total overkill and ought to be simplified to a std::vector.\n\nSee https://docs.google.com/document/d/1wznNz9LxI0T3btezQpgSdbfJg_S-JSJFxDjcuaT1Uos/edit?usp\u003dsharing for more details on how this type can be used in the future.",
       "parentUuid": "1c02ce08_398e1bf5",
+      "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca388f3b_03bf2ff1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-22T18:43:32Z",
+      "side": 1,
+      "message": "+1!",
+      "parentUuid": "65e83547_116c73e2",
+      "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5b5fca6_35e55f24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-22T18:43:32Z",
+      "side": 1,
+      "message": "Not very. The stroker one is going to disappear once we replace the backend with tessellation, and the AtlasStack one could be a vector. If we are generating multiple atlases, a vector grow operation is not the bottleneck.",
+      "parentUuid": "1c02ce08_398e1bf5",
+      "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "136c5230_3385334b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-22T18:43:32Z",
+      "side": 1,
+      "message": "Ugh! I just realized I typed comments for this and never submitted. I need to stop doing that.",
       "revId": "56ae1b7d2abfb24f589215ec40993096d487d39b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
