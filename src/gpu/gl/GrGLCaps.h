@@ -399,8 +399,8 @@ public:
     bool neverDisableColorWrites() const { return fNeverDisableColorWrites; }
 
     // Texture parameters must be used to enable MIP mapping even when a sampler object is used.
-    bool mustSetTexParameterMinFilterToEnableMipmapping() const {
-        return fMustSetTexParameterMinFilterToEnableMipmapping;
+    bool mustSetAnyTexParameterToEnableMipmapping() const {
+        return fMustSetAnyTexParameterToEnableMipmapping;
     }
 
     // Returns the observed maximum number of instances the driver can handle in a single draw call
@@ -556,7 +556,7 @@ private:
     bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
     bool fDontSetBaseOrMaxLevelForExternalTextures : 1;
     bool fNeverDisableColorWrites : 1;
-    bool fMustSetTexParameterMinFilterToEnableMipmapping : 1;
+    bool fMustSetAnyTexParameterToEnableMipmapping : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
