@@ -10,8 +10,7 @@
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkSamplerYcbcrConversion.h"
 
-static inline VkSamplerAddressMode wrap_mode_to_vk_sampler_address(
-        GrSamplerState::WrapMode wrapMode) {
+static VkSamplerAddressMode wrap_mode_to_vk_sampler_address(GrSamplerState::WrapMode wrapMode) {
     switch (wrapMode) {
         case GrSamplerState::WrapMode::kClamp:
             return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
@@ -22,7 +21,16 @@ static inline VkSamplerAddressMode wrap_mode_to_vk_sampler_address(
         case GrSamplerState::WrapMode::kClampToBorder:
             return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
     }
-    SK_ABORT("Unknown wrap mode.");
+    SkUNREACHABLE;
+}
+
+static VkSamplerMipmapMode mipmap_mode_to_vk_sampler_mipmap_mode(GrSamplerState::MipmapMode mm) {
+    switch (mm) {
+        // There is no disable mode. We use max level to disable mip mapping.
+        case GrSamplerState::MipmapMode::kNone:   return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        case GrSamplerState::MipmapMode::kLinear: return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    }
+    SkUNREACHABLE;
 }
 
 GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu, GrSamplerState samplerState,
@@ -45,7 +53,7 @@ GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu, GrSamplerState samplerState,
     createInfo.flags = 0;
     createInfo.magFilter = vkMagFilterModes[static_cast<int>(samplerState.filter())];
     createInfo.minFilter = vkMinFilterModes[static_cast<int>(samplerState.filter())];
-    createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    createInfo.mipmapMode = mipmap_mode_to_vk_sampler_mipmap_mode(samplerState.mipmapMode());
     createInfo.addressModeU = wrap_mode_to_vk_sampler_address(samplerState.wrapModeX());
     createInfo.addressModeV = wrap_mode_to_vk_sampler_address(samplerState.wrapModeY());
     createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE; // Shouldn't matter
@@ -60,7 +68,7 @@ GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu, GrSamplerState samplerState,
     // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
     // the minFilter on mip level 0.
     createInfo.minLod = 0.0f;
-    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter();
+    bool useMipMaps = samplerState.mipmapped() == GrMipmapped::kYes;
     createInfo.maxLod = !useMipMaps ? 0.0f : 10000.0f;
     createInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     createInfo.unnormalizedCoordinates = VK_FALSE;

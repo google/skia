@@ -798,6 +798,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip* clip,
                                              SkAlphaType srcAlphaType,
                                              sk_sp<GrColorSpaceXform> textureXform,
                                              GrSamplerState::Filter filter,
+                                             GrSamplerState::MipmapMode mm,
                                              const SkPMColor4f& color,
                                              SkBlendMode blendMode,
                                              GrAA aa,
@@ -827,7 +828,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip* clip,
         // quad is sufficiently inside the subset and the constraint could be dropped.
         this->addDrawOp(finalClip,
                         GrTextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
-                                          std::move(textureXform), filter, color, saturate,
+                                          std::move(textureXform), filter, mm, color, saturate,
                                           blendMode, aaType, quad, subset));
     }
 }
@@ -1007,10 +1008,15 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     fRenderTargetContext->addOp(std::move(op));
 }
 
-void GrRenderTargetContext::drawTextureSet(const GrClip* clip, TextureSetEntry set[],
-                                           int cnt, int proxyRunCnt,
-                                           GrSamplerState::Filter filter, SkBlendMode mode,
-                                           GrAA aa, SkCanvas::SrcRectConstraint constraint,
+void GrRenderTargetContext::drawTextureSet(const GrClip* clip,
+                                           TextureSetEntry set[],
+                                           int cnt,
+                                           int proxyRunCnt,
+                                           GrSamplerState::Filter filter,
+                                           GrSamplerState::MipmapMode mm,
+                                           SkBlendMode mode,
+                                           GrAA aa,
+                                           SkCanvas::SrcRectConstraint constraint,
                                            const SkMatrix& viewMatrix,
                                            sk_sp<GrColorSpaceXform> texXform) {
     ASSERT_SINGLE_OWNER
@@ -1025,7 +1031,7 @@ void GrRenderTargetContext::drawTextureSet(const GrClip* clip, TextureSetEntry s
     auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
     auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                       : GrTextureOp::Saturate::kNo;
-    GrTextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, proxyRunCnt, filter, saturate,
+    GrTextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, proxyRunCnt, filter, mm, saturate,
                                   mode, aaType, constraint, viewMatrix, std::move(texXform));
 }
 

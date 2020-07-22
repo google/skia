@@ -575,12 +575,20 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(const SkImageInfo& info,
                 callback(context, nullptr);
                 return;
             }
-            tempRTC->drawTexture(nullptr, std::move(texProxyView), this->colorInfo().alphaType(),
-                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
-                                 SK_PMColor4fWHITE, srcRectToDraw,
-                                 SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
-                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(), std::move(xform));
+            tempRTC->drawTexture(nullptr,
+                                 std::move(texProxyView),
+                                 this->colorInfo().alphaType(),
+                                 GrSamplerState::Filter::kNearest,
+                                 GrSamplerState::MipmapMode::kNone,
+                                 SkBlendMode::kSrc,
+                                 SK_PMColor4fWHITE,
+                                 srcRectToDraw,
+                                 SkRect::MakeWH(srcRect.width(), srcRect.height()),
+                                 GrAA::kNo,
+                                 GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(),
+                                 std::move(xform));
             x = y = 0;
         }
     }
@@ -799,11 +807,20 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorS
                 callback(context, nullptr);
                 return;
             }
-            tempRTC->drawTexture(nullptr, std::move(srcView), this->colorInfo().alphaType(),
-                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
-                                 SK_PMColor4fWHITE, srcRectToDraw, SkRect::Make(srcRect.size()),
-                                 GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(), std::move(xform));
+            tempRTC->drawTexture(nullptr,
+                                 std::move(srcView),
+                                 this->colorInfo().alphaType(),
+                                 GrSamplerState::Filter::kNearest,
+                                 GrSamplerState::MipmapMode::kNone,
+                                 SkBlendMode::kSrc,
+                                 SK_PMColor4fWHITE,
+                                 srcRectToDraw,
+                                 SkRect::Make(srcRect.size()),
+                                 GrAA::kNo,
+                                 GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(),
+                                 std::move(xform));
             srcView = tempRTC->readSurfaceView();
             SkASSERT(srcView.asTextureProxy());
             x = y = 0;
@@ -1058,11 +1075,20 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
             return nullptr;
         }
         // 1-to-1 draw can always be kFast.
-        linearRTC->drawTexture(nullptr, std::move(texView), srcAlphaType,
-                               GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
-                               SK_PMColor4fWHITE, SkRect::Make(srcRect),
-                               SkRect::Make(srcRect.size()), GrAA::kNo, GrQuadAAFlags::kNone,
-                               SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), std::move(xform));
+        linearRTC->drawTexture(nullptr,
+                               std::move(texView),
+                               srcAlphaType,
+                               GrSamplerState::Filter::kNearest,
+                               GrSamplerState::MipmapMode::kNone,
+                               SkBlendMode::kSrc,
+                               SK_PMColor4fWHITE,
+                               SkRect::Make(srcRect),
+                               SkRect::Make(srcRect.size()),
+                               GrAA::kNo,
+                               GrQuadAAFlags::kNone,
+                               SkCanvas::kFast_SrcRectConstraint,
+                               SkMatrix::I(),
+                               std::move(xform));
         texView = linearRTC->readSurfaceView();
         SkASSERT(texView.asTextureProxy());
         tempA = std::move(linearRTC);
@@ -1135,9 +1161,20 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
             if (nextDims.width() <= srcRect.width() && nextDims.height() <= srcRect.height()) {
                 constraint = SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint;
             }
-            tempB->drawTexture(nullptr, std::move(texView), srcAlphaType, filter, SkBlendMode::kSrc,
-                               SK_PMColor4fWHITE, SkRect::Make(srcRect), dstRect, GrAA::kNo,
-                               GrQuadAAFlags::kNone, constraint, SkMatrix::I(), std::move(xform));
+            tempB->drawTexture(nullptr,
+                               std::move(texView),
+                               srcAlphaType,
+                               filter,
+                               GrSamplerState::MipmapMode::kNone,
+                               SkBlendMode::kSrc,
+                               SK_PMColor4fWHITE,
+                               SkRect::Make(srcRect),
+                               dstRect,
+                               GrAA::kNo,
+                               GrQuadAAFlags::kNone,
+                               constraint,
+                               SkMatrix::I(),
+                               std::move(xform));
         }
         texView = tempB->readSurfaceView();
         tempA = std::move(tempB);

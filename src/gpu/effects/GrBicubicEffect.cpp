@@ -329,25 +329,3 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
     }
 }
 #endif
-
-//////////////////////////////////////////////////////////////////////////////
-
-bool GrBicubicEffect::ShouldUseBicubic(const SkMatrix& matrix, GrSamplerState::Filter* filterMode) {
-    switch (SkMatrixPriv::AdjustHighQualityFilterLevel(matrix)) {
-        case kNone_SkFilterQuality:
-            *filterMode = GrSamplerState::Filter::kNearest;
-            break;
-        case kLow_SkFilterQuality:
-            *filterMode = GrSamplerState::Filter::kLinear;
-            break;
-        case kMedium_SkFilterQuality:
-            *filterMode = GrSamplerState::Filter::kMipMap;
-            break;
-        case kHigh_SkFilterQuality:
-            // When we use the bicubic filtering effect each sample is read from the texture using
-            // nearest neighbor sampling.
-            *filterMode = GrSamplerState::Filter::kNearest;
-            return true;
-    }
-    return false;
-}

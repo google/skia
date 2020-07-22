@@ -302,16 +302,17 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // below we check the matrix scale factors to determine how to interpret the filter
     // quality setting. This completely ignores the complexity of the drawVertices case
     // where explicit local coords are provided by the caller.
-    bool doBicubic;
-    GrSamplerState::Filter fm = GrSkFilterQualityToGrFilterMode(
-            fImage->width(), fImage->height(), this->resolveFiltering(args.fFilterQuality),
-            args.fMatrixProvider.localToDevice(), *lm,
-            args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
+    bool sharpen = args.fContext->priv().options().fSharpenMipmappedTextures;
+    auto [fm, mm, bicubic] = GrInterpretFilterQuality(fImage->dimensions(),
+                                                      this->resolveFiltering(args.fFilterQuality),
+                                                      args.fMatrixProvider.localToDevice(),
+                                                      *lm,
+                                                      sharpen);
     std::unique_ptr<GrFragmentProcessor> fp;
-    if (doBicubic) {
+    if (bicubic) {
         fp = producer->createBicubicFragmentProcessor(lmInverse, nullptr, nullptr, wmX, wmY);
     } else {
-        fp = producer->createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm});
+        fp = producer->createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm, mm});
     }
     if (fp) {
         fp = GrXfermodeFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);

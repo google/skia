@@ -349,19 +349,42 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest, reporter, ctxInfo)
 
 // Create a new render target and draw 'mipmapView' into it using the provided 'filter'.
 static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target(
-        GrRecordingContext* context, GrProxyProvider* proxyProvider, GrColorType colorType,
-        SkAlphaType alphaType, GrSurfaceProxyView mipmapView, GrSamplerState::Filter filter) {
-    sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
-            mipmapView.proxy()->backendFormat(), {1, 1}, GrRenderable::kYes, 1, GrMipmapped::kNo,
-            SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+        GrRecordingContext* context,
+        GrProxyProvider* proxyProvider,
+        GrColorType colorType,
+        SkAlphaType alphaType,
+        GrSurfaceProxyView mipmapView,
+        GrSamplerState::MipmapMode mm) {
+    sk_sp<GrSurfaceProxy> renderTarget =
+            proxyProvider->createProxy(mipmapView.proxy()->backendFormat(),
+                                       {1, 1},
+                                       GrRenderable::kYes,
+                                       1,
+                                       GrMipmapped::kNo,
+                                       SkBackingFit::kApprox,
+                                       SkBudgeted::kYes,
+                                       GrProtected::kNo);
 
-    auto rtc = GrRenderTargetContext::Make(
-            context, colorType, nullptr, std::move(renderTarget), kTopLeft_GrSurfaceOrigin,
-            nullptr);
+    auto rtc = GrRenderTargetContext::Make(context,
+                                           colorType,
+                                           nullptr,
+                                           std::move(renderTarget),
+                                           kTopLeft_GrSurfaceOrigin,
+                                           nullptr);
 
-    rtc->drawTexture(nullptr, std::move(mipmapView), alphaType, filter, SkBlendMode::kSrcOver,
-                     {1,1,1,1}, SkRect::MakeWH(4, 4), SkRect::MakeWH(1,1), GrAA::kYes,
-                     GrQuadAAFlags::kAll, SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
+    rtc->drawTexture(nullptr,
+                     std::move(mipmapView),
+                     alphaType,
+                     GrSamplerState::Filter::kLinear,
+                     mm,
+                     SkBlendMode::kSrcOver,
+                     {1, 1, 1, 1},
+                     SkRect::MakeWH(4, 4),
+                     SkRect::MakeWH(1, 1),
+                     GrAA::kYes,
+                     GrQuadAAFlags::kAll,
+                     SkCanvas::kFast_SrcRectConstraint,
+                     SkMatrix::I(),
                      nullptr);
     return rtc;
 }
@@ -369,7 +392,7 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
 // Test that two opsTasks using the same mipmaps both depend on the same GrTextureResolveRenderTask.
 DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
     using Enable = GrContextOptions::Enable;
-    using Filter = GrSamplerState::Filter;
+    using MipmapMode = GrSamplerState::MipmapMode;
 
     for (auto enableSortingAndReduction : {Enable::kYes, Enable::kNo}) {
         GrMockOptions mockOptions;
@@ -421,7 +444,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
 
         // Draw the dirty mipmap texture into a render target.
         auto rtc1 = draw_mipmap_into_new_render_target(context.get(), proxyProvider, colorType,
-                                                       alphaType, mipmapView, Filter::kMipMap);
+                                                       alphaType, mipmapView, MipmapMode::kLinear);
         auto rtc1Task = sk_ref_sp(rtc1->testingOnly_PeekLastOpsTask());
 
         // Mipmaps should have gotten marked dirty during makeClosed, then marked clean again as
@@ -436,7 +459,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
 
         // Draw the now-clean mipmap texture into a second target.
         auto rtc2 = draw_mipmap_into_new_render_target(context.get(), proxyProvider, colorType,
-                                                       alphaType, mipmapView, Filter::kMipMap);
+                                                       alphaType, mipmapView, MipmapMode::kLinear);
         auto rtc2Task = sk_ref_sp(rtc2->testingOnly_PeekLastOpsTask());
 
         // Make sure the mipmap texture still has the same regen task.
@@ -465,7 +488,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
 
         // Draw the dirty mipmap texture into a render target, but don't do mipmap filtering.
         rtc1 = draw_mipmap_into_new_render_target(context.get(), proxyProvider, colorType,
-                                                  alphaType, mipmapView, Filter::kLinear);
+                                                  alphaType, mipmapView, MipmapMode::kNone);
 
         // Mipmaps should have gotten marked dirty during makeClosed() when adding the dependency.
         // Since the last draw did not use mips, they will not have been regenerated and should
@@ -479,7 +502,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         // Draw the stil-dirty mipmap texture into a second target with mipmap filtering.
         rtc2 = draw_mipmap_into_new_render_target(context.get(), proxyProvider, colorType,
                                                   alphaType, std::move(mipmapView),
-                                                  Filter::kMipMap);
+                                                  MipmapMode::kLinear);
         rtc2Task = sk_ref_sp(rtc2->testingOnly_PeekLastOpsTask());
 
         // Make sure the mipmap texture now has a new last render task that regenerates the mips,

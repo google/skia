@@ -116,7 +116,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
             }
         }
         if (subset) {
-            SkASSERT(samplerState.filter() != GrSamplerState::Filter::kMipMap);
+            SkASSERT(samplerState.mipmapped() == GrMipmapped::kNo);
             if (makeLinearWithSnap) {
                 // The plane is subsampled and we have an overall subset on the image. We're
                 // emulating do_fancy_upsampling using linear filtering but snapping look ups to the
@@ -137,7 +137,6 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(GrSurfaceProxyView v
                                                           *planeMatrix, samplerState, planeSubset,
                                                           planeDomain, caps, planeBorders[i]);
             } else {
-                SkASSERT(samplerState.filter() != GrSamplerState::Filter::kMipMap);
                 planeFPs[i] = GrTextureEffect::MakeSubset(views[i], kUnknown_SkAlphaType,
                                                           *planeMatrix, samplerState, planeSubset,
                                                           caps, planeBorders[i]);

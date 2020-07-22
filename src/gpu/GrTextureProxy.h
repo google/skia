@@ -58,9 +58,6 @@ public:
         return GrTextureTypeHasRestrictedSampling(this->textureType());
     }
 
-    // Returns the highest allowed filter mode for a given texture type
-    static GrSamplerState::Filter HighestFilterMode(const GrTextureType textureType);
-
     // Returns true if the passed in proxies can be used as dynamic state together when flushing
     // draws to the gpu. This accepts GrSurfaceProxy since the information needed is defined on
     // that type, but this function exists in GrTextureProxy because it's only relevant when the

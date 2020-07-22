@@ -575,11 +575,20 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(
                         backendFormat, GrColorType::kRGBA_8888);
                 GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, readSwizzle);
-                rtc->drawTexture(nullptr, view, kPremul_SkAlphaType,
-                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
-                                 SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
-                                 GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(), nullptr);
+                rtc->drawTexture(nullptr,
+                                 view,
+                                 kPremul_SkAlphaType,
+                                 GrSamplerState::Filter::kNearest,
+                                 GrSamplerState::MipmapMode::kNone,
+                                 SkBlendMode::kSrcOver,
+                                 SkPMColor4f(),
+                                 SkRect::MakeWH(w, h),
+                                 SkRect::MakeWH(w, h),
+                                 GrAA::kNo,
+                                 GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(),
+                                 nullptr);
                 // We still have the proxy, which should remain instantiated, thereby keeping the
                 // texture not purgeable.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
@@ -589,11 +598,20 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
 
                 // This time we move the proxy into the draw.
-                rtc->drawTexture(nullptr, std::move(view), kPremul_SkAlphaType,
-                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
-                                 SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
-                                 GrAA::kNo, GrQuadAAFlags::kNone,
-                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
+                rtc->drawTexture(nullptr,
+                                 std::move(view),
+                                 kPremul_SkAlphaType,
+                                 GrSamplerState::Filter::kNearest,
+                                 GrSamplerState::MipmapMode::kNone,
+                                 SkBlendMode::kSrcOver,
+                                 SkPMColor4f(),
+                                 SkRect::MakeWH(w, h),
+                                 SkRect::MakeWH(w, h),
+                                 GrAA::kNo,
+                                 GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(),
+                                 nullptr);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
                 dContext->flushAndSubmit();
                 dContext->priv().getGpu()->testingOnly_flushGpuAndSync();
@@ -640,12 +658,20 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                     proxy->backendFormat(), GrColorType::kRGBA_8888);
                             GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin,
                                                     swizzle);
-                            rtc->drawTexture(
-                                    nullptr, std::move(view), kPremul_SkAlphaType,
-                                    GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
-                                    SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
-                                    GrAA::kNo, GrQuadAAFlags::kNone,
-                                    SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
+                            rtc->drawTexture(nullptr,
+                                             std::move(view),
+                                             kPremul_SkAlphaType,
+                                             GrSamplerState::Filter::kNearest,
+                                             GrSamplerState::MipmapMode::kNone,
+                                             SkBlendMode::kSrcOver,
+                                             SkPMColor4f(),
+                                             SkRect::MakeWH(w, h),
+                                             SkRect::MakeWH(w, h),
+                                             GrAA::kNo,
+                                             GrQuadAAFlags::kNone,
+                                             SkCanvas::kFast_SrcRectConstraint,
+                                             SkMatrix::I(),
+                                             nullptr);
                             if (drawType == DrawType::kDrawAndFlush) {
                                 dContext->flushAndSubmit();
                             }
