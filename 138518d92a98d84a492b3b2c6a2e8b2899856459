@@ -22,6 +22,64 @@
       "revId": "138518d92a98d84a492b3b2c6a2e8b2899856459",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a94c524b_0f32255e",
+        "filename": "bench/SKPAnimationBench.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T01:11:15Z",
+      "side": 0,
+      "message": "This sgtm.  Even without context, it feels silly to have to write virtual ~Foo() {} or ~Foo() override {} as if it were somehow meaningful.",
+      "parentUuid": "7683db5e_38d60035",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 31
+      },
+      "revId": "138518d92a98d84a492b3b2c6a2e8b2899856459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13cd52be_6a6d6c35",
+        "filename": "modules/skottie/src/layers/PrecompLayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T01:11:15Z",
+      "side": 0,
+      "message": "Nice find, warning justified.",
+      "revId": "138518d92a98d84a492b3b2c6a2e8b2899856459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c33b99a_a85278d0",
+        "filename": "src/gpu/gl/GrGLProgram.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T01:11:15Z",
+      "side": 0,
+      "message": "Ditto.",
+      "revId": "138518d92a98d84a492b3b2c6a2e8b2899856459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

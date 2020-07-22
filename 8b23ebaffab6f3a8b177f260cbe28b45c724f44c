@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "317b3d11_9a257e65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T01:11:15Z",
+      "side": 1,
+      "message": "and I was just getting used to there being a Clang 11...",
+      "revId": "8b23ebaffab6f3a8b177f260cbe28b45c724f44c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
