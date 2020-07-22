@@ -9,7 +9,7 @@
 #define GrCCAtlas_DEFINED
 
 #include "src/gpu/GrDynamicAtlas.h"
-#include "src/gpu/GrTAllocator.h"
+#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
 
 class GrCCCachedAtlas;
@@ -108,7 +108,7 @@ private:
 class GrCCAtlasStack {
 public:
     using CoverageType = GrCCAtlas::CoverageType;
-    using CCAtlasAllocator = GrTAllocator<GrCCAtlas, 4>;
+    using CCAtlasAllocator = GrTBlockList<GrCCAtlas, 4>;
 
     GrCCAtlasStack(CoverageType coverageType, const GrCCAtlas::Specs& specs, const GrCaps* caps)
             : fCoverageType(coverageType), fSpecs(specs), fCaps(caps) {}

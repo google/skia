@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrTAllocator.h"
 #include "src/gpu/gl/GrGLContext.h"
 #include "src/sksl/SkSLGLSLCodeGenerator.h"
 

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTAllocator_DEFINED
-#define GrTAllocator_DEFINED
+#ifndef GrTBlockList_DEFINED
+#define GrTBlockList_DEFINED
 
 #include "src/gpu/GrBlockAllocator.h"
 
 #include <type_traits>
 
-// Forward declarations for the iterators used by GrTAllocator
+// Forward declarations for the iterators used by GrTBlockList
 using IndexFn = int (*)(const GrBlockAllocator::Block*);
 using NextFn = int (*)(const GrBlockAllocator::Block*, int);
 template<typename T, typename B> using ItemFn = T (*)(B*, int);
@@ -22,28 +22,48 @@ template <typename T, bool Forward, bool Const, IndexFn Start, IndexFn End, Next
 class BlockIndexIterator;
 
 /**
- * GrTAllocator manages dynamic storage for instances of T, reserving fixed blocks such that
- * allocation is amortized across every N instances. The optional StartingItems argument specifies
- * how many instances can be stored inline with the GrTAllocator.
+ * GrTBlockList manages dynamic storage for instances of T, reserving fixed blocks such that
+ * allocation is amortized across every N instances. In this way it is a hybrid of an array-based
+ * vector and a linked-list. T can be any type and non-trivial destructors are automatically
+ * invoked when the GrTBlockList is destructed. The addresses of instances are guaranteed
+ * not to move except when a list is concatenated to another.
+ *
+ * The collection supports storing a templated number of elements inline before heap-allocated
+ * blocks are made to hold additional instances. By default, the heap blocks are sized to hold the
+ * same number of items as the inline block. A common pattern is to have the inline size hold only
+ * a small number of items for the common case and then allocate larger blocks when needed.
+ *
+ * If the size of a collection is N, and its block size is B, the complexity of the common
+ * operations are:
+ *  - push_back()/emplace_back(): O(1), with malloc O(B)
+ *  - pop_back(): O(1), with free O(B)
+ *  - front()/back(): O(1)
+ *  - reset(): O(N) for non-trivial types, O(N/B) for trivial types
+ *  - concat(): O(B)
+ *  - random access: O(N/B)
+ *  - iteration: O(1) at each step
+ *
+ * These characteristics make it well suited for allocating items in a LIFO ordering, or otherwise
+ * acting as a stack, or simply using it as a typed allocator.
  */
 template <typename T, int StartingItems = 1>
-class GrTAllocator {
+class GrTBlockList {
 public:
     /**
      * Create an allocator that defaults to using StartingItems as heap increment.
      */
-    GrTAllocator() : GrTAllocator(StartingItems) {}
+    GrTBlockList() : GrTBlockList(StartingItems) {}
 
     /**
      * Create an allocator
      *
      * @param   itemsPerBlock   the number of items to allocate at once
      */
-    explicit GrTAllocator(int itemsPerBlock)
+    explicit GrTBlockList(int itemsPerBlock)
             : fAllocator(GrBlockAllocator::GrowthPolicy::kFixed,
                          GrBlockAllocator::BlockOverhead<alignof(T)>() + sizeof(T)*itemsPerBlock) {}
 
-    ~GrTAllocator() { this->reset(); }
+    ~GrTBlockList() { this->reset(); }
 
     /**
      * Adds an item and returns it.
@@ -72,7 +92,7 @@ public:
      * this is O(StartingItems) and not O(N). All other items are concatenated in O(1).
      */
     template <int SI>
-    void concat(GrTAllocator<T, SI>&& other);
+    void concat(GrTBlockList<T, SI>&& other);
 
     /**
      * Allocate, if needed, space to hold N more Ts before another malloc will occur.
@@ -198,13 +218,13 @@ public:
         SkUNREACHABLE;
     }
     const T& item(int i) const {
-        return const_cast<GrTAllocator*>(this)->item(i);
+        return const_cast<GrTBlockList*>(this)->item(i);
     }
 
 private:
-    // Let other GrTAllocators have access (only ever used when T and S are the same but you cannot
-    // have partial specializations declared as a friend...)
-    template<typename S, int N> friend class GrTAllocator;
+    // Let other GrTBlockLists have access (only ever used when T and S are the same but you
+    // cannot have partial specializations declared as a friend...)
+    template<typename S, int N> friend class GrTBlockList;
 
     static constexpr size_t StartingSize =
             GrBlockAllocator::Overhead<alignof(T)>() + StartingItems * sizeof(T);
@@ -271,7 +291,7 @@ public:
 
 template <typename T, int SI1>
 template <int SI2>
-void GrTAllocator<T, SI1>::concat(GrTAllocator<T, SI2>&& other) {
+void GrTBlockList<T, SI1>::concat(GrTBlockList<T, SI2>&& other) {
     // Manually move all items in other's head block into this list; all heap blocks from 'other'
     // will be appended to the block linked list (no per-item moves needed then).
     int headItemCount = 0;
