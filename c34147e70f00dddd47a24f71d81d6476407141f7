@@ -201,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "f8fee1bc_1656b8c0",
+        "filename": "include/utils/SkBicubicFilterCoefficients.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-22T15:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97b16b64_16cfb963",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 0
+      },
+      "revId": "c34147e70f00dddd47a24f71d81d6476407141f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b950b979_089faed5",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 13
