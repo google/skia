@@ -16,6 +16,69 @@
       "revId": "cf8e10dcb51a78e88bfe04067634316b001e8580",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94f1daba_42b284a7",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T20:01:44Z",
+      "side": 1,
+      "message": "we can probably immediately follow up with\n\nauto [B,C] \u003d fCubic;\nif (fFilterEnum \u003d\u003d kInheritFromPaint) {\n    B \u003d C \u003d 1/3.0f;  // Legacy effects hardcoded Mitchell-Netravali.\n}",
+      "range": {
+        "startLine": 1045,
+        "startChar": 12,
+        "endLine": 1059,
+        "endChar": 13
+      },
+      "revId": "cf8e10dcb51a78e88bfe04067634316b001e8580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "613225be_8de1848a",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1494,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T20:01:44Z",
+      "side": 1,
+      "message": "let\u0027s ditch all the dump/debugf?",
+      "range": {
+        "startLine": 1491,
+        "startChar": 0,
+        "endLine": 1494,
+        "endChar": 23
+      },
+      "revId": "cf8e10dcb51a78e88bfe04067634316b001e8580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3c271ea_0b3a1f5d",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1501,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-22T20:01:44Z",
+      "side": 1,
+      "message": "REPORTER_ASSERT(reporter, d \u003c\u003d tolerance) ?",
+      "revId": "cf8e10dcb51a78e88bfe04067634316b001e8580",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
