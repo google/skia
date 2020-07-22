@@ -79,6 +79,7 @@ public:
     // V76: Add filtering enum to ImageShader
     // V77: Explicit filtering options on imageshaders
     // V78: Serialize skmipmap data for images that have it
+    // V79: Cubic Resampler option on imageshader
 
     enum Version {
         kMorphologyTakesScalar_Version      = 74,
@@ -86,10 +87,11 @@ public:
         kFilterEnumInImageShader_Version    = 76,
         kFilterOptionsInImageShader_Version = 77,
         kSerializeMipmaps_Version           = 78,
+        kCubicResamplerImageShader_Version  = 79,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kMorphologyTakesScalar_Version,
-        kCurrent_Version = kSerializeMipmaps_Version
+        kCurrent_Version = kCubicResamplerImageShader_Version
     };
 };
 

@@ -6,23 +6,42 @@
  */
 
 #include "gm/gm.h"
-#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
 
-DEF_SIMPLE_GM(bicubic, canvas, 300, 64) {
+DEF_SIMPLE_GM(bicubic, canvas, 300, 320) {
     canvas->clear(SK_ColorBLACK);
 
-    SkBitmap bmp;
-    bmp.allocN32Pixels(8, 1);
-    bmp.eraseColor(0);
-    *bmp.getAddr32(3, 0) = 0xFFFFFFFF;
+    auto make_img = []() {
+        auto surf = SkSurface::MakeRasterN32Premul(7, 7);
+        surf->getCanvas()->drawColor(SK_ColorBLACK);
 
+        SkPaint paint;
+        paint.setColor(SK_ColorWHITE);
+        surf->getCanvas()->drawLine(3.5f, 0, 3.5f, 8, paint);
+        return surf->makeImageSnapshot();
+    };
+
+    auto img = make_img();
+
+    canvas->scale(40, 8);
+    for (auto q : {kNone_SkFilterQuality, kLow_SkFilterQuality, kHigh_SkFilterQuality}) {
+        SkPaint p;
+        p.setFilterQuality(q);
+        canvas->drawImage(img, 0, 0, &p);
+        canvas->translate(0, img->height() + 1.0f);
+    }
+
+    const SkRect r = SkRect::MakeIWH(img->width(), img->height());
     SkPaint paint;
-    paint.setFilterQuality(kHigh_SkFilterQuality);
 
-    for (int i = 0; i < 64; ++i) {
-        float x = 1.0f + i/63.0f;
-        float y = i;
-        canvas->drawBitmapRect(bmp, SkRect::MakeXYWH(x, y, 512, 1), &paint);
+    SkImage::CubicResampler cubics[] = {
+        {      0, 1.0f/2 },
+        { 1.0f/3, 1.0f/3 },
+    };
+    for (auto c : cubics) {
+        paint.setShader(img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, c));
+        canvas->drawRect(r, paint);
+        canvas->translate(0, img->height() + 1.0f);
     }
 }
