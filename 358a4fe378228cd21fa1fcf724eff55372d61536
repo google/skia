@@ -16,6 +16,23 @@
       "revId": "358a4fe378228cd21fa1fcf724eff55372d61536",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67e70518_2568877c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-22T17:17:25Z",
+      "side": 1,
+      "message": "Deferring to Robert for final look",
+      "revId": "358a4fe378228cd21fa1fcf724eff55372d61536",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
