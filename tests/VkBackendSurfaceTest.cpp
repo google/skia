@@ -32,10 +32,10 @@
 #include "src/image/SkSurface_Gpu.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     GrBackendTexture backendTex;
-    CreateBackendTexture(context, &backendTex, 1, 1, kRGBA_8888_SkColorType, SkColors::kTransparent,
+    CreateBackendTexture(dContext, &backendTex, 1, 1, kRGBA_8888_SkColorType, SkColors::kTransparent,
                          GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
@@ -60,13 +60,13 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     // Setting back the layout since we didn't actually change it
     backendTex.setVkImageLayout(initLayout);
 
-    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(context, backendTex,
+    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(dContext, backendTex,
                                                            kTopLeft_GrSurfaceOrigin,
                                                            kRGBA_8888_SkColorType,
                                                            kPremul_SkAlphaType, nullptr);
     REPORTER_ASSERT(reporter, wrappedImage.get());
 
-    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(context);
+    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(dContext);
     REPORTER_ASSERT(reporter, view);
     REPORTER_ASSERT(reporter, view->proxy()->isInstantiated());
     GrTexture* texture = view->proxy()->peekTexture();
@@ -120,7 +120,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, invalidTexture.isValid());
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, invalidTexture));
 
-    context->deleteBackendTexture(backendTex);
+    dContext->deleteBackendTexture(backendTex);
 }
 
 // This test is disabled because it executes illegal vulkan calls which cause the validations layers
@@ -129,14 +129,14 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
 #if 0
 // Test to make sure we transition from the EXTERNAL queue even when no layout transition is needed.
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->priv().getGpu();
+    auto dContext = ctxInfo.directContext();
+    GrGpu* gpu = dContext->priv().getGpu();
     GrVkGpu* vkGpu = static_cast<GrVkGpu*>(gpu);
     if (!vkGpu->vkCaps().supportsExternalMemory()) {
         return;
     }
 
-    GrBackendTexture backendTex = context->createBackendTexture(
+    GrBackendTexture backendTex = dContext->createBackendTexture(
             1, 1, kRGBA_8888_SkColorType,
             SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo);
     sk_sp<SkImage> image;
@@ -151,7 +151,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo)
 
     GrBackendTexture vkExtTex(1, 1, vkInfo);
     REPORTER_ASSERT(reporter, vkExtTex.isValid());
-    image = SkImage::MakeFromTexture(context, vkExtTex, kTopLeft_GrSurfaceOrigin,
+    image = SkImage::MakeFromTexture(dContext, vkExtTex, kTopLeft_GrSurfaceOrigin,
                                      kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, nullptr,
                                      nullptr);
 
@@ -176,7 +176,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo)
 
     image.reset();
     gpu->testingOnly_flushGpuAndSync();
-    context->deleteBackendTexture(backendTex);
+    dContext->deleteBackendTexture(backendTex);
 }
 #endif
 
