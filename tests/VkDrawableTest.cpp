@@ -32,10 +32,11 @@ static const int DEV_W = 16, DEV_H = 16;
 
 class TestDrawable : public SkDrawable {
 public:
-    TestDrawable(const GrVkInterface* interface, GrContext* context, int32_t width, int32_t height)
+    TestDrawable(const GrVkInterface* interface, GrDirectContext* dContext,
+                 int32_t width, int32_t height)
             : INHERITED()
             , fInterface(interface)
-            , fContext(context)
+            , fDContext(dContext)
             , fWidth(width)
             , fHeight(height) {}
 
@@ -134,7 +135,8 @@ public:
     // GrContext using a GrVkSecondaryCBDrawContext.
     static void ImportDraw(TestDrawable* td, const SkMatrix& matrix, const SkIRect& clipBounds,
                            const SkImageInfo& bufferInfo, const GrVkDrawableInfo& info) {
-        td->fDrawContext = GrVkSecondaryCBDrawContext::Make(td->fContext, bufferInfo, info, nullptr);
+        td->fDrawContext = GrVkSecondaryCBDrawContext::Make(td->fDContext, bufferInfo,
+                                                            info, nullptr);
         if (!td->fDrawContext) {
             return;
         }
@@ -150,7 +152,7 @@ public:
 
         // Draw to an offscreen target so that we end up with a mix of "real" secondary command
         // buffers and the imported secondary command buffer.
-        sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(td->fContext, SkBudgeted::kYes,
+        sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(td->fDContext, SkBudgeted::kYes,
                                                             bufferInfo);
         surf->getCanvas()->clear(SK_ColorRED);
 
@@ -168,7 +170,7 @@ public:
         // on before releasing the GrVkSecondaryCBDrawContext resources. To simulate that for this
         // test (and since we are running single threaded anyways), we will just force a sync of
         // the gpu and cpu here.
-        td->fContext->priv().getGpu()->testingOnly_flushGpuAndSync();
+        td->fDContext->priv().getGpu()->testingOnly_flushGpuAndSync();
 
         td->fDrawContext->releaseResources();
         // We release the GrContext here manually to test that we waited long enough before
@@ -177,7 +179,7 @@ public:
         // GrContext's resources earlier (before waiting on the gpu above), we would get vulkan
         // validation layer errors saying we freed some vulkan objects while they were still in use
         // on the GPU.
-        td->fContext->releaseResourcesAndAbandonContext();
+        td->fDContext->releaseResourcesAndAbandonContext();
     }
 
 
@@ -189,7 +191,7 @@ public:
             return nullptr;
         }
         std::unique_ptr<GpuDrawHandler> draw;
-        if (fContext) {
+        if (fDContext) {
             draw.reset(new DrawHandlerImport(this, ImportDraw, ImportSubmitted, matrix,
                                              clipBounds, bufferInfo));
         } else {
@@ -208,7 +210,7 @@ public:
 
 private:
     const GrVkInterface* fInterface;
-    GrContext*           fContext;
+    GrDirectContext*     fDContext;
     sk_sp<GrVkSecondaryCBDrawContext> fDrawContext;
     int32_t              fWidth;
     int32_t              fHeight;
@@ -216,17 +218,19 @@ private:
     typedef SkDrawable INHERITED;
 };
 
-void draw_drawable_test(skiatest::Reporter* reporter, GrContext* context, GrContext* childContext) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+void draw_drawable_test(skiatest::Reporter* reporter,
+                        GrDirectContext* dContext,
+                        GrDirectContext* childDContext) {
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo,
                                                          ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorBLUE);
 
-    sk_sp<TestDrawable> drawable(new TestDrawable(gpu->vkInterface(), childContext, DEV_W, DEV_H));
+    sk_sp<TestDrawable> drawable(new TestDrawable(gpu->vkInterface(), childDContext, DEV_W, DEV_H));
     canvas->drawDrawable(drawable.get());
 
     SkPaint paint;

@@ -587,7 +587,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, c
     test_negative_blur_sigma(reporter, ctxInfo.directContext());
 }
 
-static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter, GrContext* context) {
+static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
+                                                   GrRecordingContext* rContext) {
     // Check that SkMorphologyImageFilter maps the radius correctly when the
     // CTM contains a mirroring transform.
     static const int kWidth = 32, kHeight = 32;
@@ -605,7 +606,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
                     paint);
     sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
     sk_sp<SkSpecialImage> imgSrc(
-            SkSpecialImage::MakeFromImage(context, SkIRect::MakeWH(kWidth, kHeight), image));
+            SkSpecialImage::MakeFromImage(rContext, SkIRect::MakeWH(kWidth, kHeight), image));
 
     SkIPoint offset;
     SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,
