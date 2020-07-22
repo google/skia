@@ -16,6 +16,161 @@
       "revId": "57ed1ebf970b42c767ed1bf6b5416d5387234717",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0d5cabd_6feff91f",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T13:22:44Z",
+      "side": 1,
+      "message": "paint - since this is creating an SkPaint",
+      "range": {
+        "startLine": 45,
+        "startChar": 26,
+        "endLine": 45,
+        "endChar": 31
+      },
+      "revId": "57ed1ebf970b42c767ed1bf6b5416d5387234717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e13d47bb_4f0d21b6",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T13:22:44Z",
+      "side": 1,
+      "message": "You can also fuzz between this color space and \"SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB)\"",
+      "range": {
+        "startLine": 61,
+        "startChar": 68,
+        "endLine": 61,
+        "endChar": 92
+      },
+      "revId": "57ed1ebf970b42c767ed1bf6b5416d5387234717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2f57722_e3f3fd29",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T13:22:44Z",
+      "side": 1,
+      "message": "Couldn\u0027t create backend texture",
+      "range": {
+        "startLine": 76,
+        "startChar": 18,
+        "endLine": 76,
+        "endChar": 46
+      },
+      "revId": "57ed1ebf970b42c767ed1bf6b5416d5387234717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48361f25_77238827",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T13:22:44Z",
+      "side": 1,
+      "message": "Probably want to make this:\n\nGrProtected protect \u003d GrProtected::kNo;\n#ifdef SK_VULKAN\nfuzz-\u003enextEnum(\u0026protect, GrProtected::kYes);\n#endif\n\nand put it before the above createCharacterization call. That way there will be just one createCharacterization call.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 48
+      },
+      "revId": "57ed1ebf970b42c767ed1bf6b5416d5387234717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d14d9f0_ec46a7c5",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T13:22:44Z",
+      "side": 1,
+      "message": "budgeted",
+      "range": {
+        "startLine": 121,
+        "startChar": 15,
+        "endLine": 121,
+        "endChar": 21
+      },
+      "revId": "57ed1ebf970b42c767ed1bf6b5416d5387234717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c28a5a19_2ca28ee5",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T13:22:44Z",
+      "side": 1,
+      "message": "rm this and replace with:\n\nreturn surface-\u003edraw(std::move(ddl));\n\nthe SkSurface::draw method returns a boolean",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 16
+      },
+      "revId": "57ed1ebf970b42c767ed1bf6b5416d5387234717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe418582_2b762a06",
+        "filename": "fuzz/FuzzCreateDDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-22T13:22:44Z",
+      "side": 1,
+      "message": "SkASSERT(c.isValid());",
+      "revId": "57ed1ebf970b42c767ed1bf6b5416d5387234717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
