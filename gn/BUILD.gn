@@ -441,6 +441,7 @@ config("warnings") {
       "-Wno-old-style-cast",
       "-Wno-padded",
       "-Wno-newline-eof",
+      "-Wno-psabi",
     ]
     cflags_cc += [
       "-Wno-c++98-compat",
