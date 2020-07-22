@@ -1471,3 +1471,32 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     i2->flushAndSubmit(direct);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 }
+
+#include "src/image/SkImage_Base.h"
+#include "include/utils/SkBicubicFilterCoefficients.h"
+
+DEF_TEST(image_cubicresampler, reporter) {
+    auto diff = [](const SkM44& a, const SkM44& b) {
+        a.dump();
+        SkDebugf("\n");
+        b.dump();
+        SkDebugf("\n");
+
+        const float tolerance = 0.000001f;
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                float d = std::abs(a.rc(r, c) - b.rc(r, c));
+                if (d > tolerance) {
+                    SkDebugf("error at [%d,%d]\n", r, c);
+                }
+            }
+        }
+    };
+
+    SkDebugf("Mitchell\n");
+    diff(SkImage_Base::MakeCubicResampler(1.0f/3, 1.0f/3),
+         SkBicubicFilterCoefficients::gMitchellNetravali);
+    SkDebugf("Catmul\n");
+    diff(SkImage_Base::MakeCubicResampler(0, 1.0f/2),
+         SkBicubicFilterCoefficients::gCentripetalCatmulRom);
+}

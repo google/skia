@@ -11,6 +11,7 @@
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
@@ -785,8 +786,19 @@ public:
     */
     bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
 
+    /**
+     *  Make a shader with the specified tiling and mipmap sampling.
+     */
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkFilterOptions&,
                                const SkMatrix* localMatrix = nullptr) const;
+
+    /**
+     *  Make a shader with the specified tiling and 4x4 bicubic coefficients.
+     *
+     *  See SkBicubicFilterCoefficients.h for example matrices.
+     */
+    sk_sp<SkShader> makeBicubicShader(SkTileMode tmx, SkTileMode tmy, const SkM44& weights,
+                                      const SkMatrix* localMatrix = nullptr) const;
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkTileMode rules to fill drawn area outside SkImage. localMatrix permits

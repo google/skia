@@ -140,6 +140,8 @@ public:
         return nullptr;
     }
 
+    static SkM44 MakeCubicResampler(float B, float C);
+
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);
 

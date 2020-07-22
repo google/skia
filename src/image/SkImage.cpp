@@ -142,6 +142,12 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                SkImageShader::FilterEnum(filtering));
 }
 
+sk_sp<SkShader> SkImage::makeBicubicShader(SkTileMode tmx, SkTileMode tmy, const SkM44& weights,
+                                           const SkMatrix* localMatrix) const {
+    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy, weights,
+                               localMatrix);
+}
+
 sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm)) {
@@ -669,4 +675,14 @@ sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> data) const {
         result = sk_ref_sp((const_cast<SkImage*>(this)));
     }
     return result;
+}
+
+SkM44 SkImage_Base::MakeCubicResampler(float B, float C) {
+    const float scale = 1.0f/18;
+    B *= scale;
+    C *= scale;
+    return SkM44(    3*B, -9*B - 18*C,       9*B + 36*C,      -3*B - 18*C,
+                 1 - 6*B,           0, -3 + 36*B + 18*C,  2 - 27*B - 18*C,
+                     3*B,  9*B + 18*C,  3 - 45*B - 36*C, -2 + 27*B + 18*C,
+                       0,           0,            -18*C,       3*B + 18*C);
 }
