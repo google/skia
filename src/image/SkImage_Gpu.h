@@ -27,7 +27,7 @@ public:
                 sk_sp<SkColorSpace>);
     ~SkImage_Gpu() override;
 
-    GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
+    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
     GrTextureProxy* peekProxy() const override {
         return fView.asTextureProxy();

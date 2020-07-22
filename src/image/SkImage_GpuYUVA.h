@@ -34,7 +34,7 @@ public:
                     GrSurfaceOrigin,
                     sk_sp<SkColorSpace>);
 
-    GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
+    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
     // This returns the single backing proxy if the YUV channels have already been flattened but
     // nullptr if they have not.
