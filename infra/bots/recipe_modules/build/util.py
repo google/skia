@@ -29,7 +29,6 @@ DEFAULT_BUILD_PRODUCTS = [
   'lib/*.so',
   'run_testlab',
   'skqp-universal-debug.apk',
-  'whitelist_devices.json',
 ]
 
 # TODO(westont): Use this in docker.py, instead of a copy of it.
