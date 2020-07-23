@@ -16,6 +16,29 @@
       "revId": "3687c76f39ade55177d7db8fd53c3e5f13e87346",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "066b827c_7c5d49f3",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/CorrectnessActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-07-23T18:51:02Z",
+      "side": 1,
+      "message": "Is this the best practice? I think there is more stable ways to do it, but don\u0027t remember how exactly. You could look at Android source code in \"cts\" subfolder for example code on how to capture a screenshot.",
+      "range": {
+        "startLine": 124,
+        "startChar": 16,
+        "endLine": 124,
+        "endChar": 31
+      },
+      "revId": "3687c76f39ade55177d7db8fd53c3e5f13e87346",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
