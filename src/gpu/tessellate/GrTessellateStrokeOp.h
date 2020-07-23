@@ -11,6 +11,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrSTArenaList.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/tessellate/GrStrokeGeometry.h"
 
 // Renders opaque, constant-color strokes by decomposing them into standalone tessellation patches.
 // Each patch is either a "cubic" (single stroked bezier curve with butt caps) or a "join". Requires
@@ -45,8 +46,7 @@ private:
     };
 
     GrSTArenaList<PathStroke> fPathStrokes;
-    int fNumVerbs;
-    int fNumPoints;
+    int fTotalCombinedVerbCnt;
 
     SkPMColor4f fColor;
     const SkMatrix fViewMatrix = SkMatrix::I();
@@ -54,9 +54,8 @@ private:
     float fMiterLimitOrZero = 0;  // Zero if there is not a stroke with a miter join type.
     GrProcessorSet fProcessors;
 
-    sk_sp<const GrBuffer> fVertexBuffer;
-    int fVertexCount = 0;
-    int fBaseVertex;
+    // S=1 because we will almost always fit everything into one single chunk.
+    SkSTArray<1, GrStrokeGeometry::VertexChunk> fVertexChunks;
 
     friend class GrOpMemoryPool;  // For ctor.
 };

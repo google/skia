@@ -11,20 +11,22 @@
 #include "include/private/SkNx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkPathPriv.h"
 
 // This is the maximum distance in pixels that we can stray from the edge of a stroke when
 // converting it to flat line segments.
 static constexpr float kMaxErrorFromLinearization = 1/8.f;
 
+constexpr static float kInternalRoundJoinType = GrTessellateStrokeShader::kInternalRoundJoinType;
+
+static Sk2f lerp(const Sk2f& a, const Sk2f& b, float T) {
+    SkASSERT(1 != T);  // The below does not guarantee lerp(a, b, 1) === b.
+    return (b - a) * T + a;
+}
+
 static inline float length(const Sk2f& n) {
     Sk2f nn = n*n;
     return SkScalarSqrt(nn[0] + nn[1]);
-}
-
-static inline Sk2f normalize(const Sk2f& v) {
-    Sk2f vv = v*v;
-    vv += SkNx_shuffle<1,0>(vv);
-    return v * vv.rsqrt();
 }
 
 static inline void transpose(const Sk2f& a, const Sk2f& b, Sk2f* X, Sk2f* Y) {
@@ -32,13 +34,6 @@ static inline void transpose(const Sk2f& a, const Sk2f& b, Sk2f* X, Sk2f* Y) {
     a.store(transpose);
     b.store(transpose+2);
     Sk2f::Load2(transpose, X, Y);
-}
-
-static inline void normalize2(const Sk2f& v0, const Sk2f& v1, SkPoint out[2]) {
-    Sk2f X, Y;
-    transpose(v0, v1, &X, &Y);
-    Sk2f invlength = (X*X + Y*Y).rsqrt();
-    Sk2f::Store2(out, Y * invlength, -X * invlength);
 }
 
 static inline float calc_curvature_costheta(const Sk2f& leftTan, const Sk2f& rightTan) {
@@ -49,80 +44,194 @@ static inline float calc_curvature_costheta(const Sk2f& leftTan, const Sk2f& rig
     return (dotprod[0] + dotprod[1]) * invlength[0] * invlength[1];
 }
 
-static GrStrokeGeometry::Verb join_verb_from_join(SkPaint::Join join) {
-    using Verb = GrStrokeGeometry::Verb;
-    switch (join) {
-        case SkPaint::kBevel_Join:
-            return Verb::kBevelJoin;
-        case SkPaint::kMiter_Join:
-            return Verb::kMiterJoin;
-        case SkPaint::kRound_Join:
-            return Verb::kRoundJoin;
-    }
-    SK_ABORT("Invalid SkPaint::Join.");
+void GrStrokeGeometry::allocVertexChunk(int minVertexAllocCount) {
+    VertexChunk* chunk = &fVertexChunkArray->push_back();
+    fCurrChunkVertexData = (SkPoint*)fTarget->makeVertexSpaceAtLeast(
+            sizeof(SkPoint), minVertexAllocCount, minVertexAllocCount, &chunk->fVertexBuffer,
+            &chunk->fBaseVertex, &fCurrChunkVertexCapacity);
+    fCurrChunkMinVertexAllocCount = minVertexAllocCount;
 }
 
-void GrStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWidth,
-                                   InstanceTallies* tallies) {
-    SkASSERT(!fInsideContour);
+SkPoint* GrStrokeGeometry::reservePatch() {
+    constexpr static int kNumVerticesPerPatch = GrTessellateStrokeShader::kNumVerticesPerPatch;
+    if (fVertexChunkArray->back().fVertexCount + kNumVerticesPerPatch > fCurrChunkVertexCapacity) {
+        // No need to put back vertices; the buffer is full.
+        this->allocVertexChunk(fCurrChunkMinVertexAllocCount * 2);
+    }
+    if (!fCurrChunkVertexData) {
+        SkDebugf("WARNING: Failed to allocate vertex buffer for tessellated stroke.");
+        return nullptr;
+    }
+    SkASSERT(fVertexChunkArray->back().fVertexCount + kNumVerticesPerPatch <=
+             fCurrChunkVertexCapacity);
+    SkPoint* patch = fCurrChunkVertexData + fVertexChunkArray->back().fVertexCount;
+    fVertexChunkArray->back().fVertexCount += kNumVerticesPerPatch;
+    return patch;
+}
+
+void GrStrokeGeometry::writeCubicSegment(float leftJoinType, const SkPoint pts[4],
+                                         float overrideNumSegments) {
+    SkPoint c1 = (pts[1] == pts[0]) ? pts[2] : pts[1];
+    SkPoint c2 = (pts[2] == pts[3]) ? pts[1] : pts[2];
+
+    if (fHasPreviousSegment) {
+        this->writeJoin(leftJoinType, pts[0], fLastControlPoint, c1);
+    } else {
+        fCurrContourFirstControlPoint = c1;
+        fHasPreviousSegment = true;
+    }
+
+    if (SkPoint* patch = this->reservePatch()) {
+        memcpy(patch, pts, sizeof(SkPoint) * 4);
+        patch[4].set(-overrideNumSegments, fCurrStrokeRadius);
+    }
+
+    fLastControlPoint = c2;
+    fCurrentPoint = pts[3];
+}
+
+void GrStrokeGeometry::writeJoin(float joinType, const SkPoint& anchorPoint,
+                                 const SkPoint& prevControlPoint, const SkPoint& nextControlPoint) {
+    if (SkPoint* joinPatch = this->reservePatch()) {
+        joinPatch[0] = anchorPoint;
+        joinPatch[1] = prevControlPoint;
+        joinPatch[2] = nextControlPoint;
+        joinPatch[3] = anchorPoint;
+        joinPatch[4].set(joinType, fCurrStrokeRadius);
+    }
+}
+
+void GrStrokeGeometry::writeSquareCap(const SkPoint& endPoint, const SkPoint& controlPoint) {
+    SkVector v = (endPoint - controlPoint);
+    v.normalize();
+    SkPoint capPoint = endPoint + v*fCurrStrokeRadius;
+    // Construct a line that incorporates controlPoint so we get a water tight edge with the rest of
+    // the stroke. The cubic will technically step outside the cap, but we will force it to only
+    // have one segment, giving edges only at the endpoints.
+    if (SkPoint* capPatch = this->reservePatch()) {
+        capPatch[0] = endPoint;
+        capPatch[1] = controlPoint;
+        // Straddle the midpoint of the cap because the tessellated geometry emits a center point at
+        // T=.5, and we need to ensure that point stays inside the cap.
+        capPatch[2] = endPoint + capPoint - controlPoint;
+        capPatch[3] = capPoint;
+        capPatch[4].set(-1, fCurrStrokeRadius);
+    }
+}
+
+void GrStrokeGeometry::writeCaps() {
+    if (!fHasPreviousSegment) {
+        // We don't have any control points to orient the caps. In this case, square and round caps
+        // are specified to be drawn as an axis-aligned square or circle respectively. Assign
+        // default control points that achieve this.
+        fCurrContourFirstControlPoint = fCurrContourStartPoint - SkPoint{1,0};
+        fLastControlPoint = fCurrContourStartPoint + SkPoint{1,0};
+        fCurrentPoint = fCurrContourStartPoint;
+    }
+
+    switch (fCurrStrokeCapType) {
+        case SkPaint::kButt_Cap:
+            break;
+        case SkPaint::kRound_Cap:
+            // A round cap is the same thing as a 180-degree round join.
+            this->writeJoin(3, fCurrContourStartPoint, fCurrContourFirstControlPoint,
+                            fCurrContourFirstControlPoint);
+            this->writeJoin(3, fCurrentPoint, fLastControlPoint, fLastControlPoint);
+            break;
+        case SkPaint::kSquare_Cap:
+            this->writeSquareCap(fCurrContourStartPoint, fCurrContourFirstControlPoint);
+            this->writeSquareCap(fCurrentPoint, fLastControlPoint);
+            break;
+    }
+}
+
+void GrStrokeGeometry::addPath(const SkPath& path, const SkStrokeRec& stroke) {
+    this->beginPath(stroke, stroke.getWidth());
+    SkPathVerb previousVerb = SkPathVerb::kClose;
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+        switch (verb) {
+            case SkPathVerb::kMove:
+                // "A subpath ... consisting of a single moveto shall not be stroked."
+                // https://www.w3.org/TR/SVG11/painting.html#StrokeProperties
+                if (previousVerb != SkPathVerb::kMove && previousVerb != SkPathVerb::kClose) {
+                    this->writeCaps();
+                }
+                this->moveTo(pts[0]);
+                break;
+            case SkPathVerb::kClose:
+                this->close();
+                break;
+            case SkPathVerb::kLine:
+                SkASSERT(previousVerb != SkPathVerb::kClose);
+                this->lineTo(pts[0], pts[1]);
+                break;
+            case SkPathVerb::kQuad:
+                SkASSERT(previousVerb != SkPathVerb::kClose);
+                this->quadraticTo(pts);
+                break;
+            case SkPathVerb::kCubic:
+                SkASSERT(previousVerb != SkPathVerb::kClose);
+                this->cubicTo(pts);
+                break;
+            case SkPathVerb::kConic:
+                SkASSERT(previousVerb != SkPathVerb::kClose);
+                SkUNREACHABLE;
+        }
+        previousVerb = verb;
+    }
+    if (previousVerb != SkPathVerb::kMove && previousVerb != SkPathVerb::kClose) {
+        this->writeCaps();
+    }
+}
+
+static float join_type_from_join(SkPaint::Join join) {
+    switch (join) {
+        case SkPaint::kBevel_Join:
+            return GrTessellateStrokeShader::kBevelJoinType;
+        case SkPaint::kMiter_Join:
+            return GrTessellateStrokeShader::kMiterJoinType;
+        case SkPaint::kRound_Join:
+            return GrTessellateStrokeShader::kRoundJoinType;
+    }
+    SkUNREACHABLE;
+}
+
+void GrStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWidth) {
     // Client should have already converted the stroke to device space (i.e. width=1 for hairline).
     SkASSERT(strokeDevWidth > 0);
 
     fCurrStrokeRadius = strokeDevWidth/2;
-    fCurrStrokeJoinVerb = join_verb_from_join(stroke.getJoin());
+    fCurrStrokeJoinType = join_type_from_join(stroke.getJoin());
     fCurrStrokeCapType = stroke.getCap();
-    fCurrStrokeTallies = tallies;
-
-    if (Verb::kMiterJoin == fCurrStrokeJoinVerb) {
-        // We implement miters by placing a triangle-shaped cap on top of a bevel join. Convert the
-        // "miter limit" to how tall that triangle cap can be.
-        float m = stroke.getMiter();
-        fMiterMaxCapHeightOverWidth = .5f * SkScalarSqrt(m*m - 1);
-    }
 
     // Find the angle of curvature where the arc height above a simple line from point A to point B
     // is equal to kMaxErrorFromLinearization.
     float r = std::max(1 - kMaxErrorFromLinearization / fCurrStrokeRadius, 0.f);
     fMaxCurvatureCosTheta = 2*r*r - 1;
 
-    fCurrContourFirstPtIdx = -1;
-    fCurrContourFirstNormalIdx = -1;
-
-    fVerbs.push_back(Verb::kBeginPath);
+    fHasPreviousSegment = false;
 }
 
-void GrStrokeGeometry::moveTo(SkPoint pt) {
-    SkASSERT(!fInsideContour);
-    fCurrContourFirstPtIdx = fPoints.count();
-    fCurrContourFirstNormalIdx = fNormals.count();
-    fPoints.push_back(pt);
-    SkDEBUGCODE(fInsideContour = true);
+void GrStrokeGeometry::moveTo(const SkPoint& pt) {
+    fHasPreviousSegment = false;
+    fCurrContourStartPoint = pt;
 }
 
-void GrStrokeGeometry::lineTo(SkPoint pt) {
-    SkASSERT(fInsideContour);
-    this->lineTo(fCurrStrokeJoinVerb, pt);
+void GrStrokeGeometry::lineTo(const SkPoint& p0, const SkPoint& p1) {
+    this->lineTo(fCurrStrokeJoinType, p0, p1);
 }
 
-void GrStrokeGeometry::lineTo(Verb leftJoinVerb, SkPoint pt) {
-    Sk2f tan = Sk2f::Load(&pt) - Sk2f::Load(&fPoints.back());
-    if ((tan == 0).allTrue()) {
+void GrStrokeGeometry::lineTo(float leftJoinType, const SkPoint& pt0, const SkPoint& pt1) {
+    Sk2f p0 = Sk2f::Load(&pt0);
+    Sk2f p1 = Sk2f::Load(&pt1);
+    if ((p0 == p1).allTrue()) {
         return;
     }
-
-    tan = normalize(tan);
-    SkVector n = SkVector::Make(tan[1], -tan[0]);
-
-    this->recordLeftJoinIfNotEmpty(leftJoinVerb, n);
-    fNormals.push_back(n);
-
-    this->recordStroke(Verb::kLinearStroke, 0);
-    fPoints.push_back(pt);
+    this->writeCubicSegment(leftJoinType, p0, lerp(p0, p1, 1/3.f), lerp(p0, p1, 2/3.f), p1, 1);
 }
 
 void GrStrokeGeometry::quadraticTo(const SkPoint P[3]) {
-    SkASSERT(fInsideContour);
-    this->quadraticTo(fCurrStrokeJoinVerb, P, SkFindQuadMaxCurvature(P));
+    this->quadraticTo(fCurrStrokeJoinType, P, SkFindQuadMaxCurvature(P));
 }
 
 // Wang's formula for quadratics (1985) gives us the number of evenly spaced (in the parametric
@@ -134,7 +243,7 @@ static inline float wangs_formula_quadratic(const Sk2f& p0, const Sk2f& p1, cons
     return SkScalarCeilToInt(f);
 }
 
-void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float maxCurvatureT) {
+void GrStrokeGeometry::quadraticTo(float leftJoinType, const SkPoint P[3], float maxCurvatureT) {
     Sk2f p0 = Sk2f::Load(P);
     Sk2f p1 = Sk2f::Load(P+1);
     Sk2f p2 = Sk2f::Load(P+2);
@@ -146,16 +255,13 @@ void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float 
     // an issue.
     if ((tan0.abs() < SK_ScalarNearlyZero).allTrue() ||  // p0 ~= p1
         (tan1.abs() < SK_ScalarNearlyZero).allTrue()) {  // p1 ~= p2
-        this->lineTo(leftJoinVerb, P[2]);
+        this->lineTo(leftJoinType, P[0], P[2]);
         return;
     }
 
-    SkPoint normals[2];
-    normalize2(tan0, tan1, normals);
-
     // Decide how many flat line segments to chop the curve into.
     int numSegments = wangs_formula_quadratic(p0, p1, p2);
-    numSegments = SkTPin(numSegments, 1, 1 << kMaxNumLinearSegmentsLog2);
+    numSegments = std::max(numSegments, 1);
 
     // At + B gives a vector tangent to the quadratic.
     Sk2f A = p0 - p1*2 + p2;
@@ -193,22 +299,22 @@ void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float 
 
         if (leftT > 0) {
             SkChopQuadAt(currQuadratic, ptsBuffer, leftT);
-            this->quadraticTo(leftJoinVerb, ptsBuffer, /*maxCurvatureT=*/1);
+            this->quadraticTo(leftJoinType, ptsBuffer, /*maxCurvatureT=*/1);
             if (rightT < 1) {
                 rightT = (rightT - leftT) / (1 - leftT);
             }
             currQuadratic = ptsBuffer + 2;
         } else {
-            this->rotateTo(leftJoinVerb, normals[0], currQuadratic[1]);
+            this->rotateTo(leftJoinType, currQuadratic[0], currQuadratic[1]);
         }
 
         if (rightT < 1) {
             SkChopQuadAt(currQuadratic, ptsBuffer, rightT);
-            this->lineTo(Verb::kInternalRoundJoin, ptsBuffer[2]);
-            this->quadraticTo(Verb::kInternalRoundJoin, ptsBuffer + 2, /*maxCurvatureT=*/0);
+            this->lineTo(kInternalRoundJoinType, ptsBuffer[0], ptsBuffer[2]);
+            this->quadraticTo(kInternalRoundJoinType, ptsBuffer + 2, /*maxCurvatureT=*/0);
         } else {
-            this->lineTo(Verb::kInternalRoundJoin, currQuadratic[2]);
-            this->rotateTo(Verb::kInternalRoundJoin, normals[1],
+            this->lineTo(kInternalRoundJoinType, currQuadratic[0], currQuadratic[2]);
+            this->rotateTo(kInternalRoundJoinType, currQuadratic[2],
                            currQuadratic[2]*2 - currQuadratic[1]);
         }
         return;
@@ -216,24 +322,18 @@ void GrStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], float 
     if (numSegments > fMaxTessellationSegments) {
         SkPoint ptsBuffer[5];
         SkChopQuadAt(P, ptsBuffer, 0.5f);
-        this->quadraticTo(leftJoinVerb, ptsBuffer, 0);
-        this->quadraticTo(Verb::kInternalRoundJoin, ptsBuffer + 3, 0);
+        this->quadraticTo(leftJoinType, ptsBuffer, 0);
+        this->quadraticTo(kInternalRoundJoinType, ptsBuffer + 3, 0);
         return;
     }
 
-    this->recordLeftJoinIfNotEmpty(leftJoinVerb, normals[0]);
-    fNormals.push_back_n(2, normals);
-
-    this->recordStroke(Verb::kQuadraticStroke, SkNextLog2(numSegments));
-    p1.store(&fPoints.push_back());
-    p2.store(&fPoints.push_back());
+    this->writeCubicSegment(leftJoinType, p0, lerp(p0, p1, 2/3.f), lerp(p1, p2, 1/3.f), p2);
 }
 
 void GrStrokeGeometry::cubicTo(const SkPoint P[4]) {
-    SkASSERT(fInsideContour);
     float roots[3];
     int numRoots = SkFindCubicMaxCurvature(P, roots);
-    this->cubicTo(fCurrStrokeJoinVerb, P,
+    this->cubicTo(fCurrStrokeJoinType, P,
                   numRoots > 0 ? roots[numRoots/2] : 0,
                   numRoots > 1 ? roots[0] : kLeftMaxCurvatureNone,
                   numRoots > 2 ? roots[2] : kRightMaxCurvatureNone);
@@ -250,8 +350,8 @@ static inline float wangs_formula_cubic(const Sk2f& p0, const Sk2f& p1, const Sk
     return SkScalarCeilToInt(f);
 }
 
-void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxCurvatureT,
-                                 float leftMaxCurvatureT, float rightMaxCurvatureT) {
+void GrStrokeGeometry::cubicTo(float leftJoinType, const SkPoint P[4], float maxCurvatureT,
+                               float leftMaxCurvatureT, float rightMaxCurvatureT) {
     Sk2f p0 = Sk2f::Load(P);
     Sk2f p1 = Sk2f::Load(P+1);
     Sk2f p2 = Sk2f::Load(P+2);
@@ -265,7 +365,7 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
         p1 = p0;
         tan0 = p2 - p0;
         if ((tan0.abs() < SK_ScalarNearlyZero).allTrue()) {  // p0 ~= p1 ~= p2
-            this->lineTo(leftJoinVerb, P[3]);
+            this->lineTo(leftJoinType, P[0], P[3]);
             return;
         }
     }
@@ -274,17 +374,14 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
         tan1 = p3 - p1;
         if ((tan1.abs() < SK_ScalarNearlyZero).allTrue() ||  // p1 ~= p2 ~= p3
             (p0 == p1).allTrue()) {  // p0 ~= p1 AND p2 ~= p3
-            this->lineTo(leftJoinVerb, P[3]);
+            this->lineTo(leftJoinType, P[0], P[3]);
             return;
         }
     }
 
-    SkPoint normals[2];
-    normalize2(tan0, tan1, normals);
-
     // Decide how many flat line segments to chop the curve into.
     int numSegments = wangs_formula_cubic(p0, p1, p2, p3);
-    numSegments = SkTPin(numSegments, 1, 1 << kMaxNumLinearSegmentsLog2);
+    numSegments = std::max(numSegments, 1);
 
     // At^2 + Bt + C gives a vector tangent to the cubic. (More specifically, it's the derivative
     // minus an irrelevant scale by 3, since all we care about is the direction.)
@@ -328,7 +425,7 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
 
         if (leftT > 0) {
             SkChopCubicAt(currCubic, ptsBuffer, leftT);
-            this->cubicTo(leftJoinVerb, ptsBuffer, /*maxCurvatureT=*/1,
+            this->cubicTo(leftJoinType, ptsBuffer, /*maxCurvatureT=*/1,
                           (kLeftMaxCurvatureNone != leftMaxCurvatureT)
                                   ? leftMaxCurvatureT/leftT : kLeftMaxCurvatureNone,
                           kRightMaxCurvatureNone);
@@ -341,144 +438,73 @@ void GrStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float maxC
             currCubic = ptsBuffer + 3;
         } else {
             SkPoint c1 = (ptsBuffer[1] == ptsBuffer[0]) ? ptsBuffer[2] : ptsBuffer[1];
-            this->rotateTo(leftJoinVerb, normals[0], c1);
+            this->rotateTo(leftJoinType, ptsBuffer[0], c1);
         }
 
         if (rightT < 1) {
             SkChopCubicAt(currCubic, ptsBuffer, rightT);
-            this->lineTo(Verb::kInternalRoundJoin, ptsBuffer[3]);
+            this->lineTo(kInternalRoundJoinType, ptsBuffer[0], ptsBuffer[3]);
             currCubic = ptsBuffer + 3;
-            this->cubicTo(Verb::kInternalRoundJoin, currCubic, /*maxCurvatureT=*/0,
+            this->cubicTo(kInternalRoundJoinType, currCubic, /*maxCurvatureT=*/0,
                           kLeftMaxCurvatureNone, kRightMaxCurvatureNone);
         } else {
-            this->lineTo(Verb::kInternalRoundJoin, currCubic[3]);
+            this->lineTo(kInternalRoundJoinType, currCubic[0], currCubic[3]);
             SkPoint c2 = (currCubic[2] == currCubic[3]) ? currCubic[1] : currCubic[2];
-            this->rotateTo(Verb::kInternalRoundJoin, normals[1], currCubic[3]*2 - c2);
+            this->rotateTo(kInternalRoundJoinType, currCubic[3], currCubic[3]*2 - c2);
         }
         return;
     }
 
     // Recurse and check the other two points of max curvature, if any.
     if (kRightMaxCurvatureNone != rightMaxCurvatureT) {
-        this->cubicTo(leftJoinVerb, P, rightMaxCurvatureT, leftMaxCurvatureT,
+        this->cubicTo(leftJoinType, P, rightMaxCurvatureT, leftMaxCurvatureT,
                       kRightMaxCurvatureNone);
         return;
     }
     if (kLeftMaxCurvatureNone != leftMaxCurvatureT) {
         SkASSERT(kRightMaxCurvatureNone == rightMaxCurvatureT);
-        this->cubicTo(leftJoinVerb, P, leftMaxCurvatureT, kLeftMaxCurvatureNone,
+        this->cubicTo(leftJoinType, P, leftMaxCurvatureT, kLeftMaxCurvatureNone,
                       kRightMaxCurvatureNone);
         return;
     }
     if (numSegments > fMaxTessellationSegments) {
         SkPoint ptsBuffer[7];
         SkChopCubicAt(P, ptsBuffer, 0.5f);
-        this->cubicTo(leftJoinVerb, ptsBuffer, 0, kLeftMaxCurvatureNone, kRightMaxCurvatureNone);
-        this->cubicTo(Verb::kInternalRoundJoin, ptsBuffer + 3, 0, kLeftMaxCurvatureNone,
+        this->cubicTo(leftJoinType, ptsBuffer, 0, kLeftMaxCurvatureNone, kRightMaxCurvatureNone);
+        this->cubicTo(kInternalRoundJoinType, ptsBuffer + 3, 0, kLeftMaxCurvatureNone,
                       kRightMaxCurvatureNone);
         return;
     }
 
-    this->recordLeftJoinIfNotEmpty(leftJoinVerb, normals[0]);
-    fNormals.push_back_n(2, normals);
-
-    this->recordStroke(Verb::kCubicStroke, SkNextLog2(numSegments));
-    p1.store(&fPoints.push_back());
-    p2.store(&fPoints.push_back());
-    p3.store(&fPoints.push_back());
+    this->writeCubicSegment(leftJoinType, p0, p1, p2, p3);
 }
 
-void GrStrokeGeometry::recordStroke(Verb verb, int numSegmentsLog2) {
-    SkASSERT(Verb::kLinearStroke != verb || 0 == numSegmentsLog2);
-    fVerbs.push_back(verb);
-    if (Verb::kLinearStroke != verb) {
-        fParams.push_back().fNumLinearSegmentsLog2 = numSegmentsLog2;
-    }
-    ++fCurrStrokeTallies->fStrokes[numSegmentsLog2];
+void GrStrokeGeometry::rotateTo(float leftJoinType, const SkPoint& anchorPoint,
+                                const SkPoint& controlPoint) {
+    // Effectively rotate the current normal by drawing a zero length, 1-segment cubic.
+    // writeCubicSegment automatically adds the necessary join and the zero length cubic serves as
+    // a glue that guarantees a water tight rasterized edge between the new join and the segment
+    // that comes after the rotate.
+    SkPoint pts[4] = {anchorPoint, controlPoint, anchorPoint*2 - controlPoint, anchorPoint};
+    this->writeCubicSegment(leftJoinType, pts, 1);
 }
 
-void GrStrokeGeometry::rotateTo(Verb leftJoinVerb, SkVector normal, SkPoint controlPoint) {
-    SkASSERT(fPoints.count() > fCurrContourFirstPtIdx);
-    this->recordLeftJoinIfNotEmpty(leftJoinVerb, normal);
-    fVerbs.push_back(Verb::kRotate);
-    fPoints.push_back(controlPoint);
-    fPoints.push_back(fPoints[fPoints.count() - 2]);
-    fNormals.push_back(normal);
-}
-
-void GrStrokeGeometry::recordLeftJoinIfNotEmpty(Verb joinVerb, SkVector nextNormal) {
-    if (fNormals.count() <= fCurrContourFirstNormalIdx) {
-        // The contour is empty. Nothing to join with.
-        SkASSERT(fNormals.count() == fCurrContourFirstNormalIdx);
-        return;
-    }
-    fVerbs.push_back(joinVerb);
-}
-
-void GrStrokeGeometry::closeContour() {
-    SkASSERT(fInsideContour);
-    SkASSERT(fPoints.count() > fCurrContourFirstPtIdx);
-    if (fPoints.back() != fPoints[fCurrContourFirstPtIdx]) {
-        // Draw a line back to the beginning.
-        this->lineTo(fCurrStrokeJoinVerb, fPoints[fCurrContourFirstPtIdx]);
-    }
-    fVerbs.push_back(fCurrStrokeJoinVerb);
-    fVerbs.push_back(Verb::kEndContour);
-    SkDEBUGCODE(fInsideContour = false);
-}
-
-void GrStrokeGeometry::capContourAndExit() {
-    SkASSERT(fInsideContour);
-    if (fCurrContourFirstNormalIdx >= fNormals.count()) {
-        // This contour is empty. Add a normal in the direction that caps orient on empty geometry.
-        SkASSERT(fNormals.count() == fCurrContourFirstNormalIdx);
-        fNormals.push_back({1, 0});
-    }
-
-    this->recordCapsIfAny();
-    fVerbs.push_back(Verb::kEndContour);
-
-    SkDEBUGCODE(fInsideContour = false);
-}
-
-void GrStrokeGeometry::recordCapsIfAny() {
-    SkASSERT(fInsideContour);
-    SkASSERT(fCurrContourFirstNormalIdx < fNormals.count());
-
-    if (SkPaint::kButt_Cap == fCurrStrokeCapType) {
+void GrStrokeGeometry::close() {
+    if (!fHasPreviousSegment) {
+        // Draw caps instead of closing if the subpath is zero length:
+        //
+        //   "Any zero length subpath ...  shall be stroked if the 'stroke-linecap' property has a
+        //   value of round or square producing respectively a circle or a square."
+        //
+        //   (https://www.w3.org/TR/SVG11/painting.html#StrokeProperties)
+        //
+        this->writeCaps();
         return;
     }
 
-    Verb capVerb;
-    if (SkPaint::kSquare_Cap == fCurrStrokeCapType) {
-        if (fCurrStrokeRadius * SK_ScalarRoot2Over2 < kMaxErrorFromLinearization) {
-            return;
-        }
-        capVerb = Verb::kSquareCap;
-        fCurrStrokeTallies->fStrokes[0] += 2;
-    } else {
-        SkASSERT(SkPaint::kRound_Cap == fCurrStrokeCapType);
-        if (fCurrStrokeRadius < kMaxErrorFromLinearization) {
-            return;
-        }
-        capVerb = Verb::kRoundCap;
-        fCurrStrokeTallies->fTriangles += 2;
-        fCurrStrokeTallies->fConics += 4;
-    }
-
-    fVerbs.push_back(capVerb);
-    fVerbs.push_back(Verb::kEndContour);
-
-    fVerbs.push_back(capVerb);
-
-    // Reserve the space first, since push_back() takes the point by reference and might
-    // invalidate the reference if the array grows.
-    fPoints.reserve(fPoints.count() + 1);
-    fPoints.push_back(fPoints[fCurrContourFirstPtIdx]);
-
-    // Reserve the space first, since push_back() takes the normal by reference and might
-    // invalidate the reference if the array grows. (Although in this case we should be fine
-    // since there is a negate operator.)
-    fNormals.reserve(fNormals.count() + 1);
-    fNormals.push_back(-fNormals[fCurrContourFirstNormalIdx]);
+    // Draw a line back to the beginning. (This will be discarded if
+    // fCurrentPoint == fCurrContourStartPoint.)
+    this->lineTo(fCurrStrokeJoinType, fCurrentPoint, fCurrContourStartPoint);
+    this->writeJoin(fCurrStrokeJoinType, fCurrContourStartPoint, fLastControlPoint,
+                    fCurrContourFirstControlPoint);
 }
