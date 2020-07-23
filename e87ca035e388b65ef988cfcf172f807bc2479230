@@ -22,6 +22,30 @@
       "revId": "e87ca035e388b65ef988cfcf172f807bc2479230",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6c1dcc7_3924b3d4",
+        "filename": "tools/fm/fm_bot/fm_bot.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-23T14:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a614a8ba_68274fd9",
+      "range": {
+        "startLine": 262,
+        "startChar": 2,
+        "endLine": 262,
+        "endChar": 18
+      },
+      "revId": "e87ca035e388b65ef988cfcf172f807bc2479230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
