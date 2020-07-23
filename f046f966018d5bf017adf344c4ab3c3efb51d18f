@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfd4243d_8693a38d",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1187,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-23T22:14:25Z",
+      "side": 1,
+      "message": "These look a bit iffy to me (are all float4s rectangles?), but they aren\u0027t in active use anywhere.",
+      "range": {
+        "startLine": 1164,
+        "startChar": 0,
+        "endLine": 1187,
+        "endChar": 91
+      },
+      "revId": "f046f966018d5bf017adf344c4ab3c3efb51d18f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
