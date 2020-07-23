@@ -1547,6 +1547,12 @@ static void operateY(SkAAClip::Builder& builder, const SkAAClip& A,
     int topB = iterB.top();
     int botB = iterB.bottom();
 
+#if defined(IS_FUZZING)
+    if ((botA - topA) > 100000 || (botB - topB) > 100000) {
+        return;
+    }
+#endif
+
     do {
         const uint8_t* rowA = nullptr;
         const uint8_t* rowB = nullptr;

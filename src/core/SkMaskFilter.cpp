@@ -262,6 +262,11 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 
     SkMask  srcM, dstM;
 
+#if defined(IS_FUZZING)
+    if (devPath.countVerbs() > 1000 || devPath.countPoints() > 1000) {
+        return false;
+    }
+#endif
     if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), this, &matrix, &srcM,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode,
                             style)) {
