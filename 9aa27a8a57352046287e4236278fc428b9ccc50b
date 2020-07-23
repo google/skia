@@ -33,6 +33,23 @@
       "revId": "9aa27a8a57352046287e4236278fc428b9ccc50b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf48f460_7f7de44e",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1129,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-23T18:50:55Z",
+      "side": 1,
+      "message": "Size is computed dynamically here^",
+      "revId": "9aa27a8a57352046287e4236278fc428b9ccc50b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
