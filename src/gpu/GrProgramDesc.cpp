@@ -225,15 +225,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
     header->fWriteSwizzle = programInfo.pipeline().writeSwizzle().asKey();
-    header->fColorFragmentProcessorCnt = programInfo.pipeline().numColorFragmentProcessors();
-    header->fCoverageFragmentProcessorCnt = programInfo.pipeline().numCoverageFragmentProcessors();
-    // Fail if the client requested more processors than the key can fit.
-    if (header->fColorFragmentProcessorCnt != programInfo.pipeline().numColorFragmentProcessors() ||
-        header->fCoverageFragmentProcessorCnt !=
-                                         programInfo.pipeline().numCoverageFragmentProcessors()) {
-        desc->key().reset();
-        return false;
-    }
+    header->fFragmentProcessorCnt = programInfo.pipeline().numFragmentProcessors();
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
     header->fSurfaceOriginKey =
