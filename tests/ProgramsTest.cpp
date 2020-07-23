@@ -145,9 +145,10 @@ private:
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static std::unique_ptr<GrRenderTargetContext> random_render_target_context(GrContext* context,
-                                                                           SkRandom* random,
-                                                                           const GrCaps* caps) {
+static std::unique_ptr<GrRenderTargetContext> random_render_target_context(
+        GrRecordingContext* rContext,
+        SkRandom* random,
+        const GrCaps* caps) {
     GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
                                                 : kBottomLeft_GrSurfaceOrigin;
 
@@ -159,7 +160,7 @@ static std::unique_ptr<GrRenderTargetContext> random_render_target_context(GrCon
     sampleCnt = std::max(1, sampleCnt);
 
     return GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
+            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderTargetWidth, kRenderTargetHeight}, sampleCnt, GrMipmapped::kNo,
             GrProtected::kNo, origin);
 }
