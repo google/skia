@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<title>CanvasKit Web Worker Demo</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas {
+    border: 1px dashed grey;
+  }
+
+  .canvas-container {
+    float: left;
+  }
+</style>
+
+<body>
+  <h1>CanvasKit in a Web Worker demo</h1>
+  <p>NOTE: this demo currently only works in chromium-based browsers, where
+    <a href="https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas#Browser_compatibility">
+      Offscreen Canvas
+    </a>
+    is supported.
+  </p>
+
+  <div class="canvas-container">
+    <h2>Normal Canvas</h2>
+    <canvas id="onscreen-canvas" width=500 height=500></canvas>
+    <button id="busy-button">Make main thread busy</button>
+  </div>
+  <div class="canvas-container">
+    <h2>Web Worker Canvas</h2>
+    <canvas id="offscreen-canvas" width=500 height=500></canvas>
+  </div>
+</body>
+<script type="text/javascript" src="https://particles.skia.org/static/canvaskit.js"></script>
+<script type="text/javascript" src="shared.js"></script>
+<script type="text/javascript" src="main.js"></script>
