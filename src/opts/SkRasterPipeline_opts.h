@@ -20,20 +20,6 @@
     #define SI static inline
 #endif
 
-template <typename Dst, typename Src>
-SI Dst bit_cast(const Src& src) {
-    static_assert(sizeof(Dst) == sizeof(Src), "");
-    return sk_unaligned_load<Dst>(&src);
-}
-
-template <typename Dst, typename Src>
-SI Dst widen_cast(const Src& src) {
-    static_assert(sizeof(Dst) > sizeof(Src), "");
-    Dst dst;
-    memcpy(&dst, &src, sizeof(Src));
-    return dst;
-}
-
 // Our program is an array of void*, either
 //   - 1 void* per stage with no context pointer, the next stage;
 //   - 2 void* per stage with a context pointer, first the context pointer, then the next stage.
