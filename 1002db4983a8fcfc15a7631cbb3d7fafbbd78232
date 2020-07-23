@@ -62,6 +62,30 @@
       "revId": "1002db4983a8fcfc15a7631cbb3d7fafbbd78232",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "577fc9bc_5621a83b",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-23T14:02:10Z",
+      "side": 1,
+      "message": "I\u0027m not trying to do anything novel here; I\u0027m just repeating the logic from RunInSeries, but simplified to only support the 2-item case. (RunInSeries supports replacing an arbitrary number of leading nodes, which just requires more logic.)\n\nHonestly I have not spent much time at all on analysis; this is definitely not a first step towards any bigger analysis redesign.\n\nTBH I think the analysis pass is probably not very worthwhile right now, as it doesn\u0027t seem to do any analysis of child subtrees. It assumes that we have a sequential array of simple processors, which used to be the common case, but now we will most often have a complex tree starting from a single node. It probably needs to be redesigned from scratch to descend the tree and see if any subtrees can be replaced with const-color. Right now it doesn\u0027t descend the trees at all.",
+      "parentUuid": "e3ff201b_ecc7cce5",
+      "range": {
+        "startLine": 547,
+        "startChar": 0,
+        "endLine": 572,
+        "endChar": 5
+      },
+      "revId": "1002db4983a8fcfc15a7631cbb3d7fafbbd78232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
