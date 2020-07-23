@@ -152,6 +152,7 @@ protected:
     sk_sp<SkData> load(const char[], const char[]) const override;
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
     sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override;
+    sk_sp<SkData> loadFont(const char[], const char[]) const override;
 
 private:
     const sk_sp<ResourceProvider> fProxy;

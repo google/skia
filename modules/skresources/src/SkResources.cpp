@@ -202,6 +202,11 @@ sk_sp<SkTypeface> ResourceProviderProxyBase::loadTypeface(const char name[],
                   : nullptr;
 }
 
+sk_sp<SkData> ResourceProviderProxyBase::loadFont(const char name[], const char url[]) const {
+    return fProxy ? fProxy->loadFont(name, url)
+                  : nullptr;
+}
+
 CachingResourceProvider::CachingResourceProvider(sk_sp<ResourceProvider> rp)
     : INHERITED(std::move(rp)) {}
 
