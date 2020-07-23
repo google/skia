@@ -9,7 +9,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
 #include "tests/Test.h"
@@ -24,12 +24,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest, reporter, ct
     auto isMipped = [] (SkSurface* surf) {
         SkImage_GpuBase* image = static_cast<SkImage_GpuBase*>(as_IB(surf->makeImageSnapshot()));
         const GrTexture* texture = image->getTexture();
-        return GrMipmapped::kYes == texture->texturePriv().mipmapped();
+        return GrMipmapped::kYes == texture->mipmapped();
     };
 
     auto mipsAreDirty = [] (SkSurface* surf) {
         SkImage_GpuBase* image = static_cast<SkImage_GpuBase*>(as_IB(surf->makeImageSnapshot()));
-        return image->getTexture()->texturePriv().mipmapsAreDirty();
+        return image->getTexture()->mipmapsAreDirty();
     };
 
     auto info = SkImageInfo::MakeN32Premul(256, 256);

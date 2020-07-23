@@ -10,7 +10,7 @@
 
 #include "src/gpu/GrOpsRenderPass.h"
 
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/mock/GrMockGpu.h"
 
 class GrMockOpsRenderPass : public GrOpsRenderPass {
@@ -55,7 +55,7 @@ private:
     }
     void markRenderTargetDirty() {
         if (auto* tex = fRenderTarget->asTexture()) {
-            tex->texturePriv().markMipmapsDirty();
+            tex->markMipmapsDirty();
         }
     }
 

@@ -13,7 +13,6 @@
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 
 #ifdef SK_DEBUG
@@ -178,13 +177,13 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrTextureProxy version
     SkASSERT(surface->asTexture());
     SkASSERT(GrMipmapped::kNo == this->proxyMipmapped() ||
-             GrMipmapped::kYes == surface->asTexture()->texturePriv().mipmapped());
+             GrMipmapped::kYes == surface->asTexture()->mipmapped());
 
     // Anything checked here should also be checking the GrRenderTargetProxy version
     SkASSERT(surface->asRenderTarget());
     SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples());
 
-    SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
+    SkASSERT(surface->asTexture()->textureType() == this->textureType());
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();

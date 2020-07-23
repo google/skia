@@ -24,7 +24,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStencilAttachment.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
 
 const int GrResourceProvider::kMinScratchTextureSize = 16;
@@ -263,8 +263,8 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
     // to fall back to making a new texture.
     if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(*this->caps(), format, dimensions, renderable,
-                                         renderTargetSampleCnt, mipMapped, isProtected, &key);
+        GrTexture::ComputeScratchKey(*this->caps(), format, dimensions, renderable,
+                                     renderTargetSampleCnt, mipMapped, isProtected, &key);
         GrGpuResource* resource = fCache->findAndRefScratchResource(key);
         if (resource) {
             fGpu->stats()->incNumScratchTexturesReused();

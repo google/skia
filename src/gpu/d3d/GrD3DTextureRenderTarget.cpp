@@ -7,7 +7,7 @@
 
 #include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
 
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 
 GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
@@ -181,5 +181,5 @@ size_t GrD3DTextureRenderTarget::onGpuMemorySize() const {
     const GrCaps& caps = *this->getGpu()->caps();
     return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
                                   numColorSamples,  // TODO: this still correct?
-                                  this->texturePriv().mipmapped());
+                                  this->mipmapped());
 }

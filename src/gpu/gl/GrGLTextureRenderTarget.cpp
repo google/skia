@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/gl/GrGLTextureRenderTarget.h"
+
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLTextureRenderTarget.h"
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  SkBudgeted budgeted,
@@ -73,5 +74,5 @@ sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
 size_t GrGLTextureRenderTarget::onGpuMemorySize() const {
     const GrCaps& caps = *this->getGpu()->caps();
     return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                  this->numSamplesOwnedPerPixel(), this->texturePriv().mipmapped());
+                                  this->numSamplesOwnedPerPixel(), this->mipmapped());
 }

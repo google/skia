@@ -7,7 +7,7 @@
 
 #include "src/gpu/vk/GrVkTextureRenderTarget.h"
 
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkUtil.h"
@@ -255,5 +255,5 @@ size_t GrVkTextureRenderTarget::onGpuMemorySize() const {
     const GrCaps& caps = *this->getGpu()->caps();
     return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
                                   numColorSamples,  // TODO: this still correct?
-                                  this->texturePriv().mipmapped());
+                                  this->mipmapped());
 }

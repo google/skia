@@ -19,7 +19,7 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStencilSettings.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/dawn/GrDawnBuffer.h"
 #include "src/gpu/dawn/GrDawnCaps.h"
 #include "src/gpu/dawn/GrDawnOpsRenderPass.h"

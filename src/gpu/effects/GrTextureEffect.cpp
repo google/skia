@@ -9,7 +9,6 @@
 
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/SkSLCPP.h"
@@ -714,7 +713,7 @@ void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
     const auto& s = te.fSubset;
     const auto& c = te.fClamp;
 
-    auto type = te.texture()->texturePriv().textureType();
+    auto type = te.texture()->textureType();
 
     float norm[4] = {w, h, 1.f/w, 1.f/h};
 

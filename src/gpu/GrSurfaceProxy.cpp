@@ -20,7 +20,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrSurfacePriv.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
 #ifdef SK_DEBUG
@@ -212,8 +212,8 @@ void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, GrScratchKey* key) co
         mipMapped = tp->mipmapped();
     }
 
-    GrTexturePriv::ComputeScratchKey(caps, this->backendFormat(), this->backingStoreDimensions(),
-                                     renderable, sampleCount, mipMapped, fIsProtected, key);
+    GrTexture::ComputeScratchKey(caps, this->backendFormat(), this->backingStoreDimensions(),
+                                 renderable, sampleCount, mipMapped, fIsProtected, key);
 }
 
 SkISize GrSurfaceProxy::backingStoreDimensions() const {

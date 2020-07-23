@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/gl/GrGLTexture.h"
+
 #include "include/core/SkTraceMemoryDump.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLTexture.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
@@ -88,9 +89,7 @@ void GrGLTexture::init(const Desc& desc) {
     fTextureIDOwnership = desc.fOwnership;
 }
 
-GrGLenum GrGLTexture::target() const {
-    return target_from_texture_type(this->texturePriv().textureType());
-}
+GrGLenum GrGLTexture::target() const { return target_from_texture_type(this->textureType()); }
 
 void GrGLTexture::onRelease() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -111,16 +110,15 @@ void GrGLTexture::onAbandon() {
 
 GrBackendTexture GrGLTexture::getBackendTexture() const {
     GrGLTextureInfo info;
-    info.fTarget = target_from_texture_type(this->texturePriv().textureType());
+    info.fTarget = target_from_texture_type(this->textureType());
     info.fID = fID;
     info.fFormat = GrGLFormatToEnum(fFormat);
-    return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipmapped(), info,
-                            fParameters);
+    return GrBackendTexture(this->width(), this->height(), this->mipmapped(), info, fParameters);
 }
 
 GrBackendFormat GrGLTexture::backendFormat() const {
     return GrBackendFormat::MakeGL(GrGLFormatToEnum(fFormat),
-                                   target_from_texture_type(this->texturePriv().textureType()));
+                                   target_from_texture_type(this->textureType()));
 }
 
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu,

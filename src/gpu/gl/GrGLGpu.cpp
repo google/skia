@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/gl/GrGLGpu.h"
+
 #include "include/core/SkPixmap.h"
-#include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -17,7 +18,6 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrBackendUtils.h"
@@ -30,9 +30,8 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/gl/GrGLBuffer.h"
-#include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLOpsRenderPass.h"
 #include "src/gpu/gl/GrGLSemaphore.h"
 #include "src/gpu/gl/GrGLStencilAttachment.h"
@@ -2599,11 +2598,10 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     }
 
     if (samplerState.mipmapped() == GrMipmapped::kYes) {
-        if (!this->caps()->mipmapSupport() ||
-            texture->texturePriv().mipmapped() == GrMipmapped::kNo) {
+        if (!this->caps()->mipmapSupport() || texture->mipmapped() == GrMipmapped::kNo) {
             samplerState.setMipmapMode(GrSamplerState::MipmapMode::kNone);
         } else {
-            SkASSERT(!texture->texturePriv().mipmapsAreDirty());
+            SkASSERT(!texture->mipmapsAreDirty());
         }
     }
 
@@ -2679,7 +2677,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     }
     GrGLTextureParameters::NonsamplerState newNonsamplerState;
     newNonsamplerState.fBaseMipMapLevel = 0;
-    newNonsamplerState.fMaxMipmapLevel = texture->texturePriv().maxMipmapLevel();
+    newNonsamplerState.fMaxMipmapLevel = texture->maxMipmapLevel();
 
     const GrGLTextureParameters::NonsamplerState& oldNonsamplerState =
             texture->parameters()->nonsamplerState();
@@ -2704,7 +2702,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     }
     // These are not supported in ES2 contexts
     if (this->glCaps().mipmapLevelAndLodControlSupport() &&
-        (texture->texturePriv().textureType() != GrTextureType::kExternal ||
+        (texture->textureType() != GrTextureType::kExternal ||
          !this->glCaps().dontSetBaseOrMaxLevelForExternalTextures())) {
         if (newNonsamplerState.fBaseMipMapLevel != oldNonsamplerState.fBaseMipMapLevel) {
             this->setTextureUnit(unitIdx);
@@ -2825,11 +2823,11 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
     GrTextureType srcTexType;
     GrTextureType* srcTexTypePtr = nullptr;
     if (dstTex) {
-        dstTexType = dstTex->texturePriv().textureType();
+        dstTexType = dstTex->textureType();
         dstTexTypePtr = &dstTexType;
     }
     if (srcTex) {
-        srcTexType = srcTex->texturePriv().textureType();
+        srcTexType = srcTex->textureType();
         srcTexTypePtr = &srcTexType;
     }
 
@@ -2865,11 +2863,11 @@ static inline bool can_copy_texsubimage(const GrSurface* dst, const GrSurface* s
     GrTextureType srcTexType;
     GrTextureType* srcTexTypePtr = nullptr;
     if (dstTex) {
-        dstTexType = dstTex->texturePriv().textureType();
+        dstTexType = dstTex->textureType();
         dstTexTypePtr = &dstTexType;
     }
     if (srcTex) {
-        srcTexType = srcTex->texturePriv().textureType();
+        srcTexType = srcTex->textureType();
         srcTexTypePtr = &srcTexType;
     }
 
@@ -3010,8 +3008,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
 
     int progIdx = TextureToCopyProgramIdx(srcTex);
     const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-    GrSLType samplerType =
-            GrSLCombinedSamplerTypeForTextureType(srcTex->texturePriv().textureType());
+    GrSLType samplerType = GrSLCombinedSamplerTypeForTextureType(srcTex->textureType());
 
     if (!fCopyProgramArrayBuffer) {
         static const GrGLfloat vdata[] = {
@@ -3321,7 +3318,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     GrGLfloat sy1 = (GrGLfloat)(srcRect.fTop + h);
     int sw = src->width();
     int sh = src->height();
-    if (srcTex->texturePriv().textureType() != GrTextureType::kRectangle) {
+    if (srcTex->textureType() != GrTextureType::kRectangle) {
         // src rect edges in normalized texture space (0 to 1)
         sx0 /= sw;
         sx1 /= sw;
@@ -3429,7 +3426,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     int width = texture->width();
     int height = texture->height();
     int levelCount = SkMipmap::ComputeLevelCount(width, height) + 1;
-    SkASSERT(levelCount == texture->texturePriv().maxMipmapLevel() + 1);
+    SkASSERT(levelCount == texture->maxMipmapLevel() + 1);
 
     // Create (if necessary), then bind temporary FBO:
     if (0 == fTempDstFBOID) {
@@ -4037,7 +4034,7 @@ std::unique_ptr<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTextu
 }
 
 int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
-    switch (GrSLCombinedSamplerTypeForTextureType(texture->texturePriv().textureType())) {
+    switch (GrSLCombinedSamplerTypeForTextureType(texture->textureType())) {
         case kTexture2DSampler_GrSLType:
             return 0;
         case kTexture2DRectSampler_GrSLType:

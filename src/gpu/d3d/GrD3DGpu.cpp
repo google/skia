@@ -13,7 +13,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
@@ -621,7 +621,7 @@ bool GrD3DGpu::onWritePixels(GrSurface* surface, int left, int top, int width, i
     // Need to change the resource state to COPY_DEST in order to upload to it
     d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
 
-    SkASSERT(mipLevelCount <= d3dTex->texturePriv().maxMipmapLevel() + 1);
+    SkASSERT(mipLevelCount <= d3dTex->maxMipmapLevel() + 1);
     success = this->uploadToTexture(d3dTex, left, top, width, height, srcColorType, texels,
                                     mipLevelCount);
 
@@ -641,7 +641,7 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
-    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipmapLevel() + 1));
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->maxMipmapLevel() + 1));
 
     if (width == 0 || height == 0) {
         return false;
@@ -719,7 +719,7 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
                                                    placedFootprints.get(), left, top);
 
     if (mipLevelCount < (int)desc.MipLevels) {
-        tex->texturePriv().markMipmapsDirty();
+        tex->markMipmapsDirty();
     }
 
     return true;
