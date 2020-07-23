@@ -16,6 +16,24 @@
       "revId": "74c19de3beda545f5809e6305e02057e5329e340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aced4ae0_e182c535",
+        "filename": "include/core/SkPostConfig.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-23T17:45:20Z",
+      "side": 1,
+      "message": "Oh! That\u0027s a good point.",
+      "parentUuid": "f25d162a_f9fbc333",
+      "revId": "74c19de3beda545f5809e6305e02057e5329e340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
