@@ -41,6 +41,10 @@ static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
 }
 
 GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerState) {
+    // Hack: don't allow linear MIP filtering without linear min/mag filter.
+    if (samplerState.mipmapMode() == GrSamplerState::MipmapMode::kLinear) {
+        samplerState.setFilterMode(GrSamplerState::Filter::kLinear);
+    }
     MTLSamplerMinMagFilter minMagFilter = [&] {
         switch (samplerState.filter()) {
             case GrSamplerState::Filter::kNearest: return MTLSamplerMinMagFilterNearest;
@@ -51,7 +55,9 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
 
     MTLSamplerMipFilter mipFilter = [&] {
       switch (samplerState.mipmapMode()) {
-          case GrSamplerState::MipmapMode::kNone:    return MTLSamplerMipFilterNotMipmapped;
+          // It would make more sense to use MTLSamplerMipFilterNotMipmapped here but
+          // see comment below about lodMaxClamp.
+          case GrSamplerState::MipmapMode::kNone:    return MTLSamplerMipFilterNearest;
           case GrSamplerState::MipmapMode::kLinear:  return MTLSamplerMipFilterLinear;
       }
       SkUNREACHABLE;
@@ -67,7 +73,10 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
     samplerDesc.minFilter = minMagFilter;
     samplerDesc.mipFilter = mipFilter;
     samplerDesc.lodMinClamp = 0.0f;
-    samplerDesc.lodMaxClamp = FLT_MAX;  // default value according to docs.
+    // It seems like we should be able to leave this at the default of FLT_MAX but our
+    // 10.13 MacBook10.1 bot started failing tests and hanging when we did that.
+    samplerDesc.lodMaxClamp = samplerState.mipmapped() == GrMipmapped::kYes ? 1000.f : 0.f;
+
     samplerDesc.maxAnisotropy = 1.0f;
     samplerDesc.normalizedCoordinates = true;
     if (@available(macOS 10.11, iOS 9.0, *)) {
