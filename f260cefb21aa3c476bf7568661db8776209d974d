@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f404b18f_609f243f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-23T15:49:19Z",
+      "side": 1,
+      "message": "Something we talked about doing earlier.\nSee https://skia-review.googlesource.com/c/skia/+/294736",
+      "revId": "f260cefb21aa3c476bf7568661db8776209d974d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
