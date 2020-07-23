@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "342ea522_34297b9e",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-23T20:47:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09ac4814_0c8eb549",
+      "range": {
+        "startLine": 29,
+        "startChar": 8,
+        "endLine": 29,
+        "endChar": 35
+      },
+      "revId": "a2b9e806dd9c6f43164b87d9fe9845aaa7f088a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78b6d698_dc639237",
         "filename": "src/gpu/GrRingBuffer.h",
         "patchSetId": 6
@@ -53,6 +77,30 @@
       "writtenOn": "2020-07-23T20:03:51Z",
       "side": 1,
       "message": "should this just be a GrGpuBuffer*? Seems like fTrackedBuffers will have a ref on it",
+      "range": {
+        "startLine": 66,
+        "startChar": 4,
+        "endLine": 66,
+        "endChar": 38
+      },
+      "revId": "a2b9e806dd9c6f43164b87d9fe9845aaa7f088a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7e409b1_98a2fa94",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-23T20:47:10Z",
+      "side": 1,
+      "message": "No, because once we move fTrackedBuffers to the SubmitData we\u0027ll have lost the pointer if we don\u0027t ref it.",
+      "parentUuid": "78b6d698_dc639237",
       "range": {
         "startLine": 66,
         "startChar": 4,
