@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5cab048c_85312522",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-23T22:16:57Z",
+      "side": 1,
+      "message": "Done. Added a comment in GrStrokeGeometry::reservePatch.",
+      "parentUuid": "7491d2d8_d1b2680b",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 48
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f695f965_6f58066c",
         "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc8dffb6_8b4a5cd9",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-23T22:16:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f695f965_6f58066c",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 23
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e311c9ce_2051a8ed",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-23T22:16:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3d0c523_31de39e2",
+      "range": {
+        "startLine": 59,
+        "startChar": 27,
+        "endLine": 59,
+        "endChar": 33
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30496402_4dca3a63",
         "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
         "patchSetId": 7
@@ -91,6 +163,30 @@
       "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "044b3d32_9dc8836d",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-23T22:16:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30496402_4dca3a63",
+      "range": {
+        "startLine": 70,
+        "startChar": 16,
+        "endLine": 70,
+        "endChar": 17
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "3f8f4a78_61e48a62",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-23T22:16:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d3527aa_7b86c0ce",
+      "range": {
+        "startLine": 113,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 51
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41334fd3_49b99afd",
         "filename": "src/gpu/tessellate/GrTessellateStrokeOp.h",
         "patchSetId": 7
@@ -137,6 +257,30 @@
       "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93d1bf89_b8f7864f",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-23T22:16:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41334fd3_49b99afd",
+      "range": {
+        "startLine": 57,
+        "startChar": 14,
+        "endLine": 57,
+        "endChar": 15
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
