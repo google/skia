@@ -144,10 +144,12 @@ if (!options.canvaskit_wasm) {
 }
 
 const benchmarkJS = fs.readFileSync('benchmark.js', 'utf8');
+const canvasPerfJS = fs.readFileSync('canvas_perf.js', 'utf8');
 const canvasKitJS = fs.readFileSync(options.canvaskit_js, 'utf8');
 const canvasKitWASM = fs.readFileSync(options.canvaskit_wasm, 'binary');
 
 app.get('/static/benchmark.js', (req, res) => res.send(benchmarkJS));
+app.get('/static/canvas_perf.js', (req, res) => res.send(canvasPerfJS));
 app.get('/static/canvaskit.js', (req, res) => res.send(canvasKitJS));
 app.get('/static/canvaskit.wasm', function(req, res) {
   // Set the MIME type so it can be streamed efficiently.
