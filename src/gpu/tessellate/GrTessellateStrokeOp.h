@@ -11,7 +11,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrSTArenaList.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/GrStrokeGeometry.h"
+#include "src/gpu/tessellate/GrStrokePatchBuilder.h"
 
 // Renders opaque, constant-color strokes by decomposing them into standalone tessellation patches.
 // Each patch is either a "cubic" (single stroked bezier curve with butt caps) or a "join". Requires
@@ -55,7 +55,7 @@ private:
     GrProcessorSet fProcessors;
 
     // S=1 because we will almost always fit everything into one single chunk.
-    SkSTArray<1, GrStrokeGeometry::VertexChunk> fVertexChunks;
+    SkSTArray<1, GrStrokePatchBuilder::VertexChunk> fVertexChunks;
 
     friend class GrOpMemoryPool;  // For ctor.
 };
