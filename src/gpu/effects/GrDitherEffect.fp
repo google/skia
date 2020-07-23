@@ -8,7 +8,7 @@
 in fragmentProcessor inputFP;
 
 // Larger values increase the strength of the dithering effect.
-in uniform half range;
+layout(key) in half range;
 
 void main() {
     half4 color = sample(inputFP);

@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrDitherEffect.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -25,9 +26,7 @@ public:
         (void)_outer;
         auto range = _outer.range;
         (void)range;
-        rangeVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                    "range");
-        SkString _sample302 = this->invokeChild(0, args);
+        SkString _sample306 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 color = %s;
 half value;
@@ -42,25 +41,22 @@ half value;
     bits.xz = abs(bits.xz - bits.yw);
     value = dot(bits, half4(0.5, 0.25, 0.125, 0.0625)) - 0.46875;
 }
-%s = half4(clamp(color.xyz + value * %s, 0.0, color.w), color.w);
+%s = half4(clamp(color.xyz + value * %f, 0.0, color.w), color.w);
 )SkSL",
-                _sample302.c_str(), args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(rangeVar));
+                _sample306.c_str(), args.fOutputColor, _outer.range);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
-        const GrDitherEffect& _outer = _proc.cast<GrDitherEffect>();
-        { pdman.set1f(rangeVar, (_outer.range)); }
-    }
-    UniformHandle rangeVar;
+                   const GrFragmentProcessor& _proc) override {}
 };
 GrGLSLFragmentProcessor* GrDitherEffect::onCreateGLSLInstance() const {
     return new GrGLSLDitherEffect();
 }
 void GrDitherEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                           GrProcessorKeyBuilder* b) const {}
+                                           GrProcessorKeyBuilder* b) const {
+    b->add32(bit_cast<uint32_t>(range));
+}
 bool GrDitherEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDitherEffect& that = other.cast<GrDitherEffect>();
     (void)that;
