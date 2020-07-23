@@ -2343,7 +2343,14 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                              VariableReference::kPointer_RefKind);
         }
     }
-    if (fCanInline && function.fDefinition && function.fDefinition->canBeInlined() &&
+    // Skip inlining during the PipelineStage and FragmentProcessor passes. Otherwise, the SkSL we
+    // make in the resulting FP will have variables with inline expanded names (eg, inlineResult0).
+    // If that FP's code is then inlined again when the combined fragment shader SkSL is compiled,
+    // we'll reuse those names (the counter is reset), creating a conflict. (skbug.com/10526)
+    if (fCanInline &&
+        fKind != Program::kPipelineStage_Kind &&
+        fKind != Program::kFragmentProcessor_Kind &&
+        function.fDefinition && function.fDefinition->canBeInlined() &&
         ((fSettings->fCaps && fSettings->fCaps->canUseDoLoops()) ||
          !has_early_return(*function.fDefinition))) {
         return this->inlineCall(offset, *function.fDefinition, std::move(arguments));
