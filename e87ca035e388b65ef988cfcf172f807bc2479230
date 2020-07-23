@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a614a8ba_68274fd9",
+        "filename": "tools/fm/fm_bot/fm_bot.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T13:30:56Z",
+      "side": 1,
+      "message": "I\u0027d go with cpuBackends",
+      "range": {
+        "startLine": 262,
+        "startChar": 2,
+        "endLine": 262,
+        "endChar": 18
+      },
+      "revId": "e87ca035e388b65ef988cfcf172f807bc2479230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
