@@ -259,12 +259,12 @@ func main() {
 				backend = w.Flags[i+1]
 			}
 		}
-		whitelisted := map[string]bool{
+		allowedBackends := map[string]bool{
 			"cpu": true,
 			"skp": true,
 			"pdf": true,
 		}
-		if whitelisted[backend] {
+		if allowedBackends[backend] {
 			queue, limit = cpu, *cpuLimit
 		}
 

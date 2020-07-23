@@ -230,7 +230,7 @@ public:
                                const SkMatrix* localMatrix = nullptr) const;
 
 private:
-    // Subclass whitelist.
+    // Allowed subclasses.
     SkPicture();
     friend class SkBigPicture;
     friend class SkEmptyPicture;
