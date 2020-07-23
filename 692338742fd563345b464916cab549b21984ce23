@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0459e0ed_8355c82c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-23T14:55:49Z",
+      "side": 1,
+      "message": "Tested this change locally with the previous web worker CL demo https://skia-review.googlesource.com/c/skia/+/304320 and it works! ",
+      "revId": "692338742fd563345b464916cab549b21984ce23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
