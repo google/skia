@@ -110,6 +110,30 @@
       "revId": "a2b9e806dd9c6f43164b87d9fe9845aaa7f088a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b20ec5d_094ec8f9",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-23T20:54:57Z",
+      "side": 1,
+      "message": "Ahh yes I forgot we keep reusing the same buffer across multiple frames.",
+      "parentUuid": "b7e409b1_98a2fa94",
+      "range": {
+        "startLine": 66,
+        "startChar": 4,
+        "endLine": 66,
+        "endChar": 38
+      },
+      "revId": "a2b9e806dd9c6f43164b87d9fe9845aaa7f088a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
