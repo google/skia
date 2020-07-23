@@ -482,11 +482,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
     }
 
     const SkMatrix& drawMatrix(viewMatrix.localToDevice());
-    if (blob != nullptr && blob->canReuse(blobPaint, blurRec, drawMatrix, drawOrigin)) {
-        // Reusing the blob. Move it to the front of LRU cache.
-        textBlobCache->makeMRU(blob.get());
-    } else {
-        // Build or Rebuild the GrTextBlob
+    if (blob == nullptr || !blob->canReuse(blobPaint, blurRec, drawMatrix, drawOrigin)) {
         if (blob != nullptr) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away with reuse most of the time if the pointer is unique,
