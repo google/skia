@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62818e03_ab150c4f",
+        "filename": "src/gpu/effects/GrBlendFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-23T15:57:54Z",
+      "side": 1,
+      "message": "Want to replace the reference to \"Compose\" here, too?",
+      "revId": "cf254d051f3744819116be58e22027a4973f9f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
