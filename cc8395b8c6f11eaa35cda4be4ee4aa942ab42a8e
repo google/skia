@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f8db5e98_247fd785",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 13069
+      },
+      "writtenOn": "2020-07-23T23:06:06Z",
+      "side": 1,
+      "message": "This doesn\u0027t match the math we have in gfx::ColorSpace, but not sure it\u0027s incorrect. We always use an addY value of -16/219, but have an addUV value that varies based on bit depth.\n\n  bt.709 8-bit limited:\n  scale_y\u003d255.000000/219.000000, translate_y\u003d-16.000000/219.000000\n  scale_uv\u003d255.000000/224.000000, translate_uv\u003d-31.000000/448.000000\n\n  bt.2020 10-bit limited:\n  scale_y\u003d1023.000000/876.000000, translate_y\u003d-16.000000/219.000000\n  scale_uv\u003d1023.000000/896.000000, translate_uv\u003d-127.000000/1792.000000\n\n  bt.2020 12-bit limited:\n  scale_y\u003d4095.000000/3504.000000, translate_y\u003d-16.000000/219.000000\n  scale_uv\u003d4095.000000/3584.000000, translate_uv\u003d-511.000000/7168.000000\n\nThese are just printed from the gfx::ColorSpace::GetRangeAdjustMatrix() method.",
+      "revId": "cc8395b8c6f11eaa35cda4be4ee4aa942ab42a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ae9915dd_acb32086",
         "filename": "src/core/SkYUVMath.cpp",
         "patchSetId": 1
