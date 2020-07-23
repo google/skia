@@ -830,15 +830,9 @@ DEF_TEST(SkSLFPFunction, r) {
             "R\"SkSL(return c.wzyx;\n"
             ")SkSL\", &flip_name);",
             "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(half4 inlineResult0;\n"
-            "half4 inlineArg1_0 = %s;\n"
-            "{\n"
-            "    inlineResult0 = inlineArg1_0.wzyx;\n"
-            "}\n"
-            "%s = inlineResult0;\n"
-            "\n"
+            "R\"SkSL(%s = %s(%s);\n"
             ")SkSL\"\n"
-            ", args.fInputColor, args.fOutputColor);"
+            ", args.fOutputColor, flip_name.c_str(), args.fInputColor);"
          });
 }
 
