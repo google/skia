@@ -8,6 +8,8 @@
 #ifndef SkUtils_DEFINED
 #define SkUtils_DEFINED
 
+#include <type_traits>
+
 #include "include/core/SkFontTypes.h"
 #include "src/core/SkOpts.h"
 #include "src/utils/SkUTF.h"
@@ -81,18 +83,44 @@ namespace SkHexadecimalDigits {
 // making them safe to use for all types on all platforms, thus solving the
 // problem once and for all!
 
-template <typename T, typename P>
-static SK_ALWAYS_INLINE T sk_unaligned_load(const P* ptr) {
-    // TODO: static_assert desirable things about T here so as not to be totally abused.
-    T val;
-    memcpy(&val, ptr, sizeof(val));
-    return val;
+template <typename Dest>
+static SK_ALWAYS_INLINE Dest sk_unaligned_load(const void* src) {
+    static_assert(std::is_trivially_copyable<Dest>::value,
+                  "sk_unaligned_load requires the destination type to be trivially copyable");
+    Dest dst;
+    memcpy(&dst, src, sizeof(dst));
+    return dst;
 }
 
-template <typename T, typename P>
-static SK_ALWAYS_INLINE void sk_unaligned_store(P* ptr, T val) {
-    // TODO: ditto
-    memcpy(ptr, &val, sizeof(val));
+template <typename Dest, typename Source>
+static SK_ALWAYS_INLINE void sk_unaligned_store(Dest* dst, Source src) {
+    static_assert(std::is_trivially_copyable<Dest>::value,
+                  "sk_unaligned_store requires the destination type to be trivially copyable");
+    static_assert(std::is_trivially_copyable<Source>::value,
+                  "sk_unaligned_store requires the source type to be trivially copyable");
+    memcpy(dst, &src, sizeof(src));
+}
+
+template <typename Dest, typename Source>
+static SK_ALWAYS_INLINE Dest bit_cast(const Source& src) {
+    static_assert(sizeof(Dest) == sizeof(Source),
+                  "bit_cast requires source and destination to be the same size");
+    static_assert(std::is_trivially_copyable<Source>::value,
+                  "bit_cast requires the source type to be trivially copyable");
+    return sk_unaligned_load<Dest>(&src);
+}
+
+template <typename Dest, typename Source>
+static SK_ALWAYS_INLINE Dest widen_cast(const Source& src) {
+    static_assert(sizeof(Dest) >= sizeof(Source),
+                  "widen_cast requires destination to be at least as large as the source");
+    static_assert(std::is_trivially_copyable<Dest>::value,
+                  "widen_cast requires the destination type to be copyable");
+    static_assert(std::is_trivially_copyable<Source>::value,
+                  "widen_cast requires the source type to be copyable");
+    Dest dst;
+    memcpy(&dst, &src, sizeof(src));
+    return dst;
 }
 
 #endif
