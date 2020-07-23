@@ -110,10 +110,16 @@ public:
                    const GrProcessorSet::Analysis& processorAnalysis,
                    GrAppliedClip&& clip, const DstProxyView& dstProxyView,
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
-        auto addDependency = [ drawingMgr, textureResolveManager, &caps, this ] (
-                GrSurfaceProxy* p, GrMipmapped mipmapped) {
-            this->addSampledTexture(p);
-            this->addDependency(drawingMgr, p, mipmapped, textureResolveManager, caps);
+        struct DepAdder {
+            GrDrawingManager* dm;
+            GrTextureResolveManager trm;
+            const GrCaps* caps;
+            GrOpsTask* ot;
+        };
+        DepAdder da = {drawingMgr, textureResolveManager, &caps, this};
+        auto addDependency = [&da](GrSurfaceProxy* p, GrMipmapped mipmapped) {
+            da.ot->addSampledTexture(p);
+            da.ot->addDependency(da.dm, p, mipmapped, da.trm, *da.caps);
         };
 
         op->visitProxies(addDependency);
