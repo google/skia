@@ -34,8 +34,8 @@ public:
 
     const char* name() const override { return "Dummy Op"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context, int numAttribs) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext, int numAttribs) {
+        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
 
         return pool->allocate<Op>(numAttribs);
     }
