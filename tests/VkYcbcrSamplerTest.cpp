@@ -133,7 +133,7 @@ DEF_GPUTEST(VkYCbcrSampler_NoYcbcrSurface, reporter, options) {
             GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     if (texture.isValid()) {
         ERRORF(reporter,
-               "GrContext::createBackendTexture() didn't fail as expected for Ycbcr format.");
+               "GrDirectContext::createBackendTexture() didn't fail as expected for Ycbcr format.");
     }
 }
 

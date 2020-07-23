@@ -99,26 +99,26 @@ static void cleanup_test(skiatest::Reporter* reporter) {
 
         {
             sk_sp<SkImage> img;
-            GrDirectContext* context = nullptr;
+            GrDirectContext* dContext = nullptr;
 
             {
                 GrContextFactory testFactory;
                 ContextInfo info = testFactory.getContextInfo(ctxType);
-                context = info.directContext();
-                if (!context) {
+                dContext = info.directContext();
+                if (!dContext) {
                     continue;
                 }
 
                 img = SkMakeImageFromRasterBitmap(bm, kNever_SkCopyPixelsMode);
-                if (!SkImage_pinAsTexture(img.get(), context)) {
+                if (!SkImage_pinAsTexture(img.get(), dContext)) {
                     continue;
                 }
             }
 
-            // The GrContext used to pin the image is gone at this point!
+            // The context used to pin the image is gone at this point!
             // "context" isn't technically used in this call but it can't be null!
             // We don't really want to support this use case but it currently happens.
-            SkImage_unpinAsTexture(img.get(), context);
+            SkImage_unpinAsTexture(img.get(), dContext);
         }
     }
 }

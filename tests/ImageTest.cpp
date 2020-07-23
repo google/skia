@@ -385,7 +385,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
             // Create a texture image.
             [dContext] { return create_gpu_image(dContext, true, SkBudgeted::kYes); },
             [dContext] { return create_gpu_image(dContext, false, SkBudgeted::kNo); },
-            // Create a texture image in a another GrContext.
+            // Create a texture image in a another context.
             [otherContextInfo] {
                 auto restore = otherContextInfo.testContext()->makeCurrentAndAutoRestore();
                 auto otherContextImage = create_gpu_image(otherContextInfo.directContext());
@@ -408,7 +408,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 auto texImage = image->makeTextureImage(dContext, mipMapped, budgeted);
                 if (!texImage) {
                     GrContext* imageContext = as_IB(image)->context();
-                    // We expect to fail if image comes from a different GrContext
+                    // We expect to fail if image comes from a different context
                     if (!image->isTextureBacked() || imageContext == dContext) {
                         ERRORF(reporter, "makeTextureImage failed.");
                     }
@@ -597,7 +597,7 @@ DEF_GPUTEST(AbandonedContextImage, reporter, options) {
         // This shouldn't crash.
         rsurf->getCanvas()->drawImage(img, 0, 0);
 
-        // Give up all other refs on GrContext.
+        // Give up all other refs on the context.
         factory.reset(nullptr);
         REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->getGrContext()));
         // This shouldn't crash.
@@ -965,7 +965,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
         // Case #6: Verify that only one context can be using the image at a time
         {
-            // Suppress warnings about trying to use a texture on two GrContexts.
+            // Suppress warnings about trying to use a texture in two contexts.
             GrRecordingContextPriv::AutoSuppressWarningMessages aswm(otherCtx);
 
             testContext->makeCurrent();
@@ -1074,7 +1074,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
         { create_data_image, true, false },
         { create_picture_image, true, false },
         { [context] { return create_gpu_image(context); }, true, true },
-        // Create a texture image in a another GrContext.
+        // Create a texture image in a another context.
         { [otherContextInfo] {
             auto restore = otherContextInfo.testContext()->makeCurrentAndAutoRestore();
             sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.directContext());
@@ -1454,7 +1454,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     i2 = make_yuva_image(dContext);
     // On some systems where preferVRAMUseOverFlushes is false (ANGLE on Windows) the above may
     // actually flush in order to make textures for the YUV planes. TODO: Remove this when we
-    // make the YUVA planes from backend textures rather than pixmaps that GrContext must upload.
+    // make the YUVA planes from backend textures rather than pixmaps that the context must upload.
     // Calling numSubmits rebases the flush count from here.
     numSubmits();
     as_IB(i2.get())->view(dContext);

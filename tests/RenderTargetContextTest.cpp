@@ -17,9 +17,9 @@
 
 static const int kSize = 64;
 
-static std::unique_ptr<GrRenderTargetContext> get_rtc(GrContext* ctx) {
+static std::unique_ptr<GrRenderTargetContext> get_rtc(GrRecordingContext* rContext) {
     return GrRenderTargetContext::Make(
-            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kSize, kSize});
+            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kSize, kSize});
 }
 
 static void check_instantiation_status(skiatest::Reporter* reporter,
@@ -34,26 +34,26 @@ static void check_instantiation_status(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
-    auto ctx = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     // Calling instantiate on a GrRenderTargetContext's textureProxy also instantiates the
     // GrRenderTargetContext
     {
-        auto rtCtx = get_rtc(ctx);
+        auto rtCtx = get_rtc(dContext);
 
         check_instantiation_status(reporter, rtCtx.get(), false);
 
         GrTextureProxy* tProxy = rtCtx->asTextureProxy();
         REPORTER_ASSERT(reporter, tProxy);
 
-        REPORTER_ASSERT(reporter, tProxy->instantiate(ctx->priv().resourceProvider()));
+        REPORTER_ASSERT(reporter, tProxy->instantiate(dContext->priv().resourceProvider()));
 
         check_instantiation_status(reporter, rtCtx.get(), true);
     }
 
     // readPixels switches a deferred rtCtx to wrapped
     {
-        auto rtCtx = get_rtc(ctx);
+        auto rtCtx = get_rtc(dContext);
 
         check_instantiation_status(reporter, rtCtx.get(), false);
 
