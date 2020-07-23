@@ -1496,8 +1496,7 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
             results[0] = a;
             results[1] = c;
             if (results[0] > results[1]) {
-                using std::swap;
-                swap(results[0], results[1]);
+                std::swap(results[0], results[1]);
             }
         }
     } else {
@@ -1519,7 +1518,6 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
     // Due to the floating point inaccuracy, there might be an error in a, b, c
     // calculated by sdot, further deepened by subsequent arithmetic operations
     // on them. Therefore, we allow and cap the nearly-zero negative values.
-    SkASSERT(results[0] >= -SK_ScalarNearlyZero);
     if (results[0] < 0) {
         results[0] = 0;
     }
@@ -1528,7 +1526,6 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
         if (!SkScalarIsFinite(results[1])) {
             return false;
         }
-        SkASSERT(results[1] >= -SK_ScalarNearlyZero);
         if (results[1] < 0) {
             results[1] = 0;
         }
