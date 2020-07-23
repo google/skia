@@ -46,7 +46,6 @@ def compile_fn(api, checkout_root, _ignore):
 
 SKQP_BUILD_PRODUCTS = [
   '*.apk',
-  'whitelist_devices.json',
 ]
 
 
