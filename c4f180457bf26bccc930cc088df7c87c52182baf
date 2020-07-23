@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e8136ae_ead249db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-23T17:37:25Z",
+      "side": 1,
+      "message": "I was able to build with the fuzz gn args and run chrome on the minimized test case but I didn\u0027t get a crash. It ran super slow so I tried converting to release asserts and running in release. Ran much faster but still didn\u0027t crash. But these asserts are still my best guess. The fuzzer is running on a is_debug\u003dtrue build.",
+      "revId": "c4f180457bf26bccc930cc088df7c87c52182baf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
