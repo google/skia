@@ -25,7 +25,7 @@ public:
     ~GrD3DBuffer() override {
         // release should have been called by the owner of this object.
         SkASSERT(!fResource);
-        SkASSERT(!fMappedResource);
+        SkASSERT(!fStagingBuffer);
     }
 
     ID3D12Resource* d3dResource() const {
@@ -102,7 +102,9 @@ private:
     };
 
     sk_sp<Resource> fResource;
-    sk_sp<Resource> fMappedResource;
+    // TODO: Once we get rid of resources on buffer this can just be an ID3D12Resource*
+    sk_sp<GrD3DBuffer::Resource> fStagingBuffer;
+    size_t fStagingOffset = 0;
 
     typedef GrGpuBuffer INHERITED;
 };
