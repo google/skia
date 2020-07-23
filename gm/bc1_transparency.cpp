@@ -179,6 +179,18 @@ protected:
         fBC1Data = make_compressed_data();
     }
 
+    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
+        if (!dContext || dContext->abandoned()) {
+            return DrawResult::kSkip;
+        }
+
+        return DrawResult::kOk;
+    }
+
+    void onGpuTeardown() override {
+
+    }
+
     void onDraw(SkCanvas* canvas) override {
         auto direct = GrAsDirectContext(canvas->recordingContext());
 
