@@ -27,11 +27,9 @@ public:
                                      const SkMaskFilterBase::BlurRec& blurRec,
                                      const SkMatrix& viewMatrix) SK_EXCLUDES(fMutex);
 
-    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) const SK_EXCLUDES(fMutex);
+    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) SK_EXCLUDES(fMutex);
 
     void remove(GrTextBlob* blob) SK_EXCLUDES(fMutex);
-
-    void makeMRU(GrTextBlob* blob) SK_EXCLUDES(fMutex);
 
     void freeAll() SK_EXCLUDES(fMutex);
 
@@ -84,7 +82,7 @@ private:
 
     static const int kDefaultBudget = 1 << 22;
 
-    mutable SkMutex fMutex;
+    mutable SkSpinlock fMutex;
     TextBlobList fBlobList SK_GUARDED_BY(fMutex);
     SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fMutex);
     size_t fSizeBudget SK_GUARDED_BY(fMutex);

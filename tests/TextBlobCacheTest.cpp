@@ -55,7 +55,7 @@ static void setup_always_evict_atlas(GrDirectContext* dContext) {
 class GrTextBlobTestingPeer {
 public:
     static void SetBudget(GrTextBlobCache* cache, size_t budget) {
-        SkAutoMutexExclusive lock{cache->fMutex};
+        SkAutoSpinlock lock{cache->fMutex};
         cache->fSizeBudget = budget;
         cache->internalCheckPurge();
     }
