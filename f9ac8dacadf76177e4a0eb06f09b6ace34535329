@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f6db70_d60f88b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-23T00:28:05Z",
+      "side": 1,
+      "message": "I like this version better than mine (much simpler)\nhttps://skia-review.googlesource.com/c/skia/+/305406\n\nDo you see image diffs?",
+      "revId": "f9ac8dacadf76177e4a0eb06f09b6ace34535329",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
