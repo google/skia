@@ -1,5 +1,4 @@
 include ':viewer'
 include ':skqp'
-include ':skar_java'
 include ':skottie'
 include ':skottie:skottielib'
