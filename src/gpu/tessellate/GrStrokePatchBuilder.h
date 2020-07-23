@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGrStrokeGeometry_DEFINED
-#define GrGrStrokeGeometry_DEFINED
+#ifndef GrGrStrokePatchBuilder_DEFINED
+#define GrGrStrokePatchBuilder_DEFINED
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
@@ -21,14 +21,14 @@ class SkStrokeRec;
 // entire lifetime of this class. e.g.:
 //
 //   void onPrepare(GrOpFlushState* target)  {
-//        GrStrokeGeometry g(target, &fMyVertexChunks, count);  // Locks target.
+//        GrStrokePatchBuilder builder(target, &fMyVertexChunks, count);  // Locks target.
 //        for (...) {
-//            g.addPath(path, stroke);
+//            builder.addPath(path, stroke);
 //        }
 //   }
 //   ... target can now be used normally again.
 //   ... fMyVertexChunks now contains chunks that can be drawn during onExecute.
-class GrStrokeGeometry {
+class GrStrokePatchBuilder {
 public:
     // We generate vertex buffers in chunks. Normally there will only be one chunk, but in rare
     // cases the first can run out of space if too many cubics needed to be subdivided.
@@ -41,8 +41,8 @@ public:
     // Stores raw pointers to the provided target and vertexChunkArray, which this class will use
     // and push to as addPath is called. The caller is responsible to bind and draw each chunk that
     // gets pushed to the array. (See GrTessellateStrokeShader.)
-    GrStrokeGeometry(GrMeshDrawOp::Target* target, SkTArray<VertexChunk>* vertexChunkArray,
-                     int totalCombinedVerbCnt)
+    GrStrokePatchBuilder(GrMeshDrawOp::Target* target, SkTArray<VertexChunk>* vertexChunkArray,
+                         int totalCombinedVerbCnt)
             : fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
             , fTarget(target)
             , fVertexChunkArray(vertexChunkArray) {
@@ -52,7 +52,7 @@ public:
 
     // "Releases" the target to be used externally again by putting back any unused pre-allocated
     // vertices.
-    ~GrStrokeGeometry() {
+    ~GrStrokePatchBuilder() {
         fTarget->putBackVertices(fCurrChunkVertexCapacity - fVertexChunkArray->back().fVertexCount,
                                  sizeof(SkPoint));
     }

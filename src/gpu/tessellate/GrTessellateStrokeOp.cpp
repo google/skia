@@ -8,13 +8,13 @@
 #include "src/gpu/tessellate/GrTessellateStrokeOp.h"
 
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/tessellate/GrStrokeGeometry.h"
+#include "src/gpu/tessellate/GrStrokePatchBuilder.h"
 #include "src/gpu/tessellate/GrTessellateStrokeShader.h"
 
 static SkPath transform_path(const SkMatrix& viewMatrix, const SkPath& path) {
     SkPath devPath;
     // The provided matrix must be a similarity matrix for the time being. This is so we can
-    // bootstrap this Op on top of GrStrokeGeometry with minimal modifications.
+    // bootstrap this Op on top of GrStrokePatchBuilder with minimal modifications.
     SkASSERT(viewMatrix.isSimilarity());
     path.transform(viewMatrix, &devPath);
     return devPath;
@@ -109,9 +109,9 @@ void GrTessellateStrokeOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProx
 }
 
 void GrTessellateStrokeOp::onPrepare(GrOpFlushState* flushState) {
-    GrStrokeGeometry strokeGeometry(flushState, &fVertexChunks, fTotalCombinedVerbCnt);
+    GrStrokePatchBuilder builder(flushState, &fVertexChunks, fTotalCombinedVerbCnt);
     for (auto& [path, stroke] : fPathStrokes) {
-        strokeGeometry.addPath(path, stroke);
+        builder.addPath(path, stroke);
     }
 }
 
