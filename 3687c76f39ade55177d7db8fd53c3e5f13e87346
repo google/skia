@@ -39,6 +39,30 @@
       "revId": "3687c76f39ade55177d7db8fd53c3e5f13e87346",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7daa8644_56446d42",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/CorrectnessActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-23T19:01:57Z",
+      "side": 1,
+      "message": "I honestly don\u0027t know what the best practice is, but this code was inspired by the SynchronousPixelCopy class in cts here:\n\nhttps://android.googlesource.com/platform/cts/+/181571d/libs/deviceutil/src/android/cts/util/SynchronousPixelCopy.java\n\nThey seem to just wrap the asynch PixelCopy calls in a synchronous block followed by a wait, but I could be missing something.",
+      "parentUuid": "066b827c_7c5d49f3",
+      "range": {
+        "startLine": 124,
+        "startChar": 16,
+        "endLine": 124,
+        "endChar": 31
+      },
+      "revId": "3687c76f39ade55177d7db8fd53c3e5f13e87346",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
