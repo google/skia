@@ -1152,14 +1152,35 @@ func (b *jobBuilder) androidFrameworkCompile() {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func (b *jobBuilder) g3FrameworkCanary() {
+	// b.addTask(b.Name, func(b *taskBuilder) {
+	// 	b.recipeProps(EXTRA_PROPS)
+	// 	b.kitchenTask("g3_canary", OUTPUT_NONE)
+	// 	b.isolate("canary.isolate")
+	// 	b.serviceAccount("skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com")
+	// 	b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+	// 	b.timeout(3 * time.Hour)
+	// 	b.usesGit()
+	// 	b.attempts(1)
+	// })
+
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.recipeProps(EXTRA_PROPS)
-		b.kitchenTask("g3_canary", OUTPUT_NONE)
-		b.isolate("canary.isolate")
-		b.serviceAccount("skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com")
+		b.isolate("empty.isolate")
+		b.dep(b.buildTaskDrivers())
+		b.cmd("./g3_canary",
+			"--local=false",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--alsologtostderr")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.serviceAccount("skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com")
 		b.timeout(3 * time.Hour)
-		b.usesGit()
 		b.attempts(1)
 	})
 }
@@ -1443,7 +1464,7 @@ func (b *jobBuilder) puppeteer() {
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 
 		webglversion := "2"
-		if (b.extraConfig("WebGL1")) {
+		if b.extraConfig("WebGL1") {
 			webglversion = "1"
 		}
 
