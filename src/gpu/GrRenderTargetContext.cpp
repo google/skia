@@ -452,7 +452,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
     const SkMaskFilter* mf = blobPaint.getMaskFilter();
     bool canCache = glyphRunList.canCache() &&
-            !(blobPaint.getPathEffect() || (mf && !as_MFB(mf)->asABlur(&blurRec)));
+                    !(blobPaint.getPathEffect() || (mf && !as_MFB(mf)->asABlur(&blurRec)));
 
     // If we're doing linear blending, then we can disable the gamma hacks.
     // Otherwise, leave them on. In either case, we still want the contrast boost:
@@ -482,17 +482,14 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
     }
 
     const SkMatrix& drawMatrix(viewMatrix.localToDevice());
-    if (blob != nullptr && blob->canReuse(blobPaint, blurRec, drawMatrix, drawOrigin)) {
-        // Reusing the blob. Move it to the front of LRU cache.
-        textBlobCache->makeMRU(blob.get());
-    } else {
-        // Build or Rebuild the GrTextBlob
+    if (blob == nullptr || !blob->canReuse(blobPaint, blurRec, drawMatrix, drawOrigin)) {
         if (blob != nullptr) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away with reuse most of the time if the pointer is unique,
             //      but we'd have to clear the SubRun information
             textBlobCache->remove(blob.get());
         }
+
         if (canCache) {
             blob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix);
         } else {
