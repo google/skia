@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "98b5bdef_2b141646",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-07-23T19:28:13Z",
+      "side": 1,
+      "message": "It looks good. I\u0027m only afraid if screen capture logic wi",
+      "revId": "3687c76f39ade55177d7db8fd53c3e5f13e87346",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "066b827c_7c5d49f3",
         "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/CorrectnessActivity.java",
         "patchSetId": 2
@@ -63,6 +80,30 @@
       "revId": "3687c76f39ade55177d7db8fd53c3e5f13e87346",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9740ef76_eb5b21c7",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/CorrectnessActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-07-23T19:28:13Z",
+      "side": 1,
+      "message": "I thought 250ms may not be enough, but this is exactly the value used by SynchronousPixelCopy.",
+      "parentUuid": "7daa8644_56446d42",
+      "range": {
+        "startLine": 124,
+        "startChar": 16,
+        "endLine": 124,
+        "endChar": 31
+      },
+      "revId": "3687c76f39ade55177d7db8fd53c3e5f13e87346",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
