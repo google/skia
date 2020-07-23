@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16da86cf_b06a3380",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T22:14:19Z",
+      "side": 1,
+      "message": "Do you want to add a type here so you can assert it\u0027s trivially copyable?",
+      "range": {
+        "startLine": 87,
+        "startChar": 53,
+        "endLine": 87,
+        "endChar": 58
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ead1ec74_053e5950",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T22:14:19Z",
+      "side": 1,
+      "message": "Let\u0027s just use \"\" or leave off the comment?  None of these comments add anything the condition asserted on doesn\u0027t already say.",
+      "range": {
+        "startLine": 89,
+        "startChar": 18,
+        "endLine": 89,
+        "endChar": 92
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "972a7ae9_e2763fec",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T22:14:19Z",
+      "side": 1,
+      "message": "Might be clearer to name these sk_bit_cast, sk_widen_cast as a signal that they\u0027re defined outside the file(s) they\u0027re used?  I doubt name conflicts will come up, but it\u0027d help prevent those too.",
+      "range": {
+        "startLine": 105,
+        "startChar": 29,
+        "endLine": 105,
+        "endChar": 37
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fb8ecf4_10bb37a2",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T22:14:19Z",
+      "side": 1,
+      "message": "This one being \u003e was intentional, to second guess places where we use the more powerful widen_cast() even when the more constrained bit_cast() would work fine.  Kind of like using static_cast even though reinterpret_cast would always work.  bit_cast is a nice reminder that the signs match exactly, and widen_cast that they definitely don\u0027t.",
+      "range": {
+        "startLine": 115,
+        "startChar": 31,
+        "endLine": 115,
+        "endChar": 33
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
