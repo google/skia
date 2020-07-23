@@ -1497,7 +1497,7 @@ DEF_TEST(image_cubicresampler, reporter) {
         }
     };
 
-    diff(SkImageShader::CubicResamplerMatrix(1.0f/3, 1.0f/3), gMitchellNetravali);
+    diff(SkImageShader::CubicResamplerMatrix({1.0f/3, 1.0f/3}), gMitchellNetravali);
 
-    diff(SkImageShader::CubicResamplerMatrix(0, 1.0f/2), gCentripetalCatmulRom);
+    diff(SkImageShader::CubicResamplerMatrix({0, 1.0f/2}), gCentripetalCatmulRom);
 }

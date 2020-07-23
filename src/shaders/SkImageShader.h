@@ -57,7 +57,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    static SkM44 CubicResamplerMatrix(float B, float C);
+    static SkM44 CubicResamplerMatrix(SkImage::CubicResampler);
 
 private:
     SK_FLATTENABLE_HOOKS(SkImageShader)

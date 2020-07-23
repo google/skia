@@ -22,10 +22,10 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkEmptyShader.h"
 
-SkM44 SkImageShader::CubicResamplerMatrix(float B, float C) {
+SkM44 SkImageShader::CubicResamplerMatrix(SkImage::CubicResampler cubic) {
     const float scale = 1.0f/18;
-    B *= scale;
-    C *= scale;
+    const float B = cubic.B * scale;
+    const float C = cubic.C * scale;
     return SkM44(    3*B, -9*B - 18*C,       9*B + 36*C,      -3*B - 18*C,
                  1 - 6*B,           0, -3 + 36*B + 18*C,  2 - 27*B - 18*C,
                      3*B,  9*B + 18*C,  3 - 45*B - 36*C, -2 + 27*B + 18*C,
@@ -1023,41 +1023,26 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
                       fy = fract(local.y + 0.5f);
             skvm::F32 wx[4],
                       wy[4];
+            SkM44     weights = CubicResamplerMatrix(fFilterEnum == kUseCubicResampler
+                                                     ? fCubic
+                                                     : SkImage::CubicResampler{1.0f/3, 1.0f/3});
 
-            if (fFilterEnum == kUseCubicResampler) {
-                SkM44 weights = CubicResamplerMatrix(fCubic.B, fCubic.C);
+            auto dot = [](const skvm::F32 a[], const skvm::F32 b[]) {
+                return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3];
+            };
+            const skvm::F32 tmpx[] =  { p->splat(1.0f), fx, fx*fx, fx*fx*fx };
+            const skvm::F32 tmpy[] =  { p->splat(1.0f), fy, fy*fy, fy*fy*fy };
 
-                auto dot = [](const skvm::F32 a[], const skvm::F32 b[]) {
-                    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3];
+            for (int row = 0; row < 4; ++row) {
+                SkV4 r = weights.row(row);
+                skvm::F32 ru[] = {
+                    p->uniformF(uniforms->pushF(r[0])),
+                    p->uniformF(uniforms->pushF(r[1])),
+                    p->uniformF(uniforms->pushF(r[2])),
+                    p->uniformF(uniforms->pushF(r[3])),
                 };
-                const skvm::F32 tmpx[] =  { p->splat(1.0f), fx, fx*fx, fx*fx*fx };
-                const skvm::F32 tmpy[] =  { p->splat(1.0f), fy, fy*fy, fy*fy*fy };
-
-                for (int row = 0; row < 4; ++row) {
-                    SkV4 r = weights.row(row);
-                    skvm::F32 ru[] = {
-                        p->uniformF(uniforms->pushF(r[0])),
-                        p->uniformF(uniforms->pushF(r[1])),
-                        p->uniformF(uniforms->pushF(r[2])),
-                        p->uniformF(uniforms->pushF(r[3])),
-                    };
-                    wx[row] = dot(ru, tmpx);
-                    wy[row] = dot(ru, tmpy);
-                }
-            } else {    // legacy hard-coded weights
-                auto near = [&](skvm::F32 t) {
-                    // 1/18 + 9/18t + 27/18t^2 - 21/18t^3 == t ( t ( -21/18t + 27/18) + 9/18) + 1/18
-                    return t * (t * (t * (-21/18.0f) + 27/18.0f) + 9/18.0f) + 1/18.0f;
-                };
-                auto far = [&](skvm::F32 t) {
-                    // 0/18 + 0/18*t - 6/18t^2 + 7/18t^3 == t^2 (7/18t - 6/18)
-                    return t * t * (t * (7/18.0f) - 6/18.0f);
-                };
-
-                wx[0] = far (1.0f - fx);  wy[0] = far (1.0f - fy);
-                wx[1] = near(1.0f - fx);  wy[1] = near(1.0f - fy);
-                wx[2] = near(       fx);  wy[2] = near(       fy);
-                wx[3] = far (       fx);  wy[3] = far (       fy);
+                wx[row] = dot(ru, tmpx);
+                wy[row] = dot(ru, tmpy);
             }
 
             skvm::Color c;
