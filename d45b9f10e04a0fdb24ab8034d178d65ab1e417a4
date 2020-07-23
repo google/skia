@@ -16,6 +16,24 @@
       "revId": "d45b9f10e04a0fdb24ab8034d178d65ab1e417a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b413146_cdbeaa4e",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-23T16:18:32Z",
+      "side": 1,
+      "message": "It is, in ResourceProvider above.",
+      "parentUuid": "71882897_82814e4e",
+      "revId": "d45b9f10e04a0fdb24ab8034d178d65ab1e417a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
