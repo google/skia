@@ -35,21 +35,26 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
         : INHERITED(gpu, size, intendedType, accessPattern)
         , fIsDynamic(accessPattern != kStatic_GrAccessPattern)
         , fOffset(0) {
-    // In most cases, we'll allocate dynamic buffers when we map them, below.
-    if (!fIsDynamic) {
-        NSUInteger options = 0;
-        if (@available(macOS 10.11, iOS 9.0, *)) {
+    NSUInteger options = 0;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        if (fIsDynamic) {
+#ifdef SK_BUILD_FOR_MAC
+            options |= MTLResourceStorageModeManaged;
+#else
+            options |= MTLResourceStorageModeShared;
+#endif
+        } else {
             options |= MTLResourceStorageModePrivate;
         }
-#ifdef SK_BUILD_FOR_MAC
-        // Mac requires 4-byte alignment for copies so we need
-        // to ensure we have space for the extra data
-        size = SkAlign4(size);
-#endif
-        fMtlBuffer = size == 0 ? nil :
-                [gpu->device() newBufferWithLength: size
-                                           options: options];
     }
+#ifdef SK_BUILD_FOR_MAC
+    // Mac requires 4-byte alignment for copies so we need
+    // to ensure we have space for the extra data
+    size = SkAlign4(size);
+#endif
+    fMtlBuffer = size == 0 ? nil :
+            [gpu->device() newBufferWithLength: size
+                                       options: options];
     this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
 }
@@ -58,11 +63,6 @@ GrMtlBuffer::~GrMtlBuffer() {
     SkASSERT(fMtlBuffer == nil);
     SkASSERT(fMappedBuffer == nil);
     SkASSERT(fMapPtr == nullptr);
-}
-
-void GrMtlBuffer::bind() {
-    SkASSERT(fIsDynamic && GrGpuBufferType::kXferGpuToCpu == this->intendedType());
-    fMtlBuffer = this->mtlGpu()->resourceProvider().getDynamicBuffer(this->size(), &fOffset);
 }
 
 bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
@@ -122,9 +122,6 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
     VALIDATE();
     SkASSERT(!this->isMapped());
     if (fIsDynamic) {
-        if (GrGpuBufferType::kXferGpuToCpu != this->intendedType()) {
-            fMtlBuffer = this->mtlGpu()->resourceProvider().getDynamicBuffer(sizeInBytes, &fOffset);
-        }
         fMappedBuffer = fMtlBuffer;
         fMapPtr = static_cast<char*>(fMtlBuffer.contents) + fOffset;
     } else {
