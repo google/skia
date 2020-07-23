@@ -100,17 +100,6 @@ public:
             std::unique_ptr<GrFragmentProcessor>);
 
     /**
-     * Returns a fragment processor that runs the passed in array of fragment processors in a
-     * series. The original input is passed to the first, the first's output is passed to the
-     * second, etc. The output of the returned processor is the output of the last processor of the
-     * series.
-     *
-     * The array elements with be moved.
-     */
-    static std::unique_ptr<GrFragmentProcessor> RunInSeries(std::unique_ptr<GrFragmentProcessor>[],
-                                                            int cnt);
-
-    /**
      * Returns a fragment processor that composes two fragment processors `f` and `g` into f(g(x)).
      * This is equivalent to running them in series. This is not the same as transfer-mode
      * composition; there is no blending step.
