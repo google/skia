@@ -1257,7 +1257,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (!this._cached_canvas) {
       this._cached_canvas = this.getCanvas();
     }
-    window.requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
       if (this._context !== undefined) {
         CanvasKit.setCurrentContext(this._context);
       }
@@ -1277,7 +1277,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (!this._cached_canvas) {
       this._cached_canvas = this.getCanvas();
     }
-    window.requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
       if (this._context !== undefined) {
         CanvasKit.setCurrentContext(this._context);
       }
