@@ -90,8 +90,7 @@ protected:
      **/
     static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
 
-    // This is strictly an OpenGL call since the other backends have additional data in their
-    // keys
+    // This is strictly an OpenGL call since the other backends have additional data in their keys.
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
         if (!SkTFitsIn<int>(keyLength)) {
             return false;
@@ -105,8 +104,8 @@ protected:
     struct KeyHeader {
         // Set to uniquely identify any swizzling of the shader's output color(s).
         uint16_t fWriteSwizzle;
-        uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
-        uint8_t fCoverageFragmentProcessorCnt;
+        uint8_t fFragmentProcessorCnt;  // could be packed into 2 bits if necessary
+        uint8_t fPadding;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
         uint32_t fSurfaceOriginKey : 2;
         uint32_t fProcessorFeatures : 1;
