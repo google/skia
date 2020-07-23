@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "26e9fb8c_a5ca853d",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T23:14:37Z",
+      "side": 1,
+      "message": "Please rename it in this CL.",
+      "parentUuid": "72b50596_3f6ee31f",
+      "range": {
+        "startLine": 105,
+        "startChar": 29,
+        "endLine": 105,
+        "endChar": 37
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6fb8ecf4_10bb37a2",
         "filename": "src/core/SkUtils.h",
         "patchSetId": 6
@@ -178,6 +202,30 @@
       "side": 1,
       "message": "Done.\n\nI changed it because it seemed like it made generic code harder to write, but it probably doesn\u0027t come up much in practice. (e.g. why shouldn\u0027t I be able to widen_cast a bool to uint32? Size will be equal on some platforms and greater on others.)\n\nBTW, one thing I was wondering--we don\u0027t value-initialize dst here:\n\n   Dest dst{};\n\nDo we actually generate better code by using default-initialization? It seems like it limits the utility of widen_cast if you might have noise in the top bits. e.g. I can\u0027t use this to make a GLSLProcessorKey.",
       "parentUuid": "6fb8ecf4_10bb37a2",
+      "range": {
+        "startLine": 115,
+        "startChar": 31,
+        "endLine": 115,
+        "endChar": 33
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42bad3f7_e65dc107",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T23:14:37Z",
+      "side": 1,
+      "message": "Please don\u0027t think about platforms like that.  sizeof(bool) is 1, sizeof(uint32_t) is 4.  If it makes you feel better I\u0027d happily +1 static_asserts in SkTypes that enforce that.\n\nIf we need to worry about initializing the return value, I think we should probably second guess sharing this code.  It\u0027s written for the needs of SkRasterPipeline_opts where we intentionally want the non-overlapping part of the value to be undefined for performance.",
+      "parentUuid": "6f994c75_d15d8f3d",
       "range": {
         "startLine": 115,
         "startChar": 31,

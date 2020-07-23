@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af071d33_74bb4207",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T23:14:37Z",
+      "side": 1,
+      "message": "Let\u0027s make this void* or drop the assert about Dest for symmetry with your reasoning about the argument to sk_unaligned_load.\n\nI think there were minor performance reasons to use Dest* instead of void* on some platforms, but they\u0027re minor performance reasons and minor platforms.",
+      "range": {
+        "startLine": 95,
+        "startChar": 48,
+        "endLine": 95,
+        "endChar": 52
+      },
+      "revId": "b2100ca6c57a614ceed7644571e93d334ce4cb52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
