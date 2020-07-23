@@ -65,7 +65,7 @@ public:
                       {kCanvasSize, kCanvasSize}))
             , fDoStroke(DoStroke::kYes == doStroke) {
         if (!fCCPR) {
-            ERRORF(reporter, "ccpr not enabled in GrContext for ccpr tests");
+            ERRORF(reporter, "ccpr not enabled in GrDirectContext for ccpr tests");
         }
         if (!fRTC) {
             ERRORF(reporter, "failed to create GrRenderTargetContext for ccpr tests");
@@ -550,7 +550,7 @@ class CCPR_cache_mostlyVisible : public CCPRCacheTest {
 };
 DEF_CCPR_TEST(CCPR_cache_mostlyVisible)
 
-// Ensures GrContext::performDeferredCleanup works.
+// Ensures GrDirectContext::performDeferredCleanup works.
 class CCPR_cache_deferredCleanup : public CCPRCacheTest {
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
                const RecordLastMockAtlasIDs& atlasIDRecorder) override {
