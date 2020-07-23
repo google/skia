@@ -43,7 +43,7 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
         SkASSERT(tex);
 
         // Ensure mipmaps were all resolved ahead of time by the DAG.
-        if (te.samplerState().mipmapped() == GrMipmapped::kYes &&
+        if (GrSamplerState::Filter::kMipMap == te.samplerState().filter() &&
             (tex->width() != 1 || tex->height() != 1)) {
             // There are some cases where we might be given a non-mipmapped texture with a
             // mipmap filter. See skbug.com/7094.
