@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrClampFragmentProcessor.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -48,7 +49,7 @@ GrGLSLFragmentProcessor* GrClampFragmentProcessor::onCreateGLSLInstance() const 
 }
 void GrClampFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)clampToPremul);
+    b->add32((uint32_t)clampToPremul);
 }
 bool GrClampFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrClampFragmentProcessor& that = other.cast<GrClampFragmentProcessor>();

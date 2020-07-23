@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrConfigConversionEffect.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -53,7 +54,7 @@ GrGLSLFragmentProcessor* GrConfigConversionEffect::onCreateGLSLInstance() const 
 }
 void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)pmConversion);
+    b->add32((uint32_t)pmConversion);
 }
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConfigConversionEffect& that = other.cast<GrConfigConversionEffect>();
