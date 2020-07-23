@@ -193,6 +193,7 @@ public:
 private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
 };
+
 // -- GrPathSubRun ---------------------------------------------------------------------------------
 class GrPathSubRun : public GrSubRun {
     struct PathGlyph;
@@ -221,6 +222,7 @@ private:
     const SkStrikeSpec fStrikeSpec;
     const SkSpan<const PathGlyph> fPaths;
 };
+
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
 class GrAtlasSubRun : public GrSubRun {
 public:
@@ -293,6 +295,10 @@ public:
     SkSpan<const GrGlyph*> glyphs() const;
 
     SkScalar strikeToSourceRatio() const { return fStrikeSpec.strikeToSourceRatio(); }
+
+    static size_t GlyphVectorSize(size_t count) {
+        return sizeof(Variant) * count;
+    }
 
 private:
     GrGlyphVector(const SkStrikeSpec& spec, SkSpan<Variant> glyphs);
