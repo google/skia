@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff9ed0b7_ae5f16b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T12:48:15Z",
+      "side": 1,
+      "message": "LGTM! I just had one question(s) about how analysis works going forward, but it\u0027s not a blocker.",
+      "revId": "1002db4983a8fcfc15a7631cbb3d7fafbbd78232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e592709e_3be94ee6",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T12:48:15Z",
+      "side": 1,
+      "message": "This I like :)",
+      "range": {
+        "startLine": 125,
+        "startChar": 12,
+        "endLine": 125,
+        "endChar": 94
+      },
+      "revId": "1002db4983a8fcfc15a7631cbb3d7fafbbd78232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3ff201b_ecc7cce5",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T12:48:15Z",
+      "side": 1,
+      "message": "I am definitely in favor of moving more of analysis like this into the FP creation/composition vs. the deferred analysis that happens after an op is created and a GrProcessorSet is made.\n\nMy only concern is making sure we still are able to keep the analysis code sites relatively constrained. I haven\u0027t seen all your CLs in this area, is this the first step towards pulling analysis forward or are there other instances already for precedent? \n\nIf this weren\u0027t included in the Make function, would the later analysis still pick up on it? I can\u0027t remember if it flattens out the FP tree, or if composition in this manner would hide the ability to make these optimizations later?",
+      "range": {
+        "startLine": 547,
+        "startChar": 0,
+        "endLine": 572,
+        "endChar": 5
+      },
+      "revId": "1002db4983a8fcfc15a7631cbb3d7fafbbd78232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
