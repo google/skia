@@ -40,8 +40,8 @@
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/effects/generated/GrDitherEffect.h"
@@ -254,8 +254,8 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
             SkPMColor4f shaderInput = origColor.makeOpaque().premul();
             paintFP = GrFragmentProcessor::OverrideInput(std::move(paintFP), shaderInput);
-            paintFP = GrXfermodeFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
-                                                        *primColorMode);
+            paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
+                                                     *primColorMode);
 
             // We can ignore origColor here - alpha is unchanged by gamma
             float paintAlpha = skPaint.getColor4f().fA;
@@ -276,8 +276,8 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
             SkPMColor4f opaqueColor = origColor.makeOpaque().premul();
             paintFP = GrConstColorProcessor::Make(opaqueColor);
-            paintFP = GrXfermodeFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
-                                                        *primColorMode);
+            paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
+                                                     *primColorMode);
             grPaint->setColor4f(opaqueColor);
 
             // We can ignore origColor here - alpha is unchanged by gamma
@@ -358,8 +358,8 @@ bool SkPaintToGrPaint(GrRecordingContext* context,
                       const SkPaint& skPaint,
                       const SkMatrixProvider& matrixProvider,
                       GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, nullptr, nullptr,
-                                   grPaint);
+    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider,
+                                   /*shaderProcessor=*/nullptr, /*primColorMode=*/nullptr, grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
@@ -373,7 +373,7 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext* context,
         return false;
     }
     return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &shaderFP,
-                                   nullptr, grPaint);
+                                   /*primColorMode=*/nullptr, grPaint);
 }
 
 /** Ignores the SkShader (if any) on skPaint. */
@@ -385,19 +385,19 @@ bool SkPaintToGrPaintNoShader(GrRecordingContext* context,
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
     std::unique_ptr<GrFragmentProcessor> nullShaderFP(nullptr);
     return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &nullShaderFP,
-                                   nullptr, grPaint);
+                                   /*primColorMode=*/nullptr, grPaint);
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
 be setup as a vertex attribute using the specified SkBlendMode. */
-bool SkPaintToGrPaintWithXfermode(GrRecordingContext* context,
-                                  const GrColorInfo& dstColorInfo,
-                                  const SkPaint& skPaint,
-                                  const SkMatrixProvider& matrixProvider,
-                                  SkBlendMode primColorMode,
-                                  GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, nullptr,
-                                   &primColorMode, grPaint);
+bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
+                               const GrColorInfo& dstColorInfo,
+                               const SkPaint& skPaint,
+                               const SkMatrixProvider& matrixProvider,
+                               SkBlendMode primColorMode,
+                               GrPaint* grPaint) {
+    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider,
+                                   /*shaderProcessor=*/nullptr, &primColorMode, grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,

@@ -200,7 +200,7 @@ skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
 #if SK_SUPPORT_GPU
 
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrComposeLerpEffect.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
@@ -213,7 +213,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
     const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
-    return GrXfermodeFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
+    return GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
 }
 
 std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
