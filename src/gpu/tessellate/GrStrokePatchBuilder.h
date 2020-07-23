@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGrStrokeGeometry_DEFINED
-#define GrGrStrokeGeometry_DEFINED
+#ifndef GrGrStrokePatchBuilder_DEFINED
+#define GrGrStrokePatchBuilder_DEFINED
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
@@ -18,7 +18,7 @@ class SkStrokeRec;
 
 // This is an RAII class that expands strokes into tessellation patches for consumption by
 // GrTessellateStrokeShader.
-class GrStrokeGeometry {
+class GrStrokePatchBuilder {
 public:
     // We generate vertex buffers in chunks. Normally there will only be one chunk, but in rare
     // cases the first can run out of space if too many cubics needed to be subdivided.
@@ -34,8 +34,8 @@ public:
     //
     // After this call, no external allocations can be made on the target until after this class
     // gets destructed.
-    GrStrokeGeometry(GrMeshDrawOp::Target* target, SkTArray<VertexChunk>* vertexChunkArray,
-                     int totalCombinedVerbCnt)
+    GrStrokePatchBuilder(GrMeshDrawOp::Target* target, SkTArray<VertexChunk>* vertexChunkArray,
+                         int totalCombinedVerbCnt)
             : fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
             , fTarget(target)
             , fVertexChunkArray(vertexChunkArray) {
@@ -45,7 +45,7 @@ public:
 
     // "Releases" the target to be used externally again by putting back any unused pre-allocated
     // vertices.
-    ~GrStrokeGeometry() {
+    ~GrStrokePatchBuilder() {
         fTarget->putBackVertices(fCurrChunkVertexCapacity - fVertexChunkArray->back().fVertexCount,
                                  sizeof(SkPoint));
     }

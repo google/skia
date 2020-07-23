@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrStrokeGeometry.h"
+#include "src/gpu/tessellate/GrStrokePatchBuilder.h"
 
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/tessellate/GrTessellateStrokeShader.h"
 
 // This is the maximum distance in pixels that we can stray from the edge of a stroke when
 // converting it to flat line segments.
@@ -44,7 +45,7 @@ static inline float calc_curvature_costheta(const Sk2f& leftTan, const Sk2f& rig
     return (dotprod[0] + dotprod[1]) * invlength[0] * invlength[1];
 }
 
-void GrStrokeGeometry::allocVertexChunk(int minVertexAllocCount) {
+void GrStrokePatchBuilder::allocVertexChunk(int minVertexAllocCount) {
     VertexChunk* chunk = &fVertexChunkArray->push_back();
     fCurrChunkVertexData = (SkPoint*)fTarget->makeVertexSpaceAtLeast(
             sizeof(SkPoint), minVertexAllocCount, minVertexAllocCount, &chunk->fVertexBuffer,
@@ -52,7 +53,7 @@ void GrStrokeGeometry::allocVertexChunk(int minVertexAllocCount) {
     fCurrChunkMinVertexAllocCount = minVertexAllocCount;
 }
 
-SkPoint* GrStrokeGeometry::reservePatch() {
+SkPoint* GrStrokePatchBuilder::reservePatch() {
     constexpr static int kNumVerticesPerPatch = GrTessellateStrokeShader::kNumVerticesPerPatch;
     if (fVertexChunkArray->back().fVertexCount + kNumVerticesPerPatch > fCurrChunkVertexCapacity) {
         // No need to put back vertices; the buffer is full.
@@ -68,8 +69,8 @@ SkPoint* GrStrokeGeometry::reservePatch() {
     return patch;
 }
 
-void GrStrokeGeometry::writeCubicSegment(float leftJoinType, const SkPoint pts[4],
-                                         float overrideNumSegments) {
+void GrStrokePatchBuilder::writeCubicSegment(float leftJoinType, const SkPoint pts[4],
+                                             float overrideNumSegments) {
     SkPoint c1 = (pts[1] == pts[0]) ? pts[2] : pts[1];
     SkPoint c2 = (pts[2] == pts[3]) ? pts[1] : pts[2];
 
@@ -89,8 +90,9 @@ void GrStrokeGeometry::writeCubicSegment(float leftJoinType, const SkPoint pts[4
     fLastPoint = pts[3];
 }
 
-void GrStrokeGeometry::writeJoin(float joinType, const SkPoint& anchorPoint,
-                                 const SkPoint& prevControlPoint, const SkPoint& nextControlPoint) {
+void GrStrokePatchBuilder::writeJoin(float joinType, const SkPoint& anchorPoint,
+                                     const SkPoint& prevControlPoint,
+                                     const SkPoint& nextControlPoint) {
     if (SkPoint* joinPatch = this->reservePatch()) {
         joinPatch[0] = anchorPoint;
         joinPatch[1] = prevControlPoint;
@@ -100,7 +102,7 @@ void GrStrokeGeometry::writeJoin(float joinType, const SkPoint& anchorPoint,
     }
 }
 
-void GrStrokeGeometry::writeSquareCap(const SkPoint& endPoint, const SkPoint& controlPoint) {
+void GrStrokePatchBuilder::writeSquareCap(const SkPoint& endPoint, const SkPoint& controlPoint) {
     SkVector v = (endPoint - controlPoint);
     v.normalize();
     SkPoint capPoint = endPoint + v*fCurrStrokeRadius;
@@ -118,7 +120,7 @@ void GrStrokeGeometry::writeSquareCap(const SkPoint& endPoint, const SkPoint& co
     }
 }
 
-void GrStrokeGeometry::writeCaps() {
+void GrStrokePatchBuilder::writeCaps() {
     if (!fHasPreviousSegment) {
         // We don't have any control points to orient the caps. In this case, square and round caps
         // are specified to be drawn as an axis-aligned square or circle respectively. Assign
@@ -143,7 +145,7 @@ void GrStrokeGeometry::writeCaps() {
     }
 }
 
-void GrStrokeGeometry::addPath(const SkPath& path, const SkStrokeRec& stroke) {
+void GrStrokePatchBuilder::addPath(const SkPath& path, const SkStrokeRec& stroke) {
     this->beginPath(stroke, stroke.getWidth());
     SkPathVerb previousVerb = SkPathVerb::kClose;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
@@ -194,7 +196,7 @@ static float join_type_from_join(SkPaint::Join join) {
     SkUNREACHABLE;
 }
 
-void GrStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWidth) {
+void GrStrokePatchBuilder::beginPath(const SkStrokeRec& stroke, float strokeDevWidth) {
     // Client should have already converted the stroke to device space (i.e. width=1 for hairline).
     SkASSERT(strokeDevWidth > 0);
 
@@ -210,16 +212,16 @@ void GrStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWidth
     fHasPreviousSegment = false;
 }
 
-void GrStrokeGeometry::moveTo(const SkPoint& pt) {
+void GrStrokePatchBuilder::moveTo(const SkPoint& pt) {
     fHasPreviousSegment = false;
     fStartPoint = pt;
 }
 
-void GrStrokeGeometry::lineTo(const SkPoint& p0, const SkPoint& p1) {
+void GrStrokePatchBuilder::lineTo(const SkPoint& p0, const SkPoint& p1) {
     this->lineTo(fCurrStrokeJoinType, p0, p1);
 }
 
-void GrStrokeGeometry::lineTo(float leftJoinType, const SkPoint& pt0, const SkPoint& pt1) {
+void GrStrokePatchBuilder::lineTo(float leftJoinType, const SkPoint& pt0, const SkPoint& pt1) {
     Sk2f p0 = Sk2f::Load(&pt0);
     Sk2f p1 = Sk2f::Load(&pt1);
     if ((p0 == p1).allTrue()) {
@@ -228,7 +230,7 @@ void GrStrokeGeometry::lineTo(float leftJoinType, const SkPoint& pt0, const SkPo
     this->writeCubicSegment(leftJoinType, p0, lerp(p0, p1, 1/3.f), lerp(p0, p1, 2/3.f), p1, 1);
 }
 
-void GrStrokeGeometry::quadraticTo(const SkPoint P[3]) {
+void GrStrokePatchBuilder::quadraticTo(const SkPoint P[3]) {
     this->quadraticTo(fCurrStrokeJoinType, P, SkFindQuadMaxCurvature(P));
 }
 
@@ -241,7 +243,8 @@ static inline float wangs_formula_quadratic(const Sk2f& p0, const Sk2f& p1, cons
     return SkScalarCeilToInt(f);
 }
 
-void GrStrokeGeometry::quadraticTo(float leftJoinType, const SkPoint P[3], float maxCurvatureT) {
+void GrStrokePatchBuilder::quadraticTo(float leftJoinType, const SkPoint P[3],
+                                       float maxCurvatureT) {
     Sk2f p0 = Sk2f::Load(P);
     Sk2f p1 = Sk2f::Load(P+1);
     Sk2f p2 = Sk2f::Load(P+2);
@@ -328,7 +331,7 @@ void GrStrokeGeometry::quadraticTo(float leftJoinType, const SkPoint P[3], float
     this->writeCubicSegment(leftJoinType, p0, lerp(p0, p1, 2/3.f), lerp(p1, p2, 1/3.f), p2);
 }
 
-void GrStrokeGeometry::cubicTo(const SkPoint P[4]) {
+void GrStrokePatchBuilder::cubicTo(const SkPoint P[4]) {
     float roots[3];
     int numRoots = SkFindCubicMaxCurvature(P, roots);
     this->cubicTo(fCurrStrokeJoinType, P,
@@ -348,8 +351,8 @@ static inline float wangs_formula_cubic(const Sk2f& p0, const Sk2f& p1, const Sk
     return SkScalarCeilToInt(f);
 }
 
-void GrStrokeGeometry::cubicTo(float leftJoinType, const SkPoint P[4], float maxCurvatureT,
-                               float leftMaxCurvatureT, float rightMaxCurvatureT) {
+void GrStrokePatchBuilder::cubicTo(float leftJoinType, const SkPoint P[4], float maxCurvatureT,
+                                   float leftMaxCurvatureT, float rightMaxCurvatureT) {
     Sk2f p0 = Sk2f::Load(P);
     Sk2f p1 = Sk2f::Load(P+1);
     Sk2f p2 = Sk2f::Load(P+2);
@@ -477,8 +480,8 @@ void GrStrokeGeometry::cubicTo(float leftJoinType, const SkPoint P[4], float max
     this->writeCubicSegment(leftJoinType, p0, p1, p2, p3);
 }
 
-void GrStrokeGeometry::rotateTo(float leftJoinType, const SkPoint& anchorPoint,
-                                const SkPoint& controlPoint) {
+void GrStrokePatchBuilder::rotateTo(float leftJoinType, const SkPoint& anchorPoint,
+                                    const SkPoint& controlPoint) {
     // Effectively rotate the current normal by drawing a zero length, 1-segment cubic.
     // writeCubicSegment automatically adds the necessary join and the zero length cubic serves as
     // a glue that guarantees a water tight rasterized edge between the new join and the segment
@@ -487,7 +490,7 @@ void GrStrokeGeometry::rotateTo(float leftJoinType, const SkPoint& anchorPoint,
     this->writeCubicSegment(leftJoinType, pts, 1);
 }
 
-void GrStrokeGeometry::close() {
+void GrStrokePatchBuilder::close() {
     if (!fHasPreviousSegment) {
         // Draw caps instead of closing if the subpath is zero length:
         //
