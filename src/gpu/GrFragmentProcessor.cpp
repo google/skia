@@ -8,7 +8,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessorAnalysis.h"
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/effects/generated/GrOverrideInputFragmentProcessor.h"
@@ -196,7 +196,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulChildByInputAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrXfermodeFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kDstIn);
+    return GrBlendFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kDstIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
@@ -204,23 +204,23 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrXfermodeFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kSrcIn);
+    return GrBlendFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kSrcIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateAlpha(
         std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
     auto colorFP = GrConstColorProcessor::Make(color);
-    return GrXfermodeFragmentProcessor::Make(
+    return GrBlendFragmentProcessor::Make(
             std::move(colorFP), std::move(inputFP), SkBlendMode::kSrcIn,
-            GrXfermodeFragmentProcessor::ComposeBehavior::kSkModeBehavior);
+            GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateRGBA(
         std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
     auto colorFP = GrConstColorProcessor::Make(color);
-    return GrXfermodeFragmentProcessor::Make(
+    return GrBlendFragmentProcessor::Make(
             std::move(colorFP), std::move(inputFP), SkBlendMode::kModulate,
-            GrXfermodeFragmentProcessor::ComposeBehavior::kSkModeBehavior);
+            GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampPremulOutput(

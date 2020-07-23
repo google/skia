@@ -228,7 +228,7 @@ void SkXfermodeImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
 
 #if SK_SUPPORT_GPU
 
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
                                                    const Context& ctx,
@@ -281,7 +281,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP), foreground->getColorSpace(),
                                              foreground->alphaType(), ctx.colorSpace(),
                                              kPremul_SkAlphaType);
-        fp = GrXfermodeFragmentProcessor::Make(std::move(fgFP), std::move(fp), fMode);
+        fp = GrBlendFragmentProcessor::Make(std::move(fgFP), std::move(fp), fMode);
     }
 
     paint.setColorFragmentProcessor(std::move(fp));

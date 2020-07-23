@@ -13,7 +13,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/image/SkImage_Base.h"
 
 static GrSurfaceProxyView blur(GrRecordingContext* ctx,
@@ -213,8 +213,8 @@ static void run(GrRecordingContext* ctx, GrRenderTargetContext* rtc, bool subset
                     GrPaint paint;
                     // Compose against white (default paint color) and then replace the dst
                     // (SkBlendMode::kSrc).
-                    fp = GrXfermodeFragmentProcessor::Make(std::move(fp), /*dst=*/nullptr,
-                                                           SkBlendMode::kSrcOver);
+                    fp = GrBlendFragmentProcessor::Make(std::move(fp), /*dst=*/nullptr,
+                                                        SkBlendMode::kSrcOver);
                     paint.setColorFragmentProcessor(std::move(fp));
                     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                     rtc->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, m,

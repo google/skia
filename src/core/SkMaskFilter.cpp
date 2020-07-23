@@ -23,7 +23,6 @@
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/text/GrSDFMaskFilter.h"
 #endif
 

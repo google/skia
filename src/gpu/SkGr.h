@@ -108,12 +108,12 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
     GrOp's GrPrimitiveProcesssor. */
-bool SkPaintToGrPaintWithXfermode(GrRecordingContext*,
-                                  const GrColorInfo& dstColorInfo,
-                                  const SkPaint& skPaint,
-                                  const SkMatrixProvider& matrixProvider,
-                                  SkBlendMode primColorMode,
-                                  GrPaint* grPaint);
+bool SkPaintToGrPaintWithBlend(GrRecordingContext*,
+                               const GrColorInfo& dstColorInfo,
+                               const SkPaint& skPaint,
+                               const SkMatrixProvider& matrixProvider,
+                               SkBlendMode primColorMode,
+                               GrPaint* grPaint);
 
 /** This is used when there is a primitive color, but the shader should be ignored. Currently,
     the expectation is that the primitive color will be premultiplied, though it really should be
@@ -124,8 +124,8 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrRecordingContext* context,
                                                const SkPaint& skPaint,
                                                const SkMatrixProvider& matrixProvider,
                                                GrPaint* grPaint) {
-    return SkPaintToGrPaintWithXfermode(context, dstColorInfo, skPaint, matrixProvider,
-                                        SkBlendMode::kDst, grPaint);
+    return SkPaintToGrPaintWithBlend(context, dstColorInfo, skPaint, matrixProvider,
+                                     SkBlendMode::kDst, grPaint);
 }
 
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
