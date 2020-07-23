@@ -52,11 +52,11 @@ public:
         return sk_ref_sp(fXP.fProcessor);
     }
 
-    std::unique_ptr<const GrFragmentProcessor> detachColorFragmentProcessor() {
+    std::unique_ptr<GrFragmentProcessor> detachColorFragmentProcessor() {
         return std::move(fColorFragmentProcessor);
     }
 
-    std::unique_ptr<const GrFragmentProcessor> detachCoverageFragmentProcessor() {
+    std::unique_ptr<GrFragmentProcessor> detachCoverageFragmentProcessor() {
         return std::move(fCoverageFragmentProcessor);
     }
 

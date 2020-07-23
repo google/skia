@@ -129,22 +129,19 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
 
 void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* coverage) {
     int transformedCoordVarsIdx = 0;
-    SkString** inOut = &color;
     int fpCount = this->pipeline().numFragmentProcessors();
     fFragmentProcessors.reset(new std::unique_ptr<GrGLSLFragmentProcessor>[fpCount]);
     for (int i = 0; i < fpCount; ++i) {
-        if (i == this->pipeline().numColorFragmentProcessors()) {
-            inOut = &coverage;
-        }
+        SkString* inOut = this->pipeline().isColorFragmentProcessor(i) ? color : coverage;
         SkString output;
         const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
         fFragmentProcessors[i] = std::unique_ptr<GrGLSLFragmentProcessor>(fp.createGLSLInstance());
-        output = this->emitFragProc(fp, *fFragmentProcessors[i], transformedCoordVarsIdx, **inOut,
+        output = this->emitFragProc(fp, *fFragmentProcessors[i], transformedCoordVarsIdx, *inOut,
                                     output);
         for (const auto& subFP : GrFragmentProcessor::FPRange(fp)) {
             transformedCoordVarsIdx += subFP.numVaryingCoordsUsed();
         }
-        **inOut = output;
+        *inOut = std::move(output);
     }
 }
 

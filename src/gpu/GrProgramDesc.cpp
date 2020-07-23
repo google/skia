@@ -184,26 +184,34 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
 
     GrProcessorKeyBuilder b(&desc->key());
 
-    programInfo.primProc().getGLSLProcessorKey(*caps.shaderCaps(), &b);
-    programInfo.primProc().getAttributeKey(&b);
-    if (!gen_pp_meta_key(programInfo.primProc(), caps, 0, &b)) {
+    const GrPrimitiveProcessor& primitiveProcessor = programInfo.primProc();
+    primitiveProcessor.getGLSLProcessorKey(*caps.shaderCaps(), &b);
+    primitiveProcessor.getAttributeKey(&b);
+    if (!gen_pp_meta_key(primitiveProcessor, caps, 0, &b)) {
         desc->key().reset();
         return false;
     }
 
-    for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
-        const GrFragmentProcessor& fp = programInfo.pipeline().getFragmentProcessor(i);
-        if (!gen_frag_proc_and_meta_keys(programInfo.primProc(), fp, caps, &b)) {
+    const GrPipeline& pipeline = programInfo.pipeline();
+    int numColorFPs = 0, numCoverageFPs = 0;
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
+        if (!gen_frag_proc_and_meta_keys(primitiveProcessor, fp, caps, &b)) {
             desc->key().reset();
             return false;
         }
+        if (pipeline.isColorFragmentProcessor(i)) {
+            ++numColorFPs;
+        } else if (pipeline.isCoverageFragmentProcessor(i)) {
+            ++numCoverageFPs;
+        }
     }
 
-    const GrXferProcessor& xp = programInfo.pipeline().getXferProcessor();
+    const GrXferProcessor& xp = pipeline.getXferProcessor();
     const GrSurfaceOrigin* originIfDstTexture = nullptr;
     GrSurfaceOrigin origin;
-    if (programInfo.pipeline().dstProxyView().proxy()) {
-        origin = programInfo.pipeline().dstProxyView().origin();
+    if (pipeline.dstProxyView().proxy()) {
+        origin = pipeline.dstProxyView().origin();
         originIfDstTexture = &origin;
     }
     xp.getGLSLProcessorKey(*caps.shaderCaps(), &b, originIfDstTexture);
@@ -213,7 +221,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     }
 
     if (programInfo.requestedFeatures() & GrProcessor::CustomFeatures::kSampleLocations) {
-        SkASSERT(programInfo.pipeline().isHWAntialiasState());
+        SkASSERT(pipeline.isHWAntialiasState());
         b.add32(renderTarget->renderTargetPriv().getSamplePatternKey());
     }
 
@@ -224,16 +232,11 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
-    header->fWriteSwizzle = programInfo.pipeline().writeSwizzle().asKey();
-    header->fColorFragmentProcessorCnt = programInfo.pipeline().numColorFragmentProcessors();
-    header->fCoverageFragmentProcessorCnt = programInfo.pipeline().numCoverageFragmentProcessors();
-    // Fail if the client requested more processors than the key can fit.
-    if (header->fColorFragmentProcessorCnt != programInfo.pipeline().numColorFragmentProcessors() ||
-        header->fCoverageFragmentProcessorCnt !=
-                                         programInfo.pipeline().numCoverageFragmentProcessors()) {
-        desc->key().reset();
-        return false;
-    }
+    header->fWriteSwizzle = pipeline.writeSwizzle().asKey();
+    header->fColorFragmentProcessorCnt = numColorFPs;
+    header->fCoverageFragmentProcessorCnt = numCoverageFPs;
+    SkASSERT(header->fColorFragmentProcessorCnt == numColorFPs);
+    SkASSERT(header->fCoverageFragmentProcessorCnt == numCoverageFPs);
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
     header->fSurfaceOriginKey =
@@ -241,7 +244,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     header->fProcessorFeatures = (uint8_t)programInfo.requestedFeatures();
     // Ensure enough bits.
     SkASSERT(header->fProcessorFeatures == (int) programInfo.requestedFeatures());
-    header->fSnapVerticesToPixelCenters = programInfo.pipeline().snapVerticesToPixelCenters();
+    header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     // The base descriptor only stores whether or not the primitiveType is kPoints. Backend-
     // specific versions (e.g., Vulkan) require more detail
     header->fHasPointSize = (programInfo.primitiveType() == GrPrimitiveType::kPoints);

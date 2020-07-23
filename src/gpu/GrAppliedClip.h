@@ -109,7 +109,7 @@ public:
         SkASSERT(fCoverageFP != nullptr);
         return fCoverageFP.get();
     }
-    std::unique_ptr<const GrFragmentProcessor> detachCoverageFragmentProcessor() {
+    std::unique_ptr<GrFragmentProcessor> detachCoverageFragmentProcessor() {
         SkASSERT(fCoverageFP != nullptr);
         return std::move(fCoverageFP);
     }

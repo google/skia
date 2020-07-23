@@ -107,11 +107,9 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name GrFragmentProcessors
 
-    int numColorFragmentProcessors() const { return fNumColorProcessors; }
-    int numCoverageFragmentProcessors() const {
-        return fFragmentProcessors.count() - fNumColorProcessors;
-    }
     int numFragmentProcessors() const { return fFragmentProcessors.count(); }
+    bool isColorFragmentProcessor(int idx) const { return idx < fNumColorProcessors; }
+    bool isCoverageFragmentProcessor(int idx) const { return idx >= fNumColorProcessors; }
 
     void visitTextureEffects(const std::function<void(const GrTextureEffect&)>&) const;
 
@@ -148,16 +146,6 @@ public:
         }
 
         return nullptr;
-    }
-
-    const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
-        SkASSERT(idx < this->numColorFragmentProcessors());
-        return *fFragmentProcessors[idx].get();
-    }
-
-    const GrFragmentProcessor& getCoverageFragmentProcessor(int idx) const {
-        SkASSERT(idx < this->numCoverageFragmentProcessors());
-        return *fFragmentProcessors[fNumColorProcessors + idx].get();
     }
 
     const GrFragmentProcessor& getFragmentProcessor(int idx) const {
