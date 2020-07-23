@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7491d2d8_d1b2680b",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T18:38:31Z",
+      "side": 1,
+      "message": "patch is null when we fail to reserve vertex buffer space to write to; in other ops I\u0027m familiar with, we write a debug message and then skip executing the op. Is this able to be bubbled up to the user of GrStrokeGeometry somehow?",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 48
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f695f965_6f58066c",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T18:38:31Z",
+      "side": 1,
+      "message": "I would maybe move this detail up to the class comment where you mention RAII, and maybe include something like:\n\n   // Example flow in onPrepare:\n   //   {\n   //      GrStrokeGeometry g(target, \u0026fMyVertices, count); // locks target\n   //      ... call addPath()\n   //   }\n   //   ... target can now be used normally again",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 23
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3d0c523_31de39e2",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T18:38:31Z",
+      "side": 1,
+      "message": "If join types are specified as floats now, can you document how that is interpreted?\n\ne.g. See must line up with the values defined in GrTessellationStrokeShader; these are floats since they are written into the vertex buffer",
+      "range": {
+        "startLine": 59,
+        "startChar": 27,
+        "endLine": 59,
+        "endChar": 33
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30496402_4dca3a63",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T18:38:31Z",
+      "side": 1,
+      "message": "nit: alignment",
+      "range": {
+        "startLine": 70,
+        "startChar": 16,
+        "endLine": 70,
+        "endChar": 17
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d3527aa_7b86c0ce",
+        "filename": "src/gpu/tessellate/GrStrokeGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T18:38:31Z",
+      "side": 1,
+      "message": "I would separate these from the other members that represent what\u0027s being accumulated, and maybe comment that their lifetime is controlled by whoever created the GrStrokeGeometry.",
+      "range": {
+        "startLine": 113,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 51
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41334fd3_49b99afd",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T18:38:31Z",
+      "side": 1,
+      "message": "Comment that we use S \u003d 1 since in the majority of cases, GrStrokeGeometry can allocate everything into a single VertexChunk?",
+      "range": {
+        "startLine": 57,
+        "startChar": 14,
+        "endLine": 57,
+        "endChar": 15
+      },
+      "revId": "a27aa866268741444d4eda88f51f71515b94dba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
