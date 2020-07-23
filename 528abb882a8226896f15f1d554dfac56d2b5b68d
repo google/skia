@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d6b44baa_94e4def8",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-23T22:45:28Z",
+      "side": 1,
+      "message": "In practice it seems like most uses are coming from a uint8_t* or other low-level type that is being used as a raw pointer into a blob of flexibly-typed memory. Looking at most callers, I get the impression that it\u0027s basically used to type-pun/cast `src` to type Dest, and the raw type of `src` was irrelevant because we\u0027re explicitly saying it\u0027s actually type Dest. I guess it would still be weird if `src` was actually some high-level type though, so if you want me to add a check, I can.",
+      "parentUuid": "16da86cf_b06a3380",
+      "range": {
+        "startLine": 87,
+        "startChar": 53,
+        "endLine": 87,
+        "endChar": 58
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ead1ec74_053e5950",
         "filename": "src/core/SkUtils.h",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "31cac0b6_44ae3826",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-23T22:45:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ead1ec74_053e5950",
+      "range": {
+        "startLine": 89,
+        "startChar": 18,
+        "endLine": 89,
+        "endChar": 92
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "972a7ae9_e2763fec",
         "filename": "src/core/SkUtils.h",
         "patchSetId": 6
@@ -59,6 +107,30 @@
       "writtenOn": "2020-07-23T22:14:19Z",
       "side": 1,
       "message": "Might be clearer to name these sk_bit_cast, sk_widen_cast as a signal that they\u0027re defined outside the file(s) they\u0027re used?  I doubt name conflicts will come up, but it\u0027d help prevent those too.",
+      "range": {
+        "startLine": 105,
+        "startChar": 29,
+        "endLine": 105,
+        "endChar": 37
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72b50596_3f6ee31f",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-23T22:45:28Z",
+      "side": 1,
+      "message": "Sure, I can do that rename in a followup CL if you want. I don\u0027t really have a preference here at all; I was just moving the existing function from point A to point B. I\u0027ll defer to your judgment on whether it\u0027s worth doing.",
+      "parentUuid": "972a7ae9_e2763fec",
       "range": {
         "startLine": 105,
         "startChar": 29,
@@ -91,6 +163,30 @@
       "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f994c75_d15d8f3d",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-23T22:45:28Z",
+      "side": 1,
+      "message": "Done.\n\nI changed it because it seemed like it made generic code harder to write, but it probably doesn\u0027t come up much in practice. (e.g. why shouldn\u0027t I be able to widen_cast a bool to uint32? Size will be equal on some platforms and greater on others.)\n\nBTW, one thing I was wondering--we don\u0027t value-initialize dst here:\n\n   Dest dst{};\n\nDo we actually generate better code by using default-initialization? It seems like it limits the utility of widen_cast if you might have noise in the top bits. e.g. I can\u0027t use this to make a GLSLProcessorKey.",
+      "parentUuid": "6fb8ecf4_10bb37a2",
+      "range": {
+        "startLine": 115,
+        "startChar": 31,
+        "endLine": 115,
+        "endChar": 33
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
