@@ -25,15 +25,13 @@ public:
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
                                      const GrTextBlob::Key& key,
                                      const SkMaskFilterBase::BlurRec& blurRec,
-                                     const SkMatrix& viewMatrix) SK_EXCLUDES(fMutex);
+                                     const SkMatrix& viewMatrix) SK_EXCLUDES(fSpinLock);
 
-    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) const SK_EXCLUDES(fMutex);
+    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) SK_EXCLUDES(fSpinLock);
 
-    void remove(GrTextBlob* blob) SK_EXCLUDES(fMutex);
+    void remove(GrTextBlob* blob) SK_EXCLUDES(fSpinLock);
 
-    void makeMRU(GrTextBlob* blob) SK_EXCLUDES(fMutex);
-
-    void freeAll() SK_EXCLUDES(fMutex);
+    void freeAll() SK_EXCLUDES(fSpinLock);
 
     struct PurgeBlobMessage {
         PurgeBlobMessage(uint32_t blobID, uint32_t contextUniqueID)
@@ -45,11 +43,11 @@ public:
 
     static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);
 
-    void purgeStaleBlobs() SK_EXCLUDES(fMutex);
+    void purgeStaleBlobs() SK_EXCLUDES(fSpinLock);
 
-    size_t usedBytes() const SK_EXCLUDES(fMutex);
+    size_t usedBytes() const SK_EXCLUDES(fSpinLock);
 
-    bool isOverBudget() const SK_EXCLUDES(fMutex);
+    bool isOverBudget() const SK_EXCLUDES(fSpinLock);
 
 private:
     friend class GrTextBlobTestingPeer;
@@ -75,24 +73,24 @@ private:
         SkSTArray<1, sk_sp<GrTextBlob>> fBlobs;
     };
 
-    void internalPurgeStaleBlobs() SK_REQUIRES(fMutex);
+    void internalPurgeStaleBlobs() SK_REQUIRES(fSpinLock);
 
-    void internalAdd(sk_sp<GrTextBlob> blob) SK_REQUIRES(fMutex);
-    void internalRemove(GrTextBlob* blob) SK_REQUIRES(fMutex);
+    void internalAdd(sk_sp<GrTextBlob> blob) SK_REQUIRES(fSpinLock);
+    void internalRemove(GrTextBlob* blob) SK_REQUIRES(fSpinLock);
 
-    void internalCheckPurge(GrTextBlob* blob = nullptr) SK_REQUIRES(fMutex);
+    void internalCheckPurge(GrTextBlob* blob = nullptr) SK_REQUIRES(fSpinLock);
 
     static const int kDefaultBudget = 1 << 22;
 
-    mutable SkMutex fMutex;
-    TextBlobList fBlobList SK_GUARDED_BY(fMutex);
-    SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fMutex);
-    size_t fSizeBudget SK_GUARDED_BY(fMutex);
-    size_t fCurrentSize SK_GUARDED_BY(fMutex) {0};
+    mutable SkSpinlock fSpinLock;
+    TextBlobList fBlobList SK_GUARDED_BY(fSpinLock);
+    SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fSpinLock);
+    size_t fSizeBudget SK_GUARDED_BY(fSpinLock);
+    size_t fCurrentSize SK_GUARDED_BY(fSpinLock) {0};
 
     // In practice 'messageBusID' is always the unique ID of the owning GrContext
     const uint32_t fMessageBusID;
-    SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox SK_GUARDED_BY(fMutex);
+    SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox SK_GUARDED_BY(fSpinLock);
 };
 
 #endif
