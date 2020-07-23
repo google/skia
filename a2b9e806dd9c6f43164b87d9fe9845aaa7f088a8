@@ -16,6 +16,52 @@
       "revId": "a2b9e806dd9c6f43164b87d9fe9845aaa7f088a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09ac4814_0c8eb549",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-23T20:03:51Z",
+      "side": 1,
+      "message": "Do we need to return a ref here or can it just be a raw pointer? Seems like we should be refing the whole buffer on submit anyways.",
+      "range": {
+        "startLine": 29,
+        "startChar": 8,
+        "endLine": 29,
+        "endChar": 35
+      },
+      "revId": "a2b9e806dd9c6f43164b87d9fe9845aaa7f088a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78b6d698_dc639237",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-23T20:03:51Z",
+      "side": 1,
+      "message": "should this just be a GrGpuBuffer*? Seems like fTrackedBuffers will have a ref on it",
+      "range": {
+        "startLine": 66,
+        "startChar": 4,
+        "endLine": 66,
+        "endChar": 38
+      },
+      "revId": "a2b9e806dd9c6f43164b87d9fe9845aaa7f088a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
