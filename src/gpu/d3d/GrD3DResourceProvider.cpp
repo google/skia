@@ -198,7 +198,8 @@ D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, 
     // Due to dependency on the resource cache we can't initialize this in the constructor, so
     // we do so it here.
     if (!fConstantBuffer) {
-        fConstantBuffer = GrD3DConstantRingBuffer::Make(fGpu, 128 * 1024, kConstantAlignment);
+        fConstantBuffer = GrRingBuffer::Make(fGpu, 128 * 1024, kConstantAlignment,
+                                             GrGpuBufferType::kVertex);
         SkASSERT(fConstantBuffer);
     }
 
