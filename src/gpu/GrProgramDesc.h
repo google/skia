@@ -90,8 +90,7 @@ protected:
      **/
     static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
 
-    // This is strictly an OpenGL call since the other backends have additional data in their
-    // keys
+    // This is strictly an OpenGL call since the other backends have additional data in their keys.
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
         if (!SkTFitsIn<int>(keyLength)) {
             return false;
@@ -134,7 +133,7 @@ protected:
     enum KeyOffsets {
         kHeaderOffset = 0,
         kHeaderSize = SkAlign4(sizeof(KeyHeader)),
-        // This is the offset into the backenend specific part of the key, which includes
+        // This is the offset into the backend-specific part of the key, which includes
         // per-processor keys.
         kProcessorKeysOffset = kHeaderOffset + kHeaderSize,
     };
