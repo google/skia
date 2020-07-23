@@ -15,7 +15,7 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GrMtlCommandBuffer* GrMtlCommandBuffer::Create(id<MTLCommandQueue> queue) {
+sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Create(id<MTLCommandQueue> queue) {
     id<MTLCommandBuffer> mtlCommandBuffer;
     mtlCommandBuffer = [queue commandBuffer];
     if (nil == mtlCommandBuffer) {
@@ -24,12 +24,17 @@ GrMtlCommandBuffer* GrMtlCommandBuffer::Create(id<MTLCommandQueue> queue) {
 
     mtlCommandBuffer.label = @"GrMtlCommandBuffer::Create";
 
-    return new GrMtlCommandBuffer(mtlCommandBuffer);
+    return sk_sp<GrMtlCommandBuffer>(new GrMtlCommandBuffer(mtlCommandBuffer));
 }
 
 GrMtlCommandBuffer::~GrMtlCommandBuffer() {
     this->endAllEncoding();
+    this->releaseResources();
     fCmdBuffer = nil;
+}
+
+void GrMtlCommandBuffer::releaseResources() {
+    fTrackedGrBuffers.reset();
 }
 
 id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
