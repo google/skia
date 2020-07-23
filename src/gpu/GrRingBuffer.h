@@ -10,7 +10,9 @@
 
 #include "src/gpu/GrGpuBuffer.h"
 
-#include "include/private/SkSpinlock.h"
+#include <vector>
+
+class GrGpu;
 
 /**
  * A wrapper for a GPU buffer that allocates slices in a continuous ring.
@@ -18,12 +20,13 @@
  * It's assumed that suballocate and startSubmit are always called in the same thread,
  * and that finishSubmit could be called in a separate thread.
  */
-class GrRingBuffer : public SkRefCnt {
+class GrRingBuffer {
 public:
-    GrRingBuffer(sk_sp<GrGpuBuffer> buffer, size_t size, size_t alignment)
-        : fBuffer(std::move(buffer))
+    GrRingBuffer(GrGpu* gpu, size_t size, size_t alignment, GrGpuBufferType intendedType)
+        : fGpu(gpu)
         , fTotalSize(size)
         , fAlignment(alignment)
+        , fType(intendedType)
         , fHead(0)
         , fTail(0)
         , fGenID(0) {
@@ -33,39 +36,39 @@ public:
     }
 
     struct Slice {
-        sk_sp<GrGpuBuffer> fBuffer;
+        GrGpuBuffer* fBuffer;
         size_t fOffset;
     };
-
     Slice suballocate(size_t size);
 
     class SubmitData {
     public:
-        GrGpuBuffer* buffer() const { return fBuffer.get(); }
+        const GrRingBuffer* fRingBuffer;
+        std::vector<sk_sp<GrGpuBuffer>> fTrackedBuffers;
     private:
         friend class GrRingBuffer;
-        sk_sp<GrGpuBuffer> fBuffer;
         size_t fLastHead;
         size_t fGenID;
     };
     // Backends should call startSubmit() at submit time, and finishSubmit() when the
     // command buffer/list finishes.
-    SubmitData startSubmit();
+    void startSubmit(SubmitData*);
     void finishSubmit(const SubmitData&);
 
     size_t size() const { return fTotalSize; }
 
 private:
-    virtual sk_sp<GrGpuBuffer> createBuffer(size_t size) = 0;
     size_t getAllocationOffset(size_t size);
 
-    sk_sp<GrGpuBuffer> fBuffer;
+    GrGpu* fGpu;
+    sk_sp<GrGpuBuffer> fCurrentBuffer;
+    std::vector<sk_sp<GrGpuBuffer>> fTrackedBuffers;  // all buffers we've used in this submit
     size_t fTotalSize;
     size_t fAlignment;
-    size_t fHead SK_GUARDED_BY(fMutex);     // where we start allocating
-    size_t fTail SK_GUARDED_BY(fMutex);     // where we start deallocating
-    uint64_t fGenID SK_GUARDED_BY(fMutex);  // incremented when createBuffer is called
-    SkSpinlock fMutex;
+    GrGpuBufferType fType;
+    size_t fHead;     // where we start allocating
+    size_t fTail;     // where we start deallocating
+    uint64_t fGenID;  // incremented when createBuffer is called
 };
 
 #endif

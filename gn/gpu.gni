@@ -768,8 +768,6 @@ skia_direct3d_sources = [
   "$_src/gpu/d3d/GrD3DCommandList.h",
   "$_src/gpu/d3d/GrD3DCommandSignature.cpp",
   "$_src/gpu/d3d/GrD3DCommandSignature.h",
-  "$_src/gpu/d3d/GrD3DConstantRingBuffer.cpp",
-  "$_src/gpu/d3d/GrD3DConstantRingBuffer.h",
   "$_src/gpu/d3d/GrD3DCpuDescriptorManager.cpp",
   "$_src/gpu/d3d/GrD3DCpuDescriptorManager.h",
   "$_src/gpu/d3d/GrD3DDescriptorHeap.cpp",

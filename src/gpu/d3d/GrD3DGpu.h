@@ -48,6 +48,9 @@ public:
     GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
     void takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer>) override;
 
+    // TODO: hoist up to GrGpu
+    GrRingBuffer* constantsRingBuffer() { return &fConstantsRingBuffer; }
+
     bool protectedContext() const { return false; }
 
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
@@ -256,6 +259,7 @@ private:
 
     GrD3DResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
+    GrRingBuffer fConstantsRingBuffer;
 
     gr_cp<ID3D12Fence> fFence;
     uint64_t fCurrentFenceValue = 0;

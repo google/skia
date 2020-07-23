@@ -195,27 +195,19 @@ D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, 
     // constant size has to be aligned to 256
     constexpr int kConstantAlignment = 256;
 
-    // Due to dependency on the resource cache we can't initialize this in the constructor, so
-    // we do so it here.
-    if (!fConstantBuffer) {
-        fConstantBuffer = GrD3DConstantRingBuffer::Make(fGpu, 128 * 1024, kConstantAlignment);
-        SkASSERT(fConstantBuffer);
-    }
-
     // upload the data
     size_t paddedSize = GrAlignTo(size, kConstantAlignment);
-    GrRingBuffer::Slice slice = fConstantBuffer->suballocate(paddedSize);
+    GrRingBuffer::Slice slice = fGpu->constantsRingBuffer()->suballocate(paddedSize);
     char* destPtr = static_cast<char*>(slice.fBuffer->map()) + slice.fOffset;
     memcpy(destPtr, data, size);
 
     // create the associated constant buffer view descriptor
-    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer.get());
+    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer);
     D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = d3dBuffer->d3dResource()->GetGPUVirtualAddress();
     return gpuAddress + slice.fOffset;
 }
 
 void GrD3DResourceProvider::prepForSubmit() {
-    fGpu->currentCommandList()->setCurrentConstantBuffer(fConstantBuffer);
     fDescriptorTableManager.prepForSubmit(fGpu);
     // Any heap memory used for these will be returned when the command buffer finishes,
     // so we have to invalidate all entries.
