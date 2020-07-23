@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae9915dd_acb32086",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-23T18:28:29Z",
+      "side": 1,
+      "message": "All of the matrices are generated directly from this table of coefficients. Can reviewers confirm that this looks right? My understanding of how this code operates (and the corresponding code in chromium) makes me think this is correct. In particular, for the 10 and 12 bit BT2020 limited-range matrices, the scale+bias terms applied to Y, and the scale term applied to uv have the original numerators (*4 or *16), over the new denominators (1023 or 4095). I basically made that change, plus all the renaming, then just re-ran the process that dumps out the resulting matrices.",
+      "revId": "cc8395b8c6f11eaa35cda4be4ee4aa942ab42a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
