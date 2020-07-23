@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1667c76a_c9a662f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-23T16:02:36Z",
+      "side": 1,
+      "message": "This CL did not work correctly for the web worker demo. Fixed by https://skia-review.googlesource.com/c/skia/+/305539",
+      "revId": "683bbe01ff8b9baca430ea742db77c6e6add61ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
