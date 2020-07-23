@@ -20,7 +20,6 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/effects/GrCustomXfermode.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

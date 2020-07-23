@@ -5,17 +5,18 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrXfermodeFragmentProcessor_DEFINED
-#define GrXfermodeFragmentProcessor_DEFINED
+#ifndef GrBlendFragmentProcessor_DEFINED
+#define GrBlendFragmentProcessor_DEFINED
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 
 class GrFragmentProcessor;
 
-namespace GrXfermodeFragmentProcessor {
+namespace GrBlendFragmentProcessor {
 
-enum class ComposeBehavior {
+// TODO(skbug.com/10457): Standardize on a single blend behavior
+enum class BlendBehavior {
     // Picks "ComposeOne" or "ComposeTwo" automatically depending on presence of src/dst FPs.
     kDefault = 0,
 
@@ -28,7 +29,7 @@ enum class ComposeBehavior {
     // half(1) is passed to src; sk_InColor.rgba is passed to dst. No alpha channel trickery.
     kSkModeBehavior,
 
-    kLastComposeBehavior = kSkModeBehavior,
+    kLastBlendBehavior = kSkModeBehavior,
 };
 
 /** Blends src and dst inputs according to the blend mode.
@@ -37,7 +38,7 @@ enum class ComposeBehavior {
 std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> src,
                                           std::unique_ptr<GrFragmentProcessor> dst,
                                           SkBlendMode mode,
-                                          ComposeBehavior behavior = ComposeBehavior::kDefault);
+                                          BlendBehavior behavior = BlendBehavior::kDefault);
 
 };
 

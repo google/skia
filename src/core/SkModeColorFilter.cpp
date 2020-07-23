@@ -85,7 +85,7 @@ skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrBlend.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -100,14 +100,14 @@ GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProc
     SkDEBUGCODE(const bool fpHasConstIO = !inputFP || inputFP->hasConstantOutputForConstantInput();)
 
     auto colorFP = GrConstColorProcessor::Make(SkColorToPMColor4f(fColor, dstColorInfo));
-    auto xferFP = GrXfermodeFragmentProcessor::Make(
+    auto xferFP = GrBlendFragmentProcessor::Make(
             std::move(colorFP), std::move(inputFP), fMode,
-            GrXfermodeFragmentProcessor::ComposeBehavior::kSkModeBehavior);
+            GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
 
     if (xferFP == nullptr) {
         // This is only expected to happen if the blend mode is "dest" and the input FP is null.
         // Since we already did an early-out in the "dest" blend mode case, we shouldn't get here.
-        SkDEBUGFAIL("GrXfermodeFragmentProcessor::Make returned null unexpectedly");
+        SkDEBUGFAIL("GrBlendFragmentProcessor::Make returned null unexpectedly");
         return GrFPFailure(nullptr);
     }
 

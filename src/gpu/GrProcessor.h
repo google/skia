@@ -62,13 +62,13 @@ public:
         kNull_ClassID,  // Reserved ID for missing (null) processors
 
         kBigKeyProcessor_ClassID,
+        kBlendFragmentProcessor_ClassID,
         kBlockInputFragmentProcessor_ClassID,
         kButtCapStrokedCircleGeometryProcessor_ClassID,
         kCircleGeometryProcessor_ClassID,
         kCircularRRectEffect_ClassID,
         kClockwiseTestProcessor_ClassID,
         kColorTableEffect_ClassID,
-        kComposeFragmentProcessor_ClassID,
         kCoverageSetOpXP_ClassID,
         kCubicStrokeProcessor_ClassID,
         kCustomXP_ClassID,
