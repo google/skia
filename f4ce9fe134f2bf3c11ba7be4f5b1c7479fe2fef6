@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcfb63d4_ff9915bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-23T17:14:56Z",
+      "side": 1,
+      "message": "mtklein@ there are some differences on gold https://gold.skia.org/cl/gerrit/304853, but they look like very minor / insignificant floating point diffs to me. Let me know what you think.\n\nAlso, `linux-blink-rel` https://ci.chromium.org/p/chromium/builders/try/linux-blink-rel/38458? is failing. Do you know what the procedure is / who I can talk to to \"re-baseline\" the test? Assuming the diffs really are insignificant.",
+      "revId": "f4ce9fe134f2bf3c11ba7be4f5b1c7479fe2fef6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
