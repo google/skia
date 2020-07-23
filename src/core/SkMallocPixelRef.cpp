@@ -34,6 +34,11 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeAllocate(const SkImageInfo& info, size_t
     if (SkImageInfo::ByteSizeOverflowed(size)) {
         return nullptr;
     }
+#if defined(IS_FUZZING)
+    if (size > 100000) {
+        return nullptr;
+    }
+#endif
     void* addr = sk_calloc_canfail(size);
     if (nullptr == addr) {
         return nullptr;

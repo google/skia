@@ -958,6 +958,12 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     // transform the path into device space
     pathPtr->transform(matrixProvider->localToDevice(), devPathPtr);
 
+#if defined(IS_FUZZING)
+    if (devPathPtr->countPoints() > 1000) {
+        return;
+    }
+#endif
+
     this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill);
 }
 
