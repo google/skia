@@ -86,6 +86,30 @@
       "revId": "1002db4983a8fcfc15a7631cbb3d7fafbbd78232",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30779c7c_3e89af85",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-23T14:07:22Z",
+      "side": 1,
+      "message": "Oh my bad, I didn\u0027t realize RunInSeries already did this analysis too. Let\u0027s keep it for now as-is, but once we\u0027ve got a better analysis system that works with our new pattern, we can revisit whether this needs to happen in the Compose constructor.",
+      "parentUuid": "577fc9bc_5621a83b",
+      "range": {
+        "startLine": 547,
+        "startChar": 0,
+        "endLine": 572,
+        "endChar": 5
+      },
+      "revId": "1002db4983a8fcfc15a7631cbb3d7fafbbd78232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
