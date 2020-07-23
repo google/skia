@@ -16,6 +16,24 @@
       "revId": "cf254d051f3744819116be58e22027a4973f9f26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f03cb4eb_8e13a188",
+        "filename": "src/gpu/effects/GrBlendFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-23T16:18:40Z",
+      "side": 1,
+      "message": "I thought about it, but these are specifically named to talk about the legacy behaviors of old classes named \"ComposeOne\" and \"ComposeTwo\". We never had \"BlendOne\" and \"BlendTwo\" classes so it seemed like a misnomer. (Just like the next one emulates the behavior of the SkModeColorFilter class.)\n\nIdeally these should be gotten rid of entirely (attached TODO) so it won\u0027t be a long-lived problem.",
+      "parentUuid": "62818e03_ab150c4f",
+      "revId": "cf254d051f3744819116be58e22027a4973f9f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
