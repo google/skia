@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrTwoPointConicalGradientLayout.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -149,12 +150,12 @@ GrGLSLFragmentProcessor* GrTwoPointConicalGradientLayout::onCreateGLSLInstance()
 }
 void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                             GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)type);
-    b->add32((int32_t)isRadiusIncreasing);
-    b->add32((int32_t)isFocalOnCircle);
-    b->add32((int32_t)isWellBehaved);
-    b->add32((int32_t)isSwapped);
-    b->add32((int32_t)isNativelyFocal);
+    b->add32((uint32_t)type);
+    b->add32((uint32_t)isRadiusIncreasing);
+    b->add32((uint32_t)isFocalOnCircle);
+    b->add32((uint32_t)isWellBehaved);
+    b->add32((uint32_t)isSwapped);
+    b->add32((uint32_t)isNativelyFocal);
 }
 bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTwoPointConicalGradientLayout& that = other.cast<GrTwoPointConicalGradientLayout>();
