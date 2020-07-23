@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "44721b75_d5cc6d2c",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-23T19:35:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9019cda_007d8d40",
+      "range": {
+        "startLine": 38,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 29
+      },
+      "revId": "14b0db4ddd9e4640633b49ed55a752a8618e727d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6672a50a_f06d3c38",
         "filename": "src/gpu/text/GrTextBlobCache.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "a4450f77_34d31ddc",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-23T19:35:25Z",
+      "side": 1,
+      "message": "fBlobIDCache is just for the text blob id, the idEntry caches the entire draw call with paint, matrix, position, etc. makeMRU was only ever passed non-null GrTextBlob pointers.",
+      "parentUuid": "6672a50a_f06d3c38",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 64
+      },
+      "revId": "14b0db4ddd9e4640633b49ed55a752a8618e727d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0d603aa_97558cc1",
         "filename": "src/gpu/text/GrTextBlobCache.h",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "14b0db4ddd9e4640633b49ed55a752a8618e727d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a24bd880_290cf59e",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-23T19:35:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0d603aa_97558cc1",
+      "range": {
+        "startLine": 85,
+        "startChar": 23,
+        "endLine": 85,
+        "endChar": 29
+      },
+      "revId": "14b0db4ddd9e4640633b49ed55a752a8618e727d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
