@@ -11,15 +11,16 @@
 #import <Metal/Metal.h>
 
 #include "include/core/SkRefCnt.h"
+#include "src/gpu/GrBuffer.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
 class GrMtlGpu;
 class GrMtlPipelineState;
 class GrMtlOpsRenderPass;
 
-class GrMtlCommandBuffer {
+class GrMtlCommandBuffer : public SkRefCnt {
 public:
-    static GrMtlCommandBuffer* Create(id<MTLCommandQueue> queue);
+    static sk_sp<GrMtlCommandBuffer> Make(id<MTLCommandQueue> queue);
     ~GrMtlCommandBuffer();
 
     void commit(bool waitUntilCompleted);
@@ -33,10 +34,16 @@ public:
         [fCmdBuffer addCompletedHandler:block];
     }
 
+    void addGrBuffer(sk_sp<const GrBuffer> buffer) {
+        fTrackedGrBuffers.push_back(std::move(buffer));
+    }
+
     void encodeSignalEvent(id<MTLEvent>, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
     void encodeWaitForEvent(id<MTLEvent>, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
 
 private:
+    static const int kInitialTrackedResourcesCount = 32;
+
     GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)
         : fCmdBuffer(cmdBuffer)
         , fPreviousRenderPassDescriptor(nil) {}
@@ -47,6 +54,8 @@ private:
     id<MTLBlitCommandEncoder>   fActiveBlitCommandEncoder;
     id<MTLRenderCommandEncoder> fActiveRenderCommandEncoder;
     MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
+
+    SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrBuffer>> fTrackedGrBuffers;
 };
 
 #endif
