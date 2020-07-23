@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29359d4e_1b025511",
+        "filename": "gm/texelsubset.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-23T13:22:31Z",
+      "side": 0,
+      "message": "I goofed these names up before. Was trying to match the GL naming convention but got it backwards.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 9
+      },
+      "revId": "cc848b59f80506bf047abc0727a92d66957e8eee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
