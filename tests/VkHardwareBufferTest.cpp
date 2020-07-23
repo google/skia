@@ -831,7 +831,7 @@ bool VulkanTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* report
     GrSemaphoresSubmitted submitted = fDirectContext->flush(info);
     fDirectContext->submit();
     if (GrSemaphoresSubmitted::kNo == submitted) {
-        ERRORF(reporter, "Failing call to flush on GrContext");
+        ERRORF(reporter, "Failing call to flush on GrDirectContext");
         return false;
     }
     SkASSERT(semaphore.isInitialized());

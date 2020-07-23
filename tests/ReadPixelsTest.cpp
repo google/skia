@@ -1147,8 +1147,8 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
                            sk_gpu_test::GrContextFactory::ContextTypeName(type), yuv);
                     continue;
                 }
-                // For vulkan we need to release all refs to the GrContext before trying to destroy
-                // the test context. The surface here is holding a ref.
+                // For vulkan we need to release all refs to the GrDirectContext before trying to
+                // destroy the test context. The surface here is holding a ref.
                 surf.reset();
 
                 // The real test is that we don't crash, get Vulkan validation errors, etc, during

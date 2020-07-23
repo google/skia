@@ -152,10 +152,11 @@ static sk_sp<SkShader> make_RGBW_shader() {
     return bmp.makeShader();
 }
 
-static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context) {
+static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext* rContext) {
     SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = context ? SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info)
-                                       : SkSurface::MakeRaster(info);
+    sk_sp<SkSurface> surface = rContext
+                                    ? SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info)
+                                    : SkSurface::MakeRaster(info);
     REPORTER_ASSERT(r, surface);
     TestEffect effect(r, surface);
 
