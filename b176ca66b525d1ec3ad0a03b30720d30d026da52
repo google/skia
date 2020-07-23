@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4c078b6_10af6292",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-23T15:12:17Z",
+      "side": 1,
+      "message": "nit: if returning in sk_sp we general change this to Make",
+      "range": {
+        "startLine": 23,
+        "startChar": 37,
+        "endLine": 23,
+        "endChar": 43
+      },
+      "revId": "b176ca66b525d1ec3ad0a03b30720d30d026da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5846a0de_48a3f58d",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-23T15:12:17Z",
+      "side": 1,
+      "message": "Not for this change, but more of a passing thought. In vulkan/d3d I just used the initial alloc value we have for other resources. We should really see how many we actually are using per command buffer on all the backends",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 56
+      },
+      "revId": "b176ca66b525d1ec3ad0a03b30720d30d026da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f05847b1_8601efba",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-23T15:12:17Z",
+      "side": 1,
+      "message": "Is this called anywhere outside the dtor? Can\u0027t we just have the SkSTArray be freed implicitly by the dtor?",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 1
+      },
+      "revId": "b176ca66b525d1ec3ad0a03b30720d30d026da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af0b50a9_5c1fa759",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-23T15:12:17Z",
+      "side": 1,
+      "message": "do we need to delete the GrFence?",
+      "range": {
+        "startLine": 218,
+        "startChar": 8,
+        "endLine": 218,
+        "endChar": 42
+      },
+      "revId": "b176ca66b525d1ec3ad0a03b30720d30d026da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a901651_9b665d1f",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-23T15:12:17Z",
+      "side": 1,
+      "message": "not index? Those also get made from the alloc pool occasionally and reused",
+      "range": {
+        "startLine": 277,
+        "startChar": 8,
+        "endLine": 277,
+        "endChar": 19
+      },
+      "revId": "b176ca66b525d1ec3ad0a03b30720d30d026da52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
