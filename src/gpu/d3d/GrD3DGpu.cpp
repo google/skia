@@ -39,14 +39,17 @@ sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
 // command lists we expect to see.
 static const int kDefaultOutstandingAllocCnt = 8;
 
+// constants have to be aligned to 256
+constexpr int kConstantAlignment = 256;
+
 GrD3DGpu::GrD3DGpu(GrDirectContext* direct, const GrContextOptions& contextOptions,
                    const GrD3DBackendContext& backendContext)
         : INHERITED(direct)
         , fDevice(backendContext.fDevice)
-
         , fQueue(backendContext.fQueue)
         , fResourceProvider(this)
         , fStagingBufferManager(this)
+        , fConstantsRingBuffer(this, 128 * 1024, kConstantAlignment, GrGpuBufferType::kVertex)
         , fOutstandingCommandLists(sizeof(OutstandingCommandList), kDefaultOutstandingAllocCnt)
         , fCompiler(new SkSL::Compiler()) {
     fCaps.reset(new GrD3DCaps(contextOptions,
@@ -116,6 +119,9 @@ GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
 
 bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     SkASSERT(fCurrentDirectCommandList);
+
+    // set up constant data
+    fCurrentDirectCommandList->setCurrentConstantBuffer(&fConstantsRingBuffer);
 
     fResourceProvider.prepForSubmit();
 
