@@ -239,16 +239,16 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
     const int kHeight = 10;
 
     // Different ways of killing contexts.
-    using DeathFn = std::function<void(sk_gpu_test::GrContextFactory*, GrContext*)>;
-    DeathFn destroy = [](sk_gpu_test::GrContextFactory* factory, GrContext* context) {
+    using DeathFn = std::function<void(sk_gpu_test::GrContextFactory*, GrDirectContext*)>;
+    DeathFn destroy = [](sk_gpu_test::GrContextFactory* factory, GrDirectContext*) {
         factory->destroyContexts();
     };
-    DeathFn abandon = [](sk_gpu_test::GrContextFactory* factory, GrContext* context) {
-        context->abandonContext();
+    DeathFn abandon = [](sk_gpu_test::GrContextFactory* factory, GrDirectContext* dContext) {
+        dContext->abandonContext();
     };
     DeathFn releaseResourcesAndAbandon = [](sk_gpu_test::GrContextFactory* factory,
-                                            GrContext* context) {
-        context->releaseResourcesAndAbandonContext();
+                                            GrDirectContext* dContext) {
+        dContext->releaseResourcesAndAbandonContext();
     };
 
     for (int type = 0; type < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++type) {
@@ -272,7 +272,8 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
 
             GrBackendTexture backendTex;
             CreateBackendTexture(ctx, &backendTex, kWidth, kHeight, kAlpha_8_SkColorType,
-                    SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+                                 SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
+                                 GrProtected::kNo);
             REPORTER_ASSERT(reporter, backendTex.isValid());
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
@@ -307,21 +308,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     const int kWidth = 10;
     const int kHeight = 10;
 
-    auto ctx = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
-    GrBackendTexture backendTex = ctx->createBackendTexture(
+    GrBackendTexture backendTex = dContext->createBackendTexture(
             kWidth, kHeight, kAlpha_8_SkColorType,
             SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     SkImageInfo info =
             SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
     sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(
-            ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipmapped::kNo,
+            dContext, backendTex.getBackendFormat(), kWidth, kHeight, GrMipmapped::kNo,
             kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
             PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
             PromiseTextureChecker::Done, &promiseChecker,
@@ -331,12 +332,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     // Make the cache full. This tests that we don't preemptively purge cached textures for
     // fulfillment due to cache pressure.
     static constexpr int kMaxBytes = 1;
-    ctx->setResourceCacheLimit(kMaxBytes);
+    dContext->setResourceCacheLimit(kMaxBytes);
     SkTArray<sk_sp<GrTexture>> textures;
     for (int i = 0; i < 5; ++i) {
-        auto format = ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
-                                                                  GrRenderable::kNo);
-        textures.emplace_back(ctx->priv().resourceProvider()->createTexture(
+        auto format = dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                       GrRenderable::kNo);
+        textures.emplace_back(dContext->priv().resourceProvider()->createTexture(
                 {100, 100}, format, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBudgeted::kYes,
                 GrProtected::kNo));
         REPORTER_ASSERT(reporter, textures[i]);
@@ -344,7 +345,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
 
     size_t bytesUsed;
 
-    ctx->getResourceCacheUsage(nullptr, &bytesUsed);
+    dContext->getResourceCacheUsage(nullptr, &bytesUsed);
     REPORTER_ASSERT(reporter, bytesUsed > kMaxBytes);
 
     // Relying on the asserts in the promiseImageChecker to ensure that fulfills and releases are
@@ -363,10 +364,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     surface->flushAndSubmit();
     // Must call these to ensure that all callbacks are performed before the checker is destroyed.
     image.reset();
-    ctx->flushAndSubmit();
-    ctx->priv().getGpu()->testingOnly_flushGpuAndSync();
+    dContext->flushAndSubmit();
+    dContext->priv().getGpu()->testingOnly_flushGpuAndSync();
 
-    ctx->deleteBackendTexture(backendTex);
+    dContext->deleteBackendTexture(backendTex);
 }
 
 // Test case where promise image fulfill returns nullptr.
@@ -374,17 +375,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
 
-    auto ctx = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     // Do all this just to get a valid backend format for the image.
     GrBackendTexture backendTex;
-    CreateBackendTexture(ctx, &backendTex, kWidth, kHeight, kRGBA_8888_SkColorType,
+    CreateBackendTexture(dContext, &backendTex, kWidth, kHeight, kRGBA_8888_SkColorType,
                          SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
                          GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
     REPORTER_ASSERT(reporter, backendFormat.isValid());
-    ctx->deleteBackendTexture(backendTex);
+    dContext->deleteBackendTexture(backendTex);
 
     struct Counts {
         int fFulfillCount = 0;
@@ -403,12 +404,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(
-            ctx, backendFormat, kWidth, kHeight, GrMipmapped::kNo, texOrigin,
+            dContext, backendFormat, kWidth, kHeight, GrMipmapped::kNo, texOrigin,
             kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, fulfill, release, done, &counts,
             SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
     // Draw the image a few different ways.
     canvas->drawImage(refImg, 0, 0);

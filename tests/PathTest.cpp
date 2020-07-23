@@ -241,7 +241,7 @@ static void make_path_crbugskia2820(SkPath* path, skiatest::Reporter* reporter) 
     path->close();
 }
 
-static void test_path_crbugskia2820(skiatest::Reporter* reporter) {//GrContext* context) {
+static void test_path_crbugskia2820(skiatest::Reporter* reporter) {
     SkPath path;
     make_path_crbugskia2820(&path, reporter);
 

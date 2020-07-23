@@ -35,7 +35,7 @@ static bool surface_is_expected_color(SkSurface* surf, const SkImageInfo& ii, Sk
     return true;
 }
 
-static void basic_test(skiatest::Reporter* reporter, GrContext* context) {
+static void basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContext) {
     const SkImageInfo ii = SkImageInfo::Make(64, 64, kN32_SkColorType, kPremul_SkAlphaType);
 
     SkBitmap bm;
@@ -47,7 +47,7 @@ static void basic_test(skiatest::Reporter* reporter, GrContext* context) {
     // We start off with the raster image being all red.
     sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(bm, kNever_SkCopyPixelsMode);
 
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
+    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, ii);
     SkCanvas* canvas = gpuSurface->getCanvas();
 
     // w/o pinning - the gpu draw always reflects the current state of the underlying bitmap
@@ -63,7 +63,7 @@ static void basic_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // w/ pinning - the gpu draw is stuck at the pinned state
     {
-        SkImage_pinAsTexture(img.get(), context); // pin at blue
+        SkImage_pinAsTexture(img.get(), rContext); // pin at blue
 
         canvas->drawImage(img, 0, 0);
         REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
@@ -73,7 +73,7 @@ static void basic_test(skiatest::Reporter* reporter, GrContext* context) {
         canvas->drawImage(img, 0, 0);
         REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
 
-        SkImage_unpinAsTexture(img.get(), context);
+        SkImage_unpinAsTexture(img.get(), rContext);
     }
 
     // once unpinned local changes will be picked up

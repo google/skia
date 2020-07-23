@@ -225,11 +225,11 @@ public:
 
     int id() const { return fID; }
 
-    static std::unique_ptr<AtlasedRectOp> Make(GrContext* context,
+    static std::unique_ptr<AtlasedRectOp> Make(GrRecordingContext* rContext,
                                                GrPaint&& paint,
                                                const SkRect& r,
                                                int id) {
-        GrDrawOp* op = Helper::FactoryHelper<AtlasedRectOp>(context, std::move(paint),
+        GrDrawOp* op = Helper::FactoryHelper<AtlasedRectOp>(rContext, std::move(paint),
                                                             r, id).release();
         return std::unique_ptr<AtlasedRectOp>(static_cast<AtlasedRectOp*>(op));
     }
@@ -462,11 +462,13 @@ private:
 };
 
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
-static GrSurfaceProxyView make_upstream_image(GrContext* context, AtlasObject* object, int start,
+static GrSurfaceProxyView make_upstream_image(GrRecordingContext* rContext,
+                                              AtlasObject* object,
+                                              int start,
                                               GrSurfaceProxyView atlasView,
                                               SkAlphaType atlasAlphaType) {
     auto rtc = GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
+            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
             {3 * kDrawnTileSize, kDrawnTileSize});
 
     rtc->clear({ 1, 0, 0, 1 });
@@ -478,7 +480,7 @@ static GrSurfaceProxyView make_upstream_image(GrContext* context, AtlasObject* o
         GrPaint paint;
         paint.setColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        std::unique_ptr<AtlasedRectOp> op(AtlasedRectOp::Make(context,
+        std::unique_ptr<AtlasedRectOp> op(AtlasedRectOp::Make(rContext,
                                                               std::move(paint), r, start + i));
 
         AtlasedRectOp* sparePtr = op.get();
@@ -506,7 +508,7 @@ static void save_bm(const SkBitmap& bm, const char name[]) {
     SkASSERT(result);
 }
 
-sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
+sk_sp<GrTextureProxy> pre_create_atlas(GrRecordingContext* rContext) {
     SkBitmap bm;
     bm.allocN32Pixels(18, 2, true);
     bm.erase(SK_ColorRED,     SkIRect::MakeXYWH(0, 0, 2, 2));
@@ -525,8 +527,8 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
 
     desc.fFlags |= kRenderTarget_GrSurfaceFlag;
 
-    sk_sp<GrSurfaceProxy> tmp = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                             context->textureProvider(),
+    sk_sp<GrSurfaceProxy> tmp = GrSurfaceProxy::MakeDeferred(*rContext->caps(),
+                                                             rContext->textureProvider(),
                                                              dm.dimensions(), SkBudgeted::kYes,
                                                              bm.getPixels(), bm.rowBytes());
 
