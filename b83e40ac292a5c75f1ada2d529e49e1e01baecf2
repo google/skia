@@ -16,6 +16,24 @@
       "revId": "b83e40ac292a5c75f1ada2d529e49e1e01baecf2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e61fc1a1_1a978e72",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-23T20:51:05Z",
+      "side": 1,
+      "message": "Can I interest you in a \n   *inOut \u003d std::move(output);\n?",
+      "parentUuid": "42598481_53fccdcc",
+      "revId": "b83e40ac292a5c75f1ada2d529e49e1e01baecf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
