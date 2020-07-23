@@ -33,6 +33,24 @@
       "revId": "f9ac8dacadf76177e4a0eb06f09b6ace34535329",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "357fe373_af9773fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-23T00:55:27Z",
+      "side": 1,
+      "message": "yeah, they all look fine to me.",
+      "parentUuid": "9af790ce_e832d908",
+      "revId": "f9ac8dacadf76177e4a0eb06f09b6ace34535329",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
