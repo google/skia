@@ -245,13 +245,15 @@ void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipeline
     }
 }
 
-void GrD3DDirectCommandList::setCurrentConstantBuffer(
-        const sk_sp<GrD3DConstantRingBuffer>& constantBuffer) {
-    fCurrentConstantRingBuffer = constantBuffer.get();
+void GrD3DDirectCommandList::setCurrentConstantBuffer(GrRingBuffer* constantsRingBuffer) {
+    fCurrentConstantRingBuffer = constantsRingBuffer;
     if (fCurrentConstantRingBuffer) {
-        fConstantRingBufferSubmitData = constantBuffer->startSubmit();
-        this->addResource(
-                static_cast<GrD3DBuffer*>(fConstantRingBufferSubmitData.buffer())->resource());
+        constantsRingBuffer->startSubmit(&fConstantRingBufferSubmitData);
+        for (unsigned int i = 0; i < fConstantRingBufferSubmitData.fTrackedBuffers.size(); ++i) {
+            this->addGrBuffer(std::move(fConstantRingBufferSubmitData.fTrackedBuffers[i]));
+        }
+        // we don't need these any more so clear this copy out
+        fConstantRingBufferSubmitData.fTrackedBuffers.clear();
     }
 }
 
