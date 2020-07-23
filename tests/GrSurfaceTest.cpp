@@ -20,7 +20,6 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/GrTexturePriv.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
@@ -422,7 +421,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
             proxy = proxyProvider->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
                                                       GrWrapCacheable::kNo, ioType);
             context->flushAndSubmit();
-            proxy->peekTexture()->texturePriv().markMipmapsDirty();  // avoids assert in GrGpu.
+            proxy->peekTexture()->markMipmapsDirty();  // avoids assert in GrGpu.
             auto regenResult =
                     context->priv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
             REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));

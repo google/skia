@@ -21,7 +21,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGpuDevice.h"
 #include "src/image/SkImage_Base.h"
@@ -92,14 +92,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
             }
 
             if (GrMipmapped::kYes == mipMapped) {
-                REPORTER_ASSERT(reporter, GrMipmapped::kYes == texture->texturePriv().mipmapped());
+                REPORTER_ASSERT(reporter, GrMipmapped::kYes == texture->mipmapped());
                 if (GrRenderable::kYes == renderable) {
-                    REPORTER_ASSERT(reporter, texture->texturePriv().mipmapsAreDirty());
+                    REPORTER_ASSERT(reporter, texture->mipmapsAreDirty());
                 } else {
-                    REPORTER_ASSERT(reporter, !texture->texturePriv().mipmapsAreDirty());
+                    REPORTER_ASSERT(reporter, !texture->mipmapsAreDirty());
                 }
             } else {
-                REPORTER_ASSERT(reporter, GrMipmapped::kNo == texture->texturePriv().mipmapped());
+                REPORTER_ASSERT(reporter, GrMipmapped::kNo == texture->mipmapped());
             }
             context->deleteBackendTexture(backendTex);
         }
@@ -288,7 +288,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 
             texProxy->instantiate(resourceProvider);
             GrTexture* texture = texProxy->peekTexture();
-            REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipmapped());
+            REPORTER_ASSERT(reporter, mipMapped == texture->mipmapped());
 
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             REPORTER_ASSERT(reporter, image);
@@ -300,7 +300,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
 
             texProxy->instantiate(resourceProvider);
             texture = texProxy->peekTexture();
-            REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipmapped());
+            REPORTER_ASSERT(reporter, mipMapped == texture->mipmapped());
 
             // Must flush the context to make sure all the cmds (copies, etc.) from above are sent
             // to the gpu before we delete the backendHandle.

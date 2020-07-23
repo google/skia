@@ -17,7 +17,7 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrScissorState.h"
 #include "src/gpu/GrSimpleMesh.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 
 void GrOpsRenderPass::begin() {
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
@@ -162,8 +162,7 @@ void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,
             (tex->width() != 1 || tex->height() != 1)) {
             // There are some cases where we might be given a non-mipmapped texture with a mipmap
             // filter. See skbug.com/7094.
-            SkASSERT(tex->texturePriv().mipmapped() != GrMipmapped::kYes ||
-                     !tex->texturePriv().mipmapsAreDirty());
+            SkASSERT(tex->mipmapped() != GrMipmapped::kYes || !tex->mipmapsAreDirty());
         }
     }
 #endif

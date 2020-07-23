@@ -7,7 +7,7 @@
 
 #include "src/gpu/gl/GrGLUniformHandler.h"
 
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"

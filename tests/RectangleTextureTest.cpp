@@ -14,7 +14,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
 #ifdef SK_GL
 #include "src/gpu/gl/GrGLGpu.h"
@@ -165,13 +165,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         }
 
         SkASSERT(rectProxy->mipmapped() == GrMipmapped::kNo);
-        SkASSERT(rectProxy->peekTexture()->texturePriv().mipmapped() == GrMipmapped::kNo);
+        SkASSERT(rectProxy->peekTexture()->mipmapped() == GrMipmapped::kNo);
 
         SkASSERT(rectProxy->textureType() == GrTextureType::kRectangle);
-        SkASSERT(rectProxy->peekTexture()->texturePriv().textureType() ==
-                 GrTextureType::kRectangle);
+        SkASSERT(rectProxy->peekTexture()->textureType() == GrTextureType::kRectangle);
         SkASSERT(rectProxy->hasRestrictedSampling());
-        SkASSERT(rectProxy->peekTexture()->texturePriv().hasRestrictedSampling());
+        SkASSERT(rectProxy->peekTexture()->hasRestrictedSampling());
 
         GrSwizzle swizzle = direct->priv().caps()->getReadSwizzle(rectangleTex.getBackendFormat(),
                                                                   GrColorType::kRGBA_8888);

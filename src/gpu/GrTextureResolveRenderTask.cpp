@@ -12,7 +12,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceAllocator.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 
 void GrTextureResolveRenderTask::addProxy(GrDrawingManager* drawingMgr,
                                           sk_sp<GrSurfaceProxy> proxyRef,
@@ -81,9 +81,9 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
         if (GrSurfaceProxy::ResolveFlags::kMipMaps & resolve.fFlags) {
             // peekTexture might be null if there was an instantiation error.
             GrTexture* texture = this->target(i).proxy()->peekTexture();
-            if (texture && texture->texturePriv().mipmapsAreDirty()) {
+            if (texture && texture->mipmapsAreDirty()) {
                 flushState->gpu()->regenerateMipMapLevels(texture);
-                SkASSERT(!texture->texturePriv().mipmapsAreDirty());
+                SkASSERT(!texture->mipmapsAreDirty());
             }
         }
     }

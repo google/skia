@@ -7,7 +7,7 @@
 
 #include "src/gpu/vk/GrVkUniformHandler.h"
 
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkPipelineStateBuilder.h"

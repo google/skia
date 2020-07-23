@@ -13,7 +13,7 @@
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfacePriv.h"
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 
 // Deferred version - no data
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
@@ -64,8 +64,8 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
                                UseAllocator useAllocator,
                                GrDDLProvider creatingProvider)
         : INHERITED(std::move(surf), SkBackingFit::kExact, useAllocator)
-        , fMipmapped(fTarget->asTexture()->texturePriv().mipmapped())
-        , fMipmapStatus(fTarget->asTexture()->texturePriv().mipmapStatus())
+        , fMipmapped(fTarget->asTexture()->mipmapped())
+        , fMipmapStatus(fTarget->asTexture()->mipmapStatus())
         SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)
@@ -137,7 +137,7 @@ void GrTextureProxyPriv::resetDeferredUploader() {
 
 GrMipmapped GrTextureProxy::mipmapped() const {
     if (this->isInstantiated()) {
-        return this->peekTexture()->texturePriv().mipmapped();
+        return this->peekTexture()->mipmapped();
     }
     return fMipmapped;
 }
@@ -205,9 +205,9 @@ void GrTextureProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(surface->asTexture());
     // It is possible to fulfill a non-mipmapped proxy with a mipmapped texture.
     SkASSERT(GrMipmapped::kNo == this->proxyMipmapped() ||
-             GrMipmapped::kYes == surface->asTexture()->texturePriv().mipmapped());
+             GrMipmapped::kYes == surface->asTexture()->mipmapped());
 
-    SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
+    SkASSERT(surface->asTexture()->textureType() == this->textureType());
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();

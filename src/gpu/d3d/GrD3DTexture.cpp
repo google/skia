@@ -7,7 +7,7 @@
 
 #include "src/gpu/d3d/GrD3DTexture.h"
 
-#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTexture.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
 

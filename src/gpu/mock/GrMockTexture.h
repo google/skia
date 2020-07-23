@@ -12,7 +12,6 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/mock/GrMockGpu.h"
 
 class GrMockTexture : public GrTexture {
@@ -44,8 +43,7 @@ public:
     ~GrMockTexture() override {}
 
     GrBackendTexture getBackendTexture() const override {
-        return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipmapped(),
-                                fInfo);
+        return GrBackendTexture(this->width(), this->height(), this->mipmapped(), fInfo);
     }
 
     GrBackendFormat backendFormat() const override {
@@ -210,7 +208,7 @@ private:
         }
         const GrCaps& caps = *this->getGpu()->caps();
         return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
-                                      numColorSamples, this->texturePriv().mipmapped());
+                                      numColorSamples, this->mipmapped());
     }
 
     // This avoids an inherits via dominance warning on MSVC.

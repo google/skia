@@ -12,7 +12,6 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
@@ -182,13 +181,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     GrTextureProxy* proxy = surfaceContext->asTextureProxy();
     REPORTER_ASSERT(reporter, proxy->mipmapped() == GrMipmapped::kNo);
-    REPORTER_ASSERT(reporter, proxy->peekTexture()->texturePriv().mipmapped() == GrMipmapped::kNo);
+    REPORTER_ASSERT(reporter, proxy->peekTexture()->mipmapped() == GrMipmapped::kNo);
 
     REPORTER_ASSERT(reporter, proxy->textureType() == GrTextureType::kExternal);
-    REPORTER_ASSERT(reporter,
-                    proxy->peekTexture()->texturePriv().textureType() == GrTextureType::kExternal);
+    REPORTER_ASSERT(reporter, proxy->peekTexture()->textureType() == GrTextureType::kExternal);
     REPORTER_ASSERT(reporter, proxy->hasRestrictedSampling());
-    REPORTER_ASSERT(reporter, proxy->peekTexture()->texturePriv().hasRestrictedSampling());
+    REPORTER_ASSERT(reporter, proxy->peekTexture()->hasRestrictedSampling());
 
     // Should not be able to wrap as a RT
     {

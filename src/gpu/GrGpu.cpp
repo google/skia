@@ -31,7 +31,6 @@
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrSurfacePriv.h"
-#include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTracing.h"
 #include "src/utils/SkJSONWriter.h"
@@ -159,7 +158,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
     auto tex = this->createTextureCommon(dimensions, format, renderable, renderTargetSampleCnt,
                                          budgeted, isProtected, mipLevelCount, levelClearMask);
     if (tex && mipMapped == GrMipmapped::kYes && levelClearMask) {
-        tex->texturePriv().markMipmapsClean();
+        tex->markMipmapsClean();
     }
     return tex;
 }
@@ -215,7 +214,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
             markMipLevelsClean = true;
         }
         if (markMipLevelsClean) {
-            tex->texturePriv().markMipmapsClean();
+            tex->markMipmapsClean();
         }
     }
     return tex;
@@ -552,8 +551,8 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(texture);
     SkASSERT(this->caps()->mipmapSupport());
-    SkASSERT(texture->texturePriv().mipmapped() == GrMipmapped::kYes);
-    if (!texture->texturePriv().mipmapsAreDirty()) {
+    SkASSERT(texture->mipmapped() == GrMipmapped::kYes);
+    if (!texture->mipmapsAreDirty()) {
         // This can happen when the proxy expects mipmaps to be dirty, but they are not dirty on the
         // actual target. This may be caused by things that the drawingManager could not predict,
         // i.e., ops that don't draw anything, aborting a draw for exceptional circumstances, etc.
@@ -564,7 +563,7 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
         return false;
     }
     if (this->onRegenerateMipMapLevels(texture)) {
-        texture->texturePriv().markMipmapsClean();
+        texture->markMipmapsClean();
         return true;
     }
     return false;
@@ -589,7 +588,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     if (nullptr == bounds || !bounds->isEmpty()) {
         GrTexture* texture = surface->asTexture();
         if (texture && 1 == mipLevels) {
-            texture->texturePriv().markMipmapsDirty();
+            texture->markMipmapsDirty();
         }
     }
 }
