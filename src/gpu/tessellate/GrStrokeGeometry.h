@@ -11,120 +11,108 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/tessellate/GrTessellateStrokeShader.h"
 
 class SkStrokeRec;
 
-/**
- * This class converts post-transform stroked paths into a set of independent strokes, joins, and
- * caps that map directly to GPU instances.
- */
+// This is an RAII class that expands strokes into tessellation patches for consumption by
+// GrTessellateStrokeShader. The provided GrMeshDrawOp::Target must not be used externally for the
+// entire lifetime of this class. e.g.:
+//
+//   void onPrepare(GrOpFlushState* target)  {
+//        GrStrokeGeometry g(target, &fMyVertexChunks, count);  // Locks target.
+//        for (...) {
+//            g.addPath(path, stroke);
+//        }
+//   }
+//   ... target can now be used normally again.
+//   ... fMyVertexChunks now contains chunks that can be drawn during onExecute.
 class GrStrokeGeometry {
 public:
-    static constexpr int kMaxNumLinearSegmentsLog2 = 15;
-
-    GrStrokeGeometry(int maxTessellationSegments, int numSkPoints = 0, int numSkVerbs = 0)
-            : fMaxTessellationSegments(maxTessellationSegments)
-            , fVerbs(numSkVerbs * 5/2)  // Reserve for a 2.5x expansion in verbs. (Joins get their
-                                        // own separate verb in our representation.)
-            , fParams(numSkVerbs * 3)  // Somewhere around 1-2 params per verb.
-            , fPoints(numSkPoints * 5/4)  // Reserve for a 1.25x expansion in points and normals.
-            , fNormals(numSkPoints * 5/4) {}
-
-    // A string of verbs and their corresponding, params, points, and normals are a compact
-    // representation of what will eventually be independent instances in GPU buffers.
-    enum class Verb : uint8_t {
-        kBeginPath,  // Instructs the iterator to advance its stroke width, atlas offset, etc.
-
-        // Independent strokes of a single line or curve, with (antialiased) butt caps on the ends.
-        kLinearStroke,
-        kQuadraticStroke,
-        kCubicStroke,
-
-        // Updates the last tangent without moving the current position on the stroke.
-        kRotate,
-
-        // Joins are a triangles that connect the outer corners of two adjoining strokes. Miters
-        // have an additional triangle cap on top of the bevel, and round joins have an arc on top.
-        kBevelJoin,
-        kMiterJoin,
-        kRoundJoin,
-
-        // We use internal joins when we have to internally break up a stroke because its curvature
-        // is too strong for a triangle strip. They are coverage-counted, self-intersecting
-        // quadrilaterals that tie the four corners of two adjoining strokes together a like a
-        // shoelace. (Coverage is negative on the inside half.) We place an arc on both ends of an
-        // internal round join.
-        kInternalBevelJoin,
-        kInternalRoundJoin,
-
-        kSquareCap,
-        kRoundCap,
-
-        kEndContour  // Instructs the iterator to advance its internal point and normal ptrs.
-    };
-    static bool IsInternalJoinVerb(Verb verb);
-
-    // Some verbs require additional parameters(s).
-    union Parameter {
-        // For cubic and quadratic strokes: How many flat line segments to chop the curve into?
-        int fNumLinearSegmentsLog2;
-        // For miter and round joins: How tall should the triangle cap be on top of the join?
-        // (This triangle is the conic control points for a round join.)
-        float fMiterCapHeightOverWidth;
-        float fConicWeight;  // Round joins only.
+    // We generate vertex buffers in chunks. Normally there will only be one chunk, but in rare
+    // cases the first can run out of space if too many cubics needed to be subdivided.
+    struct VertexChunk {
+        sk_sp<const GrBuffer> fVertexBuffer;
+        int fVertexCount = 0;
+        int fBaseVertex;
     };
 
-    const SkTArray<Verb, true>& verbs() const { SkASSERT(!fInsideContour); return fVerbs; }
-    const SkTArray<Parameter, true>& params() const { SkASSERT(!fInsideContour); return fParams; }
-    const SkTArray<SkPoint, true>& points() const { SkASSERT(!fInsideContour); return fPoints; }
-    const SkTArray<SkVector, true>& normals() const { SkASSERT(!fInsideContour); return fNormals; }
+    // Stores raw pointers to the provided target and vertexChunkArray, which this class will use
+    // and push to as addPath is called. The caller is responsible to bind and draw each chunk that
+    // gets pushed to the array. (See GrTessellateStrokeShader.)
+    GrStrokeGeometry(GrMeshDrawOp::Target* target, SkTArray<VertexChunk>* vertexChunkArray,
+                     int totalCombinedVerbCnt)
+            : fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
+            , fTarget(target)
+            , fVertexChunkArray(vertexChunkArray) {
+        this->allocVertexChunk(
+                (totalCombinedVerbCnt * 3) * GrTessellateStrokeShader::kNumVerticesPerPatch);
+    }
 
-    // These track the numbers of instances required to draw all the recorded strokes.
-    struct InstanceTallies {
-        int fStrokes[kMaxNumLinearSegmentsLog2 + 1];
-        int fTriangles;
-        int fConics;
+    // "Releases" the target to be used externally again by putting back any unused pre-allocated
+    // vertices.
+    ~GrStrokeGeometry() {
+        fTarget->putBackVertices(fCurrChunkVertexCapacity - fVertexChunkArray->back().fVertexCount,
+                                 sizeof(SkPoint));
+    }
 
-        InstanceTallies operator+(const InstanceTallies&) const;
-    };
-
-    void beginPath(const SkStrokeRec&, float strokeDevWidth, InstanceTallies*);
-    void moveTo(SkPoint);
-    void lineTo(SkPoint);
-    void quadraticTo(const SkPoint[3]);
-    void cubicTo(const SkPoint[4]);
-    void closeContour();  // Connect back to the first point in the contour and exit.
-    void capContourAndExit();  // Add endcaps (if any) and exit the contour.
+    void addPath(const SkPath&, const SkStrokeRec&);
 
 private:
-    void lineTo(Verb leftJoinVerb, SkPoint);
-    void quadraticTo(Verb leftJoinVerb, const SkPoint[3], float maxCurvatureT);
+    void allocVertexChunk(int minVertexAllocCount);
+    SkPoint* reservePatch();
+
+    // Join types are written as floats in P4.x. See GrTessellateStrokeShader for definitions.
+    void writeCubicSegment(float leftJoinType, const SkPoint pts[4], float overrideNumSegments = 0);
+    void writeCubicSegment(float leftJoinType, const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                           const Sk2f& p3, float overrideNumSegments = 0) {
+        SkPoint pts[4];
+        p0.store(&pts[0]);
+        p1.store(&pts[1]);
+        p2.store(&pts[2]);
+        p3.store(&pts[3]);
+        this->writeCubicSegment(leftJoinType, pts, overrideNumSegments);
+    }
+    void writeJoin(float joinType, const SkPoint& anchorPoint, const SkPoint& prevControlPoint,
+                   const SkPoint& nextControlPoint);
+    void writeSquareCap(const SkPoint& endPoint, const SkPoint& controlPoint);
+    void writeCaps();
+
+    void beginPath(const SkStrokeRec&, float strokeDevWidth);
+    void moveTo(const SkPoint&);
+    void lineTo(const SkPoint& p0, const SkPoint& p1);
+    void quadraticTo(const SkPoint[3]);
+    void cubicTo(const SkPoint[4]);
+    void close();
+
+    void lineTo(float leftJoinType, const SkPoint& p0, const SkPoint& p1);
+    void quadraticTo(float leftJoinType, const SkPoint[3], float maxCurvatureT);
 
     static constexpr float kLeftMaxCurvatureNone = 1;
     static constexpr float kRightMaxCurvatureNone = 0;
-    void cubicTo(Verb leftJoinVerb, const SkPoint[4], float maxCurvatureT, float leftMaxCurvatureT,
+    void cubicTo(float leftJoinType, const SkPoint[4], float maxCurvatureT, float leftMaxCurvatureT,
                  float rightMaxCurvatureT);
 
-    // Pushes a new normal to fNormals and records a join, without changing the current position.
-    void rotateTo(Verb leftJoinVerb, SkVector normal, SkPoint controlPoint);
+    // TEMPORARY: Rotates the current control point without changing the current position.
+    // This is used when we convert a curve to a lineTo, and that behavior will soon go away.
+    void rotateTo(float leftJoinType, const SkPoint& anchorPoint, const SkPoint& controlPoint);
 
-    // Records a stroke in fElememts.
-    void recordStroke(Verb, int numSegmentsLog2);
+    const int fMaxTessellationSegments;
 
-    // Records a join in fElememts with the previous stroke, if the cuurent contour is not empty.
-    void recordLeftJoinIfNotEmpty(Verb joinType, SkVector nextNormal);
+    // These are raw pointers whose lifetimes are controlled outside this class.
+    GrMeshDrawOp::Target* const fTarget;
+    SkTArray<VertexChunk>* const fVertexChunkArray;
 
-    void recordCapsIfAny();
+    // Variables related to the vertex chunk that we are currently filling.
+    int fCurrChunkVertexCapacity;
+    int fCurrChunkMinVertexAllocCount;
+    SkPoint* fCurrChunkVertexData;
 
+    // Variables related to the path that we are currently iterating.
     float fCurrStrokeRadius;
-    Verb fCurrStrokeJoinVerb;
+    float fCurrStrokeJoinType;  // See GrTessellateStrokeShader for join type definitions .
     SkPaint::Cap fCurrStrokeCapType;
-    InstanceTallies* fCurrStrokeTallies = nullptr;
-
-    // We implement miters by placing a triangle-shaped cap on top of a bevel join. This field tells
-    // us what the miter limit is, restated in terms of how tall that triangle cap can be.
-    float fMiterMaxCapHeightOverWidth;
-
     // Any curvature on the original curve gets magnified on the outer edge of the stroke,
     // proportional to how thick the stroke radius is. This field tells us the maximum curvature we
     // can tolerate using the current stroke radius, before linearization artifacts begin to appear
@@ -134,47 +122,12 @@ private:
     // section with strong curvature into lineTo's with round joins in between.)
     float fMaxCurvatureCosTheta;
 
-    int fCurrContourFirstPtIdx;
-    int fCurrContourFirstNormalIdx;
-
-    SkDEBUGCODE(bool fInsideContour = false);
-
-    const int fMaxTessellationSegments;
-    SkSTArray<128, Verb, true> fVerbs;
-    SkSTArray<128, Parameter, true> fParams;
-    SkSTArray<128, SkPoint, true> fPoints;
-    SkSTArray<128, SkVector, true> fNormals;
+    // Variables related to the specific contour that we are currently iterating.
+    bool fHasPreviousSegment = false;
+    SkPoint fCurrContourStartPoint;
+    SkPoint fCurrContourFirstControlPoint;
+    SkPoint fLastControlPoint;
+    SkPoint fCurrentPoint;
 };
 
-inline GrStrokeGeometry::InstanceTallies GrStrokeGeometry::InstanceTallies::operator+(
-        const InstanceTallies& t) const {
-    InstanceTallies ret;
-    for (int i = 0; i <= kMaxNumLinearSegmentsLog2; ++i) {
-        ret.fStrokes[i] = fStrokes[i] + t.fStrokes[i];
-    }
-    ret.fTriangles = fTriangles + t.fTriangles;
-    ret.fConics = fConics + t.fConics;
-    return ret;
-}
-
-inline bool GrStrokeGeometry::IsInternalJoinVerb(Verb verb) {
-    switch (verb) {
-        case Verb::kInternalBevelJoin:
-        case Verb::kInternalRoundJoin:
-            return true;
-        case Verb::kBeginPath:
-        case Verb::kLinearStroke:
-        case Verb::kQuadraticStroke:
-        case Verb::kCubicStroke:
-        case Verb::kRotate:
-        case Verb::kBevelJoin:
-        case Verb::kMiterJoin:
-        case Verb::kRoundJoin:
-        case Verb::kSquareCap:
-        case Verb::kRoundCap:
-        case Verb::kEndContour:
-            return false;
-    }
-    SK_ABORT("Invalid GrStrokeGeometry::Verb.");
-}
 #endif

@@ -26,7 +26,6 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/ccpr/GrCCFillGeometry.h"
-#include "src/gpu/ccpr/GrCCStroker.h"
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 #include "src/gpu/geometry/GrPathUtils.h"
@@ -66,7 +65,7 @@ class CCPRGeometryView : public Sample {
 
     void updateGpuData();
 
-    PrimitiveType fPrimitiveType = PrimitiveType::kTriangles;
+    PrimitiveType fPrimitiveType = PrimitiveType::kCubics;
     SkCubicType fCubicType;
     SkMatrix fCubicKLM;
 
@@ -75,7 +74,9 @@ class CCPRGeometryView : public Sample {
 
     float fConicWeight = .5;
     float fStrokeWidth = 40;
-    bool fDoStroke = false;
+    SkPaint::Join fStrokeJoin = SkPaint::kMiter_Join;
+    SkPaint::Cap fStrokeCap = SkPaint::kButt_Cap;
+    bool fDoStroke = true;
 
     SkTArray<TriPointInstance> fTriPointInstances;
     SkTArray<QuadPointInstance> fQuadPointInstances;
@@ -176,14 +177,18 @@ static void draw_klm_line(int w, int h, SkCanvas* canvas, const SkScalar line[3]
 void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
-    if (!fDoStroke) {
-        SkPaint outlinePaint;
-        outlinePaint.setColor(0x80ffffff);
-        outlinePaint.setStyle(SkPaint::kStroke_Style);
+    SkPaint outlinePaint;
+    outlinePaint.setColor(0xff808080);
+    outlinePaint.setStyle(SkPaint::kStroke_Style);
+    if (fDoStroke) {
+        outlinePaint.setStrokeWidth(fStrokeWidth);
+    } else {
         outlinePaint.setStrokeWidth(0);
-        outlinePaint.setAntiAlias(true);
-        canvas->drawPath(fPath, outlinePaint);
     }
+    outlinePaint.setStrokeJoin(fStrokeJoin);
+    outlinePaint.setStrokeCap(fStrokeCap);
+    outlinePaint.setAntiAlias(true);
+    canvas->drawPath(fPath, outlinePaint);
 
 #if 0
     SkPaint gridPaint;
@@ -200,7 +205,18 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 #endif
 
     SkString caption;
-    if (GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext()) {
+    caption.appendf("PrimitiveType_%s",
+                    GrCCCoverageProcessor::PrimitiveTypeName(fPrimitiveType));
+    if (PrimitiveType::kCubics == fPrimitiveType) {
+        caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
+    } else if (PrimitiveType::kConics == fPrimitiveType) {
+        caption.appendf(" (w=%f)", fConicWeight);
+    }
+
+    if (fDoStroke) {
+        caption.appendf(" (stroke_width=%f)", fStrokeWidth);
+    } else if (GrRenderTargetContext* rtc =
+            canvas->internal_private_accessTopLayerRenderTargetContext()) {
         // Render coverage count.
         auto ctx = canvas->recordingContext();
         SkASSERT(ctx);
@@ -222,18 +238,6 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
         rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                       SkRect::MakeIWH(this->width(), this->height()));
-
-        // Add label.
-        caption.appendf("PrimitiveType_%s",
-                        GrCCCoverageProcessor::PrimitiveTypeName(fPrimitiveType));
-        if (PrimitiveType::kCubics == fPrimitiveType) {
-            caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
-        } else if (PrimitiveType::kConics == fPrimitiveType) {
-            caption.appendf(" (w=%f)", fConicWeight);
-        }
-        if (fDoStroke) {
-            caption.appendf(" (stroke_width=%f)", fStrokeWidth);
-        }
     } else {
         caption = "Use GPU backend to visualize geometry.";
     }
@@ -345,8 +349,8 @@ void CCPRGeometryView::updateGpuData() {
 void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
                                                       const SkRect& chainBounds) {
     GrResourceProvider* rp = state->resourceProvider();
-    auto direct = state->gpu()->getContext();
 #ifdef SK_GL
+    auto direct = state->gpu()->getContext();
     GrGLGpu* glGpu = GrBackendApi::kOpenGL == direct->backend()
                              ? static_cast<GrGLGpu*>(state->gpu())
                              : nullptr;
@@ -370,52 +374,30 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
 
     GrOpsRenderPass* renderPass = state->opsRenderPass();
 
-    if (!fView->fDoStroke) {
-        for (int i = 0; i < proc->numSubpasses(); ++i) {
-            proc->reset(fView->fPrimitiveType, i, rp);
-            proc->bindPipeline(state, pipeline, this->bounds());
+    for (int i = 0; i < proc->numSubpasses(); ++i) {
+        proc->reset(fView->fPrimitiveType, i, rp);
+        proc->bindPipeline(state, pipeline, this->bounds());
 
-            if (PrimitiveType::kCubics == fView->fPrimitiveType ||
-                PrimitiveType::kConics == fView->fPrimitiveType) {
-                sk_sp<GrGpuBuffer> instBuff(rp->createBuffer(
-                        fView->fQuadPointInstances.count() * sizeof(QuadPointInstance),
-                        GrGpuBufferType::kVertex, kDynamic_GrAccessPattern,
-                        fView->fQuadPointInstances.begin()));
-                if (!fView->fQuadPointInstances.empty() && instBuff) {
-                    proc->bindBuffers(renderPass, std::move(instBuff));
-                    proc->drawInstances(renderPass, fView->fQuadPointInstances.count(), 0);
-                }
-            } else {
-                sk_sp<GrGpuBuffer> instBuff(rp->createBuffer(
-                        fView->fTriPointInstances.count() * sizeof(TriPointInstance),
-                        GrGpuBufferType::kVertex, kDynamic_GrAccessPattern,
-                        fView->fTriPointInstances.begin()));
-                if (!fView->fTriPointInstances.empty() && instBuff) {
-                    proc->bindBuffers(renderPass, std::move(instBuff));
-                    proc->drawInstances(renderPass, fView->fTriPointInstances.count(), 0);
-                }
+        if (PrimitiveType::kCubics == fView->fPrimitiveType ||
+            PrimitiveType::kConics == fView->fPrimitiveType) {
+            sk_sp<GrGpuBuffer> instBuff(rp->createBuffer(
+                    fView->fQuadPointInstances.count() * sizeof(QuadPointInstance),
+                    GrGpuBufferType::kVertex, kDynamic_GrAccessPattern,
+                    fView->fQuadPointInstances.begin()));
+            if (!fView->fQuadPointInstances.empty() && instBuff) {
+                proc->bindBuffers(renderPass, std::move(instBuff));
+                proc->drawInstances(renderPass, fView->fQuadPointInstances.count(), 0);
+            }
+        } else {
+            sk_sp<GrGpuBuffer> instBuff(rp->createBuffer(
+                    fView->fTriPointInstances.count() * sizeof(TriPointInstance),
+                    GrGpuBufferType::kVertex, kDynamic_GrAccessPattern,
+                    fView->fTriPointInstances.begin()));
+            if (!fView->fTriPointInstances.empty() && instBuff) {
+                proc->bindBuffers(renderPass, std::move(instBuff));
+                proc->drawInstances(renderPass, fView->fTriPointInstances.count(), 0);
             }
         }
-    } else if (PrimitiveType::kConics != fView->fPrimitiveType) {  // No conic stroke support yet.
-        GrCCStroker stroker(0,0,0);
-
-        SkPaint p;
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(fView->fStrokeWidth);
-        p.setStrokeJoin(SkPaint::kMiter_Join);
-        p.setStrokeMiter(4);
-        // p.setStrokeCap(SkPaint::kRound_Cap);
-        stroker.parseDeviceSpaceStroke(fView->fPath, SkPathPriv::PointData(fView->fPath),
-                                       SkStrokeRec(p), p.getStrokeWidth(), GrScissorTest::kDisabled,
-                                       SkIRect::MakeWH(fView->width(), fView->height()), {0, 0});
-        GrCCStroker::BatchID batchID = stroker.closeCurrentBatch();
-
-        GrOnFlushResourceProvider onFlushRP(direct->priv().drawingManager());
-        stroker.prepareToDraw(&onFlushRP);
-
-        SkIRect ibounds;
-        this->bounds().roundOut(&ibounds);
-        stroker.drawStrokes(state, proc.get(), batchID, ibounds);
     }
 
 #ifdef SK_GL
@@ -511,6 +493,17 @@ bool CCPRGeometryView::onChar(SkUnichar unichar) {
         if (unichar == 'S') {
             fDoStroke = !fDoStroke;
             this->updateAndInval();
+            return true;
+        }
+        if (unichar == 'J') {
+            fStrokeJoin = (SkPaint::Join)((fStrokeJoin + 1) % 3);
+            this->updateAndInval();
+            return true;
+        }
+        if (unichar == 'C') {
+            fStrokeCap = (SkPaint::Cap)((fStrokeCap + 1) % 3);
+            this->updateAndInval();
+            return true;
         }
         return false;
 }
