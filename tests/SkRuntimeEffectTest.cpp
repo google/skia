@@ -196,6 +196,10 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context
     effect.test(0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F,
                 [](SkCanvas* canvas, SkPaint*) { canvas->rotate(45.0f); });
 
+    //
+    // Sampling children
+    //
+
     // Sampling a null child should return the paint color
     effect.build("in shader child;",
                  "color = sample(child);");
@@ -222,6 +226,16 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context
                  "color = sample(child, float3x3(0, 1, 0, 1, 0, 0, 0, 0, 1));");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
+
+    //
+    // Helper functions
+    //
+
+    // Test case for inlining in the pipeline-stage and fragment-shader passes (skbug.com/10526):
+    effect.build("float2 helper(float2 x) { return x + 1; }",
+                 "float2 v = helper(p);"
+                 "color = half4(half2(v), 0, 1);");
+    effect.test(0xFF00FFFF);
 }
 
 DEF_TEST(SkRuntimeEffectSimple, r) {

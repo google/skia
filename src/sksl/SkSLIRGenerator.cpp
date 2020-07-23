@@ -2199,11 +2199,23 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     // order guarantees. Since we can't use gotos (which are normally used to replace return
     // statements), we wrap the whole function in a loop and use break statements to jump to the
     // end.
+
+    // Use unique variable names during the PipelineStage and FragmentProcessor passes. Otherwise,
+    // the SkSL we make in the resulting FP will have variables with names like 'inlineResult0'.
+    // If that FP's code is then inlined again when the combined fragment shader SkSL is compiled,
+    // we'll reuse those names (the counter is reset), creating a conflict. (skbug.com/10526)
+    const char* inlineSalt = "";
+    switch (fKind) {
+        case Program::kPipelineStage_Kind:     inlineSalt = "_ps_"; break;
+        case Program::kFragmentProcessor_Kind: inlineSalt = "_fp_"; break;
+        default: break;
+    }
+
     Variable* resultVar;
     if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
         std::unique_ptr<String> name(new String());
         int varIndex = fInlineVarCounter++;
-        name->appendf("inlineResult%d", varIndex);
+        name->appendf("inlineResult%s%d", inlineSalt, varIndex);
         String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
         resultVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
                                                      new Variable(-1, Modifiers(), namePtr->c_str(),
@@ -2225,7 +2237,7 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     int argIndex = fInlineVarCounter++;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         std::unique_ptr<String> argName(new String());
-        argName->appendf("inlineArg%d_%d", argIndex, i);
+        argName->appendf("inlineArg%s%d_%d", inlineSalt, argIndex, i);
         String* argNamePtr = (String*) fSymbolTable->takeOwnership(std::move(argName));
         Variable* argVar = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
                                                       new Variable(-1, Modifiers(),
