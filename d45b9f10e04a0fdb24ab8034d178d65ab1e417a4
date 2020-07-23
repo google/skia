@@ -34,6 +34,24 @@
       "revId": "d45b9f10e04a0fdb24ab8034d178d65ab1e417a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81015f27_b25e07d7",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-23T18:15:03Z",
+      "side": 1,
+      "message": "Ah, one of those non-pure interface with an implementation thingies...",
+      "parentUuid": "4b413146_cdbeaa4e",
+      "revId": "d45b9f10e04a0fdb24ab8034d178d65ab1e417a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
