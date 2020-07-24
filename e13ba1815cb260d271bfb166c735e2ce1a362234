@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a31a47b3_fd015764",
+        "filename": "src/gpu/d3d/GrD3DBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-24T14:33:04Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 19,
+        "startChar": 12,
+        "endLine": 19,
+        "endChar": 13
+      },
+      "revId": "e13ba1815cb260d271bfb166c735e2ce1a362234",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da0ce8b9_5ae8251c",
+        "filename": "src/gpu/d3d/GrD3DCommandList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-24T14:33:04Z",
+      "side": 1,
+      "message": "I\u0027d rather have two separate routines here, but you can land it and I can change it later.",
+      "range": {
+        "startLine": 68,
+        "startChar": 7,
+        "endLine": 68,
+        "endChar": 76
+      },
+      "revId": "e13ba1815cb260d271bfb166c735e2ce1a362234",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
