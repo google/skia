@@ -546,7 +546,7 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* flushState) {
         GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline,
                                               &stencilTriangleShader);
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
-        flushState->bindBuffers(nullptr, nullptr, std::move(fTriangleBuffer));
+        flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
     }
 
