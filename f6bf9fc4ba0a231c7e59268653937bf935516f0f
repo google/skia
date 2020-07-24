@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ead51b7b_07ed6a29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-24T20:15:31Z",
+      "side": 1,
+      "message": "Once the new GrClipStack is landed, it will know in constant time if the clip is a single rrect intersection, so I\u0027ll try turning this optimization back on for all platforms then.",
+      "revId": "f6bf9fc4ba0a231c7e59268653937bf935516f0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
