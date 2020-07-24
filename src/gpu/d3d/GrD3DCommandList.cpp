@@ -120,7 +120,7 @@ void GrD3DCommandList::submitResourceBarriers() {
     SkASSERT(!fResourceBarriers.count());
 }
 
-void GrD3DCommandList::copyBufferToTexture(const GrD3DBuffer* srcBuffer,
+void GrD3DCommandList::copyBufferToTexture(ID3D12Resource* srcBuffer,
                                            const GrD3DTextureResource* dstTexture,
                                            uint32_t subresourceCount,
                                            D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
@@ -129,12 +129,11 @@ void GrD3DCommandList::copyBufferToTexture(const GrD3DBuffer* srcBuffer,
     SkASSERT(subresourceCount == 1 || (left == 0 && top == 0));
 
     this->addingWork();
-    this->addResource(srcBuffer->resource());
     this->addResource(dstTexture->resource());
 
     for (uint32_t subresource = 0; subresource < subresourceCount; ++subresource) {
         D3D12_TEXTURE_COPY_LOCATION src = {};
-        src.pResource = srcBuffer->d3dResource();
+        src.pResource = srcBuffer;
         src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
         src.PlacedFootprint = bufferFootprints[subresource];
 
@@ -147,29 +146,32 @@ void GrD3DCommandList::copyBufferToTexture(const GrD3DBuffer* srcBuffer,
     }
 }
 
-void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
+void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dstTexture,
+                                         sk_sp<const GrBuffer> dstBuffer,
                                          const D3D12_TEXTURE_COPY_LOCATION* dstLocation,
                                          UINT dstX, UINT dstY,
                                          sk_sp<GrManagedResource> src,
                                          const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
                                          const D3D12_BOX* srcBox) {
     SkASSERT(fIsActive);
-
+    // We must either have a dst texture or dst buffer, but not both.
+    SkASSERT(SkToBool(dstTexture.get()) != SkToBool(dstBuffer.get()));
     this->addingWork();
-    this->addResource(std::move(dst));
+    if (dstTexture) {
+        this->addResource(std::move(dstTexture));
+    } else {
+        this->addGrBuffer(std::move(dstBuffer));
+    }
     this->addResource(std::move(src));
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
 }
 
 void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrD3DBuffer> dst, uint64_t dstOffset,
-                                          sk_sp<GrManagedResource> src,
                                           ID3D12Resource* srcBuffer, uint64_t srcOffset,
                                           uint64_t numBytes) {
     SkASSERT(fIsActive);
 
     this->addingWork();
-    this->addResource(dst->resource());
-    this->addResource(std::move(src));
     ID3D12Resource* dstBuffer = dst->d3dResource();
     uint64_t dstSize = dstBuffer->GetDesc().Width;
     uint64_t srcSize = srcBuffer->GetDesc().Width;
@@ -312,7 +314,6 @@ void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
         int numViews = 0;
         if (vertexBuffer) {
             auto* d3dBuffer = static_cast<const GrD3DBuffer*>(vertexBuffer.get());
-            this->addResource(d3dBuffer->resource());
             views[numViews].BufferLocation = d3dBuffer->d3dResource()->GetGPUVirtualAddress();
             views[numViews].SizeInBytes = vertexBuffer->size();
             views[numViews++].StrideInBytes = vertexStride;
@@ -320,7 +321,6 @@ void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
         }
         if (instanceBuffer) {
             auto* d3dBuffer = static_cast<const GrD3DBuffer*>(instanceBuffer.get());
-            this->addResource(d3dBuffer->resource());
             views[numViews].BufferLocation = d3dBuffer->d3dResource()->GetGPUVirtualAddress();
             views[numViews].SizeInBytes = instanceBuffer->size();
             views[numViews++].StrideInBytes = instanceStride;
@@ -333,7 +333,6 @@ void GrD3DDirectCommandList::setVertexBuffers(unsigned int startSlot,
 void GrD3DDirectCommandList::setIndexBuffer(sk_sp<const GrBuffer> indexBuffer) {
     if (fCurrentIndexBuffer != indexBuffer.get()) {
         auto* d3dBuffer = static_cast<const GrD3DBuffer*>(indexBuffer.get());
-        this->addResource(d3dBuffer->resource());
 
         D3D12_INDEX_BUFFER_VIEW view = {};
         view.BufferLocation = d3dBuffer->d3dResource()->GetGPUVirtualAddress();
@@ -371,10 +370,10 @@ void GrD3DDirectCommandList::executeIndirect(const sk_sp<GrD3DCommandSignature> 
     SkASSERT(fIsActive);
     this->addingWork();
     this->addResource(commandSignature);
-    this->addResource(argumentBuffer->resource());
     fCommandList->ExecuteIndirect(commandSignature->commandSignature(), maxCommandCount,
                                   argumentBuffer->d3dResource(), argumentBufferOffset,
                                   nullptr, 0);
+    this->addGrBuffer(sk_ref_sp<const GrBuffer>(argumentBuffer));
 }
 
 void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* renderTarget,

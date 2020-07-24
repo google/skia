@@ -57,12 +57,17 @@ public:
                          const D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
 
     // Helper method that calls copyTextureRegion multiple times, once for each subresource
-    void copyBufferToTexture(const GrD3DBuffer* srcBuffer,
+    // The srcBuffer comes from a staging buffer so we don't need to take any refs to it. Instead,
+    // we ref the whole buffer during sumbit.
+    void copyBufferToTexture(ID3D12Resource* srcBuffer,
                              const GrD3DTextureResource* dstTexture,
                              uint32_t subresourceCount,
                              D3D12_PLACED_SUBRESOURCE_FOOTPRINT* bufferFootprints,
                              int left, int top);
-    void copyTextureRegion(sk_sp<GrManagedResource> dst,
+
+    // You can pass in either a dstTexture or a dstBuffer here, but not both.
+    void copyTextureRegion(sk_sp<GrManagedResource> dstTexture,
+                           sk_sp<const GrBuffer> dstBuffer,
                            const D3D12_TEXTURE_COPY_LOCATION* dstLocation,
                            UINT dstX, UINT dstY,
                            sk_sp<GrManagedResource> src,
@@ -71,10 +76,7 @@ public:
 
     // We don't take a ref to the src buffer because we assume the src buffer is coming from a
     // staging buffer which will get ref'd during submit.
-    // TODO: Temporarily we are still taking the ref to the src ManagedResource until we remove
-    // those from GrD3DBuffer in a follow up change.
     void copyBufferToBuffer(sk_sp<GrD3DBuffer> dstBuffer, uint64_t dstOffset,
-                            sk_sp<GrManagedResource> src,
                             ID3D12Resource* srcBuffer, uint64_t srcOffset,
                             uint64_t numBytes);
 
