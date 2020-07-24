@@ -68,8 +68,12 @@ public:
                            sk_sp<GrManagedResource> src,
                            const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
                            const D3D12_BOX* srcBox);
-    void copyBufferToBuffer(sk_sp<GrManagedResource> dst,
-                            ID3D12Resource* dstBuffer, uint64_t dstOffset,
+
+    // We don't take a ref to the src buffer because we assume the src buffer is coming from a
+    // staging buffer which will get ref'd during submit.
+    // TODO: Temporarily we are still taking the ref to the src ManagedResource until we remove
+    // those from GrD3DBuffer in a follow up change.
+    void copyBufferToBuffer(sk_sp<GrD3DBuffer> dstBuffer, uint64_t dstOffset,
                             sk_sp<GrManagedResource> src,
                             ID3D12Resource* srcBuffer, uint64_t srcOffset,
                             uint64_t numBytes);
