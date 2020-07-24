@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "ace0da96_a5b34fac",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-24T17:33:21Z",
+      "side": 1,
+      "message": "Sorry, yes. I was just pointing out that we should be using 512/1023 or 2048/4095. For limited range matrices, that\u0027s fine - we need to change several other values, so having separate matrices makes sense. For full-range, the bit depth ends up changing one value in the entire matrix.\n\nSo, we could offer 10 and 12 bit full-range, if you think that\u0027s important. Otherwise, this uses the 8-bit zero for all the full-range matrices, and the \"correct\" zero for the 10 and 12-bit limited matrices.",
+      "parentUuid": "d9aed18f_de9bfd66",
+      "revId": "cc8395b8c6f11eaa35cda4be4ee4aa942ab42a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ae9915dd_acb32086",
         "filename": "src/core/SkYUVMath.cpp",
         "patchSetId": 1
