@@ -21,12 +21,6 @@
 #endif
 
 template <typename Dst, typename Src>
-SI Dst bit_cast(const Src& src) {
-    static_assert(sizeof(Dst) == sizeof(Src), "");
-    return sk_unaligned_load<Dst>(&src);
-}
-
-template <typename Dst, typename Src>
 SI Dst widen_cast(const Src& src) {
     static_assert(sizeof(Dst) > sizeof(Src), "");
     Dst dst;
@@ -388,7 +382,7 @@ namespace SK_OPTS_NS {
                 _mm256_i32gather_epi64(p, _mm256_extracti128_si256(ix,0), 8),
                 _mm256_i32gather_epi64(p, _mm256_extracti128_si256(ix,1), 8),
             };
-            return bit_cast<U64>(parts);
+            return sk_bit_cast<U64>(parts);
         }
     #endif
 
@@ -929,7 +923,7 @@ namespace SK_OPTS_NS {
 
 template <typename V>
 SI V if_then_else(I32 c, V t, V e) {
-    return bit_cast<V>(if_then_else(c, bit_cast<F>(t), bit_cast<F>(e)));
+    return sk_bit_cast<V>(if_then_else(c, sk_bit_cast<F>(t), sk_bit_cast<F>(e)));
 }
 
 SI U16 bswap(U16 x) {
@@ -949,10 +943,10 @@ SI F fract(F v) { return v - floor_(v); }
 // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
 SI F approx_log2(F x) {
     // e - 127 is a fair approximation of log2(x) in its own right...
-    F e = cast(bit_cast<U32>(x)) * (1.0f / (1<<23));
+    F e = cast(sk_bit_cast<U32>(x)) * (1.0f / (1<<23));
 
     // ... but using the mantissa to refine its error is _much_ better.
-    F m = bit_cast<F>((bit_cast<U32>(x) & 0x007fffff) | 0x3f000000);
+    F m = sk_bit_cast<F>((sk_bit_cast<U32>(x) & 0x007fffff) | 0x3f000000);
     return e
          - 124.225514990f
          -   1.498030302f * m
@@ -966,10 +960,10 @@ SI F approx_log(F x) {
 
 SI F approx_pow2(F x) {
     F f = fract(x);
-    return bit_cast<F>(round(1.0f * (1<<23),
-                             x + 121.274057500f
-                               -   1.490129070f * f
-                               +  27.728023300f / (4.84252568f - f)));
+    return sk_bit_cast<F>(round(1.0f * (1<<23),
+                                x + 121.274057500f
+                                  -   1.490129070f * f
+                                  +  27.728023300f / (4.84252568f - f)));
 }
 
 SI F approx_exp(F x) {
@@ -999,7 +993,7 @@ SI F from_half(U16 h) {
     // Convert to 1-8-23 float with 127 bias, flushing denorm halfs (including zero) to zero.
     auto denorm = (I32)em < 0x0400;      // I32 comparison is often quicker, and always safe here.
     return if_then_else(denorm, F(0)
-                              , bit_cast<F>( (s<<16) + (em<<13) + ((127-15)<<23) ));
+                              , sk_bit_cast<F>( (s<<16) + (em<<13) + ((127-15)<<23) ));
 #endif
 }
 
@@ -1013,7 +1007,7 @@ SI U16 to_half(F f) {
 
 #else
     // Remember, a float is 1-8-23 (sign-exponent-mantissa) with 127 exponent bias.
-    U32 sem = bit_cast<U32>(f),
+    U32 sem = sk_bit_cast<U32>(f),
         s   = sem & 0x80000000,
          em = sem ^ s;
 
@@ -1237,7 +1231,7 @@ SI T* ptr_at_xy(const SkRasterPipeline_MemoryCtx* ctx, size_t dx, size_t dy) {
 
 // clamp v to [0,limit).
 SI F clamp(F v, F limit) {
-    F inclusive = bit_cast<F>( bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
+    F inclusive = sk_bit_cast<F>( sk_bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
     return min(max(0, v), inclusive);
 }
 
@@ -1665,7 +1659,7 @@ STAGE(premul_dst, Ctx::None) {
     db = db * da;
 }
 STAGE(unpremul, Ctx::None) {
-    float inf = bit_cast<float>(0x7f800000);
+    float inf = sk_bit_cast<float>(0x7f800000);
     auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0);
     r *= scale;
     g *= scale;
@@ -1826,13 +1820,13 @@ STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkRasterPipeline_B
 }
 
 SI F strip_sign(F x, U32* sign) {
-    U32 bits = bit_cast<U32>(x);
+    U32 bits = sk_bit_cast<U32>(x);
     *sign = bits & 0x80000000;
-    return bit_cast<F>(bits ^ *sign);
+    return sk_bit_cast<F>(bits ^ *sign);
 }
 
 SI F apply_sign(F x, U32 sign) {
-    return bit_cast<F>(sign | bit_cast<U32>(x));
+    return sk_bit_cast<F>(sign | sk_bit_cast<U32>(x));
 }
 
 STAGE(parametric, const skcms_TransferFunction* ctx) {
@@ -2321,10 +2315,10 @@ STAGE(decal_x_and_y, SkRasterPipeline_DecalTileCtx* ctx) {
 }
 STAGE(check_decal_mask, SkRasterPipeline_DecalTileCtx* ctx) {
     auto mask = sk_unaligned_load<U32>(ctx->mask);
-    r = bit_cast<F>( bit_cast<U32>(r) & mask );
-    g = bit_cast<F>( bit_cast<U32>(g) & mask );
-    b = bit_cast<F>( bit_cast<U32>(b) & mask );
-    a = bit_cast<F>( bit_cast<U32>(a) & mask );
+    r = sk_bit_cast<F>(sk_bit_cast<U32>(r) & mask);
+    g = sk_bit_cast<F>(sk_bit_cast<U32>(g) & mask);
+    b = sk_bit_cast<F>(sk_bit_cast<U32>(b) & mask);
+    a = sk_bit_cast<F>(sk_bit_cast<U32>(a) & mask);
 }
 
 STAGE(alpha_to_gray, Ctx::None) {
@@ -2547,10 +2541,10 @@ STAGE(mask_2pt_conical_degenerates, SkRasterPipeline_2PtConicalCtx* c) {
 
 STAGE(apply_vector_mask, const uint32_t* ctx) {
     const U32 mask = sk_unaligned_load<U32>(ctx);
-    r = bit_cast<F>(bit_cast<U32>(r) & mask);
-    g = bit_cast<F>(bit_cast<U32>(g) & mask);
-    b = bit_cast<F>(bit_cast<U32>(b) & mask);
-    a = bit_cast<F>(bit_cast<U32>(a) & mask);
+    r = sk_bit_cast<F>(sk_bit_cast<U32>(r) & mask);
+    g = sk_bit_cast<F>(sk_bit_cast<U32>(g) & mask);
+    b = sk_bit_cast<F>(sk_bit_cast<U32>(b) & mask);
+    a = sk_bit_cast<F>(sk_bit_cast<U32>(a) & mask);
 }
 
 STAGE(save_xy, SkRasterPipeline_SamplerCtx* c) {
@@ -3133,7 +3127,7 @@ SI D join(S lo, S hi) {
 }
 
 SI F if_then_else(I32 c, F t, F e) {
-    return bit_cast<F>( (bit_cast<I32>(t) & c) | (bit_cast<I32>(e) & ~c) );
+    return sk_bit_cast<F>( (sk_bit_cast<I32>(t) & c) | (sk_bit_cast<I32>(e) & ~c) );
 }
 SI F max(F x, F y) { return if_then_else(x < y, y, x); }
 SI F min(F x, F y) { return if_then_else(x < y, x, y); }
@@ -3212,7 +3206,7 @@ SI F floor_(F x) {
 #endif
 }
 SI F fract(F x) { return x - floor_(x); }
-SI F abs_(F x) { return bit_cast<F>( bit_cast<I32>(x) & 0x7fffffff ); }
+SI F abs_(F x) { return sk_bit_cast<F>( sk_bit_cast<I32>(x) & 0x7fffffff ); }
 
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
@@ -3387,8 +3381,8 @@ SI T* ptr_at_xy(const SkRasterPipeline_MemoryCtx* ctx, size_t dx, size_t dy) {
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
     // Exclusive -> inclusive.
-    const F w = bit_cast<float>( bit_cast<uint32_t>(ctx->width ) - 1),
-            h = bit_cast<float>( bit_cast<uint32_t>(ctx->height) - 1);
+    const F w = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->width ) - 1),
+            h = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->height) - 1);
 
     x = min(max(0, x), w);
     y = min(max(0, y), h);
