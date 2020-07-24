@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2d74932_24972b12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-24T14:54:42Z",
+      "side": 1,
+      "message": "FYI: I changed tactic here - we still inline in the early passes, but we decorate the variables differently, so they don\u0027t collide with the inlining in later passes.",
+      "revId": "20c9569c6675b63ccc0f6b73b0aab37192118d32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
