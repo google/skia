@@ -16,6 +16,24 @@
       "revId": "c5c88ddcc2b4274430a1dc29575ae3bffdf76221",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "112cb967_c5601e8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-24T18:24:34Z",
+      "side": 1,
+      "message": "Yep - Ganesh requires that all the mip levels be the same type.",
+      "parentUuid": "10fa2765_8e9def3f",
+      "revId": "c5c88ddcc2b4274430a1dc29575ae3bffdf76221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
