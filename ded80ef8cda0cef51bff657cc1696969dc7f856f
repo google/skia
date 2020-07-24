@@ -34,6 +34,24 @@
       "revId": "ded80ef8cda0cef51bff657cc1696969dc7f856f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7079e0cd_b08de17c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-24T13:57:07Z",
+      "side": 1,
+      "message": "Restored original spacing manually",
+      "parentUuid": "0d6dc4ab_e4bca372",
+      "revId": "ded80ef8cda0cef51bff657cc1696969dc7f856f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
