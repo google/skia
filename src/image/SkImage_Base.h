@@ -107,8 +107,10 @@ public:
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const = 0;
 
-    virtual sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
-                                          SkYUVColorSpace*, const void* planes[4]);
+    virtual sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*,
+                                          SkYUVAIndex[4],
+                                          SkYUVColorSpace*,
+                                          const void* planes[4]) const;
     virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*) const;
