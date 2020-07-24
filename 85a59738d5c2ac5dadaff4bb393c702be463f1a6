@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "114c5038_af9c50e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-24T14:05:33Z",
+      "side": 1,
+      "message": "Not sure if you\u0027re around, but based on what we discussed last night.",
+      "revId": "85a59738d5c2ac5dadaff4bb393c702be463f1a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
