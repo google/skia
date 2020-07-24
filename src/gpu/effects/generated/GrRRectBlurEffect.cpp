@@ -51,6 +51,7 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
             new GrRRectBlurEffect(std::move(inputFP), xformedSigma, devRRect.getBounds(),
                                   SkRRectPriv::GetSimpleRadii(devRRect).fX, std::move(maskFP)));
 }
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
