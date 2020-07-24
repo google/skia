@@ -40,9 +40,9 @@ class AndroidFlavor(default.DefaultFlavor):
 
     # A list of devices we can't root.  If rooting fails and a device is not
     # on the list, we fail the task to avoid perf inconsistencies.
-    self.rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930FD', 'GalaxyS9',
-                               'GalaxyS20', 'MotoG4', 'NVIDIA_Shield',
-                               'P30', 'Pixel4','Pixel4XL', 'TecnoSpark3Pro']
+    self.cant_root = ['GalaxyS6', 'GalaxyS7_G930FD', 'GalaxyS9',
+                      'GalaxyS20', 'MotoG4', 'NVIDIA_Shield',
+                      'P30', 'Pixel4','Pixel4XL', 'TecnoSpark3Pro']
 
     # Maps device type -> CPU ids that should be scaled for nanobench.
     # Many devices have two (or more) different CPUs (e.g. big.LITTLE
@@ -108,7 +108,7 @@ class AndroidFlavor(default.DefaultFlavor):
 
   def _scale_for_dm(self):
     device = self.m.vars.builder_cfg.get('model')
-    if (device in self.rootable_blacklist or
+    if (device in self.cant_root or
         self.m.vars.internal_hardware_label):
       return
 
@@ -136,7 +136,7 @@ class AndroidFlavor(default.DefaultFlavor):
 
   def _scale_for_nanobench(self):
     device = self.m.vars.builder_cfg.get('model')
-    if (device in self.rootable_blacklist or
+    if (device in self.cant_root or
       self.m.vars.internal_hardware_label):
       return
 

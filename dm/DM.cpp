@@ -70,12 +70,12 @@ static DEFINE_string(matrix, "1 0 0 1",
                     "2x2 scale+skew matrix to apply or upright when using "
                     "'matrix' or 'upright' in config.");
 
-static DEFINE_string(blacklist, "",
-        "Space-separated config/src/srcOptions/name quadruples to blacklist. "
+static DEFINE_string(skip, "",
+        "Space-separated config/src/srcOptions/name quadruples to skip. "
         "'_' matches anything. '~' negates the match. E.g. \n"
-        "'--blacklist gpu skp _ _' will blacklist all SKPs drawn into the gpu config.\n"
-        "'--blacklist gpu skp _ _ 8888 gm _ aarects' will also blacklist the aarects GM on 8888.\n"
-        "'--blacklist ~8888 svg _ svgparse_' blocks non-8888 SVGs that contain \"svgparse_\" in "
+        "'--skip gpu skp _ _' will skip all SKPs drawn into the gpu config.\n"
+        "'--skip gpu skp _ _ 8888 gm _ aarects' will also skip the aarects GM on 8888.\n"
+        "'--skip ~8888 svg _ svgparse_' blocks non-8888 SVGs that contain \"svgparse_\" in "
                                             "the name.");
 
 static DEFINE_string2(readPath, r, "",
@@ -1093,13 +1093,13 @@ static bool match(const char* needle, const char* haystack) {
     return nullptr != strstr(haystack, needle);
 }
 
-static bool is_blacklisted(const char* sink, const char* src,
-                           const char* srcOptions, const char* name) {
-    for (int i = 0; i < FLAGS_blacklist.count() - 3; i += 4) {
-        if (match(FLAGS_blacklist[i+0], sink) &&
-            match(FLAGS_blacklist[i+1], src) &&
-            match(FLAGS_blacklist[i+2], srcOptions) &&
-            match(FLAGS_blacklist[i+3], name)) {
+static bool should_skip(const char* sink, const char* src,
+                        const char* srcOptions, const char* name) {
+    for (int i = 0; i < FLAGS_skip.count() - 3; i += 4) {
+        if (match(FLAGS_skip[i+0], sink) &&
+            match(FLAGS_skip[i+1], src) &&
+            match(FLAGS_skip[i+2], srcOptions) &&
+            match(FLAGS_skip[i+3], name)) {
             return true;
         }
     }
@@ -1463,7 +1463,7 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
         bool verbose() const override { return FLAGS_veryVerbose; }
     } reporter;
 
-    if (!FLAGS_dryRun && !is_blacklisted("_", "tests", "_", test.name)) {
+    if (!FLAGS_dryRun && !should_skip("_", "tests", "_", test.name)) {
         AutoreleasePool pool;
         GrContextOptions options = grCtxOptions;
         test.modifyGrContextOptions(&options);
@@ -1551,8 +1551,8 @@ int main(int argc, char** argv) {
     for (TaggedSink& sink : *gSinks) {
         for (TaggedSrc& src : *gSrcs) {
             if (src->veto(sink->flags()) ||
-                is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
-                               src.options.c_str(), src->name().c_str())) {
+                should_skip(sink.tag.c_str(), src.tag.c_str(),
+                            src.options.c_str(), src->name().c_str())) {
                 SkAutoSpinlock lock(*gMutex);
                 gPending--;
                 continue;

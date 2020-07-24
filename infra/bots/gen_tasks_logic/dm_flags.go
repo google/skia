@@ -18,11 +18,11 @@ import (
 // keyParams generates the key used by DM for Gold results.
 func keyParams(parts map[string]string) []string {
 	// Don't bother to include role, which is always Test.
-	blacklist := []string{"role", "test_filter"}
+	ignored := []string{"role", "test_filter"}
 	keys := make([]string, 0, len(parts))
 	for key := range parts {
 		found := false
-		for _, b := range blacklist {
+		for _, b := range ignored {
 			if key == b {
 				found = true
 				break
@@ -60,7 +60,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	configs := []string{}
-	blacklisted := []string{}
+	skipped := []string{}
 
 	hasConfig := func(cfg string) bool {
 		for _, c := range configs {
@@ -116,12 +116,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		return rv
 	}
 
-	blacklist := func(quad ...string) {
+	skip := func(quad ...string) {
 		if len(quad) == 1 {
 			quad = strings.Fields(quad[0])
 		}
 		if len(quad) != 4 {
-			log.Fatalf("Invalid value for blacklist: %+v", quad)
+			log.Fatalf("Invalid value for --skip: %+v", quad)
 		}
 		config := quad[0]
 		src := quad[1]
@@ -130,7 +130,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if config == "_" ||
 			hasConfig(config) ||
 			(config[0] == '~' && hasConfig(config[1:])) {
-			blacklisted = append(blacklisted, config, src, options, name)
+			skipped = append(skipped, config, src, options, name)
 		}
 	}
 
@@ -212,9 +212,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{"pdf"}
 			args = append(args, "--rasterize_pdf") // Works only on Mac.
 			// Take ~forever to rasterize:
-			blacklist("pdf gm _ lattice2")
-			blacklist("pdf gm _ hairmodes")
-			blacklist("pdf gm _ longpathdash")
+			skip("pdf gm _ lattice2")
+			skip("pdf gm _ hairmodes")
+			skip("pdf gm _ longpathdash")
 		}
 
 	} else if b.gpu() {
@@ -265,23 +265,23 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.matchGpu("Intel") && b.isLinux() {
 			configs = append(configs, "gles", "glesdft", "glessrgb", "gltestthreading")
 			// skbug.com/6333, skbug.com/6419, skbug.com/6702
-			blacklist("gltestthreading gm _ lcdblendmodes")
-			blacklist("gltestthreading gm _ lcdoverlap")
-			blacklist("gltestthreading gm _ textbloblooper")
+			skip("gltestthreading gm _ lcdblendmodes")
+			skip("gltestthreading gm _ lcdoverlap")
+			skip("gltestthreading gm _ textbloblooper")
 			// All of these GMs are flaky, too:
-			blacklist("gltestthreading gm _ savelayer_with_backdrop")
-			blacklist("gltestthreading gm _ persp_shaders_bw")
-			blacklist("gltestthreading gm _ dftext_blob_persp")
-			blacklist("gltestthreading gm _ dftext")
-			blacklist("gltestthreading gm _ gpu_blur_utils")
-			blacklist("gltestthreading gm _ gpu_blur_utils_ref")
-			blacklist("gltestthreading gm _ gpu_blur_utils_subset_rect")
-			blacklist("gltestthreading gm _ gpu_blur_utils_subset_rect_ref")
+			skip("gltestthreading gm _ savelayer_with_backdrop")
+			skip("gltestthreading gm _ persp_shaders_bw")
+			skip("gltestthreading gm _ dftext_blob_persp")
+			skip("gltestthreading gm _ dftext")
+			skip("gltestthreading gm _ gpu_blur_utils")
+			skip("gltestthreading gm _ gpu_blur_utils_ref")
+			skip("gltestthreading gm _ gpu_blur_utils_subset_rect")
+			skip("gltestthreading gm _ gpu_blur_utils_subset_rect_ref")
 			// skbug.com/7523 - Flaky on various GPUs
-			blacklist("gltestthreading gm _ orientation")
+			skip("gltestthreading gm _ orientation")
 			// These GMs only differ in the low bits
-			blacklist("gltestthreading gm _ stroketext")
-			blacklist("gltestthreading gm _ draw_image_set")
+			skip("gltestthreading gm _ stroketext")
+			skip("gltestthreading gm _ draw_image_set")
 		}
 
 		// CommandBuffer bot *only* runs the command_buffer config.
@@ -324,44 +324,44 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 			if b.model("NUC5i7RYH") {
 				// skbug.com/7376
-				blacklist("_ test _ ProcessorCloneTest")
+				skip("_ test _ ProcessorCloneTest")
 			}
 		}
 
 		if b.model("Pixelbook") {
 			// skbug.com/10232
-			blacklist("_ test _ ProcessorCloneTest")
+			skip("_ test _ ProcessorCloneTest")
 
 		}
 
 		if b.model("AndroidOne", "GalaxyS6") || (b.model("Nexus5", "Nexus7")) {
 			// skbug.com/9019
-			blacklist("_ test _ ProcessorCloneTest")
-			blacklist("_ test _ Programs")
-			blacklist("_ test _ ProcessorOptimizationValidationTest")
+			skip("_ test _ ProcessorCloneTest")
+			skip("_ test _ Programs")
+			skip("_ test _ ProcessorOptimizationValidationTest")
 		}
 
 		if b.extraConfig("CommandBuffer") && b.model("MacBook10.1") {
 			// skbug.com/9235
-			blacklist("_ test _ Programs")
+			skip("_ test _ Programs")
 		}
 
 		if b.extraConfig("CommandBuffer") {
 			// skbug.com/10412
-			blacklist("_ test _ GLBackendAllocationTest")
+			skip("_ test _ GLBackendAllocationTest")
 		}
 
 		// skbug.com/9033 - these devices run out of memory on this test
 		// when opList splitting reduction is enabled
 		if b.gpu() && (b.model("Nexus7", "NVIDIA_Shield", "Nexus5x") ||
 			(b.os("Win10") && b.gpu("GTX660") && b.extraConfig("Vulkan"))) {
-			blacklist("_", "gm", "_", "savelayer_clipmask")
+			skip("_", "gm", "_", "savelayer_clipmask")
 		}
 
 		// skbug.com/9043 - these devices render this test incorrectly
 		// when opList splitting reduction is enabled
 		if b.gpu() && b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X", "RadeonHD7770")) {
-			blacklist("_", "tests", "_", "VkDrawableImportTest")
+			skip("_", "tests", "_", "VkDrawableImportTest")
 		}
 		if b.extraConfig("Vulkan") {
 			configs = []string{"vk"}
@@ -395,31 +395,31 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if b.extraConfig("Vulkan") {
 				configs = append(configs, "vk1010102")
 				// Decoding transparent images to 1010102 just looks bad
-				blacklist("vk1010102 image _ _")
+				skip("vk1010102 image _ _")
 			} else {
 				configs = append(configs, "gl1010102", "gltestpersistentcache", "gltestglslcache", "gltestprecompile")
 				// Decoding transparent images to 1010102 just looks bad
-				blacklist("gl1010102 image _ _")
+				skip("gl1010102 image _ _")
 				// These tests produce slightly different pixels run to run on NV.
-				blacklist("gltestpersistentcache gm _ atlastext")
-				blacklist("gltestpersistentcache gm _ dftext")
-				blacklist("gltestpersistentcache gm _ glyph_pos_h_b")
-				blacklist("gltestpersistentcache gm _ glyph_pos_h_f")
-				blacklist("gltestpersistentcache gm _ glyph_pos_n_f")
-				blacklist("gltestglslcache gm _ atlastext")
-				blacklist("gltestglslcache gm _ dftext")
-				blacklist("gltestglslcache gm _ glyph_pos_h_b")
-				blacklist("gltestglslcache gm _ glyph_pos_h_f")
-				blacklist("gltestglslcache gm _ glyph_pos_n_f")
-				blacklist("gltestprecompile gm _ atlastext")
-				blacklist("gltestprecompile gm _ dftext")
-				blacklist("gltestprecompile gm _ glyph_pos_h_b")
-				blacklist("gltestprecompile gm _ glyph_pos_h_f")
-				blacklist("gltestprecompile gm _ glyph_pos_n_f")
+				skip("gltestpersistentcache gm _ atlastext")
+				skip("gltestpersistentcache gm _ dftext")
+				skip("gltestpersistentcache gm _ glyph_pos_h_b")
+				skip("gltestpersistentcache gm _ glyph_pos_h_f")
+				skip("gltestpersistentcache gm _ glyph_pos_n_f")
+				skip("gltestglslcache gm _ atlastext")
+				skip("gltestglslcache gm _ dftext")
+				skip("gltestglslcache gm _ glyph_pos_h_b")
+				skip("gltestglslcache gm _ glyph_pos_h_f")
+				skip("gltestglslcache gm _ glyph_pos_n_f")
+				skip("gltestprecompile gm _ atlastext")
+				skip("gltestprecompile gm _ dftext")
+				skip("gltestprecompile gm _ glyph_pos_h_b")
+				skip("gltestprecompile gm _ glyph_pos_h_f")
+				skip("gltestprecompile gm _ glyph_pos_n_f")
 				// Tessellation shaders do not yet participate in the persistent cache.
-				blacklist("gltestpersistentcache gm _ tessellation")
-				blacklist("gltestglslcache gm _ tessellation")
-				blacklist("gltestprecompile gm _ tessellation")
+				skip("gltestpersistentcache gm _ tessellation")
+				skip("gltestglslcache gm _ tessellation")
+				skip("gltestprecompile gm _ tessellation")
 			}
 		}
 
@@ -505,10 +505,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	args = append(args, "--src", "tests", "gm", "image", "lottie", "colorImage", "svg", "skp")
 	if b.gpu() {
 		// Don't run the "svgparse_*" svgs on GPU.
-		blacklist("_ svg _ svgparse_")
+		skip("_ svg _ svgparse_")
 	} else if b.Name == "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN" {
 		// Only run the CPU SVGs on 8888.
-		blacklist("~8888 svg _ _")
+		skip("~8888 svg _ _")
 	} else {
 		// On CPU SVGs we only care about parsing. Only run them on the above bot.
 		removeFromArgs("svg")
@@ -548,155 +548,155 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	// TODO: ???
-	blacklist("f16 _ _ dstreadshuffle")
-	blacklist("glsrgb image _ _")
-	blacklist("glessrgb image _ _")
+	skip("f16 _ _ dstreadshuffle")
+	skip("glsrgb image _ _")
+	skip("glessrgb image _ _")
 
 	// --src image --config g8 means "decode into Gray8", which isn't supported.
-	blacklist("g8 image _ _")
-	blacklist("g8 colorImage _ _")
+	skip("g8 image _ _")
+	skip("g8 colorImage _ _")
 
 	if b.extraConfig("Valgrind") {
 		// These take 18+ hours to run.
-		blacklist("pdf gm _ fontmgr_iter")
-		blacklist("pdf _ _ PANO_20121023_214540.jpg")
-		blacklist("pdf skp _ worldjournal")
-		blacklist("pdf skp _ desk_baidu.skp")
-		blacklist("pdf skp _ desk_wikipedia.skp")
-		blacklist("_ svg _ _")
+		skip("pdf gm _ fontmgr_iter")
+		skip("pdf _ _ PANO_20121023_214540.jpg")
+		skip("pdf skp _ worldjournal")
+		skip("pdf skp _ desk_baidu.skp")
+		skip("pdf skp _ desk_wikipedia.skp")
+		skip("_ svg _ _")
 		// skbug.com/9171 and 8847
-		blacklist("_ test _ InitialTextureClear")
+		skip("_ test _ InitialTextureClear")
 	}
 
 	if b.extraConfig("OOPRDDL") {
 		// This batch all call readpixels
-		blacklist("_ gm _ async_rescale_and_read_dog_down")
-		blacklist("_ gm _ async_rescale_and_read_dog_up")
-		blacklist("_ gm _ async_rescale_and_read_no_bleed")
-		blacklist("_ gm _ async_rescale_and_read_rose")
-		blacklist("_ gm _ async_rescale_and_read_text_down")
-		blacklist("_ gm _ async_rescale_and_read_text_up")
-		blacklist("_ gm _ async_rescale_and_read_text_up_large")
-		blacklist("_ gm _ async_rescale_and_read_yuv420_rose")
-		blacklist("_ gm _ async_yuv_no_scale")
-		blacklist("_ gm _ drawbitmaprect-subset")
-		blacklist("_ gm _ drawbitmaprect")
-		blacklist("_ gm _ image_subset")
-		blacklist("_ gm _ p3")
-		blacklist("_ gm _ p3_ovals")
-		blacklist("_ gm _ readpixels")
-		blacklist("_ gm _ scale-pixels ")
-		blacklist("_ gm _ zero_length_paths_aa")
-		blacklist("_ gm _ zero_length_paths_bw")
-		blacklist("_ gm _ zero_length_paths_dbl_aa")
-		blacklist("_ gm _ zero_length_paths_dbl_bw")
+		skip("_ gm _ async_rescale_and_read_dog_down")
+		skip("_ gm _ async_rescale_and_read_dog_up")
+		skip("_ gm _ async_rescale_and_read_no_bleed")
+		skip("_ gm _ async_rescale_and_read_rose")
+		skip("_ gm _ async_rescale_and_read_text_down")
+		skip("_ gm _ async_rescale_and_read_text_up")
+		skip("_ gm _ async_rescale_and_read_text_up_large")
+		skip("_ gm _ async_rescale_and_read_yuv420_rose")
+		skip("_ gm _ async_yuv_no_scale")
+		skip("_ gm _ drawbitmaprect-subset")
+		skip("_ gm _ drawbitmaprect")
+		skip("_ gm _ image_subset")
+		skip("_ gm _ p3")
+		skip("_ gm _ p3_ovals")
+		skip("_ gm _ readpixels")
+		skip("_ gm _ scale-pixels ")
+		skip("_ gm _ zero_length_paths_aa")
+		skip("_ gm _ zero_length_paths_bw")
+		skip("_ gm _ zero_length_paths_dbl_aa")
+		skip("_ gm _ zero_length_paths_dbl_bw")
 		// This one explicitly rejects DDL recording
-		blacklist("_ gm _ blurrect_compare")
+		skip("_ gm _ blurrect_compare")
 		// These two trip up on CCPR behavior
-		blacklist("_ gm _ preservefillrule_big")
-		blacklist("_ gm _ preservefillrule_little")
+		skip("_ gm _ preservefillrule_big")
+		skip("_ gm _ preservefillrule_little")
 		// These two rely on munging the resource limits
-		blacklist("_ gm _ bitmaptiled_fractional_horizontal")
-		blacklist("_ gm _ bitmaptiled_fractional_vertical")
+		skip("_ gm _ bitmaptiled_fractional_horizontal")
+		skip("_ gm _ bitmaptiled_fractional_vertical")
 		// These two require a direct context
-		blacklist("_ gm _ new_texture_image ")
-		blacklist("_ gm _ fontregen ")
+		skip("_ gm _ new_texture_image ")
+		skip("_ gm _ fontregen ")
 		// This family of gms can be re-enabled once MakeRenderTarget can take a GrRecordingContext
-		blacklist("_ gm _ gpu_blur_utils")
-		blacklist("_ gm _ gpu_blur_utils_subset_rect")
-		blacklist("_ gm _ gpu_blur_utils_subset_ref")
-		blacklist("_ gm _ gpu_blur_utils_ref")
+		skip("_ gm _ gpu_blur_utils")
+		skip("_ gm _ gpu_blur_utils_subset_rect")
+		skip("_ gm _ gpu_blur_utils_subset_ref")
+		skip("_ gm _ gpu_blur_utils_ref")
 	}
 
 	if b.model("TecnoSpark3Pro") {
 		// skbug.com/9421
-		blacklist("_ test _ InitialTextureClear")
+		skip("_ test _ InitialTextureClear")
 	}
 
 	if b.os("iOS") {
-		blacklist(glPrefix + " skp _ _")
+		skip(glPrefix + " skp _ _")
 	}
 
 	if b.matchOs("Mac", "iOS") {
 		// CG fails on questionable bmps
-		blacklist("_ image gen_platf rgba32abf.bmp")
-		blacklist("_ image gen_platf rgb24prof.bmp")
-		blacklist("_ image gen_platf rgb24lprof.bmp")
-		blacklist("_ image gen_platf 8bpp-pixeldata-cropped.bmp")
-		blacklist("_ image gen_platf 4bpp-pixeldata-cropped.bmp")
-		blacklist("_ image gen_platf 32bpp-pixeldata-cropped.bmp")
-		blacklist("_ image gen_platf 24bpp-pixeldata-cropped.bmp")
+		skip("_ image gen_platf rgba32abf.bmp")
+		skip("_ image gen_platf rgb24prof.bmp")
+		skip("_ image gen_platf rgb24lprof.bmp")
+		skip("_ image gen_platf 8bpp-pixeldata-cropped.bmp")
+		skip("_ image gen_platf 4bpp-pixeldata-cropped.bmp")
+		skip("_ image gen_platf 32bpp-pixeldata-cropped.bmp")
+		skip("_ image gen_platf 24bpp-pixeldata-cropped.bmp")
 
 		// CG has unpredictable behavior on this questionable gif
 		// It's probably using uninitialized memory
-		blacklist("_ image gen_platf frame_larger_than_image.gif")
+		skip("_ image gen_platf frame_larger_than_image.gif")
 
 		// CG has unpredictable behavior on incomplete pngs
 		// skbug.com/5774
-		blacklist("_ image gen_platf inc0.png")
-		blacklist("_ image gen_platf inc1.png")
-		blacklist("_ image gen_platf inc2.png")
-		blacklist("_ image gen_platf inc3.png")
-		blacklist("_ image gen_platf inc4.png")
-		blacklist("_ image gen_platf inc5.png")
-		blacklist("_ image gen_platf inc6.png")
-		blacklist("_ image gen_platf inc7.png")
-		blacklist("_ image gen_platf inc8.png")
-		blacklist("_ image gen_platf inc9.png")
-		blacklist("_ image gen_platf inc10.png")
-		blacklist("_ image gen_platf inc11.png")
-		blacklist("_ image gen_platf inc12.png")
-		blacklist("_ image gen_platf inc13.png")
-		blacklist("_ image gen_platf inc14.png")
-		blacklist("_ image gen_platf incInterlaced.png")
+		skip("_ image gen_platf inc0.png")
+		skip("_ image gen_platf inc1.png")
+		skip("_ image gen_platf inc2.png")
+		skip("_ image gen_platf inc3.png")
+		skip("_ image gen_platf inc4.png")
+		skip("_ image gen_platf inc5.png")
+		skip("_ image gen_platf inc6.png")
+		skip("_ image gen_platf inc7.png")
+		skip("_ image gen_platf inc8.png")
+		skip("_ image gen_platf inc9.png")
+		skip("_ image gen_platf inc10.png")
+		skip("_ image gen_platf inc11.png")
+		skip("_ image gen_platf inc12.png")
+		skip("_ image gen_platf inc13.png")
+		skip("_ image gen_platf inc14.png")
+		skip("_ image gen_platf incInterlaced.png")
 
 		// These images fail after Mac 10.13.1 upgrade.
-		blacklist("_ image gen_platf incInterlaced.gif")
-		blacklist("_ image gen_platf inc1.gif")
-		blacklist("_ image gen_platf inc0.gif")
-		blacklist("_ image gen_platf butterfly.gif")
+		skip("_ image gen_platf incInterlaced.gif")
+		skip("_ image gen_platf inc1.gif")
+		skip("_ image gen_platf inc0.gif")
+		skip("_ image gen_platf butterfly.gif")
 	}
 
 	// WIC fails on questionable bmps
 	if b.matchOs("Win") {
-		blacklist("_ image gen_platf pal8os2v2.bmp")
-		blacklist("_ image gen_platf pal8os2v2-16.bmp")
-		blacklist("_ image gen_platf rgba32abf.bmp")
-		blacklist("_ image gen_platf rgb24prof.bmp")
-		blacklist("_ image gen_platf rgb24lprof.bmp")
-		blacklist("_ image gen_platf 8bpp-pixeldata-cropped.bmp")
-		blacklist("_ image gen_platf 4bpp-pixeldata-cropped.bmp")
-		blacklist("_ image gen_platf 32bpp-pixeldata-cropped.bmp")
-		blacklist("_ image gen_platf 24bpp-pixeldata-cropped.bmp")
+		skip("_ image gen_platf pal8os2v2.bmp")
+		skip("_ image gen_platf pal8os2v2-16.bmp")
+		skip("_ image gen_platf rgba32abf.bmp")
+		skip("_ image gen_platf rgb24prof.bmp")
+		skip("_ image gen_platf rgb24lprof.bmp")
+		skip("_ image gen_platf 8bpp-pixeldata-cropped.bmp")
+		skip("_ image gen_platf 4bpp-pixeldata-cropped.bmp")
+		skip("_ image gen_platf 32bpp-pixeldata-cropped.bmp")
+		skip("_ image gen_platf 24bpp-pixeldata-cropped.bmp")
 		if b.arch("x86_64") && b.cpu() {
 			// This GM triggers a SkSmallAllocator assert.
-			blacklist("_ gm _ composeshader_bitmap")
+			skip("_ gm _ composeshader_bitmap")
 		}
 	}
 
 	if b.matchOs("Win", "Mac") {
 		// WIC and CG fail on arithmetic jpegs
-		blacklist("_ image gen_platf testimgari.jpg")
+		skip("_ image gen_platf testimgari.jpg")
 		// More questionable bmps that fail on Mac, too. skbug.com/6984
-		blacklist("_ image gen_platf rle8-height-negative.bmp")
-		blacklist("_ image gen_platf rle4-height-negative.bmp")
+		skip("_ image gen_platf rle8-height-negative.bmp")
+		skip("_ image gen_platf rle4-height-negative.bmp")
 	}
 
 	// These PNGs have CRC errors. The platform generators seem to draw
 	// uninitialized memory without reporting an error, so skip them to
 	// avoid lots of images on Gold.
-	blacklist("_ image gen_platf error")
+	skip("_ image gen_platf error")
 
 	if b.os("Android", "iOS") {
 		// This test crashes the N9 (perhaps because of large malloc/frees). It also
 		// is fairly slow and not platform-specific. So we just disable it on all of
 		// Android and iOS. skia:5438
-		blacklist("_ test _ GrStyledShape")
+		skip("_ test _ GrStyledShape")
 	}
 
 	if internalHardwareLabel == "5" {
 		// http://b/118312149#comment9
-		blacklist("_ test _ SRGBReadWritePixels")
+		skip("_ test _ SRGBReadWritePixels")
 	}
 
 	// skia:4095
@@ -769,30 +769,30 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	badSerializeGMs = append(badSerializeGMs, "analytic_antialias_convex")
 
 	for _, test := range badSerializeGMs {
-		blacklist("serialize-8888", "gm", "_", test)
+		skip("serialize-8888", "gm", "_", test)
 	}
 
 	// It looks like we skip these only for out-of-memory concerns.
 	if b.matchOs("Win", "Android") {
 		for _, test := range []string{"verylargebitmap", "verylarge_picture_image"} {
-			blacklist("serialize-8888", "gm", "_", test)
+			skip("serialize-8888", "gm", "_", test)
 		}
 	}
 	if b.matchOs("Mac") && b.cpu() {
 		// skia:6992
-		blacklist("pic-8888", "gm", "_", "encode-platform")
-		blacklist("serialize-8888", "gm", "_", "encode-platform")
+		skip("pic-8888", "gm", "_", "encode-platform")
+		skip("serialize-8888", "gm", "_", "encode-platform")
 	}
 
 	// skia:4769
-	blacklist("pic-8888", "gm", "_", "drawfilter")
+	skip("pic-8888", "gm", "_", "drawfilter")
 
 	// skia:4703
 	for _, test := range []string{"image-cacherator-from-picture",
 		"image-cacherator-from-raster",
 		"image-cacherator-from-ctable"} {
-		blacklist("pic-8888", "gm", "_", test)
-		blacklist("serialize-8888", "gm", "_", test)
+		skip("pic-8888", "gm", "_", test)
+		skip("serialize-8888", "gm", "_", test)
 	}
 
 	// GM that requires raster-backed canvas
@@ -804,14 +804,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		"async_rescale_and_read_dog_down",
 		"async_rescale_and_read_rose",
 		"async_rescale_and_read_no_bleed"} {
-		blacklist("pic-8888", "gm", "_", test)
-		blacklist("serialize-8888", "gm", "_", test)
+		skip("pic-8888", "gm", "_", test)
+		skip("serialize-8888", "gm", "_", test)
 
 		// GM requires canvas->makeSurface() to return a valid surface.
 		// TODO(borenet): These should be just outside of this block but are
 		// left here to match the recipe which has an indentation bug.
-		blacklist("pic-8888", "gm", "_", "blurrect_compare")
-		blacklist("serialize-8888", "gm", "_", "blurrect_compare")
+		skip("pic-8888", "gm", "_", "blurrect_compare")
+		skip("serialize-8888", "gm", "_", "blurrect_compare")
 	}
 
 	// Extensions for RAW images
@@ -821,50 +821,50 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	// skbug.com/4888
-	// Blacklist RAW images (and a few large PNGs) on GPU bots
+	// Skip RAW images (and a few large PNGs) on GPU bots
 	// until we can resolve failures.
 	if b.gpu() {
-		blacklist("_ image _ interlaced1.png")
-		blacklist("_ image _ interlaced2.png")
-		blacklist("_ image _ interlaced3.png")
+		skip("_ image _ interlaced1.png")
+		skip("_ image _ interlaced2.png")
+		skip("_ image _ interlaced3.png")
 		for _, rawExt := range r {
-			blacklist(fmt.Sprintf("_ image _ .%s", rawExt))
+			skip(fmt.Sprintf("_ image _ .%s", rawExt))
 		}
 	}
 
-	// Blacklist memory intensive tests on 32-bit bots.
+	// Skip memory intensive tests on 32-bit bots.
 	if b.os("Win8") && b.arch("x86") {
-		blacklist("_ image f16 _")
-		blacklist("_ image _ abnormal.wbmp")
-		blacklist("_ image _ interlaced1.png")
-		blacklist("_ image _ interlaced2.png")
-		blacklist("_ image _ interlaced3.png")
+		skip("_ image f16 _")
+		skip("_ image _ abnormal.wbmp")
+		skip("_ image _ interlaced1.png")
+		skip("_ image _ interlaced2.png")
+		skip("_ image _ interlaced3.png")
 		for _, rawExt := range r {
-			blacklist(fmt.Sprintf("_ image _ .%s", rawExt))
+			skip(fmt.Sprintf("_ image _ .%s", rawExt))
 		}
 	}
 
 	if b.model("Nexus5", "Nexus5x") && b.gpu() {
 		// skia:5876
-		blacklist("_", "gm", "_", "encode-platform")
+		skip("_", "gm", "_", "encode-platform")
 	}
 
 	if b.model("AndroidOne") && b.gpu() { // skia:4697, skia:4704, skia:4694, skia:4705
-		blacklist("_", "gm", "_", "bigblurs")
-		blacklist("_", "gm", "_", "strict_constraint_no_red_allowed")
-		blacklist("_", "gm", "_", "fast_constraint_red_is_allowed")
-		blacklist("_", "gm", "_", "dropshadowimagefilter")
-		blacklist("_", "gm", "_", "filterfastbounds")
-		blacklist(glPrefix, "gm", "_", "imageblurtiled")
-		blacklist("_", "gm", "_", "imagefiltersclipped")
-		blacklist("_", "gm", "_", "imagefiltersscaled")
-		blacklist("_", "gm", "_", "imageresizetiled")
-		blacklist("_", "gm", "_", "matrixconvolution")
-		blacklist("_", "gm", "_", "strokedlines")
+		skip("_", "gm", "_", "bigblurs")
+		skip("_", "gm", "_", "strict_constraint_no_red_allowed")
+		skip("_", "gm", "_", "fast_constraint_red_is_allowed")
+		skip("_", "gm", "_", "dropshadowimagefilter")
+		skip("_", "gm", "_", "filterfastbounds")
+		skip(glPrefix, "gm", "_", "imageblurtiled")
+		skip("_", "gm", "_", "imagefiltersclipped")
+		skip("_", "gm", "_", "imagefiltersscaled")
+		skip("_", "gm", "_", "imageresizetiled")
+		skip("_", "gm", "_", "matrixconvolution")
+		skip("_", "gm", "_", "strokedlines")
 		if sampleCount > 0 {
 			glMsaaConfig := fmt.Sprintf("%smsaa%d", glPrefix, sampleCount)
-			blacklist(glMsaaConfig, "gm", "_", "imageblurtiled")
-			blacklist(glMsaaConfig, "gm", "_", "imagefiltersbase")
+			skip(glMsaaConfig, "gm", "_", "imageblurtiled")
+			skip(glMsaaConfig, "gm", "_", "imagefiltersbase")
 		}
 	}
 
@@ -938,8 +938,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.extraConfig("Vulkan") && b.isLinux() && b.gpu("IntelHD405") {
 		// skia:7322
-		blacklist("vk", "gm", "_", "skbug_257")
-		blacklist("vk", "gm", "_", "filltypespersp")
+		skip("vk", "gm", "_", "skbug_257")
+		skip("vk", "gm", "_", "filltypespersp")
 		match = append(match, "~^ClearOp$")
 		match = append(match, "~^CopySurface$")
 		match = append(match, "~^ImageNewShader_GPU$")
@@ -986,7 +986,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.extraConfig("ANGLE") {
 		// skia:6857
-		blacklist("angle_d3d9_es2", "gm", "_", "lighting")
+		skip("angle_d3d9_es2", "gm", "_", "lighting")
 	}
 
 	if b.gpu("PowerVRGX6250") {
@@ -1016,16 +1016,16 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.model("LenovoYogaC630") && b.extraConfig("ANGLE") {
 		// skia:9275
-		blacklist("_", "tests", "_", "Programs")
+		skip("_", "tests", "_", "Programs")
 		// skia:8976
-		blacklist("_", "tests", "_", "GrDefaultPathRendererTest")
+		skip("_", "tests", "_", "GrDefaultPathRendererTest")
 		// https://bugs.chromium.org/p/angleproject/issues/detail?id=3414
-		blacklist("_", "tests", "_", "PinnedImageTest")
+		skip("_", "tests", "_", "PinnedImageTest")
 	}
 
-	if len(blacklisted) > 0 {
-		args = append(args, "--blacklist")
-		args = append(args, blacklisted...)
+	if len(skipped) > 0 {
+		args = append(args, "--skip")
+		args = append(args, skipped...)
 	}
 
 	if len(match) > 0 {

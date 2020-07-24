@@ -39,7 +39,7 @@ TAG_VERSION_PREFIX = 'version:'
 TAG_VERSION_TMPL = '%s%%s' % TAG_VERSION_PREFIX
 
 VERSION_FILENAME = 'VERSION'
-ZIP_BLACKLIST = ['.git', '.svn', '*.pyc', '.DS_STORE']
+PATTERNS_TO_SKIP = ['.git', '.svn', '*.pyc', '.DS_STORE']
 
 
 class CIPDStore(object):
@@ -211,7 +211,7 @@ class GSStore(object):
     target_dir = os.path.abspath(target_dir)
     with utils.tmp_dir():
       zip_file = os.path.join(os.getcwd(), '%d.zip' % version)
-      zip_utils.zip(target_dir, zip_file, blacklist=ZIP_BLACKLIST)
+      zip_utils.zip(target_dir, zip_file, to_skip=PATTERNS_TO_SKIP)
       gs_path = GS_PATH_TMPL % (GS_SUBDIR_TMPL % (self._gs_bucket, name),
                                 str(version))
       self.copy(zip_file, gs_path)
