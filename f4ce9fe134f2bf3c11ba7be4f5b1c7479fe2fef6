@@ -16,6 +16,23 @@
       "revId": "f4ce9fe134f2bf3c11ba7be4f5b1c7479fe2fef6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f49fc58_97a07c02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-24T16:19:32Z",
+      "side": 1,
+      "message": "There are a couple ways to do this.  The ones we typically use are:\n\n  1) avoid the problem by finding which change caused these diffs and parenthesize it so\n     the order of evaluation remains the same as it used to be with mad();\n  2) keep both versions of the code in place and use a #define to control which one is active,\n     forcing chrome into the old path until you can flip that and rebaseline blink tests atomically\n  3) give up and leave mad() as-is\n  4) mostly give up, and just refactor mad() so that it\u0027s obvious that it\u0027s just an alias for\n     simple math that never needs specialziation, e.g.\n\n     template \u003cint N\u003e\n     Vec\u003cN,float\u003e mad(const Vec\u003cN,float\u003e\u0026 x, const Vec\u003cN,float\u003e\u0026 y, const Vec\u003cN,float\u003e\u0026 z) {\n         // Nothing fancy.   You may be interested in fma(), but note its caveats.\n         return x*y+z;\n     }\n\nIf you want to try 1), it can often help to split this all into tiny CLs that just switch a small subset of mad(x,y,z) to x*y+z.  If linux-blink-rel passes on those, we can just land that part and try another subset, eventually finding which changes cause diffs.  It\u0027s likely expressions with chained mad(x,y, mad(z,w, ...)).",
+      "revId": "f4ce9fe134f2bf3c11ba7be4f5b1c7479fe2fef6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
