@@ -71,6 +71,8 @@ public:
     // the base level. So index 0 represents mipmap level 1.
     bool getLevel(int index, Level*) const;
 
+    bool validForRootLevel(const SkImageInfo&) const;
+
     sk_sp<SkData> serialize() const;
     static bool Deserialize(SkMipmapBuilder*, const void* data, size_t size);
 
