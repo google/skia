@@ -195,7 +195,114 @@ protected:
 private:
     typedef Sample INHERITED;
 };
+DEF_SAMPLE( return new XferDemo; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new XferDemo; )
+#include "tools/Resources.h"
+
+class CubicResamplerDemo : public Sample {
+    struct Rec {
+        sk_sp<SkImage>  fImage;
+        SkRect          fBounds;
+
+        void draw(SkCanvas* canvas, SkImage::CubicResampler cubic) const {
+            SkRect r = fBounds;
+            SkPaint paint;
+
+            SkMatrix lm = SkMatrix::Translate(r.x(), r.y())
+                        * SkMatrix::Scale(10, 10);
+            paint.setShader(fImage->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &lm));
+            canvas->drawRect(r, paint);
+
+            r.offset(r.width() + 10, 0);
+            lm.postTranslate(r.width() + 10, 0);
+
+            paint.setShader(fImage->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
+                                               {SkSamplingMode::kLinear, SkMipmapMode::kNone},
+                                               &lm));
+            canvas->drawRect(r, paint);
+
+            r.offset(r.width() + 10, 0);
+            lm.postTranslate(r.width() + 10, 0);
+
+            paint.setShader(fImage->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, cubic, &lm));
+            canvas->drawRect(r, paint);
+        }
+    };
+    std::vector<Rec> fRecs;
+
+public:
+    CubicResamplerDemo() {
+        const char* names[] = {
+            "images/mandrill_128.png",
+            "images/rle.bmp",
+            "images/example_4.png",
+        };
+        SkRect r = {10, 10, 200, 200};
+        for (auto name : names) {
+            fRecs.push_back({GetResourceAsImage(name), r});
+            r.offset(0, r.height() + 10);
+        }
+
+        fDomain.setXYWH(r.fLeft + 3*r.width() + 40, 50, 200, 200);
+        fCubic = {.3f, .5f};
+    }
+
+protected:
+    SkString name() override { return SkString("CubicResampler"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        for (const auto& rec : fRecs) {
+            rec.draw(canvas, fCubic);
+        }
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStroke(true);
+        canvas->drawRect(fDomain, paint);
+
+        paint.setColor(SK_ColorRED);
+        paint.setStroke(false);
+        SkPoint loc = SkMatrix::MakeRectToRect({0,0,1,1}, fDomain, SkMatrix::kFill_ScaleToFit)
+                      .mapXY(fCubic.B, fCubic.C);
+        canvas->drawCircle(loc.fX, loc.fY, 8, paint);
+
+        SkString str;
+        str.printf("B=%4.2f  C=%4.2f", fCubic.B, fCubic.C);
+        SkFont font;
+        font.setSize(25);
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawSimpleText(str.c_str(), str.size(), SkTextEncoding::kUTF8,
+                               fDomain.fLeft + 10, fDomain.fBottom + 40, font, paint);
+    }
+
+    static float pin_unitize(float min, float max, float value) {
+        return (std::min(std::max(value, min), max) - min) / (max - min);
+    }
+    static SkPoint pin_unitize(const SkRect& r, SkPoint p) {
+        return {
+            pin_unitize(r.fLeft, r.fRight,  p.fX),
+            pin_unitize(r.fTop,  r.fBottom, p.fY),
+        };
+    }
+
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+        if (fDomain.contains(x, y)) {
+            return new Click([this](Click* click) {
+                auto [B, C] = pin_unitize(fDomain, click->fCurr);
+                fCubic = {B, C};
+                return true;
+            });
+        }
+        return nullptr;
+    }
+
+private:
+    SkRect                  fDomain;
+    SkImage::CubicResampler fCubic;
+
+    typedef Sample INHERITED;
+};
+DEF_SAMPLE( return new CubicResamplerDemo; )
