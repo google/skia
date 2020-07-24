@@ -112,10 +112,9 @@ def skpbench_steps(api):
     '--outfile', json_path
   ])
 
-  keys_blacklist = ['configuration', 'role', 'is_trybot']
   skiaperf_args.append('--key')
   for k in sorted(api.vars.builder_cfg.keys()):
-    if not k in keys_blacklist:
+    if not k in ['configuration', 'role', 'is_trybot']:
       skiaperf_args.extend([k, api.vars.builder_cfg[k]])
 
   api.run(api.python, 'Parse skpbench output into Perf json',

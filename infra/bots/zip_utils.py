@@ -16,23 +16,23 @@ import posixpath
 import zipfile
 
 
-def filtered(names, blacklist):
+def filtered(names, to_skip):
   """Filter the list of file or directory names."""
   rv = names[:]
-  for pattern in blacklist:
+  for pattern in to_skip:
     rv = [n for n in rv if not fnmatch.fnmatch(n, pattern)]
   return rv
 
 
-def zip(target_dir, zip_file, blacklist=None):  # pylint: disable=W0622
+def zip(target_dir, zip_file, to_skip=None):  # pylint: disable=W0622
   """Zip the given directory, write to the given zip file."""
   if not os.path.isdir(target_dir):
     raise IOError('%s does not exist!' % target_dir)
-  blacklist = blacklist or []
+  to_skip = to_skip or []
   with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED, True) as z:
     for r, d, f in os.walk(target_dir, topdown=True):
-      d[:] = filtered(d, blacklist)
-      for filename in filtered(f, blacklist):
+      d[:] = filtered(d, to_skip)
+      for filename in filtered(f, to_skip):
         filepath = os.path.join(r, filename)
         zi = zipfile.ZipInfo(filepath)
         zi.filename = os.path.relpath(filepath, target_dir)
