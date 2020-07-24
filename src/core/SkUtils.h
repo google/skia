@@ -95,4 +95,10 @@ static SK_ALWAYS_INLINE void sk_unaligned_store(P* ptr, T val) {
     memcpy(ptr, &val, sizeof(val));
 }
 
+template <typename Dst, typename Src>
+static SK_ALWAYS_INLINE Dst sk_bit_cast(const Src& src) {
+    static_assert(sizeof(Dst) == sizeof(Src), "");
+    return sk_unaligned_load<Dst>(&src);
+}
+
 #endif
