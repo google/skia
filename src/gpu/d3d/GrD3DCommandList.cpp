@@ -211,7 +211,6 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
     , fCurrentInstanceBuffer(nullptr)
     , fCurrentInstanceStride(0)
     , fCurrentIndexBuffer(nullptr)
-    , fCurrentConstantRingBuffer(nullptr)
     , fCurrentConstantBufferAddress(0)
     , fCurrentSRVCRVDescriptorHeap(nullptr)
     , fCurrentSamplerDescriptorHeap(nullptr) {
@@ -226,10 +225,6 @@ void GrD3DDirectCommandList::onReset() {
     fCurrentInstanceBuffer = nullptr;
     fCurrentInstanceStride = 0;
     fCurrentIndexBuffer = nullptr;
-    if (fCurrentConstantRingBuffer) {
-        fCurrentConstantRingBuffer->finishSubmit(fConstantRingBufferSubmitData);
-        fCurrentConstantRingBuffer = nullptr;
-    }
     fCurrentConstantBufferAddress = 0;
     sk_bzero(fCurrentRootDescriptorTable, sizeof(fCurrentRootDescriptorTable));
     fCurrentSRVCRVDescriptorHeap = nullptr;
@@ -245,16 +240,17 @@ void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipeline
     }
 }
 
-void GrD3DDirectCommandList::setCurrentConstantBuffer(GrRingBuffer* constantsRingBuffer) {
-    fCurrentConstantRingBuffer = constantsRingBuffer;
-    if (fCurrentConstantRingBuffer) {
-        constantsRingBuffer->startSubmit(&fConstantRingBufferSubmitData);
-        for (unsigned int i = 0; i < fConstantRingBufferSubmitData.fTrackedBuffers.size(); ++i) {
-            this->addGrBuffer(std::move(fConstantRingBufferSubmitData.fTrackedBuffers[i]));
-        }
-        // we don't need these any more so clear this copy out
-        fConstantRingBufferSubmitData.fTrackedBuffers.clear();
+void GrD3DDirectCommandList::handleConstantsRingBuffer(GrRingBuffer& constantsRingBuffer) {
+    constantsRingBuffer.startSubmit(&fConstantsRingBufferSubmitData);
+    for (unsigned int i = 0; i < fConstantsRingBufferSubmitData.fTrackedBuffers.size(); ++i) {
+        this->addGrBuffer(std::move(fConstantsRingBufferSubmitData.fTrackedBuffers[i]));
     }
+    // we don't need these any more so clear this copy out
+    fConstantsRingBufferSubmitData.fTrackedBuffers.clear();
+
+    sk_sp<GrRefCntedCallback> finishedCallback(
+        new GrRefCntedCallback(GrRingBuffer::FinishSubmit, &fConstantsRingBufferSubmitData));
+    this->addFinishedCallback(finishedCallback);
 }
 
 void GrD3DDirectCommandList::setStencilRef(unsigned int stencilRef) {

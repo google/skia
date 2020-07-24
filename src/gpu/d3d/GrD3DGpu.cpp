@@ -121,7 +121,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     SkASSERT(fCurrentDirectCommandList);
 
     // set up constant data
-    fCurrentDirectCommandList->setCurrentConstantBuffer(&fConstantsRingBuffer);
+    fCurrentDirectCommandList->handleConstantsRingBuffer(fConstantsRingBuffer);
 
     fResourceProvider.prepForSubmit();
 

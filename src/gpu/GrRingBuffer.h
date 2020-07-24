@@ -43,17 +43,18 @@ public:
 
     class SubmitData {
     public:
-        const GrRingBuffer* fRingBuffer;
+        SubmitData() : fOwner(nullptr) {}
         std::vector<sk_sp<GrGpuBuffer>> fTrackedBuffers;
     private:
         friend class GrRingBuffer;
+        GrRingBuffer* fOwner;
         size_t fLastHead;
         size_t fGenID;
     };
-    // Backends should call startSubmit() at submit time, and finishSubmit() when the
-    // command buffer/list finishes.
+    // Backends should call startSubmit() at submit time, and FinishSubmit()
+    // as a finishedProc for the command buffer/list.
     void startSubmit(SubmitData*);
-    void finishSubmit(const SubmitData&);
+    static void FinishSubmit(void*);
 
     size_t size() const { return fTotalSize; }
 

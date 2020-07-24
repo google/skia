@@ -81,6 +81,7 @@ GrRingBuffer::Slice GrRingBuffer::suballocate(size_t size) {
 // used when current command buffer/command list is submitted
 void GrRingBuffer::startSubmit(GrRingBuffer::SubmitData* submitData) {
     submitData->fTrackedBuffers = std::move(fTrackedBuffers);
+    submitData->fOwner = this;
     submitData->fLastHead = fHead;
     submitData->fGenID = fGenID;
     // add current buffer to be tracked for next submit
@@ -88,8 +89,11 @@ void GrRingBuffer::startSubmit(GrRingBuffer::SubmitData* submitData) {
 }
 
 // used when current command buffer/command list is completed
-void GrRingBuffer::finishSubmit(const GrRingBuffer::SubmitData& submitData) {
-    if (submitData.fGenID == fGenID) {
-        fTail = submitData.fLastHead;
+void GrRingBuffer::FinishSubmit(void* finishedContext) {
+    GrRingBuffer::SubmitData* submitData = (GrRingBuffer::SubmitData*)finishedContext;
+    SkASSERT(submitData);
+    if (submitData->fOwner && submitData->fGenID == submitData->fOwner->fGenID) {
+        submitData->fOwner->fTail = submitData->fLastHead;
+        submitData->fOwner = nullptr;
     }
 }
