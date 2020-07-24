@@ -1,7 +1,7 @@
 #if 0
 
-#  This file must be a no-op C #include header, and a valid *SAN blacklist file.
-#  Luckily, anything starting with # is a comment to *SAN blacklist files,
+#  This file must be a no-op C #include header, and a valid *SAN compile-time suppression file.
+#  Luckily, anything starting with # is a comment to *SAN compile-time suppression files,
 #  and anything inside #if 0 is ignored by C.  Yippee!
 #
 #  If you want to type '*', type '.*' instead.  Don't make C comments!

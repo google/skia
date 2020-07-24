@@ -260,17 +260,17 @@ config("default") {
       sanitizers = "memory"
     }
 
-    _blacklist = rebase_path("../tools/xsan.blacklist")
+    _suppressions = rebase_path("../tools/xsan.supp")
 
     cflags += [
       "-fsanitize=$sanitizers",
       "-fno-sanitize-recover=$sanitizers",
-      "-fsanitize-blacklist=$_blacklist",
+      "-fsanitize-blacklist=$_suppressions",
     ]
 
     if (is_win) {
       cflags += [
-        "/FI$_blacklist",
+        "/FI$_suppressions",
 
         # On Release builds, we get strange warnings about string literals.
         "/GF-",
@@ -280,7 +280,7 @@ config("default") {
       libs += [ "$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan-x86_64.lib" ]
     } else {
       cflags += [
-        "-include$_blacklist",
+        "-include$_suppressions",
         "-fno-omit-frame-pointer",
       ]
 
