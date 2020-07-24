@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "d9aed18f_de9bfd66",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 13069
+      },
+      "writtenOn": "2020-07-24T17:27:18Z",
+      "side": 1,
+      "message": "A) I\u0027m not sure I follow, the zero is the same in full and limited range. Unless you\u0027re just restating that we should be using 512/1023, 2048/4095.\n\nB) We\u0027ll likely be using half float planes for a while. It doesn\u0027t look like there\u0027s support for R_16 until we give Skia an ES3 context, which has no owner and may be some time out. You can see the code I\u0027m using to do this here:\nhttps://chromium-review.googlesource.com/c/chromium/src/+/2316332/2/third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.cc#21\n\nBut yes, effectively I\u0027m just dividing by max_value-1. Since we\u0027re coming from uint16_t I think the same issue applies.",
+      "parentUuid": "64cb568c_438f4160",
+      "revId": "cc8395b8c6f11eaa35cda4be4ee4aa942ab42a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ae9915dd_acb32086",
         "filename": "src/core/SkYUVMath.cpp",
         "patchSetId": 1
