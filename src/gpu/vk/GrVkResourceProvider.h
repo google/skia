@@ -13,6 +13,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTInternalLList.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrManagedResource.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrResourceHandle.h"

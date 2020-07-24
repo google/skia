@@ -4446,7 +4446,7 @@ uint64_t GrGLCaps::computeFormatKey(const GrBackendFormat& format) const {
     return (uint64_t)(glFormat);
 }
 
-GrProgramDesc GrGLCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
+GrProgramDesc GrGLCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
     GrProgramDesc desc;
     SkDEBUGCODE(bool result =) GrProgramDesc::Build(&desc, rt, programInfo, *this);
     SkASSERT(result == desc.isValid());

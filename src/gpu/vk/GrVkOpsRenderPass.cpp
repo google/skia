@@ -14,7 +14,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -89,8 +89,8 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
 
     // If we are using a stencil attachment we also need to update its layout
     if (withStencil) {
-        GrVkStencilAttachment* vkStencil =
-                (GrVkStencilAttachment*) fRenderTarget->renderTargetPriv().getStencilAttachment();
+        auto* vkStencil =
+                static_cast<GrVkStencilAttachment*>(fRenderTarget->getStencilAttachment());
         SkASSERT(vkStencil);
 
         // We need the write and read access bits since we may load and store the stencil.
@@ -281,7 +281,7 @@ void GrVkOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool i
         return;
     }
 
-    GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
+    GrStencilAttachment* sb = fRenderTarget->getStencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);

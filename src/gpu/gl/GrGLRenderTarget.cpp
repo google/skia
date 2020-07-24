@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/gl/GrGLRenderTarget.h"
+
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLRenderTarget.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
@@ -85,7 +85,7 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     fbi.fFBOID = fRTFBOID;
     fbi.fFormat = GrGLFormatToEnum(this->format());
     int numStencilBits = 0;
-    if (GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
+    if (GrStencilAttachment* stencil = this->getStencilAttachment()) {
         numStencilBits = stencil->bits();
     }
 
@@ -108,7 +108,7 @@ size_t GrGLRenderTarget::onGpuMemorySize() const {
 bool GrGLRenderTarget::completeStencilAttachment() {
     GrGLGpu* gpu = this->getGLGpu();
     const GrGLInterface* interface = gpu->glInterface();
-    GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
+    GrStencilAttachment* stencil = this->getStencilAttachment();
     if (nullptr == stencil) {
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,

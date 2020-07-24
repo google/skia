@@ -8,7 +8,6 @@
 #include "src/gpu/vk/GrVkRenderTarget.h"
 
 #include "include/gpu/GrBackendSurface.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkFramebuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -325,7 +324,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescr
     uint32_t attachmentCount = 1;
 
     if (withStencil) {
-        const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
+        const GrStencilAttachment* stencil = this->getStencilAttachment();
         SkASSERT(stencil);
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
         desc->fStencil.fFormat = vkStencil->imageFormat();
@@ -452,7 +451,7 @@ GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
 
 const GrManagedResource* GrVkRenderTarget::stencilImageResource() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
+    const GrStencilAttachment* stencil = this->getStencilAttachment();
     if (stencil) {
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
         return vkStencil->imageResource();
@@ -463,7 +462,7 @@ const GrManagedResource* GrVkRenderTarget::stencilImageResource() const {
 
 const GrVkImageView* GrVkRenderTarget::stencilAttachmentView() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
+    const GrStencilAttachment* stencil = this->getStencilAttachment();
     if (stencil) {
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
         return vkStencil->stencilView();

@@ -11,7 +11,6 @@
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"

@@ -5,15 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ops/GrDrawPathOp.h"
+
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTemplates.h"
 #include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetPriv.h"
-#include "src/gpu/ops/GrDrawPathOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 static constexpr GrUserStencilSettings kCoverPass{
@@ -61,7 +63,7 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
     GrRenderTarget* rt = flushState.drawOpArgs().proxy()->peekRenderTarget();
     stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
-                   rt->renderTargetPriv().numStencilBits());
+                   rt->numStencilBits());
 }
 
 //////////////////////////////////////////////////////////////////////////////

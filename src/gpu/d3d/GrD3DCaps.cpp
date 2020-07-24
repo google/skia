@@ -1058,8 +1058,7 @@ void GrD3DCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
 /**
  * TODO: Determine what goes in the ProgramDesc
  */
-GrProgramDesc GrD3DCaps::makeDesc(const GrRenderTarget* rt,
-                                  const GrProgramInfo& programInfo) const {
+GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
     GrProgramDesc desc;
     if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
         SkASSERT(!desc.isValid());
