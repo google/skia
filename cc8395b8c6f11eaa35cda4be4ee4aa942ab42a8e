@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "8f4bf5da_00ffb0e0",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 13069
+      },
+      "writtenOn": "2020-07-24T17:44:45Z",
+      "side": 1,
+      "message": "Oh right, yes I see now. From the Chrome side I was planning to wire in the bit_depth to the transfer matrix like we did for range adjust once we get a few more opinions on the thread. I\u0027ve reached out to our Netflix contact as well about the situation to get his opinion.\n\nSince it\u0027s just a few dozen extra bytes and enum values, I think it\u0027s worth having the extra 10/12 matrices for BT.2020 full since we\u0027ve got them correct for limited.",
+      "parentUuid": "ace0da96_a5b34fac",
+      "revId": "cc8395b8c6f11eaa35cda4be4ee4aa942ab42a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ae9915dd_acb32086",
         "filename": "src/core/SkYUVMath.cpp",
         "patchSetId": 1
