@@ -4,25 +4,18 @@
     android:versionCode="1"
     android:versionName="1.0">
 
-  <application
-      android:allowBackup="false"
-      android:label="Skottie"
-      android:theme="@android:style/Theme.Holo.Light">
-    <activity
-        android:name=".CorrectnessActivity"
-        android:exported="true">
-    </activity>
-    <activity
-        android:name=".PerfActivity"
-        android:exported="true">
-    </activity>
-    <activity android:name=".SkottieActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
-  </application>
+    <application
+        android:allowBackup="false"
+        android:label="Skottie"
+        android:theme="@android:style/Theme.Holo.Light">
+        <activity android:name=".PerfActivity" android:exported="true">
+        </activity>
+        <activity android:name=".SkottieActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 
 </manifest>
