@@ -16,6 +16,24 @@
       "revId": "ded80ef8cda0cef51bff657cc1696969dc7f856f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d6dc4ab_e4bca372",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-24T13:52:11Z",
+      "side": 1,
+      "message": "I just did the automatic clangformat on the affected lines (which is pretty standard practice at Google AFAIK). I can undo most of it but sk_bit_cast is wider than bit_cast so it will look weird if I don\u0027t at least manually fix up some of it.",
+      "parentUuid": "ded45b1d_3cc165e6",
+      "revId": "ded80ef8cda0cef51bff657cc1696969dc7f856f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
