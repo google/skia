@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d988fabd_de31d1b6",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T15:50:30Z",
+      "side": 1,
+      "message": "Doing these calculations here instead of passing in precalculated values makes this much easier to understand.",
+      "range": {
+        "startLine": 250,
+        "startChar": 0,
+        "endLine": 262,
+        "endChar": 0
+      },
+      "revId": "67f8bac129494a6caa7e8cd5e822e49d5cc454c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
