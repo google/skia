@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19dd1ad7_80f8c679",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-24T16:47:18Z",
+      "side": 1,
+      "message": "What happens if we externally compose GrFPs or runtime effects that can then be inlined as part of the whole program? Each FP had its own IRGenerator so could still produce a variable like fp_0 or ps_0. If somehow they got linked together in a way that let them get inlined together in the final program compilation, we could run into collisions again, right?\n\n.fps are particularly tricky because the C++ code is generated using independent processes, that are also independent from the process that\u0027ll run skia, so it gets even trickier to make sure the salts are unique.",
+      "revId": "698228a02b0eec86b9732422796d2b0aa934c149",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
