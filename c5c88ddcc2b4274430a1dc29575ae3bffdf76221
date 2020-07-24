@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10fa2765_8e9def3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-24T18:22:03Z",
+      "side": 1,
+      "message": "SW doesn\u0027t have any restrictions on the colortype of each level (the builder happens to make all levels be the same as the starter imageinfo, but that is secondary). What are the GPU constraints (if any) here?\n- must all levels be the same?\n- must they be the same as the \"root\"?\n",
+      "revId": "c5c88ddcc2b4274430a1dc29575ae3bffdf76221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
