@@ -125,6 +125,7 @@ DEF_TEST(Jpeg_YUV_Codec, r) {
     codec_yuv(r, "images/arrow.png", nullptr);
 }
 
+#include "include/core/SkMatrix44.h"
 #include "include/effects/SkColorMatrix.h"
 #include "src/core/SkYUVMath.h"
 
@@ -162,5 +163,51 @@ DEF_TEST(YUVMath, reporter) {
             }
             REPORTER_ASSERT(reporter, SkScalarNearlyEqual(tmp[i], expected, tolerance));
         }
+    }
+}
+
+DEF_TEST(YUVChromium, reporter) {
+    // Dump 8, 10, and 12-bit limited range BT2020 matrices, using chromium's math:
+    const float Kr = 0.2627f,
+                Kb = 0.0593f,
+                Kg = 1.0f - Kr - Kb;
+    const float u_m = 0.5f / (1.0f - Kb),
+                v_m = 0.5f / (1.0f - Kr);
+    const float data[16] = {
+                         Kr,        Kg,                Kb, 0.0f,  // Y
+                  u_m * -Kr, u_m * -Kg, u_m * (1.0f - Kb), 0.5f,  // U
+          v_m * (1.0f - Kr), v_m * -Kg,         v_m * -Kb, 0.5f,  // V
+                       0.0f,      0.0f,              0.0f, 1.0f,
+    };
+    SkMatrix44 transferMatrix;  // RGB -> YUV
+    transferMatrix.setRowMajorf(data);
+    SkDebugf("BT2020 Transfer matrix:\n");
+    transferMatrix.dump();
+
+    for (int bit_depth : {8, 10, 12}) {
+        SkMatrix44 rangeMatrix;
+        const int shift = bit_depth - 8;
+        const float a_y = 219 << shift;
+        const float c = (1 << bit_depth) - 1;
+        const float scale_y = c / a_y;
+
+        const float a_uv = 224 << shift;
+        const float scale_uv = c / a_uv;
+        const float translate_uv = (a_uv - c) / (2.0f * a_uv);
+        rangeMatrix.setScale(scale_y, scale_uv, scale_uv);
+        rangeMatrix.postTranslate(-16.0f/219.0f, translate_uv, translate_uv);
+
+        SkDebugf("\n%d bit range adjust:\n", bit_depth);
+        rangeMatrix.dump();
+
+        SkMatrix44 invRangeMatrix;
+        SkAssertResult(rangeMatrix.invert(&invRangeMatrix));
+        SkDebugf("\n%d bit inv-range:\n", bit_depth);
+        invRangeMatrix.dump();
+
+        SkMatrix44 combined;
+        combined.setConcat(invRangeMatrix, transferMatrix);
+        SkDebugf("\nCombined RGB -> YUV:\n");
+        combined.dump();
     }
 }
