@@ -16,6 +16,23 @@
       "revId": "85f6023066b936f6e3d3310a3131874036111329",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3639a05a_1330974b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-24T13:06:59Z",
+      "side": 1,
+      "message": "Going to hold off on this - suppressing inlining means that the raster backend (which doesn\u0027t support function calls) regresses.",
+      "revId": "85f6023066b936f6e3d3310a3131874036111329",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
