@@ -16,6 +16,24 @@
       "revId": "05a66e2d41a0aec7a7edda573fda375642f0ccfb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a442887a_4a139b00",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-24T15:23:39Z",
+      "side": 1,
+      "message": "I think the right answer is that you can only get hold of a Target* while in a single-threaded state.",
+      "parentUuid": "3fc08d2f_5f6d239f",
+      "revId": "05a66e2d41a0aec7a7edda573fda375642f0ccfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
