@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fc08d2f_5f6d239f",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-24T14:36:30Z",
+      "side": 1,
+      "message": "Is there any checks we could add to catch violations of this ?",
+      "revId": "05a66e2d41a0aec7a7edda573fda375642f0ccfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
