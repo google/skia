@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "4a5125f3_0b34a2dd",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-24T15:29:32Z",
+      "side": 1,
+      "message": "Never mind, just realized that alpha is always padded into the color value if not given, making a much cleaner check possible.\nDone.",
+      "parentUuid": "8e7b2904_63b22159",
+      "revId": "cbcbc367b89b1e9f30854df5481150c759709240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95f44cc7_d32837cc",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
         "patchSetId": 1
