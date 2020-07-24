@@ -214,6 +214,15 @@ DEF_TEST(MipMap_F16, reporter) {
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 
+static void fill_in_mips(SkMipmapBuilder* builder, sk_sp<SkImage> img) {
+    int count = builder->countLevels();
+    for (int i = 0; i < count; ++i) {
+        SkPixmap pm = builder->level(i);
+        auto surf = SkSurface::MakeRasterDirect(pm);
+        surf->getCanvas()->drawImageRect(img, SkRect::MakeIWH(pm.width(), pm.height()), nullptr);
+    }
+}
+
 DEF_TEST(image_mip_factory, reporter) {
     // TODO: what do to about lazy images and mipmaps?
     auto img = GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
@@ -224,15 +233,25 @@ DEF_TEST(image_mip_factory, reporter) {
     REPORTER_ASSERT(reporter, img1->hasMipmaps());
 
     SkMipmapBuilder builder(img->imageInfo());
-    int count = builder.countLevels();
-    for (int i = 0; i < count; ++i) {
-        SkPixmap pm = builder.level(i);
-        auto surf = SkSurface::MakeRasterDirect(pm);
-        surf->getCanvas()->drawImageRect(img, SkRect::MakeIWH(pm.width(), pm.height()), nullptr);
-    }
+    fill_in_mips(&builder, img);
+
     auto img2 = img->withMipmaps(builder.detach());
     REPORTER_ASSERT(reporter, !builder.detach());
     REPORTER_ASSERT(reporter, img.get()  != img2.get());
     REPORTER_ASSERT(reporter, img1.get() != img2.get());
     REPORTER_ASSERT(reporter, img2->hasMipmaps());
+}
+
+DEF_TEST(image_mip_mismatch, reporter) {
+    auto img = GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
+
+    // pretend we're a different size
+    SkImageInfo info = img->imageInfo().makeWH(img->width() + 2, img->height() - 3);
+    SkMipmapBuilder builder(info);
+    fill_in_mips(&builder, img);
+
+    auto img2 = img->withMipmaps(builder.detach());
+    // we should fail to create a new image, since our built mips is not size-compatible
+    // with img's dimensions.
+    REPORTER_ASSERT(reporter, img.get() == img2.get());
 }
