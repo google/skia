@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9aabb11_1719caf2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-24T16:03:59Z",
+      "side": 1,
+      "message": "So the idea is that no matter how you move around pixel positioned bitmaps they\u0027re going to be the same bitmap. The actual locations of those bitmaps may need to be regenerated (the offsets between them may change), but the bitmaps themselves won\u0027t ever need to be regenerated.\n\nWe don\u0027t have \u0027subpixel bitmaps\u0027 (well, we kinda do with SDF, but we don\u0027t call them bitmaps here) so there isn\u0027t really any way to apply that logic to subpixel positioned things (without uploading the whole set of subpixel bitmaps and letting the shaders pick).",
+      "revId": "243a57435b99c9c2a96056bc0a1324fd38098d3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
