@@ -376,7 +376,7 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
         placedFootprints[i].Offset += slice.fOffset;
     }
 
-    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer);
+    ID3D12Resource* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer)->d3dResource();
     fCurrentDirectCommandList->copyBufferToTexture(d3dBuffer, d3dTex.get(), mipLevelCount,
                                                    placedFootprints.get(), 0, 0);
 
@@ -474,12 +474,12 @@ void GrD3DGpu::copySurfaceAsCopyTexture(GrSurface* dst, GrSurface* src,
     srcBox.front = 0;
     srcBox.back = 1;
     // TODO: use copyResource if copying full resource and sizes match
-    fCurrentDirectCommandList->copyTextureRegion(dstResource->resource(),
-                                                 &dstLocation,
-                                                 dstPoint.fX, dstPoint.fY,
-                                                 srcResource->resource(),
-                                                 &srcLocation,
-                                                 &srcBox);
+    fCurrentDirectCommandList->copyTextureRegionToTexture(dstResource->resource(),
+                                                          &dstLocation,
+                                                          dstPoint.fX, dstPoint.fY,
+                                                          srcResource->resource(),
+                                                          &srcLocation,
+                                                          &srcBox);
 
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
@@ -587,8 +587,9 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     // Need to change the resource state to COPY_SOURCE in order to download from it
     texResource->setResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
-    fCurrentDirectCommandList->copyTextureRegion(d3dBuf->resource(), &dstLocation, 0, 0,
-                                                 texResource->resource(), &srcLocation, &srcBox);
+    fCurrentDirectCommandList->copyTextureRegionToBuffer(transferBuffer, &dstLocation, 0, 0,
+                                                         texResource->resource(), &srcLocation,
+                                                         &srcBox);
     this->submitDirectCommandList(SyncQueue::kForce);
 
     const void* mappedMemory = transferBuffer->map();
@@ -714,7 +715,7 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
         placedFootprints[i].Offset += slice.fOffset;
     }
 
-    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer);
+    ID3D12Resource* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer)->d3dResource();
     fCurrentDirectCommandList->copyBufferToTexture(d3dBuffer, tex, mipLevelCount,
                                                    placedFootprints.get(), left, top);
 
@@ -1146,7 +1147,7 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         placedFootprints[i].Offset += slice.fOffset;
     }
 
-    GrD3DBuffer* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer);
+    ID3D12Resource* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer)->d3dResource();
     cmdList->copyBufferToTexture(d3dBuffer, texture.get(), mipLevelCount, placedFootprints.get(), 0,
                                  0);
 
@@ -1252,6 +1253,17 @@ void GrD3DGpu::addResourceBarriers(sk_sp<GrManagedResource> resource,
 
     fCurrentDirectCommandList->resourceBarrier(std::move(resource), numBarriers, barriers);
 }
+
+void GrD3DGpu::addBufferResourceBarriers(GrD3DBuffer* buffer,
+                                         int numBarriers,
+                                         D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const {
+    SkASSERT(fCurrentDirectCommandList);
+    SkASSERT(buffer);
+
+    fCurrentDirectCommandList->resourceBarrier(nullptr, numBarriers, barriers);
+    fCurrentDirectCommandList->addGrBuffer(sk_ref_sp<const GrBuffer>(buffer));
+}
+
 
 void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
         GrSurfaceProxy* proxies[],

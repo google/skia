@@ -91,6 +91,10 @@ public:
                              int numBarriers,
                              D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
 
+    void addBufferResourceBarriers(GrD3DBuffer* buffer,
+                                   int numBarriers,
+                                   D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
+
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence) override;
     void deleteFence(GrFence) const override {}
