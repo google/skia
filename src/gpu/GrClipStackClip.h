@@ -28,9 +28,9 @@ public:
             , fMatrixProvider(matrixProvider) {}
 
     SkIRect getConservativeBounds() const final;
-    Effect apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
+    Effect apply(GrRecordingContext*, GrRenderTargetContext*, GrAAType aaType,
                      bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final;
-    PreClipResult preApply(const SkRect& drawBounds) const final;
+    PreClipResult preApply(const SkRect& drawBounds, GrAAType aaType) const final;
 
     sk_sp<GrTextureProxy> testingOnly_createClipMask(GrRecordingContext*) const;
     static const char kMaskTestTag[];
@@ -50,11 +50,11 @@ private:
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
-    GrSurfaceProxyView createAlphaClipMask(GrRecordingContext*, const GrReducedClip&) const;
+    GrSurfaceProxyView createAlphaClipMask(GrRecordingContext*, const GrReducedClip&, bool* cached) const;
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
     GrSurfaceProxyView createSoftwareClipMask(GrRecordingContext*, const GrReducedClip&,
-                                              GrRenderTargetContext*) const;
+                                              GrRenderTargetContext*, bool* cached) const;
 
     static bool UseSWOnlyPath(GrRecordingContext*,
                               bool hasUserStencilSettings,

@@ -56,6 +56,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     SkRect stackBounds;
     bool iior;
     stack.getBounds(&stackBounds, &stackBoundsType, &iior);
+    fElementsConsidered++;
 
     if (GrClip::IsOutsideClip(stackBounds, queryBounds)) {
         bool insideOut = SkClipStack::kInsideOut_BoundsType == stackBoundsType;
@@ -73,8 +74,9 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
             return;
         }
 
-        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+        fElementsConsidered++;
 
+        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
         if (!iter.prev()->isAA() || GrClip::IsPixelAligned(stackBounds)) {
             // The clip is a non-aa rect. Here we just implement the entire thing using fScissor.
             stackBounds.round(&fScissor);
@@ -167,6 +169,8 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
     int numAAElements = 0;
     while (InitialTriState::kUnknown == initialTriState) {
         const Element* element = iter.prev();
+        fElementsConsidered++;
+
         if (nullptr == element) {
             initialTriState = InitialTriState::kAllIn;
             break;
@@ -866,13 +870,16 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 // Create a 1-bit clip mask in the stencil buffer.
 
 bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
-                                        GrRenderTargetContext* renderTargetContext) const {
+                                        GrRenderTargetContext* renderTargetContext,
+                                        bool* cached) const {
     GrStencilMaskHelper helper(context, renderTargetContext);
     if (!helper.init(fScissor, this->maskGenID(), fWindowRects, this->numAnalyticElements())) {
         // The stencil mask doesn't need updating
+        *cached = true;
         return true;
     }
 
+    *cached = false;
     helper.clear(InitialState::kAllIn == this->initialState());
 
     // walk through each clip element and perform its set op with the existing clip.
@@ -902,7 +909,11 @@ int GrReducedClip::numAnalyticElements() const {
 
 std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticElements(
         GrRecordingContext* context, const SkMatrixProvider& matrixProvider,
-        GrCoverageCountingPathRenderer* ccpr, uint32_t opsTaskID) {
+        GrCoverageCountingPathRenderer* ccpr, uint32_t opsTaskID,
+        int* analyticFPCount, int* ccprFPCount) {
+    *analyticFPCount = fNumAnalyticElements;
+    *ccprFPCount = fCCPRClipPaths.count();
+
     // Combine the analytic FP with any CCPR clip processors.
     std::unique_ptr<GrFragmentProcessor> clipFP = std::move(fAnalyticFP);
     fNumAnalyticElements = 0;
@@ -941,4 +952,3 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticEleme
                ? nullptr
                : GrFragmentProcessor::RunInSeries(&seriesFPs.front(), seriesFPs.size());
 }
-

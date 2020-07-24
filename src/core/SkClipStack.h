@@ -207,6 +207,7 @@ public:
 
     private:
         friend class SkClipStack;
+        friend class GrReducedClip;
 
         SkTLazy<SkPath> fDeviceSpacePath;
         SkRRect fDeviceSpaceRRect;

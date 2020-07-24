@@ -169,7 +169,7 @@ private:
     SkIRect getConservativeBounds() const final {
         return SkIRect::MakeXYWH(fX, fY, fMask.width(), fMask.height());
     }
-    Effect apply(GrRecordingContext* ctx, GrRenderTargetContext*, bool, bool,
+    Effect apply(GrRecordingContext* ctx, GrRenderTargetContext*, GrAAType, bool,
                      GrAppliedClip* out, SkRect* bounds) const override {
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                     GrSamplerState::Filter::kNearest);
@@ -268,7 +268,8 @@ void WindowRectanglesMaskGM::visualizeStencilMask(GrRecordingContext* ctx,
     // Draw a checker pattern into the stencil buffer so we can visualize the regions left untouched
     // by the clip mask generation.
     this->stencilCheckerboard(rtc, false);
-    reducedClip.drawStencilClipMask(ctx, rtc);
+    bool cached;
+    reducedClip.drawStencilClipMask(ctx, rtc, &cached);
 
     // Now visualize the stencil mask by covering the entire render target. The regions inside
     // window rectangles or outside the scissor should still have the initial checkerboard intact.

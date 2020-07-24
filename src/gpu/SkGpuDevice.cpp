@@ -10,6 +10,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPicture.h"
+// #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkRuntimeEffect.h"
@@ -131,10 +132,17 @@ SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
                     renderTargetContext->surfaceProps())
         , fContext(SkRef(context))
         , fRenderTargetContext(std::move(renderTargetContext))
+#if SK_USE_NEW_GR_CLIP_STACK
+        , fClip(SkIRect::MakeWH(fRenderTargetContext->width(),
+                                fRenderTargetContext->height()),
+                &this->asMatrixProvider()) {
+#else
         , fClip(fRenderTargetContext->dimensions(), &this->cs(), &this->asMatrixProvider()) {
+#endif
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
+    // fClip.save();
 }
 
 std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
@@ -257,6 +265,62 @@ void SkGpuDevice::replaceRenderTargetContext(SkSurface::ContentChangeMode mode) 
     }
     this->replaceRenderTargetContext(std::move(newRTC), mode);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#if SK_USE_NEW_GR_CLIP_STACK
+
+void SkGpuDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
+    SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+
+    if (globalRgn.isRect()) {
+        fClip.clipRect(this->globalToDevice(), SkRect::Make(globalRgn.getBounds()), GrAA::kNo, op);
+    } else {
+        SkPath path;
+        globalRgn.getBoundaryPath(&path);
+        fClip.clipPath(this->globalToDevice(), path, GrAA::kNo, op);
+    }
+}
+
+void SkGpuDevice::onAsRgnClip(SkRegion* region) const {
+    SkRegion deviceBounds(fClip.getConservativeBounds());
+    for (const GrClipStack::Element& e : fClip) {
+        SkRegion tmp;
+        if (e.fShape.isRect() && e.fLocalToDevice.isIdentity()) {
+            tmp.setRect(e.fShape.rect().roundOut());
+        } else {
+            SkPath tmpPath;
+            e.fShape.asPath(&tmpPath);
+            tmpPath.transform(e.fLocalToDevice);
+            tmp.setPath(tmpPath, deviceBounds);
+        }
+
+        region->op(tmp, (SkRegion::Op) e.fOp);
+    }
+}
+
+bool SkGpuDevice::onClipIsAA() const {
+    for (const GrClipStack::Element& e : fClip) {
+        if (e.fAA == GrAA::kYes) {
+            return true;
+        }
+    }
+    return false;
+}
+
+SkBaseDevice::ClipType SkGpuDevice::onGetClipType() const {
+    GrClipStack::ClipState state = fClip.clipState();
+    if (state == GrClipStack::ClipState::kEmpty) {
+        return ClipType::kEmpty;
+    } else if (state == GrClipStack::ClipState::kDeviceRect ||
+               state == GrClipStack::ClipState::kWideOpen) {
+        return ClipType::kRect;
+    } else {
+        return ClipType::kComplex;
+    }
+}
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

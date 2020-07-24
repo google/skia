@@ -1,0 +1,30 @@
+draw count:         155897
+wide open count:    103240
+unclipped count:    277
+skipped count:      2094
+scissor-only count: 22192
+analytic count:     7354
+ccpr count:         13276
+mask count:         7464
+cached count:       1532
+considered:         69009
+Considered count distribution:
+0: 120746
+1: 10418
+2: 20309
+3: 554
+4: 3316
+5: 277
+6: 277
+Analytic complexity distribution:
+0: 42932
+1: 7354
+CCPR complexity distribution:
+0: 37010
+1: 1108
+2: 12168
+
+Mask complexity distribution:
+0: 42822
+1: 3064
+2: 4400

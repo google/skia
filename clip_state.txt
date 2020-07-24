@@ -1,0 +1,2 @@
+empty, scissor-only, considered, analytic, ccpr, mask, cached
+1, 0, 1, 1, 0, 0, 0

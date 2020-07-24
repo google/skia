@@ -35,7 +35,7 @@ typedef GrReducedClip::ElementList ElementList;
 
 const char GrClipStackClip::kMaskTestTag[] = "clip_mask";
 
-GrClip::PreClipResult GrClipStackClip::preApply(const SkRect& drawBounds) const {
+GrClip::PreClipResult GrClipStackClip::preApply(const SkRect& drawBounds, GrAAType aaType) const {
     SkIRect deviceRect = SkIRect::MakeSize(fDeviceSize);
     SkRect rect = SkRect::Make(deviceRect);
     if (!rect.intersect(drawBounds) || (fStack && fStack->isEmpty(deviceRect))) {
@@ -191,7 +191,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
 // scissor, or entirely software
 GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
                                           GrRenderTargetContext* renderTargetContext,
-                                          bool useHWAA, bool hasUserStencilSettings,
+                                          GrAAType aa, bool hasUserStencilSettings,
                                           GrAppliedClip* out, SkRect* bounds) const {
     SkASSERT(renderTargetContext->width() == fDeviceSize.fWidth &&
              renderTargetContext->height() == fDeviceSize.fHeight);
@@ -214,7 +214,7 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
 
     int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
     int maxAnalyticElements = kMaxAnalyticElements;
-    if (renderTargetContext->numSamples() > 1 || useHWAA || hasUserStencilSettings) {
+    if (renderTargetContext->numSamples() > 1 || aa == GrAAType::kMSAA || hasUserStencilSettings) {
         // Disable analytic clips when we have MSAA. In MSAA we never conflate coverage and opacity.
         maxAnalyticElements = 0;
         // We disable MSAA when avoiding stencil.
@@ -224,6 +224,8 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
 
     GrReducedClip reducedClip(*fStack, devBounds, context->priv().caps(), maxWindowRectangles,
                               maxAnalyticElements, ccpr ? maxAnalyticElements : 0);
+    out->fElementsConsidered = reducedClip.fElementsConsidered;
+
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return Effect::kClippedOut;
@@ -252,8 +254,8 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     // The opsTask ID must not be looked up until AFTER producing the clip mask (if any). That step
     // can cause a flush or otherwise change which opstask our draw is going into.
     uint32_t opsTaskID = renderTargetContext->getOpsTask()->uniqueID();
-    if (auto clipFPs = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider, ccpr,
-                                                                   opsTaskID)) {
+    if (auto clipFPs = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider, ccpr, opsTaskID,
+                &out->fAnalyticElements, &out->fCCPRElements)) {
         out->addCoverageFP(std::move(clipFPs));
         effect = Effect::kClipped;
     }
@@ -273,6 +275,8 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
     SkASSERT(rtIBounds.contains(scissor)); // Mask shouldn't be larger than the RT.
 #endif
 
+    out->fMaskElements = reducedClip.maskElements().count();
+
     // MIXED SAMPLES TODO: We may want to explore using the stencil buffer for AA clipping.
     if ((renderTargetContext->numSamples() <= 1 && reducedClip.maskRequiresAA()) ||
         context->priv().caps()->avoidStencilBuffers() ||
@@ -281,9 +285,10 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
-            result = this->createSoftwareClipMask(context, reducedClip, renderTargetContext);
+            result = this->createSoftwareClipMask(context, reducedClip, renderTargetContext,
+                                                  &out->fMaskInCache);
         } else {
-            result = this->createAlphaClipMask(context, reducedClip);
+            result = this->createAlphaClipMask(context, reducedClip, &out->fMaskInCache);
         }
 
         if (result) {
@@ -304,7 +309,7 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         }
     }
 
-    reducedClip.drawStencilClipMask(context, renderTargetContext);
+    reducedClip.drawStencilClipMask(context, renderTargetContext, &out->fMaskInCache);
     out->hardClip().addStencilClip(reducedClip.maskGenID());
     return true;
 }
@@ -347,13 +352,15 @@ static GrSurfaceProxyView find_mask(GrProxyProvider* provider, const GrUniqueKey
 }
 
 GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* context,
-                                                        const GrReducedClip& reducedClip) const {
+                                                        const GrReducedClip& reducedClip,
+                                                        bool* cached) const {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticElements(), &key);
 
     if (auto cachedView = find_mask(context->priv().proxyProvider(), key)) {
+        *cached = true;
         return cachedView;
     }
 
@@ -457,7 +464,8 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
 
 GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
         GrRecordingContext* context, const GrReducedClip& reducedClip,
-        GrRenderTargetContext* renderTargetContext) const {
+        GrRenderTargetContext* renderTargetContext,
+        bool* cached) const {
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticElements(), &key);
@@ -465,6 +473,7 @@ GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     if (auto cachedView = find_mask(proxyProvider, key)) {
+        *cached = true;
         return cachedView;
     }
 

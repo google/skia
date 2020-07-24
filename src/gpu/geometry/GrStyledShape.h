@@ -78,6 +78,10 @@ public:
         this->simplify();
     }
 
+    GrStyledShape(const GrShape& shape, const GrStyle& style) : fShape(shape), fStyle(style) {
+        this->simplify();
+    }
+
     GrStyledShape(const GrStyledShape&);
 
     static GrStyledShape MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
