@@ -58,8 +58,9 @@ GrProcessorTestData::ViewInfo GrProcessorTestData::randomAlphaOnlyView() {
 }
 
 template <class ProcessorSmartPtr>
-GrProcessorTestFactory<ProcessorSmartPtr>::GrProcessorTestFactory(MakeProc makeProc) {
-    fMakeProc = makeProc;
+GrProcessorTestFactory<ProcessorSmartPtr>::GrProcessorTestFactory(MakeProc makeProc,
+                                                                  const char* name)
+        : fMakeProc(makeProc), fName(name) {
     GetFactories()->push_back(this);
 }
 
@@ -79,7 +80,9 @@ ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::MakeIdx(int idx,
     SkASSERT(idx < GetFactories()->count());
     GrProcessorTestFactory<ProcessorSmartPtr>* factory = (*GetFactories())[idx];
     ProcessorSmartPtr processor = factory->fMakeProc(data);
-    SkASSERT(processor);
+    if (processor == nullptr) {
+        SK_ABORT("%s: TestCreate returned null", factory->fName.c_str());
+    }
     return processor;
 }
 

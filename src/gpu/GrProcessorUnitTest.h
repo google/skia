@@ -87,7 +87,7 @@ class GrProcessorTestFactory : private SkNoncopyable {
 public:
     using MakeProc = ProcessorSmartPtr (*)(GrProcessorTestData*);
 
-    GrProcessorTestFactory(MakeProc makeProc);
+    GrProcessorTestFactory(MakeProc makeProc, const char* name);
 
     /** Pick a random factory function and create a processor.  */
     static ProcessorSmartPtr Make(GrProcessorTestData* data);
@@ -104,6 +104,7 @@ private:
     static SkTArray<GrProcessorTestFactory<ProcessorSmartPtr>*, true>* GetFactories();
 
     MakeProc fMakeProc;
+    SkString fName;
 };
 
 using GrFragmentProcessorTestFactory = GrProcessorTestFactory<std::unique_ptr<GrFragmentProcessor>>;
@@ -147,10 +148,10 @@ private:
  *      GrProcessor* TestCreate(GrProcessorTestData*);
  */
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Effect) \
-    GrFragmentProcessorTestFactory Effect::gTestFactory(Effect::TestCreate)
+    GrFragmentProcessorTestFactory Effect::gTestFactory(Effect::TestCreate, #Effect)
 
 #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(Effect) \
-    GrGeometryProcessorTestFactory Effect::gTestFactory(Effect::TestCreate)
+    GrGeometryProcessorTestFactory Effect::gTestFactory(Effect::TestCreate, #Effect)
 
 #define GR_DEFINE_XP_FACTORY_TEST(Factory)                                                         \
     GrXPFactoryTestFactory Factory::gTestFactory(Factory::TestGet)
