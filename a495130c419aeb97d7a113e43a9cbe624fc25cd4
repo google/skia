@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a170130c_76f226c8",
+        "filename": "resources/skottie/skottie-inline-fonts.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-24T20:24:09Z",
+      "side": 1,
+      "message": "Internally this font claims to be copyright Adobe Systems Incorporated. We should find a smaller open source font to use.",
+      "range": {
+        "startLine": 1,
+        "startChar": 88,
+        "endLine": 1,
+        "endChar": 98
+      },
+      "revId": "a495130c419aeb97d7a113e43a9cbe624fc25cd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
