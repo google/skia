@@ -178,31 +178,22 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
 }
 
 static GrSLType glsltype(const Context& context, const Type& type) {
-    if (type == *context.fFloat_Type) {
-        return GrSLType::kFloat_GrSLType;
-    } else if (type == *context.fHalf_Type) {
-        return GrSLType::kHalf_GrSLType;
-    } else if (type == *context.fFloat2_Type) {
-        return GrSLType::kFloat2_GrSLType;
-    } else if (type == *context.fHalf2_Type) {
-        return GrSLType::kHalf2_GrSLType;
-    } else if (type == *context.fFloat3_Type) {
-        return GrSLType::kFloat3_GrSLType;
-    } else if (type == *context.fHalf3_Type) {
-        return GrSLType::kHalf3_GrSLType;
-    } else if (type == *context.fFloat4_Type) {
-        return GrSLType::kFloat4_GrSLType;
-    } else if (type == *context.fHalf4_Type) {
-        return GrSLType::kHalf4_GrSLType;
-    } else if (type == *context.fFloat4x4_Type) {
-        return GrSLType::kFloat4x4_GrSLType;
-    } else if (type == *context.fHalf4x4_Type) {
-        return GrSLType::kHalf4x4_GrSLType;
-    } else if (type == *context.fVoid_Type) {
-        return GrSLType::kVoid_GrSLType;
-    }
-    SkASSERT(false);
-    return GrSLType::kVoid_GrSLType;
+    if (type == *context.fFloat_Type)    { return kFloat_GrSLType;    }
+    if (type == *context.fHalf_Type)     { return kHalf_GrSLType;     }
+    if (type == *context.fFloat2_Type)   { return kFloat2_GrSLType;   }
+    if (type == *context.fHalf2_Type)    { return kHalf2_GrSLType;    }
+    if (type == *context.fFloat3_Type)   { return kFloat3_GrSLType;   }
+    if (type == *context.fHalf3_Type)    { return kHalf3_GrSLType;    }
+    if (type == *context.fFloat4_Type)   { return kFloat4_GrSLType;   }
+    if (type == *context.fHalf4_Type)    { return kHalf4_GrSLType;    }
+    if (type == *context.fFloat2x2_Type) { return kFloat2x2_GrSLType; }
+    if (type == *context.fHalf2x2_Type)  { return kHalf2x2_GrSLType;  }
+    if (type == *context.fFloat3x3_Type) { return kFloat3x3_GrSLType; }
+    if (type == *context.fHalf3x3_Type)  { return kHalf3x3_GrSLType;  }
+    if (type == *context.fFloat4x4_Type) { return kFloat4x4_GrSLType; }
+    if (type == *context.fHalf4x4_Type)  { return kHalf4x4_GrSLType;  }
+    if (type == *context.fVoid_Type)     { return kVoid_GrSLType;     }
+    SK_ABORT("Unsupported type");
 }
 
 
