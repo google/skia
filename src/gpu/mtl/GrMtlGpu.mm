@@ -112,18 +112,12 @@ sk_sp<GrGpu> GrMtlGpu::Make(GrDirectContext* direct, const GrContextOptions& opt
     return sk_sp<GrGpu>(new GrMtlGpu(direct, options, device, queue, featureSet));
 }
 
-// This constant determines how many OutstandingCommandBuffers are allocated together as a block in
-// the deque. As such it needs to balance allocating too much memory vs. incurring
-// allocation/deallocation thrashing. It should roughly correspond to the max number of outstanding
-// command buffers we expect to see.
-static const int kDefaultOutstandingAllocCnt = 8;
-
 GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
                    id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet)
         : INHERITED(direct)
         , fDevice(device)
         , fQueue(queue)
-        , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
+        , fCmdBuffer(nullptr)
         , fCompiler(new SkSL::Compiler())
         , fResourceProvider(this)
         , fDisconnected(false)
@@ -141,25 +135,24 @@ GrMtlGpu::~GrMtlGpu() {
 void GrMtlGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);
 
-    if (!fDisconnected) {
+    if (DisconnectType::kCleanup == type) {
         this->destroyResources();
+    } else {
+        delete fCmdBuffer;
+        fCmdBuffer = nullptr;
+
+        fResourceProvider.destroyResources();
+
+        fQueue = nil;
+        fDevice = nil;
+
         fDisconnected = true;
     }
 }
 
 void GrMtlGpu::destroyResources() {
+    // Will implicitly delete the command buffer
     this->submitCommandBuffer(SyncQueue::kForce_SyncQueue);
-
-    // We used a placement new for each object in fOutstandingCommandBuffers, so we're responsible
-    // for calling the destructor on each of them as well.
-    while (!fOutstandingCommandBuffers.empty()) {
-        OutstandingCommandBuffer* buffer =
-                (OutstandingCommandBuffer*)fOutstandingCommandBuffers.front();
-        this->deleteFence(buffer->fFence);
-        buffer->~OutstandingCommandBuffer();
-        fOutstandingCommandBuffers.pop_front();
-    }
-
     fResourceProvider.destroyResources();
 
     fQueue = nil;
@@ -182,44 +175,18 @@ void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {
 }
 
 GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
-    if (!fCurrentCmdBuffer) {
-        fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
-
-        // This should be done after we have a new command buffer in case the freeing of any
-        // resources held by a finished command buffer causes us to send a new command to the gpu
-        // (like changing the resource state).
-        this->checkForFinishedCommandBuffers();
+    if (!fCmdBuffer) {
+        fCmdBuffer = GrMtlCommandBuffer::Create(fQueue);
     }
-    return fCurrentCmdBuffer.get();
+    return fCmdBuffer;
 }
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
-    // TODO: handle sync with empty command buffer
-    if (fCurrentCmdBuffer) {
-        fResourceProvider.addBufferCompletionHandler(fCurrentCmdBuffer.get());
-
-        GrFence fence = this->insertFence();
-        new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(
-                fCurrentCmdBuffer, fence);
-
-        fCurrentCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
-        fCurrentCmdBuffer.reset();
-    }
-}
-
-void GrMtlGpu::checkForFinishedCommandBuffers() {
-    // Iterate over all the outstanding command buffers to see if any have finished. The command
-    // buffers are in order from oldest to newest, so we start at the front to check if their fence
-    // has signaled. If so we pop it off and move onto the next.
-    // Repeat till we find a command list that has not finished yet (and all others afterwards are
-    // also guaranteed to not have finished).
-    OutstandingCommandBuffer* front = (OutstandingCommandBuffer*)fOutstandingCommandBuffers.front();
-    while (front && this->waitFence(front->fFence)) {
-        // Since we used placement new we are responsible for calling the destructor manually.
-        this->deleteFence(front->fFence);
-        front->~OutstandingCommandBuffer();
-        fOutstandingCommandBuffers.pop_front();
-        front = (OutstandingCommandBuffer*)fOutstandingCommandBuffers.front();
+    if (fCmdBuffer) {
+        fResourceProvider.addBufferCompletionHandler(fCmdBuffer);
+        fCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
+        delete fCmdBuffer;
+        fCmdBuffer = nullptr;
     }
 }
 
@@ -1287,6 +1254,7 @@ bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int w
     }
 
     GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer);
+    grMtlBuffer->bind();
 
     size_t transBufferRowBytes = bpp * width;
     size_t transBufferImageBytes = transBufferRowBytes * height;
