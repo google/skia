@@ -284,57 +284,50 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
     fUnresolvedBlocks.emplace_back(unresolved);
 }
 
-// Glue whitespaces to the next/prev unresolved blocks
-// (so we don't have chinese text with english whitespaces broken into millions of tiny runs)
 void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
 
     auto text = fCurrentRun->fMaster->text();
     size_t unresolvedGlyphs = 0;
 
-    TextIndex whitespacesStart = EMPTY_INDEX;
     GlyphRange block = EMPTY_RANGE;
     for (size_t i = 0; i < fCurrentRun->size(); ++i) {
 
-        const char* cluster = text.begin() + clusterIndex(i);
-        SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
-        bool isControl8 = isControl(codepoint);
-        bool isWhitespace8 = isWhitespace(codepoint);
-
         // Inspect the glyph
         auto glyph = fCurrentRun->fGlyphs[i];
-        if (glyph == 0 && !isControl8) { // Unresolved glyph and not control codepoint
-            ++unresolvedGlyphs;
-            if (block.start == EMPTY_INDEX) {
-                // Start new unresolved block
-                // (all leading whitespaces glued to the resolved part if it's not empty)
-                block.start = whitespacesStart == 0 ? 0 : i;
-                block.end = EMPTY_INDEX;
-            } else {
-                // Keep skipping unresolved block
-            }
-        } else { // Resolved glyph or control codepoint
+        if (glyph != 0) {
             if (block.start == EMPTY_INDEX) {
                 // Keep skipping resolved code points
-            } else if (isWhitespace8) {
-                // Glue whitespaces after to the unresolved block
-                ++unresolvedGlyphs;
+                continue;
+            }
+            // This is the end of unresolved block
+            block.end = i;
+        } else {
+            const char* cluster = text.begin() + clusterIndex(i);
+            SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
+            if (isControl(codepoint)) {
+                // This codepoint does not have to be resolved; let's pretend it's resolved
+                if (block.start == EMPTY_INDEX) {
+                    // Keep skipping resolved code points
+                    continue;
+                }
+                // This is the end of unresolved block
+                block.end = i;
             } else {
-                // This is the end of unresolved block (all trailing whitespaces glued to the resolved part)
-                block.end = whitespacesStart == EMPTY_INDEX ? i : whitespacesStart;
-                sortOutUnresolvedBLock(block);
-                block = EMPTY_RANGE;
-                whitespacesStart = EMPTY_INDEX;
+                ++unresolvedGlyphs;
+                if (block.start == EMPTY_INDEX) {
+                    // Start new unresolved block
+                    block.start = i;
+                    block.end = EMPTY_INDEX;
+                } else {
+                    // Keep skipping unresolved block
+                }
+                continue;
             }
         }
 
-        // Keep updated the start of the latest whitespaces patch
-        if (isWhitespace8) {
-            if (whitespacesStart == EMPTY_INDEX) {
-                whitespacesStart = i;
-            }
-        } else {
-            whitespacesStart = EMPTY_INDEX;
-        }
+        // Found an unresolved block
+        sortOutUnresolvedBLock(block);
+        block = EMPTY_RANGE;
     }
 
     // One last block could have been left

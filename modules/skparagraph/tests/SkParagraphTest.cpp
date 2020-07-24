@@ -1239,7 +1239,7 @@ DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     paragraph->layout(550);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    REPORTER_ASSERT(reporter, impl->runs().size() == 4);
+    REPORTER_ASSERT(reporter, impl->runs().size() == 5);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
     REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 
@@ -3989,28 +3989,27 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 10.0, 15.0);
 
-    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 3); // From the text1 ("字典 " - including the last space)
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 2); // From the text1
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
-    REPORTER_ASSERT(reporter, impl->runs().size() == 6);
-
     // Font resolution in Skia produces 6 runs because 2 parts of "Roboto 字典 " have different
-    // script (Minikin merges the first 2 into one because of unresolved)
-    // [Apple + Unresolved ] 0, 1
-    // [Apple + Noto] 2, 3
-    // [Apple + Han] 4, 5
+    // script (Minikin merges the first 2 into one because of unresolved) [Apple + Unresolved ]
+    // [Apple + Noto] [Apple + Han]
+    REPORTER_ASSERT(reporter, impl->runs().size() == 7);
+
     auto robotoAdvance = impl->runs()[0].advance().fX +
-                         impl->runs()[1].advance().fX;
+                         impl->runs()[1].advance().fX +
+                         impl->runs()[2].advance().fX;
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(robotoAdvance, 64.199f, EPSILON50));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[2].advance().fX, 139.125f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[3].advance().fX, 27.999f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[4].advance().fX, 62.248f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[5].advance().fX, 27.999f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[3].advance().fX, 139.125f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[4].advance().fX, 27.999f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[5].advance().fX, 62.248f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[6].advance().fX, 27.999f, EPSILON100));
 
     // When a different font is resolved, then the metrics are different.
-    REPORTER_ASSERT(reporter, impl->runs()[3].correctAscent() != impl->runs()[5].correctAscent());
-    REPORTER_ASSERT(reporter, impl->runs()[3].correctDescent() != impl->runs()[5].correctDescent());
+    REPORTER_ASSERT(reporter, impl->runs()[4].correctAscent() != impl->runs()[6].correctAscent());
+    REPORTER_ASSERT(reporter, impl->runs()[4].correctDescent() != impl->runs()[6].correctDescent());
 }
 
 // Checked: NO DIFF
@@ -5457,64 +5456,4 @@ DEF_TEST(SkParagraph_LineMetricsTextAlign, reporter) {
     REPORTER_ASSERT(reporter, width[1] == width[0]);
     REPORTER_ASSERT(reporter, width[2] == width[0]);
     REPORTER_ASSERT(reporter, width[3] > width[0]); // delta == 0
-}
-
-DEF_TEST(SkParagraph_FontResolutionInRTL, reporter) {
-    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
-    if (!fontCollection->fontsFound()) return;
-    TestCanvas canvas("SkParagraph_FontResolutionInRTL.png");
-    const char* text = " אאא בּבּבּבּ אאאא בּבּ אאא בּבּבּ אאאאא בּבּבּבּ אאאא בּבּבּבּבּ ";
-    const size_t len = strlen(text);
-
-    ParagraphStyle paragraph_style;
-    paragraph_style.setMaxLines(14);
-    paragraph_style.setTextAlign(TextAlign::kRight);
-    paragraph_style.setTextDirection(TextDirection::kRtl);
-    paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-
-    TextStyle text_style;
-    text_style.setFontFamilies({SkString("Ahem")});
-    text_style.setFontSize(26);
-    text_style.setColor(SK_ColorBLACK);
-    builder.pushStyle(text_style);
-    builder.addText(text, len);
-    builder.pop();
-
-    auto paragraph = builder.Build();
-    paragraph->layout(TestCanvasWidth);
-    paragraph->paint(canvas.get(), 0, 0);
-
-    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    REPORTER_ASSERT(reporter, impl->runs().size() == 1);
-}
-
-DEF_TEST(SkParagraph_FontResolutionInLTR, reporter) {
-    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
-    if (!fontCollection->fontsFound()) return;
-    TestCanvas canvas("SkParagraph_FontResolutionInLTR.png");
-    auto text = u"abc \u01A2 \u01A2 def";
-
-    ParagraphStyle paragraph_style;
-    paragraph_style.setMaxLines(14);
-    paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-
-    TextStyle text_style;
-    text_style.setFontFamilies({SkString("Roboto")});
-    text_style.setFontSize(26);
-    text_style.setColor(SK_ColorBLACK);
-    builder.pushStyle(text_style);
-    builder.addText(text);
-    builder.pop();
-
-    auto paragraph = builder.Build();
-    paragraph->layout(TestCanvasWidth);
-    paragraph->paint(canvas.get(), 0, 0);
-
-    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    REPORTER_ASSERT(reporter, impl->runs().size() == 3);
-    REPORTER_ASSERT(reporter, impl->runs()[0].textRange().width() == 4); // "abc "
-    REPORTER_ASSERT(reporter, impl->runs()[1].textRange().width() == 5); // "{unresolved} {unresolved}"
-    REPORTER_ASSERT(reporter, impl->runs()[2].textRange().width() == 4); // " def"
 }
