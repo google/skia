@@ -158,7 +158,7 @@ public:
     /**
      * Takes ownership of the given symbol. It will be destroyed when the compiler is destroyed.
      */
-    Symbol* takeOwnership(std::unique_ptr<Symbol> symbol);
+    const Symbol* takeOwnership(std::unique_ptr<const Symbol> symbol);
 
     void error(int offset, String msg) override;
 
@@ -178,11 +178,18 @@ public:
 
     static bool IsAssignment(Token::Kind token);
 
-private:
     void processIncludeFile(Program::Kind kind, const char* src, size_t length,
                             std::shared_ptr<SymbolTable> base,
                             std::vector<std::unique_ptr<ProgramElement>>* outElements,
                             std::shared_ptr<SymbolTable>* outSymbolTable);
+
+private:
+
+    void loadGeometryIntrinsics();
+
+    void loadInterpreterIntrinsics();
+
+    void loadPipelineIntrinsics();
 
     void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
                        DefinitionMap* definitions);
@@ -219,10 +226,10 @@ private:
 
     Position position(int offset);
 
+    std::shared_ptr<SymbolTable> fGpuSymbolTable;
     std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>> fGPUIntrinsics;
     std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>> fInterpreterIntrinsics;
     std::unique_ptr<ASTFile> fGpuIncludeSource;
-    std::shared_ptr<SymbolTable> fGpuSymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
@@ -231,8 +238,10 @@ private:
     std::shared_ptr<SymbolTable> fGeometrySymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fPipelineInclude;
     std::shared_ptr<SymbolTable> fPipelineSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fInterpreterInclude;
     std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
+    std::vector<std::unique_ptr<ProgramElement>> fInterpreterInclude;
+    std::vector<std::unique_ptr<ProgramElement>> fFPInclude;
+    std::shared_ptr<SymbolTable> fFPSymbolTable;
 
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
