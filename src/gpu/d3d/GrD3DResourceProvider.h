@@ -13,8 +13,8 @@
 #include "include/private/SkTHash.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrProgramDesc.h"
-#include "src/gpu/GrRingBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandSignature.h"
+#include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
 #include "src/gpu/d3d/GrD3DCpuDescriptorManager.h"
 #include "src/gpu/d3d/GrD3DDescriptorTableManager.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
@@ -152,6 +152,8 @@ private:
 
     GrD3DCpuDescriptorManager fCpuDescriptorManager;
     GrD3DDescriptorTableManager fDescriptorTableManager;
+
+    sk_sp<GrD3DConstantRingBuffer> fConstantBuffer;
 
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
 

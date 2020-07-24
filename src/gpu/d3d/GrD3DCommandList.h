@@ -12,7 +12,7 @@
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrManagedResource.h"
-#include "src/gpu/GrRingBuffer.h"
+#include "src/gpu/d3d/GrD3DConstantRingBuffer.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 
 #include <memory>
@@ -140,7 +140,7 @@ public:
 
     void setPipelineState(sk_sp<GrD3DPipelineState> pipelineState);
 
-    void setCurrentConstantBuffer(GrRingBuffer* constantsRingBuffer);
+    void setCurrentConstantBuffer(const sk_sp<GrD3DConstantRingBuffer>& constantBuffer);
 
     void setStencilRef(unsigned int stencilRef);
     void setBlendFactor(const float blendFactor[4]);
@@ -195,8 +195,8 @@ private:
     size_t fCurrentInstanceStride;
     const GrBuffer* fCurrentIndexBuffer;
 
-    GrRingBuffer* fCurrentConstantRingBuffer;
-    GrRingBuffer::SubmitData fConstantRingBufferSubmitData;
+    GrD3DConstantRingBuffer* fCurrentConstantRingBuffer;
+    GrD3DConstantRingBuffer::SubmitData fConstantRingBufferSubmitData;
 
     D3D12_GPU_VIRTUAL_ADDRESS fCurrentConstantBufferAddress;
     D3D12_GPU_DESCRIPTOR_HANDLE fCurrentRootDescriptorTable[GrD3DRootSignature::kParamIndexCount];
