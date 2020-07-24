@@ -224,6 +224,12 @@ struct Layout {
     , fKey(kNo_Key)
     , fCType(CType::kDefault) {}
 
+    static Layout builtin(int builtin) {
+        Layout result;
+        result.fBuiltin = builtin;
+        return result;
+    }
+
     String description() const {
         String result;
         auto separator = [firstSeparator = true]() mutable -> String {

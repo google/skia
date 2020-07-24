@@ -1,5 +1,4 @@
-STRINGIFY(
-
+R"SKSL(
 // defines built-in interfaces supported by SkiaSL fragment shaders
 
 // See "enum SpvBuiltIn_" in ./spirv.h
@@ -18,5 +17,4 @@ layout(location=0,index=0,builtin=10001) out half4 sk_FragColor;
 layout(builtin=10008) half4 sk_LastFragColor;
 layout(builtin=10011) half sk_Width;
 layout(builtin=10012) half sk_Height;
-
-)
+)SKSL";

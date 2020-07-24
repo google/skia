@@ -9,13 +9,12 @@
 #define SKSL_VARIABLE
 
 #include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
-
-struct Expression;
 
 /**
  * Represents a variable, whether local, global, or a function parameter. This represents the
