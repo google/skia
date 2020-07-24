@@ -34,6 +34,23 @@
       "revId": "c5c88ddcc2b4274430a1dc29575ae3bffdf76221",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a835f99_413957e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-24T18:36:53Z",
+      "side": 1,
+      "message": "need to test for compatible colortypes as well...",
+      "revId": "c5c88ddcc2b4274430a1dc29575ae3bffdf76221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
