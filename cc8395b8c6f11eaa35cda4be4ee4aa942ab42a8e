@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "64cb568c_438f4160",
+        "filename": "src/core/SkYUVMath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-24T12:59:05Z",
+      "side": 1,
+      "message": "Yeah, I spent a while trying to reconcile the two bits of code yesterday, but it\u0027s confusing because:\n\n1) Skia\u0027s code is directly constructing the combined RGB -\u003e YUV matrix (though the transfer and range portions are easily identified/separate in the math).\n\n2) gfx\u0027s code constructs each one separately. More importantly: the transfer matrix code in gfx builds the RGB -\u003e YUV matrix. The range matrix code builds the matrix in the *other* direction (YUV -\u003e RGB). (This is obvious, when you realize that the scale factors it\u0027s producing are \u003e1).\n\n... Anyway, I gave up and just copied all of the gfx code to a test program, inverted the resulting range-adjust matrices, concat\u0027d with the transfer matrices, and then compared against the Skia ones. I tested the 8, 10, and 12 bit BT2020 matrices. Other than the \"zero\" issue from my email, all elements agreed to 6 places. So that\u0027s good.\n\nI had planned to go back and incorporate the alternate zero (512/1023, 2048/4095) for the 10 and 12 bit BT2020 today, but this raises two new questions:\n\nA) Technically, the matrix does depend on bit-depth, even for full-range, unless we just punt and assume 8-bit in that case. (From your survey, it sounds like that\u0027s not uncommon).\n\nB) Are we going to be using half-float planes at some point? How are those half-float values going to be generated? That format can exactly represent 0.5, but I assume that the values stored will really correspond to the original encoding of the planes (eg, codepoint/1023 or codepoint/4095, rounded to nearest half?)",
+      "parentUuid": "f8db5e98_247fd785",
+      "revId": "cc8395b8c6f11eaa35cda4be4ee4aa942ab42a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ae9915dd_acb32086",
         "filename": "src/core/SkYUVMath.cpp",
         "patchSetId": 1
