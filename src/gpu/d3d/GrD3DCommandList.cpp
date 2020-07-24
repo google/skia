@@ -161,16 +161,16 @@ void GrD3DCommandList::copyTextureRegion(sk_sp<GrManagedResource> dst,
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
 }
 
-void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrManagedResource> dst,
-                                          ID3D12Resource* dstBuffer, uint64_t dstOffset,
+void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrD3DBuffer> dst, uint64_t dstOffset,
                                           sk_sp<GrManagedResource> src,
                                           ID3D12Resource* srcBuffer, uint64_t srcOffset,
                                           uint64_t numBytes) {
     SkASSERT(fIsActive);
 
     this->addingWork();
-    this->addResource(dst);
-    this->addResource(src);
+    this->addResource(dst->resource());
+    this->addResource(std::move(src));
+    ID3D12Resource* dstBuffer = dst->d3dResource();
     uint64_t dstSize = dstBuffer->GetDesc().Width;
     uint64_t srcSize = srcBuffer->GetDesc().Width;
     if (dstSize == srcSize && srcSize == numBytes) {
@@ -178,6 +178,7 @@ void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrManagedResource> dst,
     } else {
         fCommandList->CopyBufferRegion(dstBuffer, dstOffset, srcBuffer, srcOffset, numBytes);
     }
+    this->addGrBuffer(std::move(dst));
 }
 
 void GrD3DCommandList::addingWork() {
