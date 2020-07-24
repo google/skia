@@ -51,7 +51,7 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
                 }
                 if (modified) {
                     SkASSERT(functions.size() > 1);
-                    return this->takeOwnership(std::unique_ptr<Symbol>(
+                    return this->takeOwnership(std::unique_ptr<const Symbol>(
                                                                 new UnresolvedFunction(functions)));
                 }
             }
@@ -60,8 +60,8 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
     return entry->second;
 }
 
-Symbol* SymbolTable::takeOwnership(std::unique_ptr<Symbol> s) {
-    Symbol* result = s.get();
+const Symbol* SymbolTable::takeOwnership(std::unique_ptr<const Symbol> s) {
+    const Symbol* result = s.get();
     fOwnedSymbols.push_back(std::move(s));
     return result;
 }
@@ -78,12 +78,15 @@ String* SymbolTable::takeOwnership(std::unique_ptr<String> n) {
     return result;
 }
 
-void SymbolTable::add(StringFragment name, std::unique_ptr<Symbol> symbol) {
+void SymbolTable::add(StringFragment name, std::unique_ptr<const Symbol> symbol) {
     this->addWithoutOwnership(name, symbol.get());
     this->takeOwnership(std::move(symbol));
 }
 
 void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
+    if (name == "sk_FragColor") {
+        SkASSERT(((Variable&) *symbol).fModifiers.fLayout.fBuiltin == 10001);
+    }
     const auto& existing = fSymbols.find(name);
     if (existing == fSymbols.end()) {
         fSymbols[name] = symbol;
@@ -93,8 +96,8 @@ void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol)
             std::vector<const FunctionDeclaration*> functions;
             functions.push_back((const FunctionDeclaration*) oldSymbol);
             functions.push_back((const FunctionDeclaration*) symbol);
-            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>(new UnresolvedFunction(std::move(
-                                                                                       functions)));
+            std::unique_ptr<const Symbol> u = std::unique_ptr<const Symbol>(
+                                                      new UnresolvedFunction(std::move(functions)));
             fSymbols[name] = this->takeOwnership(std::move(u));
         } else if (oldSymbol->fKind == Symbol::kUnresolvedFunction_Kind) {
             std::vector<const FunctionDeclaration*> functions;
@@ -102,8 +105,8 @@ void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol)
                 functions.push_back(f);
             }
             functions.push_back((const FunctionDeclaration*) symbol);
-            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>(new UnresolvedFunction(std::move(
-                                                                                       functions)));
+            std::unique_ptr<const Symbol> u = std::unique_ptr<const Symbol>(
+                                                      new UnresolvedFunction(std::move(functions)));
             fSymbols[name] = this->takeOwnership(std::move(u));
         }
     } else {
@@ -111,22 +114,14 @@ void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol)
     }
 }
 
-
-void SymbolTable::markAllFunctionsBuiltin() {
-    for (const auto& pair : fSymbols) {
-        switch (pair.second->fKind) {
-            case Symbol::kFunctionDeclaration_Kind:
-                ((FunctionDeclaration&)*pair.second).fBuiltin = true;
-                break;
-            case Symbol::kUnresolvedFunction_Kind:
-                for (auto& f : ((UnresolvedFunction&) *pair.second).fFunctions) {
-                    ((FunctionDeclaration*)f)->fBuiltin = true;
-                }
-                break;
-            default:
-                break;
+void SymbolTable::appendMapCode(String& mapCode, const Symbol* s) const {
+    for (int i = 0; i < (int) fOwnedSymbols.size(); ++i) {
+        if (fOwnedSymbols[i].get() == s) {
+            mapCode += String::printf("std::make_pair(\"%s\", %d)", String(s->fName).c_str(), i);
+            return;
         }
     }
+    SkASSERT(false);
 }
 
 std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::begin() {
