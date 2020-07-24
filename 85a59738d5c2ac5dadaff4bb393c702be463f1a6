@@ -56,6 +56,30 @@
       "revId": "85a59738d5c2ac5dadaff4bb393c702be463f1a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85fab91c_f9b979c4",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-24T14:38:36Z",
+      "side": 1,
+      "message": "I\u0027d probably change finishSubmit() to take the submitData and pull the elements out inside that (in case the submitData ever changes), but otherwise looks reasonable to me.",
+      "parentUuid": "8a4b617e_37ec377c",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 35
+      },
+      "revId": "85a59738d5c2ac5dadaff4bb393c702be463f1a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
