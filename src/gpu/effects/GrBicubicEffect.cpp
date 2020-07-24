@@ -237,7 +237,9 @@ GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp,
                                  Kernel kernel,
                                  Direction direction,
                                  Clamp clamp)
-        : INHERITED(kGrBicubicEffect_ClassID, ProcessorOptimizationFlags(fp.get()))
+        : INHERITED(kGrBicubicEffect_ClassID,
+                    ProcessorOptimizationFlags(fp.get()) &
+                            ~kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fKernel(kernel)
         , fDirection(direction)
         , fClamp(clamp) {
@@ -324,7 +326,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
             do {
                 at = static_cast<SkAlphaType>(d->fRandom->nextULessThan(kLastEnum_SkAlphaType + 1));
             } while (at == kUnknown_SkAlphaType);
-            return Make(GrProcessorUnitTest::MakeChildFP(d), at, m, kernel, direction);
+            return Make(d->inputFP(), at, m, kernel, direction);
         }
     }
 }
