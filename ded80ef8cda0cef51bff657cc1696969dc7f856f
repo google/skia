@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ded45b1d_3cc165e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-24T13:50:14Z",
+      "side": 1,
+      "message": "Please undo the unrelated shift formatting changes.",
+      "revId": "ded80ef8cda0cef51bff657cc1696969dc7f856f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
