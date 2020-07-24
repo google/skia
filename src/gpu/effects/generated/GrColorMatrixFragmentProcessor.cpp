@@ -42,12 +42,12 @@ public:
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 @if (%s) {
-    half4 inlineResult0;
-    half4 inlineArg1_0 = inputColor;
+    half4 _inlineResult0;
+    half4 _inlineArg1_0 = inputColor;
     {
-        inlineResult0 = half4(inlineArg1_0.xyz / max(inlineArg1_0.w, 9.9999997473787516e-05), inlineArg1_0.w);
+        _inlineResult0 = half4(_inlineArg1_0.xyz / max(_inlineArg1_0.w, 9.9999997473787516e-05), _inlineArg1_0.w);
     }
-    inputColor = inlineResult0;
+    inputColor = _inlineResult0;
 
 }
 %s = %s * inputColor + %s;

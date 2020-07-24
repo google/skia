@@ -1,5 +1,4 @@
-STRINGIFY(
-
+R"SKSL(
 $genType atan($genType y_over_x);
 $genHType atan($genHType y_over_x);
 $genType cos($genType y);
@@ -16,8 +15,6 @@ half3x3 inverse(half3x3 m);
 half4x4 inverse(half4x4 m);
 float length($genType x);
 half length($genHType x);
-$genType normalize($genType x);
-$genHType normalize($genHType x);
 $genType pow($genType x, $genType y);
 $genHType pow($genHType x, $genHType y);
 $genType sin($genType x);
@@ -89,7 +86,7 @@ bool  any($bvec x);
 bool  all($bvec x);
 $bvec not($bvec x);
 
-float  degrees(float  rad) { return rad * 57.2957795; }
+float  degrees(float  radparam) { return radparam * 57.2957795; }
 float2 degrees(float2 rad) { return rad * 57.2957795; }
 float3 degrees(float3 rad) { return rad * 57.2957795; }
 float4 degrees(float4 rad) { return rad * 57.2957795; }
@@ -103,10 +100,13 @@ float distance(float2 a, float2 b) { return length(a - b); }
 float distance(float3 a, float3 b) { return length(a - b); }
 float distance(float4 a, float4 b) { return length(a - b); }
 
+float2 normalize(float2 v) { return v / length(v); }
+float3 normalize(float3 v) { return v / length(v); }
+float4 normalize(float4 v) { return v / length(v); }
+
 float3 cross(float3 a, float3 b) {
     return float3(a.y * b.z - a.z * b.y,
                   a.z * b.x - a.x * b.z,
                   a.x * b.y - a.y * b.x);
 }
-
-)
+)SKSL";

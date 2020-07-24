@@ -56,7 +56,7 @@ struct VarDeclaration : public Statement {
     }
 
     String description() const override {
-        String result = fVar->fName;
+        String result = fVar->fModifiers.description() + fVar->fType.name() + " " + fVar->fName;
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
@@ -65,7 +65,7 @@ struct VarDeclaration : public Statement {
             }
         }
         if (fValue) {
-            result += " = " + fValue->description();
+            result += " = " + fValue->description() + String::printf("/*this: %p, var: %p, value:%p*/", this, fVar, fValue.get());
         }
         return result;
     }
@@ -122,10 +122,21 @@ struct VarDeclarations : public ProgramElement {
         }
         result += fBaseType.description() + " ";
         String separator;
-        for (const auto& var : fVars) {
+        for (const auto& rawVar : fVars) {
+            if (rawVar->fKind == Statement::kNop_Kind) {
+                continue;
+            }
+            SkASSERT(rawVar->fKind == Statement::kVarDeclaration_Kind);
+            VarDeclaration& var = (VarDeclaration&) *rawVar;
             result += separator;
             separator = ", ";
-            result += var->description();
+            result += var.fVar->fName;
+            result += "/*";
+            result += to_string(var.fVar->fWriteCount);
+            result += "*/";
+            if (var.fValue) {
+                result += " = " + var.fValue->description();
+            }
         }
         return result;
     }

@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
+#include <set>
 namespace SkSL {
 
 struct FunctionDeclaration;
@@ -27,23 +28,34 @@ public:
     SymbolTable(ErrorReporter* errorReporter)
     : fErrorReporter(*errorReporter) {}
 
-    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter* errorReporter)
+    SymbolTable(std::shared_ptr<SymbolTable> parent)
     : fParent(parent)
-    , fErrorReporter(*errorReporter) {}
+    , fErrorReporter(parent->fErrorReporter) {}
+
+    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter* errorReporter,
+                std::vector<std::unique_ptr<const Symbol>> ownedSymbols,
+                std::vector<std::pair<StringFragment, int>> map)
+    : fParent(parent)
+    , fErrorReporter(*errorReporter) {
+        for (std::pair<StringFragment, int> entry : map) {
+            fSymbols.insert({ entry.first, ownedSymbols[entry.second].get() });
+        }
+        for (std::unique_ptr<const Symbol>& s : ownedSymbols) {
+            this->takeOwnership(std::move(s));
+        }
+    }
 
     const Symbol* operator[](StringFragment name);
 
-    void add(StringFragment name, std::unique_ptr<Symbol> symbol);
+    void add(StringFragment name, std::unique_ptr<const Symbol> symbol);
 
     void addWithoutOwnership(StringFragment name, const Symbol* symbol);
 
-    Symbol* takeOwnership(std::unique_ptr<Symbol> s);
+    const Symbol* takeOwnership(std::unique_ptr<const Symbol> s);
 
     IRNode* takeOwnership(std::unique_ptr<IRNode> n);
 
     String* takeOwnership(std::unique_ptr<String> n);
-
-    void markAllFunctionsBuiltin();
 
     std::unordered_map<StringFragment, const Symbol*>::iterator begin();
 
@@ -51,10 +63,12 @@ public:
 
     const std::shared_ptr<SymbolTable> fParent;
 
-private:
-    static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
+    std::vector<std::unique_ptr<const Symbol>> fOwnedSymbols;
 
-    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
+private:
+    void appendMapCode(String& mapCode, const Symbol* s) const;
+
+    static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
 
@@ -63,6 +77,8 @@ private:
     std::unordered_map<StringFragment, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
+
+    friend class Dehydrator;
 };
 
 } // namespace
