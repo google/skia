@@ -1101,6 +1101,11 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
     // clip can be ignored. The following test attempts to mitigate the stencil clip cost but only
     // works for axis-aligned round rects. This also only works for filled rrects since the stroke
     // width outsets beyond the rrect itself.
+    // TODO: skbug.com/10462 - There was mixed performance wins and regressions when this
+    // optimization was turned on outside of Android Framework. I (michaelludwig) believe this is
+    // do to the overhead in determining if an SkClipStack is just a rrect. Once that is improved,
+    // re-enable this and see if we avoid the regressions.
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkRRect devRRect;
     if (clip && stroke.getStyle() == SkStrokeRec::kFill_Style &&
         rrect.transform(viewMatrix, &devRRect)) {
@@ -1118,11 +1123,7 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
                 if (result.fIsRRect && result.fRRect == devRRect) {
                     // NOTE: On the android framework, we allow this optimization even when the clip
                     // is non-AA and the draw is AA.
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
                     if (result.fAA == aa || (result.fAA == GrAA::kNo && aa == GrAA::kYes)) {
-#else
-                    if (result.fAA == aa) {
-#endif
                         clip = nullptr;
                     }
                 }
@@ -1131,6 +1132,7 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
                 SkUNREACHABLE;
         }
     }
+#endif
 
     AutoCheckFlush acf(this->drawingManager());
 
