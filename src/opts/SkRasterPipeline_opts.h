@@ -22,7 +22,9 @@
 
 template <typename Dst, typename Src>
 SI Dst widen_cast(const Src& src) {
-    static_assert(sizeof(Dst) > sizeof(Src), "");
+    static_assert(sizeof(Dst) > sizeof(Src));
+    static_assert(std::is_trivially_copyable<Dst>::value);
+    static_assert(std::is_trivially_copyable<Src>::value);
     Dst dst;
     memcpy(&dst, &src, sizeof(Src));
     return dst;
