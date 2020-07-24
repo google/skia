@@ -1160,21 +1160,20 @@ void CPPCodeGenerator::writeGetKey() {
                         if (var.fModifiers.fLayout.fWhen.fLength) {
                             this->writef("if (%s) {", String(var.fModifiers.fLayout.fWhen).c_str());
                         }
-                        if (var.fType == *fContext.fFloat4x4_Type) {
-                            ABORT("no automatic key handling for float4x4\n");
-                        } else if (var.fType == *fContext.fFloat2_Type) {
-                            this->writef("    b->add32(%s.fX);\n",
+                        if (var.fType == *fContext.fFloat2_Type ||
+                            var.fType == *fContext.fHalf2_Type) {
+                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.fX));\n",
                                          HCodeGenerator::FieldName(name).c_str());
-                            this->writef("    b->add32(%s.fY);\n",
+                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.fY));\n",
                                          HCodeGenerator::FieldName(name).c_str());
                         } else if (var.fType == *fContext.fFloat4_Type) {
-                            this->writef("    b->add32(%s.x());\n",
+                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.x()));\n",
                                          HCodeGenerator::FieldName(name).c_str());
-                            this->writef("    b->add32(%s.y());\n",
+                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.y()));\n",
                                          HCodeGenerator::FieldName(name).c_str());
-                            this->writef("    b->add32(%s.width());\n",
+                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.width()));\n",
                                          HCodeGenerator::FieldName(name).c_str());
-                            this->writef("    b->add32(%s.height());\n",
+                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.height()));\n",
                                          HCodeGenerator::FieldName(name).c_str());
                         } else if (var.fType == *fContext.fHalf4_Type) {
                             this->writef("    uint16_t red = SkFloatToHalf(%s.fR);\n",
@@ -1187,9 +1186,17 @@ void CPPCodeGenerator::writeGetKey() {
                                          HCodeGenerator::FieldName(name).c_str());
                             this->write("    b->add32(((uint32_t)red << 16) | green);\n");
                             this->write("    b->add32(((uint32_t)blue << 16) | alpha);\n");
-                        } else {
-                            this->writef("    b->add32((int32_t) %s);\n",
+                        } else if (var.fType == *fContext.fHalf_Type ||
+                                   var.fType == *fContext.fFloat_Type) {
+                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s));\n",
                                          HCodeGenerator::FieldName(name).c_str());
+                        } else if (var.fType.isInteger() || var.fType == *fContext.fBool_Type ||
+                                   var.fType.kind() == Type::kEnum_Kind) {
+                            this->writef("    b->add32((uint32_t) %s);\n",
+                                         HCodeGenerator::FieldName(name).c_str());
+                        } else {
+                            ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
+                                  var.fType.displayName().c_str());
                         }
                         if (var.fModifiers.fLayout.fWhen.fLength) {
                             this->write("}");
@@ -1258,7 +1265,8 @@ bool CPPCodeGenerator::generateCode() {
     this->writef(kFragmentProcessorHeader, fullName);
     this->writef("#include \"%s.h\"\n\n", fullName);
     this->writeSection(CPP_SECTION);
-    this->writef("#include \"src/gpu/GrTexture.h\"\n"
+    this->writef("#include \"src/core/SkUtils.h\"\n"
+                 "#include \"src/gpu/GrTexture.h\"\n"
                  "#include \"src/gpu/glsl/GrGLSLFragmentProcessor.h\"\n"
                  "#include \"src/gpu/glsl/GrGLSLFragmentShaderBuilder.h\"\n"
                  "#include \"src/gpu/glsl/GrGLSLProgramBuilder.h\"\n"
