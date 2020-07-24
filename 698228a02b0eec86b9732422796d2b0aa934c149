@@ -16,6 +16,24 @@
       "revId": "698228a02b0eec86b9732422796d2b0aa934c149",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9458122_7ea6b32e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-24T17:17:54Z",
+      "side": 1,
+      "message": "I thought about this earlier, and couldn\u0027t convince myself either way - part of me thinks there\u0027s still a way to get a conflict, but I also think that the extra scopes introduced when we compose things from multiple FPs protects us. In any case, I couldn\u0027t find a way to break it, but I didn\u0027t spend too long.",
+      "parentUuid": "19dd1ad7_80f8c679",
+      "revId": "698228a02b0eec86b9732422796d2b0aa934c149",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
