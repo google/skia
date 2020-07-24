@@ -21,13 +21,15 @@ namespace SkSL {
 struct Symbol;
 
 struct Enum : public ProgramElement {
-    Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols)
+    Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
+         bool isBuiltin = true)
     : INHERITED(offset, kEnum_Kind)
     , fTypeName(typeName)
-    , fSymbols(std::move(symbols)) {}
+    , fSymbols(std::move(symbols))
+    , fBuiltin(isBuiltin) {}
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Enum(fOffset, fTypeName, fSymbols));
+        return std::unique_ptr<ProgramElement>(new Enum(fOffset, fTypeName, fSymbols, fBuiltin));
     }
 
     String code() const {
@@ -54,9 +56,9 @@ struct Enum : public ProgramElement {
         return this->code();
     }
 
-    bool fBuiltin = false;
     const StringFragment fTypeName;
     const std::shared_ptr<SymbolTable> fSymbols;
+    bool fBuiltin;
 
     typedef ProgramElement INHERITED;
 };
