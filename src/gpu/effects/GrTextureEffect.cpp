@@ -300,7 +300,7 @@ GrTextureEffect::ShaderMode GrTextureEffect::GetShaderMode(Wrap wrap,
                     SkUNREACHABLE;
                 case MipmapMode::kLinear:
                     switch (filter) {
-                        case Filter::kNearest: return ShaderMode::kRepeat_Nearest_Mipmap;
+                        case Filter::kNearest: //return ShaderMode::kRepeat_Nearest_Mipmap;
                         case Filter::kLinear:  return ShaderMode::kRepeat_Linear_Mipmap;
                     }
                     SkUNREACHABLE;
@@ -791,6 +791,9 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view,
         , fClamp(sampling.fShaderClamp)
         , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]}
         , fLazyProxyNormalization(lazyProxyNormalization) {
+    if (fSamplerState.mipmapped() == GrMipmapped::kYes) {
+        fSamplerState.setFilterMode(GrSamplerState::Filter::kLinear);
+    }
     // We always compare the range even when it isn't used so assert we have canonical don't care
     // values.
     SkASSERT(fShaderModes[0] != ShaderMode::kNone || (fSubset.fLeft == 0 && fSubset.fRight == 0));
@@ -822,10 +825,23 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTest
     Wrap wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
 
-    Filter filter = testData->fRandom->nextBool() ? Filter::kLinear : Filter::kNearest;
+    GrSamplerState::Filter filter;
     MipmapMode mm = MipmapMode::kNone;
     if (view.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
-        mm = testData->fRandom->nextBool() ? MipmapMode::kLinear : MipmapMode::kNone;
+        switch (testData->fRandom->nextULessThan(3)) {
+            case 0:
+                filter = Filter::kNearest;
+                break;
+            case 1:
+                filter = Filter::kLinear;
+                break;
+            default:
+                filter = Filter::kLinear;
+                mm = MipmapMode::kLinear;
+                break;
+        }
+    } else {
+        filter = testData->fRandom->nextBool() ? Filter::kLinear : Filter::kNearest;
     }
     GrSamplerState params(wrapModes, filter, mm);
 
