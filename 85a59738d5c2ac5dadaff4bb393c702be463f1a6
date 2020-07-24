@@ -33,6 +33,29 @@
       "revId": "85a59738d5c2ac5dadaff4bb393c702be463f1a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a4b617e_37ec377c",
+        "filename": "src/gpu/GrRingBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-24T14:32:03Z",
+      "side": 1,
+      "message": "What are your thoughts on this (at least in terms of how it will finally look with multiple backends):\n\n1) Remove tracked buffers from submit data struct\n\n2) have some private GrRingBuffer::finishedSubmit call that changes the tail/head\n\n3) Just in cpp have static function finsihed_sumbit:\nstatic void finished_submit(void* finishedContext) {\n    SubmitData* data \u003d static_cast\u003cSubmitData*\u003e(finishedContext);\n    data-\u003efOwner-\u003efinishSubmit(submitData-\u003efLastHead, submitData-\u003efGenID);\n}\n\n4) change startSubmit to submit at looks like:\n\nvoid submit(GrGpu* gpu) {\n    for (i \u003d 0; i \u003c trackedBuffers.count(); ++i) {\n       // can we share this takeOwnership call the staging buffer version so we have 1 virtual\n       // Also fine if we can easily update this virtual to take an array.\n       gpu-\u003etakeOwnerhshipOfBuffer(std:move(tracked[i]);\n    }\n    gpu-\u003eaddFinishedProc(finished_submit, submitData);\n}\n\n5) Then in GrGpu::submit we just have the following:\nif (auto ringBuffer \u003d this-\u003euniformRingBuffer()) {\n    ringBuffer-\u003esubmit(this);\n}",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 35
+      },
+      "revId": "85a59738d5c2ac5dadaff4bb393c702be463f1a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
