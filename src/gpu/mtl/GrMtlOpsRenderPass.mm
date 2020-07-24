@@ -264,7 +264,6 @@ void GrMtlOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
         SkASSERT(!vertexBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer.get())->isMapped());
         fActiveVertexBuffer = std::move(vertexBuffer);
-        fGpu->commandBuffer()->addGrBuffer(fActiveVertexBuffer);
         ++inputBufferIndex;
     }
     if (instanceBuffer) {
@@ -272,13 +271,11 @@ void GrMtlOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
         SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer.get())->isMapped());
         this->setVertexBuffer(fActiveRenderCmdEncoder, instanceBuffer.get(), 0, inputBufferIndex++);
         fActiveInstanceBuffer = std::move(instanceBuffer);
-        fGpu->commandBuffer()->addGrBuffer(fActiveInstanceBuffer);
     }
     if (indexBuffer) {
         SkASSERT(!indexBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer.get())->isMapped());
         fActiveIndexBuffer = std::move(indexBuffer);
-        fGpu->commandBuffer()->addGrBuffer(fActiveIndexBuffer);
     }
 }
 

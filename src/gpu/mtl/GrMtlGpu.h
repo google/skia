@@ -8,7 +8,6 @@
 #ifndef GrMtlGpu_DEFINED
 #define GrMtlGpu_DEFINED
 
-#include "include/private/SkDeque.h"
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -16,7 +15,6 @@
 #include "src/gpu/GrTexture.h"
 
 #include "src/gpu/mtl/GrMtlCaps.h"
-#include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
 #include "src/gpu/mtl/GrMtlStencilAttachment.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
@@ -53,6 +51,11 @@ public:
         kForce_SyncQueue,
         kSkip_SyncQueue
     };
+
+    // Commits the current command buffer to the queue and then creates a new command buffer. If
+    // sync is set to kForce_SyncQueue, the function will wait for all work in the committed
+    // command buffer to finish before returning.
+    void submitCommandBuffer(SyncQueue sync);
 
     void deleteBackendTexture(const GrBackendTexture&) override;
 
@@ -211,13 +214,6 @@ private:
 
     bool onSubmitToGpu(bool syncCpu) override;
 
-    // Commits the current command buffer to the queue and then creates a new command buffer. If
-    // sync is set to kForce_SyncQueue, the function will wait for all work in the committed
-    // command buffer to finish before returning.
-    void submitCommandBuffer(SyncQueue sync);
-
-    void checkForFinishedCommandBuffers();
-
     // Function that uploads data onto textures with private storage mode (GPU access only).
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
@@ -251,16 +247,7 @@ private:
     id<MTLDevice> fDevice;
     id<MTLCommandQueue> fQueue;
 
-    sk_sp<GrMtlCommandBuffer> fCurrentCmdBuffer;
-
-    struct OutstandingCommandBuffer {
-        OutstandingCommandBuffer(sk_sp<GrMtlCommandBuffer> commandBuffer, GrFence fence)
-            : fCommandBuffer(std::move(commandBuffer))
-            , fFence(fence) {}
-        sk_sp<GrMtlCommandBuffer> fCommandBuffer;
-        GrFence fFence;
-    };
-    SkDeque fOutstandingCommandBuffers;
+    GrMtlCommandBuffer* fCmdBuffer;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
 
