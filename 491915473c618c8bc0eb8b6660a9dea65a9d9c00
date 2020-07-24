@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bad49cf_feb43474",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-24T20:29:21Z",
+      "side": 1,
+      "message": "I\u0027d be really tempted to just remove these two cases entirely. They\u0027re written so they only work for specific field types (eg layout(ctype\u003dSkPoint) and layout(ctype\u003dSkRect)). It\u0027s unfortunate that we\u0027re using the half4 case below, because that has the same issue (and it\u0027s assuming an entirely different ctype than float4). Regardless, I think we should remove things that suggest/encourage using continuous types in the key.\n\nNote that we only have this feature today for the \"don\u0027t use a uniform\" feature of GrOverrideInputFragmentProcessor, which is intended to *only* be used with a single color (white), ever. Wondering if we can simplify that FP more (support *either* white, or a uniform color only)? And then remove any support for non-integral/boolean key variables?",
+      "range": {
+        "startLine": 1163,
+        "startChar": 0,
+        "endLine": 1177,
+        "endChar": 82
+      },
+      "revId": "491915473c618c8bc0eb8b6660a9dea65a9d9c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
