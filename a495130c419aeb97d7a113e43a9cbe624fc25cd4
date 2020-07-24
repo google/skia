@@ -22,6 +22,30 @@
       "revId": "a495130c419aeb97d7a113e43a9cbe624fc25cd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc6b7dab_91cd677d",
+        "filename": "resources/skottie/skottie-inline-fonts.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-24T21:22:37Z",
+      "side": 1,
+      "message": "Updated to Funkster (which is already checked in).",
+      "parentUuid": "a170130c_76f226c8",
+      "range": {
+        "startLine": 1,
+        "startChar": 88,
+        "endLine": 1,
+        "endChar": 98
+      },
+      "revId": "a495130c419aeb97d7a113e43a9cbe624fc25cd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
