@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dc13809_7adece7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-07-24T14:44:00Z",
+      "side": 1,
+      "message": "Okay, the first CL is still in CQ so can submit this now. Feel free to submit it whenever if want or modify it in any way.",
+      "revId": "b4a3b3b4e0ae536d9a33c201323a31d55d361b7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
