@@ -6,6 +6,7 @@
  */
 
 #include "src/gpu/d3d/GrD3DBuffer.h"
+
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
 
@@ -15,10 +16,11 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-sk_sp<GrD3DBuffer::Resource> GrD3DBuffer::Resource::Make(GrD3DGpu* gpu, size_t size,
-                                                         GrGpuBufferType intendedType,
-                                                         GrAccessPattern accessPattern,
-                                                         D3D12_RESOURCE_STATES* resourceState) {
+static gr_cp<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
+                                              size_t size,
+                                              GrGpuBufferType intendedType,
+                                              GrAccessPattern accessPattern,
+                                              D3D12_RESOURCE_STATES* resourceState) {
     D3D12_HEAP_TYPE heapType;
     if (accessPattern == kStatic_GrAccessPattern) {
         SkASSERT(intendedType != GrGpuBufferType::kXferCpuToGpu &&
@@ -71,15 +73,17 @@ sk_sp<GrD3DBuffer::Resource> GrD3DBuffer::Resource::Make(GrD3DGpu* gpu, size_t s
         return nullptr;
     }
 
-    return sk_sp<Resource>(new GrD3DBuffer::Resource(std::move(gr_cp<ID3D12Resource>(resource))));
+    return gr_cp<ID3D12Resource>(resource);
 }
 
 sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                      GrAccessPattern accessPattern) {
     SkASSERT(!gpu->protectedContext() || (accessPattern != kStatic_GrAccessPattern));
     D3D12_RESOURCE_STATES resourceState;
-    sk_sp<Resource> resource = Resource::Make(gpu, size, intendedType, accessPattern,
-                                              &resourceState);
+
+
+    gr_cp<ID3D12Resource> resource = make_d3d_buffer(gpu, size, intendedType, accessPattern,
+                                                     &resourceState);
     if (!resource) {
         return nullptr;
     }
@@ -89,11 +93,11 @@ sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType
 }
 
 GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,
-                         GrAccessPattern accessPattern, const sk_sp<Resource>& bufferResource,
+                         GrAccessPattern accessPattern, gr_cp<ID3D12Resource> bufferResource,
                          D3D12_RESOURCE_STATES resourceState)
     : INHERITED(gpu, size, intendedType, accessPattern)
     , fResourceState(resourceState)
-    , fResource(bufferResource) {
+    , fD3DResource(std::move(bufferResource)) {
     this->registerWithCache(SkBudgeted::kYes);
 
     // TODO: persistently map UPLOAD resources?
@@ -116,7 +120,7 @@ void GrD3DBuffer::setResourceState(const GrD3DGpu* gpu,
     barrier.StateBefore = fResourceState;
     barrier.StateAfter = newResourceState;
 
-    gpu->addResourceBarriers(this->resource(), 1, &barrier);
+    gpu->addBufferResourceBarriers(this, 1, &barrier);
 
     fResourceState = newResourceState;
 }
@@ -124,8 +128,8 @@ void GrD3DBuffer::setResourceState(const GrD3DGpu* gpu,
 void GrD3DBuffer::onRelease() {
     if (!this->wasDestroyed()) {
         VALIDATE();
-        fResource.reset();
-        fStagingBuffer.reset();
+        // Note: we intentionally don't release the d3d resource here since it may still be in use
+        // by the gpu and a call to GrContext::release could get us in here.
         fMapPtr = nullptr;
         VALIDATE();
     }
@@ -135,8 +139,8 @@ void GrD3DBuffer::onRelease() {
 void GrD3DBuffer::onAbandon() {
     if (!this->wasDestroyed()) {
         VALIDATE();
-        fResource.reset();
-        fStagingBuffer.reset();
+        // Note: we intentionally don't release the d3d resource here since it may still be in use
+        // by the gpu and a call to GrContext::abandon could get us in here.
         fMapPtr = nullptr;
         VALIDATE();
     }
@@ -156,7 +160,7 @@ bool GrD3DBuffer::onUpdateData(const void* src, size_t size) {
     if (size > this->size()) {
         return false;
     }
-    if (!fResource) {
+    if (!fD3DResource) {
         return false;
     }
 
@@ -180,9 +184,9 @@ void GrD3DBuffer::internalMap(size_t size) {
     if (this->wasDestroyed()) {
         return;
     }
-    SkASSERT(fResource);
+    SkASSERT(fD3DResource);
     SkASSERT(!this->isMapped());
-    SkASSERT(fResource->size() >= size);
+    SkASSERT(this->size() >= size);
 
     VALIDATE();
 
@@ -193,23 +197,14 @@ void GrD3DBuffer::internalMap(size_t size) {
         if (!slice.fBuffer) {
             return;
         }
-        fStagingBuffer = static_cast<const GrD3DBuffer*>(slice.fBuffer)->resource();
+        fStagingBuffer = static_cast<const GrD3DBuffer*>(slice.fBuffer)->d3dResource();
         fStagingOffset = slice.fOffset;
         fMapPtr = slice.fOffsetMapPtr;
     } else {
-        if (!fResource->unique()) {
-            // in use by a previously submitted command list, so we need to create a new one
-            // TODO: try to use a recycled buffer resource
-            D3D12_RESOURCE_STATES resourceState;
-            fResource = Resource::Make(this->getD3DGpu(), this->size(), this->intendedType(),
-                                       this->accessPattern(), &resourceState);
-            SkASSERT(fResource);
-            fResourceState = resourceState; // no need to transition, this is a new resource
-        }
         D3D12_RANGE range;
         range.Begin = 0;
         range.End = size;
-        fResource->fD3DResource->Map(0, &range, &fMapPtr);
+        fD3DResource->Map(0, &range, &fMapPtr);
     }
 
     VALIDATE();
@@ -220,7 +215,7 @@ void GrD3DBuffer::internalUnmap(size_t size) {
     if (this->wasDestroyed()) {
         return;
     }
-    SkASSERT(fResource);
+    SkASSERT(fD3DResource);
     SkASSERT(this->isMapped());
     VALIDATE();
 
@@ -232,16 +227,15 @@ void GrD3DBuffer::internalUnmap(size_t size) {
         SkASSERT(fStagingBuffer);
         this->setResourceState(this->getD3DGpu(), D3D12_RESOURCE_STATE_COPY_DEST);
         this->getD3DGpu()->currentCommandList()->copyBufferToBuffer(
-                sk_ref_sp<GrD3DBuffer>(this), 0,
-                fStagingBuffer, fStagingBuffer->fD3DResource.get(), fStagingOffset, size);
-        fStagingBuffer.reset();
+                sk_ref_sp<GrD3DBuffer>(this), 0, fStagingBuffer, fStagingOffset, size);
+        fStagingBuffer = nullptr;
     } else {
         D3D12_RANGE range;
         range.Begin = 0;
         // For READBACK heaps, unmap requires an empty range
         range.End = fResourceState == D3D12_RESOURCE_STATE_COPY_DEST ? 0 : size;
-        SkASSERT(fResource->size() >= size);
-        fResource->fD3DResource->Unmap(0, &range);
+        SkASSERT(this->size() >= size);
+        fD3DResource->Unmap(0, &range);
     }
 
     fMapPtr = nullptr;
@@ -251,12 +245,10 @@ void GrD3DBuffer::internalUnmap(size_t size) {
 
 #ifdef SK_DEBUG
 void GrD3DBuffer::validate() const {
-    SkASSERT(!fResource ||
-             this->intendedType() == GrGpuBufferType::kVertex ||
+    SkASSERT(this->intendedType() == GrGpuBufferType::kVertex ||
              this->intendedType() == GrGpuBufferType::kIndex ||
              this->intendedType() == GrGpuBufferType::kDrawIndirect ||
              this->intendedType() == GrGpuBufferType::kXferCpuToGpu ||
              this->intendedType() == GrGpuBufferType::kXferGpuToCpu);
-    SkASSERT(!fResource || fResource->size() == this->size());
 }
 #endif
