@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59c6f4e9_acc29c24",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T16:02:48Z",
+      "side": 0,
+      "message": "This gets becomes the implementation of SkImage_Lazy::getPlanes with minor changes to call SharedGenerator::queryYUVA8 instead of virtual onQueryYUVA8 and SharedGenerator::getYUVA8Planes instead of virtual onGetYUVA8.",
+      "range": {
+        "startLine": 26,
+        "startChar": 20,
+        "endLine": 26,
+        "endChar": 44
+      },
+      "revId": "98e6447f8a6e0e5794318b0850e064886fb450eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "334276f2_66b113e0",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T16:02:48Z",
+      "side": 0,
+      "message": "becomes a lambda inside SkImage_Lazy::textureProxyViewFromPlanes",
+      "range": {
+        "startLine": 100,
+        "startChar": 20,
+        "endLine": 100,
+        "endChar": 42
+      },
+      "revId": "98e6447f8a6e0e5794318b0850e064886fb450eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5164888b_74db8d2a",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T16:02:48Z",
+      "side": 0,
+      "message": "Becomes SkImage_Lazy::textureProxyViewFromPlanes with release proc turned into internal lambda. dimensions, color type, src/dstColorSpace are no longer params since they\u0027re known to SkImage_Lazy.",
+      "range": {
+        "startLine": 106,
+        "startChar": 19,
+        "endLine": 106,
+        "endChar": 55
+      },
+      "revId": "98e6447f8a6e0e5794318b0850e064886fb450eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e71b6858_6369e4f2",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T16:02:48Z",
+      "side": 0,
+      "message": "SkImage_Lazy::getPlanes makes these calls directly on scoped generator now.",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 5
+      },
+      "revId": "98e6447f8a6e0e5794318b0850e064886fb450eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

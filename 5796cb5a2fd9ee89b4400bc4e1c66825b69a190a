@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7897c74_ddf5385b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T16:02:48Z",
+      "side": 1,
+      "message": "Shuffling code around to remove unnecessary abstraction.",
+      "revId": "5796cb5a2fd9ee89b4400bc4e1c66825b69a190a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3dfe39b2_98b4f170",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T16:02:48Z",
+      "side": 1,
+      "message": "old GrYUVProvider::YUVGen_DataReleaseProc is now this lambda.",
+      "range": {
+        "startLine": 386,
+        "startChar": 0,
+        "endLine": 390,
+        "endChar": 10
+      },
+      "revId": "5796cb5a2fd9ee89b4400bc4e1c66825b69a190a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44afecb4_d97fc843",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T16:02:48Z",
+      "side": 1,
+      "message": "modified to use our knowledge of color type and dimensions rather than taking params.",
+      "range": {
+        "startLine": 408,
+        "startChar": 0,
+        "endLine": 411,
+        "endChar": 66
+      },
+      "revId": "5796cb5a2fd9ee89b4400bc4e1c66825b69a190a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70866721_5b89d137",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-24T16:02:48Z",
+      "side": 1,
+      "message": "moved from caller. Scoping the color space getter may not really be necessary. SkImageInfo is const on SkImageGenerator and presumably no subclass is const-casting it away and modifying while we\u0027re here, but just being extra safe.",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 430,
+        "endChar": 53
+      },
+      "revId": "5796cb5a2fd9ee89b4400bc4e1c66825b69a190a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
