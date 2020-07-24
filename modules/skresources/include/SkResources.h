@@ -185,6 +185,7 @@ private:
     DataURIResourceProviderProxy(sk_sp<ResourceProvider>, bool);
 
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
+    sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override;
 
     const bool fPredecode;
 
