@@ -16,31 +16,20 @@
 class GrD3DGpu;
 
 class GrD3DBuffer : public GrGpuBuffer {
-private:
-    class Resource;
-
 public:
     static sk_sp<GrD3DBuffer> Make(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern);
 
-    ~GrD3DBuffer() override {
-        // release should have been called by the owner of this object.
-        SkASSERT(!fResource);
-        SkASSERT(!fStagingBuffer);
-    }
+    ~GrD3DBuffer() override {}
 
     ID3D12Resource* d3dResource() const {
-        SkASSERT(fResource);
-        return fResource->fD3DResource.get();
-    }
-    sk_sp<Resource> resource() const {
-        SkASSERT(fResource);
-        return fResource;
+        SkASSERT(fD3DResource);
+        return fD3DResource.get();
     }
 
     void setResourceState(const GrD3DGpu* gpu, D3D12_RESOURCE_STATES newResourceState);
 
 protected:
-    GrD3DBuffer(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern, const sk_sp<Resource>&,
+    GrD3DBuffer(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern, gr_cp<ID3D12Resource>,
                 D3D12_RESOURCE_STATES);
 
     void onAbandon() override;
@@ -63,47 +52,8 @@ private:
         return reinterpret_cast<GrD3DGpu*>(this->getGpu());
     }
 
-    class Resource : public GrRecycledResource {
-    public:
-        explicit Resource()
-            : fD3DResource(nullptr) {
-        }
-
-        Resource(const gr_cp<ID3D12Resource>& bufferResource)
-            : fD3DResource(bufferResource) {
-            SkASSERT(bufferResource.get() &&
-                     bufferResource->GetDesc().Dimension == D3D12_RESOURCE_DIMENSION_BUFFER);
-        }
-
-        static sk_sp<Resource> Make(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern,
-                                    D3D12_RESOURCE_STATES*);
-
-        size_t size() {
-            if (!fD3DResource.get()) {
-                return 0;
-            }
-            return fD3DResource->GetDesc().Width;
-        }
-
-#ifdef SK_TRACE_MANAGED_RESOURCES
-        void dumpInfo() const override {
-            SkDebugf("GrD3DBuffer: %d (%d refs)\n", fD3DResource.get(), this->getRefCnt());
-        }
-#endif
-        mutable gr_cp<ID3D12Resource> fD3DResource;
-
-    private:
-        void freeGPUData() const override {
-            fD3DResource.reset();
-        }
-        void onRecycle() const override { this->unref(); } // TODO
-
-        typedef GrRecycledResource INHERITED;
-    };
-
-    sk_sp<Resource> fResource;
-    // TODO: Once we get rid of resources on buffer this can just be an ID3D12Resource*
-    sk_sp<GrD3DBuffer::Resource> fStagingBuffer;
+    gr_cp<ID3D12Resource> fD3DResource;
+    ID3D12Resource* fStagingBuffer = nullptr;
     size_t fStagingOffset = 0;
 
     typedef GrGpuBuffer INHERITED;
