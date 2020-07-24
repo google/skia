@@ -37,7 +37,141 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     *w  = (packed >> 14) & 0xf; // Lerp weight for v1; weight for v0 is 16-w.
 }
 
-#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+    /*not static*/ inline
+    void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
+                                 const uint32_t* xy, int count, uint32_t* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+        SkASSERT(s.fAlphaScale <= 256);
+
+        // In a _DX variant only X varies; all samples share y0/y1 coordinates and wy weight.
+        int y0, y1, wy;
+        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+        const uint32_t* row0 = s.fPixmap.addr32(0,y0);
+        const uint32_t* row1 = s.fPixmap.addr32(0,y1);
+
+        auto bilerp = [&](skvx::Vec<16,uint32_t> packed_x_coordinates) -> skvx::Vec<16,uint32_t> {
+            // Decode up to 16 output pixels' x-coordinates and weights.
+            skvx::Vec<16,uint32_t> x0,x1,wx;
+            decode_packed_coordinates_and_weight(packed_x_coordinates, &x0, &x1, &wx);
+            // Splat wx to each color channel.
+            wx = (wx <<  0)
+               | (wx <<  8)
+               | (wx << 16)
+               | (wx << 24);
+
+            auto gather = [](const uint32_t* ptr, skvx::Vec<16,uint32_t> ix) {
+            #if 1
+                // Drop into AVX-512 intrinsics for vpgatherdd.
+                return skvx::bit_pun<skvx::Vec<16,uint32_t>>(
+                        _mm512_i32gather_epi32(skvx::bit_pun<__m512i>(ix), (const int*)ptr, 4));
+            #else
+                // Portable version... sometimes I don't truscolorst vpgatherdd.
+                return skvx::Vec<16,uint32_t>{
+                    ptr[ix[0]],  ptr[ix[1]],  ptr[ix[2]],  ptr[ix[3]],
+                    ptr[ix[4]],  ptr[ix[5]],  ptr[ix[6]],  ptr[ix[7]],
+                    ptr[ix[8]],  ptr[ix[9]],  ptr[ix[10]], ptr[ix[11]],
+                    ptr[ix[12]], ptr[ix[13]], ptr[ix[14]], ptr[ix[15]],
+                };
+            #endif
+            };
+
+            // Gather the 64 32-bit pixels that we'll bilerp into our 16 output pixels.
+            skvx::Vec<16,uint32_t> tl = gather(row0, x0), tr = gather(row0, x1),
+                                   bl = gather(row1, x0), br = gather(row1, x1);
+
+        #if 1
+            //
+            auto lerp_x = [&](skvx::Vec<16,uint32_t> L, skvx::Vec<16,uint32_t> R) {
+                __m512i l = skvx::bit_pun<__m512i>(L),
+                        r = skvx::bit_pun<__m512i>(R),
+                       wr = skvx::bit_pun<__m512i>(wx),
+                       wl = _mm512_sub_epi8(_mm512_set1_epi8(16), wr);
+
+                // Interlace l,r bytewise and line them up with their weights, then lerp.
+                __m512i lo = _mm512_maddubs_epi16(_mm512_unpacklo_epi8( l, r),
+                                                  _mm512_unpacklo_epi8(wl,wr));
+                __m512i hi = _mm512_maddubs_epi16(_mm512_unpackhi_epi8( l, r),
+                                                  _mm512_unpackhi_epi8(wl,wr));
+
+                //To get everything back in original order.
+                uint16_t *pl = (uint16_t*)&lo;
+                uint16_t *ph = (uint16_t*)&hi;
+                __m512i abcd = _mm512_set_epi16(ph[15],ph[14],ph[13],ph[12],ph[11],ph[10],ph[9],ph[8],
+                                                pl[15],pl[14],pl[13],pl[12],pl[11],pl[10],pl[9],pl[8],
+                                                ph[7], ph[6], ph[5], ph[4], ph[3], ph[2], ph[1],ph[0],
+                                                pl[7], pl[6], pl[5], pl[4], pl[3], pl[2], pl[1],pl[0]);
+
+                __m512i efgh = _mm512_set_epi16(ph[31],ph[30],ph[29],ph[28],ph[27],ph[26],ph[25],ph[24],
+                                                pl[31],pl[30],pl[29],pl[28],pl[27],pl[26],pl[25],pl[24],
+                                                ph[23],ph[22],ph[21],ph[20],ph[19],ph[18],ph[17],ph[16],
+                                                pl[23],pl[22],pl[21],pl[20],pl[19],pl[18],pl[17],pl[16]);
+
+                return skvx::join(skvx::bit_pun<skvx::Vec<32,uint16_t>>(abcd),
+                                  skvx::bit_pun<skvx::Vec<32,uint16_t>>(efgh));
+            };
+
+            skvx::Vec<64, uint16_t> top = lerp_x(tl, tr),
+                                    bot = lerp_x(bl, br),
+                                    sum = 16*top + (bot-top)*wy;
+
+        #else
+            // Treat 32-bit pixels as 4 8-bit values, and expand to 16-bit for room to multiply.
+            auto to_16x4 = [](auto v) -> skvx::Vec<64, uint16_t> {
+                return skvx::cast<uint16_t>(skvx::bit_pun<skvx::Vec<64, uint8_t>>(v));
+            };
+
+            // Sum up weighted sample pixels.  The naive, redundant math would be,
+            //
+            //   sum = tl * (16-wy) * (16-wx)
+            //       + bl * (   wy) * (16-wx)
+            //       + tr * (16-wy) * (   wx)
+            //       + br * (   wy) * (   wx)
+            //
+            // But we refactor to eliminate a bunch of those common factors.
+            auto lerp = [](auto lo, auto hi, auto w) {
+                return 16*lo + (hi-lo)*w;
+            };
+            skvx::Vec<64, uint16_t> sum = lerp(lerp(to_16x4(tl), to_16x4(bl), wy),
+                                               lerp(to_16x4(tr), to_16x4(br), wy), to_16x4(wx));
+        #endif
+
+            // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
+            sum >>= 8;
+
+            // Scale by alpha if needed.
+            if(s.fAlphaScale < 256) {
+                sum *= s.fAlphaScale;
+                sum >>= 8;
+            }
+
+            // Pack back to 8-bit channels, undoing to_16x4().
+            return skvx::bit_pun<skvx::Vec<16,uint32_t>>(skvx::cast<uint8_t>(sum));
+        };
+
+        while (count >= 16) {
+            bilerp(skvx::Vec<16,uint32_t>::Load(xy)).store(colors);
+            xy     += 16;
+            colors += 16;
+            count  -= 16;
+        }
+        if (count > 0) {
+            __mmask16 active = (1 << count) - 1;
+            __m512i coords_test = _mm512_mask_loadu_epi32(_mm512_set1_epi32(0), active, xy),
+                    pixels;
+            bilerp(skvx::bit_pun<skvx::Vec<16,uint32_t>>(coords_test)).store(&pixels);
+            _mm512_mask_storeu_epi32(colors, active, pixels);
+
+            sk_msan_mark_initialized(colors, colors+count,
+                                     "MSAN still doesn't understand AVX512 mask loads and stores.");
+        }
+    }
+
+
+#elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, uint32_t* colors) {
