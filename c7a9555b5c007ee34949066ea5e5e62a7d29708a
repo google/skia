@@ -16,6 +16,247 @@
       "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e3d22db_77b756e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "Overall, looks like a fine design to me.",
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0e92065_5b056d58",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "I don\u0027t think we care about the first 5 frames because in our tests, you have the warmup frames, which sort of defeats the purpose of measuring startup jank.",
+      "range": {
+        "startLine": 290,
+        "startChar": 3,
+        "endLine": 290,
+        "endChar": 15
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4e6365e_0d0d2fb9",
+        "filename": "tools/perf-canvaskit-puppeteer/Makefile",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "suggestion: perf_js",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 11
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73480941_25f5e4ae",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "When we have lots of tests, this may be too much. 101 or 51 should probably be better.",
+      "range": {
+        "startLine": 31,
+        "startChar": 23,
+        "endLine": 31,
+        "endChar": 75
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a30f57f_9ff2bb97",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "nit: const t of tests",
+      "range": {
+        "startLine": 61,
+        "startChar": 15,
+        "endLine": 61,
+        "endChar": 16
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6c09041_98c3897d",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "If you wanted to, you could call surface.delete() after all the tests are done, but I don\u0027t think it will matter in practice because the Chrome window will be closed.",
+      "range": {
+        "startLine": 75,
+        "startChar": 7,
+        "endLine": 75,
+        "endChar": 11
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e4590e6_efacdbd7",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "I have no idea what\u0027s going on here - some comments or simplification would be appreciated.",
+      "range": {
+        "startLine": 12,
+        "startChar": 18,
+        "endLine": 12,
+        "endChar": 23
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e4ee59f_7701d802",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "Again, some commentary to explain what\u0027s going on here, even if \"draw some arbitrary colors\"",
+      "range": {
+        "startLine": 41,
+        "startChar": 33,
+        "endLine": 41,
+        "endChar": 43
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72a1f517_6534e614",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "We should never have to delete the canvas that comes from the surface.",
+      "range": {
+        "startLine": 58,
+        "startChar": 12,
+        "endLine": 58,
+        "endChar": 18
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9487b66d_e364368b",
+        "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "This may need to be longer if there are a lot of tests.",
+      "range": {
+        "startLine": 262,
+        "startChar": 25,
+        "endLine": 262,
+        "endChar": 47
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db350130_9af396bd",
+        "filename": "tools/perf-canvaskit-puppeteer/perf.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-24T17:31:31Z",
+      "side": 1,
+      "message": "Probably don\u0027t want to check this in.",
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
