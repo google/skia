@@ -235,6 +235,30 @@
       "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c55beb65_c44e6c1d",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-24T00:06:20Z",
+      "side": 1,
+      "message": "I wasn\u0027t trying to single out `bool`, that was just the first example that came to mind. (It\u0027s definitely not a pure hypothetical--I had to deal with this fun quirk of C++ for years. I am honestly not sure when it went from \"real issue\" to \"historical footnote\" but it was just one more way GCC went out of its way to make life hard for us.)\n\nI don\u0027t have any immediate use for widen and its current implementation doesn\u0027t feel like it has broad utility, so I think you might be right about moving it back to its original home. If we really need it later, we can cross that bridge when we get to it.",
+      "parentUuid": "42bad3f7_e65dc107",
+      "range": {
+        "startLine": 115,
+        "startChar": 31,
+        "endLine": 115,
+        "endChar": 33
+      },
+      "revId": "528abb882a8226896f15f1d554dfac56d2b5b68d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
