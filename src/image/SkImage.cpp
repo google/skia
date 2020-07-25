@@ -689,10 +689,11 @@ bool SkImage::hasMipmaps() const {
     return as_IB(this)->onPeekMips() != nullptr;
 }
 
-sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> data) const {
-    auto result = as_IB(this)->onMakeWithMipmaps(std::move(data));
-    if (!result) {
-        result = sk_ref_sp((const_cast<SkImage*>(this)));
+sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
+    if (mips == nullptr || mips->validForRootLevel(this->imageInfo())) {
+        if (auto result = as_IB(this)->onMakeWithMipmaps(std::move(mips))) {
+            return result;
+        }
     }
-    return result;
+    return sk_ref_sp((const_cast<SkImage*>(this)));
 }
