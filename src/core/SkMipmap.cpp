@@ -760,6 +760,31 @@ bool SkMipmap::extractLevel(SkSize scaleSize, Level* levelPtr) const {
     return true;
 }
 
+bool SkMipmap::validForRootLevel(const SkImageInfo& root) const {
+    if (nullptr == fLevels) {
+        return false;
+    }
+
+    const SkISize dimension = root.dimensions();
+    if (dimension.width() <= 1 && dimension.height() <= 1) {
+        return false;
+    }
+
+    const SkPixmap& pm = fLevels[0].fPixmap;
+    if (pm. width() != std::max(1, dimension. width() >> 1) ||
+        pm.height() != std::max(1, dimension.height() >> 1)) {
+        return false;
+    }
+
+    for (int i = 0; i < this->countLevels(); ++i) {
+        const SkPixmap& pm = fLevels[0].fPixmap;
+        if (pm.colorType() != root.colorType() ||
+            pm.alphaType() != root.alphaType())
+            return false;
+    }
+    return true;
+}
+
 // Helper which extracts a pixmap from the src bitmap
 //
 SkMipmap* SkMipmap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
