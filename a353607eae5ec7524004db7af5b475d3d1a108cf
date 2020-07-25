@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91eb221d_5f151b9a",
+        "filename": "resources/skottie/skottie-inline-fonts.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-25T02:51:24Z",
+      "side": 1,
+      "message": "Funkster is kinda an enormous font in a not well supported format (CBDT). I\u0027d much rather see a regular outline font in this sort of test. Funkster is also 232k by itself, causing this file to be 678K, which seems excessive.\n\n    git ls-tree -r -l --abbrev --full-name HEAD | sort -n -r -k 4 | head -n 20\n\ntells me that this would be the 15th biggest file checked in. (Frankly we should probably do something about some of the others, though I suppose not much we can do about them now that they\u0027re already there. Like how did we manage to check in a complete NotoColorEmoji.ttf? And a 16MB mskp?). fonts.google.com has a few small open source fonts, like say Abel which is 32k. In fact Abel seems like a nice font for this sort of looking at test latin text thing, since it\u0027s simple and small.",
+      "revId": "a353607eae5ec7524004db7af5b475d3d1a108cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
