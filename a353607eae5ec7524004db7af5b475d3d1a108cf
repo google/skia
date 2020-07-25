@@ -16,6 +16,24 @@
       "revId": "a353607eae5ec7524004db7af5b475d3d1a108cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec356a59_dd87b88f",
+        "filename": "resources/skottie/skottie-inline-fonts.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-25T13:11:50Z",
+      "side": 1,
+      "message": "Was looking for an \"obvious\" font for this particular test.  Abel seems to fit the bill.  Also compacted the json - just 75KB now.",
+      "parentUuid": "91eb221d_5f151b9a",
+      "revId": "a353607eae5ec7524004db7af5b475d3d1a108cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
