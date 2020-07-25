@@ -237,34 +237,47 @@ DataURIResourceProviderProxy::DataURIResourceProviderProxy(sk_sp<ResourceProvide
     : INHERITED(std::move(rp))
     , fPredecode(predecode) {}
 
-sk_sp<ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const char rpath[],
-                                                               const char rname[],
-                                                               const char rid[]) const {
+static sk_sp<SkData> decode_datauri(const char prefix[], const char data[]) {
     // We only handle B64 encoded image dataURIs: data:image/<type>;base64,<data>
     // (https://en.wikipedia.org/wiki/Data_URI_scheme)
-    static constexpr char kDataURIImagePrefix[] = "data:image/",
-                          kDataURIEncodingStr[] = ";base64,";
+    static constexpr char kDataURIEncodingStr[] = ";base64,";
 
-    if (!strncmp(rname, kDataURIImagePrefix, SK_ARRAY_COUNT(kDataURIImagePrefix) - 1)) {
-        const char* encoding_start = strstr(rname + SK_ARRAY_COUNT(kDataURIImagePrefix) - 1,
-                                            kDataURIEncodingStr);
-        if (encoding_start) {
+    const auto prefix_len = strlen(prefix);
+    if (!strncmp(data, prefix, prefix_len)) {
+        if (const auto* encoding_start = strstr(data + prefix_len, kDataURIEncodingStr)) {
             const char* data_start = encoding_start + SK_ARRAY_COUNT(kDataURIEncodingStr) - 1;
 
             // TODO: SkBase64::decode ergonomics are... interesting.
             SkBase64 b64;
             if (SkBase64::kNoError == b64.decode(data_start, strlen(data_start))) {
-                return MultiFrameImageAsset::Make(SkData::MakeWithProc(b64.getData(),
-                                                                       b64.getDataSize(),
-                                                      [](const void* ptr, void*) {
-                                                          delete[] static_cast<const char*>(ptr);
-                                                      }, /*ctx=*/nullptr),
-                                                  fPredecode);
+                return SkData::MakeWithProc(b64.getData(), b64.getDataSize(),
+                                            [](const void* ptr, void*) {
+                                                delete[] static_cast<const char*>(ptr);
+                                            }, /*ctx=*/nullptr);
             }
         }
     }
 
+    return nullptr;
+}
+
+sk_sp<ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const char rpath[],
+                                                               const char rname[],
+                                                               const char rid[]) const {
+    if (auto data = decode_datauri("data:image/", rname)) {
+        return MultiFrameImageAsset::Make(std::move(data), fPredecode);
+    }
+
     return this->INHERITED::loadImageAsset(rpath, rname, rid);
+}
+
+sk_sp<SkTypeface> DataURIResourceProviderProxy::loadTypeface(const char name[],
+                                                             const char url[]) const {
+    if (auto data = decode_datauri("data:font/", url)) {
+        return SkTypeface::MakeFromData(std::move(data));
+    }
+
+    return this->INHERITED::loadTypeface(name, url);
 }
 
 } // namespace skresources
