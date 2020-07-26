@@ -1,5 +1,4 @@
-STRINGIFY(
-
+R"SKSL(
 // defines built-in interfaces supported by SkiaSL geometry shaders
 
 layout(builtin=10002) in sk_PerVertex {
@@ -20,5 +19,4 @@ sk_has_side_effects void EmitStreamVertex(int stream);
 sk_has_side_effects void EndStreamPrimitive(int stream);
 sk_has_side_effects void EmitVertex();
 sk_has_side_effects void EndPrimitive();
-
-)
+)SKSL";

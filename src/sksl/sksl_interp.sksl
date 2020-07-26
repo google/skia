@@ -1,5 +1,3 @@
-STRINGIFY(
-
 $genType atan($genType y_over_x);
 $genHType atan($genHType y_over_x);
 $genType cos($genType y);
@@ -108,5 +106,3 @@ float3 cross(float3 a, float3 b) {
                   a.z * b.x - a.x * b.z,
                   a.x * b.y - a.y * b.x);
 }
-
-)
