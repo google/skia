@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e77eefbe_76353d83",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-27T18:36:06Z",
+      "side": 1,
+      "message": "I was about to suggest the same change, but with a \u0027const\u0027.",
+      "revId": "a3fddc6025a19384eec095bc730917808d85cf3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "912aa9d6_d7480577",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-27T18:36:06Z",
+      "side": 1,
+      "message": "Should put \u0027const\u0027 here. Currently it is technically redundant but makes it obvious that it isn\u0027t supposed to be modified (and below, of course).",
+      "range": {
+        "startLine": 583,
+        "startChar": 68,
+        "endLine": 583,
+        "endChar": 69
+      },
+      "revId": "a3fddc6025a19384eec095bc730917808d85cf3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
