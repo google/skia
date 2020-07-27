@@ -61,12 +61,6 @@ static inline bool SkStrContains(const char string[], const char subchar) {
     return (-1 != SkStrFind(string, tmp));
 }
 
-static inline char *SkStrDup(const char string[]) {
-    char *ret = (char *) sk_malloc_throw(strlen(string)+1);
-    memcpy(ret,string,strlen(string)+1);
-    return ret;
-}
-
 /*
  *  The SkStrAppend... methods will write into the provided buffer, assuming it is large enough.
  *  Each method has an associated const (e.g. SkStrAppendU32_MaxSize) which will be the largest
