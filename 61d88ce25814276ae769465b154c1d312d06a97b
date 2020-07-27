@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a89affb_8b7e0eb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12064
+      },
+      "writtenOn": "2020-07-27T02:39:11Z",
+      "side": 1,
+      "message": "Hi,Mike, this patch adds avx512 version for S32_alpha_D32_filter(). \nPTAL, thanks!",
+      "revId": "61d88ce25814276ae769465b154c1d312d06a97b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
