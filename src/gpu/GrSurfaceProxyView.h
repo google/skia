@@ -20,11 +20,11 @@ public:
     GrSurfaceProxyView() = default;
 
     GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy, GrSurfaceOrigin origin, GrSwizzle swizzle)
-            : fProxy(proxy), fOrigin(origin), fSwizzle(swizzle) {}
+            : fProxy(std::move(proxy)), fOrigin(origin), fSwizzle(swizzle) {}
 
     // This entry point is used when we don't care about the origin or the swizzle.
     explicit GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy)
-            : fProxy(proxy), fOrigin(kTopLeft_GrSurfaceOrigin) {}
+            : fProxy(std::move(proxy)), fOrigin(kTopLeft_GrSurfaceOrigin) {}
 
     GrSurfaceProxyView(GrSurfaceProxyView&& view) = default;
     GrSurfaceProxyView(const GrSurfaceProxyView&) = default;
