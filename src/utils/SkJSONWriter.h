@@ -352,7 +352,7 @@ private:
     Mode fMode;
     State fState;
     SkSTArray<16, Scope, true> fScopeStack;
-    SkSTArray<16, bool, true> fNewlineStack;
+    SkSTArray<16, uint8_t, true> fNewlineStack;
 };
 
 #endif
