@@ -178,11 +178,11 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, GrDirectContext* direct) const {
+sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, SubsetMethod method,
+                                   GrDirectContext* direct) const {
     if (subset.isEmpty()) {
         return nullptr;
     }
-
     const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
     if (!bounds.contains(subset)) {
         return nullptr;
@@ -201,7 +201,7 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, GrDirectContext* direc
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    return as_IB(this)->onMakeSubset(subset, direct);
+    return as_IB(this)->onMakeSubset(subset, method, direct);
 }
 
 #if SK_SUPPORT_GPU

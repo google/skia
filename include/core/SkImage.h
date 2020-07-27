@@ -1194,24 +1194,38 @@ public:
     */
     sk_sp<SkData> refEncodedData() const;
 
-    /** Returns subset of SkImage. subset must be fully contained by SkImage dimensions().
-        The implementation may share pixels, or may copy them.
+    enum class SubsetMethod {
+        kCopy,  // force a copy of the pixels when making a subset image
+        kShare, // try to share pixels when making a subset image
+    };
+
+    /** Returns subset of SkImage.
+
+        If subset equals the image's dimensions, the original image is returned.
 
         Returns nullptr if any of the following are true:
           - Subset is empty
-          - Subset is not contained by bounds
+          - Subset is not contained by the image's dimensions
           - Pixels in SkImage could not be read or copied
+          - The image is texture-backed, but an invalide context parameter was provided.
 
         If this image is texture-backed, the context parameter is required and must match the
         context of the source image.
 
         @param subset  bounds of returned SkImage
-        @param context the GrDirectContext in play, if it exists
-        @return        partial or full SkImage, or nullptr
+        @param method  how to create the subset (copy or share the pixels)
+        @param direct  the GrDirectContext in play, if it exists
+        @return        subset image or nullptr
 
         example: https://fiddle.skia.org/c/@Image_makeSubset
     */
-    sk_sp<SkImage> makeSubset(const SkIRect& subset, GrDirectContext* direct = nullptr) const;
+    sk_sp<SkImage> makeSubset(const SkIRect& subset, SubsetMethod method,
+                              GrDirectContext* direct = nullptr) const;
+
+    // DEPRECATED -- use variant that takes SubsetMethod
+    sk_sp<SkImage> makeSubset(const SkIRect& subset, GrDirectContext* direct = nullptr) const {
+        return this->makeSubset(subset, SubsetMethod::kShare, direct);
+    }
 
     /**
      *  Returns true if the image has mipmap levels.
