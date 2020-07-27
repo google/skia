@@ -246,14 +246,13 @@ GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipmappe
 }
 #endif
 
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {
-    SkASSERT(this->bounds().contains(subset));
-    SkASSERT(this->bounds() != subset);
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext* direct) const {
+    // TODO: can we do this more efficiently, by telling the generator we want to
+    //       "realize" a subset?
 
-    const SkIRect generatorSubset = subset.makeOffset(fOrigin);
-    const SkColorType colorType = this->colorType();
-    Validator validator(fSharedGenerator, &generatorSubset, &colorType, this->refColorSpace());
-    return validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
+    auto pixels = direct ? this->makeTextureImage(direct)
+                         : this->makeRasterImage();
+    return pixels ? pixels->makeSubset(subset, direct) : nullptr;
 }
 
 sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
