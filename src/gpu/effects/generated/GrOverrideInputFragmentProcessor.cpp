@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrOverrideInputFragmentProcessor.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -73,7 +74,7 @@ GrGLSLFragmentProcessor* GrOverrideInputFragmentProcessor::onCreateGLSLInstance(
 }
 void GrOverrideInputFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                              GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)useUniform);
+    b->add32((uint32_t)useUniform);
     if (!useUniform) {
         uint16_t red = SkFloatToHalf(literalColor.fR);
         uint16_t green = SkFloatToHalf(literalColor.fG);

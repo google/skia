@@ -136,6 +136,7 @@ R"__Cpp__(/* HELLO WORLD */
  **************************************************************************************************/
 #include "GrTest.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -179,7 +180,7 @@ std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {
          });
 }
 
-DEF_TEST(SkSLFPInput, r) {
+DEF_TEST(SkSLFPInputHalf2, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -195,11 +196,44 @@ DEF_TEST(SkSLFPInput, r) {
              ", point(point)"
          },
          /*expectedCPP=*/{
-             "fragBuilder->codeAppendf(\n"
-             "R\"SkSL(%s = half4(half2(%f, %f), half2(%f, %f));\n"
-             ")SkSL\"\n"
-             ", args.fOutputColor, _outer.point.fX, _outer.point.fY, _outer.point.fX, _outer.point.fY);",
+R"__Cpp__(void GrTest::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+    b->add32(sk_bit_cast<uint32_t>(point.fX));
+    b->add32(sk_bit_cast<uint32_t>(point.fY));
+})__Cpp__",
+R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(%s = half4(half2(%f, %f), half2(%f, %f));
+)SkSL"
+, args.fOutputColor, _outer.point.fX, _outer.point.fY, _outer.point.fX, _outer.point.fY);
+)__Cpp__",
              "if (point != that.point) return false;"
+         });
+}
+
+DEF_TEST(SkSLFPInputHalf1, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             layout(key) in half value;
+             void main() {
+                 sk_OutColor = half4(value);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             "static std::unique_ptr<GrFragmentProcessor> Make(float value) {",
+             "return std::unique_ptr<GrFragmentProcessor>(new GrTest(value));",
+             "GrTest(float value)",
+             ", value(value)"
+         },
+         /*expectedCPP=*/{
+R"__Cpp__(void GrTest::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+    b->add32(sk_bit_cast<uint32_t>(value));
+})__Cpp__",
+R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(%s = half4(%f);
+)SkSL"
+, args.fOutputColor, _outer.value);
+)__Cpp__",
+             "if (value != that.value) return false;"
          });
 }
 

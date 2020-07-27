@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrRectBlurEffect.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -132,8 +133,8 @@ void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     bool highp = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
                   abs(rect.right()) > 16000.0) ||
                  abs(rect.bottom()) > 16000.0;
-    b->add32((int32_t)highp);
-    b->add32((int32_t)isFast);
+    b->add32((uint32_t)highp);
+    b->add32((uint32_t)isFast);
 }
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRectBlurEffect& that = other.cast<GrRectBlurEffect>();

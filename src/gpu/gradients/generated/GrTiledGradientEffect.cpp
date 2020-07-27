@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrTiledGradientEffect.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -71,8 +72,8 @@ GrGLSLFragmentProcessor* GrTiledGradientEffect::onCreateGLSLInstance() const {
 }
 void GrTiledGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)mirror);
-    b->add32((int32_t)makePremul);
+    b->add32((uint32_t)mirror);
+    b->add32((uint32_t)makePremul);
 }
 bool GrTiledGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTiledGradientEffect& that = other.cast<GrTiledGradientEffect>();
