@@ -57,29 +57,6 @@ static inline bool degenerate_vector(const SkVector& v) {
     return !SkPointPriv::CanNormalize(v.fX, v.fY);
 }
 
-static bool set_normal_unitnormal(const SkPoint& before, const SkPoint& after, SkScalar scale,
-                                  SkScalar radius,
-                                  SkVector* normal, SkVector* unitNormal) {
-    if (!unitNormal->setNormalize((after.fX - before.fX) * scale,
-                                  (after.fY - before.fY) * scale)) {
-        return false;
-    }
-    SkPointPriv::RotateCCW(unitNormal);
-    unitNormal->scale(radius, normal);
-    return true;
-}
-
-static bool set_normal_unitnormal(const SkVector& vec,
-                                  SkScalar radius,
-                                  SkVector* normal, SkVector* unitNormal) {
-    if (!unitNormal->setNormalize(vec.fX, vec.fY)) {
-        return false;
-    }
-    SkPointPriv::RotateCCW(unitNormal);
-    unitNormal->scale(radius, normal);
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SkQuadConstruct {    // The state of the quad stroke under construction.
@@ -126,8 +103,8 @@ struct SkQuadConstruct {    // The state of the quad stroke under construction.
 class SkPathStroker {
 public:
     SkPathStroker(const SkPath& src,
-                  SkScalar radius, SkScalar miterLimit, SkPaint::Cap,
-                  SkPaint::Join, SkScalar resScale,
+                  SkScalar radius, SkScalar miterLimit, uint8_t cap,
+                  uint8_t join, SkScalar resScale,
                   bool canIgnoreCenter);
 
     bool hasOnlyMoveTo() const { return 0 == fSegmentCount; }
@@ -154,21 +131,19 @@ public:
 
 private:
     SkScalar    fRadius;
-    SkScalar    fInvMiterLimit;
     SkScalar    fResScale;
     SkScalar    fInvResScale;
     SkScalar    fInvResScaleSquared;
+    SkScalar    fFirstCurvature;
 
-    SkVector    fFirstNormal, fPrevNormal, fFirstUnitNormal, fPrevUnitNormal;
+    SkVector    fFirstUnitNormal;
     SkPoint     fFirstPt, fPrevPt;  // on original path
     SkPoint     fFirstOuterPt;
     int         fFirstOuterPtIndexInContour;
     int         fSegmentCount;
-    bool        fPrevIsLine;
     bool        fCanIgnoreCenter;
 
-    SkStrokerPriv::CapProc  fCapper;
-    SkStrokerPriv::JoinProc fJoiner;
+    SkStrokerPriv fStrokerPriv;
 
     SkPath  fInner, fOuter, fCusper; // outer is our working answer, inner is temp
 
@@ -225,15 +200,9 @@ private:
     void quadPerpRay(const SkPoint quad[3], SkScalar t, SkPoint* tPt, SkPoint* onPt,
                      SkPoint* tangent) const;
     bool quadStroke(const SkPoint quad[3], SkQuadConstruct* );
-    void setConicEndNormal(const SkConic& ,
-                           const SkVector& normalAB, const SkVector& unitNormalAB,
-                           SkVector* normalBC, SkVector* unitNormalBC);
-    void setCubicEndNormal(const SkPoint cubic[4],
-                           const SkVector& normalAB, const SkVector& unitNormalAB,
-                           SkVector* normalCD, SkVector* unitNormalCD);
-    void setQuadEndNormal(const SkPoint quad[3],
-                          const SkVector& normalAB, const SkVector& unitNormalAB,
-                          SkVector* normalBC, SkVector* unitNormalBC);
+    void setConicEndNormal(const SkConic& , const SkVector& unitNormalAB);
+    void setCubicEndNormal(const SkPoint cubic[4], const SkVector& unitNormalAB);
+    void setQuadEndNormal(const SkPoint quad[3], const SkVector& unitNormalAB);
     void setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt, SkPoint* tangent) const;
     static bool SlightAngle(SkQuadConstruct* );
     ResultType strokeCloseEnough(const SkPoint stroke[3], const SkPoint ray[2],
@@ -241,55 +210,54 @@ private:
     ResultType tangentsMeet(const SkPoint cubic[4], SkQuadConstruct* );
 
     void    finishContour(bool close, bool isLine);
-    bool    preJoinTo(const SkPoint&, SkVector* normal, SkVector* unitNormal,
-                      bool isLine);
-    void    postJoinTo(const SkPoint&, const SkVector& normal,
-                       const SkVector& unitNormal);
+    void    setToCurvature(SkScalar);
+    bool    doJoinTo(const SkPoint&, bool isLine, SkVector* unitNormal);
+    void    postJoinTo(const SkPoint&);
 
     void    line_to(const SkPoint& currPt, const SkVector& normal);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
-                              SkVector* unitNormal, bool currIsLine) {
+void SkPathStroker::setToCurvature(SkScalar toC) {
+    if (fSegmentCount == 0) {
+        fFirstCurvature = toC;
+    }
+    fStrokerPriv.setToCurvature(toC);
+}
+
+bool SkPathStroker::doJoinTo(const SkPoint& currPt, bool currIsLine,
+        SkVector* unitNormal) {
     SkASSERT(fSegmentCount >= 0);
 
     SkScalar    prevX = fPrevPt.fX;
     SkScalar    prevY = fPrevPt.fY;
+    SkVector    normal;
 
-    if (!set_normal_unitnormal(fPrevPt, currPt, fResScale, fRadius, normal, unitNormal)) {
-        if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper) {
-            return false;
-        }
-        /* Square caps and round caps draw even if the segment length is zero.
-           Since the zero length segment has no direction, set the orientation
-           to upright as the default orientation */
-        normal->set(fRadius, 0);
-        unitNormal->set(1, 0);
+    fStrokerPriv.setPivot(fPrevPt);
+    if (!fStrokerPriv.calcToNormal((currPt.fX - prevX) * fResScale,
+                                   (currPt.fY - prevY) * fResScale,
+                                   currIsLine, unitNormal) &&
+        fStrokerPriv.capIs(SkPaint::kButt_Cap)) {
+        return false;
     }
 
     if (fSegmentCount == 0) {
-        fFirstNormal = *normal;
-        fFirstUnitNormal = *unitNormal;
-        fFirstOuterPt.set(prevX + normal->fX, prevY + normal->fY);
+        fStrokerPriv.getToNormal(&fFirstUnitNormal);
+        fFirstUnitNormal.scale(fRadius, &normal);
+        fFirstOuterPt.set(prevX + normal.fX, prevY + normal.fY);
 
         fOuter.moveTo(fFirstOuterPt.fX, fFirstOuterPt.fY);
-        fInner.moveTo(prevX - normal->fX, prevY - normal->fY);
+        fInner.moveTo(prevX - normal.fX, prevY - normal.fY);
     } else {    // we have a previous segment
-        fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt, *unitNormal,
-                fRadius, fInvMiterLimit, fPrevIsLine, currIsLine);
+        fStrokerPriv.addJoin(&fOuter, &fInner);
     }
-    fPrevIsLine = currIsLine;
     return true;
 }
 
-void SkPathStroker::postJoinTo(const SkPoint& currPt, const SkVector& normal,
-                               const SkVector& unitNormal) {
+void SkPathStroker::postJoinTo(const SkPoint& currPt) {
     fJoinCompleted = true;
     fPrevPt = currPt;
-    fPrevUnitNormal = unitNormal;
-    fPrevNormal = normal;
     fSegmentCount += 1;
 }
 
@@ -297,10 +265,11 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
     if (fSegmentCount > 0) {
         SkPoint pt;
 
+        fStrokerPriv.setPivot(fPrevPt);
         if (close) {
-            fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt,
-                    fFirstUnitNormal, fRadius, fInvMiterLimit,
-                    fPrevIsLine, currIsLine);
+            fStrokerPriv.setToNormal(fFirstUnitNormal, currIsLine);
+            fStrokerPriv.setToCurvature(fFirstCurvature);
+            fStrokerPriv.addJoin(&fOuter, &fInner);
             fOuter.close();
 
             if (fCanIgnoreCenter) {
@@ -319,12 +288,14 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
         } else {    // add caps to start and end
             // cap the end
             fInner.getLastPt(&pt);
-            fCapper(&fOuter, fPrevPt, fPrevNormal, pt,
-                    currIsLine ? &fInner : nullptr);
+            fStrokerPriv.setStop(pt);
+            fStrokerPriv.addCap(&fOuter);
             fOuter.reversePathTo(fInner);
             // cap the start
-            fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt,
-                    fPrevIsLine ? &fInner : nullptr);
+            fStrokerPriv.setPivot(fFirstPt);
+            fStrokerPriv.setStop(fFirstOuterPt);
+            fStrokerPriv.setFromNormal(-fFirstUnitNormal, false);
+            fStrokerPriv.addCap(&fOuter);
             fOuter.close();
         }
         if (!fCusper.isEmpty()) {
@@ -343,29 +314,15 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
 
 SkPathStroker::SkPathStroker(const SkPath& src,
                              SkScalar radius, SkScalar miterLimit,
-                             SkPaint::Cap cap, SkPaint::Join join, SkScalar resScale,
+                             uint8_t cap, uint8_t join, SkScalar resScale,
                              bool canIgnoreCenter)
         : fRadius(radius)
         , fResScale(resScale)
-        , fCanIgnoreCenter(canIgnoreCenter) {
+        , fCanIgnoreCenter(canIgnoreCenter)
+        , fStrokerPriv(cap, join, radius, miterLimit) {
 
-    /*  This is only used when join is miter_join, but we initialize it here
-        so that it is always defined, to fis valgrind warnings.
-    */
-    fInvMiterLimit = 0;
-
-    if (join == SkPaint::kMiter_Join) {
-        if (miterLimit <= SK_Scalar1) {
-            join = SkPaint::kBevel_Join;
-        } else {
-            fInvMiterLimit = SkScalarInvert(miterLimit);
-        }
-    }
-    fCapper = SkStrokerPriv::CapFactory(cap);
-    fJoiner = SkStrokerPriv::JoinFactory(join);
     fSegmentCount = -1;
     fFirstOuterPtIndexInContour = 0;
-    fPrevIsLine = false;
 
     // Need some estimate of how large our final result (fOuter)
     // and our per-contour temp (fInner) will be, so we don't spend
@@ -432,36 +389,40 @@ static bool has_valid_tangent(const SkPath::Iter* iter) {
 
 void SkPathStroker::lineTo(const SkPoint& currPt, const SkPath::Iter* iter) {
     bool teenyLine = SkPointPriv::EqualsWithinTolerance(fPrevPt, currPt, SK_ScalarNearlyZero * fInvResScale);
-    if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper && teenyLine) {
+    if (fStrokerPriv.capIs(SkPaint::kButt_Cap) && teenyLine) {
         return;
     }
     if (teenyLine && (fJoinCompleted || (iter && has_valid_tangent(iter)))) {
         return;
     }
     SkVector    normal, unitNormal;
-
-    if (!this->preJoinTo(currPt, &normal, &unitNormal, true)) {
+    this->setToCurvature(0.0f);
+    if (!this->doJoinTo(currPt, true, &unitNormal)) {
         return;
     }
+    unitNormal.scale(fRadius, &normal);
     this->line_to(currPt, normal);
-    this->postJoinTo(currPt, normal, unitNormal);
+    fStrokerPriv.setFromNormal(unitNormal, true);
+    fStrokerPriv.setFromCurvature(0.0f);
+    this->postJoinTo(currPt);
 }
 
-void SkPathStroker::setQuadEndNormal(const SkPoint quad[3], const SkVector& normalAB,
-        const SkVector& unitNormalAB, SkVector* normalBC, SkVector* unitNormalBC) {
-    if (!set_normal_unitnormal(quad[1], quad[2], fResScale, fRadius, normalBC, unitNormalBC)) {
-        *normalBC = normalAB;
-        *unitNormalBC = unitNormalAB;
+void SkPathStroker::setQuadEndNormal(const SkPoint quad[3],
+        const SkVector& unitNormalAB) {
+    if (!fStrokerPriv.calcFromNormal((quad[2].fX - quad[1].fX) * fResScale,
+                                     (quad[2].fY - quad[1].fY) * fResScale,
+                                     false, NULL)) {
+        fStrokerPriv.setFromNormal(unitNormalAB, false);
     }
 }
 
-void SkPathStroker::setConicEndNormal(const SkConic& conic, const SkVector& normalAB,
-        const SkVector& unitNormalAB, SkVector* normalBC, SkVector* unitNormalBC) {
-    setQuadEndNormal(conic.fPts, normalAB, unitNormalAB, normalBC, unitNormalBC);
+void SkPathStroker::setConicEndNormal(const SkConic& conic,
+        const SkVector& unitNormalAB) {
+    setQuadEndNormal(conic.fPts, unitNormalAB);
 }
 
-void SkPathStroker::setCubicEndNormal(const SkPoint cubic[4], const SkVector& normalAB,
-        const SkVector& unitNormalAB, SkVector* normalCD, SkVector* unitNormalCD) {
+void SkPathStroker::setCubicEndNormal(const SkPoint cubic[4],
+        const SkVector& unitNormalAB) {
     SkVector    ab = cubic[1] - cubic[0];
     SkVector    cd = cubic[3] - cubic[2];
 
@@ -482,11 +443,10 @@ void SkPathStroker::setCubicEndNormal(const SkPoint cubic[4], const SkVector& no
     }
     if (degenerateAB || degenerateCD) {
 DEGENERATE_NORMAL:
-        *normalCD = normalAB;
-        *unitNormalCD = unitNormalAB;
+        fStrokerPriv.setFromNormal(unitNormalAB, false);
         return;
     }
-    SkAssertResult(set_normal_unitnormal(cd, fRadius, normalCD, unitNormalCD));
+    SkAssertResult(fStrokerPriv.calcFromNormal(cd.fX, cd.fY, false, NULL));
 }
 
 void SkPathStroker::init(StrokeType strokeType, SkQuadConstruct* quadPts, SkScalar tStart,
@@ -701,15 +661,17 @@ void SkPathStroker::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar wei
     }
     if (kDegenerate_ReductionType == reductionType) {
         this->lineTo(reduction);
-        SkStrokerPriv::JoinProc saveJoiner = fJoiner;
-        fJoiner = SkStrokerPriv::JoinFactory(SkPaint::kRound_Join);
+        fStrokerPriv.tempJoin(SkPaint::kRound_Join);
         this->lineTo(pt2);
-        fJoiner = saveJoiner;
+        fStrokerPriv.revertJoin();
         return;
     }
     SkASSERT(kQuad_ReductionType == reductionType);
-    SkVector normalAB, unitAB, normalBC, unitBC;
-    if (!this->preJoinTo(pt1, &normalAB, &unitAB, false)) {
+    if (fStrokerPriv.needsCurvature()) {
+        this->setToCurvature(conic.findStartCurvatureVal());
+    }
+    SkVector unitAB;
+    if (!this->doJoinTo(pt1, false, &unitAB)) {
         this->lineTo(pt2);
         return;
     }
@@ -718,8 +680,11 @@ void SkPathStroker::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar wei
     (void) this->conicStroke(conic, &quadPts);
     this->init(kInner_StrokeType, &quadPts, 0, 1);
     (void) this->conicStroke(conic, &quadPts);
-    this->setConicEndNormal(conic, normalAB, unitAB, &normalBC, &unitBC);
-    this->postJoinTo(pt2, normalBC, unitBC);
+    this->setConicEndNormal(conic, unitAB);
+    if (fStrokerPriv.needsCurvature()) {
+        fStrokerPriv.setFromCurvature(conic.findEndCurvatureVal());
+    }
+    this->postJoinTo(pt2);
 }
 
 void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
@@ -739,15 +704,17 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
     }
     if (kDegenerate_ReductionType == reductionType) {
         this->lineTo(reduction);
-        SkStrokerPriv::JoinProc saveJoiner = fJoiner;
-        fJoiner = SkStrokerPriv::JoinFactory(SkPaint::kRound_Join);
+        fStrokerPriv.tempJoin(SkPaint::kRound_Join);
         this->lineTo(pt2);
-        fJoiner = saveJoiner;
+        fStrokerPriv.revertJoin();
         return;
     }
     SkASSERT(kQuad_ReductionType == reductionType);
-    SkVector normalAB, unitAB, normalBC, unitBC;
-    if (!this->preJoinTo(pt1, &normalAB, &unitAB, false)) {
+    if (fStrokerPriv.needsCurvature()) {
+        this->setToCurvature(SkFindQuadStartCurvatureVal(quad));
+    }
+    SkVector unitAB;
+    if (!this->doJoinTo(pt1, false, &unitAB)) {
         this->lineTo(pt2);
         return;
     }
@@ -756,9 +723,11 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
     (void) this->quadStroke(quad, &quadPts);
     this->init(kInner_StrokeType, &quadPts, 0, 1);
     (void) this->quadStroke(quad, &quadPts);
-    this->setQuadEndNormal(quad, normalAB, unitAB, &normalBC, &unitBC);
-
-    this->postJoinTo(pt2, normalBC, unitBC);
+    this->setQuadEndNormal(quad, unitAB);
+    if (fStrokerPriv.needsCurvature()) {
+        fStrokerPriv.setFromCurvature(SkFindQuadEndCurvatureVal(quad));
+    }
+    this->postJoinTo(pt2);
 }
 
 // Given a point on the curve and its derivative, scale the derivative by the radius, and
@@ -1253,8 +1222,7 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
     }
     if (kDegenerate_ReductionType <= reductionType && kDegenerate3_ReductionType >= reductionType) {
         this->lineTo(reduction[0]);
-        SkStrokerPriv::JoinProc saveJoiner = fJoiner;
-        fJoiner = SkStrokerPriv::JoinFactory(SkPaint::kRound_Join);
+        fStrokerPriv.tempJoin(SkPaint::kRound_Join);
         if (kDegenerate2_ReductionType <= reductionType) {
             this->lineTo(reduction[1]);
         }
@@ -1262,12 +1230,15 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
             this->lineTo(reduction[2]);
         }
         this->lineTo(pt3);
-        fJoiner = saveJoiner;
+        fStrokerPriv.revertJoin();
         return;
     }
     SkASSERT(kQuad_ReductionType == reductionType);
-    SkVector normalAB, unitAB, normalCD, unitCD;
-    if (!this->preJoinTo(*tangentPt, &normalAB, &unitAB, false)) {
+    if (fStrokerPriv.needsCurvature()) {
+        this->setToCurvature(SkFindCubicStartCurvatureVal(cubic));
+    }
+    SkVector unitAB;
+    if (!this->doJoinTo(*tangentPt, false, &unitAB)) {
         this->lineTo(pt3);
         return;
     }
@@ -1291,9 +1262,11 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
     }
     // emit the join even if one stroke succeeded but the last one failed
     // this avoids reversing an inner stroke with a partial path followed by another moveto
-    this->setCubicEndNormal(cubic, normalAB, unitAB, &normalCD, &unitCD);
-
-    this->postJoinTo(pt3, normalCD, unitCD);
+    this->setCubicEndNormal(cubic, unitAB);
+    if (fStrokerPriv.needsCurvature()) {
+        fStrokerPriv.setFromCurvature(SkFindCubicEndCurvatureVal(cubic));
+    }
+    this->postJoinTo(pt3);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1408,8 +1381,8 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     bool ignoreCenter = fDoFill && (src.getSegmentMasks() == SkPath::kLine_SegmentMask) &&
                         src.isLastContourClosed() && src.isConvex();
 
-    SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(), this->getJoin(),
-                            fResScale, ignoreCenter);
+    SkPathStroker   stroker(src, radius, fMiterLimit, fCap, fJoin, fResScale,
+                            ignoreCenter);
     SkPath::Iter    iter(src, false);
     SkPath::Verb    lastSegment = SkPath::kMove_Verb;
 
@@ -1437,7 +1410,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                 lastSegment = SkPath::kCubic_Verb;
                 break;
             case SkPath::kClose_Verb:
-                if (SkPaint::kButt_Cap != this->getCap()) {
+                if (SkPaint::kButt_Cap != (SkPaint::Cap)fCap) {
                     /* If the stroke consists of a moveTo followed by a close, treat it
                        as if it were followed by a zero-length line. Lines without length
                        can have square and round end caps. */
@@ -1530,6 +1503,7 @@ static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPathD
 
 void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
                           SkPathDirection dir) const {
+    SkScalar clipOutset = 0;
     SkASSERT(dst != nullptr);
     dst->reset();
 
@@ -1553,12 +1527,22 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
     r.outset(radius, radius);
 
     SkPaint::Join join = (SkPaint::Join)fJoin;
-    if (SkPaint::kMiter_Join == join && fMiterLimit < SK_ScalarSqrt2) {
+    if (SkPaint::kArcs_Join == join) {
+        join = SkPaint::kMiterClip_Join;
+    }
+    if ((SkPaint::kMiter_Join == join || SkPaint::kMiterClip_Join == join) &&
+        fMiterLimit < SK_ScalarSqrt2) {
+        if (SkPaint::kMiterClip_Join == join &&
+            fMiterLimit > SK_ScalarSqrt2/2) {
+            clipOutset = radius * (fMiterLimit * SK_ScalarSqrt2 - 1);
+            rect.outset(clipOutset, clipOutset);
+        }
         join = SkPaint::kBevel_Join;
     }
 
     switch (join) {
         case SkPaint::kMiter_Join:
+        case SkPaint::kMiterClip_Join:
             dst->addRect(r, dir);
             break;
         case SkPaint::kBevel_Join:
@@ -1573,7 +1557,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
 
     if (fWidth < std::min(rw, rh) && !fDoFill) {
         r = rect;
-        r.inset(radius, radius);
+        r.inset(radius+clipOutset, radius+clipOutset);
         dst->addRect(r, reverse_direction(dir));
     }
 }

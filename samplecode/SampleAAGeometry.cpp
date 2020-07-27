@@ -737,7 +737,7 @@ public:
     AAGeometryView()
         : fResControl("error", 0, 10)
         , fWeightControl("weight", 0, 5)
-        , fWidthControl("width", FLT_EPSILON, 100)
+        , fWidthControl("radius", FLT_EPSILON, 100)
         , fFilterControl("filter", 0, 255)
         , fCubicButton('C')
         , fConicButton('K')

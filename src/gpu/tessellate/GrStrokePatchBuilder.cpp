@@ -194,6 +194,9 @@ static float join_type_from_join(SkPaint::Join join) {
             return GrTessellateStrokeShader::kMiterJoinType;
         case SkPaint::kRound_Join:
             return GrTessellateStrokeShader::kRoundJoinType;
+        default:
+            SK_ABORT("Unexpected SkPaint::Join.");
+            return GrTessellateStrokeShader::kMiterJoinType;
     }
     SkUNREACHABLE;
 }

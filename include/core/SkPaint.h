@@ -378,10 +378,15 @@ public:
         not necessarily include circles at each connected segment.
     */
     enum Join : uint8_t {
-        kMiter_Join,                 //!< extends to miter limit
+        kMiter_Join,                 //!< Extends tangents to intersection,
+                                     //!< reverts to bevel at miter limit
         kRound_Join,                 //!< adds circle
         kBevel_Join,                 //!< connects outside edges
-        kLast_Join    = kBevel_Join, //!< equivalent to the largest value for Join
+        kMiterClip_Join,             //!< Extends tangents to intersection,
+                                     //!< clipped at miter limit
+        kArcs_Join,                  //!< Continues offset curvatures with arcs,
+                                     //!< clipped at miter limit
+        kLast_Join    = kArcs_Join,  //!< equivalent to the largest value for Join
         kDefault_Join = kMiter_Join, //!< equivalent to kMiter_Join
     };
 
@@ -701,11 +706,11 @@ private:
             unsigned    fAntiAlias : 1;
             unsigned    fDither : 1;
             unsigned    fCapType : 2;
-            unsigned    fJoinType : 2;
+            unsigned    fJoinType : 3;
             unsigned    fStyle : 2;
             unsigned    fFilterQuality : 2;
             unsigned    fBlendMode : 8; // only need 5-6?
-            unsigned    fPadding : 14;  // 14==32-1-1-2-2-2-2-8
+            unsigned    fPadding : 13;  // 14==32-1-1-2-3-2-2-8
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };
