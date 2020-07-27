@@ -161,7 +161,7 @@ private:
         return fScratchLabel.c_str();
     }
 
-    SkSTArray<16, bool, true> fTreeStack;
+    SkSTArray<16, uint8_t, true> fTreeStack;
     SkSTArray<16, int, true>  fArrayCounterStack;
     SkSTArray<16, ArrayEdit, true> fArrayEditStack;
     SkString fScratchLabel;
