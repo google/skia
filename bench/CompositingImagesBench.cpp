@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
+#include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 
 enum class ClampingMode {
