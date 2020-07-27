@@ -33,6 +33,23 @@
       "revId": "4038f4370c2b944abf27b1f254f3790cd10a8093",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3342714_cf855755",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-27T15:58:11Z",
+      "side": 1,
+      "message": "More questions:\n\nimage2 \u003d image1-\u003emakeSubset(... kShare)\n\nIf we draw image2 with bilerp, we can bleed... must we bleed? (cpu side does not today)\n\nimage3 \u003d image2-\u003ewithMipmaps(...)\n\nWhen we draw image3. Do we look at image3\u0027s mips, or image2\u0027s (assuming it has them)?\n",
+      "revId": "4038f4370c2b944abf27b1f254f3790cd10a8093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
