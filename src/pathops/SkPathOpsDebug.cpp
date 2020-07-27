@@ -32,7 +32,6 @@ bool SkPathOpsDebug::gVeryVerbose;  // set to true to run extensive checking tes
 #define FAIL_WITH_NULL_IF(cond, span) \
          do { if (cond) log->record(SkPathOpsDebug::kFail_Glitch, span); } while (false)
 
-#undef RETURN_FALSE_IF
 #define RETURN_FALSE_IF(cond, span) \
          do { if (cond) log->record(SkPathOpsDebug::kReturnFalse_Glitch, span); \
          } while (false)

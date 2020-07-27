@@ -31,8 +31,8 @@ static DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a re
 static DEFINE_string2(json, J, "", "write json version of tests.");
 static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
-static DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
-static DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
+static DEFINE_bool(cpu, true, "Run CPU-bound work?");
+static DEFINE_bool(gpu, true, "Run GPU-bound work?");
 
 static DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of name to run.\n"
