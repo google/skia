@@ -50,6 +50,9 @@ message ProcessRenderInfoEx {
   // This one number is the "ultimate" benchmark to compare airbnb lottie vs skottie player.
   // performance. It is the total time for any rendering related work on CPU and GPU combined.
   optional int64 total_time = 18;      // This is total_cpu_time + total_gpu_time in nanoseconds.
+
+  // time between setSurface and second DrawFrame tag.
+  optional int64 startup_time = 19;
 }
 
 message SkottieMetric {
