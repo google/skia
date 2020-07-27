@@ -12,6 +12,8 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 
+#include <set>
+
 namespace SkSL {
 
 struct ASTNode;
@@ -21,10 +23,13 @@ struct ASTNode;
  */
 struct FunctionDefinition : public ProgramElement {
     FunctionDefinition(int offset, const FunctionDeclaration& declaration,
-                       std::unique_ptr<Statement> body)
+                       std::unique_ptr<Statement> body,
+                       std::set<const FunctionDeclaration*> referencedIntrinsics =
+                                                             std::set<const FunctionDeclaration*>())
     : INHERITED(offset, kFunction_Kind)
     , fDeclaration(declaration)
-    , fBody(std::move(body)) {}
+    , fBody(std::move(body))
+    , fReferencedIntrinsics(referencedIntrinsics) {}
 
     bool canBeInlined() const {
         static const int INLINE_THRESHOLD = 50; // chosen arbitrarily, feel free to adjust
@@ -33,7 +38,8 @@ struct FunctionDefinition : public ProgramElement {
 
     std::unique_ptr<ProgramElement> clone() const override {
         return std::unique_ptr<ProgramElement>(new FunctionDefinition(fOffset, fDeclaration,
-                                                                      fBody->clone()));
+                                                                      fBody->clone(),
+                                                                      fReferencedIntrinsics));
     }
 
     String description() const override {
@@ -42,6 +48,9 @@ struct FunctionDefinition : public ProgramElement {
 
     const FunctionDeclaration& fDeclaration;
     std::unique_ptr<Statement> fBody;
+    // we track intrinsic functions we reference so that we can ensure that all of them end up
+    // copied into the final output
+    std::set<const FunctionDeclaration*> fReferencedIntrinsics;
     // This pointer may be null, and even when non-null is not guaranteed to remain valid for the
     // entire lifespan of this object. The parse tree's lifespan is normally controlled by
     // IRGenerator, so the IRGenerator being destroyed or being used to compile another file will
