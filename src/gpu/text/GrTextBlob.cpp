@@ -579,86 +579,118 @@ std::tuple<bool, int> GrTransformedMaskSubRun::regenerateAtlas(int begin, int en
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target);
 }
 
+template<typename Quad, typename VertexData>
+static void fill_transformed_vertices_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                                         SkScalar dstPadding,
+                                         SkScalar srcPadding,
+                                         SkScalar strikeToSource,
+                                         GrColor color,
+                                         const SkMatrix& matrix) {
+    SkPoint inset = {dstPadding, dstPadding};
+    for (auto[quad, glyph, vertexData] : quadData) {
+        auto[pos, rect] = vertexData;
+        auto[l, t, r, b] = rect;
+        SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
+                sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
+        SkPoint lt = matrix.mapXY(sLT.x(), sLT.y()),
+                lb = matrix.mapXY(sLT.x(), sRB.y()),
+                rt = matrix.mapXY(sRB.x(), sLT.y()),
+                rb = matrix.mapXY(sRB.x(), sRB.y());
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(srcPadding);
+        quad[0] = {lt, color, {al, at}};  // L,T
+        quad[1] = {lb, color, {al, ab}};  // L,B
+        quad[2] = {rt, color, {ar, at}};  // R,T
+        quad[3] = {rb, color, {ar, ab}};  // R,B
+    }
+}
+
+template<typename Quad, typename VertexData>
+static void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                                         SkScalar dstPadding,
+                                         SkScalar srcPadding,
+                                         SkScalar strikeToSource,
+                                         GrColor color,
+                                         const SkMatrix& matrix) {
+    SkPoint inset = {dstPadding, dstPadding};
+    auto mapXYZ = [&](SkScalar x, SkScalar y) {
+        SkPoint pt{x, y};
+        SkPoint3 result;
+        matrix.mapHomogeneousPoints(&result, &pt, 1);
+        return result;
+    };
+    for (auto[quad, glyph, vertexData] : quadData) {
+        auto[pos, rect] = vertexData;
+        auto [l, t, r, b] = rect;
+        SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
+                sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
+        SkPoint3 lt = mapXYZ(sLT.x(), sLT.y()),
+                 lb = mapXYZ(sLT.x(), sRB.y()),
+                 rt = mapXYZ(sRB.x(), sLT.y()),
+                 rb = mapXYZ(sRB.x(), sRB.y());
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(srcPadding);
+        quad[0] = {lt, color, {al, at}};  // L,T
+        quad[1] = {lb, color, {al, ab}};  // L,B
+        quad[2] = {rt, color, {ar, at}};  // R,T
+        quad[3] = {rb, color, {ar, ab}};  // R,B
+    }
+}
+
+
 void GrTransformedMaskSubRun::fillVertexData(void* vertexDst,
                                              int offset, int count,
                                              GrColor color,
                                              const SkMatrix& drawMatrix, SkPoint drawOrigin,
                                              SkIRect clip) const {
-
+    constexpr SkScalar kDstPadding = 0.f;
+    constexpr SkScalar kSrcPadding = 1.f;
     SkMatrix matrix = drawMatrix;
     matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 
-    auto vertices = [&](auto dst) {
+    auto quadData = [&](auto dst) {
         return SkMakeZip(dst,
                          fGlyphs.glyphs().subspan(offset, count),
                          fVertexData.subspan(offset, count));
-    };
-
-    auto transformed2D = [&](auto dst, SkScalar dstPadding, SkScalar srcPadding) {
-        SkScalar strikeToSource = fGlyphs.strikeToSourceRatio();
-        SkPoint inset = {dstPadding, dstPadding};
-        for (auto[quad, glyph, vertexData] : vertices(dst)) {
-            auto[pos, rect] = vertexData;
-            auto [l, t, r, b] = rect;
-            SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
-                    sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
-            SkPoint lt = matrix.mapXY(sLT.x(), sLT.y()),
-                    lb = matrix.mapXY(sLT.x(), sRB.y()),
-                    rt = matrix.mapXY(sRB.x(), sLT.y()),
-                    rb = matrix.mapXY(sRB.x(), sRB.y());
-            auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(srcPadding);
-            quad[0] = {lt, color, {al, at}};  // L,T
-            quad[1] = {lb, color, {al, ab}};  // L,B
-            quad[2] = {rt, color, {ar, at}};  // R,T
-            quad[3] = {rb, color, {ar, ab}};  // R,B
-        }
-    };
-
-    auto transformed3D = [&](auto dst, SkScalar dstPadding, SkScalar srcPadding) {
-        SkScalar strikeToSource = fGlyphs.strikeToSourceRatio();
-        SkPoint inset = {dstPadding, dstPadding};
-        auto mapXYZ = [&](SkScalar x, SkScalar y) {
-            SkPoint pt{x, y};
-            SkPoint3 result;
-            matrix.mapHomogeneousPoints(&result, &pt, 1);
-            return result;
-        };
-        for (auto[quad, glyph, vertexData] : vertices(dst)) {
-            auto[pos, rect] = vertexData;
-            auto [l, t, r, b] = rect;
-            SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
-                    sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
-            SkPoint3 lt = mapXYZ(sLT.x(), sLT.y()),
-                    lb = mapXYZ(sLT.x(), sRB.y()),
-                    rt = mapXYZ(sRB.x(), sLT.y()),
-                    rb = mapXYZ(sRB.x(), sRB.y());
-            auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(srcPadding);
-            quad[0] = {lt, color, {al, at}};  // L,T
-            quad[1] = {lb, color, {al, ab}};  // L,B
-            quad[2] = {rt, color, {ar, at}};  // R,T
-            quad[3] = {rb, color, {ar, ab}};  // R,B
-        }
     };
 
     if (!this->hasW()) {
         if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            transformed2D((Quad*) vertexDst, 0, 1);
+            fill_transformed_vertices_2D(
+                    quadData((Quad*) vertexDst),
+                    kDstPadding, kSrcPadding,
+                    fGlyphs.strikeToSourceRatio(),
+                    color,
+                    matrix);
         } else {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            transformed2D((Quad*) vertexDst, 0, 1);
+            fill_transformed_vertices_2D(
+                    quadData((Quad*) vertexDst),
+                    kDstPadding, kSrcPadding,
+                    fGlyphs.strikeToSourceRatio(),
+                    color,
+                    matrix);
         }
     } else {
         if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
             using Quad = ARGB3DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            transformed3D((Quad*) vertexDst, 0, 1);
+            fill_transformed_vertices_3D(
+                    quadData((Quad*) vertexDst),
+                    kDstPadding, kSrcPadding,
+                    fGlyphs.strikeToSourceRatio(),
+                    color,
+                    matrix);
         } else {
             using Quad = Mask3DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            transformed3D((Quad*) vertexDst, 0, 1);
+            fill_transformed_vertices_3D(
+                    quadData((Quad*) vertexDst),
+                    kDstPadding, kSrcPadding,
+                    fGlyphs.strikeToSourceRatio(),
+                    color,
+                    matrix);
         }
     }
 }
@@ -831,66 +863,30 @@ void GrSDFTSubRun::fillVertexData(
     SkMatrix matrix = drawMatrix;
     matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 
-    auto vertices = [&](auto dst) {
+    auto quadData = [&](auto dst) {
         return SkMakeZip(dst,
                          fGlyphs.glyphs().subspan(offset, count),
                          fVertexData.subspan(offset, count));
     };
 
-    auto transformed2D = [&](auto dst, SkScalar dstPadding, SkScalar srcPadding) {
-        SkScalar strikeToSource = fGlyphs.strikeToSourceRatio();
-        SkPoint inset = {dstPadding, dstPadding};
-        for (auto[quad, glyph, vertexData] : vertices(dst)) {
-            auto[pos, rect] = vertexData;
-            auto [l, t, r, b] = rect;
-            SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
-                    sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
-            SkPoint lt = matrix.mapXY(sLT.x(), sLT.y()),
-                    lb = matrix.mapXY(sLT.x(), sRB.y()),
-                    rt = matrix.mapXY(sRB.x(), sLT.y()),
-                    rb = matrix.mapXY(sRB.x(), sRB.y());
-            auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(srcPadding);
-            quad[0] = {lt, color, {al, at}};  // L,T
-            quad[1] = {lb, color, {al, ab}};  // L,B
-            quad[2] = {rt, color, {ar, at}};  // R,T
-            quad[3] = {rb, color, {ar, ab}};  // R,B
-        }
-    };
-
-    auto transformed3D = [&](auto dst, SkScalar dstPadding, SkScalar srcPadding) {
-        SkScalar strikeToSource = fGlyphs.strikeToSourceRatio();
-        SkPoint inset = {dstPadding, dstPadding};
-        auto mapXYZ = [&](SkScalar x, SkScalar y) {
-            SkPoint pt{x, y};
-            SkPoint3 result;
-            matrix.mapHomogeneousPoints(&result, &pt, 1);
-            return result;
-        };
-        for (auto[quad, glyph, vertexData] : vertices(dst)) {
-            auto[pos, rect] = vertexData;
-            auto [l, t, r, b] = rect;
-            SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
-                    sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
-            SkPoint3 lt = mapXYZ(sLT.x(), sLT.y()),
-                     lb = mapXYZ(sLT.x(), sRB.y()),
-                     rt = mapXYZ(sRB.x(), sLT.y()),
-                     rb = mapXYZ(sRB.x(), sRB.y());
-            auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(srcPadding);
-            quad[0] = {lt, color, {al, at}};  // L,T
-            quad[1] = {lb, color, {al, ab}};  // L,B
-            quad[2] = {rt, color, {ar, at}};  // R,T
-            quad[3] = {rb, color, {ar, ab}};  // R,B
-        }
-    };
-
     if (!this->hasW()) {
         using Quad = Mask2DVertex[4];
         SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-        transformed2D((Quad*) vertexDst, SK_DistanceFieldInset, SK_DistanceFieldInset);
+        fill_transformed_vertices_2D(
+                quadData((Quad*) vertexDst),
+                SK_DistanceFieldInset, SK_DistanceFieldInset,
+                fGlyphs.strikeToSourceRatio(),
+                color,
+                matrix);
     } else {
         using Quad = Mask3DVertex[4];
         SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-        transformed3D((Quad*) vertexDst, SK_DistanceFieldInset, SK_DistanceFieldInset);
+        fill_transformed_vertices_3D(
+                quadData((Quad*) vertexDst),
+                SK_DistanceFieldInset, SK_DistanceFieldInset,
+                fGlyphs.strikeToSourceRatio(),
+                color,
+                matrix);
     }
 }
 
