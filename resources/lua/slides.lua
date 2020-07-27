@@ -46,22 +46,22 @@ function stroke_rect(canvas, rect, color)
     canvas:drawRect(rect, paint)
 end
 
-function drawSlide(canvas, slide, master_template)
+function drawSlide(canvas, slide, main_template)
 
     if #slide == 1 then
-        template = master_template.title
+        template = main_template.title
         canvas:drawText(slide[1].text, 320, 240, template[1])
         return
     end
 
-    template = master_template.slide
+    template = main_template.slide
 
     local x = template.margin_x
     local y = template.margin_y
     local scale = 1.25
 
     if slide.blockstyle == "code" then
-        local paint = master_template.codePaint
+        local paint = main_template.codePaint
         local fm = paint:getFontMetrics()
         local height = #slide * (fm.descent - fm.ascent)
         y = (480 - height) / 2

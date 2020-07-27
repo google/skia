@@ -16,9 +16,9 @@ local n = 3
 -- CHANGEME
 
 -- This algorithm uses a list-of-lists for each SKP. For API call, append a
--- list containing just the verb to the master list. Then, backtrack over the
--- last (n-1) sublists in the master list and append the verb to those
--- sublists. At the end of execution, the master list contains a sublist for
+-- list containing just the verb to the main list. Then, backtrack over the
+-- last (n-1) sublists in the main list and append the verb to those
+-- sublists. At the end of execution, the main list contains a sublist for
 -- every verb in the SKP file. Each sublist has length n, with the exception of
 -- the last n-1 sublists, which are discarded in the summarize() function,
 -- which generates counts for each n-gram.
