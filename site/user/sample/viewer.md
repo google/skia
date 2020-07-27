@@ -1,6 +1,6 @@
 Skia Viewer
 ==========================
-The Skia Viewer displays a series of slides that exhibit specific features of Skia, including the Skia golden master images (or GMs) and programmed samples that allow interaction. In addition, the Viewer is used to debug and understand different parts of the Skia system:
+The Skia Viewer displays a series of slides that exhibit specific features of Skia, including the Skia GMs and programmed samples that allow interaction. In addition, the Viewer is used to debug and understand different parts of the Skia system:
 
 * Observe rendering performance - placing the Viewer in stats mode displays average frame times.
 * Try different rendering methods - it's possible to cycle among the three rendering methods: raster, OpenGL and Vulkan (on supported platforms). You can use this with stats mode to see the effect that the different rendering methods have on drawing performance.
