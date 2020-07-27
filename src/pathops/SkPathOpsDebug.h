@@ -251,7 +251,7 @@ DummyClasses(Cubic, Cubic);
 #define FAIL_WITH_NULL_IF(cond) \
         do { bool fail = (cond); SkOPASSERT(!fail); if (fail) return nullptr; } while (false)
 
-// Some functions serve two masters: one allows the function to fail, the other expects success
+// Some functions serve two clients: one allows the function to fail, the other expects success
 // always. If abort is true, tests with normal numbers may not fail and assert if they do so.
 // If abort is false, both normal and extreme numbers may return false without asserting.
 #define RETURN_FALSE_IF(abort, cond) \

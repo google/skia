@@ -85,7 +85,7 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
 }
 
 void SKPBench::onPerCanvasPostDraw(SkCanvas* canvas) {
-    // Draw the last set of tiles into the master canvas in case we're
+    // Draw the last set of tiles into the main canvas in case we're
     // saving the images
     for (int i = 0; i < fTileRects.count(); ++i) {
         sk_sp<SkImage> image(fSurfaces[i]->makeImageSnapshot());
