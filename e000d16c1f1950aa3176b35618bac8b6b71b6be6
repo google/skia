@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a84c338c_1ebd1fe7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-27T14:07:39Z",
+      "side": 1,
+      "message": "Out of curiosity, can you time the middle version where we build the existing __m256i code using AVX-512?  I think it should be as simple as keeping the changes to SkOpts_skx.cpp while disable the changes to SkBitmapProcState_opts.h.",
+      "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
