@@ -70,6 +70,30 @@
       "revId": "491915473c618c8bc0eb8b6660a9dea65a9d9c00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d06f2199_c0982111",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-27T13:13:55Z",
+      "side": 1,
+      "message": "At a minimum, we could add a check that verifies that the field sets ctype\u003dSkPoint or ctype\u003dSkRect? Or is it too absurd to have a layout(key) with a point or a rect anyway?",
+      "parentUuid": "4f84f030_27d317c9",
+      "range": {
+        "startLine": 1163,
+        "startChar": 0,
+        "endLine": 1177,
+        "endChar": 82
+      },
+      "revId": "491915473c618c8bc0eb8b6660a9dea65a9d9c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
