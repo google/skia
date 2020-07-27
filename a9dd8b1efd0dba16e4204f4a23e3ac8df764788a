@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1086bdfd_7e41a4ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T17:58:06Z",
+      "side": 1,
+      "message": "I take it this means you are publishing to npm?\n\nFYI: skottiekit currently has no tests on CI, so a CQ dryrun is probably not needed.",
+      "revId": "a9dd8b1efd0dba16e4204f4a23e3ac8df764788a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
