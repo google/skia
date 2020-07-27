@@ -110,8 +110,8 @@ static DEFINE_string(colorImages, "",
 
 static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
 
-static DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
-static DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
+static DEFINE_bool(cpu, true, "Run CPU-bound work?");
+static DEFINE_bool(gpu, true, "Run GPU-bound work?");
 
 static DEFINE_bool(dryRun, false,
                    "just print the tests that would be run, without actually running them.");

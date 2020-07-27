@@ -140,8 +140,8 @@ static DEFINE_bool(skvm, false, "sets gUseSkVMBlitter and gSkVMJITViaDylib");
 static DEFINE_bool2(pre_log, p, false,
                     "Log before running each test. May be incomprehensible when threading");
 
-static DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
-static DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
+static DEFINE_bool(cpu, true, "Run CPU-bound work?");
+static DEFINE_bool(gpu, true, "Run GPU-bound work?");
 static DEFINE_bool(dryRun, false,
                    "just print the tests that would be run, without actually running them.");
 static DEFINE_string(images, "",
