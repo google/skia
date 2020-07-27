@@ -38,7 +38,7 @@ appear here first.
 [1]: http://cs.skia.org/             "Chromium code search"
 [2]: http://cs/#skia/                "Internal Code Search"
 [3]: https://github.com/google/skia  "Github mirror of skia"
-[4]: https://skia.googlesource.com/  "Master Skia repos on googlesource.com"
+[4]: https://skia.googlesource.com/  "Primary Skia repos on googlesource.com"
 [5]: https://cs.chromium.org/chromium/skia/buildbot/
 
 Client code search
