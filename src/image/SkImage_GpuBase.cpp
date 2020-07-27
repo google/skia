@@ -134,7 +134,7 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     return true;
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
+sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset, SubsetMethod method,
                                              GrDirectContext* direct) const {
     if (!fContext->priv().matches(direct)) {
         return nullptr;

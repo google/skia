@@ -246,7 +246,10 @@ GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipmappe
 }
 #endif
 
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, SubsetMethod method,
+                                          GrDirectContext*) const {
+    // TODO: how best to respect method? Pass along to generator?
+
     SkASSERT(this->bounds().contains(subset));
     SkASSERT(this->bounds() != subset);
 

@@ -88,7 +88,7 @@ public:
 #endif
 
     bool getROPixels(SkBitmap*, CachingHint) const override;
-    sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
+    sk_sp<SkImage> onMakeSubset(const SkIRect&, SubsetMethod, GrDirectContext*) const override;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
@@ -244,22 +244,26 @@ void SkImage_Raster::onUnpinAsTexture(GrRecordingContext*) const {
 }
 #endif
 
-sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {
-    SkImageInfo info = fBitmap.info().makeDimensions(subset.size());
+sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, SubsetMethod method,
+                                            GrDirectContext*) const {
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(info)) {
-        return nullptr;
-    }
 
-    void* dst = bitmap.getPixels();
-    void* src = fBitmap.getAddr(subset.x(), subset.y());
-    if (!dst || !src) {
-        SkDEBUGFAIL("SkImage_Raster::onMakeSubset with nullptr src or dst");
-        return nullptr;
-    }
+    if (method != SubsetMethod::kShare || !fBitmap.extractSubset(&bitmap, subset)) {
+        SkImageInfo info = fBitmap.info().makeDimensions(subset.size());
+        if (!bitmap.tryAllocPixels(info)) {
+            return nullptr;
+        }
 
-    SkRectMemcpy(dst, bitmap.rowBytes(), src, fBitmap.rowBytes(), bitmap.rowBytes(),
-                 subset.height());
+        void* dst = bitmap.getPixels();
+        void* src = fBitmap.getAddr(subset.x(), subset.y());
+        if (!dst || !src) {
+            SkDEBUGFAIL("SkImage_Raster::onMakeSubset with nullptr src or dst");
+            return nullptr;
+        }
+
+        SkRectMemcpy(dst, bitmap.rowBytes(), src, fBitmap.rowBytes(), bitmap.rowBytes(),
+                     subset.height());
+    }
 
     bitmap.setImmutable();
     return MakeFromBitmap(bitmap);
