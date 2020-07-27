@@ -195,7 +195,7 @@ private:
 };
 
 // -- GrPathSubRun ---------------------------------------------------------------------------------
-class GrPathSubRun : public GrSubRun {
+class GrPathSubRun final : public GrSubRun {
     struct PathGlyph;
 
 public:
@@ -364,7 +364,7 @@ private:
 };
 
 // -- GrTransformedMaskSubRun ----------------------------------------------------------------------
-class GrTransformedMaskSubRun : public GrAtlasSubRun {
+class GrTransformedMaskSubRun final : public GrAtlasSubRun {
 public:
     struct VertexData {
         const SkPoint pos;
@@ -427,7 +427,7 @@ private:
 
 // -- GrSDFTSubRun ---------------------------------------------------------------------------------
 // Hold data to draw Scaled Distance Field Text sub runs.
-class GrSDFTSubRun : public GrAtlasSubRun {
+class GrSDFTSubRun final : public GrAtlasSubRun {
 public:
     struct VertexData {
         const SkPoint pos;
