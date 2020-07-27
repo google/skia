@@ -7,7 +7,12 @@
 
 #include <fstream>
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/ir/SkSLEnum.h"
+#include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 // Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
 // filename prefix and suffix (e.g. "Gr" and ".fp"), returns the "base name" of the
@@ -39,7 +44,7 @@ int main(int argc, const char** argv) {
     SkSL::String input(argv[1]);
     if (input.endsWith(".vert")) {
         kind = SkSL::Program::kVertex_Kind;
-    } else if (input.endsWith(".frag")) {
+    } else if (input.endsWith(".frag") || input.endsWith(".sksl")) {
         kind = SkSL::Program::kFragment_Kind;
     } else if (input.endsWith(".geom")) {
         kind = SkSL::Program::kGeometry_Kind;
@@ -48,7 +53,8 @@ int main(int argc, const char** argv) {
     } else if (input.endsWith(".stage")) {
         kind = SkSL::Program::kPipelineStage_Kind;
     } else {
-        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', or '.stage'\n");
+        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.stage', or "
+               "'.sksl'\n");
         exit(1);
     }
 
@@ -141,6 +147,42 @@ int main(int argc, const char** argv) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }
+        if (!out.close()) {
+            printf("error writing '%s'\n", argv[2]);
+            exit(4);
+        }
+    } else if (name.endsWith(".dehydrated.sksl")) {
+        SkSL::FileOutputStream out(argv[2]);
+        SkSL::Compiler compiler;
+        if (!out.isValid()) {
+            printf("error writing '%s'\n", argv[2]);
+            exit(4);
+        }
+        std::shared_ptr<SkSL::SymbolTable> symbols;
+        std::vector<std::unique_ptr<SkSL::ProgramElement>> elements;
+        compiler.processIncludeFile(kind, text.c_str(), text.length(), nullptr, &elements,
+                                    &symbols);
+        SkSL::Dehydrator dehydrator;
+        for (int i = symbols->fParent->fOwnedSymbols.size() - 1; i >= 0; --i) {
+            symbols->fOwnedSymbols.insert(symbols->fOwnedSymbols.begin(),
+                                          std::move(symbols->fParent->fOwnedSymbols[i]));
+        }
+        for (const auto& p : *symbols->fParent) {
+            symbols->addWithoutOwnership(p.first, p.second);
+        }
+        dehydrator.write(*symbols);
+        dehydrator.write(elements);
+        SkSL::String name = base_name(argv[1], "", ".sksl");
+        SkSL::StringStream buffer;
+        dehydrator.finish(buffer);
+        const SkSL::String& data = buffer.str();
+        out.printf("static constexpr size_t SKSL_INCLUDE_%s_LENGTH = %d;\n", name.c_str(),
+                   (int) data.length());
+        out.printf("static uint8_t SKSL_INCLUDE_%s[%d] = {", name.c_str(), (int) data.length());
+        for (size_t i = 0; i < data.length(); ++i) {
+            out.printf("%d,", (uint8_t) data[i]);
+        }
+        out.printf("};\n");
         if (!out.close()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
