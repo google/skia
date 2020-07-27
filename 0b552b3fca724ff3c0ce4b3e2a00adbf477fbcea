@@ -16,6 +16,24 @@
       "revId": "0b552b3fca724ff3c0ce4b3e2a00adbf477fbcea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4f3bfc2_926f1c25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-27T17:29:24Z",
+      "side": 1,
+      "message": "I\u0027d be open to going all-in once we have a better answer for SkSTArray. Right now that\u0027s a big gap. We could steal absl::InlinedVector maybe.",
+      "parentUuid": "2c13311b_42461efe",
+      "revId": "0b552b3fca724ff3c0ce4b3e2a00adbf477fbcea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
