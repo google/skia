@@ -173,7 +173,7 @@ static void test_encode(skiatest::Reporter* reporter, SkImage* image) {
 
     // Now see if we can instantiate an image from a subset of the surface/origEncoded
 
-    decoded = SkImage::MakeFromEncoded(origEncoded, &ir);
+    decoded = SkImage::MakeFromEncoded(origEncoded)->makeSubset(ir);
     REPORTER_ASSERT(reporter, decoded);
     assert_equal(reporter, image, &ir, decoded.get());
 }
