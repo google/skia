@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ed3c246_806a9c9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-27T13:56:09Z",
+      "side": 1,
+      "message": "How to handle lazy/generators?\n\n- pass the enum to the Generator?\n- what do they do today with subsets?\n- if kCopy, is there any reason to inform the generator, and we can just rasterize/copy ourselves?",
+      "revId": "4038f4370c2b944abf27b1f254f3790cd10a8093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
