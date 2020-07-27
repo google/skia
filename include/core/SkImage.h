@@ -176,20 +176,15 @@ public:
     /** Creates SkImage from data returned by imageGenerator. Generated data is owned by SkImage and
         may not be shared or accessed.
 
-        subset allows selecting a portion of the full image. Pass nullptr to select the entire
-        image; otherwise, subset must be contained by image bounds.
-
         SkImage is returned if generator data is valid. Valid data parameters vary by type of data
         and platform.
 
         imageGenerator may wrap SkPicture data, codec data, or custom data.
 
         @param imageGenerator  stock or custom routines to retrieve SkImage
-        @param subset          bounds of returned SkImage; may be nullptr
         @return                created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator,
-                                            const SkIRect* subset = nullptr);
+    static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator);
 
     /**
      *  Return an image backed by the encoded data, but attempt to defer decoding until the image
@@ -209,12 +204,11 @@ public:
      *
      *  @param encoded  the encoded data
      *  @param length   the number of bytes of encoded data
-     *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
      *  @return         created SkImage, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_MakeFromEncoded
     */
-    static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
+    static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded);
 
     /**
      *  Decode the data in encoded/length into a raster image.

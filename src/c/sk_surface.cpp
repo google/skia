@@ -142,9 +142,8 @@ sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pi
     return (sk_image_t*)SkImage::MakeRasterCopy(SkPixmap(*info, pixels, rowBytes)).release();
 }
 
-sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {
-    return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata)),
-                                           reinterpret_cast<const SkIRect*>(subset)).release());
+sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata) {
+    return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata))).release());
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {
