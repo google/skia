@@ -137,6 +137,13 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
 
     if (!shape.style().isSimpleFill()) {
         SkPMColor4f constantColor;
+
+        SkPaint::Join join = shape.style().strokeRec().getJoin();
+        if (SkPaint::Join::kArcs_Join == join ||
+            SkPaint::Join::kMiterClip_Join == join) {
+            return CanDrawPath::kNo;
+        }
+
         // These are only temporary restrictions while we bootstrap tessellated stroking. Every one
         // of them will eventually go away.
         if (shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||

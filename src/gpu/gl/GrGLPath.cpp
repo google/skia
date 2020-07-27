@@ -58,13 +58,16 @@ inline GrGLenum join_to_gl_join(SkPaint::Join join) {
     static GrGLenum gSkJoinsToGrGLJoins[] = {
         GR_GL_MITER_REVERT,
         GR_GL_ROUND,
-        GR_GL_BEVEL
+        GR_GL_BEVEL,
+        GR_GL_MITER_TRUNCATE,
     };
+    SkASSERT(SkPaint::kArcs_Join != join);
     return gSkJoinsToGrGLJoins[join];
     static_assert(0 == SkPaint::kMiter_Join);
     static_assert(1 == SkPaint::kRound_Join);
     static_assert(2 == SkPaint::kBevel_Join);
-    static_assert(SK_ARRAY_COUNT(gSkJoinsToGrGLJoins) == SkPaint::kJoinCount);
+    static_assert(3 == SkPaint::kMiterClip_Join);
+    static_assert(SK_ARRAY_COUNT(gSkJoinsToGrGLJoins) == SkPaint::kJoinCount-1);
 }
 
 inline GrGLenum cap_to_gl_cap(SkPaint::Cap cap) {
@@ -249,8 +252,16 @@ void GrGLPath::InitPathObjectStroke(GrGLGpu* gpu, GrGLuint pathID, const SkStrok
     SkASSERT(!stroke.isHairlineStyle());
     GR_GL_CALL(gpu->glInterface(),
                PathParameterf(pathID, GR_GL_PATH_STROKE_WIDTH, SkScalarToFloat(stroke.getWidth())));
-    GR_GL_CALL(gpu->glInterface(),
-               PathParameterf(pathID, GR_GL_PATH_MITER_LIMIT, SkScalarToFloat(stroke.getMiter())));
+    if (SkPaint::kMiterClip_Join == stroke.getJoin()) {
+        /* As of commit time the miterLimit for GR_GL_MITER_TRUNCATE is
+           calculated differently than that for GR_GL_MITER_REVERT. The
+           factor of two brings them back into alignment.*/
+        GR_GL_CALL(gpu->glInterface(),
+                   PathParameterf(pathID, GR_GL_PATH_MITER_LIMIT, SkScalarToFloat(stroke.getMiter())*.5f));
+    } else {
+        GR_GL_CALL(gpu->glInterface(),
+                   PathParameterf(pathID, GR_GL_PATH_MITER_LIMIT, SkScalarToFloat(stroke.getMiter())));
+    }
     GrGLenum join = join_to_gl_join(stroke.getJoin());
     GR_GL_CALL(gpu->glInterface(), PathParameteri(pathID, GR_GL_PATH_JOIN_STYLE, join));
     GrGLenum cap = cap_to_gl_cap(stroke.getCap());

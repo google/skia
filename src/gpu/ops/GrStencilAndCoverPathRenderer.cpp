@@ -49,6 +49,7 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     // GrPath doesn't support hairline paths. An arbitrary path effect could produce a hairline
     // path.
     if (args.fShape->style().strokeRec().isHairlineStyle() ||
+        SkPaint::Join::kArcs_Join == args.fShape->style().strokeRec().getJoin() ||
         args.fShape->style().hasNonDashPathEffect() ||
         args.fHasUserStencilSettings) {
         return CanDrawPath::kNo;

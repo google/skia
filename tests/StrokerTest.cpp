@@ -10,7 +10,6 @@
 #include "include/core/SkTime.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkPointPriv.h"
-#include "src/core/SkStrokerPriv.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "tests/PathOpsCubicIntersectionTestData.h"
 #include "tests/PathOpsQuadIntersectionTestData.h"

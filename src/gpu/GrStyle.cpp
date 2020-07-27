@@ -64,7 +64,7 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
         memcpy(&key[i++], &scale, sizeof(SkScalar));
         enum {
             kStyleBits = 2,
-            kJoinBits = 2,
+            kJoinBits = 3,
             kCapBits = 32 - kStyleBits - kJoinBits,
 
             kJoinShift = kStyleBits,
@@ -86,7 +86,7 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
         if (!(flags & kNoJoins_KeyFlag) || style.hasNonDashPathEffect()) {
             join = style.strokeRec().getJoin();
             // Miter limit only affects miter joins
-            if (SkPaint::kMiter_Join == join) {
+            if (SkPaint::kMiter_Join == join || SkPaint::kMiterClip_Join == join) {
                 miter = style.strokeRec().getMiter();
             }
         }

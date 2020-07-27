@@ -620,9 +620,10 @@ bool GrStyledShape::simplifyStroke(bool originallyClosed) {
     if (!fStyle.hasPathEffect() && fShape.isRect() &&
         fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
         if (fStyle.strokeRec().getJoin() == SkPaint::kBevel_Join ||
-            (fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
+            ((fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join ||
+              fStyle.strokeRec().getJoin() == SkPaint::kMiterClip_Join) &&
              fStyle.strokeRec().getMiter() < SK_ScalarSqrt2)) {
-            // Bevel-stroked rect needs path rendering
+            // Bevel-stroked or miter-clipped rect needs path rendering
             return false;
         }
 
@@ -699,8 +700,13 @@ bool GrStyledShape::simplifyStroke(bool originallyClosed) {
             // turn. With round joins, this would make a semi-circle at each end, which is visually
             // identical to a round cap on the reduced line geometry.
             cap = SkPaint::kRound_Cap;
-        } else if (fShape.isPoint() && fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
-                   !strokeAndFilled) {
+        } else if (fShape.isLine() && (fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join ||
+                                       fStyle.strokeRec().getJoin() == SkPaint::kMiterClip_Join)) {
+            // The the on-edge profile of a miter-joined rectangle is equivalent to a square cap.
+            cap = SkPaint::kSquare_Cap;
+        } else if (fShape.isPoint() &&
+                   (fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join ||
+                    fStyle.strokeRec().getJoin() == SkPaint::kMiterClip_Join) && !strokeAndFilled) {
             // Use a square cap for miter join + stroked points, which matches raster's behavior and
             // expectations from Chrome masking tests, although it could be argued to just always
             // use a butt cap. This behavior, though, ensures that the default stroked paint draws

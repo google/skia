@@ -80,6 +80,7 @@ samples_sources = [
   "$_samplecode/SampleSimpleStroker.cpp",
   "$_samplecode/SampleSlides.cpp",
   "$_samplecode/SampleStringArt.cpp",
+  "$_samplecode/SampleStrokeJoins.cpp",
   "$_samplecode/SampleStrokePath.cpp",
   "$_samplecode/SampleStrokeRect.cpp",
   "$_samplecode/SampleSubpixelTranslate.cpp",

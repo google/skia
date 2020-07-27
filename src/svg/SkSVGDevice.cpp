@@ -104,9 +104,11 @@ static const char* svg_cap(SkPaint::Cap cap) {
 
 // Keep in sync with SkPaint::Join
 static const char* join_map[] = {
-    nullptr,    // kMiter_Join (default)
-    "round", // kRound_Join
-    "bevel"  // kBevel_Join
+    nullptr,      // kMiter_Join (default)
+    "round",      // kRound_Join
+    "bevel",      // kBevel_Join
+    "miter-clip", // kMiterClip_Join
+    "arcs"        // kArcs_Join
 };
 static_assert(SK_ARRAY_COUNT(join_map) == SkPaint::kJoinCount, "missing_join_map_entry");
 
@@ -364,7 +366,9 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
             this->addAttribute("stroke-linejoin", join);
         }
 
-        if (paint.getStrokeJoin() == SkPaint::kMiter_Join) {
+        if (paint.getStrokeJoin() == SkPaint::kMiter_Join ||
+            paint.getStrokeJoin() == SkPaint::kMiterClip_Join ||
+            paint.getStrokeJoin() == SkPaint::kArcs_Join) {
             this->addAttribute("stroke-miterlimit", paint.getStrokeMiter());
         }
 

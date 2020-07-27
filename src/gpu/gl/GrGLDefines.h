@@ -982,6 +982,7 @@
 // join values
 #define GR_GL_BEVEL                                         0x90A6
 #define GR_GL_MITER_REVERT                                  0x90A7
+#define GR_GL_MITER_TRUNCATE                                0x90A8
 
 // glyph loading values
 #define GR_GL_STANDARD_FONT_FORMAT                          0x936C

@@ -69,7 +69,9 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
         }
         if (strokeWidth > kMaxStrokeWidth ||
             !args.fShape->knownToBeClosed() ||
-            stroke.getJoin() == SkPaint::Join::kRound_Join) {
+            stroke.getJoin() == SkPaint::Join::kMiterClip_Join ||
+            stroke.getJoin() == SkPaint::Join::kRound_Join ||
+            stroke.getJoin() == SkPaint::Join::kArcs_Join) {
             return CanDrawPath::kNo;
         }
         return CanDrawPath::kYes;
