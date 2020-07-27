@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c742c691_4159d30c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-27T14:34:46Z",
+      "side": 1,
+      "message": "I got compile errors during an attempted refactor in SkTArray, and the root cause was lack of movability of OpChain objects.\n\nDeeper backstory: I really need the ability to visualize Sk(S)TArray in the debugger, so I\u0027m attempting to make a debug version of SkTArray which uses a std::vector as its backing store. This turns out to be pretty straightforward (there\u0027s really nothing in SkTArray which vector can\u0027t do) but exposed some shenanigans in our code, like this, which I am currently trying to polish out. \n\nIf you are curious about this I should hopefully have more to show later in the day.",
+      "parentUuid": "c686537d_866c24cd",
+      "revId": "fb64cd98917e230fb8840ddc3b8f4c0eef63ec67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21c101aa_6f800812",
         "filename": "src/gpu/GrOpsTask.h",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "e1a347ce_5868fa6c",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-27T14:34:46Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "21c101aa_6f800812",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 40
+      },
+      "revId": "fb64cd98917e230fb8840ddc3b8f4c0eef63ec67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "639ccbd4_a00ae26d",
         "filename": "src/gpu/GrOpsTask.h",
         "patchSetId": 2
@@ -62,6 +104,30 @@
       "revId": "fb64cd98917e230fb8840ddc3b8f4c0eef63ec67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a817edb7_c57a15d8",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-27T14:34:46Z",
+      "side": 1,
+      "message": "Not that I\u0027m aware of",
+      "parentUuid": "639ccbd4_a00ae26d",
+      "range": {
+        "startLine": 205,
+        "startChar": 12,
+        "endLine": 205,
+        "endChar": 36
+      },
+      "revId": "fb64cd98917e230fb8840ddc3b8f4c0eef63ec67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
