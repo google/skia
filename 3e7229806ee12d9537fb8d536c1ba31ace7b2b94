@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cf1ac72_81711bf8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-27T18:57:57Z",
+      "side": 1,
+      "message": "I think you can just cut almost all of these without replacement?",
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "460bf201_0ddc0e4f",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-27T18:57:57Z",
+      "side": 1,
+      "message": "\"run CPU-bound work?\"",
+      "range": {
+        "startLine": 143,
+        "startChar": 31,
+        "endLine": 143,
+        "endChar": 35
+      },
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9d0aa96_8ac0d841",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-27T18:57:57Z",
+      "side": 1,
+      "message": "\"The list\"?",
+      "range": {
+        "startLine": 30,
+        "startChar": 20,
+        "endLine": 30,
+        "endChar": 24
+      },
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "512445c2_168a42ab",
+        "filename": "site/dev/tools/codesearch.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-27T18:57:57Z",
+      "side": 1,
+      "message": "\"Skia repos...\"?",
+      "range": {
+        "startLine": 41,
+        "startChar": 38,
+        "endLine": 41,
+        "endChar": 42
+      },
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
