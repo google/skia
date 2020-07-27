@@ -1160,22 +1160,7 @@ void CPPCodeGenerator::writeGetKey() {
                         if (var.fModifiers.fLayout.fWhen.fLength) {
                             this->writef("if (%s) {", String(var.fModifiers.fLayout.fWhen).c_str());
                         }
-                        if (var.fType == *fContext.fFloat2_Type ||
-                            var.fType == *fContext.fHalf2_Type) {
-                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.fX));\n",
-                                         HCodeGenerator::FieldName(name).c_str());
-                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.fY));\n",
-                                         HCodeGenerator::FieldName(name).c_str());
-                        } else if (var.fType == *fContext.fFloat4_Type) {
-                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.x()));\n",
-                                         HCodeGenerator::FieldName(name).c_str());
-                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.y()));\n",
-                                         HCodeGenerator::FieldName(name).c_str());
-                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.width()));\n",
-                                         HCodeGenerator::FieldName(name).c_str());
-                            this->writef("    b->add32(sk_bit_cast<uint32_t>(%s.height()));\n",
-                                         HCodeGenerator::FieldName(name).c_str());
-                        } else if (var.fType == *fContext.fHalf4_Type) {
+                        if (var.fType == *fContext.fHalf4_Type) {
                             this->writef("    uint16_t red = SkFloatToHalf(%s.fR);\n",
                                          HCodeGenerator::FieldName(name).c_str());
                             this->writef("    uint16_t green = SkFloatToHalf(%s.fG);\n",
