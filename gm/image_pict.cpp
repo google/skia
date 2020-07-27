@@ -215,6 +215,7 @@ private:
     GrSurfaceProxyView        fView;
 };
 
+#if 0
 static std::unique_ptr<SkImageGenerator> make_tex_generator(GrRecordingContext* rContext,
                                                             sk_sp<SkPicture> pic) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
@@ -224,6 +225,7 @@ static std::unique_ptr<SkImageGenerator> make_tex_generator(GrRecordingContext* 
     }
     return std::make_unique<TextureGenerator>(rContext, info, pic);
 }
+#endif
 
 class ImageCacheratorGM : public skiagm::GM {
     typedef std::unique_ptr<SkImageGenerator> (*FactoryFunc)(GrRecordingContext*, sk_sp<SkPicture>);
@@ -339,4 +341,4 @@ private:
 };
 DEF_GM( return new ImageCacheratorGM("picture", make_pic_generator); )
 DEF_GM( return new ImageCacheratorGM("raster", make_ras_generator); )
-DEF_GM( return new ImageCacheratorGM("texture", make_tex_generator); )
+//DEF_GM( return new ImageCacheratorGM("texture", make_tex_generator); )
