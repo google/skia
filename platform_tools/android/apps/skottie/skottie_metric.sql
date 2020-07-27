@@ -13,6 +13,47 @@ INNER JOIN thread_track ON (thread_track.id = slice.track_id)
 WHERE slice.name='dequeueBuffer' AND slice.dur >= 0
 GROUP BY thread_track.utid;
 
+-- limit test results starting from second frame to 7 seconds after that
+CREATE VIEW test_start_ts AS
+SELECT
+  ts as test_start,
+  ts + 7000000000 as test_end,
+  thread.upid as process_upid
+FROM slice
+INNER JOIN thread_track ON (thread_track.id = slice.track_id)
+INNER JOIN thread ON (thread.utid = thread_track.utid)
+WHERE slice.name='DrawFrame' AND slice.dur >= 0
+ORDER BY slice.ts
+LIMIT 1 OFFSET 1;
+-- increase the offset if want to start from more than second frame
+
+CREATE VIEW startup_time AS
+SELECT
+  min(ts) as first_draw_frame,
+  test_start_ts.test_start as second_draw_frame,
+  test_start_ts.test_start - min(ts) as start_time,
+  thread_track.utid as render_thread_id
+FROM slice
+INNER JOIN thread_track ON (thread_track.id = slice.track_id)
+INNER JOIN thread ON (thread.utid = thread_track.utid)
+INNER JOIN test_start_ts ON (test_start_ts.process_upid = thread.upid)
+WHERE slice.name='setSurface' AND slice.dur >= 0
+GROUP BY thread_track.utid;
+
+CREATE VIEW hwui_draw_frame2 AS
+SELECT
+  count(*) as draw_frame_count,
+  max(dur) as draw_frame_max,
+  min(dur) as draw_frame_min,
+  avg(dur) as draw_frame_avg,
+  thread_track.utid as render_thread_id
+FROM slice
+INNER JOIN thread_track ON (thread_track.id = slice.track_id)
+INNER JOIN thread ON (thread.utid = thread_track.utid)
+INNER JOIN test_start_ts ON (slice.ts >= test_start_ts.test_start AND slice.ts <= test_start_ts.test_end)
+WHERE slice.name='DrawFrame' AND slice.dur >= 0
+GROUP BY thread_track.utid;
+
 CREATE VIEW skottie_animator AS
 SELECT
   count(*) as skottie_animator_count,
@@ -24,6 +65,7 @@ SELECT
 FROM slice
 INNER JOIN thread_track ON (thread_track.id = slice.track_id)
 INNER JOIN thread ON (thread.name='SkottieAnimator' AND thread.utid = thread_track.utid)
+INNER JOIN test_start_ts ON (slice.ts >= test_start_ts.test_start AND slice.ts <= test_start_ts.test_end)
 WHERE slice.name='Choreographer#doFrame' AND slice.dur >= 0
 GROUP BY thread_track.utid;
 
@@ -37,6 +79,7 @@ INNER JOIN thread ON (
                       (thread.name LIKE 'hwuiTask%' OR thread.name=substr(process.name,-15) OR thread.name LIKE '%skottie' OR thread.name='RenderThread' OR thread.name='SkottieAnimator')
                       AND thread.utid = sched_slice.utid
                      )
+INNER JOIN test_start_ts ON (sched_slice.ts >= test_start_ts.test_start AND sched_slice.ts <= test_start_ts.test_end)
 WHERE sched_slice.dur >= 0
 GROUP BY thread.upid;
 
@@ -46,6 +89,7 @@ SELECT
   thread.upid as process_upid
 FROM sched_slice
 INNER JOIN thread ON (thread.name LIKE 'hwuiTask%' AND thread.utid = sched_slice.utid)
+INNER JOIN test_start_ts ON (sched_slice.ts >= test_start_ts.test_start AND sched_slice.ts <= test_start_ts.test_end)
 WHERE sched_slice.dur >= 0
 GROUP BY thread.upid;
 
@@ -56,6 +100,7 @@ SELECT
 FROM sched_slice
 INNER JOIN process ON (process.upid = thread.upid)
 INNER JOIN thread ON ((thread.name=substr(process.name,-15) OR thread.name LIKE '%skottie') AND thread.utid = sched_slice.utid)
+INNER JOIN test_start_ts ON (sched_slice.ts >= test_start_ts.test_start AND sched_slice.ts <= test_start_ts.test_end)
 WHERE sched_slice.dur >= 0
 GROUP BY thread.upid;
 
@@ -65,6 +110,7 @@ SELECT
   thread.upid as process_upid
 FROM sched_slice
 INNER JOIN thread ON (thread.name='RenderThread' AND thread.utid = sched_slice.utid)
+INNER JOIN test_start_ts ON (sched_slice.ts >= test_start_ts.test_start AND sched_slice.ts <= test_start_ts.test_end)
 WHERE sched_slice.dur >= 0
 GROUP BY thread.upid;
 
@@ -74,6 +120,7 @@ SELECT
   thread.upid as process_upid
 FROM sched_slice
 INNER JOIN thread ON (thread.name='SkottieAnimator' AND thread.utid = sched_slice.utid)
+INNER JOIN test_start_ts ON (sched_slice.ts >= test_start_ts.test_start AND sched_slice.ts <= test_start_ts.test_end)
 WHERE sched_slice.dur >= 0
 GROUP BY thread.upid;
 
@@ -88,6 +135,7 @@ SELECT
 FROM slice
 INNER JOIN thread_track ON (thread_track.id = slice.track_id)
 INNER JOIN thread ON (thread.name='GPU completion' AND thread.utid = thread_track.utid)
+INNER JOIN test_start_ts ON (slice.ts >= test_start_ts.test_start AND slice.ts <= test_start_ts.test_end)
 WHERE slice.name LIKE 'waiting for GPU completion%' AND slice.dur >= 0
 GROUP BY thread_track.utid;
 
@@ -98,6 +146,7 @@ SELECT
 FROM slice
 INNER JOIN thread_track ON (thread_track.id = slice.track_id)
 INNER JOIN thread ON (thread.utid = thread_track.utid)
+INNER JOIN test_start_ts ON (slice.ts >= test_start_ts.test_start AND slice.ts <= test_start_ts.test_end)
 WHERE slice.name LIKE 'waiting for frame%' AND slice.dur >= 0
 GROUP BY thread_track.utid;
 
@@ -111,10 +160,10 @@ SELECT SkottieMetric(
             'process_name', process_name,
             'rt_cpu_time_ms', rt_cpu_time_ms,
 
-            'draw_frame_count', hwui_draw_frame.draw_frame_count,
-            'draw_frame_max', hwui_draw_frame.draw_frame_max,
-            'draw_frame_min', hwui_draw_frame.draw_frame_min,
-            'draw_frame_avg', hwui_draw_frame.draw_frame_avg,
+            'draw_frame_count', hwui_draw_frame2.draw_frame_count,
+            'draw_frame_max', hwui_draw_frame2.draw_frame_max,
+            'draw_frame_min', hwui_draw_frame2.draw_frame_min,
+            'draw_frame_avg', hwui_draw_frame2.draw_frame_avg,
 
             'flush_count', hwui_flush_commands.flush_count,
             'flush_max', hwui_flush_commands.flush_max,
@@ -174,8 +223,8 @@ SELECT SkottieMetric(
         'dequeue_buffer_min', dequeue_buffer.dequeue_buffer_min,
         'dequeue_buffer_avg', dequeue_buffer.dequeue_buffer_avg,
 
-        'render_time_avg', ifnull(skottie_animator.skottie_animator_avg, 0.0) + hwui_draw_frame.draw_frame_avg,
-        'render_time_avg_no_dequeue', ifnull(skottie_animator.skottie_animator_avg, 0.0) + hwui_draw_frame.draw_frame_avg - ifnull(dequeue_buffer.dequeue_buffer_avg, 0.0),
+        'render_time_avg', ifnull(skottie_animator.skottie_animator_avg, 0.0) + hwui_draw_frame2.draw_frame_avg,
+        'render_time_avg_no_dequeue', ifnull(skottie_animator.skottie_animator_avg, 0.0) + hwui_draw_frame2.draw_frame_avg - ifnull(dequeue_buffer.dequeue_buffer_avg, 0.0),
 
         'ui_thread_cpu_time', ifnull(cpu_time_ui_thread.cpu_time, 0),
         'rt_thread_cpu_time', ifnull(cpu_time_rt.cpu_time, 0),
@@ -184,11 +233,13 @@ SELECT SkottieMetric(
 
         'total_cpu_time', ifnull(total_cpu_time.cpu_time, 0),
         'total_gpu_time', ifnull(hwui_gpu_completion3.gpu_completion_sum, 0),
-        'total_time', ifnull(total_cpu_time.cpu_time, 0) + ifnull(hwui_gpu_completion3.gpu_completion_sum, 0)
+        'total_time', ifnull(total_cpu_time.cpu_time, 0) + ifnull(hwui_gpu_completion3.gpu_completion_sum, 0),
+
+        'startup_time', startup_time.start_time
       )
     )
     FROM hwui_processes
-    LEFT JOIN hwui_draw_frame ON (hwui_draw_frame.render_thread_id = hwui_processes.render_thread_id)
+    LEFT JOIN hwui_draw_frame2 ON (hwui_draw_frame2.render_thread_id = hwui_processes.render_thread_id)
     LEFT JOIN hwui_flush_commands ON (hwui_flush_commands.render_thread_id = hwui_processes.render_thread_id)
     LEFT JOIN hwui_prepare_tree ON (hwui_prepare_tree.render_thread_id = hwui_processes.render_thread_id)
     LEFT JOIN hwui_gpu_completion2 ON (hwui_gpu_completion2.process_upid = hwui_processes.process_upid)
@@ -208,6 +259,7 @@ SELECT SkottieMetric(
     LEFT JOIN cpu_time_skottie_animator ON (cpu_time_skottie_animator.process_upid = hwui_processes.process_upid)
     LEFT JOIN cpu_time_ui_thread ON (cpu_time_ui_thread.process_upid = hwui_processes.process_upid)
     LEFT JOIN hwui_gpu_completion3 ON (hwui_gpu_completion3.process_upid = hwui_processes.process_upid)
+    LEFT JOIN startup_time ON (startup_time.render_thread_id = hwui_processes.render_thread_id)
     JOIN (SELECT MAX(rt_cpu_time_ms), process_upid AS id FROM hwui_processes) max_render ON hwui_processes.process_upid = max_render.id
     -- process name is often missing on WearOs/Android P -> instead select process is highest CPU time in RenderThread.
     -- WHERE hwui_processes.process_name='org.skia.skottie'
