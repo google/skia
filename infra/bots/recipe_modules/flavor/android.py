@@ -582,9 +582,15 @@ time.sleep(60)
                    **kwargs)
     return rv.stdout.rstrip() if rv and rv.stdout else None
 
+  def _ensure_not_exists(self, path):
+    if 'No such file or directory' not in self._adb('stat %s' %path):
+      raise Exception('Failed to delete %s' % path)
+
   def remove_file_on_device(self, path):
     self._adb('rm %s' % path, 'shell', 'rm', '-f', path)
+    self._ensure_not_exists(path)
 
   def create_clean_device_dir(self, path):
     self._adb('rm %s' % path, 'shell', 'rm', '-rf', path)
+    self._ensure_not_exists(path)
     self._adb('mkdir %s' % path, 'shell', 'mkdir', '-p', path)
