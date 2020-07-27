@@ -184,7 +184,7 @@ DEF_TEST(SkSLFPInputHalf2, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             layout(key) in half2 point;
+             in uniform half2 point;
              void main() {
                  sk_OutColor = half4(point, point);
              }
@@ -196,14 +196,10 @@ DEF_TEST(SkSLFPInputHalf2, r) {
              ", point(point)"
          },
          /*expectedCPP=*/{
-R"__Cpp__(void GrTest::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    b->add32(sk_bit_cast<uint32_t>(point.fX));
-    b->add32(sk_bit_cast<uint32_t>(point.fY));
-})__Cpp__",
 R"__Cpp__(fragBuilder->codeAppendf(
-R"SkSL(%s = half4(half2(%f, %f), half2(%f, %f));
+R"SkSL(%s = half4(%s, %s);
 )SkSL"
-, args.fOutputColor, _outer.point.fX, _outer.point.fY, _outer.point.fX, _outer.point.fY);
+, args.fOutputColor, args.fUniformHandler->getUniformCStr(pointVar), args.fUniformHandler->getUniformCStr(pointVar));
 )__Cpp__",
              "if (point != that.point) return false;"
          });
