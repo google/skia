@@ -34,6 +34,24 @@
       "revId": "0c46ceab27afafca7926fcf5f59264e616fcf620",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88cf6773_70e2eae2",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-27T18:34:07Z",
+      "side": 1,
+      "message": "Is this the kind of thing you were thinking of?",
+      "parentUuid": "57fa1aa3_83a26b01",
+      "revId": "0c46ceab27afafca7926fcf5f59264e616fcf620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
