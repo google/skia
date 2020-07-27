@@ -12,6 +12,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 static char const* const gErrorStrings[] = {
