@@ -61,9 +61,9 @@ public:
         size_t index,
         SkScalar shiftX);
     Run(const Run&) = default;
-    Run& operator=(const Run&) = delete;
+    Run& operator=(const Run&) = default;
     Run(Run&&) = default;
-    Run& operator=(Run&&) = delete;
+    Run& operator=(Run&&) = default;
     ~Run() = default;
 
     void setMaster(ParagraphImpl* master) { fMaster = master; }
@@ -193,7 +193,7 @@ private:
     SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing)
 
     SkFontMetrics fFontMetrics;
-    const SkScalar fHeightMultiplier;
+    SkScalar fHeightMultiplier;
     SkScalar fCorrectAscent;
     SkScalar fCorrectDescent;
     SkScalar fCorrectLeading;
