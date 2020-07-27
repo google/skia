@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a117703e_6dfcf034",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-27T20:40:02Z",
+      "side": 1,
+      "message": "all sgtm",
+      "revId": "ef6ccc11ad76d5e50bb5146b157648d4fc8b908e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dfe64756_3bd83c42",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-27T20:40:02Z",
+      "side": 1,
+      "message": "These too?",
+      "revId": "ef6ccc11ad76d5e50bb5146b157648d4fc8b908e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
