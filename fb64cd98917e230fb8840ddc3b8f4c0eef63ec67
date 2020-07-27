@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c686537d_866c24cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-27T14:20:22Z",
+      "side": 1,
+      "message": "Seems like the right thing to do since OpChain isn\u0027t trivially movable. Did you encounter a hard failure with this, or just noticed during a code review?",
+      "revId": "fb64cd98917e230fb8840ddc3b8f4c0eef63ec67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21c101aa_6f800812",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-27T14:20:22Z",
+      "side": 1,
+      "message": "Unnecessary?",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 40
+      },
+      "revId": "fb64cd98917e230fb8840ddc3b8f4c0eef63ec67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "639ccbd4_a00ae26d",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-27T14:20:22Z",
+      "side": 1,
+      "message": "Were we triggering this assert on a OpChain that had been moved-from?",
+      "range": {
+        "startLine": 205,
+        "startChar": 12,
+        "endLine": 205,
+        "endChar": 36
+      },
+      "revId": "fb64cd98917e230fb8840ddc3b8f4c0eef63ec67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
