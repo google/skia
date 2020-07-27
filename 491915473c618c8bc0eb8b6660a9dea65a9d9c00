@@ -118,6 +118,30 @@
       "revId": "491915473c618c8bc0eb8b6660a9dea65a9d9c00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76fa3adb_7dd8b1b7",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-27T21:02:05Z",
+      "side": 1,
+      "message": "Gotcha. I\u0027ll get rid of layout(key) points and rects in a followup CL.",
+      "parentUuid": "4692650b_022291a8",
+      "range": {
+        "startLine": 1163,
+        "startChar": 0,
+        "endLine": 1177,
+        "endChar": 82
+      },
+      "revId": "491915473c618c8bc0eb8b6660a9dea65a9d9c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
