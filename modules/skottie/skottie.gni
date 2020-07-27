@@ -56,6 +56,7 @@ skia_skottie_sources = [
   "$_src/effects/MotionBlurEffect.cpp",
   "$_src/effects/MotionBlurEffect.h",
   "$_src/effects/MotionTileEffect.cpp",
+  "$_src/effects/PerlinNoise.cpp",
   "$_src/effects/RadialWipeEffect.cpp",
   "$_src/effects/ShadowStyles.cpp",
   "$_src/effects/ShiftChannelsEffect.cpp",
