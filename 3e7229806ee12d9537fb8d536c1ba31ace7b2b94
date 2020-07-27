@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "53dc7f02_acab26de",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-27T20:35:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "460bf201_0ddc0e4f",
+      "range": {
+        "startLine": 143,
+        "startChar": 31,
+        "endLine": 143,
+        "endChar": 35
+      },
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d9d0aa96_8ac0d841",
         "filename": "infra/bots/README.md",
         "patchSetId": 1
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "41a3d742_fa20b697",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-27T20:35:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9d0aa96_8ac0d841",
+      "range": {
+        "startLine": 30,
+        "startChar": 20,
+        "endLine": 30,
+        "endChar": 24
+      },
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "512445c2_168a42ab",
         "filename": "site/dev/tools/codesearch.md",
         "patchSetId": 1
@@ -93,6 +141,30 @@
       "writtenOn": "2020-07-27T18:57:57Z",
       "side": 1,
       "message": "\"Skia repos...\"?",
+      "range": {
+        "startLine": 41,
+        "startChar": 38,
+        "endLine": 41,
+        "endChar": 42
+      },
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab43748c_43443b6a",
+        "filename": "site/dev/tools/codesearch.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-27T20:35:42Z",
+      "side": 1,
+      "message": "I think there\u0027s something useful stated by \"Master/Main\" here - there are other Skia repos out there, but this is the source of truth. \"Primary Skia repos\"? I don\u0027t have a strong preference, though.",
+      "parentUuid": "512445c2_168a42ab",
       "range": {
         "startLine": 41,
         "startChar": 38,
@@ -128,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "9069267f_503c65bd",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-27T20:35:42Z",
+      "side": 1,
+      "message": "Sgtm.",
+      "parentUuid": "0921d67e_cfca962c",
+      "range": {
+        "startLine": 63,
+        "startChar": 58,
+        "endLine": 63,
+        "endChar": 62
+      },
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46c985f0_a03241f3",
         "filename": "src/pathops/SkPathOpsDebug.h",
         "patchSetId": 1
@@ -139,6 +235,30 @@
       "writtenOn": "2020-07-27T18:59:10Z",
       "side": 1,
       "message": "this one maybe \"purposes\"",
+      "range": {
+        "startLine": 254,
+        "startChar": 28,
+        "endLine": 254,
+        "endChar": 35
+      },
+      "revId": "3e7229806ee12d9537fb8d536c1ba31ace7b2b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dab3638_43f4167e",
+        "filename": "src/pathops/SkPathOpsDebug.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-27T20:35:42Z",
+      "side": 1,
+      "message": "That was my first thought, but I don\u0027t think it sounds right. It turns out this #define is #undef\u0027ed later and then redefined (as of https://codereview.chromium.org/2237223002, which landed in 2016). Removed the comment (which I don\u0027t think applies to the current definition), the first definition and its undef in patch set 3. Lemme know if you\u0027d prefer another approach.",
+      "parentUuid": "46c985f0_a03241f3",
       "range": {
         "startLine": 254,
         "startChar": 28,
