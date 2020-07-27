@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "1585f83e_d7b262e7",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "e0e92065_5b056d58",
+      "range": {
+        "startLine": 290,
+        "startChar": 3,
+        "endLine": 290,
+        "endChar": 15
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d4e6365e_0d0d2fb9",
         "filename": "tools/perf-canvaskit-puppeteer/Makefile",
         "patchSetId": 2
@@ -70,6 +94,30 @@
       "writtenOn": "2020-07-24T17:31:31Z",
       "side": 1,
       "message": "suggestion: perf_js",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 11
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0ad0331_00e33b61",
+        "filename": "tools/perf-canvaskit-puppeteer/Makefile",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "Everywhere I called it canvas_perf? Hoping for a more descriptive name idea :/",
+      "parentUuid": "d4e6365e_0d0d2fb9",
       "range": {
         "startLine": 29,
         "startChar": 0,
@@ -105,6 +153,30 @@
     },
     {
       "key": {
+        "uuid": "e7725def_2b21fb6d",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73480941_25f5e4ae",
+      "range": {
+        "startLine": 31,
+        "startChar": 23,
+        "endLine": 31,
+        "endChar": 75
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a30f57f_9ff2bb97",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
         "patchSetId": 2
@@ -125,6 +197,30 @@
       "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aeb4e53a_e84e691b",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a30f57f_9ff2bb97",
+      "range": {
+        "startLine": 61,
+        "startChar": 15,
+        "endLine": 61,
+        "endChar": 16
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -151,6 +247,30 @@
     },
     {
       "key": {
+        "uuid": "61fbf00f_994524fa",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c6c09041_98c3897d",
+      "range": {
+        "startLine": 75,
+        "startChar": 7,
+        "endLine": 75,
+        "endChar": 11
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2e4590e6_efacdbd7",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 2
@@ -171,6 +291,30 @@
       "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "904e6879_9d156191",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "haha! that was me playing at designing a random number generator late last night and coming up with something that looked cool. I\u0027ve simplified it a little so that it doesn\u0027t do anything with strings, since that might actually slow down the benchmark.",
+      "parentUuid": "2e4590e6_efacdbd7",
+      "range": {
+        "startLine": 12,
+        "startChar": 18,
+        "endLine": 12,
+        "endChar": 23
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -197,6 +341,30 @@
     },
     {
       "key": {
+        "uuid": "ce6364a0_d40e74bf",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e4ee59f_7701d802",
+      "range": {
+        "startLine": 41,
+        "startChar": 33,
+        "endLine": 41,
+        "endChar": 43
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72a1f517_6534e614",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 2
@@ -217,6 +385,30 @@
       "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df04335f_7033c2e3",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "72a1f517_6534e614",
+      "range": {
+        "startLine": 58,
+        "startChar": 12,
+        "endLine": 58,
+        "endChar": 18
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -243,6 +435,30 @@
     },
     {
       "key": {
+        "uuid": "f029c37e_93dbff49",
+        "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9487b66d_e364368b",
+      "range": {
+        "startLine": 262,
+        "startChar": 25,
+        "endLine": 262,
+        "endChar": 47
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db350130_9af396bd",
         "filename": "tools/perf-canvaskit-puppeteer/perf.json",
         "patchSetId": 2
@@ -257,6 +473,24 @@
       "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "751c6015_f210065e",
+        "filename": "tools/perf-canvaskit-puppeteer/perf.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-27T18:49:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db350130_9af396bd",
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
