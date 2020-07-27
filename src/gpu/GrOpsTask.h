@@ -16,6 +16,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkStringUtils.h"
@@ -197,15 +198,17 @@ private:
 
     class OpChain {
     public:
-        OpChain(const OpChain&) = delete;
-        OpChain& operator=(const OpChain&) = delete;
         OpChain(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*,
                 const DstProxyView*);
-
         ~OpChain() {
             // The ops are stored in a GrMemoryPool and must be explicitly deleted via the pool.
             SkASSERT(fList.empty());
         }
+
+        OpChain(const OpChain&) = delete;
+        OpChain& operator=(const OpChain&) = delete;
+        OpChain(OpChain&&) = default;
+        OpChain& operator=(OpChain&&) = default;
 
         void visitProxies(const GrOp::VisitProxyFunc&) const;
 
@@ -320,7 +323,7 @@ private:
     bool fHasWaitOp = false;
 
     // For ops/opsTask we have mean: 5 stdDev: 28
-    SkSTArray<25, OpChain, true> fOpChains;
+    SkSTArray<25, OpChain> fOpChains;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
