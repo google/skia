@@ -50,6 +50,24 @@
       "revId": "4038f4370c2b944abf27b1f254f3790cd10a8093",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f890ff24_6fce1da1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-27T17:29:02Z",
+      "side": 1,
+      "message": "For a decoding generator, kCopy could let it know that it only needs to generate the subset (if it hadn\u0027t already generated the entire frame). kShare might be tricky - if the decoder wanted to overwrite the memory for a subsequent frame, it would need to remember that some other image was sharing it. (DecodingImageGenerator does not currently do anything with subsets.)",
+      "parentUuid": "2ed3c246_806a9c9a",
+      "revId": "4038f4370c2b944abf27b1f254f3790cd10a8093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
