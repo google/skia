@@ -16,6 +16,23 @@
       "revId": "4038f4370c2b944abf27b1f254f3790cd10a8093",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41ab18a1_41b5dee8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-27T15:29:01Z",
+      "side": 1,
+      "message": "Question\n\nIf a direct-context is provided, does that mean I *should* turn the subset into a gpu image (ala makeTextureImage) or should I ignore the parameter unless the parent-image is already gpu backed?",
+      "revId": "4038f4370c2b944abf27b1f254f3790cd10a8093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
