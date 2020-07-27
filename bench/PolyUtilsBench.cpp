@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkRect.h"
+#include "include/private/SkTemplates.h"
 #include "src/utils/SkPolyUtils.h"
 
 class PolyUtilsBench : public Benchmark {
