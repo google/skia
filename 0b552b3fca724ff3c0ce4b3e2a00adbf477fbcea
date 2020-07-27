@@ -52,6 +52,24 @@
       "revId": "0b552b3fca724ff3c0ce4b3e2a00adbf477fbcea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4eb72f7e_4cc27e99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-27T17:56:05Z",
+      "side": 1,
+      "message": "Was just in my team meeting, and one of my teammates mentioned that they had experimented with std::vector in some of their code and found that it was substantially slower than SkTArray for their particular use case. Don\u0027t have specifics unfortunately. So we\u0027d probably need to investigate things like that too and make sure we don\u0027t introduce any accidental regressions.\n\nFor the short term my main goal is to make debugging less painful. Once this lands we can start A/B comparing it and see how well it stacks up. I haven\u0027t looked at perf so I really don\u0027t know how close we are yet.",
+      "parentUuid": "5ed19161_27d6d2a9",
+      "revId": "0b552b3fca724ff3c0ce4b3e2a00adbf477fbcea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
