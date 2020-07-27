@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrColorMatrixFragmentProcessor.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -95,9 +96,9 @@ GrGLSLFragmentProcessor* GrColorMatrixFragmentProcessor::onCreateGLSLInstance() 
 }
 void GrColorMatrixFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                            GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)unpremulInput);
-    b->add32((int32_t)clampRGBOutput);
-    b->add32((int32_t)premulOutput);
+    b->add32((uint32_t)unpremulInput);
+    b->add32((uint32_t)clampRGBOutput);
+    b->add32((uint32_t)premulOutput);
 }
 bool GrColorMatrixFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrColorMatrixFragmentProcessor& that = other.cast<GrColorMatrixFragmentProcessor>();
