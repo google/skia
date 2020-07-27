@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0d47b14_c41fdcf0",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-27T18:03:31Z",
+      "side": 1,
+      "message": "I was super confused what this ToFrom thing is and it takes a lot of context to figure out. This could be written a little easier to read like\n\n    template\u003ctypename Quad\u003e\n    static void fill_transformed_vertices_2D(\n        SkZip\u003cQuad, const GrGlyph*, const GrTransformedMaskSubRun::VertexData\u003e toFrom,\n\nsine this is really only templated on \u0027Quad\u0027. Though \u0027toFrom\u0027 is still an unfortunate name, everything is a \u0027to\u0027 or a \u0027from\u0027. This zip is for passing three arrays of the same size together because they need to be the same length, but they don\u0027t together seem to be a named thing (unless there is a good name for this). A name like \u0027quadsGlyphsVertexes\u0027 is something of a mouthful, but I think still better than \u0027toFrom\u0027. At least with all the \u0027const\u0027 written out in the type it makes it easier to see which parts are to be modified by this function.",
+      "revId": "0c46ceab27afafca7926fcf5f59264e616fcf620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
