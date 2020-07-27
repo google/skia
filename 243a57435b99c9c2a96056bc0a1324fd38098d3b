@@ -16,6 +16,23 @@
       "revId": "243a57435b99c9c2a96056bc0a1324fd38098d3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d8f264e_af03ccd6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-27T13:38:37Z",
+      "side": 1,
+      "message": "do we need to get this considered for the Android R release?",
+      "revId": "243a57435b99c9c2a96056bc0a1324fd38098d3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
