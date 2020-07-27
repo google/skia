@@ -8,6 +8,10 @@
 #ifndef SkTArray_DEFINED
 #define SkTArray_DEFINED
 
+#if SK_DEBUG_CONTAINERS
+#include "include/private/SkTArrayDebug.h"
+#else
+
 #include "include/core/SkMath.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
@@ -656,4 +660,5 @@ private:
     SkAlignedSTStorage<N,T> fStorage;
 };
 
-#endif
+#endif  // SK_DEBUG_CONTAINERS
+#endif  // SkTArray_DEFINED
