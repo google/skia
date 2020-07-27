@@ -16,6 +16,23 @@
       "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b0ccdb1_be589658",
+        "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "why not `window._perfData \u003d results`?",
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

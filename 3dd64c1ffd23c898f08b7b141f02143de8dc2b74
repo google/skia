@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fd6ec5f_3a4f9d16",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "nit: maybe I am just not familiar, but I might prefer `percentile99Idx`. Same for other vars.",
+      "revId": "3dd64c1ffd23c898f08b7b141f02143de8dc2b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcb0a51b_2d8fa67e",
+        "filename": "tools/perf-canvaskit-puppeteer/benchmark.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "I don\u0027t see a variable named `finished` in this file",
+      "range": {
+        "startLine": 38,
+        "startChar": 3,
+        "endLine": 38,
+        "endChar": 11
+      },
+      "revId": "3dd64c1ffd23c898f08b7b141f02143de8dc2b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "894aaf80_687a8f77",
+        "filename": "tools/perf-canvaskit-puppeteer/benchmark.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "- I don\u0027t see how this code allows for tests in the karma style. More specifically, I don\u0027t see\n  an `it(name, fun)` function.\n- Prefer to have to have this comment above the function.",
+      "revId": "3dd64c1ffd23c898f08b7b141f02143de8dc2b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27941066_e8f9456e",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "nit: prefer loadCanvasKit",
+      "range": {
+        "startLine": 37,
+        "startChar": 12,
+        "endLine": 37,
+        "endChar": 19
+      },
+      "revId": "3dd64c1ffd23c898f08b7b141f02143de8dc2b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fce509a_a90590a5",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "extra whitespace.\n\nAlso could be formatted to make it more clear this is a list: extra indentation on the following comments? Or dashes to represent a list?",
+      "range": {
+        "startLine": 56,
+        "startChar": 111,
+        "endLine": 56,
+        "endChar": 112
+      },
+      "revId": "3dd64c1ffd23c898f08b7b141f02143de8dc2b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17f51bba_d35bf8a1",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "nit: I feel this is more of a `description` than a `name`?",
+      "range": {
+        "startLine": 4,
+        "startChar": 4,
+        "endLine": 4,
+        "endChar": 8
+      },
+      "revId": "3dd64c1ffd23c898f08b7b141f02143de8dc2b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8fd73e9_a20f16cc",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "I like this test specification format 😊",
+      "revId": "3dd64c1ffd23c898f08b7b141f02143de8dc2b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "151c85c0_319124e3",
+        "filename": "tools/perf-canvaskit-puppeteer/perf.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-27T19:37:18Z",
+      "side": 1,
+      "message": "Do you want to add this file?",
+      "revId": "3dd64c1ffd23c898f08b7b141f02143de8dc2b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
