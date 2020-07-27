@@ -12,6 +12,7 @@
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrWindowRectangles.h"
+#include "src/gpu/GrClipStack.h"
 
 class GrCoverageCountingPathRenderer;
 class GrRecordingContext;
@@ -91,7 +92,7 @@ public:
     bool maskRequiresAA() const { SkASSERT(!fMaskElements.isEmpty()); return fMaskRequiresAA; }
 
     bool drawAlphaClipMask(GrRenderTargetContext*) const;
-    bool drawStencilClipMask(GrRecordingContext*, GrRenderTargetContext*) const;
+    bool drawStencilClipMask(GrRecordingContext*, GrRenderTargetContext*, bool* cached) const;
 
     int numAnalyticElements() const;
 
@@ -106,7 +107,10 @@ public:
      */
     std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticElements(
             GrRecordingContext*, const SkMatrixProvider& matrixProvider,
-            GrCoverageCountingPathRenderer*, uint32_t opsTaskID);
+            GrCoverageCountingPathRenderer*, uint32_t opsTaskID,
+            int* analyticFPCount, int* ccprFPCount);
+
+    int fElementsConsidered = 0;
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);

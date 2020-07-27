@@ -69,7 +69,7 @@ public:
     explicit GrShape(const GrArc& arc) { this->setArc(arc); }
     explicit GrShape(const GrLineSegment& line){ this->setLine(line); }
 
-    explicit GrShape(const GrShape& shape) { *this = shape; }
+    GrShape(const GrShape& shape) { *this = shape; }
 
     ~GrShape() { this->reset(); }
 
@@ -209,6 +209,8 @@ public:
 
     // True if the given bounding box is completely inside the shape.
     bool contains(const SkRect& rect) const;
+
+    bool contains(const SkPoint& point) const;
 
     // True if the underlying geometry represents a closed shape, without the need for an
     // implicit close (note that if simplified earlier with 'simpleFill' = true, a shape that was

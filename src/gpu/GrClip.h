@@ -62,7 +62,7 @@ public:
      * clips). If kNoDraw is returned, 'bounds' and the applied clip are in an undetermined state
      * and should be ignored (and the draw should be skipped).
      */
-    virtual Effect apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
+    virtual Effect apply(GrRecordingContext*, GrRenderTargetContext*, GrAAType aa,
                          bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
 
     /**
@@ -81,8 +81,9 @@ public:
      * beyond it. If the render target bounds are the only clip effect on the draw, this is reported
      * as kUnclipped and not as a degenerate rrect that matches the bounds.
      */
-    virtual PreClipResult preApply(const SkRect& drawBounds) const {
-        bool outside = !drawBounds.intersects(SkRect::Make(this->getConservativeBounds()));
+    virtual PreClipResult preApply(const SkRect& drawBounds, GrAAType aa) const {
+        SkIRect pixelBounds = GetPixelIBounds(drawBounds, aa);
+        bool outside = !SkIRect::Intersects(pixelBounds, this->getConservativeBounds());
         return outside ? Effect::kClippedOut : Effect::kClipped;
     }
 
@@ -96,8 +97,15 @@ public:
     constexpr static SkScalar kBoundsTolerance = 1e-3f;
 
     /**
+     * This is the slack around a half-pixel vertex coordinate where we don't trust the GPU's
+     * rasterizer to round consistently. The rounding method is not defined in GPU specs, and
+     * rasterizer precision frequently introduces errors where a fraction < 1/2 still rounds up.
+     */
+    constexpr static SkScalar kHalfPixelRoundingTolerance = 5e-2f;
+
+    /**
      * Returns true if the given query bounds count as entirely inside the clip.
-     *
+     * DEPRECATED: Only used by GrReducedClip
      * @param innerClipBounds   device-space rect contained by the clip (SkRect or SkIRect).
      * @param queryBounds       device-space bounds of the query region.
      */
@@ -111,9 +119,13 @@ public:
                innerClipBounds.fBottom > queryBounds.fBottom - kBoundsTolerance;
     }
 
+    static bool IsInsideClip(const SkIRect& innerClipBounds, const SkIRect& queryBounds) {
+        return innerClipBounds.contains(queryBounds);
+    }
+
     /**
      * Returns true if the given query bounds count as entirely outside the clip.
-     *
+     * DEPRECATED: Only used by GrReducedClip
      * @param outerClipBounds   device-space rect that contains the clip (SkRect or SkIRect).
      * @param queryBounds       device-space bounds of the query region.
      */
@@ -131,18 +143,93 @@ public:
             outerClipBounds.fBottom <= queryBounds.fTop + kBoundsTolerance;
     }
 
+    static bool IsOutsideClip(const SkIRect& outerClipBounds, const SkIRect& queryBounds) {
+        return !SkIRect::Intersects(outerClipBounds, queryBounds);
+    }
+
+    // Modifies the behavior of GetPixelIBounds
+    enum BoundsMode {
+        /**
+         * Returns the tightest integer pixel bounding box such that the rasterization of a shape
+         * contained in the analytic 'bounds', using the 'aa' method, will only have non-zero
+         * coverage for pixels inside the returned bounds. Pixels outside the bounds will either
+         * not be touched, or will have 0 coverage that creates no visual change.
+         */
+        kExterior_Bounds,
+        /**
+         * Returns the largest integer pixel bounding box such that were 'bounds' to be rendered as
+         * a solid fill using 'aa', every pixel in the returned bounds will have full coverage.
+         *
+         * This effectively determines the pixels that are definitely covered by a draw or clip. It
+         * effectively performs the opposite operations as GetOuterPixelBounds. It rounds in instead
+         * of out for coverage AA and non-AA near pixel centers.
+         */
+        kInterior_Bounds
+    };
+
     /**
      * Returns the minimal integer rect that counts as containing a given set of bounds.
+     * DEPRECATED: Only used by GrReducedClip
      */
     static SkIRect GetPixelIBounds(const SkRect& bounds) {
-        return SkIRect::MakeLTRB(SkScalarFloorToInt(bounds.fLeft + kBoundsTolerance),
-                                 SkScalarFloorToInt(bounds.fTop + kBoundsTolerance),
-                                 SkScalarCeilToInt(bounds.fRight - kBoundsTolerance),
-                                 SkScalarCeilToInt(bounds.fBottom - kBoundsTolerance));
+        return GetPixelIBounds(bounds, GrAAType::kCoverage);
+    }
+    // static SkIRect GetPixelIBounds(const SkIRect& bounds) {
+
+    // }
+
+    /**
+     * Convert the analytic bounds of a shape into an integer pixel bounds, where the given aa type
+     * is used when the shape is rendered. The bounds mode can be used to query exterior or interior
+     * pixel boundaries. Interior bounds only make sense when its know that the analytic bounds
+     * are filled completely.
+     *
+     * NOTE: When using kExterior_Bounds, some coverage-AA rendering methods may still touch a pixel
+     * center outside of these bounds but will evaluate to 0 coverage. This is visually acceptable,
+     * but an additional outset of 1px should be used for dst proxy access.
+     */
+    static SkIRect GetPixelIBounds(const SkRect& bounds, GrAAType aa,
+                                   BoundsMode mode = kExterior_Bounds) {
+        auto roundLow = [aa](float v) {
+            v += kBoundsTolerance;
+            int low = SkScalarFloorToInt(v);
+            if (aa != GrAAType::kCoverage && v >= low + 0.5f + kHalfPixelRoundingTolerance) {
+                // rounding out would return 'low', but the non-AA edge is sufficiently close to
+                // the next pixel that we can round regularly (up in this case).
+                return SkScalarRoundToInt(v);
+            } else {
+                return low;
+            }
+        };
+        auto roundHigh = [aa](float v) {
+            v -= kBoundsTolerance;
+            int high = SkScalarCeilToInt(v);
+            if (aa != GrAAType::kCoverage && v <= high - 0.5f - kHalfPixelRoundingTolerance) {
+                // rounding out would return 'high', but the non-AA edge is sufficiently close to
+                // the next pixel that we can round regularly (down in this case).
+                return SkScalarRoundToInt(v);
+            } else {
+                return high;
+            }
+        };
+
+        if (bounds.isEmpty()) {
+            return SkIRect::MakeEmpty();
+        }
+
+        if (mode == kExterior_Bounds) {
+            return SkIRect::MakeLTRB(roundLow(bounds.fLeft), roundLow(bounds.fTop),
+                                     roundHigh(bounds.fRight), roundHigh(bounds.fBottom));
+        } else {
+            SkASSERT(mode == kInterior_Bounds);
+            return SkIRect::MakeLTRB(roundHigh(bounds.fLeft), roundHigh(bounds.fTop),
+                                     roundLow(bounds.fRight), roundLow(bounds.fBottom));
+        }
     }
 
     /**
      * Returns the minimal pixel-aligned rect that counts as containing a given set of bounds.
+     * DEPRECATED: Only used by GrReducedClip
      */
     static SkRect GetPixelBounds(const SkRect& bounds) {
         return SkRect::MakeLTRB(SkScalarFloorToScalar(bounds.fLeft + kBoundsTolerance),
@@ -175,12 +262,15 @@ public:
      * return 'bounds' has been intersected with a conservative bounds of the clip. A return value
      * of false indicates that the draw can be skipped as it is fully clipped out.
      */
-    virtual Effect apply(GrAppliedHardClip* out, SkRect* bounds) const = 0;
+    virtual Effect apply(GrAppliedHardClip* out, SkIRect* bounds) const = 0;
 
 private:
-    Effect apply(GrRecordingContext*, GrRenderTargetContext* rtc, bool useHWAA,
-                     bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final {
-        return this->apply(&out->hardClip(), bounds);
+    Effect apply(GrRecordingContext*, GrRenderTargetContext* rtc, GrAAType aa,
+                 bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final {
+        SkIRect pixelBounds = GetPixelIBounds(*bounds, aa);
+        Effect effect = this->apply(&out->hardClip(), &pixelBounds);
+        bounds->intersect(SkRect::Make(pixelBounds));
+        return effect;
     }
 };
 

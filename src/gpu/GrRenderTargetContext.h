@@ -600,6 +600,7 @@ private:
     GrAAType chooseAAType(GrAA);
 
     friend class GrClipStackClip;               // for access to getOpsTask
+    friend class GrClipStack;                   // ""
     friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
     friend class GrRenderTargetContextPriv;

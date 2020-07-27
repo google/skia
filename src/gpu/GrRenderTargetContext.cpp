@@ -5,7 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include <iostream>
+#include <fstream>
+
 #include "src/gpu/GrRenderTargetContext.h"
+
+#include "src/gpu/GrReducedClip.h"
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkVertices.h"
@@ -670,7 +675,8 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     };
 
     bool simpleColor = !stencilSettings && constColor;
-    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds)
+    GrAAType aaType = *aa == GrAA::kYes ? GrAAType::kCoverage : GrAAType::kNone;
+    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds, aaType)
                                         : GrClip::PreClipResult(GrClip::Effect::kUnclipped);
     switch(result.fEffect) {
         case GrClip::Effect::kClippedOut:
@@ -978,7 +984,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
 
     // FIXME: Use path bounds instead of this WAR once
     // https://bugs.chromium.org/p/skia/issues/detail?id=5640 is resolved.
-    SkRect bounds = SkRect::MakeIWH(fRenderTargetContext->width(), fRenderTargetContext->height());
+    SkIRect bounds = SkIRect::MakeSize(fRenderTargetContext->dimensions());
 
     // Setup clip and reject offscreen paths; we do this explicitly instead of relying on addDrawOp
     // because GrStencilPathOp is not a draw op as its state depends directly on the choices made
@@ -1002,7 +1008,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     if (!op) {
         return;
     }
-    op->setClippedBounds(bounds);
+    op->setClippedBounds(SkRect::Make(bounds));
 
     fRenderTargetContext->setNeedsStencil(GrAA::kYes == doStencilMSAA);
     fRenderTargetContext->addOp(std::move(op));
@@ -1099,6 +1105,8 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
        return;
     }
 
+    GrAAType aaType = this->chooseAAType(aa);
+
     const GrClip* clip = origClip;
     // It is not uncommon to clip to a round rect and then draw that same round rect. Since our
     // lower level clip code works from op bounds, which are SkRects, it doesn't detect that the
@@ -1108,7 +1116,7 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
     SkRRect devRRect;
     if (clip && stroke.getStyle() == SkStrokeRec::kFill_Style &&
         rrect.transform(viewMatrix, &devRRect)) {
-        GrClip::PreClipResult result = clip->preApply(devRRect.getBounds());
+        GrClip::PreClipResult result = clip->preApply(devRRect.getBounds(), aaType);
         switch(result.fEffect) {
             case GrClip::Effect::kClippedOut:
                 return;
@@ -1137,8 +1145,6 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
     }
 
     AutoCheckFlush acf(this->drawingManager());
-
-    GrAAType aaType = this->chooseAAType(aa);
 
     std::unique_ptr<GrDrawOp> op;
     if (GrAAType::kCoverage == aaType && rrect.isSimple() &&
@@ -1980,6 +1986,201 @@ void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
             std::move(op), GrTextureResolveManager(drawingMgr), *this->caps());
 }
 
+static void dump_state(const GrAppliedClip& clip, bool drawSkipped, std::ofstream& f, bool printHeader) {
+    if (printHeader) {
+        f << "empty, scissor-only, considered, analytic, ccpr, mask, cached" << std::endl;
+    }
+
+    bool scissorOnly = clip.scissorState().enabled() && clip.fAnalyticElements == 0 &&
+            clip.fCCPRElements == 0 && clip.fMaskElements == 0;
+    f << (drawSkipped ? 0 : 1) << ", " << scissorOnly << ", " << clip.fElementsConsidered << ", "
+        << clip.fAnalyticElements << ", " << clip.fCCPRElements << ", " << clip.fMaskElements << ", "
+        << clip.fMaskInCache << std::endl;
+}
+
+struct Hist {
+    // Deltas 0 and up are accumulated here, indexed as i
+    std::vector<int> posDeltaCounts;
+    // Deltas -1 and down are accumulated here, indexed as (-i - 1)
+    std::vector<int> negDeltaCounts;
+
+    void update(int delta) {
+        std::vector<int>* histogram = delta < 0 ? &negDeltaCounts : &posDeltaCounts;
+        int index = delta < 0 ? (-delta - 1) : delta;
+        if (index >= (int) histogram->size()) {
+            histogram->resize(index + 1, 0);
+        }
+        (*histogram)[index] += 1;
+    }
+
+    void dump(std::ostream& o) const {
+        int zeroSpanDelta = -1;
+        bool zeroSpanValid = false;
+        for (int i = (int) negDeltaCounts.size() - 1; i >= 0; --i) {
+            int delta = -i - 1;
+            int count = negDeltaCounts[i];
+            if (count == 0) {
+                if (!zeroSpanValid) {
+                    zeroSpanValid = true;
+                    zeroSpanDelta = delta;
+                } // else within a zero span so keep going
+            } else {
+                if (zeroSpanValid) {
+                    // Terminate zero span
+                    if (delta - zeroSpanDelta == 1) {
+                        o << zeroSpanDelta << ": 0" << std::endl;
+                    } else {
+                        o << zeroSpanDelta << "-" << (delta - 1) << ": 0" << std::endl;
+                    }
+                    zeroSpanValid = false;
+                }
+                o << delta << ": " << count << std::endl;
+            }
+        }
+        for (int i = 0; i < (int) posDeltaCounts.size(); ++i) {
+            int delta = i;
+            int count = posDeltaCounts[i];
+            if (count == 0) {
+                if (!zeroSpanValid) {
+                    zeroSpanValid = true;
+                    zeroSpanDelta = delta;
+                } // else within a zero span so keep going
+            } else {
+                if (zeroSpanValid) {
+                    // Terminate zero span
+                    if (delta - zeroSpanDelta == 1) {
+                        o << zeroSpanDelta << ": 0" << std::endl;
+                    } else {
+                        o << zeroSpanDelta << "-" << (delta - 1) << ": 0" << std::endl;
+                    }
+                    zeroSpanValid = false;
+                }
+                o << delta << ": " << count << std::endl;
+            }
+        }
+        // even if we're in a zero span at the end, we don't really care,
+    }
+};
+
+struct AggStats {
+    // Total draw count
+    int drawCount = 0;
+    // Draws that had 0 clip elements ever (not that the draw itself could skip the existing clip)
+    int wideOpenCount = 0;
+    // Draws that had a non-wide open clip, but could be unclipped
+    int unclippedCount = 0;
+    // Draws that were skipped because of the clip (includes empty clips)
+    int skippedCount = 0;
+    // Draws that were scissor-only
+    int scissorOnlyCount = 0;
+    // Draws identified as just analytic (and no ccpr and no mask)
+    int analyticDrawCount = 0;
+    // Draws needing CCPR but no mask
+    int ccprDrawCount = 0;
+    // Draws needing a mask
+    int maskDrawCount = 0;
+
+    // Draws finding a cached mask
+    int cachedCount = 0;
+
+    // Clip size
+    int elementsConsidered = 0;
+
+    Hist considered;
+    Hist maskComplexities;
+    Hist analyticComplexities;
+    Hist ccprComplexities;
+
+    ~AggStats() {
+        std::ofstream f("aggregate.txt");
+        f << "draw count:         " << drawCount << std::endl;
+        f << "wide open count:    " << wideOpenCount << std::endl;
+        f << "unclipped count:    " << unclippedCount << std::endl;
+        f << "skipped count:      " << skippedCount << std::endl;
+        f << "scissor-only count: " << scissorOnlyCount << std::endl;
+        f << "analytic count:     " << analyticDrawCount << std::endl;
+        f << "ccpr count:         " << ccprDrawCount << std::endl;
+        f << "mask count:         " << maskDrawCount << std::endl;
+        f << "cached count:       " << cachedCount << std::endl;
+        f << "considered:         " << elementsConsidered << std::endl;
+
+        f << "Considered count distribution:" << std::endl;
+        considered.dump(f);
+
+        f << "Analytic complexity distribution:" << std::endl;
+        analyticComplexities.dump(f);
+
+        f << "CCPR complexity distribution:" << std::endl;
+        ccprComplexities.dump(f);
+
+        f << std::endl << "Mask complexity distribution:" << std::endl;
+        maskComplexities.dump(f);
+
+        f.close();
+    }
+
+    void update(const GrAppliedClip& clip, bool drawSkipped) {
+        drawCount++;
+
+        considered.update(clip.fElementsConsidered);
+        elementsConsidered += clip.fElementsConsidered;
+
+        if (drawSkipped) {
+            skippedCount++;
+        } else if (!clip.doesClip()) {
+            if (clip.fElementsConsidered == 0) {
+                wideOpenCount++;
+            } else {
+                unclippedCount++;
+            }
+        } else {
+            if (clip.fAnalyticElements == 0 && clip.fCCPRElements == 0 && clip.fMaskElements == 0) {
+                scissorOnlyCount++;
+            } else if (clip.fAnalyticElements > 0 && clip.fCCPRElements == 0 && clip.fMaskElements == 0) {
+                analyticDrawCount++;
+            } else if (clip.fCCPRElements > 0 && clip.fMaskElements == 0) {
+                ccprDrawCount++;
+            } else if (clip.fMaskElements > 0) {
+                maskDrawCount++;
+                if (clip.fMaskInCache) {
+                    cachedCount++;
+                }
+            }
+
+            analyticComplexities.update(clip.fAnalyticElements);
+            ccprComplexities.update(clip.fCCPRElements);
+            maskComplexities.update(clip.fMaskElements);
+        }
+    }
+};
+
+static void dump_state(const GrAppliedClip& clip, bool drawSkipped) {
+    static std::unique_ptr<std::ofstream> stateFile = nullptr;
+    static std::unique_ptr<AggStats> agg = nullptr;
+
+    if (!agg) {
+        agg = std::make_unique<AggStats>();
+    }
+    agg->update(clip, drawSkipped);
+
+    if (!clip.doesClip() && clip.fElementsConsidered == 0) {
+        // Don't bother with recording wide open clips
+        return;
+    }
+
+    bool printHeader = false;
+    if (!stateFile) {
+        stateFile = std::make_unique<std::ofstream>("clip_state.txt");
+        printHeader = true;
+    }
+
+    std::ofstream& of = *stateFile;
+
+    SkASSERT(of.is_open());
+
+    dump_state(clip, drawSkipped, of, printHeader);
+}
+
 void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDrawOp> op,
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
@@ -2006,7 +2207,10 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     bool skipDraw = false;
     if (clip) {
         // Have a complex clip, so defer to its early clip culling
-        skipDraw = clip->apply(fContext, this, usesHWAA, usesUserStencilBits,
+        GrAAType aaType = usesHWAA ? GrAAType::kMSAA :
+                                (op->hasAABloat() ? GrAAType::kCoverage :
+                                                    GrAAType::kNone);
+        skipDraw = clip->apply(fContext, this, aaType, usesUserStencilBits,
                                &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
     } else {
         // No clipping, so just clip the bounds against the logical render target dimensions
@@ -2015,7 +2219,10 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
 
     if (skipDraw) {
         fContext->priv().opMemoryPool()->release(std::move(op));
+        dump_state(appliedClip, true);
         return;
+    } else {
+        dump_state(appliedClip, false);
     }
 
     bool willUseStencil = usesUserStencilBits || appliedClip.hasStencilClip();

@@ -107,8 +107,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->style().strokeRec().isHairlineStyle());
 
     const SkMatrix& viewMatrix = *args.fViewMatrix;
-
-    bool doStencilMSAA = GrAAType::kNone != args.fAAType;
+    // Any AA will use stencil MSAA
+    GrAAType stencilAAType = GrAAType::kNone != args.fAAType ? GrAAType::kMSAA : GrAAType::kNone;
+    GrAA stencilAA = GrAA(stencilAAType == GrAAType::kMSAA);
 
     sk_sp<GrPath> path(get_gr_path(fResourceProvider, *args.fShape));
 
@@ -124,7 +125,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         // fake inverse with a stencil and cover
         GrAppliedClip appliedClip(args.fRenderTargetContext->dimensions());
         if (args.fClip && args.fClip->apply(
-                args.fContext, args.fRenderTargetContext, doStencilMSAA, true, &appliedClip,
+                args.fContext, args.fRenderTargetContext, stencilAAType, true, &appliedClip,
                 &devBounds) == GrClip::Effect::kClippedOut) {
             return true;
         }
@@ -140,7 +141,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Just ignore the analytic FPs (if any) during the stencil pass. They will still clip the
         // final draw and it is meaningless to multiply by coverage when drawing to stencil.
         args.fRenderTargetContext->priv().stencilPath(
-                &stencilClip, GrAA(doStencilMSAA), viewMatrix, std::move(path));
+                &stencilClip, stencilAA, viewMatrix, std::move(path));
 
         {
             static constexpr GrUserStencilSettings kInvertedCoverPass(
@@ -170,20 +171,13 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             const SkMatrix& coverMatrix = !viewMatrix.hasPerspective() ? viewMatrix : SkMatrix::I();
             const SkMatrix& localMatrix = !viewMatrix.hasPerspective() ? SkMatrix::I() : vmi;
 
-            // We have to suppress enabling MSAA for mixed samples or we will get seams due to
-            // coverage modulation along the edge where two triangles making up the rect meet.
-            GrAA doStencilMSAA = GrAA::kNo;
-            if (GrAAType::kMSAA == args.fAAType) {
-                doStencilMSAA = GrAA::kYes;
-            }
             args.fRenderTargetContext->priv().stencilRect(
-                    args.fClip, &kInvertedCoverPass, std::move(args.fPaint), doStencilMSAA,
+                    args.fClip, &kInvertedCoverPass, std::move(args.fPaint), stencilAA,
                     coverMatrix, coverBounds, &localMatrix);
         }
     } else {
         std::unique_ptr<GrDrawOp> op = GrDrawPathOp::Make(
-                args.fContext, viewMatrix, std::move(args.fPaint), GrAA(doStencilMSAA),
-                std::move(path));
+                args.fContext, viewMatrix, std::move(args.fPaint), stencilAA, std::move(path));
         args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
     }
 

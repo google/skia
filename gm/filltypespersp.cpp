@@ -77,12 +77,12 @@ protected:
 
         showPath(canvas,   0,   0, SkPathFillType::kWinding,
                  scale, paint);
-        showPath(canvas, 200,   0, SkPathFillType::kEvenOdd,
-                 scale, paint);
-        showPath(canvas,  00, 200, SkPathFillType::kInverseWinding,
-                 scale, paint);
-        showPath(canvas, 200, 200, SkPathFillType::kInverseEvenOdd,
-                 scale, paint);
+        // showPath(canvas, 200,   0, SkPathFillType::kEvenOdd,
+                //  scale, paint);
+        // showPath(canvas,  00, 200, SkPathFillType::kInverseWinding,
+        //          scale, paint);
+        // showPath(canvas, 200, 200, SkPathFillType::kInverseEvenOdd,
+        //          scale, paint);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -122,13 +122,13 @@ protected:
         const SkScalar scale = SkIntToScalar(5)/4;
 
         showFour(canvas, SK_Scalar1, false);
-        canvas->translate(SkIntToScalar(450), 0);
-        showFour(canvas, scale, false);
+        // canvas->translate(SkIntToScalar(450), 0);
+        // showFour(canvas, scale, false);
 
-        canvas->translate(SkIntToScalar(-450), SkIntToScalar(450));
-        showFour(canvas, SK_Scalar1, true);
-        canvas->translate(SkIntToScalar(450), 0);
-        showFour(canvas, scale, true);
+        // canvas->translate(SkIntToScalar(-450), SkIntToScalar(450));
+        // showFour(canvas, SK_Scalar1, true);
+        // canvas->translate(SkIntToScalar(450), 0);
+        // showFour(canvas, scale, true);
     }
 
 private:
