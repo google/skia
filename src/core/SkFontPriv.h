@@ -11,6 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/SkTemplates.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;
