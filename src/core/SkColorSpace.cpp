@@ -7,6 +7,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
+#include "include/private/SkTemplates.h"
 #include "include/third_party/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkOpts.h"

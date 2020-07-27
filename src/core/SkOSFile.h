@@ -14,6 +14,7 @@
 #include <stdio.h>
 
 #include "include/core/SkString.h"
+#include "include/private/SkTemplates.h"
 
 enum SkFILE_Flags {
     kRead_SkFILE_Flag    = 0x01,
