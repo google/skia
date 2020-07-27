@@ -8,6 +8,7 @@
 #include "src/core/SkOpts.h"
 
 #define SK_OPTS_NS skx
+#include "src/opts/SkBitmapProcState_opts.h"
 #include "src/opts/SkBlitRow_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
 #include "src/opts/SkVM_opts.h"
@@ -23,5 +24,6 @@ namespace SkOpts {
         grayA_to_rgbA         = SK_OPTS_NS::grayA_to_rgbA;
         inverted_CMYK_to_RGB1 = SK_OPTS_NS::inverted_CMYK_to_RGB1;
         inverted_CMYK_to_BGR1 = SK_OPTS_NS::inverted_CMYK_to_BGR1;
+        S32_alpha_D32_filter_DX = SK_OPTS_NS::S32_alpha_D32_filter_DX;
     }
 }
