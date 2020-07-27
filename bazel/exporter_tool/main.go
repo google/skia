@@ -197,6 +197,14 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/ports:fontmgr_android_freetype",
 			}},
+		{Var: "skia_ports_fontmgr_android_ndk_public",
+			Rules: []string{
+				"//include/ports:android_ndk_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_android_ndk_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_android_ndk_freetype",
+			}},
 		{Var: "skia_ports_fontmgr_custom_sources",
 			Rules: []string{
 				"//src/ports:fontmgr_custom",

@@ -316,6 +316,18 @@ optional("fontmgr_android") {
   sources_for_tests = [ "tests/FontMgrAndroidParserTest.cpp" ]
 }
 
+# if building Skia for API >= 30 and not using custom fonts, enable
+# skia_enable_fontmgr_android_ndk and disable skia_enable_fontmgr_android
+optional("fontmgr_android_ndk") {
+  enabled = skia_enable_fontmgr_android_ndk
+
+  deps = [ ":typeface_freetype" ]
+  libs = [ "android" ]
+  public_defines = [ "SK_FONTMGR_ANDROID_NDK_AVAILABLE" ]
+  public = skia_ports_fontmgr_android_ndk_public
+  sources = skia_ports_fontmgr_android_ndk_sources
+}
+
 optional("fontmgr_custom") {
   enabled =
       skia_enable_fontmgr_custom_directory ||
@@ -1433,6 +1445,7 @@ skia_component("skia") {
   public_deps = [
     ":fontmgr_FontConfigInterface",
     ":fontmgr_android",
+    ":fontmgr_android_ndk",
     ":fontmgr_custom_directory",
     ":fontmgr_custom_embedded",
     ":fontmgr_custom_empty",

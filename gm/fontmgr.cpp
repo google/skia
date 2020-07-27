@@ -182,7 +182,7 @@ class FontMgrMatchGM : public skiagm::GM {
         font.setSize(17);
 
         const char* gNames[] = {
-            "Helvetica Neue", "Arial", "sans"
+            "Helvetica Neue", "Arial", "sans", "Roboto"
         };
 
         sk_sp<SkFontStyleSet> fset;

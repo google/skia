@@ -148,6 +148,7 @@ declare_args() {
 
 declare_args() {
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
+  skia_enable_fontmgr_android_ndk = is_android && skia_use_freetype
   skia_enable_fontmgr_custom_directory =
       skia_use_freetype && !is_fuchsia && !is_wasm
   skia_enable_fontmgr_custom_embedded = skia_use_freetype && !is_fuchsia

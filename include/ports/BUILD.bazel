@@ -13,6 +13,12 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "android_ndk_fontmgr_hdrs",
+    srcs = ["SkFontMgr_android_ndk.h"],
+    visibility = ["//src/ports:__pkg__"],
+)
+
+skia_filegroup(
     name = "core_foundation_hdrs",
     srcs = ["SkCFObject.h"],
     visibility = [

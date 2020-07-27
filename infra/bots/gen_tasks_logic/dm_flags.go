@@ -1535,13 +1535,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	} else {
 		args = append(args, "--nonativeFonts")
 	}
-
 	if b.extraConfig("GDI") {
 		args = append(args, "--gdi")
 	}
-
 	if b.extraConfig("Fontations") {
 		args = append(args, "--fontations")
+	}
+	if b.extraConfig("AndroidNDKFonts") {
+		args = append(args, "--androidndkfonts")
 	}
 
 	// Let's make all tasks produce verbose output by default.

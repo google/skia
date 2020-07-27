@@ -146,6 +146,24 @@ skia_cc_library(
     ],
 )
 
+skia_cc_library(
+    name = "fontmgr_android_ndk_freetype",
+    srcs = [
+        "SkFontMgr_android_ndk.cpp",
+    ],
+    hdrs = [
+        "//include/ports:android_ndk_fontmgr_hdrs",
+    ],
+    defines = ["SK_FONTMGR_ANDROID_NDK_AVAILABLE"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":freetype_support",
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+    ],
+)
+
 skia_objc_library(
     name = "fontmgr_coretext",
     srcs = [

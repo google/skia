@@ -545,6 +545,7 @@
   {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_NativeFonts"},
+  {"name": "Test-Android-Clang-GalaxyS24-CPU-Adreno750-arm64-Release-All-Android_NativeFonts_AndroidNDKFonts"},
   {"name": "Test-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Debug-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Debug-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Debug-All-Android_Graphite_Native_Vulkan_Protected"},

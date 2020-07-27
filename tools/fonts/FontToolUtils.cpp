@@ -36,6 +36,11 @@
 #include "src/ports/SkTypeface_FreeType.h"
 #endif
 
+#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_NDK_AVAILABLE)
+#include "include/ports/SkFontMgr_android_ndk.h"
+#include "src/ports/SkTypeface_FreeType.h"
+#endif
+
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE) && (defined(SK_BUILD_FOR_IOS) || \
                                                defined(SK_BUILD_FOR_MAC))
 #include "include/ports/SkFontMgr_mac_ct.h"
@@ -68,6 +73,9 @@ static DEFINE_bool(gdi, false, "Use GDI instead of DirectWrite for font renderin
 #endif
 #if defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
 static DEFINE_bool(fontations, false, "Use Fontations for native font rendering.");
+#endif
+#if defined(SK_FONTMGR_ANDROID_NDK_AVAILABLE)
+static DEFINE_bool(androidndkfonts, false, "Use AndroidNDK for native font rendering.");
 #endif
 
 sk_sp<SkTypeface> PlanetTypeface() {
@@ -259,6 +267,11 @@ sk_sp<SkFontMgr> TestFontMgr() {
 #if defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
         else if (FLAGS_fontations) {
             mgr = SkFontMgr_New_Fontations_Empty();
+        }
+#endif
+#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_NDK_AVAILABLE)
+        else if (FLAGS_androidndkfonts) {
+            mgr = SkFontMgr_New_AndroidNDK(false, std::make_unique<SkFontScanner_FreeType>());
         }
 #endif
         else {
