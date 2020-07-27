@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkString.h"
+#include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkRTree.h"
 
