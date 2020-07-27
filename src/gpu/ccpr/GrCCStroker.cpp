@@ -418,8 +418,19 @@ public:
                 P, fCurrDX, fCurrDY, fCurrStrokeRadius, 1 << numLinearSegmentsLog2);
     }
 
+    void appendMiterRectJoin(const SkPoint &center, const SkVector& leftNorm,
+                             float miterRectJoinLength) {
+        SkASSERT(this->isMapped());
+        Sk2f n = Sk2f::Load(&leftNorm) * miterRectJoinLength;
+        Sk2f v = Sk2f(-n[1], n[0]);
+        Sk2f offset = Sk2f::Load(&center) + Sk2f(fCurrDX, fCurrDY);
+
+        SkPoint endPts[2] = {{0, 0}, {v[0], v[1]}};
+        this->appendLinearStrokeInstance().set(endPts, offset[0], offset[1], fCurrStrokeRadius);
+    }
+
     void appendJoin(Verb joinVerb, const SkPoint& center, const SkVector& leftNorm,
-                    const SkVector& rightNorm, float miterCapHeightOverWidth, float conicWeight) {
+                    const SkVector& rightNorm, float miterCapHeightOverWidth, float joinWeight) {
         SkASSERT(this->isMapped());
 
         Sk2f offset = Sk2f::Load(&center) + Sk2f(fCurrDX, fCurrDY);
@@ -449,15 +460,9 @@ public:
             this->appendTriangleInstance().set(
                     -n0 * fCurrStrokeRadius, n0 * fCurrStrokeRadius, n1 * fCurrStrokeRadius,
                     offset, TriangleInstance::Ordering::kXYTransposed);
-            if (Verb::kBevelJoin == joinVerb) {
-                return;
-            }
             this->appendTriangleInstance().set(
                     -n0 * fCurrStrokeRadius, n1 * fCurrStrokeRadius, -n1 * fCurrStrokeRadius,
                     offset, TriangleInstance::Ordering::kXYTransposed);
-            if (Verb::kBevelJoin == joinVerb) {
-                return;
-            }
             if (Verb::kInternalBevelJoin == joinVerb) {
                 return;
             }
@@ -474,13 +479,21 @@ public:
             this->appendTriangleInstance().set(
                     n0 * fCurrStrokeRadius, c * fCurrStrokeRadius, n1 * fCurrStrokeRadius, offset,
                     TriangleInstance::Ordering::kXYTransposed);
+        } else if (Verb::kMiterClipJoin == joinVerb) {
+            Sk2f c0 = n0 * (1 - joinWeight) + c * joinWeight;
+            this->appendTriangleInstance().set(
+                    n0 * fCurrStrokeRadius, c0 * fCurrStrokeRadius, n1 * fCurrStrokeRadius, offset,
+                    TriangleInstance::Ordering::kXYTransposed);
+            this->appendTriangleInstance().set(
+                    c0 * fCurrStrokeRadius, (n1 * (1 - joinWeight) + c * joinWeight) * fCurrStrokeRadius,
+                    n1 * fCurrStrokeRadius, offset, TriangleInstance::Ordering::kXYTransposed);
         } else {
             SkASSERT(Verb::kRoundJoin == joinVerb || Verb::kInternalRoundJoin == joinVerb);
             this->appendConicInstance().setW(n0 * fCurrStrokeRadius, c * fCurrStrokeRadius,
-                                             n1 * fCurrStrokeRadius, offset, conicWeight);
+                                             n1 * fCurrStrokeRadius, offset, joinWeight);
             if (Verb::kInternalRoundJoin == joinVerb) {
                 this->appendConicInstance().setW(-n1 * fCurrStrokeRadius, c * -fCurrStrokeRadius,
-                                                 -n0 * fCurrStrokeRadius, offset, conicWeight);
+                                                 -n0 * fCurrStrokeRadius, offset, joinWeight);
             }
         }
     }
@@ -615,7 +628,7 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     const SkTArray<SkPoint, true>& pts = fGeometry.points();
     const SkTArray<SkVector, true>& normals = fGeometry.normals();
 
-    float miterCapHeightOverWidth=0, conicWeight=0;
+    float miterCapHeightOverWidth=0, joinWeight=0;
 
     for (Verb verb : fGeometry.verbs()) {
         switch (verb) {
@@ -639,10 +652,15 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
                 ptsIdx += 3;
                 ++normalsIdx;
                 continue;
+            case Verb::kMiterRectJoin:
+                builder.appendMiterRectJoin(pts[ptsIdx], normals[normalsIdx++],
+                                            params[paramsIdx++].fMiterRectLength);
+                continue;
 
             case Verb::kRoundJoin:
             case Verb::kInternalRoundJoin:
-                conicWeight = params[paramsIdx++].fConicWeight;
+            case Verb::kMiterClipJoin:
+                joinWeight = params[paramsIdx++].fJoinWeight;
                 [[fallthrough]];
             case Verb::kMiterJoin:
                 miterCapHeightOverWidth = params[paramsIdx++].fMiterCapHeightOverWidth;
@@ -650,7 +668,7 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
             case Verb::kBevelJoin:
             case Verb::kInternalBevelJoin:
                 builder.appendJoin(verb, pts[ptsIdx], normals[normalsIdx], normals[normalsIdx + 1],
-                                   miterCapHeightOverWidth, conicWeight);
+                                   miterCapHeightOverWidth, joinWeight);
                 ++normalsIdx;
                 continue;
 

@@ -76,6 +76,12 @@ int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5]);
 */
 SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]);
 
+/** Given 3 points on a quadratic bezier return the curvature
+    value at t==0 or t==1 respectively.
+*/
+SkScalar SkFindQuadStartCurvatureVal(const SkPoint src[3]);
+SkScalar SkFindQuadEndCurvatureVal(const SkPoint src[3]);
+
 /** Given 3 points on a quadratic bezier, divide it into 2 quadratics
     if the point of maximum curvature exists on the quad segment.
     Depending on what is returned, dst[] is treated as follows
@@ -152,6 +158,13 @@ int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[2]);
 int SkChopCubicAtInflections(const SkPoint src[4], SkPoint dst[10]);
 
 int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]);
+
+/** Given 4 points on a cubic bezier return the curvature value at
+    t==0 or t==1 respectively.
+*/
+SkScalar SkFindCubicStartCurvatureVal(const SkPoint src[4]);
+SkScalar SkFindCubicEndCurvatureVal(const SkPoint src[4]);
+
 int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
                               SkScalar tValues[3] = nullptr);
 /** Returns t value of cusp if cubic has one; returns -1 otherwise.
@@ -289,6 +302,8 @@ struct SkConic {
     void computeTightBounds(SkRect* bounds) const;
     void computeFastBounds(SkRect* bounds) const;
 
+    SkScalar findStartCurvatureVal() const;
+    SkScalar findEndCurvatureVal() const;
     /** Find the parameter value where the conic takes on its maximum curvature.
      *
      *  @param t   output scalar for max curvature.  Will be unchanged if
