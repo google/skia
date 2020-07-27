@@ -23,6 +23,7 @@
 #include "modules/skparagraph/include/TextShadow.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
+#include "modules/skparagraph/src/TextLine.h"
 #include "modules/skshaper/src/SkUnicode.h"
 #include "src/core/SkSpan.h"
 
