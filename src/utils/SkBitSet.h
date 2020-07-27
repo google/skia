@@ -25,13 +25,13 @@ public:
 
     SkBitSet(const SkBitSet&) = delete;
     SkBitSet& operator=(const SkBitSet&) = delete;
-    SkBitSet(SkBitSet&& that) : fSize(that.fSize), fChunks(std::move(that.fChunks)) {
-        that.fSize = 0;
-    }
+    SkBitSet(SkBitSet&& that) { *this = std::move(that); }
     SkBitSet& operator=(SkBitSet&& that) {
-        this->fSize = that.fSize;
-        this->fChunks = std::move(that.fChunks);
-        that.fSize = 0;
+        if (this != &that) {
+            this->fSize = that.fSize;
+            this->fChunks = std::move(that.fChunks);
+            that.fSize = 0;
+        }
         return *this;
     }
     ~SkBitSet() = default;
