@@ -94,6 +94,30 @@
       "revId": "491915473c618c8bc0eb8b6660a9dea65a9d9c00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4692650b_022291a8",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-27T13:21:02Z",
+      "side": 1,
+      "message": "Yeah, I think layout(key) on either of those types suggests something has gone wrong. I\u0027d rather guard against someone doing something like that accidentally.",
+      "parentUuid": "d06f2199_c0982111",
+      "range": {
+        "startLine": 1163,
+        "startChar": 0,
+        "endLine": 1177,
+        "endChar": 82
+      },
+      "revId": "491915473c618c8bc0eb8b6660a9dea65a9d9c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
