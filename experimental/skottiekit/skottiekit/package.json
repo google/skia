@@ -1,6 +1,6 @@
 {
   "name": "skottiekit-wasm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A WASM version of Skottie",
   "homepage": "https://skia.org/user/modules/skottie",
   "bugs": {
