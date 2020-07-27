@@ -130,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "1d4b33c2_bf2af070",
+        "filename": "tools/perf-canvaskit-puppeteer/Makefile",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "canvas_perf is fine.",
+      "parentUuid": "a0ad0331_00e33b61",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 11
+      },
+      "revId": "c7a9555b5c007ee34949066ea5e5e62a7d29708a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "73480941_25f5e4ae",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
         "patchSetId": 2

@@ -19,6 +19,254 @@
     },
     {
       "key": {
+        "uuid": "b9483785_014bf3b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "Be careful when porting the benchmarks, we don\u0027t want to accidentally leak things.",
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9e2b843_1b1f77ba",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "Can this be deleted?",
+      "range": {
+        "startLine": 194,
+        "startChar": 3,
+        "endLine": 194,
+        "endChar": 7
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37d6adc9_a596f02e",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas_test.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "Good catch",
+      "range": {
+        "startLine": 165,
+        "startChar": 21,
+        "endLine": 165,
+        "endChar": 31
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6931da83_8ad5fc48",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "nit: wrap all comments to 100 cols",
+      "range": {
+        "startLine": 56,
+        "startChar": 97,
+        "endLine": 56,
+        "endChar": 104
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa1b2f89_6f72d7b5",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "nit: its",
+      "range": {
+        "startLine": 57,
+        "startChar": 89,
+        "endLine": 57,
+        "endChar": 93
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ee9a073_fb9b4edb",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "As neat as this is, I am going to point to go/tott/510 and suggest we use plain old randomColor since it should be more clear what this test is doing.\n\nTests should be obviously correct, since our tests do not have tests.",
+      "range": {
+        "startLine": 29,
+        "startChar": 26,
+        "endLine": 29,
+        "endChar": 38
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24ff028a_afcc2263",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "\u003e \"depedencies\" is a possible misspelling of \"dependencies\".\n\nPlease fix.",
+      "parentUuid": "1a06d858_32ad0033",
+      "range": {
+        "startLine": 169,
+        "startChar": 45,
+        "endLine": 169,
+        "endChar": 56
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65c86b26_44832d60",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "This will leak many shaders (only the last one will get cleaned up)",
+      "range": {
+        "startLine": 235,
+        "startChar": 12,
+        "endLine": 235,
+        "endChar": 18
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09a042ea_bfeeb20e",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "Typo",
+      "range": {
+        "startLine": 304,
+        "startChar": 11,
+        "endLine": 304,
+        "endChar": 18
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d71837e6_e91dacb1",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "This leaks many shaders (as above)",
+      "range": {
+        "startLine": 363,
+        "startChar": 12,
+        "endLine": 363,
+        "endChar": 18
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eebb2e21_ba340b45",
+        "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-27T19:50:10Z",
+      "side": 1,
+      "message": "Either reflect the passed in value or remove the exact time.",
+      "range": {
+        "startLine": 270,
+        "startChar": 25,
+        "endLine": 270,
+        "endChar": 28
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b0ccdb1_be589658",
         "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
         "patchSetId": 6
