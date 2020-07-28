@@ -81,6 +81,30 @@
       "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c978fa6d_39adc047",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T17:54:20Z",
+      "side": 1,
+      "message": "Yes, yes I have.\n\nI think the issue is that my middle finger hits the \u0027e\u0027 and my little finger hits the \u0027a\u0027 and, being a little finger just loses out in the \u0027mash the keyboard\u0027 competition. Or it\u0027s all in my head. In any event PEBKAC.",
+      "parentUuid": "b2930750_64790311",
+      "range": {
+        "startLine": 108,
+        "startChar": 39,
+        "endLine": 108,
+        "endChar": 44
+      },
+      "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
