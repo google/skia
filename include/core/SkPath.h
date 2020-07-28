@@ -1573,7 +1573,7 @@ private:
             return {verb, fPoints + backset, fWeights};
         }
     private:
-        constexpr static int pts_advance_after_verb(SkPathVerb verb) {
+        static int pts_advance_after_verb(SkPathVerb verb) {
             switch (verb) {
                 case SkPathVerb::kMove: return 1;
                 case SkPathVerb::kLine: return 1;
@@ -1584,7 +1584,7 @@ private:
             }
             SkUNREACHABLE;
         }
-        constexpr static int pts_backset_for_verb(SkPathVerb verb) {
+        static int pts_backset_for_verb(SkPathVerb verb) {
             switch (verb) {
                 case SkPathVerb::kMove: return 0;
                 case SkPathVerb::kLine: return -1;
