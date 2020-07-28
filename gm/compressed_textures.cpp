@@ -29,6 +29,7 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_GpuBase.h"
 #include "third_party/etc1/etc1.h"
 
 class GrRenderTargetContext;
@@ -98,10 +99,11 @@ SkBitmap render_level(SkISize dimensions, SkColor color, SkColorType colorType, 
 // compression format. In this case 2-color means either opaque black or transparent black plus
 // one other color.
 // Note that ETC1/ETC2_RGB8_UNORM only supports 565 opaque textures.
-static sk_sp<SkData> make_compressed_data(SkISize dimensions,
-                                          SkColorType colorType,
-                                          bool opaque,
-                                          SkImage::CompressionType compression) {
+static sk_sp<SkImage> make_compressed_image(GrDirectContext* dContext,
+                                            const SkISize dimensions,
+                                            SkColorType colorType,
+                                            bool opaque,
+                                            SkImage::CompressionType compression) {
     size_t totalSize = SkCompressedDataSize(compression, dimensions, nullptr, true);
 
     sk_sp<SkData> tmp = SkData::MakeUninitialized(totalSize);
@@ -122,10 +124,11 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
         SK_ColorWHITE,
     };
 
+    SkISize levelDims = dimensions;
     for (int i = 0; i < numMipLevels; ++i) {
-        size_t levelSize = SkCompressedDataSize(compression, dimensions, nullptr, false);
+        size_t levelSize = SkCompressedDataSize(compression, levelDims, nullptr, false);
 
-        SkBitmap bm = render_level(dimensions, kColors[i%7], colorType, opaque);
+        SkBitmap bm = render_level(levelDims, kColors[i%7], colorType, opaque);
         if (compression == SkImage::CompressionType::kETC2_RGB8_UNORM) {
             SkASSERT(bm.colorType() == kRGB_565_SkColorType);
             SkASSERT(opaque);
@@ -140,10 +143,22 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
         }
 
         offset += levelSize;
-        dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
+        levelDims = {std::max(1, levelDims.width()/2), std::max(1, levelDims.height()/2)};
     }
 
-    return tmp;
+    sk_sp<SkImage> image;
+    if (dContext) {
+        image = SkImage::MakeTextureFromCompressed(dContext, std::move(tmp),
+                                                   dimensions.width(),
+                                                   dimensions.height(),
+                                                   compression, GrMipmapped::kYes);
+    } else {
+        image = SkImage::MakeRasterFromCompressed(std::move(tmp),
+                                                  dimensions.width(),
+                                                  dimensions.height(),
+                                                  compression);
+    }
+    return image;
 }
 
 // Basic test of Ganesh's ETC1 and BC1 support
@@ -200,50 +215,56 @@ protected:
         return SkISize::Make(2*kCellWidth + 3*kPad, 2*kBaseTexHeight + 3*kPad);
     }
 
-    void onOnceBeforeDraw() override {
-        fOpaqueETC2Data = make_compressed_data(fImgDimensions, kRGB_565_SkColorType, true,
-                                               SkImage::CompressionType::kETC2_RGB8_UNORM);
+    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
+        if (dContext && dContext->abandoned()) {
+            // This isn't a GpuGM so a null 'context' is okay but an abandoned context
+            // if forbidden.
+            return DrawResult::kSkip;
+        }
 
-        fOpaqueBC1Data = make_compressed_data(fImgDimensions, kRGBA_8888_SkColorType, true,
-                                              SkImage::CompressionType::kBC1_RGB8_UNORM);
+        if (dContext &&
+            dContext->backend() == GrBackendApi::kDirect3D && fType == Type::kNonMultipleOfFour) {
+            // skbug.com/10541 - Are non-multiple-of-four BC1 textures supported in D3D?
+            return DrawResult::kSkip;
+        }
 
-        fTransparentBC1Data = make_compressed_data(fImgDimensions, kRGBA_8888_SkColorType, false,
-                                                   SkImage::CompressionType::kBC1_RGBA8_UNORM);
+        fOpaqueETC2Image = make_compressed_image(dContext, fImgDimensions,
+                                                 kRGB_565_SkColorType, true,
+                                                 SkImage::CompressionType::kETC2_RGB8_UNORM);
+
+        fOpaqueBC1Image = make_compressed_image(dContext, fImgDimensions,
+                                                kRGBA_8888_SkColorType, true,
+                                                SkImage::CompressionType::kBC1_RGB8_UNORM);
+
+        fTransparentBC1Image = make_compressed_image(dContext, fImgDimensions,
+                                                     kRGBA_8888_SkColorType, false,
+                                                     SkImage::CompressionType::kBC1_RGBA8_UNORM);
+
+        if (!fOpaqueETC2Image || !fOpaqueBC1Image || !fTransparentBC1Image) {
+            *errorMsg = "Failed to create compressed images.";
+            return DrawResult::kFail;
+        }
+
+        return DrawResult::kOk;
+    }
+
+    void onGpuTeardown() override {
+        fOpaqueETC2Image = nullptr;
+        fOpaqueBC1Image = nullptr;
+        fTransparentBC1Image = nullptr;
     }
 
     void onDraw(SkCanvas* canvas) override {
-        auto direct = GrAsDirectContext(canvas->recordingContext());
+        this->drawCell(canvas, fOpaqueETC2Image.get(), { kPad, kPad });
 
-        this->drawCell(direct, canvas, fOpaqueETC2Data,
-                       SkImage::CompressionType::kETC2_RGB8_UNORM, { kPad, kPad });
+        this->drawCell(canvas, fOpaqueBC1Image.get(), { 2*kPad + kCellWidth, kPad });
 
-        this->drawCell(direct, canvas, fOpaqueBC1Data,
-                       SkImage::CompressionType::kBC1_RGB8_UNORM, { 2*kPad + kCellWidth, kPad });
-
-        this->drawCell(direct, canvas, fTransparentBC1Data,
-                       SkImage::CompressionType::kBC1_RGBA8_UNORM,
+        this->drawCell(canvas, fTransparentBC1Image.get(),
                        { 2*kPad + kCellWidth, 2*kPad + kBaseTexHeight });
     }
 
 private:
-    void drawCell(GrDirectContext* direct, SkCanvas* canvas, sk_sp<SkData> data,
-                  SkImage::CompressionType compression, SkIVector offset) {
-
-        sk_sp<SkImage> image;
-        if (direct) {
-            image = SkImage::MakeTextureFromCompressed(direct, std::move(data),
-                                                       fImgDimensions.width(),
-                                                       fImgDimensions.height(),
-                                                       compression, GrMipmapped::kYes);
-        } else {
-            image = SkImage::MakeRasterFromCompressed(std::move(data),
-                                                      fImgDimensions.width(),
-                                                      fImgDimensions.height(),
-                                                      compression);
-        }
-        if (!image) {
-            return;
-        }
+    void drawCell(SkCanvas* canvas, SkImage* image, SkIVector offset) {
 
         SkISize levelDimensions = fImgDimensions;
         int numMipLevels = SkMipmap::ComputeLevelCount(levelDimensions.width(),
@@ -254,7 +275,8 @@ private:
 
         bool isCompressed = false;
         if (image->isTextureBacked()) {
-            const GrCaps* caps = direct->priv().caps();
+            GrRecordingContext* rContext = ((SkImage_GpuBase*) image)->context();
+            const GrCaps* caps = rContext->priv().caps();
 
             GrTextureProxy* proxy = as_IB(image)->peekProxy();
             isCompressed = caps->isFormatCompressed(proxy->backendFormat());
@@ -290,11 +312,12 @@ private:
     static const int kCellWidth = 1.5f * kBaseTexWidth;
     static const int kBaseTexHeight = 64;
 
-    Type          fType;
-    SkISize       fImgDimensions;
-    sk_sp<SkData> fOpaqueETC2Data;
-    sk_sp<SkData> fOpaqueBC1Data;
-    sk_sp<SkData> fTransparentBC1Data;
+    Type           fType;
+    SkISize        fImgDimensions;
+
+    sk_sp<SkImage> fOpaqueETC2Image;
+    sk_sp<SkImage> fOpaqueBC1Image;
+    sk_sp<SkImage> fTransparentBC1Image;
 
     typedef GM INHERITED;
 };

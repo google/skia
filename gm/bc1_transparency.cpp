@@ -14,6 +14,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_GpuBase.h"
 
 constexpr int kImgWidth  = 16;
 constexpr int kImgHeight = 8;
@@ -115,12 +116,12 @@ static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
     }
 }
 
-static void draw_image(GrRecordingContext* context, SkCanvas* canvas,
-                       sk_sp<SkImage> image, int x, int y) {
+static void draw_image(SkCanvas* canvas, sk_sp<SkImage> image, int x, int y) {
 
     bool isCompressed = false;
     if (image && image->isTextureBacked()) {
-        const GrCaps* caps = context->priv().caps();
+        GrRecordingContext* rContext = ((SkImage_GpuBase*) image.get())->context();
+        const GrCaps* caps = rContext->priv().caps();
 
         GrTextureProxy* proxy = as_IB(image)->peekProxy();
         isCompressed = caps->isFormatCompressed(proxy->backendFormat());
@@ -175,25 +176,39 @@ protected:
         return SkISize::Make(kImgWidth + 2 * kPad, 2 * kImgHeight + 3 * kPad);
     }
 
-    void onOnceBeforeDraw() override {
-        fBC1Data = make_compressed_data();
+    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
+        if (dContext && dContext->abandoned()) {
+            // This isn't a GpuGM so a null 'context' is okay but an abandoned context
+            // if forbidden.
+            return DrawResult::kSkip;
+        }
+
+        sk_sp<SkData> bc1Data = make_compressed_data();
+
+        fRGBImage = data_to_img(dContext, bc1Data, SkImage::CompressionType::kBC1_RGB8_UNORM);
+        fRGBAImage = data_to_img(dContext, std::move(bc1Data),
+                                 SkImage::CompressionType::kBC1_RGBA8_UNORM);
+        if (!fRGBImage || !fRGBAImage) {
+            *errorMsg = "Failed to create BC1 images.";
+            return DrawResult::kFail;
+        }
+
+        return DrawResult::kOk;
+    }
+
+    void onGpuTeardown() override {
+        fRGBImage = nullptr;
+        fRGBAImage = nullptr;
     }
 
     void onDraw(SkCanvas* canvas) override {
-        auto direct = GrAsDirectContext(canvas->recordingContext());
-
-        sk_sp<SkImage> rgbImg = data_to_img(direct, fBC1Data,
-                                            SkImage::CompressionType::kBC1_RGB8_UNORM);
-
-        sk_sp<SkImage> rgbaImg = data_to_img(direct, fBC1Data,
-                                             SkImage::CompressionType::kBC1_RGBA8_UNORM);
-
-        draw_image(direct, canvas, rgbImg, kPad, kPad);
-        draw_image(direct, canvas, rgbaImg, kPad, 2 * kPad + kImgHeight);
+        draw_image(canvas, fRGBImage, kPad, kPad);
+        draw_image(canvas, fRGBAImage, kPad, 2 * kPad + kImgHeight);
     }
 
 private:
-    sk_sp<SkData> fBC1Data;
+    sk_sp<SkImage> fRGBImage;
+    sk_sp<SkImage> fRGBAImage;
 
     typedef GM INHERITED;
 };
