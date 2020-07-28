@@ -84,7 +84,7 @@ public:
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
     void format(TextAlign align, SkScalar maxWidth);
-    void paint(SkCanvas* canvas);
+    SkRect paint(SkCanvas* canvas);
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
 
@@ -109,8 +109,6 @@ public:
 
     LineMetrics getMetrics() const;
 
-    SkRect calculateBoundaries();
-
     SkRect extendHeight(const ClipContext& context) const;
 
     SkScalar metricsWithoutMultiplier(TextHeightBehavior correction);
@@ -123,9 +121,9 @@ private:
     std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, Run* run);
     void justify(SkScalar maxWidth);
 
-    void paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    SkRect paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     void paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    void paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    SkRect paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     void paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
 
     void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);

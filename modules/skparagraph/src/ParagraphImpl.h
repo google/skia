@@ -179,7 +179,6 @@ public:
 
     void setState(InternalState state);
     sk_sp<SkPicture> getPicture() { return fPicture; }
-    SkRect getBoundaries() const { return fOrigin; }
 
     SkScalar widthWithTrailingSpaces() { return fMaxWidthWithTrailingSpaces; }
 
@@ -193,6 +192,7 @@ public:
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture();
+    void paintLines(SkCanvas* canvas);
 
     void updateTextAlign(TextAlign textAlign) override;
     void updateText(size_t from, SkString text) override;
@@ -228,8 +228,6 @@ private:
 
     friend class TextWrapper;
     friend class OneLineShaper;
-
-    void calculateBoundaries();
 
     void computeEmptyMetrics();
 
@@ -269,7 +267,6 @@ private:
     SkScalar fOldWidth;
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
-    SkRect fOrigin;
 
     std::unique_ptr<SkUnicode> fICU;
 };
