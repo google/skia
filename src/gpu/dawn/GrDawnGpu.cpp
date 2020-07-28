@@ -16,7 +16,7 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrTexture.h"
@@ -691,7 +691,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     SkAssertResult(programInfo.backendFormat().asDawnFormat(&colorFormat));
 
     wgpu::TextureFormat stencilFormat = wgpu::TextureFormat::Depth24PlusStencil8;
-    bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
+    bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
 
     sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(
         this, rt, programInfo, colorFormat,

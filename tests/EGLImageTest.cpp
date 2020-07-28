@@ -10,7 +10,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/gl/GrGLGpu.h"

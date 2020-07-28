@@ -10,7 +10,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxyPriv.h"
-#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxyPriv.h"
@@ -82,7 +82,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
         , GrTextureProxy(surf, useAllocator, creatingProvider) {
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
-    SkASSERT(fSurfaceFlags == fTarget->surfacePriv().flags());
+    SkASSERT(fSurfaceFlags == fTarget->flags());
     SkASSERT((this->numSamples() <= 1 ||
               fTarget->getContext()->priv().caps()->msaaResolvesAutomatically()) !=
              this->requiresManualMSAAResolve());
@@ -186,7 +186,7 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(surface->asTexture()->textureType() == this->textureType());
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
-    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+    GrInternalSurfaceFlags surfaceFlags = surface->flags();
 
     // Only non-RT textures can be read only.
     SkASSERT(!(proxyFlags & GrInternalSurfaceFlags::kReadOnly));

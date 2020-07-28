@@ -418,7 +418,7 @@ void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarg
 
     D3D12_CPU_DESCRIPTOR_HANDLE dsDescriptor;
     D3D12_CPU_DESCRIPTOR_HANDLE* dsDescriptorPtr = nullptr;
-    if (auto stencil = renderTarget->renderTargetPriv().getStencilAttachment()) {
+    if (auto stencil = renderTarget->getStencilAttachment()) {
         GrD3DStencilAttachment* d3dStencil = static_cast<GrD3DStencilAttachment*>(stencil);
         this->addResource(d3dStencil->resource());
         dsDescriptor = d3dStencil->view();

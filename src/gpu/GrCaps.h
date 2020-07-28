@@ -440,7 +440,7 @@ public:
                                     GrSamplerState,
                                     const GrBackendFormat&) const {}
 
-    virtual GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const = 0;
+    virtual GrProgramDesc makeDesc(GrRenderTarget*, const GrProgramInfo&) const = 0;
 
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {

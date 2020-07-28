@@ -10,7 +10,6 @@
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilSettings.h"
 
 GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(contextOptions) {
@@ -173,8 +172,7 @@ static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
     return key;
 }
 
-GrProgramDesc GrDawnCaps::makeDesc(const GrRenderTarget* rt,
-                                   const GrProgramInfo& programInfo) const {
+GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
     GrProgramDesc desc;
     if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
         SkASSERT(!desc.isValid());
@@ -194,7 +192,7 @@ GrProgramDesc GrDawnCaps::makeDesc(const GrRenderTarget* rt,
     stencil.genKey(&b, true);
 
     // TODO: remove this reliance on the renderTarget
-    bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
+    bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
 
     b.add32(static_cast<uint32_t>(format));
     b.add32(static_cast<int32_t>(hasDepthStencil));

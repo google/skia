@@ -19,7 +19,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStencilAttachment.h"
-#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurface.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
@@ -27,7 +27,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 
 static bool is_valid_lazy(const SkISize& dimensions, SkBackingFit fit) {
     // A "fully" lazy proxy's width and height are not known until instantiation time.
@@ -91,7 +90,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface,
                                SkBackingFit fit,
                                UseAllocator useAllocator)
         : fTarget(std::move(surface))
-        , fSurfaceFlags(fTarget->surfacePriv().flags())
+        , fSurfaceFlags(fTarget->flags())
         , fFormat(fTarget->backendFormat())
         , fDimensions(fTarget->dimensions())
         , fFit(fit)

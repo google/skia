@@ -22,8 +22,8 @@
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGpuDevice.h"
 #include "src/gpu/SkGr.h"
@@ -1832,13 +1832,13 @@ void GrVkGpu::querySampleLocations(GrRenderTarget* renderTarget,
     int numSamples = renderTarget->numSamples();
     if (1 == numSamples) {
         SkASSERT(this->caps()->mixedSamplesSupport());
-        if (auto* stencil = renderTarget->renderTargetPriv().getStencilAttachment()) {
+        if (auto* stencil = renderTarget->getStencilAttachment()) {
             numSamples = stencil->numSamples();
         }
     }
     SkASSERT(numSamples > 1);
-    SkASSERT(!renderTarget->renderTargetPriv().getStencilAttachment() ||
-             numSamples == renderTarget->renderTargetPriv().getStencilAttachment()->numSamples());
+    SkASSERT(!renderTarget->getStencilAttachment() ||
+             numSamples == renderTarget->getStencilAttachment()->numSamples());
 
     switch (numSamples) {
         case 1:

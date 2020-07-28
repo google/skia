@@ -35,7 +35,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSemaphore.h"
-#include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTextureProxy.h"

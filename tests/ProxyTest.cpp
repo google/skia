@@ -12,11 +12,12 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -71,7 +72,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, rt->backendFormat() == rtProxy->backendFormat());
 
     REPORTER_ASSERT(reporter, rt->numSamples() == rtProxy->numSamples());
-    REPORTER_ASSERT(reporter, rt->surfacePriv().flags() == rtProxy->testingOnly_getFlags());
+    REPORTER_ASSERT(reporter, rt->flags() == rtProxy->testingOnly_getFlags());
 }
 
 static void check_texture(skiatest::Reporter* reporter,

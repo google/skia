@@ -13,7 +13,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexture.h"
 
 #ifdef SK_DEBUG

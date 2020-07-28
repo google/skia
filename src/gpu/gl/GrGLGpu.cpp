@@ -27,7 +27,7 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
@@ -1851,10 +1851,10 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
     if (programInfo.pipeline().isStencilEnabled()) {
-        SkASSERT(glRT->renderTargetPriv().getStencilAttachment());
+        SkASSERT(glRT->getStencilAttachment());
         stencil.reset(*programInfo.pipeline().getUserStencil(),
                       programInfo.pipeline().hasStencilClip(),
-                      glRT->renderTargetPriv().numStencilBits());
+                      glRT->numStencilBits());
     }
     this->flushStencil(stencil, programInfo.origin());
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
@@ -2052,7 +2052,7 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
     SkASSERT(!scissor.enabled() || !this->caps()->performPartialClearsAsDraws());
     this->handleDirtyContext();
 
-    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
+    GrStencilAttachment* sb = target->getStencilAttachment();
     if (!sb) {
         // We should only get here if we marked a proxy as requiring a SB. However,
         // the SB creation could later fail. Likely clipping is going to go awry now.
@@ -2142,7 +2142,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     bool reattachStencil = false;
     if (this->glCaps().detachStencilFromMSAABuffersBeforeReadPixels() &&
         renderTarget &&
-        renderTarget->renderTargetPriv().getStencilAttachment() &&
+        renderTarget->getStencilAttachment() &&
         renderTarget->numSamples() > 1) {
         // Fix Adreno devices that won't read from MSAA framebuffers with stencil attached
         reattachStencil = true;
@@ -2154,8 +2154,8 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
                        externalFormat, externalType, offsetOrPtr));
 
     if (reattachStencil) {
-        GrGLStencilAttachment* stencilAttachment = static_cast<GrGLStencilAttachment*>(
-                renderTarget->renderTargetPriv().getStencilAttachment());
+        auto* stencilAttachment =
+                static_cast<GrGLStencilAttachment*>(renderTarget->getStencilAttachment());
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
                                         GR_GL_RENDERBUFFER, stencilAttachment->renderbufferID()));
     }
@@ -2434,7 +2434,7 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     if (useHWAA && rt->numSamples() <= 1) {
         SkASSERT(this->caps()->mixedSamplesSupport());
         SkASSERT(0 != static_cast<GrGLRenderTarget*>(rt)->renderFBOID());
-        SkASSERT(rt->renderTargetPriv().getStencilAttachment());
+        SkASSERT(rt->getStencilAttachment());
     }
 #endif
 

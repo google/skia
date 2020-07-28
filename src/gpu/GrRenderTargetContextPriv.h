@@ -14,7 +14,6 @@
 
 class GrHardClip;
 class GrPath;
-class GrRenderTargetPriv;
 struct GrUserStencilSettings;
 
 /** Class that adds methods to GrRenderTargetContext that are only intended for use internal to
@@ -117,8 +116,8 @@ public:
 private:
     explicit GrRenderTargetContextPriv(GrRenderTargetContext* renderTargetContext)
         : fRenderTargetContext(renderTargetContext) {}
-    GrRenderTargetContextPriv(const GrRenderTargetPriv&) {} // unimpl
-    GrRenderTargetContextPriv& operator=(const GrRenderTargetPriv&); // unimpl
+    GrRenderTargetContextPriv(const GrRenderTargetContextPriv&) {}           // unimpl
+    GrRenderTargetContextPriv& operator=(const GrRenderTargetContextPriv&);  // unimpl
 
     // No taking addresses of this type.
     const GrRenderTargetContextPriv* operator&() const;

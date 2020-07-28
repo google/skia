@@ -12,7 +12,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurface.h"
 #include "src/gpu/GrTexture.h"
 
 // Deferred version - no data
@@ -210,7 +210,7 @@ void GrTextureProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(surface->asTexture()->textureType() == this->textureType());
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
-    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+    GrInternalSurfaceFlags surfaceFlags = surface->flags();
     SkASSERT(((int)proxyFlags & kGrInternalTextureFlagsMask) ==
              ((int)surfaceFlags & kGrInternalTextureFlagsMask));
 }

@@ -9,7 +9,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
@@ -164,7 +164,7 @@ GrD3DGpu* GrD3DRenderTarget::getD3DGpu() const {
 }
 
 DXGI_FORMAT GrD3DRenderTarget::stencilDxgiFormat() const {
-    if (auto stencil = this->renderTargetPriv().getStencilAttachment()) {
+    if (auto stencil = this->getStencilAttachment()) {
         auto d3dStencil = static_cast<GrD3DStencilAttachment*>(stencil);
         return d3dStencil->dxgiFormat();
     }
@@ -176,7 +176,7 @@ void GrD3DRenderTarget::genKey(GrProcessorKeyBuilder* b) const {
     b->add32(this->numSamples());
     b->add32(this->stencilDxgiFormat());
 #ifdef SK_DEBUG
-    if (const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
+    if (const GrStencilAttachment* stencil = this->getStencilAttachment()) {
         SkASSERT(stencil->numSamples() == this->numSamples());
     }
 #endif

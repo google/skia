@@ -8,7 +8,7 @@
 #include "src/gpu/gl/GrGLOpsRenderPass.h"
 
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"

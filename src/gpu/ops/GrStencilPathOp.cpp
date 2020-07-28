@@ -12,7 +12,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 
 std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext* context,
                                             const SkMatrix& viewMatrix,
@@ -30,7 +30,7 @@ void GrStencilPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds
     GrRenderTarget* rt = state->drawOpArgs().proxy()->peekRenderTarget();
     SkASSERT(rt);
 
-    int numStencilBits = rt->renderTargetPriv().numStencilBits();
+    int numStencilBits = rt->numStencilBits();
     GrStencilSettings stencil(GrPathRendering::GetStencilPassSettings(fPath->getFillType()),
                               fHasStencilClip, numStencilBits);
 

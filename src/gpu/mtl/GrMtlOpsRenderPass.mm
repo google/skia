@@ -8,7 +8,7 @@
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 
 #include "src/gpu/GrColor.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
@@ -141,7 +141,7 @@ void GrMtlOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
     // Partial clears are not supported
     SkASSERT(!scissor.enabled());
 
-    GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
+    GrStencilAttachment* sb = fRenderTarget->getStencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
@@ -219,8 +219,7 @@ void GrMtlOpsRenderPass::setupRenderPass(
     renderPassDesc.colorAttachments[0].storeAction =
             mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
-    const GrMtlStencilAttachment* stencil = static_cast<GrMtlStencilAttachment*>(
-            fRenderTarget->renderTargetPriv().getStencilAttachment());
+    auto* stencil = static_cast<GrMtlStencilAttachment*>(fRenderTarget->getStencilAttachment());
     if (stencil) {
         renderPassDesc.stencilAttachment.texture = stencil->stencilView();
     }

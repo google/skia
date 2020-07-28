@@ -20,7 +20,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexture.h"
@@ -520,7 +519,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");
             return false;
         }
-        stencil = renderTarget->renderTargetPriv().getStencilAttachment();
+        stencil = renderTarget->getStencilAttachment();
     }
 
     SkASSERT(!stencil || stencil->numSamples() == proxy->numStencilSamples());

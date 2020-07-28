@@ -14,7 +14,6 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrScissorState.h"
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrTexture.h"
@@ -109,8 +108,8 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     GrProcessor::CustomFeatures processorFeatures = programInfo.requestedFeatures();
     if (GrProcessor::CustomFeatures::kSampleLocations & processorFeatures) {
         // Verify we always have the same sample pattern key, regardless of graphics state.
-        SkASSERT(this->gpu()->findOrAssignSamplePatternKey(fRenderTarget)
-                         == fRenderTarget->renderTargetPriv().getSamplePatternKey());
+        SkASSERT(this->gpu()->findOrAssignSamplePatternKey(fRenderTarget) ==
+                 fRenderTarget->getSamplePatternKey());
     }
     fScissorStatus = (programInfo.pipeline().isScissorTestEnabled()) ?
             DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;

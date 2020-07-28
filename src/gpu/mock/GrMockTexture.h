@@ -9,7 +9,6 @@
 
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/mock/GrMockGpu.h"
@@ -117,7 +116,7 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override {
         int numStencilBits = 0;
-        if (GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment()) {
+        if (GrStencilAttachment* stencil = this->getStencilAttachment()) {
             numStencilBits = stencil->bits();
         }
         return {this->width(), this->height(), this->numSamples(), numStencilBits, fInfo};

@@ -88,7 +88,7 @@ protected:
      * @param programInfo   Program information need to build the key
      * @param caps          the caps
      **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
+    static bool Build(GrProgramDesc*, GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
 
     // This is strictly an OpenGL call since the other backends have additional data in their keys.
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {

@@ -9,7 +9,6 @@
 
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -76,8 +75,8 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
 
 #ifdef SK_DEBUG
     if (programInfo.pipeline().isStencilEnabled()) {
-        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-        SkASSERT(renderTarget->renderTargetPriv().numStencilBits() == 8);
+        SkASSERT(renderTarget->getStencilAttachment());
+        SkASSERT(renderTarget->numStencilBits() == 8);
     }
 #endif
 

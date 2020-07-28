@@ -13,7 +13,7 @@
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderUtils.h"
 
 #include "src/gpu/mtl/GrMtlGpu.h"
@@ -496,7 +496,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     pipelineDescriptor.colorAttachments[0] = create_color_attachment(pixelFormat,
                                                                      programInfo.pipeline());
     pipelineDescriptor.sampleCount = programInfo.numRasterSamples();
-    bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
+    bool hasStencilAttachment = SkToBool(renderTarget->getStencilAttachment());
     GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
     pipelineDescriptor.stencilAttachmentPixelFormat =
         hasStencilAttachment ? mtlCaps->preferredStencilFormat().fInternalFormat

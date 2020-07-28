@@ -20,7 +20,7 @@
 #include "src/gpu/GrPath.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStencilAttachment.h"
@@ -487,7 +487,7 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
 
 bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples) {
     SkASSERT(rt);
-    GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
+    GrStencilAttachment* stencil = rt->getStencilAttachment();
     if (stencil && stencil->numSamples() == numStencilSamples) {
         return true;
     }
@@ -515,10 +515,10 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
             }
             this->assignUniqueKeyToResource(sbKey, stencil.get());
         }
-        rt->renderTargetPriv().attachStencilAttachment(std::move(stencil));
+        rt->attachStencilAttachment(std::move(stencil));
     }
 
-    if (GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment()) {
+    if (GrStencilAttachment* stencil = rt->getStencilAttachment()) {
         return stencil->numSamples() == numStencilSamples;
     }
     return false;

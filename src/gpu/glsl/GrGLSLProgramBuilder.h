@@ -12,7 +12,6 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
@@ -49,13 +48,13 @@ public:
     bool hasPointSize() const { return fProgramInfo.primitiveType() == GrPrimitiveType::kPoints; }
 
     // TODO: stop passing in the renderTarget for just the sampleLocations
-    int effectiveSampleCnt() const {
+    int effectiveSampleCnt() {
         SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
-        return fRenderTarget->renderTargetPriv().getSampleLocations().count();
+        return fRenderTarget->getSampleLocations().count();
     }
-    const SkTArray<SkPoint>& getSampleLocations() const {
+    const SkTArray<SkPoint>& getSampleLocations() {
         SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
-        return fRenderTarget->renderTargetPriv().getSampleLocations();
+        return fRenderTarget->getSampleLocations();
     }
 
     const GrProgramDesc& desc() const { return fDesc; }
@@ -104,7 +103,7 @@ public:
 
     int fStageIndex;
 
-    const GrRenderTarget*        fRenderTarget; // TODO: remove this
+    GrRenderTarget*              fRenderTarget; // TODO: remove this
     const GrProgramDesc&         fDesc;
     const GrProgramInfo&         fProgramInfo;
 

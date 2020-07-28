@@ -11,9 +11,9 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrOpsTask.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfacePriv.h"
+#include "src/gpu/GrSurface.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
 #ifdef SK_DEBUG
@@ -156,7 +156,7 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples());
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
-    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+    GrInternalSurfaceFlags surfaceFlags = surface->flags();
     if (proxyFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0 && this->numSamples() == 1) {
         // Ganesh never internally creates FBO0 proxies or surfaces so this must be a wrapped
         // proxy. In this case, with no MSAA, rendering to FBO0 is strictly more limited than
