@@ -1793,6 +1793,40 @@ DEF_TEST(Codec_F16_noColorSpace, r) {
     test_info(r, codec.get(), info, SkCodec::kSuccess, nullptr);
 }
 
+DEF_TEST(Codec_ossfuzz24430, r) {
+    const char* imageFile = "images/grayscale.png";
+    auto origData = GetResourceAsData(imageFile);
+    auto icc = GetResourceAsData("icc_profiles/ossfuzz24430.iCCP");
+    if (!origData || !icc) {
+        return;
+    }
+
+    auto dataWithIcc = SkData::MakeUninitialized(origData->size() + icc->size());
+    {
+        // The offset where we'll insert the new iCCP chunk.
+        constexpr size_t kOffset = 33;
+        uint8_t* writableData = static_cast<uint8_t*>(dataWithIcc->writable_data());
+        memcpy(writableData, origData->data(), kOffset);
+        memcpy(writableData + kOffset, icc->data(), icc->size());
+        memcpy(writableData + kOffset + icc->size(), origData->bytes() + kOffset,
+               origData->size() - kOffset);
+    }
+
+    auto codec = SkCodec::MakeFromData(std::move(dataWithIcc));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec from modified %s", imageFile);
+        return;
+    }
+
+    SkBitmap bm;
+    bm.allocPixels(codec->getInfo());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == codec->getPixels(bm.pixmap()));
+
+    auto info = codec->getInfo().makeColorType(kRGBA_F16_SkColorType);
+    bm.allocPixels(info);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == codec->getPixels(bm.pixmap()));
+}
+
 // These test images have ICC profiles that do not map to an SkColorSpace.
 // Verify that decoding them with a null destination space does not perform
 // color space transformations.
