@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "49340abe_b4924e31",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-28T21:02:26Z",
+      "side": 1,
+      "message": "I am confident the previous test results were NOT testing non-simd to non-simd instead of non-simd to simd for the following reasons:\n- I verified that the experimental_simd in the build contained SIMD instructions using the tools in canvaskit/wasm_tools/SIMD\n- The skp tests using the release build do not pass the `--enable-features\u003dWebAssemblySimd` flag to chrome canary when they run puppeteer tests. Without that flag, wasm simd will not work. Therefore it is not possible that the release build skp tests were accidentally testing the simd build. \n- the skp tests for the experimental_simd build did not work without the `--enable-features\u003dWebAssemblySimd`\n\nThat being said, it is possible that the experimental_simd build I used for testing was a bit older than I thought and didn\u0027t contain some of the intrinsics I added to SkVx.h",
+      "parentUuid": "17512498_581b73f0",
+      "revId": "06db554ec24fca04060ea9a261f4547f3a4a9e3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1189b59f_3ae4b16b",
         "filename": "modules/canvaskit/compile.sh",
         "patchSetId": 1
