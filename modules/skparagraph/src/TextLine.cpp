@@ -105,7 +105,8 @@ TextLine::TextLine(ParagraphImpl* owner,
         , fHasShadows(false)
         , fHasDecorations(false)
         , fAscentStyle(LineMetricStyle::CSS)
-        , fDescentStyle(LineMetricStyle::CSS) {
+        , fDescentStyle(LineMetricStyle::CSS)
+        , fBoundaries(SkRect::MakeEmpty()){
     // Reorder visual runs
     auto& start = owner->cluster(fGhostClusterRange.start);
     auto& end = owner->cluster(fGhostClusterRange.end - 1);
@@ -159,76 +160,8 @@ TextLine::TextLine(ParagraphImpl* owner,
     }
 }
 
-SkRect TextLine::calculateBoundaries() {
-
-    // For flutter: height and/or width and/or baseline! can be Inf
-    // (coming from placeholders - we should ignore it)
-    auto boundaries = SkRect::MakeWH(
-        SkScalarIsFinite(fAdvance.fX) ? fAdvance.fX : 0,
-        SkScalarIsFinite(fAdvance.fY) ? fAdvance.fY : 0);
-    auto baseline = SkScalarIsFinite(this->baseline()) ? this->baseline() : 0;
-    auto clusters = fOwner->clusters(fClusterRange);
-    Run* run = nullptr;
-    auto runShift = 0.0f;
-    auto clusterShift = 0.0f;
-    for (auto cluster = clusters.begin(); cluster != clusters.end(); ++cluster) {
-        if (run == nullptr || cluster->runIndex() != run->index()) {
-            run = &fOwner->run(cluster->runIndex());
-            runShift += clusterShift;
-            clusterShift = 0;
-        }
-        clusterShift += cluster->width();
-        for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
-            auto posX = run->positionX(i);
-            auto posY = run->posY(i);
-            auto bounds = run->getBounds(i);
-            bounds.offset(posX + runShift, posY);
-            boundaries.joinPossiblyEmptyRect(bounds);
-        }
-    }
-
-    // We need to take in account all the shadows when we calculate the boundaries
-    // TODO: Need to find a better solution
-    if (fHasShadows) {
-        SkRect shadowRect = SkRect::MakeEmpty();
-        this->iterateThroughVisualRuns(false,
-            [this, &shadowRect, boundaries]
-            (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
-            *runWidthInLine = this->iterateThroughSingleRunByStyles(
-                run, runOffsetInLine, textRange, StyleType::kShadow,
-                [&shadowRect, boundaries](TextRange textRange, const TextStyle& style, const ClipContext& context) {
-
-                    for (TextShadow shadow : style.getShadows()) {
-                        if (!shadow.hasShadow()) continue;
-                        SkPaint paint;
-                        paint.setColor(shadow.fColor);
-                        if (shadow.fBlurRadius != 0.0) {
-                            auto filter = SkMaskFilter::MakeBlur(
-                                    kNormal_SkBlurStyle,
-                                    SkDoubleToScalar(shadow.fBlurRadius),
-                                    false);
-                            paint.setMaskFilter(filter);
-                            SkRect bound;
-                            paint.doComputeFastBounds(boundaries, &bound, SkPaint::Style::kFill_Style);
-                            shadowRect.joinPossiblyEmptyRect(bound);
-                        }
-                    }
-                });
-            return true;
-            });
-        boundaries.fLeft += shadowRect.fLeft;
-        boundaries.fTop += shadowRect.fTop;
-        boundaries.fRight += shadowRect.fRight;
-        boundaries.fBottom += shadowRect.fBottom;
-    }
-
-    boundaries.offset(this->offset());    // Line offset from the beginning of the para
-    boundaries.offset(0, baseline);         // Down by baseline
-
-    return boundaries;
-}
-
 void TextLine::paint(SkCanvas* textCanvas) {
+    fBoundaries = SkRect::MakeEmpty();
     if (this->empty()) {
         return;
     }
@@ -253,7 +186,8 @@ void TextLine::paint(SkCanvas* textCanvas) {
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
                 run, runOffsetInLine, textRange, StyleType::kShadow,
                 [textCanvas, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
-                    this->paintShadow(textCanvas, textRange, style, context);
+                    auto boundaries = this->paintShadow(textCanvas, textRange, style, context);
+                    fBoundaries.joinPossiblyEmptyRect(boundaries);
                 });
             return true;
             });
@@ -269,7 +203,8 @@ void TextLine::paint(SkCanvas* textCanvas) {
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
             run, runOffsetInLine, textRange, StyleType::kForeground,
             [textCanvas, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
-                this->paintText(textCanvas, textRange, style, context);
+                auto boundaries = this->paintText(textCanvas, textRange, style, context);
+                fBoundaries.joinPossiblyEmptyRect(boundaries);
             });
             return true;
         });
@@ -358,10 +293,10 @@ SkScalar TextLine::metricsWithoutMultiplier(TextHeightBehavior correction) {
     return delta;
 }
 
-void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
+SkRect TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
 
     if (context.run->placeholderStyle() != nullptr) {
-        return;
+        return SkRect::MakeEmpty();
     }
 
     SkPaint paint;
@@ -379,13 +314,23 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
         canvas->clipRect(extendHeight(context).makeOffset(this->offset()));
     }
 
+    SkRect textBoundaries = SkRect::MakeEmpty();
     SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
-    canvas->drawTextBlob(builder.make(),
+    auto blob = builder.make();
+    if (blob != nullptr) {
+        auto boundaries = blob->bounds();
+        boundaries.offset(this->offset().fX, this->offset().fY);
+        textBoundaries.joinPossiblyEmptyRect(boundaries);
+    }
+
+    canvas->drawTextBlob(blob,
         this->offset().fX + context.fTextShift, this->offset().fY + correctedBaseline, paint);
 
     if (context.clippingNeeded) {
         canvas->restore();
     }
+
+    return textBoundaries;
 }
 
 void TextLine::paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
@@ -394,8 +339,11 @@ void TextLine::paintBackground(SkCanvas* canvas, TextRange textRange, const Text
     }
 }
 
-void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
-    auto shiftDown = this->baseline();
+SkRect TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
+
+    SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
+    SkRect shadowBoundaries = SkRect::MakeEmpty();
+
     for (TextShadow shadow : style.getShadows()) {
         if (!shadow.hasShadow()) continue;
 
@@ -416,15 +364,25 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
             clip.offset(this->offset());
             canvas->clipRect(clip);
         }
-        canvas->drawTextBlob(builder.make(),
+        auto blob = builder.make();
+        if (blob != nullptr) {
+            auto boundaries = blob->bounds();
+            boundaries.offset(
+                   this->offset().fX + shadow.fOffset.x(),
+                   this->offset().fY + shadow.fOffset.y()
+                );
+            shadowBoundaries.joinPossiblyEmptyRect(boundaries);
+        }
+        canvas->drawTextBlob(blob,
             this->offset().fX + shadow.fOffset.x() + context.fTextShift,
-            this->offset().fY + shadow.fOffset.y() + shiftDown,
+            this->offset().fY + shadow.fOffset.y() + correctedBaseline,
             paint);
-
         if (context.clippingNeeded) {
             canvas->restore();
         }
     }
+
+    return shadowBoundaries;
 }
 
 void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
