@@ -16,6 +16,41 @@
       "revId": "fb7fb435969c301c0fca5a4cbae419ea0554a60b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29b74f29_28e2bb22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T21:16:58Z",
+      "side": 1,
+      "message": "I should m",
+      "revId": "fb7fb435969c301c0fca5a4cbae419ea0554a60b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "697d7cb1_9226fb1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T21:16:58Z",
+      "side": 1,
+      "message": "I should mention that, constexpr or not, GCC complains if there\u0027s no final return and no SkUNREACHABLE, e.g.\n\n$ ninja -C out/gcc obj/src/core/libskia.SkPath.o\nninja: Entering directory `out/gcc\u0027\n[1/1] compile ../../src/core/SkPath.cpp\nIn file included from ../../src/core/SkPath.cpp:8:\n../../include/core/SkPath.h: In static member function ‘static constexpr int SkPath::RangeIter::pts_advance_after_verb(SkPathVerb)’:\n../../include/core/SkPath.h:1585:9: warning: control reaches end of non-void function [-Wreturn-type]\n 1585 |         }\n      |         ^",
+      "parentUuid": "3c9469b2_ec33f8ab",
+      "revId": "fb7fb435969c301c0fca5a4cbae419ea0554a60b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
