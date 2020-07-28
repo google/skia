@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "65cce3f7_bdf188f7",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-28T14:07:19Z",
+      "side": 1,
+      "message": "I think you can remove these origin params from generate_pixels, and transitively simplify that function, too.",
+      "range": {
+        "startLine": 184,
+        "startChar": 82,
+        "endLine": 184,
+        "endChar": 87
+      },
+      "revId": "62b3ccfd946c6577f726a9f7562cdb102a49ddff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ea9abb0c_559bffae",
         "filename": "src/image/SkImage_Lazy.cpp",
         "patchSetId": 7
