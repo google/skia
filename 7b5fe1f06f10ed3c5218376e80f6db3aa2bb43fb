@@ -22,6 +22,30 @@
       "revId": "7b5fe1f06f10ed3c5218376e80f6db3aa2bb43fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7bac38f_0bda8205",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3116,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T17:13:01Z",
+      "side": 1,
+      "message": "Yes, those are unrelated.  This line pairs with line 3075 above.\n\nThe 8 on line 3137 parallels the 56 on line 3076, and that load doesn\u0027t need a paired restore step because r10 is caller-saved.",
+      "parentUuid": "ba4f3d61_e9fde887",
+      "range": {
+        "startLine": 3116,
+        "startChar": 50,
+        "endLine": 3116,
+        "endChar": 52
+      },
+      "revId": "7b5fe1f06f10ed3c5218376e80f6db3aa2bb43fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
