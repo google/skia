@@ -45,7 +45,6 @@ public:
     void convertProgram(Program::Kind kind,
                         const char* text,
                         size_t length,
-                        SymbolTable& types,
                         std::vector<std::unique_ptr<ProgramElement>>* result);
 
     /**
@@ -70,7 +69,8 @@ private:
      * settings.
      */
     void start(const Program::Settings* settings,
-               std::vector<std::unique_ptr<ProgramElement>>* inherited);
+               std::vector<std::unique_ptr<ProgramElement>>* inherited,
+               bool isBuiltinCode = false);
 
     /**
      * Performs cleanup after compilation is complete.
@@ -143,6 +143,10 @@ private:
     std::unique_ptr<Expression> convertFieldExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
+    std::unique_ptr<Expression> findEnumRef(int offset,
+                                            const Type& type,
+                                            StringFragment field,
+                                            std::vector<std::unique_ptr<ProgramElement>>& elements);
     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
                                                  StringFragment field);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
@@ -161,6 +165,7 @@ private:
     bool setRefKind(const Expression& expr, VariableReference::RefKind kind);
     void getConstantInt(const Expression& value, int64_t* out);
     bool checkSwizzleWrite(const Swizzle& swizzle);
+    void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
 
     std::unique_ptr<ASTFile> fFile;
     const FunctionDeclaration* fCurrentFunction;
@@ -173,17 +178,21 @@ private:
     // Symbols which have definitions in the include files. The bool tells us whether this
     // intrinsic has been included already.
     std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
+    std::set<const FunctionDeclaration*> fReferencedIntrinsics;
     int fLoopLevel;
     int fSwitchLevel;
     ErrorReporter& fErrors;
     int fInvocations;
+    std::vector<std::unique_ptr<ProgramElement>>* fInherited;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
     const Variable* fSkPerVertex = nullptr;
-    Variable* fRTAdjust;
-    Variable* fRTAdjustInterfaceBlock;
+    const Variable* fRTAdjust;
+    const Variable* fRTAdjustInterfaceBlock;
     int fRTAdjustFieldIndex;
     int fInlineVarCounter;
     bool fCanInline = true;
+    // true if we are currently processing one of the built-in SkSL include files
+    bool fIsBuiltinCode;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

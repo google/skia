@@ -26,15 +26,16 @@ struct FunctionDefinition;
  */
 struct FunctionDeclaration : public Symbol {
     FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
-                        std::vector<const Variable*> parameters, const Type& returnType)
+                        std::vector<const Variable*> parameters, const Type& returnType,
+                        bool builtin)
     : INHERITED(offset, kFunctionDeclaration_Kind, std::move(name))
     , fDefinition(nullptr)
-    , fBuiltin(false)
+    , fBuiltin(builtin)
     , fModifiers(modifiers)
     , fParameters(std::move(parameters))
     , fReturnType(returnType) {}
 
-    String declaration() const {
+    String description() const override {
         String result = fReturnType.displayName() + " " + fName + "(";
         String separator;
         for (auto p : fParameters) {
@@ -44,10 +45,6 @@ struct FunctionDeclaration : public Symbol {
         }
         result += ")";
         return result;
-    }
-
-    String description() const override {
-        return this->declaration();
     }
 
     bool matches(const FunctionDeclaration& f) const {

@@ -9,6 +9,7 @@
 #define SKSL_VARIABLEREFERENCE
 
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 namespace SkSL {
 

@@ -103,10 +103,10 @@ void Parser::InitLayoutMap() {
     #undef TOKEN
 }
 
-Parser::Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors)
+Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors)
 : fText(text)
 , fPushback(Token::Kind::TK_INVALID, -1, -1)
-, fTypes(types)
+, fSymbols(symbols)
 , fErrors(errors) {
     fLexer.start(text, length);
     static const bool layoutMapInitialized = []{ return (void)InitLayoutMap(), true; }();
@@ -251,7 +251,8 @@ void Parser::error(int offset, String msg) {
 }
 
 bool Parser::isType(StringFragment name) {
-    return nullptr != fTypes[name];
+    const Symbol* s = fSymbols[name];
+    return s && s->fKind == Symbol::kType_Kind;
 }
 
 /* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? |
@@ -353,8 +354,8 @@ ASTNode::ID Parser::enumDeclaration() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    fTypes.add(this->text(name), std::unique_ptr<Symbol>(new Type(this->text(name),
-                                                                  Type::kEnum_Kind)));
+    fSymbols.add(this->text(name), std::unique_ptr<Symbol>(new Type(this->text(name),
+                                                                    Type::kEnum_Kind)));
     CREATE_NODE(result, name.fOffset, ASTNode::Kind::kEnum, this->text(name));
     if (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token id;
@@ -494,7 +495,9 @@ ASTNode::ID Parser::structDeclaration() {
             return ASTNode::ID::Invalid();
         }
         ASTNode& declsNode = getNode(decls);
-        auto type = (const Type*) fTypes[(declsNode.begin() + 1)->getTypeData().fName];
+        const Symbol* symbol = fSymbols[(declsNode.begin() + 1)->getTypeData().fName];
+        SkASSERT(symbol && symbol->fKind == Symbol::kType_Kind);
+        const Type* type = (const Type*) symbol;
         for (auto iter = declsNode.begin() + 2; iter != declsNode.end(); ++iter) {
             ASTNode& var = *iter;
             ASTNode::VarData vd = var.getVarData();
@@ -506,7 +509,7 @@ ASTNode::ID Parser::structDeclaration() {
                 }
                 uint64_t columns = size.getInt();
                 String name = type->name() + "[" + to_string(columns) + "]";
-                type = (Type*) fTypes.takeOwnership(std::unique_ptr<Symbol>(
+                type = (Type*) fSymbols.takeOwnership(std::unique_ptr<const Symbol>(
                                                                          new Type(name,
                                                                                   Type::kArray_Kind,
                                                                                   *type,
@@ -521,8 +524,8 @@ ASTNode::ID Parser::structDeclaration() {
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return ASTNode::ID::Invalid();
     }
-    fTypes.add(this->text(name), std::unique_ptr<Type>(new Type(name.fOffset, this->text(name),
-                                                                fields)));
+    fSymbols.add(this->text(name), std::unique_ptr<Type>(new Type(name.fOffset, this->text(name),
+                                                                  fields)));
     RETURN_NODE(name.fOffset, ASTNode::Kind::kType,
                 ASTNode::TypeData(this->text(name), true, false));
 }

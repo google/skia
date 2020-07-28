@@ -24,6 +24,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLCompiler.h",
   "$_src/sksl/SkSLContext.h",
   "$_src/sksl/SkSLDefines.h",
+  "$_src/sksl/SkSLDehydrator.cpp",
   "$_src/sksl/SkSLErrorReporter.h",
   "$_src/sksl/SkSLExternalValue.h",
   "$_src/sksl/SkSLFileOutputStream.h",
@@ -36,6 +37,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLParser.cpp",
   "$_src/sksl/SkSLParser.h",
   "$_src/sksl/SkSLPosition.h",
+  "$_src/sksl/SkSLRehydrator.cpp",
   "$_src/sksl/SkSLSampleUsage.cpp",
   "$_src/sksl/SkSLSectionAndParameterHelper.cpp",
   "$_src/sksl/SkSLSectionAndParameterHelper.h",
@@ -110,4 +112,14 @@ skia_gpu_processor_sources = [
   "$_src/gpu/gradients/GrTiledGradientEffect.fp",
   "$_src/gpu/gradients/GrTwoPointConicalGradientLayout.fp",
   "$_src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
+]
+
+skia_dehydrate_sksl_sources = [
+  "$_src/sksl/generated/sksl_fp.sksl",
+  "$_src/sksl/sksl_frag.sksl",
+  "$_src/sksl/sksl_geom.sksl",
+  "$_src/sksl/sksl_gpu.sksl",
+  "$_src/sksl/sksl_interp.sksl",
+  "$_src/sksl/sksl_pipeline.sksl",
+  "$_src/sksl/sksl_vert.sksl",
 ]

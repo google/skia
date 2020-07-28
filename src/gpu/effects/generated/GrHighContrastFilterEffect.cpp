@@ -52,12 +52,12 @@ return t < 0.16666666666666666 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inColor = %s;
-half4 inlineResult_fp_0;
-half4 inlineArg_fp_1_0 = inColor;
+half4 _inlineResulthalf4unpremulhalf40;
+half4 _inlineArghalf4unpremulhalf41_0 = inColor;
 {
-    inlineResult_fp_0 = half4(inlineArg_fp_1_0.xyz / max(inlineArg_fp_1_0.w, 9.9999997473787516e-05), inlineArg_fp_1_0.w);
+    _inlineResulthalf4unpremulhalf40 = half4(_inlineArghalf4unpremulhalf41_0.xyz / max(_inlineArghalf4unpremulhalf41_0.w, 9.9999997473787516e-05), _inlineArghalf4unpremulhalf41_0.w);
 }
-half4 color = inlineResult_fp_0;
+half4 color = _inlineResulthalf4unpremulhalf40;
 
 @if (%s) {
     color.xyz = color.xyz * color.xyz;

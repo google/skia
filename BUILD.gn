@@ -572,33 +572,55 @@ if (skia_compile_processors) {
     ]
   }
 
-  action("create_sksl_enums") {
-    script = "gn/create_sksl_enums.py"
-    sources = [ "include/private/GrSharedEnums.h" ]
+  action("create_sksl_fp") {
+    script = "gn/create_sksl_fp.py"
+    sources = [
+      "include/private/GrSharedEnums.h",
+      "src/sksl/sksl_fp_raw.sksl",
+    ]
     outputs = [ "$target_out_dir/" +
-                rebase_path("src/sksl/sksl_enums.inc", target_out_dir) ]
+                rebase_path("src/sksl/generated/sksl_fp.sksl", target_out_dir) ]
     args = [
       rebase_path(sources[0]),
+      rebase_path(sources[1]),
       rebase_path(outputs[0]),
     ]
+  }
+
+  skslc_path = "$root_out_dir/"
+  if (host_toolchain != default_toolchain_name) {
+    skslc_path += "$host_toolchain/"
+  }
+  skslc_path += "skslc"
+  if (host_os == "win") {
+    skslc_path += ".exe"
+  }
+
+  action("dehydrate_sksl") {
+    script = "gn/dehydrate_sksl.py"
+    deps = [ ":skslc(//gn/toolchain:$host_toolchain)" ]
+    sources = skia_dehydrate_sksl_sources
+
+    # we can't list the true outputs because it would cause a circular dependency, so we create a
+    # fake file just to satisfy gn
+    output = "$target_out_dir/" +
+             rebase_path("src/sksl/generated/fake.output", target_out_dir)
+    outputs = [ output ]
+    args = [
+      rebase_path(skslc_path),
+      rebase_path(output),
+    ]
+    args += rebase_path(skia_dehydrate_sksl_sources)
   }
 
   action("compile_processors") {
     script = "gn/compile_processors.py"
     deps = [
-      ":create_sksl_enums",
+      ":create_sksl_fp",
       ":skslc(//gn/toolchain:$host_toolchain)",
     ]
     sources = skia_gpu_processor_sources
     outputs = skia_gpu_processor_outputs
-    skslc_path = "$root_out_dir/"
-    if (host_toolchain != default_toolchain_name) {
-      skslc_path += "$host_toolchain/"
-    }
-    skslc_path += "skslc"
-    if (host_os == "win") {
-      skslc_path += ".exe"
-    }
     args = [
       rebase_path(skslc_path),
       rebase_path("bin/clang-format"),
@@ -610,12 +632,15 @@ if (skia_compile_processors) {
   skia_gpu_processor_outputs = []
   group("compile_processors") {
   }
+  group("dehydrate_sksl") {
+  }
 }
 
 optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
     ":compile_processors",
+    ":dehydrate_sksl",
     ":run_sksllex",
   ]
   if (skia_generate_workarounds) {
@@ -1012,6 +1037,7 @@ component("skia") {
     ":avx",
     ":compile_processors",
     ":crc32",
+    ":dehydrate_sksl",
     ":fontmgr_factory",
     ":gif",
     ":heif",

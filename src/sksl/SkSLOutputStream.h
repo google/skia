@@ -21,6 +21,18 @@ public:
 
     virtual void write8(uint8_t b) = 0;
 
+    void write16(uint16_t i) {
+        this->write8((uint8_t) i);
+        this->write8((uint8_t) (i >> 8));
+    }
+
+    void write32(uint32_t i) {
+        this->write8((uint8_t) i);
+        this->write8((uint8_t) (i >> 8));
+        this->write8((uint8_t) (i >> 16));
+        this->write8((uint8_t) (i >> 24));
+    }
+
     virtual void writeText(const char* s) = 0;
 
     virtual void write(const void* s, size_t size) = 0;
