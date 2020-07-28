@@ -1897,7 +1897,7 @@ namespace skvm {
         } else {
             SkASSERT(dst.kind == Operand::MEM);
             const Mem& m = dst.mem;
-            const bool need_SIB = m.base  == rsp
+            const bool need_SIB = (m.base&7) == rsp
                                || m.index != rsp;
 
             this->byte(rex(W1,x>>3,m.index>>3,m.base>>3));

@@ -39,10 +39,9 @@ namespace skvm {
 
         // Order matters... GP64, Xmm, Ymm values match 4-bit register encoding for each.
         enum GP64 {
-            rax, rcx, rdx, rbx, rsp,               rbp, rsi, rdi,
-            r8 , r9 , r10, r11, r12BROKENDONOTUSE, r13, r14, r15,
+            rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi,
+            r8 , r9 , r10, r11, r12, r13, r14, r15,
         };
-        // TODO: need to fix up assembler before r12 is safe to use
         enum Xmm {
             xmm0, xmm1, xmm2 , xmm3 , xmm4 , xmm5 , xmm6 , xmm7 ,
             xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15,
