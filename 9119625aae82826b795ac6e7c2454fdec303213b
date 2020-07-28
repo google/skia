@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f988255_edd1f680",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-28T15:04:58Z",
+      "side": 1,
+      "message": "Just speaking to the general effort to reduce what we make public if possible, even if some clients do use them. Just an idea.",
+      "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
