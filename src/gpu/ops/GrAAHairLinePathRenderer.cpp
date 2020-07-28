@@ -636,7 +636,7 @@ static void add_quads(const SkPoint p[3],
                       BezierVertex** vert) {
     SkASSERT(subdiv >= 0);
     // temporary vertex storage to avoid reading the vertex buffer
-    BezierVertex outVerts[kQuadNumVertices];
+    BezierVertex outVerts[kQuadNumVertices] = {};
 
     // storage for the chopped quad
     // pts 0,1,2 are the first quad, and 2,3,4 the second quad
