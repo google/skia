@@ -126,7 +126,7 @@ DEF_GM( return new ImagePictGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static std::unique_ptr<SkImageGenerator> make_pic_generator(GrRecordingContext*,
+static std::unique_ptr<SkImageGenerator> make_pic_generator(GrDirectContext*,
                                                             sk_sp<SkPicture> pic) {
     SkMatrix matrix;
     matrix.setTranslate(-100, -100);
@@ -150,7 +150,7 @@ protected:
 private:
     SkBitmap fBM;
 };
-static std::unique_ptr<SkImageGenerator> make_ras_generator(GrRecordingContext*,
+static std::unique_ptr<SkImageGenerator> make_ras_generator(GrDirectContext*,
                                                             sk_sp<SkPicture> pic) {
     SkBitmap bm;
     bm.allocN32Pixels(100, 100);
@@ -160,11 +160,6 @@ static std::unique_ptr<SkImageGenerator> make_ras_generator(GrRecordingContext*,
     canvas.drawPicture(pic);
     return std::make_unique<RasterGenerator>(bm);
 }
-
-class EmptyGenerator : public SkImageGenerator {
-public:
-    EmptyGenerator(const SkImageInfo& info) : SkImageGenerator(info) {}
-};
 
 class TextureGenerator : public SkImageGenerator {
 public:
@@ -192,7 +187,7 @@ protected:
                                          GrMipmapped mipMapped,
                                          GrImageTexGenPolicy policy) override {
         SkASSERT(rContext);
-        SkASSERT(rContext == fRContext.get());
+        SkASSERT(rContext->priv().matches(fRContext.get()));
 
         if (!fView) {
             return {};
@@ -215,18 +210,19 @@ private:
     GrSurfaceProxyView        fView;
 };
 
-static std::unique_ptr<SkImageGenerator> make_tex_generator(GrRecordingContext* rContext,
+static std::unique_ptr<SkImageGenerator> make_tex_generator(GrDirectContext* dContext,
                                                             sk_sp<SkPicture> pic) {
+    if (!dContext) {
+        return nullptr;
+    }
+
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
-    if (!rContext) {
-        return std::make_unique<EmptyGenerator>(info);
-    }
-    return std::make_unique<TextureGenerator>(rContext, info, pic);
+    return std::make_unique<TextureGenerator>(dContext, info, pic);
 }
 
 class ImageCacheratorGM : public skiagm::GM {
-    typedef std::unique_ptr<SkImageGenerator> (*FactoryFunc)(GrRecordingContext*, sk_sp<SkPicture>);
+    typedef std::unique_ptr<SkImageGenerator> (*FactoryFunc)(GrDirectContext*, sk_sp<SkPicture>);
 
     SkString         fName;
     FactoryFunc      fFactory;
@@ -255,17 +251,24 @@ protected:
         fPicture = recorder.finishRecordingAsPicture();
     }
 
-    void makeCaches(GrRecordingContext* rContext) {
-        auto gen = fFactory(rContext, fPicture);
+    bool makeCaches(GrDirectContext* dContext) {
+        auto gen = fFactory(dContext, fPicture);
+        if (!gen) {
+            return false;
+        }
         fImage = SkImage::MakeFromGenerator(std::move(gen));
 
         const SkIRect subset = SkIRect::MakeLTRB(50, 50, 100, 100);
 
-        gen = fFactory(rContext, fPicture);
+        gen = fFactory(dContext, fPicture);
+        if (!gen) {
+            return false;
+        }
         fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset);
 
         SkASSERT(fImage->dimensions() == SkISize::Make(100, 100));
         SkASSERT(fImageSubset->dimensions() == SkISize::Make(50, 50));
+        return true;
     }
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
@@ -314,8 +317,11 @@ protected:
         draw_as_bitmap(canvas, fImageSubset.get(), 150+101, 0);
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        this->makeCaches(canvas->recordingContext());
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (!this->makeCaches(GrAsDirectContext(canvas->recordingContext()))) {
+            errorMsg->printf("Could not create cached images");
+            return DrawResult::kSkip;
+        }
 
         canvas->translate(20, 20);
 
@@ -332,6 +338,7 @@ protected:
         canvas->scale(2, 2);
         this->drawSet(canvas);
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:
