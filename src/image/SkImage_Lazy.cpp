@@ -293,10 +293,9 @@ sk_sp<SkImage> SkImage_Lazy::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) 
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator,
-                                          const SkIRect* subset) {
+sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator) {
     SkImage_Lazy::Validator
-            validator(SharedGenerator::Make(std::move(generator)), subset, nullptr, nullptr);
+            validator(SharedGenerator::Make(std::move(generator)), nullptr, nullptr, nullptr);
 
     return validator ? sk_make_sp<SkImage_Lazy>(&validator) : nullptr;
 }
@@ -667,11 +666,15 @@ void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const
 sk_sp<SkImage> SkImage::DecodeToTexture(GrDirectContext* direct, const void* encoded,
                                         size_t length, const SkIRect* subset) {
     // img will not survive this function, so we don't need to copy/own the encoded data,
-    auto img = MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length), subset);
+    auto img = MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length));
     if (!img) {
         return nullptr;
     }
-    return img->makeTextureImage(direct);
+    img = img->makeTextureImage(direct);
+    if (img && subset) {
+        img = img->makeSubset(*subset, direct);
+    }
+    return img;
 }
 #endif  // SK_SUPPORT_GPU
 

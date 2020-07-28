@@ -936,7 +936,7 @@ Result ImageGenSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
 
     // Test deferred decoding path on GPU
     if (fIsGpu) {
-        sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen), nullptr));
+        sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen)));
         if (!image) {
             return Result::Fatal("Could not create image from codec image generator.");
         }
