@@ -36,10 +36,6 @@ class SkImage_Base : public SkImage {
 public:
     ~SkImage_Base() override;
 
-    virtual SkIRect onGetSubset() const {
-        return { 0, 0, this->width(), this->height() };
-    }
-
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }
