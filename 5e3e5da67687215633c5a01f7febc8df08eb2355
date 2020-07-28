@@ -22,6 +22,29 @@
       "revId": "5e3e5da67687215633c5a01f7febc8df08eb2355",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f96e070_52d49852",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 8
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-28T20:53:13Z",
+      "side": 1,
+      "message": "No longer bespoke and please wrap all comments to 100 cols.",
+      "range": {
+        "startLine": 26,
+        "startChar": 12,
+        "endLine": 26,
+        "endChar": 107
+      },
+      "revId": "5e3e5da67687215633c5a01f7febc8df08eb2355",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
