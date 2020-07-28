@@ -72,14 +72,14 @@ void SkWStream::flush()
 
 bool SkWStream::writeDecAsText(int32_t dec)
 {
-    char buffer[SkStrAppendS32_MaxSize];
+    char buffer[kSkStrAppendS32_MaxSize];
     char* stop = SkStrAppendS32(buffer, dec);
     return this->write(buffer, stop - buffer);
 }
 
 bool SkWStream::writeBigDecAsText(int64_t dec, int minDigits)
 {
-    char buffer[SkStrAppendU64_MaxSize];
+    char buffer[kSkStrAppendU64_MaxSize];
     char* stop = SkStrAppendU64(buffer, dec, minDigits);
     return this->write(buffer, stop - buffer);
 }
@@ -93,7 +93,7 @@ bool SkWStream::writeHexAsText(uint32_t hex, int digits)
 
 bool SkWStream::writeScalarAsText(SkScalar value)
 {
-    char buffer[SkStrAppendScalar_MaxSize];
+    char buffer[kSkStrAppendScalar_MaxSize];
     char* stop = SkStrAppendScalar(buffer, value);
     return this->write(buffer, stop - buffer);
 }
