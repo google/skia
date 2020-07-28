@@ -14,7 +14,9 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkLRUCache.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkPaintPriv.h"
 #include "src/core/SkVM.h"
 #include "src/shaders/SkColorFilterShader.h"
 
@@ -180,7 +182,8 @@ namespace {
         // First two arguments are always uniforms and the destination buffer.
         uniforms->base    = p->uniform();
         skvm::Arg dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
-        // Other arguments depend on params.coverage:
+        // A SpriteShader (in this file) may next use one argument as its varying source.
+        // Subsequent arguments depend on params.coverage:
         //    - Full:      (no more arguments)
         //    - Mask3D:    mul varying, add varying, 8-bit coverage varying
         //    - MaskA8:    8-bit coverage varying
@@ -201,6 +204,7 @@ namespace {
             p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
         };
 
+        // See note about arguments above... a SpriteShader will call p->arg() once here.
         skvm::Color src = as_SB(params.shader)->program(p, device,local, paint,
                                                         params.matrices, /*localM=*/nullptr,
                                                         params.quality, params.dst,
@@ -367,6 +371,35 @@ namespace {
         const char* getTypeName() const override { return "NoopColorFilter"; }
     };
 
+    struct SpriteShader : public SkShaderBase {
+        explicit SpriteShader(SkPixmap sprite) : fSprite(sprite) {}
+
+        SkPixmap fSprite;
+
+        // Only created here temporarily... never serialized.
+        Factory      getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return "SpriteShader"; }
+
+        bool isOpaque() const override { return fSprite.isOpaque(); }
+
+        skvm::Color onProgram(skvm::Builder* p,
+                              skvm::Coord /*device*/, skvm::Coord /*local*/, skvm::Color /*paint*/,
+                              const SkMatrixProvider&, const SkMatrix* /*localM*/,
+                              SkFilterQuality, const SkColorInfo& dst,
+                              skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
+            const SkColorType ct = fSprite.colorType();
+
+            skvm::PixelFormat fmt;
+            SkAssertResult(SkColorType_to_PixelFormat(ct, &fmt));
+
+            skvm::Color c = p->load(fmt, p->arg(SkColorTypeBytesPerPixel(ct)));
+
+            return SkColorSpaceXformSteps{fSprite.colorSpace(), fSprite.alphaType(),
+                                              dst.colorSpace(), kPremul_SkAlphaType}
+                .program(p, uniforms, c);
+        }
+    };
+
     struct DitherShader : public SkShaderBase {
         explicit DitherShader(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
 
@@ -453,10 +486,20 @@ namespace {
     };
 
     static Params effective_params(const SkPixmap& device,
-                                   const SkPaint& paint,
+                                   const SkPixmap* sprite,
+                                   SkPaint paint,
                                    const SkMatrixProvider& matrices,
                                    sk_sp<SkShader> clip) {
-        // Color filters have been handled for us by SkBlitter::Choose().
+        // Sprites take priority over any shader.  (There's rarely one set, and it's meaningless.)
+        if (sprite) {
+            paint.setShader(sk_make_sp<SpriteShader>(*sprite));
+        }
+
+        // Normal blitters will have already folded color filters into their shader,
+        // but we may still need to do that here for SpriteShaders.
+        if (paint.getColorFilter()) {
+            SkPaintPriv::RemoveColorFilter(&paint, device.colorSpace());
+        }
         SkASSERT(!paint.getColorFilter());
 
         // If there's no explicit shader, the paint color is the shader,
@@ -506,14 +549,18 @@ namespace {
 
     class Blitter final : public SkBlitter {
     public:
-        Blitter(const SkPixmap& device,
-                const SkPaint& paint,
+        Blitter(const SkPixmap&         device,
+                const SkPaint&          paint,
+                const SkPixmap*         sprite,
+                SkIPoint                spriteOffset,
                 const SkMatrixProvider& matrices,
-                sk_sp<SkShader> clip,
+                sk_sp<SkShader>         clip,
                 bool* ok)
             : fDevice(device)
+            , fSprite(sprite ? *sprite : SkPixmap{})
+            , fSpriteOffset(spriteOffset)
             , fUniforms(kBlitterUniformsCount)
-            , fParams(effective_params(device, paint, matrices, std::move(clip)))
+            , fParams(effective_params(device, sprite, paint, matrices, std::move(clip)))
             , fKey(cache_key(fParams, &fUniforms, &fAlloc, ok))
             , fPaint([&]{
                 SkColor4f color = paint.getColor4f();
@@ -547,6 +594,8 @@ namespace {
 
     private:
         SkPixmap        fDevice;
+        const SkPixmap  fSprite;                  // See isSprite().
+        const SkIPoint  fSpriteOffset;
         skvm::Uniforms  fUniforms;                // Most data is copied directly into fUniforms,
         SkArenaAlloc    fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
         const Params    fParams;
@@ -611,12 +660,24 @@ namespace {
             memcpy(fUniforms.buf.data(), &uniforms, sizeof(BlitterUniforms));
         }
 
+        const void* isSprite(int x, int y) const {
+            if (fSprite.colorType() != kUnknown_SkColorType) {
+                return fSprite.addr(x - fSpriteOffset.x(),
+                                    y - fSpriteOffset.y());
+            }
+            return nullptr;
+        }
+
         void blitH(int x, int y, int w) override {
             if (fBlitH.empty()) {
                 fBlitH = this->buildProgram(Coverage::Full);
             }
             this->updateUniforms(x+w, y);
-            fBlitH.eval(w, fUniforms.buf.data(), fDevice.addr(x,y));
+            if (const void* sprite = this->isSprite(x,y)) {
+                fBlitH.eval(w, fUniforms.buf.data(), fDevice.addr(x,y), sprite);
+            } else {
+                fBlitH.eval(w, fUniforms.buf.data(), fDevice.addr(x,y));
+            }
         }
 
         void blitAntiH(int x, int y, const SkAlpha cov[], const int16_t runs[]) override {
@@ -625,8 +686,11 @@ namespace {
             }
             for (int16_t run = *runs; run > 0; run = *runs) {
                 this->updateUniforms(x+run, y);
-                fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), cov);
-
+                if (const void* sprite = this->isSprite(x,y)) {
+                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), sprite, cov);
+                } else {
+                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), cov);
+                }
                 x    += run;
                 runs += run;
                 cov  += run;
@@ -675,11 +739,21 @@ namespace {
 
                     if (program == &fBlitMask3D) {
                         size_t plane = mask.computeImageSize();
-                        program->eval(w, fUniforms.buf.data(), dptr, mptr + 1*plane
-                                                                   , mptr + 2*plane
-                                                                   , mptr + 0*plane);
+                        if (const void* sprite = this->isSprite(x,y)) {
+                            program->eval(w, fUniforms.buf.data(), dptr, sprite, mptr + 1*plane
+                                                                               , mptr + 2*plane
+                                                                               , mptr + 0*plane);
+                        } else {
+                            program->eval(w, fUniforms.buf.data(), dptr, mptr + 1*plane
+                                                                       , mptr + 2*plane
+                                                                       , mptr + 0*plane);
+                        }
                     } else {
-                        program->eval(w, fUniforms.buf.data(), dptr, mptr);
+                        if (const void* sprite = this->isSprite(x,y)) {
+                            program->eval(w, fUniforms.buf.data(), dptr, sprite, mptr);
+                        } else {
+                            program->eval(w, fUniforms.buf.data(), dptr, mptr);
+                        }
                     }
                 }
             }
@@ -694,6 +768,27 @@ SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,
                                SkArenaAlloc* alloc,
                                sk_sp<SkShader> clip) {
     bool ok = true;
-    auto blitter = alloc->make<Blitter>(device, paint, matrices, std::move(clip), &ok);
+    auto blitter = alloc->make<Blitter>(device, paint, /*sprite=*/nullptr, SkIPoint{0,0},
+                                        matrices, std::move(clip), &ok);
+    return ok ? blitter : nullptr;
+}
+
+SkBlitter* SkCreateSkVMSpriteBlitter(const SkPixmap& device,
+                                     const SkPaint& paint,
+                                     const SkPixmap& sprite,
+                                     int left, int top,
+                                     SkArenaAlloc* alloc,
+                                     sk_sp<SkShader> clip) {
+    if (paint.getMaskFilter()) {
+        // TODO: SkVM support for mask filters?  definitely possible!
+        return nullptr;
+    }
+    // Almost all SkColorTypes pass this check.  This mostly just guards against 128-bit F32 now.
+    if (skvm::PixelFormat unused; !SkColorType_to_PixelFormat(sprite.colorType(), &unused)) {
+        return nullptr;
+    }
+    bool ok = true;
+    auto blitter = alloc->make<Blitter>(device, paint, &sprite, SkIPoint{left,top},
+                                        SkSimpleMatrixProvider{SkMatrix{}}, std::move(clip), &ok);
     return ok ? blitter : nullptr;
 }
