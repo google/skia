@@ -158,6 +158,24 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e38a6941_52088049",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T17:22:58Z",
+      "side": 1,
+      "message": "I usually use something like p/x and cast the pointer to an array type.  I think there\u0027s some sort of @-related syntax too, not sure.\n\nI agree with Brian. I would prefer you to focus your effort on whatever debugging sidecars you need to work with SkTArray unchanged, or to convert code you want to debug to std::vector if that\u0027s straightforward.",
+      "parentUuid": "e8444a73_b84926bb",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
