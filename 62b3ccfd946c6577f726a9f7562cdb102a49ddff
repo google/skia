@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "b8eb8ea8_dc1ef052",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-28T14:10:06Z",
+      "side": 1,
+      "message": "I think I like this better than ",
+      "revId": "62b3ccfd946c6577f726a9f7562cdb102a49ddff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65cce3f7_bdf188f7",
         "filename": "src/image/SkImage_Lazy.cpp",
         "patchSetId": 7
@@ -36,6 +53,24 @@
       "writtenOn": "2020-07-28T13:44:08Z",
       "side": 1,
       "message": "That Chrome canary bot did its job!\n\n../../third_party/skia/src/image/SkImage_Lazy.cpp:239:51: error: cannot initialize a parameter of type \u0027GrContext *\u0027 with an lvalue of type \u0027GrDirectContext *\u0027\nauto pixels \u003d direct ? this-\u003emakeTextureImage(direct)\n^~~~~~\n../../third_party/skia/include/core/SkImage.h:1255:47: note: passing argument to parameter here\nsk_sp\u003cSkImage\u003e makeTextureImage(GrContext*,",
+      "revId": "62b3ccfd946c6577f726a9f7562cdb102a49ddff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59762e1e_a24bd578",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-28T14:10:06Z",
+      "side": 1,
+      "message": "+Adlai for what to do here. We\u0027re in the process of updating SkImage functions to take GrDirectContext rather than GrContext. Looks like here we have a case where an already-migrated function wants to call a not-yet-migrated function.",
+      "parentUuid": "ea9abb0c_559bffae",
       "revId": "62b3ccfd946c6577f726a9f7562cdb102a49ddff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
