@@ -46,6 +46,30 @@
       "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f799a2cd_5276ef70",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T18:58:04Z",
+      "side": 1,
+      "message": "I hadn\u0027t really thought about that since until I just rebased SK_ABORT was using SkUNREACHABLE. I do kinda like being able to use FAST_FAIL_INVALID_ARG here instead of FAST_FAIL_FATAL_APP_EXIT since SkUNREACHABLE is generally used for \u0027unexpected input\u0027 and SK_ABORT for \u0027things didn\u0027t work\u0027 but that\u0027s a bit subtle. Funneling through SK_ABORT would actually simplify some things in Chromium though (we\u0027d log a fatal error and abort from Chromium\u0027s logging abort mechanism).\n\nInterestingly the Windows bots here on PS3 complain\n\n    warning C4715: \u0027GrSwizzle::CToI\u0027: not all control paths return a value\n\nwhich is still technically true, since some control paths don\u0027t return at all.",
+      "parentUuid": "2269da0e_d32e2997",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 6
+      },
+      "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
