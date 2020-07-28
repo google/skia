@@ -51,6 +51,24 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1bb3d9e_cafaf664",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-28T14:22:52Z",
+      "side": 1,
+      "message": "I haven\u0027t used pmr before so I\u0027m not too familiar with its ups and downs. \n\nI\u0027m a little concerned about operations that expect TArrays and STArrays to interoperate seamlessly--e.g.we support swapping a TArray with an STArray efficiently (see https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/tests/TArrayTest.cpp;l\u003d97?q\u003d%22static%20void%20test_swap%22\u0026ss\u003dchromium ). If the allocator is baked into the type, that might not be implementable as-is. Maybe we just decide those cases are rare and not worth optimizing for?",
+      "parentUuid": "113287cc_69869498",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
