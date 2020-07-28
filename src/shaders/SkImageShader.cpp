@@ -890,11 +890,10 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
 
     // Bail out if sample() can't yet handle our image's color type(s).
-    skvm::PixelFormat unused;
-    if (true  && !SkColorType_to_PixelFormat(upper->colorType(), &unused)) {
+    if (true  && !skvm::SkColorType_to_PixelFormat(upper->colorType())) {
         return {};
     }
-    if (lower && !SkColorType_to_PixelFormat(lower->colorType(), &unused)) {
+    if (lower && !skvm::SkColorType_to_PixelFormat(lower->colorType())) {
         return {};
     }
 
@@ -935,7 +934,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
 
     auto setup_uniforms = [&](const SkPixmap& pm) -> Uniforms {
         skvm::PixelFormat pixelFormat;
-        SkAssertResult(SkColorType_to_PixelFormat(pm.colorType(), &pixelFormat));
+        SkAssertResult(skvm::SkColorType_to_PixelFormat(pm.colorType(), &pixelFormat));
         return {
             p->uniformF(uniforms->pushF(     pm.width())),
             p->uniformF(uniforms->pushF(1.0f/pm.width())), // iff tileX == kRepeat

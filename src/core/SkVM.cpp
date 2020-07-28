@@ -1141,6 +1141,11 @@ namespace skvm {
     }
 
     bool SkColorType_to_PixelFormat(SkColorType ct, PixelFormat* f) {
+        PixelFormat ignored;
+        if (!f) {
+            f = &ignored;
+        }
+
         auto UNORM = PixelFormat::UNORM,
              HALF  = PixelFormat::HALF;
         switch (ct) {
