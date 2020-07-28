@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba4f3d61_e9fde887",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-28T16:56:08Z",
+      "side": 1,
+      "message": "I don\u0027t understand this code, but that\u0027s on me.\n\nI see 16 here, but \u00278\u0027 on line 3137... kosher?",
+      "range": {
+        "startLine": 3116,
+        "startChar": 50,
+        "endLine": 3116,
+        "endChar": 52
+      },
+      "revId": "7b5fe1f06f10ed3c5218376e80f6db3aa2bb43fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
