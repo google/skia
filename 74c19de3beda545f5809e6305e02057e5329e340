@@ -34,6 +34,24 @@
       "revId": "74c19de3beda545f5809e6305e02057e5329e340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fad38c8d_6b4cee32",
+        "filename": "include/core/SkPostConfig.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-28T13:13:36Z",
+      "side": 1,
+      "message": "Is it actually true? Wouldn\u0027t the compiler have to assume that sk_abort_no_print() returns in order to elide the entire block?",
+      "parentUuid": "aced4ae0_e182c535",
+      "revId": "74c19de3beda545f5809e6305e02057e5329e340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
