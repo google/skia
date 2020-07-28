@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a31635e_555cbf5f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-28T18:25:01Z",
+      "side": 1,
+      "message": "Still having trouble resolve the generator subset when using the GrRecordingContext. Calling GrAsDirectContext() is returning null, so makeSubset() fails :( ",
+      "revId": "582a1248a1d33ed96c49a387ac672182aefe4fb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
