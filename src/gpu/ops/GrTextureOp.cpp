@@ -1337,12 +1337,24 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     srcRect.fBottom = random->nextRangeScalar(0.f, proxy->height()) + proxy->height() / 2.f;
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(SkColorToPremulGrColor(random->nextU()));
-    GrSamplerState::Filter filter = (GrSamplerState::Filter)random->nextULessThan(
-            static_cast<uint32_t>(GrSamplerState::Filter::kLast) + 1);
+
+    int f = random->nextULessThan(3);
+    while (mipMapped == GrMipmapped::kNo && f == 2) {
+        f = random->nextULessThan(3);
+    }
+    GrSamplerState::Filter filter;
     GrSamplerState::MipmapMode mm = GrSamplerState::MipmapMode::kNone;
-    if (mipMapped == GrMipmapped::kYes) {
-        mm = (GrSamplerState::MipmapMode)random->nextULessThan(
-                static_cast<uint32_t>(GrSamplerState::MipmapMode::kLast) + 1);
+    switch (f) {
+        case 0:
+            filter = GrSamplerState::Filter::kNearest;
+            break;
+        case 1:
+            filter = GrSamplerState::Filter::kLinear;
+            break;
+        default:
+            filter = GrSamplerState::Filter::kLinear;
+            mm = GrSamplerState::MipmapMode::kLinear;
+            break;
     }
 
     auto texXform = GrTest::TestColorXform(random);

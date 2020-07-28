@@ -821,10 +821,23 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTest
     Wrap wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
 
-    Filter filter = testData->fRandom->nextBool() ? Filter::kLinear : Filter::kNearest;
+    GrSamplerState::Filter filter;
     MipmapMode mm = MipmapMode::kNone;
     if (view.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
-        mm = testData->fRandom->nextBool() ? MipmapMode::kLinear : MipmapMode::kNone;
+        switch (testData->fRandom->nextULessThan(3)) {
+            case 0:
+                filter = Filter::kNearest;
+                break;
+            case 1:
+                filter = Filter::kLinear;
+                break;
+            default:
+                filter = Filter::kLinear;
+                mm = MipmapMode::kLinear;
+                break;
+        }
+    } else {
+        filter = testData->fRandom->nextBool() ? Filter::kLinear : Filter::kNearest;
     }
     GrSamplerState params(wrapModes, filter, mm);
 
