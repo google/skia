@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8945df1d_95be5ac3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T15:29:38Z",
+      "side": 1,
+      "message": "I think the only hard part may be making sure anyone who defines sk_abort_no_print outside of Skia (or this file... is the _moz one still used?) are updated. Note that Chromium has an implementation but now more or less doesn\u0027t use it (it overrides SK_ABORT directly now) outside SkSL which seems to force its use.",
+      "revId": "c6954a796f636bcd0e715429b1f86ff895f78417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "127baf43_90928c25",
         "filename": "src/ports/SkMemory_malloc.cpp",
         "patchSetId": 4
@@ -13,6 +30,24 @@
       "writtenOn": "2020-07-28T15:14:51Z",
       "side": 1,
       "message": "Why don\u0027t we just use this?  The others were specifically there to trap into debuggers, but if you think that\u0027s illegal, let\u0027s just abort()?",
+      "revId": "c6954a796f636bcd0e715429b1f86ff895f78417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a2392d7_061a28e9",
+        "filename": "src/ports/SkMemory_malloc.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T15:29:38Z",
+      "side": 1,
+      "message": "These also trap into debuggers. While they turn into slightly different code they have a very similar effect but are explicitly marked as non-continuable.",
+      "parentUuid": "127baf43_90928c25",
       "revId": "c6954a796f636bcd0e715429b1f86ff895f78417",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
