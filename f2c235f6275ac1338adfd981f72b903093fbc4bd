@@ -140,6 +140,24 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e8444a73_b84926bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-28T17:19:17Z",
+      "side": 1,
+      "message": "I can focus my energy on making an LLDB visualizer if we think that\u0027s a better use of time. I\u0027m not too worried about maintenance cost, personally--I fixed up 15 years of SkTArray usage in a little over a day--but I can understand the desire to minimize it.\n\nAm I really the only team member who would enable this feature? What does the rest of the team do for debugging? Do our Linux users already have a convenient way to visualize arrays? Does the team generally avoid gdb/lldb, or just endure manual print statements/memory dumps? I don\u0027t have a feeling for the team culture here (WFH...).\n\nIf we try to replace SkTArray objects one by one, I would be concerned that eventually we would hit a wall where switching things piecemeal becomes increasingly difficult due to lack of interop between SkTArray and vector without expensive copies. This class gives us a \"toll-free bridging\" solution (to steal a CoreFoundation term). That\u0027s not something we necessarily need right away, but it\u0027s certainly nice to have.",
+      "parentUuid": "a908010e_ad514a89",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
