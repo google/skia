@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16b30676_995fa73c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-28T20:19:57Z",
+      "side": 1,
+      "message": "When I add skp fuzzer I found there is already have an existing one, so I added more coverage of calls. Also, currently the fuzzer is written as a static function in FuzzMain, is it good to change it into a cpp file into oss-fuzz to become more consistent? \nThe code is compile with ninja and test with AFL, the speed is around 450/sec",
+      "revId": "e870388f4f8cf19346cf0c9a8c5d58d2e20e0afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
