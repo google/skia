@@ -654,6 +654,11 @@ void SkImage_unpinAsTexture(const SkImage* image, GrRecordingContext* rContext) 
     as_IB(image)->onUnpinAsTexture(rContext);
 }
 
+SkIRect SkImage_getSubset(const SkImage* image) {
+    SkASSERT(image);
+    return as_IB(image)->onGetSubset();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkMipmapBuilder::SkMipmapBuilder(const SkImageInfo& info) {
