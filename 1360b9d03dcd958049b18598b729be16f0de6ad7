@@ -22,6 +22,30 @@
       "revId": "1360b9d03dcd958049b18598b729be16f0de6ad7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7052118a_fe1fc838",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-28T15:03:01Z",
+      "side": 1,
+      "message": "Right now I would have assumed it\u0027s considered \"public API\" just because it\u0027s in that header. Is there any way to find out if removal would break anyone? Or would we just remove them and let clients sort it out if they relied on these...?",
+      "parentUuid": "ca3d111f_841e8a06",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 3
+      },
+      "revId": "1360b9d03dcd958049b18598b729be16f0de6ad7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
