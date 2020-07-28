@@ -70,6 +70,24 @@
       "revId": "74c19de3beda545f5809e6305e02057e5329e340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e36e4115_e3a6af5c",
+        "filename": "include/core/SkPostConfig.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-28T13:48:17Z",
+      "side": 1,
+      "message": "I think we put SkUNREACHABLE here so that we could remove returns like this: \n\n  SkColorType foo() {\n    //...\n    SK_ABORT(\"unexpected something or other\");\n    return kUnknown_SkColorType;\n  }\n\nIIRC before this GCC would warn if we removed that return. If tagging sk_abort_no_print() as noreturn squashes the warning then removing SkUNREACHABLE here seems fine.",
+      "parentUuid": "d9906fa3_75e084ae",
+      "revId": "74c19de3beda545f5809e6305e02057e5329e340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
