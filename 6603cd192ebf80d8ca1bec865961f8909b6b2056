@@ -33,6 +33,24 @@
       "revId": "6603cd192ebf80d8ca1bec865961f8909b6b2056",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "634bcca8_0f3fa292",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-28T00:35:05Z",
+      "side": 1,
+      "message": "I was trying to add\n    std::cout \u003c\u003c \"GL Version: \" \u003c\u003c glGetString(GL_VERSION) \u003c\u003c \"\\n\";\n    std::cout \u003c\u003c \"GL Vendor: \" \u003c\u003c glGetString(GL_VENDOR) \u003c\u003c \"\\n\";\n    std::cout \u003c\u003c \"GL Renderer: \" \u003c\u003c glGetString(GL_RENDERER) \u003c\u003c \"\\n\";\n    std::cout \u003c\u003c \"GL Extensions: \" \u003c\u003c glGetString(GL_EXTENSIONS) \u003c\u003c \"\\n\";\nand it prints out\n    GL Version: 3.1 Mesa 19.3.3\n    GL Vendor: VMware, Inc.\n    GL Renderer: llvmpipe (LLVM 9.0.1, 256 bits)\nMaybe more info is needed to determine?",
+      "parentUuid": "21891793_078f8135",
+      "revId": "6603cd192ebf80d8ca1bec865961f8909b6b2056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
