@@ -688,6 +688,11 @@ public:
             : fEffect(std::move(effect))
             , fInputs(std::move(inputs)) {}
 
+    bool isSpatiallyVarying() const override {
+        // TODO: Deduce this based on the SkSL signature or contents.
+        return true;
+    }
+
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
