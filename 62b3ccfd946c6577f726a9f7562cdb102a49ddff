@@ -110,6 +110,24 @@
       "revId": "62b3ccfd946c6577f726a9f7562cdb102a49ddff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9618c823_1ced7cf2",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T16:47:57Z",
+      "side": 1,
+      "message": "The canary is well beyond where it failed previously.",
+      "parentUuid": "52fad370_9567d515",
+      "revId": "62b3ccfd946c6577f726a9f7562cdb102a49ddff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
