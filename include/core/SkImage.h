@@ -1247,11 +1247,11 @@ public:
                                counts against the GrContext's budget.
         @return                created SkImage, or nullptr
     */
-#ifndef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
     sk_sp<SkImage> makeTextureImage(GrDirectContext*,
                                     GrMipmapped = GrMipmapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;
-#else
+
+#ifdef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
     sk_sp<SkImage> makeTextureImage(GrContext*,
                                     GrMipmapped = GrMipmapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;

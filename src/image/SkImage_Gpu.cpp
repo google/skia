@@ -474,54 +474,56 @@ static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTexturePr
                                    producer->alphaType(), sk_ref_sp(producer->colorSpace()));
 }
 
-#ifndef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
-sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* direct,
+
+sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
                                          GrMipmapped mipMapped,
                                          SkBudgeted budgeted) const {
-#else
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context,
-                                         GrMipmapped mipMapped,
-                                         SkBudgeted budgeted) const {
-    auto direct = GrAsDirectContext(context);
-#endif
-    if (!direct) {
+    if (!dContext) {
         return nullptr;
     }
 
     if (this->isTextureBacked()) {
-        if (!as_IB(this)->context()->priv().matches(direct)) {
+        if (!as_IB(this)->context()->priv().matches(dContext)) {
             return nullptr;
         }
 
         // TODO: Don't flatten YUVA images here.
-        const GrSurfaceProxyView* view = as_IB(this)->view(direct);
+        const GrSurfaceProxyView* view = as_IB(this)->view(dContext);
         SkASSERT(view && view->asTextureProxy());
 
         if (mipMapped == GrMipmapped::kNo || view->asTextureProxy()->mipmapped() == mipMapped ||
-            !direct->priv().caps()->mipmapSupport()) {
+            !dContext->priv().caps()->mipmapSupport()) {
             return sk_ref_sp(const_cast<SkImage*>(this));
         }
-        auto copy = GrCopyBaseMipMapToView(direct, *view, budgeted);
+        auto copy = GrCopyBaseMipMapToView(dContext, *view, budgeted);
         if (!copy) {
             return nullptr;
         }
-        return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), this->uniqueID(), copy,
+        return sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext), this->uniqueID(), copy,
                                        this->colorType(), this->alphaType(), this->refColorSpace());
     }
 
     auto policy = budgeted == SkBudgeted::kYes ? GrImageTexGenPolicy::kNew_Uncached_Budgeted
                                                : GrImageTexGenPolicy::kNew_Uncached_Unbudgeted;
     if (this->isLazyGenerated()) {
-        GrImageTextureMaker maker(direct, this, policy);
-        return create_image_from_producer(direct, &maker, this->uniqueID(), mipMapped);
+        GrImageTextureMaker maker(dContext, this, policy);
+        return create_image_from_producer(dContext, &maker, this->uniqueID(), mipMapped);
     }
 
     if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
-        GrBitmapTextureMaker maker(direct, *bmp, policy);
-        return create_image_from_producer(direct, &maker, this->uniqueID(), mipMapped);
+        GrBitmapTextureMaker maker(dContext, *bmp, policy);
+        return create_image_from_producer(dContext, &maker, this->uniqueID(), mipMapped);
     }
     return nullptr;
 }
+
+#ifdef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
+sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context,
+                                         GrMipmapped mipMapped,
+                                         SkBudgeted budgeted) const {
+    return SkImage::makeTextureImage(GrAsDirectContext(context), mipMapped, budgeted);
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
