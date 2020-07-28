@@ -2432,7 +2432,9 @@ namespace skvm {
                 case 4: return ((void(*)(int,void*,void*,void*,void*))b)(n,a[0],a[1],a[2],a[3]);
                 case 5: return ((void(*)(int,void*,void*,void*,void*,void*))b)
                                 (n,a[0],a[1],a[2],a[3],a[4]);
-                default: SkUNREACHABLE;  // TODO
+                case 6: return ((void(*)(int,void*,void*,void*,void*,void*,void*))b)
+                                (n,a[0],a[1],a[2],a[3],a[4],a[5]);
+                default: SkASSERT(false);  // TODO: >6 args?
             }
         }
     #endif
@@ -3046,7 +3048,7 @@ namespace skvm {
             const A::GP64 N = A::rcx,
                         GP0 = A::rax,
                         GP1 = A::r11,
-                        arg[]    = { A::rdx, A::r8, A::r9, A::r10, A::rdi };
+                        arg[]    = { A::rdx, A::r8, A::r9, A::r10, A::rdi, A::rsi };
 
             // xmm6-15 need are callee-saved.
             std::array<Val,16> regs = {
@@ -3066,6 +3068,12 @@ namespace skvm {
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::Mem{A::rsp, 8}, A::rdi);
                     a->mov(A::rdi, A::Mem{A::rsp, 48});
+                }
+                // Load callee-saved rsi from rsp+56 if there's a sixth arg,
+                // first saving it to ABI reserved shadow area rsp+16.
+                if (fImpl->strides.size() >= 6) {
+                    a->mov(A::Mem{A::rsp, 16}, A::rsi);
+                    a->mov(A::rsi, A::Mem{A::rsp, 56});
                 }
 
                 // Allocate stack for our values and callee-saved xmm6-15.
@@ -3100,9 +3108,12 @@ namespace skvm {
                 }
                 if (stack_used) { a->add(A::rsp, stack_used); }
 
-                // Restore callee-saved rdi if we used it.
+                // Restore callee-saved rdi/rsi if we used them.
                 if (fImpl->strides.size() >= 5) {
                     a->mov(A::rdi, A::Mem{A::rsp, 8});
+                }
+                if (fImpl->strides.size() >= 6) {
+                    a->mov(A::rsi, A::Mem{A::rsp, 16});
                 }
 
                 a->vzeroupper();
@@ -3112,7 +3123,7 @@ namespace skvm {
             const A::GP64 N = A::rdi,
                         GP0 = A::rax,
                         GP1 = A::r11,
-                        arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+                        arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9, A::r10 };
 
             // All 16 ymm registers are available to use.
             std::array<Val,16> regs = {
@@ -3120,10 +3131,18 @@ namespace skvm {
                 NA,NA,NA,NA, NA,NA,NA,NA,
             };
 
-            auto enter = [&]{ if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); } };
-            auto exit  = [&]{ if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
-                              a->vzeroupper();
-                              a->ret(); };
+            auto enter = [&]{
+                // Load caller-saved r10 from rsp+8 if there's a sixth arg.
+                if (fImpl->strides.size() >= 6) {
+                    a->mov(A::r10, A::Mem{A::rsp, 8});
+                }
+                if (nstack_slots) { a->sub(A::rsp, nstack_slots*K*4); }
+            };
+            auto exit  = [&]{
+                if (nstack_slots) { a->add(A::rsp, nstack_slots*K*4); }
+                a->vzeroupper();
+                a->ret();
+            };
         #endif
 
         auto load_from_memory = [&](Reg r, Val v) {
