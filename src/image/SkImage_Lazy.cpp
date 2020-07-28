@@ -61,8 +61,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage_Lazy::Validator::Validator(sk_sp<SharedGenerator> gen, const SkColorType* colorType,
-                                   sk_sp<SkColorSpace> colorSpace)
+SkImage_Lazy::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRect* subset,
+                                   const SkColorType* colorType, sk_sp<SkColorSpace> colorSpace)
         : fSharedGenerator(std::move(gen)) {
     if (!fSharedGenerator) {
         return;
@@ -70,18 +70,29 @@ SkImage_Lazy::Validator::Validator(sk_sp<SharedGenerator> gen, const SkColorType
 
     // The following generator accessors are safe without acquiring the mutex (const getters).
     // TODO: refactor to use a ScopedGenerator instead, for clarity.
-    fInfo = fSharedGenerator->fGenerator->getInfo();
-    if (fInfo.isEmpty()) {
+    const SkImageInfo& info = fSharedGenerator->fGenerator->getInfo();
+    if (info.isEmpty()) {
         fSharedGenerator.reset();
         return;
     }
 
     fUniqueID = fSharedGenerator->fGenerator->uniqueID();
-
-    if (colorType && (*colorType == fInfo.colorType())) {
-        colorType = nullptr;
+    const SkIRect bounds = SkIRect::MakeWH(info.width(), info.height());
+    if (subset) {
+        if (!bounds.contains(*subset)) {
+            fSharedGenerator.reset();
+            return;
+        }
+        if (*subset != bounds) {
+            // we need a different uniqueID since we really are a subset of the raw generator
+            fUniqueID = SkNextID::ImageID();
+        }
+    } else {
+        subset = &bounds;
     }
 
+    fInfo   = info.makeDimensions(subset->size());
+    fOrigin = SkIPoint::Make(subset->x(), subset->y());
     if (colorType || colorSpace) {
         if (colorType) {
             fInfo = fInfo.makeColorType(*colorType);
@@ -120,14 +131,50 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage_Lazy::SkImage_Lazy(Validator* validator)
-    : INHERITED(validator->fInfo, validator->fUniqueID)
-    , fSharedGenerator(std::move(validator->fSharedGenerator))
-{
+        : INHERITED(validator->fInfo, validator->fUniqueID)
+        , fSharedGenerator(std::move(validator->fSharedGenerator))
+        , fOrigin(validator->fOrigin) {
     SkASSERT(fSharedGenerator);
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+static bool generate_pixels(SkImageGenerator* gen, const SkPixmap& pmap, int originX, int originY) {
+    const int genW = gen->getInfo().width();
+    const int genH = gen->getInfo().height();
+    const SkIRect srcR = SkIRect::MakeWH(genW, genH);
+    const SkIRect dstR = SkIRect::MakeXYWH(originX, originY, pmap.width(), pmap.height());
+    if (!srcR.contains(dstR)) {
+        return false;
+    }
+
+    // If they are requesting a subset, we have to have a temp allocation for full image, and
+    // then copy the subset into their allocation
+    SkBitmap full;
+    SkPixmap fullPM;
+    const SkPixmap* dstPM = &pmap;
+    if (srcR != dstR) {
+        if (!full.tryAllocPixels(pmap.info().makeWH(genW, genH))) {
+            return false;
+        }
+        if (!full.peekPixels(&fullPM)) {
+            return false;
+        }
+        dstPM = &fullPM;
+    }
+
+    if (!gen->getPixels(dstPM->info(), dstPM->writable_addr(), dstPM->rowBytes())) {
+        return false;
+    }
+
+    if (srcR != dstR) {
+        if (!full.readPixels(pmap, originX, originY)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkImage::CachingHint chint) const {
     auto check_output_bitmap = [bitmap]() {
@@ -145,14 +192,17 @@ bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkImage::CachingHint chint) con
     if (SkImage::kAllow_CachingHint == chint) {
         SkPixmap pmap;
         SkBitmapCache::RecPtr cacheRec = SkBitmapCache::Alloc(desc, this->imageInfo(), &pmap);
-        if (!cacheRec || !ScopedGenerator(fSharedGenerator)->getPixels(pmap)) {
+        if (!cacheRec ||
+            !generate_pixels(ScopedGenerator(fSharedGenerator), pmap,
+                             fOrigin.x(), fOrigin.y())) {
             return false;
         }
         SkBitmapCache::Add(std::move(cacheRec), bitmap);
         this->notifyAddedToRasterCache();
     } else {
         if (!bitmap->tryAllocPixels(this->imageInfo()) ||
-            !ScopedGenerator(fSharedGenerator)->getPixels(bitmap->pixmap())) {
+            !generate_pixels(ScopedGenerator(fSharedGenerator), bitmap->pixmap(), fOrigin.x(),
+                             fOrigin.y())) {
             return false;
         }
         bitmap->setImmutable();
@@ -196,13 +246,14 @@ GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipmappe
 }
 #endif
 
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext* direct) const {
-    // TODO: can we do this more efficiently, by telling the generator we want to
-    //       "realize" a subset?
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {
+    SkASSERT(this->bounds().contains(subset));
+    SkASSERT(this->bounds() != subset);
 
-    auto pixels = direct ? this->makeTextureImage(direct)
-                         : this->makeRasterImage();
-    return pixels ? pixels->makeSubset(subset, direct) : nullptr;
+    const SkIRect generatorSubset = subset.makeOffset(fOrigin);
+    const SkColorType colorType = this->colorType();
+    Validator validator(fSharedGenerator, &generatorSubset, &colorType, this->refColorSpace());
+    return validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
 }
 
 sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
@@ -214,7 +265,9 @@ sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
         SkColorSpace::Equals(targetCS.get(), fOnMakeColorTypeAndSpaceResult->colorSpace())) {
         return fOnMakeColorTypeAndSpaceResult;
     }
-    Validator validator(fSharedGenerator, &targetCT, targetCS);
+    const SkIRect generatorSubset =
+            SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), this->width(), this->height());
+    Validator validator(fSharedGenerator, &generatorSubset, &targetCT, targetCS);
     sk_sp<SkImage> result = validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
     if (result) {
         fOnMakeColorTypeAndSpaceResult = result;
@@ -232,7 +285,7 @@ sk_sp<SkImage> SkImage_Lazy::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) 
     if (bitmap.tryAllocPixels(this->imageInfo().makeColorSpace(std::move(newCS)))) {
         SkPixmap pixmap = bitmap.pixmap();
         pixmap.setColorSpace(this->refColorSpace());
-        if (ScopedGenerator(fSharedGenerator)->getPixels(pixmap)) {
+        if (generate_pixels(ScopedGenerator(fSharedGenerator), pixmap, fOrigin.x(), fOrigin.y())) {
             bitmap.setImmutable();
             return SkImage::MakeFromBitmap(bitmap);
         }
@@ -242,17 +295,47 @@ sk_sp<SkImage> SkImage_Lazy::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) 
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator) {
     SkImage_Lazy::Validator
-            validator(SharedGenerator::Make(std::move(generator)), nullptr, nullptr);
+            validator(SharedGenerator::Make(std::move(generator)), nullptr, nullptr, nullptr);
 
     return validator ? sk_make_sp<SkImage_Lazy>(&validator) : nullptr;
 }
 
 sk_sp<SkImage> SkImage::DecodeToRaster(const void* encoded, size_t length, const SkIRect* subset) {
-    auto img = SkImage::MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length));
-    if (img && subset) {
-        img = img->makeSubset(*subset);
+    // The generator will not outlive this function, so we can wrap the encoded data without copy
+    auto gen = SkImageGenerator::MakeFromEncoded(SkData::MakeWithoutCopy(encoded, length));
+    if (!gen) {
+        return nullptr;
     }
-    return img ? img->makeRasterImage() : nullptr;
+    SkImageInfo info = gen->getInfo();
+    if (info.isEmpty()) {
+        return nullptr;
+    }
+
+    SkIPoint origin = {0, 0};
+    if (subset) {
+        if (!SkIRect::MakeWH(info.width(), info.height()).contains(*subset)) {
+            return nullptr;
+        }
+        info = info.makeDimensions(subset->size());
+        origin = {subset->x(), subset->y()};
+    }
+
+    size_t rb = info.minRowBytes();
+    if (rb == 0) {
+        return nullptr; // rb was too big
+    }
+    size_t size = info.computeByteSize(rb);
+    if (size == SIZE_MAX) {
+        return nullptr;
+    }
+    auto data = SkData::MakeUninitialized(size);
+
+    SkPixmap pmap(info, data->writable_data(), rb);
+    if (!generate_pixels(gen.get(), pmap, origin.x(), origin.y())) {
+        return nullptr;
+    }
+
+    return SkImage::MakeRasterData(info, data, rb);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -514,7 +597,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     // 2. Ask the generator to natively create one.
     {
         ScopedGenerator generator(fSharedGenerator);
-        if (auto view = generator->generateTexture(ctx, this->imageInfo(), {0,0}, mipMapped,
+        if (auto view = generator->generateTexture(ctx, this->imageInfo(), fOrigin, mipMapped,
                                                    texGenPolicy)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);

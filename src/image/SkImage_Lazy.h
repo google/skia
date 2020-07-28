@@ -22,17 +22,23 @@ class SharedGenerator;
 class SkImage_Lazy : public SkImage_Base {
 public:
     struct Validator {
-        Validator(sk_sp<SharedGenerator>, const SkColorType*, sk_sp<SkColorSpace>);
+        Validator(sk_sp<SharedGenerator>, const SkIRect* subset, const SkColorType* colorType,
+                  sk_sp<SkColorSpace> colorSpace);
 
         operator bool() const { return fSharedGenerator.get(); }
 
         sk_sp<SharedGenerator> fSharedGenerator;
         SkImageInfo            fInfo;
+        SkIPoint               fOrigin;
         sk_sp<SkColorSpace>    fColorSpace;
         uint32_t               fUniqueID;
     };
 
     SkImage_Lazy(Validator* validator);
+
+    SkIRect onGetSubset() const override {
+        return SkIRect::MakeXYWH(fOrigin.fX, fOrigin.fY, this->width(), this->height());
+    }
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
@@ -79,6 +85,7 @@ private:
     // cropped by onMakeSubset and its color type/space may be changed by
     // onMakeColorTypeAndColorSpace.
     sk_sp<SharedGenerator> fSharedGenerator;
+    const SkIPoint         fOrigin;
 
     // Repeated calls to onMakeColorTypeAndColorSpace will result in a proliferation of unique IDs
     // and SkImage_Lazy instances. Cache the result of the last successful call.
