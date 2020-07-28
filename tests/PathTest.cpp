@@ -4981,7 +4981,7 @@ DEF_TEST(conservatively_contains_rect, reporter) {
                  SkBits2Float(0x00000100), SkBits2Float(0x00000000));
     path.moveTo(0, 0);
 
-    // this guy should not assert
+    // this should not assert
     path.conservativelyContainsRect({ -211747, 12.1115f, -197893, 25.0321f });
 }
 

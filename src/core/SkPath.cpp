@@ -79,7 +79,7 @@ private:
 };
 #define SkAutoDisableDirectionCheck(...) SK_REQUIRE_LOCAL_VAR(SkAutoDisableDirectionCheck)
 
-/*  This guy's constructor/destructor bracket a path editing operation. It is
+/*  This class's constructor/destructor bracket a path editing operation. It is
     used when we know the bounds of the amount we are going to add to the path
     (usually a new contour, but not required).
 

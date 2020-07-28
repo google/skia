@@ -344,7 +344,7 @@ static bool FindByLogFont(SkTypeface* face, void* ctx) {
 }
 
 /**
- *  This guy is public. It first searches the cache, and if a match is not found,
+ *  This is public. It first searches the cache, and if a match is not found,
  *  it creates a new face.
  */
 SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
@@ -369,7 +369,7 @@ sk_sp<SkTypeface> SkCreateFontMemResourceTypefaceFromLOGFONT(const LOGFONT& orig
 }
 
 /**
- *  This guy is public
+ *  This is public
  */
 void SkLOGFONTFromTypeface(const SkTypeface* face, LOGFONT* lf) {
     if (nullptr == face) {

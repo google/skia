@@ -763,7 +763,7 @@ void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
     }
 }
 
-/*  This guy takes a float-rect, but with the key improvement that it has
+/*  This takes a float-rect, but with the key improvement that it has
     already been clipped, so we know that it is safe to convert it into a
     XRect (fixedpoint), as it won't overflow.
 */
