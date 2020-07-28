@@ -9,6 +9,14 @@
 
 #include <cstdlib>
 
+#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN)
+#include <intrin.h>
+// This is a super stable value and setting it here avoids pulling in all of windows.h.
+#ifndef FAST_FAIL_FATAL_APP_EXIT
+#define FAST_FAIL_FATAL_APP_EXIT              7
+#endif
+#endif
+
 #define SK_DEBUGFAILF(fmt, ...) \
     SkASSERT((SkDebugf(fmt"\n", __VA_ARGS__), false))
 
@@ -36,9 +44,9 @@ void sk_abort_no_print() {
     _set_abort_behavior(0, _WRITE_ABORT_MSG);
 #endif
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN)
-    __debugbreak();
+    __fastfail(FAST_FAIL_FATAL_APP_EXIT);
 #elif defined(__clang__)
-    __builtin_debugtrap();
+    __builtin_trap();
 #else
     abort();
 #endif
