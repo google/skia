@@ -16,6 +16,24 @@
       "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1434ac7e_39879471",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12064
+      },
+      "writtenOn": "2020-07-28T07:49:34Z",
+      "side": 1,
+      "message": "yeah, I try that on icelake cpu as you told. For \"bitmap_BGRA_8888_scale_bilerp\", its performance varies from about 33µs(best) to 38µs(poorest), kind of unstable.\nWhile for \"bitmap_BGRA_8888_update_volatile_scale_bilerp\", nanobench seem do not contain this test when only keeping the changes to SkOpts_skx.cpp. \n\nI also notice that in some cases like \"bitmaprect_FF_filter_trans\", many times only 1 pixel is left. In such situation, AVX-512 might not be the best solution.\n\nBTW, I see 2 tryjobs fails and I take a look on their raw output. It seems that these 2 fails are caused by the environment, not the codes?\nThanks!",
+      "parentUuid": "a84c338c_1ebd1fe7",
+      "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
