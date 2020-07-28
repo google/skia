@@ -105,6 +105,24 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60d8467a_8f76893e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-28T15:26:37Z",
+      "side": 1,
+      "message": "I think it would be fantastic if we had LLDB visualizers for all of our low-level types. I wasn\u0027t actually aware that we had Natvis visualizers either--I asked some folks when I joined about this, and I guess I asked the wrong folks, because I was led to believe we didn\u0027t have any debug visualizers.\n\nThat being said, if we agree that standard containers are a worthy goal, I think this CL gives us a foothold in that world, and it also solves the debuggability issue in a universal, platform-neutral way. It\u0027s not hard to imagine a hypothetical future where we decide to migrate off SkTArray and use this implementation as a stopgap during the migration (since it can seamlessly convert to and from vector). That\u0027s ambitious, though, and will take a lot of SWE time that we may decide to direct elsewhere. It won\u0027t happen overnight. For now, I\u0027m just trying to avoid overpromising.",
+      "parentUuid": "4b919f40_1f11978c",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
