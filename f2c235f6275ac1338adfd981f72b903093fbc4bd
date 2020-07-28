@@ -33,6 +33,24 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "113287cc_69869498",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T14:17:03Z",
+      "side": 1,
+      "message": "I wouldn\u0027t think an approach like std::pmr would affect debugging.  All you need to do is change the allocator, not std::vector.  (std::pmr::vector is an alias for std::vector with a flexible allocator, not a new type.)\n\nIf backporting all of std::pmr is too daunting, I think we can write a single focused allocator that uses stack until it runs out, then heap.  That\u0027s a subset of what std::pmr can do.",
+      "parentUuid": "d481a2d4_594ee4ed",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
