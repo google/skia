@@ -11,6 +11,8 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 
+#include <complex>
+#include <type_traits>
 #include <utility>
 
 static SkVector to_vector(const Sk2s& x) {
@@ -277,6 +279,33 @@ SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]) {
     SkASSERT((0 <= t && t < 1) || SkScalarIsNaN(t));
     return t;
 }
+
+SkScalar SkFindQuadStartCurvatureVal(const SkPoint src[3]) {
+    SkVector v_10 = src[1] - src[0], v_21 = src[2] - src[1];
+    SkScalar v_10_lsq = v_10.dot(v_10), c;
+    if (SkScalarNearlyZero(v_10_lsq, 1e-10)) {
+        return 0;
+    }
+    c = SK_ScalarHalf * v_10.cross(v_21) * sk_float_rsqrt(v_10_lsq) / v_10_lsq;
+    if (SkScalarNearlyZero(c, 1e-5)) {
+        return 0;
+    }
+    return c;
+}
+
+SkScalar SkFindQuadEndCurvatureVal(const SkPoint src[3]) {
+    SkVector v_01 = src[0] - src[1], v_21 = src[2] - src[1];
+    SkScalar v_21_lsq = v_21.dot(v_21), c;
+    if (SkScalarNearlyZero(v_21_lsq, 1e-10)) {
+        return 0;
+    }
+    c = SK_ScalarHalf * v_21.cross(v_01) * sk_float_rsqrt(v_21_lsq) / v_21_lsq;
+    if (SkScalarNearlyZero(c, 1e-5)) {
+        return 0;
+    }
+    return c;
+}
+
 
 int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]) {
     SkScalar t = SkFindQuadMaxCurvature(src);
@@ -844,6 +873,32 @@ int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]) {
     return numRoots;
 }
 
+SkScalar SkFindCubicStartCurvatureVal(const SkPoint src[4]) {
+    SkVector v_10 = src[1] - src[0], v_21 = src[2] - src[1];
+    SkScalar v_10_lsq = v_10.dot(v_10), c;
+    if (SkScalarNearlyZero(v_10_lsq, 1e-10)) {
+        return 0;
+    }
+    c = 0.66666666f * v_10.cross(v_21) * sk_float_rsqrt(v_10_lsq) / v_10_lsq;
+    if (SkScalarNearlyZero(c, 1e-5)) {
+        return 0;
+    }
+    return c;
+}
+
+SkScalar SkFindCubicEndCurvatureVal(const SkPoint src[4]) {
+    SkVector v_32 = src[3] - src[2], v_12 = src[1] - src[2];
+    SkScalar v_32_lsq = v_32.dot(v_32), c;
+    if (SkScalarNearlyZero(v_32_lsq, 1e-10)) {
+        return 0;
+    }
+    c = 0.66666666f * v_32.cross(v_12) * sk_float_rsqrt(v_32_lsq) / v_32_lsq;
+    if (SkScalarNearlyZero(c, 1e-5)) {
+        return 0;
+    }
+    return c;
+}
+
 int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
                               SkScalar tValues[3]) {
     SkScalar    t_storage[3];
@@ -1373,12 +1428,107 @@ void SkConic::computeFastBounds(SkRect* bounds) const {
     bounds->setBounds(fPts, 3);
 }
 
-#if 0  // unimplemented
+SkScalar SkConic::findStartCurvatureVal() const {
+    if (fW <= 0) {
+        return 0;
+    }
+    return SkFindQuadStartCurvatureVal(fPts) / (fW*fW);
+}
+
+SkScalar SkConic::findEndCurvatureVal() const {
+    if (fW <= 0) {
+        return 0;
+    }
+    return SkFindQuadEndCurvatureVal(fPts) / (fW*fW);
+}
+
+static_assert(std::is_same<SkScalar, float>::value ||
+              std::is_same<SkScalar, double>::value ||
+              std::is_same<SkScalar, long double>::value,
+              "SkScalar incompatible with std::complex<>");
+
+typedef std::complex<SkScalar> SkComplex;
+
 bool SkConic::findMaxCurvature(SkScalar* t) const {
-    // TODO: Implement me
+    /* Calculate the center "C" and the vector to one focus "c".
+       Equations from "Characteristics of conic segments in Bezier form"
+       by Javier-Sanchez-Reyes (Proceedings of the IMProve 2011,
+       pp. 231-4 section 3.2.) */
+    SkComplex b0(fPts[0].fX,fPts[0].fY);
+    SkComplex b1(fPts[1].fX,fPts[1].fY);
+    SkComplex b2(fPts[2].fX,fPts[2].fY), alpha, M, C, d, c;
+
+    if (SkScalarNearlyZero(fW-1, 1e-5)) {
+        // Parabolic case
+        SkScalar tt = SkFindQuadMaxCurvature(fPts);
+        if (tt!=0) {
+            *t = tt;
+            return true;
+        }
+        return false;
+    }
+
+    alpha = SkScalarInvert(SK_Scalar1 - fW*fW);
+    M = (b0 + b2)*SK_ScalarHalf;
+    C = (SK_Scalar1 - alpha)*b1 + alpha*M;
+    d = (SK_Scalar1 - alpha)*(b1*b1) + alpha*(b0*b2);
+    c = sqrt(C*C - d);
+    // circular arc test
+    if (SkScalarNearlyZero(abs(C),1e-4)) {
+        return false;
+    }
+    /* Intersect the conic with the line containing C with slope c.
+       Mostly cribbed from intersectRay() in SkDQuadLineIntersection.cpp
+       and SkDConicLineIntersection.cpp. */
+    SkScalar r[3], CX = C.real(), CY= C.imag(), cX = c.real(), cY = c.imag();
+    for (int n = 0; n < 3; ++n) {
+        r[n] = (fPts[n].fY - CY) * cX - (fPts[n].fX - CX) * cY;
+    }
+    r[1] *= fW;
+    r[2] += r[0] - 2 * r[1];
+    r[1] -= r[0];
+    SkScalar tValues[2];
+    int roots = SkFindUnitQuadRoots(r[2], r[1] * 2, r[0], tValues);
+    SkASSERT(0 == roots || 1 == roots);
+    if (1 == roots) {
+        *t = tValues[0];
+        return true;
+    }
     return false;
 }
-#endif
+
+bool SkConic::findDegenerateExtreme(SkPoint* p) const {
+    // See findMaxCurvature above for references.
+    SkComplex b0(fPts[0].fX,fPts[0].fY);
+    SkComplex b1(fPts[1].fX,fPts[1].fY);
+    SkComplex b2(fPts[2].fX,fPts[2].fY), alpha, M, C, d, c;
+
+    if (SkScalarNearlyZero(fW-1, 1e-5)) {
+        // Parabolic case
+        SkScalar t = SkFindQuadMaxCurvature(fPts);
+        if (t!=0) {
+            this->evalAt(t, p, nullptr);
+            return true;
+        }
+        return false;
+    }
+
+    alpha = SkScalarInvert(SK_Scalar1 - fW*fW);
+    M = (b0 + b2)*SK_ScalarHalf;
+    C = (SK_Scalar1 - alpha)*b1 + alpha*M;
+    d = (SK_Scalar1 - alpha)*(b1*b1) + alpha*(b0*b2);
+    c = sqrt(C*C - d);
+    SkPoint CP{C.real(), C.imag()}, vmaxis{c.real(), c.imag()};
+    SkPoint F1(CP + vmaxis), F2(CP - vmaxis);
+    SkScalar f2d = std::copysign(SkPoint::Distance(F2,fPts[0]), SK_Scalar1 - fW);
+    SkScalar major = SkScalarAbs(SkPoint::Distance(F1,fPts[0]) + f2d)*SK_ScalarHalf;
+    if (SkPointPriv::DistanceToSqd(fPts[1],F1) > SkPointPriv::DistanceToSqd(fPts[1],F2)) {
+        vmaxis.negate();
+    }
+    vmaxis.setLength(major);
+    *p = CP + vmaxis;
+    return true;
+}
 
 SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w, const SkMatrix& matrix) {
     if (!matrix.hasPerspective()) {

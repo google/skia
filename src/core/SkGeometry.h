@@ -76,6 +76,12 @@ int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5]);
 */
 SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]);
 
+/** Given 3 points on a quadratic bezier return the curvature
+    value at t==0 or t==1 respectively.
+*/
+SkScalar SkFindQuadStartCurvatureVal(const SkPoint src[3]);
+SkScalar SkFindQuadEndCurvatureVal(const SkPoint src[3]);
+
 /** Given 3 points on a quadratic bezier, divide it into 2 quadratics
     if the point of maximum curvature exists on the quad segment.
     Depending on what is returned, dst[] is treated as follows
@@ -152,6 +158,13 @@ int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[2]);
 int SkChopCubicAtInflections(const SkPoint src[4], SkPoint dst[10]);
 
 int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]);
+
+/** Given 4 points on a cubic bezier return the curvature value at
+    t==0 or t==1 respectively.
+*/
+SkScalar SkFindCubicStartCurvatureVal(const SkPoint src[4]);
+SkScalar SkFindCubicEndCurvatureVal(const SkPoint src[4]);
+
 int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
                               SkScalar tValues[3] = nullptr);
 /** Returns t value of cusp if cubic has one; returns -1 otherwise.
@@ -289,14 +302,30 @@ struct SkConic {
     void computeTightBounds(SkRect* bounds) const;
     void computeFastBounds(SkRect* bounds) const;
 
+    SkScalar findStartCurvatureVal() const;
+    SkScalar findEndCurvatureVal() const;
+
     /** Find the parameter value where the conic takes on its maximum curvature.
      *
      *  @param t   output scalar for max curvature.  Will be unchanged if
-     *             max curvature outside 0..1 range.
+     *             max curvature outside 0..1 (exclusive) range.
      *
      *  @return  true if max curvature found inside 0..1 range, false otherwise
+     *
+     *  Note that this geometric approach of this function does not work for
+     *  degenerate conics where the control points are colinear. To determine the
+     *  extreme of such a conic where fPts[1] lies outside of the segment
+     *  connecting fPts[0] and fPts[2] use findDegenerateExtreme() below.
      */
-//    bool findMaxCurvature(SkScalar* t) const;  // unimplemented
+    bool findMaxCurvature(SkScalar* t) const;
+
+    /** Find the point where a line-degenerate conic with p1 not between p0
+     *  and p2 takes on the most extreme beyond those two points.
+     *
+     *  Note that this function is only accurate for such degenerate conics.
+     *  Therefore the point geometry should be confirmed before calling it.
+     */
+    bool findDegenerateExtreme(SkPoint*) const;
 
     static SkScalar TransformW(const SkPoint[3], SkScalar w, const SkMatrix&);
 
