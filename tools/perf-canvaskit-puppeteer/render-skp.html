@@ -74,7 +74,7 @@
         }
         const canvas = surface.getCanvas();
 
-        document.getElementById('start_bench').addEventListener('click', () => {
+        document.getElementById('start_bench').addEventListener('click', async () => {
           const clearColor = CanvasKit.WHITE;
 
           function draw() {
@@ -82,7 +82,9 @@
             canvas.drawPicture(skp);
           }
 
-          startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES);
+          const results = await startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES);
+          Object.assign(window._perfData, results);
+          window._perfDone = true;
         });
         console.log('Perf is ready');
         window._perfReady = true;
