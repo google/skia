@@ -14,7 +14,7 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
@@ -85,9 +85,7 @@ static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::Contex
     return sk_gpu_test::GrContextFactory::IsRenderingContext(type);
 }
 
-static GrStencilAttachment* get_SB(GrRenderTarget* rt) {
-    return rt->renderTargetPriv().getStencilAttachment();
-}
+static GrStencilAttachment* get_SB(GrRenderTarget* rt) { return rt->getStencilAttachment(); }
 
 static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
                                                int size, int sampleCount, SkBudgeted budgeted) {

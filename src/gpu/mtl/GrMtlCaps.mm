@@ -15,7 +15,6 @@
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -1022,9 +1021,7 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
  * pipeline. This includes blending information and primitive type. The pipeline is immutable
  * so any remaining dynamic state is set via the MtlRenderCmdEncoder.
  */
-GrProgramDesc GrMtlCaps::makeDesc(const GrRenderTarget* rt,
-                                  const GrProgramInfo& programInfo) const {
-
+GrProgramDesc GrMtlCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
     GrProgramDesc desc;
     if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
         SkASSERT(!desc.isValid());
@@ -1039,13 +1036,12 @@ GrProgramDesc GrMtlCaps::makeDesc(const GrRenderTarget* rt,
 
 #ifdef SK_DEBUG
     if (rt && programInfo.pipeline().isStencilEnabled()) {
-        SkASSERT(rt->renderTargetPriv().getStencilAttachment());
+        SkASSERT(rt->getStencilAttachment());
     }
 #endif
 
-    b.add32(rt && rt->renderTargetPriv().getStencilAttachment()
-                                 ? this->preferredStencilFormat().fInternalFormat
-                                 : MTLPixelFormatInvalid);
+    b.add32(rt && rt->getStencilAttachment() ? this->preferredStencilFormat().fInternalFormat
+                                             : MTLPixelFormatInvalid);
     b.add32((uint32_t)programInfo.pipeline().isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
 
@@ -1055,7 +1051,6 @@ GrProgramDesc GrMtlCaps::makeDesc(const GrRenderTarget* rt,
 
     return desc;
 }
-
 
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombinations() const {

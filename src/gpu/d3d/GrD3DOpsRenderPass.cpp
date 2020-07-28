@@ -9,7 +9,7 @@
 
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramDesc.h"
-#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandSignature.h"
@@ -64,7 +64,7 @@ void GrD3DOpsRenderPass::onBegin() {
         fGpu->currentCommandList()->clearRenderTargetView(d3dRT, fClearColor, nullptr);
     }
 
-    if (auto stencil = d3dRT->renderTargetPriv().getStencilAttachment()) {
+    if (auto stencil = d3dRT->getStencilAttachment()) {
         GrD3DStencilAttachment* d3dStencil = static_cast<GrD3DStencilAttachment*>(stencil);
         d3dStencil->setResourceState(fGpu, D3D12_RESOURCE_STATE_DEPTH_WRITE);
         if (fStencilLoadOp == GrLoadOp::kClear) {
@@ -316,7 +316,7 @@ void GrD3DOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4
 }
 
 void GrD3DOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
-    GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
+    GrStencilAttachment* sb = fRenderTarget->getStencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
