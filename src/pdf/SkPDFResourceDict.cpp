@@ -19,7 +19,7 @@ static_assert(2 == (int)SkPDFResourceType::kXObject,   "resource_type_mismatch")
 static_assert(3 == (int)SkPDFResourceType::kFont,      "resource_type_mismatch");
 
 // One extra character for the Prefix.
-constexpr size_t kMaxResourceNameLength = 1 + SkStrAppendS32_MaxSize;
+constexpr size_t kMaxResourceNameLength = 1 + kSkStrAppendS32_MaxSize;
 
 // returns pointer just past end of what's written into `dst`.
 static char* get_resource_name(char dst[kMaxResourceNameLength], SkPDFResourceType type, int key) {

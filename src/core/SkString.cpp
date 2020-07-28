@@ -89,7 +89,7 @@ int SkStrStartsWithOneOf(const char string[], const char prefixes[]) {
 char* SkStrAppendU32(char string[], uint32_t dec) {
     SkDEBUGCODE(char* start = string;)
 
-    char    buffer[SkStrAppendU32_MaxSize];
+    char    buffer[kSkStrAppendU32_MaxSize];
     char*   p = buffer + sizeof(buffer);
 
     do {
@@ -102,7 +102,7 @@ char* SkStrAppendU32(char string[], uint32_t dec) {
     while (p < stop) {
         *string++ = *p++;
     }
-    SkASSERT(string - start <= SkStrAppendU32_MaxSize);
+    SkASSERT(string - start <= kSkStrAppendU32_MaxSize);
     return string;
 }
 
@@ -118,7 +118,7 @@ char* SkStrAppendS32(char string[], int32_t dec) {
 char* SkStrAppendU64(char string[], uint64_t dec, int minDigits) {
     SkDEBUGCODE(char* start = string;)
 
-    char    buffer[SkStrAppendU64_MaxSize];
+    char    buffer[kSkStrAppendU64_MaxSize];
     char*   p = buffer + sizeof(buffer);
 
     do {
@@ -137,7 +137,7 @@ char* SkStrAppendU64(char string[], uint64_t dec, int minDigits) {
     memcpy(string, p, cp_len);
     string += cp_len;
 
-    SkASSERT(string - start <= SkStrAppendU64_MaxSize);
+    SkASSERT(string - start <= kSkStrAppendU64_MaxSize);
     return string;
 }
 
@@ -150,14 +150,14 @@ char* SkStrAppendS64(char string[], int64_t dec, int minDigits) {
     return SkStrAppendU64(string, udec, minDigits);
 }
 
-char* SkStrAppendFloat(char string[], float value) {
+char* SkStrAppendScalar(char string[], float value) {
     // since floats have at most 8 significant digits, we limit our %g to that.
     static const char gFormat[] = "%.8g";
     // make it 1 larger for the terminating 0
-    char buffer[SkStrAppendScalar_MaxSize + 1];
+    char buffer[kSkStrAppendScalar_MaxSize + 1];
     int len = snprintf(buffer, sizeof(buffer), gFormat, value);
     memcpy(string, buffer, len);
-    SkASSERT(len <= SkStrAppendScalar_MaxSize);
+    SkASSERT(len <= kSkStrAppendScalar_MaxSize);
     return string + len;
 }
 
@@ -440,25 +440,25 @@ void SkString::insertUnichar(size_t offset, SkUnichar uni) {
 }
 
 void SkString::insertS32(size_t offset, int32_t dec) {
-    char    buffer[SkStrAppendS32_MaxSize];
+    char    buffer[kSkStrAppendS32_MaxSize];
     char*   stop = SkStrAppendS32(buffer, dec);
     this->insert(offset, buffer, stop - buffer);
 }
 
 void SkString::insertS64(size_t offset, int64_t dec, int minDigits) {
-    char    buffer[SkStrAppendS64_MaxSize];
+    char    buffer[kSkStrAppendS64_MaxSize];
     char*   stop = SkStrAppendS64(buffer, dec, minDigits);
     this->insert(offset, buffer, stop - buffer);
 }
 
 void SkString::insertU32(size_t offset, uint32_t dec) {
-    char    buffer[SkStrAppendU32_MaxSize];
+    char    buffer[kSkStrAppendU32_MaxSize];
     char*   stop = SkStrAppendU32(buffer, dec);
     this->insert(offset, buffer, stop - buffer);
 }
 
 void SkString::insertU64(size_t offset, uint64_t dec, int minDigits) {
-    char    buffer[SkStrAppendU64_MaxSize];
+    char    buffer[kSkStrAppendU64_MaxSize];
     char*   stop = SkStrAppendU64(buffer, dec, minDigits);
     this->insert(offset, buffer, stop - buffer);
 }
@@ -484,7 +484,7 @@ void SkString::insertHex(size_t offset, uint32_t hex, int minDigits) {
 }
 
 void SkString::insertScalar(size_t offset, SkScalar value) {
-    char    buffer[SkStrAppendScalar_MaxSize];
+    char    buffer[kSkStrAppendScalar_MaxSize];
     char*   stop = SkStrAppendScalar(buffer, value);
     this->insert(offset, buffer, stop - buffer);
 }
