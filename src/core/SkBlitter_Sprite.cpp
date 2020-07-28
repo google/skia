@@ -188,9 +188,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     SkASSERT(alloc != nullptr);
 
     if (gUseSkVMBlitter) {
-        // TODO: one day, focused SkVMBlitters with the sprite as a varying?
-        // For now, returning nullptr here will make it fall back to normal non-sprite blitting.
-        return nullptr;
+        return SkCreateSkVMSpriteBlitter(dst, paint, source,left,top, alloc, std::move(clipShader));
     }
 
     // TODO: in principle SkRasterPipelineSpriteBlitter could be made to handle this.
