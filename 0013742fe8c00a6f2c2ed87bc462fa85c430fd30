@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85052806_0412daac",
+        "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-28T12:23:22Z",
+      "side": 1,
+      "message": "Nit: this can just be `if t.Code \u003d\u003d http.StatusNotFound {`",
+      "range": {
+        "startLine": 71,
+        "startChar": 2,
+        "endLine": 72,
+        "endChar": 27
+      },
+      "revId": "0013742fe8c00a6f2c2ed87bc462fa85c430fd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dba2c276_45098399",
+        "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-28T12:23:22Z",
+      "side": 1,
+      "message": "This section (checking for existence of and creating a new task) should be a step",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 72
+      },
+      "revId": "0013742fe8c00a6f2c2ed87bc462fa85c430fd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b5a3f28_bb25fcfd",
+        "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-28T12:23:22Z",
+      "side": 1,
+      "message": "I\u0027m confused; how could there be an already-running task at this point?",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 78
+      },
+      "revId": "0013742fe8c00a6f2c2ed87bc462fa85c430fd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
