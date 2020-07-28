@@ -213,7 +213,7 @@ click the "Submit to CQ" button and submit your patch via the commit queue.
 
 In special instances, a Skia committer may assist you in landing the change
 by uploading a new codereview containing your patch (perhaps with some small
-adjustments at his/her discretion).  If so, you can mark your change as
+adjustments at their discretion).  If so, you can mark your change as
 "Abandoned", and update it with a link to the new codereview.
 
 ### Skia committers

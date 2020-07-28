@@ -64,7 +64,7 @@ public:
 #define SK_PICT_VERTICES_BUFFER_TAG SkSetFourByteTag('v', 'e', 'r', 't')
 #define SK_PICT_IMAGE_BUFFER_TAG    SkSetFourByteTag('i', 'm', 'a', 'g')
 
-// Always write this guy last (with no length field afterwards)
+// Always write this last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
 
 template <typename T>

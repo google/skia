@@ -82,7 +82,7 @@ SkMatrix& SkMatrix::setAffine(const SkScalar buffer[]) {
     return *this;
 }
 
-// this guy aligns with the masks, so we can compute a mask from a varaible 0/1
+// this aligns with the masks, so we can compute a mask from a variable 0/1
 enum {
     kTranslate_Shift,
     kScale_Shift,
@@ -384,7 +384,7 @@ SkMatrix& SkMatrix::postScale(SkScalar sx, SkScalar sy) {
     return this->postConcat(m);
 }
 
-// this guy perhaps can go away, if we have a fract/high-precision way to
+// this perhaps can go away, if we have a fract/high-precision way to
 // scale matrices
 bool SkMatrix::postIDiv(int divx, int divy) {
     if (divx == 0 || divy == 0) {

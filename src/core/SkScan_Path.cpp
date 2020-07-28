@@ -301,7 +301,7 @@ static void walk_simple_edges(SkEdge* prevHead, SkBlitter* blitter, int start_y,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// this guy overrides blitH, and will call its proxy blitter with the inverse
+// this overrides blitH, and will call its proxy blitter with the inverse
 // of the spans it is given (clipped to the left/right of the cliprect)
 //
 // used to implement inverse filltypes on paths

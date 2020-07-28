@@ -44,7 +44,7 @@ void GLWindowContext::destroyContext() {
     fSurface.reset(nullptr);
 
     if (fContext) {
-        // in case we have outstanding refs to this guy (lua?)
+        // in case we have outstanding refs to this (lua?)
         fContext->abandonContext();
         fContext.reset();
     }

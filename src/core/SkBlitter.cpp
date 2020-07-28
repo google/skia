@@ -270,7 +270,7 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     }
 }
 
-/////////////////////// these guys are not virtual, just a helpers
+/////////////////////// these are not virtual, just helpers
 
 void SkBlitter::blitMaskRegion(const SkMask& mask, const SkRegion& clip) {
     if (clip.quickReject(mask.fBounds)) {

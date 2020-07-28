@@ -59,7 +59,7 @@ void MetalWindowContext::initializeContext() {
 
 void MetalWindowContext::destroyContext() {
     if (fContext) {
-        // in case we have outstanding refs to this guy (lua?)
+        // in case we have outstanding refs to this (lua?)
         fContext->abandonContext();
         fContext.reset();
     }
