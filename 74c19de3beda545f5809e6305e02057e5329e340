@@ -52,6 +52,24 @@
       "revId": "74c19de3beda545f5809e6305e02057e5329e340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9906fa3_75e084ae",
+        "filename": "include/core/SkPostConfig.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T13:22:22Z",
+      "side": 1,
+      "message": "I think this is all fine as-is.  Would it be clearer if we used __attribute__((noreturn)) / __declspec(noreturn) on sk_abort_no_print()?  That\u0027s the focused version of SkUNREACHABLE, telling the compiler that the function returning is undefined behavior no matter where it\u0027s called.",
+      "parentUuid": "fad38c8d_6b4cee32",
+      "revId": "74c19de3beda545f5809e6305e02057e5329e340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
