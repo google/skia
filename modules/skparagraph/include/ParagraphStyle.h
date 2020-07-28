@@ -99,7 +99,6 @@ struct ParagraphStyle {
     SkScalar getHeight() const { return fHeight; }
     void setHeight(SkScalar height) { fHeight = height; }
 
-
     TextHeightBehavior getTextHeightBehavior() const { return fTextHeightBehavior; }
     void setTextHeightBehavior(TextHeightBehavior v) { fTextHeightBehavior = v; }
 
@@ -110,6 +109,8 @@ struct ParagraphStyle {
     TextAlign effective_align() const;
     bool hintingIsOn() const { return fHintingIsOn; }
     void turnHintingOff() { fHintingIsOn = false; }
+    bool isUsingRecordedPicture() { return fUseRecordedPicture; }
+    void useRecordedPicture(bool value) { fUseRecordedPicture = value; }
 
 private:
     StrutStyle fStrutStyle;
@@ -121,6 +122,7 @@ private:
     SkScalar fHeight;
     TextHeightBehavior fTextHeightBehavior;
     bool fHintingIsOn;
+    bool fUseRecordedPicture = false;
 };
 }  // namespace textlayout
 }  // namespace skia
