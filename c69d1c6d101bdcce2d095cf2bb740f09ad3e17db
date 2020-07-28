@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "808678d8_79da68ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T14:32:15Z",
+      "side": 1,
+      "message": "Nicely, this also points out that the current implementation of sk_abort_no_print isn\u0027t [[noreturn]]. It\u0027s possible to continue from a debug break.",
+      "revId": "c69d1c6d101bdcce2d095cf2bb740f09ad3e17db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
