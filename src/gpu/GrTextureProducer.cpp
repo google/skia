@@ -70,7 +70,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createBicubicFragmentPro
 
     const auto& caps = *fContext->priv().caps();
     static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-    static constexpr auto kKernel = GrBicubicEffect::Kernel::kMitchell;
+    static constexpr auto kKernel = GrBicubicEffect::Kernel{1.0f/3, 1.0f/3};
     if (subset) {
         if (domain) {
             return GrBicubicEffect::MakeSubset(std::move(view), this->alphaType(), textureMatrix,

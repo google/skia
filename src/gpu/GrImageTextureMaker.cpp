@@ -100,7 +100,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createBicubicFragm
     fp = GrBicubicEffect::Make(std::move(fp),
                                fImage->alphaType(),
                                textureMatrix,
-                               GrBicubicEffect::Kernel::kMitchell,
+                               {1.0f/3, 1.0f/3},    // Mitchell
                                GrBicubicEffect::Direction::kXY);
     if (fImage->fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp),

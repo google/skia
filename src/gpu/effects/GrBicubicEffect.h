@@ -19,9 +19,8 @@ public:
                              // surrounding texels are needed by the kernel in x and y.
     };
 
-    enum class Kernel {
-        kMitchell,
-        kCatmullRom,
+    struct Kernel {
+        float B, C;
     };
 
     enum class Direction {
