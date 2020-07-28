@@ -167,25 +167,24 @@ SkRect TextLine::calculateBoundaries() {
         SkScalarIsFinite(fAdvance.fX) ? fAdvance.fX : 0,
         SkScalarIsFinite(fAdvance.fY) ? fAdvance.fY : 0);
     auto baseline = SkScalarIsFinite(this->baseline()) ? this->baseline() : 0;
-    auto clusters = fOwner->clusters(fClusterRange);
+
+    auto textShiftInRun = 0;
     Run* run = nullptr;
-    auto runShift = 0.0f;
-    auto clusterShift = 0.0f;
-    for (auto cluster = clusters.begin(); cluster != clusters.end(); ++cluster) {
-        if (run == nullptr || cluster->runIndex() != run->index()) {
-            run = &fOwner->run(cluster->runIndex());
-            runShift += clusterShift;
-            clusterShift = 0;
-        }
-        clusterShift += cluster->width();
-        for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
-            auto posX = run->positionX(i);
-            auto posY = run->posY(i);
-            auto bounds = run->getBounds(i);
-            bounds.offset(posX + runShift, posY);
-            boundaries.joinPossiblyEmptyRect(bounds);
-        }
-    }
+    this->iterateThroughClustersInGlyphsOrder(false, true,
+        [&](const Cluster* cluster, bool ghost) {
+            if (run == nullptr || cluster->runIndex() != run->index()) {
+                run = &fOwner->run(cluster->runIndex());
+                textShiftInRun = run->positionX(cluster->startPos());
+            }
+            for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
+                auto posX = run->positionX(i);
+                auto posY = run->posY(i);
+                auto bounds = run->getBounds(i);
+                bounds.offset(posX - textShiftInRun, posY);
+                boundaries.joinPossiblyEmptyRect(bounds);
+            }
+            return true;
+        });
 
     // We need to take in account all the shadows when we calculate the boundaries
     // TODO: Need to find a better solution
