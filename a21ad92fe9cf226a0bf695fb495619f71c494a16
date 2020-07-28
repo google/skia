@@ -70,6 +70,30 @@
       "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44ac4090_51f62c78",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T19:00:20Z",
+      "side": 1,
+      "message": "Try with SK_ABORT?  That ought to work since it\u0027s marked [[noreturn]], right?",
+      "parentUuid": "f799a2cd_5276ef70",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 6
+      },
+      "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
