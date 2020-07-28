@@ -105,6 +105,30 @@
       "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b987b364_56ae21e0",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-28T19:44:12Z",
+      "side": 1,
+      "message": "http://review.skia.org/306320\n\nhttps://media.giphy.com/media/rmAxpa2ZCnRYs/source.gif",
+      "parentUuid": "c978fa6d_39adc047",
+      "range": {
+        "startLine": 108,
+        "startChar": 39,
+        "endLine": 108,
+        "endChar": 44
+      },
+      "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
