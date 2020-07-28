@@ -34,6 +34,24 @@
       "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "543e1802_3b2aff17",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T13:15:43Z",
+      "side": 1,
+      "message": "Hmm ok.  It does sound like your test environment is not working, so I don\u0027t want to draw too many conclusions from that.  Let\u0027s leave things alone until we get numbers we trust and understand.  I have an icelake laptop that I\u0027ll get set up and try this out over the next few days.\n\n\nThe GCC build failures are that its headers do not define _mm512_set_epi16:\n\n[152/1732] compile ../SRC/skia/src/opts/SkOpts_skx.cpp\nFAILED: obj/src/opts/skx.SkOpts_skx.o \ng++ -MD -MF obj/src/opts/skx.SkOpts_skx.o.d -DSK_R32_SHIFT\u003d16 -DSK_SUPPORT_GPU\u003d0 -DSK_GAMMA_APPLY_TO_A8 -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS\u003d1 -DGR_TEST_UTILS\u003d1 -DSKIA_IMPLEMENTATION\u003d1 -I../SRC/skia -march\u003dskylake-avx512 -Werror -Wno-attributes -fstrict-aliasing -fPIC -g -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-sign-conversion -Wno-unused-parameter -O1 -g1 -DDUMMY_docker_image\u003dgcr.io/skia-public/gcc-debian10@sha256:89a72df1e2fdea6f774a3fa4199bb9aaa4a0526a3ac1f233e604d689b694f95c -std\u003dc++17 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type -Wno-redundant-move -c ../SRC/skia/src/opts/SkOpts_skx.cpp -o obj/src/opts/skx.SkOpts_skx.o\nIn file included from ../SRC/skia/src/opts/SkOpts_skx.cpp:11:\n../SRC/skia/src/opts/SkBitmapProcState_opts.h: In lambda function:\n../SRC/skia/src/opts/SkBitmapProcState_opts.h:104:32: error: \u0027_mm512_set_epi16\u0027 was not declared in this scope\n                 __m512i abcd \u003d _mm512_set_epi16(ph[15],ph[14],ph[13],ph[12],ph[11],ph[10],ph[9],ph[8],\n                                ^~~~~~~~~~~~~~~~\n../SRC/skia/src/opts/SkBitmapProcState_opts.h:104:32: note: suggested alternative: \u0027_mm512_set1_epi16\u0027\n                 __m512i abcd \u003d _mm512_set_epi16(ph[15],ph[14],ph[13],ph[12],ph[11],ph[10],ph[9],ph[8],\n                                ^~~~~~~~~~~~~~~~\n                                _mm512_set1_epi16",
+      "parentUuid": "1434ac7e_39879471",
+      "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
