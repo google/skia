@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "222f32f8_23f74847",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-07-28T21:21:00Z",
+      "side": 1,
+      "message": "Greg: PTAL. Thanks!\n\n(This fix was cargo-culted from the call to rm.py.)",
+      "revId": "a52eb08883635a25d0196e66c68c237032a0734f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
