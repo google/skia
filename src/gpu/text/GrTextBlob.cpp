@@ -8,6 +8,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
@@ -304,7 +305,7 @@ static SkPMColor4f calculate_colors(GrRenderTargetContext* rtc,
         if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
             c = xform->apply(c);
         }
-        if (auto* cf = paint.getColorFilter()) {
+        if (auto* cf = paint.getColorFilter(); cf && !as_CFB(cf)->isSpatiallyVarying()) {
             c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
         }
         return c.premul();

@@ -89,6 +89,8 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
 
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpace* srcCS,
                                        SkColorSpace* dstCS) const {
+    SkASSERT(!as_CFB(this)->isSpatiallyVarying());
+
     SkColor4f color = origSrcColor;
     SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
                            dstCS, kPremul_SkAlphaType).apply(color.vec());
@@ -118,6 +120,10 @@ public:
     uint32_t onGetFlags() const override {
         // Can only claim alphaunchanged support if both our proxys do.
         return fOuter->onGetFlags() & fInner->onGetFlags();
+    }
+
+    bool isSpatiallyVarying() const override {
+        return fOuter->isSpatiallyVarying() || fInner->isSpatiallyVarying();
     }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
@@ -310,6 +316,10 @@ public:
         uint32_t f0 = fCF0->onGetFlags();
         uint32_t f1 = fCF1 ? fCF1->onGetFlags() : ~0U;
         return f0 & f1;
+    }
+
+    bool isSpatiallyVarying() const override {
+        return fCF0->isSpatiallyVarying() || (fCF1 && fCF1->isSpatiallyVarying());
     }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {

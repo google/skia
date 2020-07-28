@@ -70,8 +70,12 @@ static bool just_a_color(const SkPaint& paint, SkColor* color) {
     if (shader && !shader->asLuminanceColor(&c)) {
         return false;
     }
-    if (paint.getColorFilter()) {
-        c = paint.getColorFilter()->filterColor(c);
+    const auto* colorFilter = as_CFB(paint.getColorFilter());
+    if (colorFilter) {
+        if (colorFilter->isSpatiallyVarying()) {
+            return false;
+        }
+        c = colorFilter->filterColor(c);
     }
     if (color) {
         *color = c;
@@ -96,6 +100,11 @@ void SkPaintPriv::RemoveColorFilter(SkPaint* p, SkColorSpace* dstCS) {
                                                          p->getAlphaf(),
                                                          sk_ref_sp(filter)));
             p->setAlphaf(1.0f);
+        } else if (as_CFB(filter)->isSpatiallyVarying()) {
+            p->setShader(sk_make_sp<SkColorFilterShader>(
+                    SkShaders::Color(p->getColor4f(), SkColorSpace::MakeSRGB()),
+                    1.0f,
+                    sk_ref_sp(filter)));
         } else {
             p->setColor(filter->filterColor4f(p->getColor4f(), sk_srgb_singleton(), dstCS), dstCS);
         }

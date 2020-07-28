@@ -37,6 +37,8 @@ public:
     */
     virtual uint32_t onGetFlags() const { return 0; }
 
+    virtual bool isSpatiallyVarying() const { return false; }
+
 #if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
@@ -53,7 +55,11 @@ public:
 #endif
 
     bool affectsTransparentBlack() const {
-        return this->filterColor(SK_ColorTRANSPARENT) != SK_ColorTRANSPARENT;
+        // We have to conservatively assume that any spatially-varying color filter could affect
+        // transparent black.
+        // TODO: Make a flag so that filter authors can specify this explicitly?
+        return this->isSpatiallyVarying() ||
+               this->filterColor(SK_ColorTRANSPARENT) != SK_ColorTRANSPARENT;
     }
 
     static void RegisterFlattenables();
