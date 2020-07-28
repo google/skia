@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     canvas->scale(4, 4);
     SkIRect subset = {136, 32, 200, 96};
     sk_sp<SkData> data(image->encodeToData());
-    sk_sp<SkImage> eye = SkImage::MakeFromEncoded(data, &subset);
+    sk_sp<SkImage> eye = SkImage::MakeFromEncoded(data)->makeSubset(subset);
     canvas->drawImage(eye, 0, 0);
 }
 }  // END FIDDLE
