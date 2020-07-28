@@ -22,6 +22,30 @@
       "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2269da0e_d32e2997",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T18:42:47Z",
+      "side": 1,
+      "message": "or uh, obviously better,\n\n  #if !defined(SkUNREACHABLE)\n     #define SkUNREACHABLE SK_ABORT(\"reached SkUNREACHABLE\")\n  #endif",
+      "parentUuid": "8775f397_a2f3c415",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 6
+      },
+      "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
