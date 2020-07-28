@@ -470,7 +470,7 @@ public:
         @param imageColorSpace range of colors of the resulting image; may be nullptr
         @return                created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromYUVATexturesCopy(GrContext* context,
+    static sk_sp<SkImage> MakeFromYUVATexturesCopy(GrRecordingContext* context,
                                                    SkYUVColorSpace yuvColorSpace,
                                                    const GrBackendTexture yuvaTextures[],
                                                    const SkYUVAIndex yuvaIndices[4],
@@ -496,7 +496,7 @@ public:
         @return                   created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromYUVATexturesCopyWithExternalBackend(
-            GrContext* context,
+            GrRecordingContext* context,
             SkYUVColorSpace yuvColorSpace,
             const GrBackendTexture yuvaTextures[],
             const SkYUVAIndex yuvaIndices[4],
