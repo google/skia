@@ -16,6 +16,24 @@
       "revId": "0307e9114c30263a9f88f9a084bfd45f6e2613b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e18e6e80_0823c114",
+        "filename": "docs/examples/Image_encodeToData.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-28T16:48:11Z",
+      "side": 0,
+      "message": "Could, though I think the goal of the example is just to sure encode/decode, not also subsetting. I think that was passed in to show how to use that parameter (which is now gone).",
+      "parentUuid": "cabe8035_dfd4b894",
+      "revId": "0307e9114c30263a9f88f9a084bfd45f6e2613b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
