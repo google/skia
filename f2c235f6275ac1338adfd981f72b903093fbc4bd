@@ -176,6 +176,24 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13c2f6e5_5470a924",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T17:28:36Z",
+      "side": 1,
+      "message": "\u003e I usually use something like p/x and cast the pointer to an array type.  I think there\u0027s some sort of @-related syntax too, not sure.\n\nLooks like in lldb it\u0027s pa, e.g.\n\n$ cat foo.c\nint main(void) {\n    float fs[] \u003d {1.0f, 2.0f, 3.0f};\n    float* p \u003d fs;\n    __builtin_debugtrap();\n    return 0;\n}\n\n$ clang -g foo.c \u0026\u0026 lldb ./a.out\n\n(lldb) r\n...\n\n(lldb) p fs\n(float [3]) $0 \u003d ([0] \u003d 1, [1] \u003d 2, [2] \u003d 3)\n\n(lldb) p \u0026fs\n(float (*)[3]) $1 \u003d 0x00007fffffffe180\n\n(lldb) p p\n(float *) $2 \u003d 0x00007fffffffe180\n\n(lldb) p *p\n(float) $3 \u003d 1\n\n(lldb) pa 3 p\n(float *) $4 \u003d 0x00007fffffffe180 {\n  (float) [0] \u003d 1\n  (float) [1] \u003d 2\n  (float) [2] \u003d 3\n}\n\n(lldb) pa/x 3 p\n(float *) $5 \u003d 0x00007fffffffe180 {\n  (float) [0] \u003d 0x3f800000\n  (float) [1] \u003d 0x40000000\n  (float) [2] \u003d 0x40400000\n}",
+      "parentUuid": "e38a6941_52088049",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
