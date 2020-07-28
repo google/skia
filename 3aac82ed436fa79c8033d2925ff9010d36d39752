@@ -16,6 +16,24 @@
       "revId": "3aac82ed436fa79c8033d2925ff9010d36d39752",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "015f4ecb_f48d1651",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T19:45:59Z",
+      "side": 1,
+      "message": "Yeah, even ARM puns the stack pointer encoding with the zero register.",
+      "parentUuid": "2acef5d9_85907708",
+      "revId": "3aac82ed436fa79c8033d2925ff9010d36d39752",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
