@@ -16,6 +16,92 @@
       "revId": "e870388f4f8cf19346cf0c9a8c5d58d2e20e0afa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "351a8e95_5d61422c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-28T20:47:05Z",
+      "side": 1,
+      "message": "Yes, refactor this into its own .cpp file so we can call it from oss-fuzz",
+      "revId": "e870388f4f8cf19346cf0c9a8c5d58d2e20e0afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db6b5b71_46bfa0a0",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-28T20:47:05Z",
+      "side": 1,
+      "message": "Probably ok to just call cullRect() once",
+      "range": {
+        "startLine": 718,
+        "startChar": 4,
+        "endLine": 718,
+        "endChar": 19
+      },
+      "revId": "e870388f4f8cf19346cf0c9a8c5d58d2e20e0afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c22cb183_22fcc30b",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-28T20:47:05Z",
+      "side": 1,
+      "message": "These are fine to keep.",
+      "range": {
+        "startLine": 720,
+        "startChar": 4,
+        "endLine": 721,
+        "endChar": 30
+      },
+      "revId": "e870388f4f8cf19346cf0c9a8c5d58d2e20e0afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ee027d2_2695fe2b",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-28T20:47:05Z",
+      "side": 1,
+      "message": "I worry with all this, the fuzzer does \"too much\". I believe the appropriate way to make an SKP is using an SkReadBuffer (not a Data directly), so I think we can leave these off.",
+      "range": {
+        "startLine": 723,
+        "startChar": 0,
+        "endLine": 731,
+        "endChar": 95
+      },
+      "revId": "e870388f4f8cf19346cf0c9a8c5d58d2e20e0afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
