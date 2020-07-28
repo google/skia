@@ -844,7 +844,7 @@ protected:
     // - ICO uses its embedded codec's colorXform
     // - WBMP is just Black/White
     virtual bool usesColorXform() const { return true; }
-    void applyColorXform(void* dst, const void* src, int count) const;
+    bool applyColorXform(void* dst, const void* src, int count) const;
 
     bool colorXform() const { return fXformTime != kNo_XformTime; }
     bool xformOnDecode() const { return fXformTime == kDecodeRow_XformTime; }
@@ -878,8 +878,10 @@ private:
     };
     XformTime                          fXformTime;
     XformFormat                        fDstXformFormat; // Based on fDstInfo.
-    skcms_ICCProfile                   fDstProfile;
+    skcms_ICCProfile                   fDstProfileStorage;
     skcms_AlphaFormat                  fDstXformAlphaFormat;
+    const skcms_ICCProfile*            fDstProfile = nullptr;
+    const skcms_ICCProfile*            fSrcProfile = nullptr;
 
     // Only meaningful during scanline decodes.
     int                                fCurrScanline;
