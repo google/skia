@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b6d9fc42_f00e4b9a",
+        "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-28T14:20:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85052806_0412daac",
+      "range": {
+        "startLine": 71,
+        "startChar": 2,
+        "endLine": 72,
+        "endChar": 27
+      },
+      "revId": "0013742fe8c00a6f2c2ed87bc462fa85c430fd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dba2c276_45098399",
         "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
         "patchSetId": 13
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "828feb8a_e37115a2",
+        "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-28T14:20:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dba2c276_45098399",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 72
+      },
+      "revId": "0013742fe8c00a6f2c2ed87bc462fa85c430fd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b5a3f28_bb25fcfd",
         "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
         "patchSetId": 13
@@ -68,6 +116,30 @@
       "revId": "0013742fe8c00a6f2c2ed87bc462fa85c430fd30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aae3a7d8_0e531f9f",
+        "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-28T14:20:16Z",
+      "side": 1,
+      "message": "Good question. It\u0027s from lessons learned in the python implementation.\n\nThe job in G3 looks at storage to know when to trigger canary rolls. Whenever there is a new file it triggers a run.\nWithout this check what used to happen is that if a bot times out, or dies for whatever reason, then it used to trigger a new run. When things went very wrong, new tasks kept getting triggered for the same patchset+cl (even though they were already running), making the G3 job blow up.\nWith this check we ensure that as long as the G3 job is still running a task we do not needlessly keep retriggering it. I had also thought of adding something on the G3 job side instead, but this was just way easier.",
+      "parentUuid": "9b5a3f28_bb25fcfd",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 78
+      },
+      "revId": "0013742fe8c00a6f2c2ed87bc462fa85c430fd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
