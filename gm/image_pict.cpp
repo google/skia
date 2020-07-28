@@ -314,9 +314,23 @@ protected:
         draw_as_bitmap(canvas, fImageSubset.get(), 150+101, 0);
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        this->makeCaches(canvas->recordingContext());
+    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
+        if (dContext && dContext->abandoned()) {
+            // This isn't a GpuGM so a null 'context' is okay but an abandoned context
+            // if forbidden.
+            return DrawResult::kSkip;
+        }
 
+        this->makeCaches(dContext);
+        return DrawResult::kOk;
+    }
+
+    void onGpuTeardown() override {
+        fImage = nullptr;
+        fImageSubset = nullptr;
+    }
+
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(20, 20);
 
         this->drawSet(canvas);
