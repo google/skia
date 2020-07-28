@@ -917,13 +917,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     }
 
     // Wrapped Backend Textures are not supported in DDL
-    sk_sp<SkImage> image =
-            SkImage::MakeFromAdoptedTexture(deferredContext, backendTex, kTopLeft_GrSurfaceOrigin,
-                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-    REPORTER_ASSERT(reporter, !image);
-
     TextureReleaseChecker releaseChecker;
-    image = SkImage::MakeFromTexture(deferredContext, backendTex, kTopLeft_GrSurfaceOrigin,
+    sk_sp<SkImage> image =
+            SkImage::MakeFromTexture(deferredContext, backendTex, kTopLeft_GrSurfaceOrigin,
                                      kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr,
                                      TextureReleaseChecker::Release, &releaseChecker);
     REPORTER_ASSERT(reporter, !image);
