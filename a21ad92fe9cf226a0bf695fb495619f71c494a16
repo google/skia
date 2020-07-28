@@ -94,6 +94,30 @@
       "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f800cd5a_dce52ff5",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T20:24:50Z",
+      "side": 1,
+      "message": "So SK_ABORT works, but this is confusing because this is already\n\n    __MACHINE(__declspec(noreturn) void __fastfail(unsigned int))\n\nwhich lines up with the warning documentation [0]. If I change sk_abort_no_print to __declspec(noreturn) SK_ABORT still works fine. However, if I put sk_abort_no_print in an \u0027extern \"C\"\u0027 block (like all the intrinsics are declared) then SK_ABORT doesn\u0027t work. Presumably putting things in an \u0027extern \"C\"\u0027 block loses the \u0027noreturn\u0027 bit in msvc. Or at least some part of it, since it seems to satisfy the \u0027if used in a method it meets the noreturn requirement\u0027 (the new sk_abort_no_print is compiling fine) but it doesn\u0027t seem to be in a place where the warning looks when it does control flow anaysis.\n\n\n[0]. https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4715?view\u003dvs-2019",
+      "parentUuid": "44ac4090_51f62c78",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 6
+      },
+      "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
