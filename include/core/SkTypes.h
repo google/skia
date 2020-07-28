@@ -292,7 +292,6 @@
                  __FILE__, __LINE__, ##__VA_ARGS__); \
         SK_DUMP_GOOGLE3_STACK(); \
         sk_abort_no_print(); \
-        SkUNREACHABLE; \
     } while (false)
 #endif
 
@@ -431,7 +430,7 @@
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.
 */
-SK_API extern void sk_abort_no_print(void);
+[[noreturn]] SK_API extern void sk_abort_no_print(void);
 
 #ifndef SkDebugf
     SK_API void SkDebugf(const char format[], ...);
