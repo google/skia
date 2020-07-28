@@ -171,7 +171,8 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
                                                   this->colorSpace(), this->alphaType());
     }
     const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
-    if (!RenderYUVAToRGBA(fContext.get(), renderTargetContext.get(), rect, fYUVColorSpace,
+    const GrCaps& caps = *context->priv().caps();
+    if (!RenderYUVAToRGBA(caps, renderTargetContext.get(), rect, fYUVColorSpace,
                           std::move(colorSpaceXform), fViews, fYUVAIndices)) {
         return;
     }

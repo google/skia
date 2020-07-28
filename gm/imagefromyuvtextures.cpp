@@ -169,33 +169,33 @@ protected:
                                              releaseContext);
     }
 
-    sk_sp<SkImage> createReferenceImage(GrDirectContext* context) {
-        auto planeReleaseContext = new YUVABackendReleaseContext(context);
+    sk_sp<SkImage> createReferenceImage(GrDirectContext* dContext) {
+        auto planeReleaseContext = new YUVABackendReleaseContext(dContext);
         SkYUVAIndex indices[4];
 
-        if (!CreateYUVBackendTextures(context, fYUVABmps, indices, planeReleaseContext)) {
-            YUVABackendReleaseContext::Unwind(context, planeReleaseContext, false);
+        if (!CreateYUVBackendTextures(dContext, fYUVABmps, indices, planeReleaseContext)) {
+            YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, false);
             return nullptr;
         }
 
-        auto rgbaReleaseContext = new YUVABackendReleaseContext(context);
+        auto rgbaReleaseContext = new YUVABackendReleaseContext(dContext);
 
-        GrBackendTexture resultTexture = context->createBackendTexture(
+        GrBackendTexture resultTexture = dContext->createBackendTexture(
                 fRGBABmp.dimensions().width(), fRGBABmp.dimensions().height(),
                 kRGBA_8888_SkColorType, SkColors::kTransparent,
                 GrMipmapped::kNo, GrRenderable::kYes, GrProtected::kNo,
                 YUVABackendReleaseContext::CreationCompleteProc(0),
                 rgbaReleaseContext);
         if (!resultTexture.isValid()) {
-            YUVABackendReleaseContext::Unwind(context, planeReleaseContext, false);
-            YUVABackendReleaseContext::Unwind(context, rgbaReleaseContext, false);
+            YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, false);
+            YUVABackendReleaseContext::Unwind(dContext, rgbaReleaseContext, false);
             return nullptr;
         }
 
         rgbaReleaseContext->set(0, resultTexture);
 
         auto tmp = SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
-                context,
+                dContext,
                 kJPEG_SkYUVColorSpace,
                 planeReleaseContext->beTextures(),
                 indices,
@@ -205,7 +205,7 @@ protected:
                 nullptr,
                 YUVABackendReleaseContext::Release,
                 rgbaReleaseContext);
-         YUVABackendReleaseContext::Unwind(context, planeReleaseContext, true);
+         YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, true);
          return tmp;
     }
 

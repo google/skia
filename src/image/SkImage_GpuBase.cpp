@@ -261,14 +261,14 @@ bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
     return true;
 }
 
-bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx,
+bool SkImage_GpuBase::MakeTempTextureProxies(GrRecordingContext* rContext,
                                              const GrBackendTexture yuvaTextures[],
                                              int numTextures,
                                              const SkYUVAIndex yuvaIndices[4],
                                              GrSurfaceOrigin imageOrigin,
                                              GrSurfaceProxyView tempViews[4],
                                              sk_sp<GrRefCntedCallback> releaseHelper) {
-    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
     for (int textureIndex = 0; textureIndex < numTextures; ++textureIndex) {
         const GrBackendFormat& backendFormat = yuvaTextures[textureIndex].getBackendFormat();
         if (!backendFormat.isValid()) {
@@ -305,7 +305,8 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx,
     return true;
 }
 
-bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
+bool SkImage_GpuBase::RenderYUVAToRGBA(const GrCaps& caps,
+                                       GrRenderTargetContext* renderTargetContext,
                                        const SkRect& rect, SkYUVColorSpace yuvColorSpace,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        GrSurfaceProxyView views[4],
@@ -318,7 +319,6 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    const auto& caps = *ctx->priv().caps();
     auto fp = GrYUVtoRGBEffect::Make(views, yuvaIndices, yuvColorSpace,
                                      GrSamplerState::Filter::kNearest, caps);
     if (colorSpaceXform) {

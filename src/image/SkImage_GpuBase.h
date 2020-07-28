@@ -54,7 +54,7 @@ public:
                                        sk_sp<SkColorSpace> cs);
     static bool ValidateCompressedBackendTexture(const GrCaps*, const GrBackendTexture& tex,
                                                  SkAlphaType);
-    static bool MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
+    static bool MakeTempTextureProxies(GrRecordingContext*, const GrBackendTexture yuvaTextures[],
                                        int numTextures, const SkYUVAIndex [4],
                                        GrSurfaceOrigin imageOrigin,
                                        GrSurfaceProxyView tempViews[4],
@@ -86,11 +86,11 @@ protected:
             PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext, PromiseImageApiVersion);
 
-    static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
-                                 const SkRect& rect, SkYUVColorSpace yuvColorSpace,
-                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 GrSurfaceProxyView views[4],
-                                 const SkYUVAIndex yuvaIndices[4]);
+    static bool RenderYUVAToRGBA(const GrCaps&, GrRenderTargetContext*,
+                                 const SkRect&, SkYUVColorSpace,
+                                 sk_sp<GrColorSpaceXform>,
+                                 GrSurfaceProxyView [4],
+                                 const SkYUVAIndex [4]);
 
     // TODO: Migrate this to something much weaker, such as GrContextThreadSafeProxy.
     sk_sp<GrContext> fContext;
