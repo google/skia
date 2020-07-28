@@ -608,6 +608,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_ gm _ gpu_blur_utils_ref")
 	}
 
+	if b.model("Pixel3") {
+		// skbug.com/??
+		skip("vkddl gm _ compressed_textures_nmof")
+	}
+
 	if b.model("TecnoSpark3Pro") {
 		// skbug.com/9421
 		skip("_ test _ InitialTextureClear")
