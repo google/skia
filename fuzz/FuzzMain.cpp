@@ -7,6 +7,7 @@
 
 #include "fuzz/Fuzz.h"
 #include "include/codec/SkCodec.h"
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
@@ -14,6 +15,7 @@
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
@@ -712,6 +714,21 @@ static void fuzz_skp(sk_sp<SkData> bytes) {
     canvas.drawPicture(pic);
     SkDebugf("[terminated] Success! Decoded and rendered an SkPicture!\n");
     dump_png(bitmap);
+
+    pic->cullRect().width();
+    pic->cullRect().height();
+    pic->approximateBytesUsed();
+    pic->approximateOpCount();
+
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+    pic->playback(recorder.beginRecording(pic->cullRect(), nullptr));
+
+    // sterialize and restore the picture
+    SkDynamicMemoryWStream writableStream;
+    pic->serialize(&writableStream);
+    sk_sp<SkData> readableData = writableStream.detachAsData();
+    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());
 }
 
 static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
