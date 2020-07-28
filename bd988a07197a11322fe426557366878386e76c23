@@ -16,6 +16,24 @@
       "revId": "bd988a07197a11322fe426557366878386e76c23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bc103d8_c5a68d28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-07-28T18:03:14Z",
+      "side": 1,
+      "message": "Changing binary formats is a pain because while you\u0027re in the middle of changing things you generally need to support both the old and the new versions. To avoid having to deal with that (the format was changing *a lot* while I was working on it...), I set it up so we can just disable the binary format altogether (see REHYDRATE in SkSLCompiler.cpp), change things as needed, then turn it back on.\n\nThe .sksl files are the ground truth - the actual programs created by humans.\n\nThe generated/*.dehydrated.sksl files are the binary files created from them - only used when REHYDRATE is true.\n\nThe generated/*.c.inc files are suitable for inclusion from C - they\u0027re just the .sksl files wrapped in string delimiters (this is annoying, but I don\u0027t know of an easier way to turn a blob of data into a C constant). These are equivalent to the old .inc files and only used when REHYDRATE is false.\n\nThe final sksl_fp.sksl is generated from a script so that it includes the contents of GrSharedEnums.cpp, which contains enums shared between C++ and SkSL.",
+      "parentUuid": "6a857ec5_7b91db6f",
+      "revId": "bd988a07197a11322fe426557366878386e76c23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
