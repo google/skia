@@ -219,6 +219,30 @@
       "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6a9ed10_36f1dd75",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-28T20:43:22Z",
+      "side": 1,
+      "message": "Thanks for the explanation. Yes, I do see that discontinuity you\u0027re talking about now.\n\nA slide you might want to use is SampleCCPRGeometry. Press \u00274\u0027 to get to conics. +/- changes the stroke width. To change the weight (and this is hacky), press \u0027S\u0027, then +/-, then \u0027S\u0027 again to get back to stroking.\n\nSo I\u0027m a bit lost in the math for findDegenerateExtreme. Can you explain your rationale for arriving at these formulas? Starting equations, what you\u0027re solving for, etc.?",
+      "parentUuid": "5c516476_74748ae6",
+      "range": {
+        "startLine": 667,
+        "startChar": 10,
+        "endLine": 667,
+        "endChar": 31
+      },
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
