@@ -69,6 +69,24 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cab1494b_c4c05301",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-28T14:41:32Z",
+      "side": 1,
+      "message": "Re Brian\u0027s original comments.\n\n#1 - I believe we can make LLDB visualizers work with Xcode, and that\u0027s a good plan B if this doesn\u0027t work out for some reason\n\n#2 - I totally agree. In the long run I would love to get rid of custom containers unless they offer some staggering advantage that can\u0027t be solved any other way. I\u0027ve been down this road before and I expect that to be a long-term effort where we make slow incremental progress towards that goal. I see this CL as part of that small incremental progress. If nothing else, it exposes a lot of cases where SkTArray papered over issues that vector\u003c\u003e would not allow (e.g. missing move constructors/assignment, missing #includes, `const` inhibiting std::move, etc) and hopefully prevents backsliding on that front.",
+      "parentUuid": "c1bb3d9e_cafaf664",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
