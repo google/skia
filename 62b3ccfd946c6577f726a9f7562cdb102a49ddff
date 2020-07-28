@@ -92,6 +92,24 @@
       "revId": "62b3ccfd946c6577f726a9f7562cdb102a49ddff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52fad370_9567d515",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-28T15:15:20Z",
+      "side": 1,
+      "message": "It\u0027s landed now – let\u0027s check the canary again.",
+      "parentUuid": "5b276df8_e5623f44",
+      "revId": "62b3ccfd946c6577f726a9f7562cdb102a49ddff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
