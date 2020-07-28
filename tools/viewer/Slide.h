@@ -34,7 +34,7 @@ public:
     virtual bool onGetControls(SkMetaData*) { return false; }
     virtual void onSetControls(const SkMetaData&) {}
 
-    SkString getName() { return fName; }
+    const SkString& getName() { return fName; }
 
 
 protected:
