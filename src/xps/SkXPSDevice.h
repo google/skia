@@ -104,10 +104,10 @@ private:
                     SkTScopedComPtr<IXpsOMFontResource> xps, size_t numGlyphs)
             : typefaceId(id), ttcIndex(index), fontData(std::move(data))
             , xpsFont(std::move(xps)), glyphsUsed(numGlyphs) {}
-        const SkFontID typefaceId;
-        const int ttcIndex;
-        const std::unique_ptr<SkStream> fontData;
-        const SkTScopedComPtr<IXpsOMFontResource> xpsFont;
+        SkFontID typefaceId;
+        int ttcIndex;
+        std::unique_ptr<SkStream> fontData;
+        SkTScopedComPtr<IXpsOMFontResource> xpsFont;
         SkBitSet glyphsUsed;
     };
     friend HRESULT subset_typeface(const TypefaceUse& current);

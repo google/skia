@@ -12,6 +12,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 
 #include "src/core/SkImageFilterTypes.h"
 
