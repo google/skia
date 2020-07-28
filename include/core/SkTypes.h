@@ -263,14 +263,6 @@
 #  undef SK_DIRECT3D
 #endif
 
-#if !defined(SkUNREACHABLE)
-#  if defined(_MSC_VER) && !defined(__clang__)
-#    define SkUNREACHABLE __assume(false)
-#  else
-#    define SkUNREACHABLE __builtin_unreachable()
-#  endif
-#endif
-
 #if defined(SK_BUILD_FOR_GOOGLE3)
     void SkDebugfForDumpStackTrace(const char* data, void* unused);
     void DumpStackTrace(int skip_count, void w(const char*, void*), void* arg);
@@ -294,6 +286,8 @@
         sk_abort_no_print(); \
     } while (false)
 #endif
+
+#define SkUNREACHABLE SK_ABORT("reached SkUNREACHABLE")
 
 // If SK_R32_SHIFT is set, we'll use that to choose RGBA or BGRA.
 // If not, we'll default to RGBA everywhere except BGRA on Windows.
