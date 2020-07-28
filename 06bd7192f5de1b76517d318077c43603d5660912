@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef4f65af_90588af6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T19:55:39Z",
+      "side": 1,
+      "message": "What, \u0027SkScaler\u0027 wasn\u0027t good!? 😮",
+      "revId": "06bd7192f5de1b76517d318077c43603d5660912",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
