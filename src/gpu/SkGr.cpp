@@ -295,14 +295,14 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         }
     }
 
-    SkColorFilter* colorFilter = skPaint.getColorFilter();
+    SkColorFilterBase* colorFilter = as_CFB(skPaint.getColorFilter());
     if (colorFilter) {
-        if (applyColorFilterToPaintColor) {
+        if (applyColorFilterToPaintColor && !colorFilter->isSpatiallyVarying()) {
             SkColorSpace* dstCS = dstColorInfo.colorSpace();
             grPaint->setColor4f(colorFilter->filterColor4f(origColor, dstCS, dstCS).premul());
         } else {
-            auto [success, fp] = as_CFB(colorFilter)->asFragmentProcessor(std::move(paintFP),
-                                                                          context, dstColorInfo);
+            auto [success, fp] =
+                    colorFilter->asFragmentProcessor(std::move(paintFP), context, dstColorInfo);
             if (!success) {
                 return false;
             }
