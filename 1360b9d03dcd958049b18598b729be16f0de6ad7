@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca3d111f_841e8a06",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-28T15:00:09Z",
+      "side": 1,
+      "message": "I wonder how much of this could be removed/made-private. Do we really need anything\n\"public\" outside of SkString itself?",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 3
+      },
+      "revId": "1360b9d03dcd958049b18598b729be16f0de6ad7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
