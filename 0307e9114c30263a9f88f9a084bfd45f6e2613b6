@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cabe8035_dfd4b894",
+        "filename": "docs/examples/Image_encodeToData.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T16:44:05Z",
+      "side": 0,
+      "message": "Maybe swap these over to makeSubset() like you did elsewhere?",
+      "revId": "0307e9114c30263a9f88f9a084bfd45f6e2613b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
