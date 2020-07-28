@@ -106,6 +106,24 @@
       "revId": "74c19de3beda545f5809e6305e02057e5329e340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c8d0f14_bca0f0cc",
+        "filename": "include/core/SkPostConfig.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T14:24:13Z",
+      "side": 1,
+      "message": "sk_abort_no_print is currently not declared [[noreturn]], so the compiler can still elide all of this and I don\u0027t think it\u0027s fine. I think we should just tag sk_abort_no_print with [[noreturn]] and remove the use of \u0027unreachable\u0027.",
+      "parentUuid": "4518ae07_2021f561",
+      "revId": "74c19de3beda545f5809e6305e02057e5329e340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
