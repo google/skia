@@ -160,7 +160,7 @@ private:
         // detect that our computed AA is really just a (hard-edged) rect
         if (detectAARect && !fIsEmpty && !fIsBW && fAA.isRect()) {
             fBW.setRect(fAA.getBounds());
-            fAA.setEmpty(); // don't need this guy anymore
+            fAA.setEmpty(); // don't need this anymore
             fIsBW = true;
         }
 
@@ -221,7 +221,7 @@ private:
  *  not, they return the raw blitter and (bw) clip region.
  *
  *  We need to keep the constructor/destructor cost as small as possible, so we
- *  can freely put this guy on the stack, and not pay too much for the case when
+ *  can freely put this on the stack, and not pay too much for the case when
  *  we're really BW anyways.
  */
 class SkAAClipBlitterWrapper {

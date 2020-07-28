@@ -236,7 +236,7 @@ static void aa_square_proc(const PtProcRec& rec, const SkPoint devPts[],
     }
 }
 
-// If this guy returns true, then chooseProc() must return a valid proc
+// If this returns true, then chooseProc() must return a valid proc
 bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
                      const SkMatrix* matrix, const SkRasterClip* rc) {
     if ((unsigned)mode > (unsigned)SkCanvas::kPolygon_PointMode) {
