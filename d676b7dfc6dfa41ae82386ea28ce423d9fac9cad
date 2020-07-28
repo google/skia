@@ -175,6 +175,24 @@
     },
     {
       "key": {
+        "uuid": "0cc2d937_1dc2d56a",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-28T21:04:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "389a68e2_9397a411",
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da464c78_f501118c",
         "filename": "src/core/SkStroke.cpp",
         "patchSetId": 1
@@ -234,6 +252,30 @@
       "side": 1,
       "message": "Thanks for the explanation. Yes, I do see that discontinuity you\u0027re talking about now.\n\nA slide you might want to use is SampleCCPRGeometry. Press \u00274\u0027 to get to conics. +/- changes the stroke width. To change the weight (and this is hacky), press \u0027S\u0027, then +/-, then \u0027S\u0027 again to get back to stroking.\n\nSo I\u0027m a bit lost in the math for findDegenerateExtreme. Can you explain your rationale for arriving at these formulas? Starting equations, what you\u0027re solving for, etc.?",
       "parentUuid": "5c516476_74748ae6",
+      "range": {
+        "startLine": 667,
+        "startChar": 10,
+        "endLine": 667,
+        "endChar": 31
+      },
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f24d47b1_8d2c7b6d",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-28T21:04:05Z",
+      "side": 1,
+      "message": "There are two ways of looking at this. One is to follow the existing code\u0027s rationale, which is that what we want are the x,y coordinates of the spline at its point of maximum curvature, as this is the point where the curve \"doubles back\" and therefore its maximum extent.\n\nThe other way is to split the cases into elliptical (w \u003c 1) and hyperbolic (w \u003e 1) arcs. For the ellipse we want the \"vertex\" -- the point where the ellipse intersects the major axis. That\u0027s the point needed just from straightforward geometry. (This is also always the point of maximum curvature.) For the hyperbola case it\u0027s a little less self-evident but it\u0027s still the vertex that will be the maximum. This is true whether or not the conic is line-degenerate. \n\nThe complex (in the mathematical sense) calculations are from https://pdfs.semanticscholar.org/9e4a/b59c8cabb925e907183e899cca62ba55b565.pdf (note the reference in the comment in findMaxCurvature()). Section 3.2 is a guide to converting rational Bezier arcs into their corresponding conic parameters. Once you have the center, a major axis vector and the major dimension length you can just set the vector to the dimension length and add or subtract it from the center to get the relevant extreme point.",
+      "parentUuid": "e6a9ed10_36f1dd75",
       "range": {
         "startLine": 667,
         "startChar": 10,
