@@ -521,7 +521,7 @@ namespace skvm {
         int r_bits,  g_bits,  b_bits,  a_bits,
             r_shift, g_shift, b_shift, a_shift;
     };
-    bool SkColorType_to_PixelFormat(SkColorType, PixelFormat*);
+    bool SkColorType_to_PixelFormat(SkColorType, PixelFormat* f=nullptr);
 
     SK_BEGIN_REQUIRE_DENSE
     struct Instruction {
