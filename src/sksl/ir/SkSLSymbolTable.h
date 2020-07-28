@@ -27,23 +27,21 @@ public:
     SymbolTable(ErrorReporter* errorReporter)
     : fErrorReporter(*errorReporter) {}
 
-    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter* errorReporter)
+    SymbolTable(std::shared_ptr<SymbolTable> parent)
     : fParent(parent)
-    , fErrorReporter(*errorReporter) {}
+    , fErrorReporter(parent->fErrorReporter) {}
 
     const Symbol* operator[](StringFragment name);
 
-    void add(StringFragment name, std::unique_ptr<Symbol> symbol);
+    void add(StringFragment name, std::unique_ptr<const Symbol> symbol);
 
     void addWithoutOwnership(StringFragment name, const Symbol* symbol);
 
-    Symbol* takeOwnership(std::unique_ptr<Symbol> s);
+    const Symbol* takeOwnership(std::unique_ptr<const Symbol> s);
 
     IRNode* takeOwnership(std::unique_ptr<IRNode> n);
 
     String* takeOwnership(std::unique_ptr<String> n);
-
-    void markAllFunctionsBuiltin();
 
     std::unordered_map<StringFragment, const Symbol*>::iterator begin();
 
@@ -51,10 +49,10 @@ public:
 
     const std::shared_ptr<SymbolTable> fParent;
 
+    std::vector<std::unique_ptr<const Symbol>> fOwnedSymbols;
+
 private:
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
-
-    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
 
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
 
@@ -63,6 +61,8 @@ private:
     std::unordered_map<StringFragment, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
+
+    friend class Dehydrator;
 };
 
 } // namespace
