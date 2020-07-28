@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 86
 ------------
 
+  * SkImage:remove DecodeToRaster, DecodeToTexture
+    https://review.skia.org/306331
+
   * Add GrContext api to update compressed backend textures.
     https://review.skia.org/302265
 
