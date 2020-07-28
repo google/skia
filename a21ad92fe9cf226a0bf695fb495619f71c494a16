@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8775f397_a2f3c415",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T18:39:25Z",
+      "side": 1,
+      "message": "How about,\n\n  #if !defined(SkUNREACHABLE)\n     #define SkUNREACHABLE SK_ABORT(\"\")\n  #endif",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 6
+      },
+      "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
