@@ -138,6 +138,63 @@
       "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c03f1de_4fd7473e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-28T18:20:38Z",
+      "side": 1,
+      "message": "Hi Skef! I\u0027m just starting out with a couple preliminary comments here. My main concern is trying to understand the concept of degenerate extreme and how it relates to max curvature.",
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "389a68e2_9397a411",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-28T18:20:38Z",
+      "side": 1,
+      "message": "Let\u0027s stick to square roots here since they will be faster to evaluate than pow().\n\n   c \u003d .5f * v_10.cross(v_21) * sk_float_rsqrt(v_10_lsq) / v_10_lsq;\n\n(Don\u0027t worry about SkScalar vs float. They are always the same thing now.)\n\nOr if rsqrt doesn\u0027t give enough precision:\n\n   c \u003d .5f * v_10.cross(v_21) / (v_10_lsq * SkScalarSqrt(v_10_lsq));",
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da464c78_f501118c",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-28T18:20:38Z",
+      "side": 1,
+      "message": "Is \"degenerate extreme\" a different concept than \"max curvature\"? (We used to find max curvature here instead.) Can you explain the concept of degenerate extreme or point me to some reading? I\u0027d like to understand it.",
+      "range": {
+        "startLine": 667,
+        "startChar": 10,
+        "endLine": 667,
+        "endChar": 31
+      },
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
