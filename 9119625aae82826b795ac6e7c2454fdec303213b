@@ -34,6 +34,29 @@
       "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8420dbc_0f59b8a8",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-28T17:45:29Z",
+      "side": 1,
+      "message": "nit: silly drive by and I know this didn\u0027t actually change anything, but now that this is officially called SkStrAppendScalar it would be nice it it took SkScaler as the parameter type. (Especially since in the two places it\u0027s actually used it\u0027s passed SkScaler anyway.)",
+      "range": {
+        "startLine": 108,
+        "startChar": 39,
+        "endLine": 108,
+        "endChar": 44
+      },
+      "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
