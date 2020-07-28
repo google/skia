@@ -17,6 +17,8 @@
     #endif
 #endif
 
+#include <algorithm>
+
 #if defined(SK_BUILD_FOR_UNIX)
 #include <execinfo.h>
 #endif
