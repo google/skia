@@ -2304,3 +2304,32 @@ DEF_TEST(SkVM_is_NaN_is_finite, r) {
         }
     });
 }
+
+DEF_TEST(SkVM_args, r) {
+    // Test we can handle at least six arguments.
+    skvm::Builder b;
+    {
+        skvm::Arg dst = b.varying<float>(),
+                    A = b.varying<float>(),
+                    B = b.varying<float>(),
+                    C = b.varying<float>(),
+                    D = b.varying<float>(),
+                    E = b.varying<float>();
+        storeF(dst, b.loadF(A)
+                  + b.loadF(B)
+                  + b.loadF(C)
+                  + b.loadF(D)
+                  + b.loadF(E));
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        float dst[17],A[17],B[17],C[17],D[17],E[17];
+        for (int i = 0; i < 17; i++) {
+            A[i] = B[i] = C[i] = D[i] = E[i] = (float)i;
+        }
+        program.eval(17, dst,A,B,C,D,E);
+        for (int i = 0; i < 17; i++) {
+            REPORTER_ASSERT(r, dst[i] == 5.0f*i);
+        }
+    });
+}
