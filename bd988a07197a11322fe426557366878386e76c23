@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a857ec5_7b91db6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-28T16:15:02Z",
+      "side": 1,
+      "message": "Can you explain the flow a little bit? I haven\u0027t got to the code of the dehydrator/rehydrator yet, but I\u0027m curious about the fact that we now have the includes as .sksl files, as well as generated copies of those that seem to just be turned into C-strings (.c.inc)? (And for sksl_fp, even the .sksl one is generated? By a python script?)",
+      "revId": "bd988a07197a11322fe426557366878386e76c23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
