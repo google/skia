@@ -16,6 +16,23 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d481a2d4_594ee4ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-28T14:12:18Z",
+      "side": 1,
+      "message": "Sorry I wasn\u0027t around to comment on this yesterday. My thoughts:\n\n1) I\u0027m guessing this is primarily for XCode? Visual Studio \u0026 VSCode support .natvis, which I\u0027ve got configured to show these types. It looks like LLDB has something similar (https://lldb.llvm.org/use/variable.html), but from what I can tell, it only affects \u0027print\u0027 commands in the LLDB interactive window in XCode, not any watch windows or hover? Bleh.\n\n2) Like Mike, I\u0027d be more interested in moving towards using standard containers all the time. Not sure of the best solution to SkSTArray - any of the proposed solutions (absl, pmr) is still going to have the same issue with debugging that led to this CL, right? But I think that moving SkTArray usage to std::vector (including understanding if/why there\u0027s any performance regression) is helpful. I also think that at least some of our SkSTArray usage is unnecessary (or actually misguided).",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
