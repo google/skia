@@ -1582,7 +1582,7 @@ private:
                 case SkPathVerb::kCubic: return 3;
                 case SkPathVerb::kClose: return 0;
             }
-            SkUNREACHABLE;
+            return SkASSERT(false), 0;
         }
         constexpr static int pts_backset_for_verb(SkPathVerb verb) {
             switch (verb) {
@@ -1593,7 +1593,7 @@ private:
                 case SkPathVerb::kCubic: return -1;
                 case SkPathVerb::kClose: return 0;
             }
-            SkUNREACHABLE;
+            return SkASSERT(false), 0;
         }
         const uint8_t* fVerb = nullptr;
         const SkPoint* fPoints = nullptr;
