@@ -57,6 +57,30 @@
       "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2930750_64790311",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T17:46:57Z",
+      "side": 1,
+      "message": "\u003e SkScaler\n\nYou\u0027ve been working in the font code for too long.  ;)",
+      "parentUuid": "d8420dbc_0f59b8a8",
+      "range": {
+        "startLine": 108,
+        "startChar": 39,
+        "endLine": 108,
+        "endChar": 44
+      },
+      "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
