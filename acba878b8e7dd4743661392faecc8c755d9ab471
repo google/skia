@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a758571_72b2be18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-28T17:01:38Z",
+      "side": 1,
+      "message": "Not sure I understand. Can\u0027t any path be repositioned by translating the canvas (or the path)? i.e. path.offset()",
+      "revId": "acba878b8e7dd4743661392faecc8c755d9ab471",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
