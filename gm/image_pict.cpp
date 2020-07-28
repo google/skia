@@ -262,7 +262,8 @@ protected:
         const SkIRect subset = SkIRect::MakeLTRB(50, 50, 100, 100);
 
         gen = fFactory(rContext, fPicture);
-        fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset);
+        auto direct = GrAsDirectContext(rContext);
+        fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset, direct);
 
         SkASSERT(fImage->dimensions() == SkISize::Make(100, 100));
         SkASSERT(fImageSubset->dimensions() == SkISize::Make(50, 50));

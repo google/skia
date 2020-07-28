@@ -1188,20 +1188,20 @@ public:
     */
     sk_sp<SkData> refEncodedData() const;
 
-    /** Returns subset of SkImage. subset must be fully contained by SkImage dimensions().
-        The implementation may share pixels, or may copy them.
+    /** Returns subset of this image.
 
         Returns nullptr if any of the following are true:
           - Subset is empty
-          - Subset is not contained by bounds
-          - Pixels in SkImage could not be read or copied
+          - Subset is not contained inside the image's bounds
+          - Pixels in the image could not be read or copied
 
         If this image is texture-backed, the context parameter is required and must match the
-        context of the source image.
+        context of the source image. If the context parameter is provided, and the image is
+        raster-backed, the subset will be converted to texture-backed.
 
         @param subset  bounds of returned SkImage
         @param context the GrDirectContext in play, if it exists
-        @return        partial or full SkImage, or nullptr
+        @return        the subsetted image, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_makeSubset
     */
