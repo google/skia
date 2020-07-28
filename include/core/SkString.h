@@ -105,7 +105,7 @@ static constexpr int kSkStrAppendScalar_MaxSize = 15;
  *  Thus if the caller wants to add a 0 at the end, buffer must be at least
  *  kSkStrAppendScalar_MaxSize + 1 bytes large.
  */
-char* SkStrAppendScalar(char buffer[], float);
+char* SkStrAppendScalar(char buffer[], SkScalar);
 
 /** \class SkString
 
