@@ -81,8 +81,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fPicture(nullptr)
         , fStrutMetrics(false)
         , fOldWidth(0)
-        , fOldHeight(0)
-        , fOrigin(SkRect::MakeEmpty()) {
+        , fOldHeight(0) {
     fICU = ::skia::SkUnicode::Make();
 }
 
@@ -184,8 +183,6 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fState < kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
-        // We have to calculate the paragraph boundaries only after we format the lines
-        this->calculateBoundaries();
         fState = kFormatted;
     }
 
@@ -207,14 +204,32 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
+    if (fParagraphStyle.getDrawOptions() == DrawOptions::kDirect) {
+        // Paint the text without recording it
+        canvas->save();
+        canvas->translate(x, y);
+        this->paintLines(canvas);
+        canvas->restore();
+        return;
+    }
+
     if (fState < kDrawn) {
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
         this->paintLinesIntoPicture();
         fState = kDrawn;
     }
 
-    SkMatrix matrix = SkMatrix::Translate(x + fOrigin.fLeft, y + fOrigin.fTop);
-    canvas->drawPicture(fPicture, &matrix, nullptr);
+    if (fParagraphStyle.getDrawOptions() == DrawOptions::kReplay) {
+        // Replay the recorded picture
+        canvas->save();
+        canvas->translate(x, y);
+        fPicture->playback(canvas);
+        canvas->restore();
+    } else {
+        // Draw the picture
+        SkMatrix matrix = SkMatrix::Translate(x, y);
+        canvas->drawPicture(fPicture, &matrix, nullptr);
+    }
 }
 
 void ParagraphImpl::resetContext() {
@@ -417,13 +432,6 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
-                    if (line.ellipsis() != nullptr) {
-                        // Make sure the paragraph boundaries include its ellipsis
-                        auto size = line.ellipsis()->advance();
-                        auto offset = line.ellipsis()->offset();
-                        SkRect boundaries = SkRect::MakeXYWH(offset.fX, offset.fY, size.fX, size.fY);
-                        fOrigin.joinPossiblyEmptyRect(boundaries);
-                    }
                 }
 
                 fLongestLine = std::max(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
@@ -476,14 +484,21 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
 
 void ParagraphImpl::paintLinesIntoPicture() {
     SkPictureRecorder recorder;
-    SkCanvas* textCanvas = recorder.beginRecording(fOrigin.width(), fOrigin.height(), nullptr, 0);
-    textCanvas->translate(-fOrigin.fLeft, -fOrigin.fTop);
+    SkCanvas* textCanvas = recorder.beginRecording(this->getMaxWidth(), this->getHeight(), nullptr, 0);
 
+    auto bounds = SkRect::MakeEmpty();
     for (auto& line : fLines) {
-        line.paint(textCanvas);
+        auto boundaries = line.paint(textCanvas);
+        bounds.joinPossiblyEmptyRect(boundaries);
     }
 
-    fPicture = recorder.finishRecordingAsPicture();
+    fPicture = recorder.finishRecordingAsPictureWithCull(bounds);
+}
+
+void ParagraphImpl::paintLines(SkCanvas* canvas) {
+    for (auto& line : fLines) {
+        line.paint(canvas);
+    }
 }
 
 void ParagraphImpl::resolveStrut() {
@@ -537,12 +552,6 @@ BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
     }
 
     return { begin, end + 1 };
-}
-
-void ParagraphImpl::calculateBoundaries() {
-    for (auto& line : fLines) {
-        fOrigin.joinPossiblyEmptyRect(line.calculateBoundaries());
-    }
 }
 
 TextLine& ParagraphImpl::addLine(SkVector offset,
