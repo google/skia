@@ -42,6 +42,9 @@ Milestone 86
     check (via GrRecordingContext::asDirectContext) if the available recording context is actually
     a direct context.
 
+  * Replace #defined values in SkString with equivalent constexprs.
+    http://review.skia.org/306160
+
 * * *
 
 Milestone 85

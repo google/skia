@@ -63,30 +63,30 @@ static inline bool SkStrContains(const char string[], const char subchar) {
 
 /*
  *  The SkStrAppend... methods will write into the provided buffer, assuming it is large enough.
- *  Each method has an associated const (e.g. SkStrAppendU32_MaxSize) which will be the largest
+ *  Each method has an associated const (e.g. kSkStrAppendU32_MaxSize) which will be the largest
  *  value needed for that method's buffer.
  *
- *  char storage[SkStrAppendU32_MaxSize];
+ *  char storage[kSkStrAppendU32_MaxSize];
  *  SkStrAppendU32(storage, value);
  *
  *  Note : none of the SkStrAppend... methods write a terminating 0 to their buffers. Instead,
  *  the methods return the ptr to the end of the written part of the buffer. This can be used
  *  to compute the length, and/or know where to write a 0 if that is desired.
  *
- *  char storage[SkStrAppendU32_MaxSize + 1];
+ *  char storage[kSkStrAppendU32_MaxSize + 1];
  *  char* stop = SkStrAppendU32(storage, value);
  *  size_t len = stop - storage;
  *  *stop = 0;   // valid, since storage was 1 byte larger than the max.
  */
 
-#define SkStrAppendU32_MaxSize  10
+static constexpr int kSkStrAppendU32_MaxSize = 10;
 char*   SkStrAppendU32(char buffer[], uint32_t);
-#define SkStrAppendU64_MaxSize  20
+static constexpr int kSkStrAppendU64_MaxSize = 20;
 char*   SkStrAppendU64(char buffer[], uint64_t, int minDigits);
 
-#define SkStrAppendS32_MaxSize  (SkStrAppendU32_MaxSize + 1)
+static constexpr int kSkStrAppendS32_MaxSize = kSkStrAppendU32_MaxSize + 1;
 char*   SkStrAppendS32(char buffer[], int32_t);
-#define SkStrAppendS64_MaxSize  (SkStrAppendU64_MaxSize + 1)
+static constexpr int kSkStrAppendS64_MaxSize = kSkStrAppendU64_MaxSize + 1;
 char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
 
 /**
@@ -96,18 +96,16 @@ char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
  *  In theory we should only expect up to 2 digits for the exponent, but on
  *  some platforms we have seen 3 (as in the example above).
  */
-#define SkStrAppendScalar_MaxSize  15
+static constexpr int kSkStrAppendScalar_MaxSize = 15;
 
 /**
- *  Write the scaler in decimal format into buffer, and return a pointer to
+ *  Write the scalar in decimal format into buffer, and return a pointer to
  *  the next char after the last one written. Note: a terminating 0 is not
- *  written into buffer, which must be at least SkStrAppendScalar_MaxSize.
+ *  written into buffer, which must be at least kSkStrAppendScalar_MaxSize.
  *  Thus if the caller wants to add a 0 at the end, buffer must be at least
- *  SkStrAppendScalar_MaxSize + 1 bytes large.
+ *  kSkStrAppendScalar_MaxSize + 1 bytes large.
  */
-#define SkStrAppendScalar SkStrAppendFloat
-
-char* SkStrAppendFloat(char buffer[], float);
+char* SkStrAppendScalar(char buffer[], float);
 
 /** \class SkString
 
