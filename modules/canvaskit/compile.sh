@@ -47,15 +47,16 @@ elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
   RELEASE_CONF+=" --profiling-funcs --closure 0"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
+elif [[ $@ == *simd* ]]; then
+  echo "Building with SIMD operations"
+  BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_experimental_simd"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
 fi
 
 if [[ $@ == *simd* ]]; then
-  echo "Building with SIMD operations"
   RELEASE_CONF+=" -msimd128"
   EXTRA_CFLAGS+=" \"-msimd128\""
-  BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_experimental_simd"}
 fi
 
 mkdir -p $BUILD_DIR
