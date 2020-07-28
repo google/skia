@@ -151,10 +151,6 @@ bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) const {
  */
 void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     uint32_t flags = 0;
-    const SkIRect r = SkImage_getSubset(image);
-    if (r.x() != 0 || r.y() != 0 || r.width() != image->width() || r.height() != image->height()) {
-        flags |= SkWriteBufferImageFlags::kHasSubsetRect;
-    }
     const SkMipmap* mips = as_IB(image)->onPeekMips();
     if (mips) {
         flags |= SkWriteBufferImageFlags::kHasMipmap;
@@ -171,12 +167,8 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     }
     this->writeDataAsByteArray(data.get());
 
-    if (flags & SkWriteBufferImageFlags::kHasSubsetRect) {
-        this->writeIRect(r);
-    }
     if (flags & SkWriteBufferImageFlags::kHasMipmap) {
         this->writeDataAsByteArray(mips->serialize().get());
-
     }
 }
 
