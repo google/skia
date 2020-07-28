@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c9469b2_ec33f8ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-28T21:14:22Z",
+      "side": 1,
+      "message": "I\u0027ve tried replacing SkUNREACHABLE with SK_ABORT here and it mostly works fine in Clang and MSVC, but the GCC we\u0027re using on these bots seems to disagree with the use of SK_ABORT() (really SkDebugf()) from a constexpr function.  There are a bunch of these scattered around, and I can\u0027t really tell if it\u0027s important that they\u0027re constexpr or not without just deleting all the constexpr and trying these bots again.  My local GCC (9.3) seems happy with whatever I do.\n\nGot any ideas about how to make GCC happy here?",
+      "revId": "fb7fb435969c301c0fca5a4cbae419ea0554a60b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
