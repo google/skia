@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "b92b2fce_3f2b6663",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9e2b843_1b1f77ba",
+      "range": {
+        "startLine": 194,
+        "startChar": 3,
+        "endLine": 194,
+        "endChar": 7
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "37d6adc9_a596f02e",
         "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas_test.go",
         "patchSetId": 6
@@ -79,6 +103,30 @@
       "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3164708f_68d49f95",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas_test.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "37d6adc9_a596f02e",
+      "range": {
+        "startLine": 165,
+        "startChar": 21,
+        "endLine": 165,
+        "endChar": 31
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +153,30 @@
     },
     {
       "key": {
+        "uuid": "8ec1ee44_31dced50",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6931da83_8ad5fc48",
+      "range": {
+        "startLine": 56,
+        "startChar": 97,
+        "endLine": 56,
+        "endChar": 104
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa1b2f89_6f72d7b5",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
         "patchSetId": 6
@@ -128,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "ec38e290_493b4cd7",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa1b2f89_6f72d7b5",
+      "range": {
+        "startLine": 57,
+        "startChar": 89,
+        "endLine": 57,
+        "endChar": 93
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ee9a073_fb9b4edb",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 6
@@ -148,6 +244,30 @@
       "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "333d99b2_fc040e56",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ee9a073_fb9b4edb",
+      "range": {
+        "startLine": 29,
+        "startChar": 26,
+        "endLine": 29,
+        "endChar": 38
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -175,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "b67e2dea_4fa8760c",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24ff028a_afcc2263",
+      "range": {
+        "startLine": 169,
+        "startChar": 45,
+        "endLine": 169,
+        "endChar": 56
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65c86b26_44832d60",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 6
@@ -195,6 +339,30 @@
       "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7cdc2ab_a08d941b",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65c86b26_44832d60",
+      "range": {
+        "startLine": 235,
+        "startChar": 12,
+        "endLine": 235,
+        "endChar": 18
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -221,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "888fc096_b1f8ce80",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09a042ea_bfeeb20e",
+      "range": {
+        "startLine": 304,
+        "startChar": 11,
+        "endLine": 304,
+        "endChar": 18
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d71837e6_e91dacb1",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 6
@@ -241,6 +433,30 @@
       "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f406288_fdf03a73",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d71837e6_e91dacb1",
+      "range": {
+        "startLine": 363,
+        "startChar": 12,
+        "endLine": 363,
+        "endChar": 18
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -267,6 +483,30 @@
     },
     {
       "key": {
+        "uuid": "0165000b_9d7e3370",
+        "filename": "tools/perf-canvaskit-puppeteer/perf-canvaskit-with-puppeteer.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eebb2e21_ba340b45",
+      "range": {
+        "startLine": 270,
+        "startChar": 25,
+        "endLine": 270,
+        "endChar": 28
+      },
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b0ccdb1_be589658",
         "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
         "patchSetId": 6
@@ -281,6 +521,24 @@
       "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9a90409_85b827ea",
+        "filename": "tools/perf-canvaskit-puppeteer/render-skp.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-28T20:09:47Z",
+      "side": 1,
+      "message": "window._perfData already contains skp_load_ms",
+      "parentUuid": "2b0ccdb1_be589658",
+      "revId": "55a75eb052737ebc2678bb1ee3ea5d64fa28cb86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
