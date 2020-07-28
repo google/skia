@@ -282,7 +282,7 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
         if (0 == strncmp(vendorString, "Intel ", 6) || 0 == strcmp(vendorString, "Intel")) {
             return kIntel_GrGLVendor;
         }
-        if (0 == strcmp(vendorString, "Qualcomm")) {
+        if (0 == strcmp(vendorString, "Qualcomm") || 0 == strcmp(vendorString, "freedreno")) {
             return kQualcomm_GrGLVendor;
         }
         if (0 == strcmp(vendorString, "NVIDIA Corporation")) {
@@ -341,6 +341,10 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         }
         int adrenoNumber;
         n = sscanf(rendererString, "Adreno (TM) %d", &adrenoNumber);
+        if (n < 1) {
+            // retry with freedreno driver
+            n = sscanf(rendererString, "FD%d", &adrenoNumber);
+        }
         if (1 == n) {
             if (adrenoNumber >= 300) {
                 if (adrenoNumber < 400) {
