@@ -123,6 +123,23 @@
       "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a908010e_ad514a89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-28T17:03:50Z",
+      "side": 1,
+      "message": "I think my other hesitation with this CL is that it\u0027s going to create a maintenance burden, and that burden is probably going to fall on John, unless anyone else is going to start using this mode. Without this mode enabled on a bot, or by default, the rest of the team is going to re-break the assumptions here (adding an SkTArray\u003cbool\u003e, or using MEM_MOVE over-eagerly, etc...).\n\n... And I don\u0027t want to advocate for adding a bot, because then everyone does need to avoid re-breaking this, despite the fact that nearly all of the team won\u0027t be using it.\n\nIf we really want to move towards standard containers, I\u0027d be much happier to just start replacing uses of SkTArray, and punt on SkSTArray for now. If do that, the one-off fixes for stored types (not being properly move-able, etc...) are clearly tied to the refactor of the relevant code.",
+      "revId": "f2c235f6275ac1338adfd981f72b903093fbc4bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
