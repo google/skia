@@ -16,6 +16,24 @@
       "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b713b3bf_58deaaa9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-28T15:06:20Z",
+      "side": 1,
+      "message": "Oh yeah, this is easy low-hanging fruit in terms of reducing public footprint. Very uncontroversial to remove--clients probably shouldn\u0027t be relying on Skia to print their numbers.",
+      "parentUuid": "7f988255_edd1f680",
+      "revId": "9119625aae82826b795ac6e7c2454fdec303213b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
