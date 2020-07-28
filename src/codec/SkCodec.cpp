@@ -9,6 +9,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/private/SkHalf.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkBmpCodec.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
@@ -630,29 +631,46 @@ bool sk_select_xform_format(SkColorType colorType, bool forColorTable,
     return true;
 }
 
+static size_t bytes_per_pixel(skcms_PixelFormat format) {
+    switch (format) {
+        case skcms_PixelFormat_RGBA_16161616BE:
+            return 8;
+        case skcms_PixelFormat_RGB_161616BE:
+            return 6;
+        case skcms_PixelFormat_G_8:
+            return 1;
+        case skcms_PixelFormat_RGBA_8888:
+        case skcms_PixelFormat_BGRA_8888:
+            return 4;
+        default:
+            // Other formats are not currently used as sources.
+            return 0;
+    }
+}
+
 bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha encodedAlpha,
                                    bool srcIsOpaque) {
     fXformTime = kNo_XformTime;
     bool needsColorXform = false;
+    // true means to call skcms_Transform with null profiles.
+    bool skipColorConversion = false;
     if (this->usesColorXform()) {
-        if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
-            needsColorXform = true;
-            if (dstInfo.colorSpace()) {
-                dstInfo.colorSpace()->toProfile(&fDstProfile);
-            } else {
-                // Use the srcProfile to avoid conversion.
-                const auto* srcProfile = fEncodedInfo.profile();
-                fDstProfile = srcProfile ? *srcProfile : *skcms_sRGB_profile();
-            }
-        } else if (dstInfo.colorSpace()) {
-            dstInfo.colorSpace()->toProfile(&fDstProfile);
-            const auto* srcProfile = fEncodedInfo.profile();
-            if (!srcProfile) {
-                srcProfile = skcms_sRGB_profile();
-            }
-            if (!skcms_ApproximatelyEqualProfiles(srcProfile, &fDstProfile) ) {
+        if (dstInfo.colorSpace()) {
+            // We cannot compare profiles directly here, because the client asks
+            // for an SkColorSpace, which might match profiles that are not
+            // skcms_ApproximatelyEqual.
+            if (!SkColorSpace::Equals(dstInfo.colorSpace(), getInfo().colorSpace()) ||
+                // For profiles that have no corresponding SkColorSpace,
+                // getInfo() will recommend SRGB, but we still need to convert
+                // to it.
+                (dstInfo.colorSpace()->isSRGB() && fEncodedInfo.profile()
+                       && !skcms_ApproximatelyEqualProfiles(fEncodedInfo.profile(), skcms_sRGB_profile()))) {
                 needsColorXform = true;
             }
+        }
+        if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
+            skipColorConversion = !needsColorXform;
+            needsColorXform = true;
         }
     }
 
@@ -660,7 +678,14 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
         return false;
     }
 
+    fDstProfile = nullptr;
+    fSrcProfile = nullptr;
     if (needsColorXform) {
+        if (!skipColorConversion) {
+            dstInfo.colorSpace()->toProfile(&fDstProfileStorage);
+            fDstProfile = &fDstProfileStorage;
+            fSrcProfile = fEncodedInfo.profile();
+        }
         fXformTime = SkEncodedInfo::kPalette_Color != fEncodedInfo.color()
                           || kRGBA_F16_SkColorType == dstInfo.colorType()
                 ? kDecodeRow_XformTime : kPalette_XformTime;
@@ -674,16 +699,32 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
         } else {
             fDstXformAlphaFormat = skcms_AlphaFormat_Unpremul;
         }
+
+        {
+            // Test that the skcms_Transform will succeed with current settings.
+            const size_t srcPixelSize = bytes_per_pixel(fSrcXformFormat);
+            const size_t dstPixelSize = SkColorTypeBytesPerPixel(dstInfo.colorType());
+            if (srcPixelSize == 0) {
+                return false;
+            }
+
+            SkAutoFree tmpSrc(sk_calloc_throw(srcPixelSize));
+            SkAutoFree tmpDst(sk_malloc_throw(dstPixelSize));
+
+            if (!applyColorXform(tmpDst.get(), tmpSrc.get(), 1)) {
+                return false;
+            }
+        }
     }
     return true;
 }
 
-void SkCodec::applyColorXform(void* dst, const void* src, int count) const {
-    // It is okay for srcProfile to be null. This will use sRGB.
-    const auto* srcProfile = fEncodedInfo.profile();
-    SkAssertResult(skcms_Transform(src, fSrcXformFormat, skcms_AlphaFormat_Unpremul, srcProfile,
-                                   dst, fDstXformFormat, fDstXformAlphaFormat, &fDstProfile,
-                                   count));
+bool SkCodec::applyColorXform(void* dst, const void* src, int count) const {
+    bool success = skcms_Transform(src, fSrcXformFormat, skcms_AlphaFormat_Unpremul, fSrcProfile,
+                                   dst, fDstXformFormat, fDstXformAlphaFormat, fDstProfile,
+                                   count);
+    SkASSERT(success);
+    return success;
 }
 
 std::vector<SkCodec::FrameInfo> SkCodec::getFrameInfo() {
