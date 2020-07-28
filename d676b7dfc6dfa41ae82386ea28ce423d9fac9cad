@@ -195,6 +195,30 @@
       "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c516476_74748ae6",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-07-28T18:53:46Z",
+      "side": 1,
+      "message": "Let\u0027s start with the relevant part of my comment from July 8th:\n\n\"findDegenerateExtreme is easiest to test graphically. One easy way to do this is to run viewer --slide AAGeometry, convert one of the lines to a conic, and move the control point back and forth across the line axis above and below the segment formed by the on-curve points. This should be done with different weight values below, at, and above 1. If you do this in the current master you\u0027ll see the discontinuity in length as the point crosses the line for weight !\u003d 1. This is due to the quad approximation. With this patch there should be no discontinuity.\"\n\nI\u0027ll try to rephase/expand on this. The code I\u0027ve rewritten to call findDegenerateExtreme is attempting to find what I am calling\" the \"extreme\" of a line-degenerate conic -- the point to which the substituted line should extend. You can see the inaccuracy of the current approximation by opening any tool that 1) strokes a conic segment, 2) let\u0027s you adjust the weight and 3) lets you adjust the control points in \"real time\". (I\u0027ve suggested AAGeometry but some tool that lets you control the stroke width would work better. SampleStrokeGeometry in 303483 would work well but you would have to merge the two CRs to use it for that.) To start with you might set the weight to \".2\". Then move the middle control point back and forth across the line formed by the two on-curve points but *not* between them. If you do this without this CR you should see a discontinuity as it crosses the line -- the stroked portion will get slightly shorter.\n\n(Of course, you need to do this first with source code compiled without my fix to see the problem, and then can do it with source code compiled with the fix to see that it goes away.) \n\nThis is because the current code is using the \"max curvature\" of the *unweighted* quadratic bezier to determine the max curvature t-point and then calculating the position at that t *with* the weights to determine the extreme point. But that isn\u0027t actually the t-point of maximum curvature of the conic segment. Hence the inaccuracy and the \"Fixme\". \n\nThe findMaxCurvature that I added will calculate that t-value in *most* cases, but because it\u0027s a geometric rather than analytic solution it doesn\u0027t work for degenerate conics. However, what this part of the algorithm needs is not the t value but the extreme position -- it\u0027s only calculating the former to calculate the latter -- and it\u0027s easy enough to do that directly.",
+      "parentUuid": "da464c78_f501118c",
+      "range": {
+        "startLine": 667,
+        "startChar": 10,
+        "endLine": 667,
+        "endChar": 31
+      },
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
