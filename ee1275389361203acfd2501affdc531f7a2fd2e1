@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee0167ab_d4cd2965",
+        "filename": "tools/debugger/DebugCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-29T21:54:11Z",
+      "side": 1,
+      "message": "Double check this constructor is in use?  It\u0027s so broken my first guess is it\u0027s dead code.",
+      "revId": "ee1275389361203acfd2501affdc531f7a2fd2e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
