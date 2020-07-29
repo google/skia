@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bc99191_87d50401",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-29T17:47:02Z",
+      "side": 1,
+      "message": "This is a little follow up refactor for something I tripped over myself when writing the sprite blitter.",
+      "revId": "777a49f024cc46f1c12a9dee43a1b77d70ee25ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
