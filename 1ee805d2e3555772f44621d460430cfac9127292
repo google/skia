@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b24fa0cf_6b9460f4",
+        "filename": "site/user/build.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-29T20:44:34Z",
+      "side": 1,
+      "message": "\u003e \"suport\" is a possible misspelling of \"support\".\n\nDone, thanks robot",
+      "parentUuid": "8e2fa529_d060c33f",
+      "range": {
+        "startLine": 421,
+        "startChar": 14,
+        "endLine": 421,
+        "endChar": 20
+      },
+      "revId": "1ee805d2e3555772f44621d460430cfac9127292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
