@@ -15,7 +15,7 @@
 struct SK_API SkYUVASizeInfo {
     static constexpr auto kMaxCount = 4;
 
-    SkISize     fSizes[kMaxCount];
+    SkISize     fSizes[kMaxCount] = {};
 
     /**
      * While the widths of the Y, U, V and A planes are not restricted, the
@@ -29,7 +29,7 @@ struct SK_API SkYUVASizeInfo {
      * include any extra padding, while, in this case, every single row of
      * the allocation must be at least "widthBytes".
      */
-    size_t      fWidthBytes[kMaxCount];
+    size_t      fWidthBytes[kMaxCount] = {};
 
     /**
      * YUVA data often comes from formats like JPEG that support EXIF orientation.
