@@ -10,13 +10,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
-	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
 
 	"go.skia.org/infra/go/auth"
@@ -59,22 +56,6 @@ type G3CanaryTask struct {
 	CL       int              `json:"cl"`
 }
 
-func isNotFoundError(err error) bool {
-	if err == storage.ErrObjectNotExist {
-		return true
-	} else if strings.Contains(err.Error(), "No such object") {
-		// https://github.com/googleapis/google-cloud-go/issues/2635
-		return true
-	} else if t, ok := err.(*googleapi.Error); ok {
-		// The storage library doesn't return gs.ErrObjectNotExist when Delete
-		// returns a 404. Catch that explicitly.
-		if t.Code == http.StatusNotFound {
-			return true
-		}
-	}
-	return false
-}
-
 func main() {
 	var (
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -101,7 +82,7 @@ func main() {
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
-	client := httputils.DefaultClientConfig().WithTokenSource(ts).With2xxOnly().Client()
+	client := httputils.DefaultClientConfig().WithTokenSource(ts).Client()
 	store, err := storage.NewClient(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		td.Fatalf(ctx, "Failed to create storage service client: %s", err)
@@ -113,7 +94,7 @@ func main() {
 
 	err = td.Do(ctx, td.Props("Trigger new task if not already running"), func(ctx context.Context) error {
 		if _, err := gcsClient.GetFileContents(ctx, taskFileName); err != nil {
-			if isNotFoundError(err) {
+			if err == storage.ErrObjectNotExist {
 				// The task is not already running. Create a new file to trigger a new run.
 				if err := triggerCanaryRoll(ctx, rs.Issue, rs.Patchset, taskFileName, taskStoragePath, gcsClient); err != nil {
 					td.Fatal(ctx, fmt.Errorf("Could not trigger canary roll for %s/%s: %s", rs.Issue, rs.Patchset, err))
