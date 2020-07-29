@@ -44,10 +44,6 @@ public:
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
     GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const override;
-    sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*,
-                                  SkYUVAIndex[4],
-                                  SkYUVColorSpace*,
-                                  const void* planes[4]) const override;
 #endif
     sk_sp<SkData> onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
@@ -76,6 +72,10 @@ public:
 private:
     void addUniqueIDListener(sk_sp<SkIDChangeListener>) const;
 #if SK_SUPPORT_GPU
+    sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*,
+                                  SkYUVAIndex[4],
+                                  SkYUVColorSpace*,
+                                  const void* planes[4]) const;
     GrSurfaceProxyView textureProxyViewFromPlanes(GrRecordingContext*, SkBudgeted) const;
 #endif
 
