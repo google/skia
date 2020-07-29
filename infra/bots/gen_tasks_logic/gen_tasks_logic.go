@@ -1135,6 +1135,34 @@ func (b *jobBuilder) checkGeneratedFiles() {
 	})
 }
 
+// checkGnToBp verifies that the gn_to_bp.py script continues to work
+// rmistry.
+func (b *jobBuilder) checkGnToBp() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		// b.isolate("empty.isolate")
+		b.isolate("compile.isolate")
+		b.dep(b.buildTaskDrivers())
+		b.usesGit()
+		b.cmd("./run_gn_to_bp",
+			"--local=false",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			// "--repo", specs.PLACEHOLDER_REPO,
+			// "--revision", specs.PLACEHOLDER_REVISION,
+			// "--patch_issue", specs.PLACEHOLDER_ISSUE,
+			// "--patch_set", specs.PLACEHOLDER_PATCHSET,
+			// "--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--gn_to_bp_path", "./gn/gn_to_bp.py",
+			"--workdir", ".",
+			"--alsologtostderr")
+		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.usesPython()
+		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
+	})
+}
+
 // housekeeper generates a Housekeeper task.
 func (b *jobBuilder) housekeeper() {
 	b.addTask(b.Name, func(b *taskBuilder) {
