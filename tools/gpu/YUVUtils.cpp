@@ -8,9 +8,10 @@
 #include "tools/gpu/YUVUtils.h"
 
 #include "include/core/SkData.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 
 namespace sk_gpu_test {
 
@@ -23,7 +24,7 @@ std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(sk_sp<SkData> data) {
     }
 }
 
-sk_sp<SkImage> LazyYUVImage::refImage(GrContext* context) {
+sk_sp<SkImage> LazyYUVImage::refImage(GrRecordingContext* context) {
     if (this->ensureYUVImage(context)) {
         return fYUVImage;
     } else {
@@ -31,7 +32,7 @@ sk_sp<SkImage> LazyYUVImage::refImage(GrContext* context) {
     }
 }
 
-const SkImage* LazyYUVImage::getImage(GrContext* context) {
+const SkImage* LazyYUVImage::getImage(GrRecordingContext* context) {
     if (this->ensureYUVImage(context)) {
         return fYUVImage.get();
     } else {
@@ -71,17 +72,25 @@ bool LazyYUVImage::reset(sk_sp<SkData> data) {
     return true;
 }
 
-bool LazyYUVImage::ensureYUVImage(GrContext* context) {
+bool LazyYUVImage::ensureYUVImage(GrRecordingContext* context) {
     if (!context) {
         return false; // Cannot make a YUV image from planes
     }
-    if (context->priv().contextID() == fOwningContextID) {
+    uint32_t id = context->priv().contextID();
+    if (id == fOwningContextID) {
         return fYUVImage != nullptr; // Have already made a YUV image (or tried and failed)
     }
     // Must make a new YUV image
-    fYUVImage = SkImage::MakeFromYUVAPixmaps(context, fColorSpace, fPlanes, fComponents,
-            fSizeInfo.fSizes[0], kTopLeft_GrSurfaceOrigin, false, false);
-    fOwningContextID = context->priv().contextID();
+    fYUVImage = SkImage::MakeFromYUVAPixmaps(context->priv().backdoor(),
+                                             fColorSpace,
+                                             fPlanes,
+                                             fComponents,
+                                             fSizeInfo.fSizes[0],
+                                             kTopLeft_GrSurfaceOrigin,
+                                             false,
+                                             false);
+
+    fOwningContextID = id;
     return fYUVImage != nullptr;
 }
 
