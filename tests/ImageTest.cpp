@@ -1502,3 +1502,19 @@ DEF_TEST(image_cubicresampler, reporter) {
 
     diff(SkImageShader::CubicResamplerMatrix(0, 1.0f/2), gCentripetalCatmulRom);
 }
+
+DEF_TEST(image_subset_encode_skbug_7752, reporter) {
+    sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_128.png");
+    const int W = image->width();
+    const int H = image->height();
+
+    auto check_roundtrip = [&](sk_sp<SkImage> img) {
+        SkImageInfo info = img->imageInfo();
+        img = SkImage::MakeFromEncoded(img->encodeToData());
+        REPORTER_ASSERT(reporter, img->width() == info.width());
+        REPORTER_ASSERT(reporter, img->height() == info.height());
+    };
+    check_roundtrip(image); // should trivially pass
+    check_roundtrip(image->makeSubset({0, 0, W/2, H/2}));
+    check_roundtrip(image->makeSubset({W/2, H/2, W, H}));
+}
