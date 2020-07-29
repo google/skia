@@ -16,6 +16,24 @@
       "revId": "5ca3e54301848400f755bda32079079d8660d9b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bcb0e1a_94ed2a93",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3097,
+      "author": {
+        "id": 6605
+      },
+      "writtenOn": "2020-07-29T00:54:35Z",
+      "side": 1,
+      "message": "Maybe do this? https://skia-review.googlesource.com/306359 to make the non-Metal build happy?",
+      "parentUuid": "ee0b1115_cec5fbde",
+      "revId": "5ca3e54301848400f755bda32079079d8660d9b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
