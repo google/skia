@@ -34,6 +34,7 @@ EXPLICIT_PATHS = [
   '.clang-tidy',
   'bin/fetch-clang-format',
   'bin/fetch-gn',
+  'bin/sync',
   'buildtools',
   'infra/bots/assets/android_ndk_darwin/VERSION',
   'infra/bots/assets/android_ndk_linux/VERSION',
