@@ -566,12 +566,21 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext*,
     return false;
 }
 
-sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
-                                               const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                               SkColorType ct, SkAlphaType at,
-                                               sk_sp<SkColorSpace> cs) {
+sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrDirectContext*,
+                                               const GrBackendTexture&, GrSurfaceOrigin,
+                                               SkColorType, SkAlphaType,
+                                               sk_sp<SkColorSpace>) {
     return nullptr;
 }
+
+#ifdef SK_IMAGE_MAKE_FROM_ADOPTED_TEXTURE_LEGACY_API
+sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext*,
+                                               const GrBackendTexture&, GrSurfaceOrigin,
+                                               SkColorType, SkAlphaType,
+                                               sk_sp<SkColorSpace>) {
+    return nullptr;
+}
+#endif
 
 sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrRecordingContext*,
                                                  SkYUVColorSpace,
