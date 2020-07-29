@@ -497,7 +497,7 @@ void GrDawnGpu::waitOnAllBusyStagingBuffers() {
     }
 }
 
-void GrDawnGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+void GrDawnGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
     fSubmittedStagingBuffers.push_back(std::move(buffer));
 }
 

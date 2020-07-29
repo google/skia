@@ -223,7 +223,6 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
     , fCurrentInstanceBuffer(nullptr)
     , fCurrentInstanceStride(0)
     , fCurrentIndexBuffer(nullptr)
-    , fCurrentConstantRingBuffer(nullptr)
     , fCurrentConstantBufferAddress(0)
     , fCurrentSRVCRVDescriptorHeap(nullptr)
     , fCurrentSamplerDescriptorHeap(nullptr) {
@@ -238,10 +237,6 @@ void GrD3DDirectCommandList::onReset() {
     fCurrentInstanceBuffer = nullptr;
     fCurrentInstanceStride = 0;
     fCurrentIndexBuffer = nullptr;
-    if (fCurrentConstantRingBuffer) {
-        fCurrentConstantRingBuffer->finishSubmit(fConstantRingBufferSubmitData);
-        fCurrentConstantRingBuffer = nullptr;
-    }
     fCurrentConstantBufferAddress = 0;
     sk_bzero(fCurrentRootDescriptorTable, sizeof(fCurrentRootDescriptorTable));
     fCurrentSRVCRVDescriptorHeap = nullptr;
@@ -254,18 +249,6 @@ void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipeline
         fCommandList->SetPipelineState(pipelineState->pipelineState());
         this->addResource(std::move(pipelineState));
         fCurrentPipelineState = pipelineState.get();
-    }
-}
-
-void GrD3DDirectCommandList::setCurrentConstantBuffer(GrRingBuffer* constantsRingBuffer) {
-    fCurrentConstantRingBuffer = constantsRingBuffer;
-    if (fCurrentConstantRingBuffer) {
-        constantsRingBuffer->startSubmit(&fConstantRingBufferSubmitData);
-        for (unsigned int i = 0; i < fConstantRingBufferSubmitData.fTrackedBuffers.size(); ++i) {
-            this->addGrBuffer(std::move(fConstantRingBufferSubmitData.fTrackedBuffers[i]));
-        }
-        // we don't need these any more so clear this copy out
-        fConstantRingBufferSubmitData.fTrackedBuffers.clear();
     }
 }
 

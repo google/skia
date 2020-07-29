@@ -79,17 +79,27 @@ GrRingBuffer::Slice GrRingBuffer::suballocate(size_t size) {
 }
 
 // used when current command buffer/command list is submitted
-void GrRingBuffer::startSubmit(GrRingBuffer::SubmitData* submitData) {
-    submitData->fTrackedBuffers = std::move(fTrackedBuffers);
-    submitData->fLastHead = fHead;
-    submitData->fGenID = fGenID;
+void GrRingBuffer::startSubmit(GrGpu* gpu) {
+    for (unsigned int i = 0; i < fTrackedBuffers.size(); ++i) {
+        gpu->takeOwnershipOfBuffer(std::move(fTrackedBuffers[i]));
+    }
+    fTrackedBuffers.clear();
     // add current buffer to be tracked for next submit
     fTrackedBuffers.push_back(fCurrentBuffer);
+
+    SubmitData* submitData = new SubmitData();
+    submitData->fOwner = this;
+    submitData->fLastHead = fHead;
+    submitData->fGenID = fGenID;
+    gpu->addFinishedProc(FinishSubmit, submitData);
 }
 
 // used when current command buffer/command list is completed
-void GrRingBuffer::finishSubmit(const GrRingBuffer::SubmitData& submitData) {
-    if (submitData.fGenID == fGenID) {
-        fTail = submitData.fLastHead;
+void GrRingBuffer::FinishSubmit(void* finishedContext) {
+    GrRingBuffer::SubmitData* submitData = (GrRingBuffer::SubmitData*)finishedContext;
+    if (submitData && submitData->fOwner && submitData->fGenID == submitData->fOwner->fGenID) {
+        submitData->fOwner->fTail = submitData->fLastHead;
+        submitData->fOwner = nullptr;
     }
+    delete submitData;
 }

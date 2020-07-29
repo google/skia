@@ -54,7 +54,7 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
 void GrStagingBufferManager::detachBuffers() {
     for (size_t i = 0; i < fBuffers.size(); ++i) {
         fBuffers[i].fBuffer->unmap();
-        fGpu->takeOwnershipOfStagingBuffer(std::move(fBuffers[i].fBuffer));
+        fGpu->takeOwnershipOfBuffer(std::move(fBuffers[i].fBuffer));
     }
     fBuffers.clear();
 }
