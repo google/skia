@@ -257,17 +257,18 @@ protected:
             return false;
         }
         fImage = SkImage::MakeFromGenerator(std::move(gen));
+        SkASSERT(fImage->dimensions() == SkISize::Make(100, 100));
 
         const SkIRect subset = SkIRect::MakeLTRB(50, 50, 100, 100);
-
         gen = fFactory(dContext, fPicture);
         if (!gen) {
             return false;
         }
-        fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset);
-
-        SkASSERT(fImage->dimensions() == SkISize::Make(100, 100));
-        SkASSERT(fImageSubset->dimensions() == SkISize::Make(50, 50));
+        fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset,
+                                                                              dContext);
+        if (fImageSubset) {
+            SkASSERT(fImageSubset->dimensions() == SkISize::Make(50, 50));
+        }
         return true;
     }
 
