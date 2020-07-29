@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fad843e8_a56c5ada",
+        "filename": "infra/bots/task_drivers/g3_canary/g3_canary.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-29T16:54:35Z",
+      "side": 1,
+      "message": "The storage API was not returning storage.ErrObjectNotExist because of the client/transport.",
+      "revId": "c5b04330abcbe46bda6723380115fd5c39ba6fb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
