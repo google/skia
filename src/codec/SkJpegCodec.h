@@ -44,6 +44,9 @@ protected:
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
             int*) override;
 
+    bool onGetYUVASpec(SkYUVASpec* spec) const override;
+    Result onGetYUVAPlanes(SkBitmap bmps[4]) override;
+
     bool onQueryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
 
     Result onGetYUV8Planes(const SkYUVASizeInfo& sizeInfo,

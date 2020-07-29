@@ -24,6 +24,7 @@
 
 #include <vector>
 
+class SkBitmap;
 class SkColorSpace;
 class SkData;
 class SkFrameHolder;
@@ -379,6 +380,27 @@ public:
     Result getPixels(const SkPixmap& pm, const Options* opts = nullptr) {
         return this->getPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), opts);
     }
+
+    /**
+     * If decoding to YUV[A] is supported, this returns true and updates spec to be a specification
+     * of the planar layout and YUV->RGB transformation. If YUV[A] decoding is not supported then
+     * returns false.
+     */
+    bool getYUVASpec(SkYUVASpec* spec) const {
+        if (!spec) {
+            return false;
+        }
+        return this->onGetYUVASpec(spec);
+    }
+
+    /**
+     *  Returns kSuccess, or another value explaining the type of failure. The passed in bitmaps
+     *  are passed in default initialized. The implementation should set their image info,
+     *  allocate, and populate the bitmaps with the planar data. The color types and dimensions of
+     *  the bitmaps should agree with accordance with getYUVASpec(), getDimensions(),
+     *  and getOrigin().
+     */
+    Result getYUVAPlanes(SkBitmap planes[4]);
 
     /**
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
@@ -775,6 +797,9 @@ protected:
                                    void*[SkYUVASizeInfo::kMaxCount] /*planes*/) {
         return kUnimplemented;
     }
+
+    virtual bool onGetYUVASpec(SkYUVASpec* spec) const { return false; }
+    virtual Result onGetYUVAPlanes(SkBitmap bmps[4]) { return kUnimplemented; }
 
     virtual bool onGetValidSubset(SkIRect* /*desiredSubset*/) const {
         // By default, subsets are not supported.
