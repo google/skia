@@ -8,9 +8,10 @@
 #include "tools/gpu/YUVUtils.h"
 
 #include "include/core/SkData.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 
 namespace sk_gpu_test {
 
@@ -23,16 +24,16 @@ std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(sk_sp<SkData> data) {
     }
 }
 
-sk_sp<SkImage> LazyYUVImage::refImage(GrContext* context) {
-    if (this->ensureYUVImage(context)) {
+sk_sp<SkImage> LazyYUVImage::refImage(GrRecordingContext* rContext) {
+    if (this->ensureYUVImage(rContext)) {
         return fYUVImage;
     } else {
         return nullptr;
     }
 }
 
-const SkImage* LazyYUVImage::getImage(GrContext* context) {
-    if (this->ensureYUVImage(context)) {
+const SkImage* LazyYUVImage::getImage(GrRecordingContext* rContext) {
+    if (this->ensureYUVImage(rContext)) {
         return fYUVImage.get();
     } else {
         return nullptr;
@@ -71,17 +72,22 @@ bool LazyYUVImage::reset(sk_sp<SkData> data) {
     return true;
 }
 
-bool LazyYUVImage::ensureYUVImage(GrContext* context) {
-    if (!context) {
+bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext) {
+    if (!rContext) {
         return false; // Cannot make a YUV image from planes
     }
-    if (context->priv().contextID() == fOwningContextID) {
-        return fYUVImage != nullptr; // Have already made a YUV image (or tried and failed)
+    if (fYUVImage && fYUVImage->isValid(rContext)) {
+        return true; // Have already made a YUV image valid for this context.
     }
-    // Must make a new YUV image
-    fYUVImage = SkImage::MakeFromYUVAPixmaps(context, fColorSpace, fPlanes, fComponents,
-            fSizeInfo.fSizes[0], kTopLeft_GrSurfaceOrigin, false, false);
-    fOwningContextID = context->priv().contextID();
+    // Try to make a new YUV image for this context.
+    fYUVImage = SkImage::MakeFromYUVAPixmaps(rContext->priv().backdoor(),
+                                             fColorSpace,
+                                             fPlanes,
+                                             fComponents,
+                                             fSizeInfo.fSizes[0],
+                                             kTopLeft_GrSurfaceOrigin,
+                                             false,
+                                             false);
     return fYUVImage != nullptr;
 }
 

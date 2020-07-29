@@ -19,11 +19,12 @@
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"
+#include "tools/gpu/YUVUtils.h"
 
 static constexpr int kScale = 10;
 static constexpr SkISize kImageDim = {5, 5};
 
-static sk_sp<SkImage> make_image(GrContext* context) {
+static sk_sp<SkImage> make_image(GrRecordingContext* rContext) {
     // Generate a small jpeg with odd dimensions.
     SkBitmap bmp;
     bmp.allocPixels(SkImageInfo::Make(kImageDim, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
@@ -44,43 +45,25 @@ static sk_sp<SkImage> make_image(GrContext* context) {
     if (!SkJpegEncoder::Encode(&stream, bmp.pixmap(), options)) {
         return nullptr;
     }
-    auto image = SkImage::MakeFromEncoded(stream.detachAsData());
-    if (!context) {
-        return image;
-    }
-    SkYUVASizeInfo info;
-    SkYUVAIndex indices[4];
-    SkYUVColorSpace cs;
-    const void* planes[4];
-    if (!as_IB(image)->getPlanes(&info, indices, &cs, planes)) {
+    auto imageHelper = sk_gpu_test::LazyYUVImage::Make(stream.detachAsData());
+    if (!imageHelper) {
         return nullptr;
     }
-    SkPixmap pixmaps[4];
-#ifdef SK_DEBUG
-    static constexpr SkISize kUVDim = {kImageDim.width() / 2 + 1, kImageDim.height() / 2 + 1};
-#endif
-    SkASSERT(info.fSizes[0] == kImageDim);
-    SkASSERT(info.fSizes[1] == kUVDim);
-    SkASSERT(info.fSizes[2] == kUVDim);
-    for (int i = 0; i < 4; ++i) {
-        if (!info.fSizes[i].isZero()) {
-            pixmaps[i].reset(SkImageInfo::MakeA8(info.fSizes[i]), planes[i], info.fWidthBytes[i]);
-        }
-    }
-    return SkImage::MakeFromYUVAPixmaps(context, cs, pixmaps, indices, image->dimensions(),
-                                        kTopLeft_GrSurfaceOrigin, false);
+    return imageHelper->refImage(rContext);
 }
 
 // This GM tests that the YUVA image code path in the GPU backend handles odd sized images with
 // 420 chroma subsampling correctly.
 DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim, canvas, errMsg,
                        kScale* kImageDim.width(), kScale* kImageDim.height()) {
-    auto image = make_image(canvas->getGrContext());
+    auto rContext = canvas->recordingContext();
+    if (!rContext) {
+        // This GM exists to exercise GPU planar images.
+        return skiagm::DrawResult::kSkip;
+    }
+    auto image = make_image(rContext);
     if (!image) {
-        if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
-            return skiagm::DrawResult::kOk;
-        }
-        return skiagm::DrawResult::kFail;
+        return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
     }
     // We draw the image offscreen and then blow it up using nearest filtering by kScale.
     // This avoids skbug.com/9693
