@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "f77c9c00_11aed823",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-29T17:01:45Z",
+      "side": 1,
+      "message": "LGTM but I think it would be good to have Rob\u0027s eyes on it too.",
+      "revId": "3fbf55bbf0f6fae772de49325544e1cda8a872cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "990179f4_4feb1bd2",
         "filename": "gm/ducky_yuv_blend.cpp",
         "patchSetId": 4
@@ -122,6 +139,30 @@
       "revId": "3fbf55bbf0f6fae772de49325544e1cda8a872cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdd79139_ad69ccc5",
+        "filename": "tools/gpu/YUVUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-07-29T17:01:45Z",
+      "side": 1,
+      "message": "I think both of those two points hold up, but we should be careful about the first point. The instantiation state is changing on the GPU thread so on a recording thread we shouldn\u0027t observe it.\n\nI like your thought to use isValid and then we put the right logic in there.",
+      "parentUuid": "4361e5f3_4ae6b695",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 30
+      },
+      "revId": "3fbf55bbf0f6fae772de49325544e1cda8a872cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
