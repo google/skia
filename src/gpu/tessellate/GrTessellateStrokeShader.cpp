@@ -109,14 +109,14 @@ SkString GrTessellateStrokeShader::getTessControlShaderGLSL(
                                                               abs(P[3] - P[2]*2.0 + P[1]))));
 
                 // A patch can override the number of segments it gets chopped into by passing a
-                // negative value as P[4].x. (Square caps do this to only draw one segment.)
-                if (P[4].x < 0) {
-                    numSegments = -P[4].x;
+                // positive value as P[4].x.
+                if (P[4].x > 0) {
+                    numSegments = P[4].x;
                 }
 
-                // A positive value in P[4].x means this patch actually represents a join instead
+                // A negative value in P[4].x means this patch actually represents a join instead
                 // of a stroked cubic. Joins are implemented as radial fans from the junction point.
-                if (P[4].x > 0) {
+                if (P[4].x < 0) {
                     // Start by finding the angle between the tangents coming in and out of the
                     // join.
                     vec2 c0 = P[1] - P[0];
@@ -127,10 +127,10 @@ SkString GrTessellateStrokeShader::getTessControlShaderGLSL(
                     fanAngles[gl_InvocationID /*== 0*/] = atan(c0.y, c0.x) + vec2(0, theta);
 
                     float joinType = P[4].x;
-                    if (joinType >= 3) {
+                    if (joinType <= -3) {
                         // Round join. Decide how many fan segments we need in order to be smooth.
                         numSegments = abs(theta) / (2 * acos(1 - kTolerance/strokeRadius));
-                    } else if (joinType == 2) {
+                    } else if (joinType == -2) {
                         // Miter join. Draw a fan with 2 segments and lengthen the interior radius
                         // so it matches the miter point.
                         // (Or draw a 1-segment fan if we exceed the miter limit.)
@@ -155,7 +155,7 @@ SkString GrTessellateStrokeShader::getTessControlShaderGLSL(
                         // is fine because we will only draw one segment with vertices at T=0 and
                         // T=1, and the shader won't use fanAngles on the two outer vertices.
                         fanAngles[gl_InvocationID /*== 0*/] = vec2(1, 0);
-                    } else if (joinType != 4) {
+                    } else if (joinType != -4) {
                         // This is a standard join. Restrict it to the outside of the junction.
                         outsetClamp[gl_InvocationID /*== 0*/] = mix(
                                 vec2(-1, 1), vec2(0), lessThan(vec2(-theta, theta), vec2(0)));

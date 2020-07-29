@@ -38,10 +38,10 @@ class GrGLSLUniformHandler;
 // tessellationPatchVertexCount of 5.
 class GrTessellateStrokeShader : public GrPathShader {
 public:
-    constexpr static float kBevelJoinType = 1;
-    constexpr static float kMiterJoinType = 2;
-    constexpr static float kRoundJoinType = 3;
-    constexpr static float kInternalRoundJoinType = 4;
+    constexpr static float kBevelJoinType = -1;
+    constexpr static float kMiterJoinType = -2;
+    constexpr static float kRoundJoinType = -3;
+    constexpr static float kInternalRoundJoinType = -4;
 
     constexpr static int kNumVerticesPerPatch = 5;
 

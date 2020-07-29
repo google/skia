@@ -84,7 +84,7 @@ void GrStrokePatchBuilder::writeCubicSegment(float leftJoinType, const SkPoint p
 
     if (SkPoint* patch = this->reservePatch()) {
         memcpy(patch, pts, sizeof(SkPoint) * 4);
-        patch[4].set(-overrideNumSegments, fCurrStrokeRadius);
+        patch[4].set(overrideNumSegments, fCurrStrokeRadius);
     }
 
     fLastControlPoint = c2;
@@ -117,7 +117,7 @@ void GrStrokePatchBuilder::writeSquareCap(const SkPoint& endPoint, const SkPoint
         // T=.5, and we need to ensure that point stays inside the cap.
         capPatch[2] = endPoint + capPoint - controlPoint;
         capPatch[3] = capPoint;
-        capPatch[4].set(-1, fCurrStrokeRadius);
+        capPatch[4].set(1, fCurrStrokeRadius);
     }
 }
 
@@ -136,9 +136,10 @@ void GrStrokePatchBuilder::writeCaps() {
             break;
         case SkPaint::kRound_Cap:
             // A round cap is the same thing as a 180-degree round join.
-            this->writeJoin(3, fCurrContourStartPoint, fCurrContourFirstControlPoint,
-                            fCurrContourFirstControlPoint);
-            this->writeJoin(3, fCurrentPoint, fLastControlPoint, fLastControlPoint);
+            this->writeJoin(GrTessellateStrokeShader::kRoundJoinType, fCurrContourStartPoint,
+                            fCurrContourFirstControlPoint, fCurrContourFirstControlPoint);
+            this->writeJoin(GrTessellateStrokeShader::kRoundJoinType, fCurrentPoint,
+                            fLastControlPoint, fLastControlPoint);
             break;
         case SkPaint::kSquare_Cap:
             this->writeSquareCap(fCurrContourStartPoint, fCurrContourFirstControlPoint);
