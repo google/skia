@@ -18,6 +18,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/core/SkYUVASpec.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
@@ -381,6 +382,24 @@ public:
     }
 
     /**
+     * If decoding to YUV[A] is supported, this returns true and updates spec to be a specification
+     * of the planar layout and YUV->RGB transformation. If YUV[A] decoding is not supported then
+     * returns false.
+     */
+    bool queryYUVASpec(SkYUVASpec* spec,
+                       SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                       size_t rowBytes[SkYUVASpec::kMaxPlanes]) const;
+
+    /**
+     *  Returns kSuccess, or another value explaining the type of failure. The passed in pixmaps
+     *  are allocated using the color types, row bytes, implied plane sizes, and origin indicated
+     *  by queryYUVASpec(). This function fills in the pixmap data.
+     */
+    Result getYUVAPlanes(const SkPixmap planes[SkYUVASpec::kMaxPlanes]);
+
+    /**
+     *  Deprecated. Use queryYUVASpec instead for more structured YUVA plane specification.
+     *
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
      *  returns false and does not modify any of the parameters.
      *
@@ -410,6 +429,8 @@ public:
     }
 
     /**
+     *  Deprecated. Use getYUVAPlanes instead for more structured YUVA plane retrieval.
+     *
      *  Returns kSuccess, or another value explaining the type of failure.
      *  This always attempts to perform a full decode.  If the client only
      *  wants size, it should call queryYUV8().
@@ -773,6 +794,16 @@ protected:
 
     virtual Result onGetYUV8Planes(const SkYUVASizeInfo&,
                                    void*[SkYUVASizeInfo::kMaxCount] /*planes*/) {
+        return kUnimplemented;
+    }
+
+    virtual bool onGetYUVASpec(SkYUVASpec* spec,
+                               SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                               size_t rowbytes[SkYUVASpec::kMaxPlanes]) const {
+        return false;
+    }
+
+    virtual Result onGetYUVAPlanes(const SkPixmap planes[SkYUVASpec::kMaxPlanes]) {
         return kUnimplemented;
     }
 
