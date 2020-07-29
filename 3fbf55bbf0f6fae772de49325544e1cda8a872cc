@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f0b96e75_7e5ecb9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-29T14:28:48Z",
+      "side": 1,
+      "message": "The motivation for this is that I want to start to rethink how we spec YUV planar data and this removes layer of a usage of the current planar specification that is only used for testing.",
+      "revId": "3fbf55bbf0f6fae772de49325544e1cda8a872cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d00c815b_e4972819",
         "filename": "tools/gpu/YUVUtils.cpp",
         "patchSetId": 4
