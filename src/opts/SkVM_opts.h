@@ -96,7 +96,6 @@ namespace SK_OPTS_NS {
                     STRIDE_K(Op::store64): (skvx::cast<uint64_t>(r[x].u32) << 0 |
                                             skvx::cast<uint64_t>(r[y].u32) << 32).store(args[immz]);
                                            break;
-
                     STRIDE_1(Op::load8 ): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 1); break;
                     STRIDE_1(Op::load16): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 2); break;
                     STRIDE_1(Op::load32): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 4); break;
@@ -162,6 +161,39 @@ namespace SK_OPTS_NS {
 
                     // Ops that don't interact with memory should never care about the stride.
                 #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
+
+                    // These 128-bit ops are implemented serially for simplicity.
+                    CASE(Op::store128_lo):
+                        for (int i = 0; i < stride; i++) {
+                            memcpy((char*)args[immz] + 16*i+0, &r[x].i32[i], 4);
+                            memcpy((char*)args[immz] + 16*i+4, &r[y].i32[i], 4);
+                        } break;
+                    CASE(Op::store128_hi):
+                        for (int i = 0; i < stride; i++) {
+                            memcpy((char*)args[immz] + 16*i+ 8, &r[x].i32[i], 4);
+                            memcpy((char*)args[immz] + 16*i+12, &r[y].i32[i], 4);
+                        } break;
+
+                    CASE(Op::load128_r):
+                        r[d].i32 = 0;
+                        for (int i = 0; i < stride; i++) {
+                            memcpy(&r[d].i32[i], (const char*)args[immy] + 16*i+ 0, 4);
+                        } break;
+                    CASE(Op::load128_g):
+                        r[d].i32 = 0;
+                        for (int i = 0; i < stride; i++) {
+                            memcpy(&r[d].i32[i], (const char*)args[immy] + 16*i+ 4, 4);
+                        } break;
+                    CASE(Op::load128_b):
+                        r[d].i32 = 0;
+                        for (int i = 0; i < stride; i++) {
+                            memcpy(&r[d].i32[i], (const char*)args[immy] + 16*i+ 8, 4);
+                        } break;
+                    CASE(Op::load128_a):
+                        r[d].i32 = 0;
+                        for (int i = 0; i < stride; i++) {
+                            memcpy(&r[d].i32[i], (const char*)args[immy] + 16*i+12, 4);
+                        } break;
 
                     CASE(Op::assert_true):
                     #ifdef SK_DEBUG
