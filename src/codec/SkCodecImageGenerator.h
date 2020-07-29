@@ -98,6 +98,12 @@ protected:
                      size_t rowBytes,
                      const Options& opts) override;
 
+    bool onQueryYUVASpec(SkYUVASpec* spec,
+                         SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                         size_t rowbytes[SkYUVASpec::kMaxPlanes]) const override;
+
+    bool onGetYUVAPlanes(const SkPixmap pixmaps[SkYUVASpec::kMaxPlanes]) override;
+
     bool onQueryYUVA8(SkYUVASizeInfo*,
                       SkYUVAIndex[SkYUVAIndex::kIndexCount],
                       SkYUVColorSpace*) const override;
