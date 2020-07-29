@@ -44,9 +44,12 @@ half value;
     value = dot(bits, half4(0.5, 0.25, 0.125, 0.0625)) - 0.46875;
 }
 %s = half4(clamp(color.xyz + value * %s, 0.0, color.w), color.w);
+half _tmpSwizzle0;
+%s = half4(_tmpSwizzle0 = color.x, _tmpSwizzle0, _tmpSwizzle0, 1);
+
 )SkSL",
                 _sample302.c_str(), args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(rangeVar));
+                args.fUniformHandler->getUniformCStr(rangeVar), args.fOutputColor);
     }
 
 private:

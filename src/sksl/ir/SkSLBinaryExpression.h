@@ -12,9 +12,37 @@
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
 
 namespace SkSL {
+
+static bool check_ref(Expression* expr) {
+    switch (expr->fKind) {
+        case Expression::kExternalValue_Kind:
+            return true;
+        case Expression::kFieldAccess_Kind:
+            return check_ref(((FieldAccess*) expr)->fBase.get());
+        case Expression::kIndex_Kind:
+            return check_ref(((IndexExpression*) expr)->fBase.get());
+        case Expression::kSwizzle_Kind:
+            return check_ref(((Swizzle*) expr)->fBase.get());
+        case Expression::kTernary_Kind: {
+            TernaryExpression* t = (TernaryExpression*) expr;
+            return check_ref(t->fIfTrue.get()) && check_ref(t->fIfFalse.get());
+        }
+        case Expression::kVariableReference_Kind: {
+            VariableReference* ref = (VariableReference*) expr;
+            return ref->fRefKind == VariableReference::kWrite_RefKind ||
+                   ref->fRefKind == VariableReference::kReadWrite_RefKind;
+        }
+        default:
+            printf("%s\n", expr->description().c_str());
+            return false;
+    }
+}
 
 /**
  * A binary operation.
@@ -25,7 +53,9 @@ struct BinaryExpression : public Expression {
     : INHERITED(offset, kBinary_Kind, type)
     , fLeft(std::move(left))
     , fOperator(op)
-    , fRight(std::move(right)) {}
+    , fRight(std::move(right)) {
+        SkASSERT(!Compiler::IsAssignment(op) || check_ref(fLeft.get()));
+    }
 
     bool isConstantOrUniform() const override {
         return fLeft->isConstantOrUniform() && fRight->isConstantOrUniform();
