@@ -142,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "9a0e198d_a93a763a",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-29T19:57:56Z",
+      "side": 1,
+      "message": "Done. Added a static variable kCanvasSize",
+      "parentUuid": "51303eb6_79bcb81d",
+      "range": {
+        "startLine": 21,
+        "startChar": 34,
+        "endLine": 21,
+        "endChar": 74
+      },
+      "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6468f0a7_931862fe",
         "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
         "patchSetId": 2

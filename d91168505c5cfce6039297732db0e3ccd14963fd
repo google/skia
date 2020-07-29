@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32a3cccb_8a6c3de9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-29T19:57:56Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look.\nThe speed is around 600/sec",
+      "revId": "d91168505c5cfce6039297732db0e3ccd14963fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
