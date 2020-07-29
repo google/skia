@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7c529d3_c8d2c875",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-29T20:15:49Z",
+      "side": 1,
+      "message": "lgtm, same q as the other: should be fine in the end state on image context, right?",
+      "revId": "ba7e6b0db970c1f55adcd4b1c21c5a1fc9839ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
