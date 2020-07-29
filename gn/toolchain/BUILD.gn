@@ -201,7 +201,7 @@ toolchain("msvc") {
 
   tool("copy") {
     cp_py = rebase_path("../cp.py")
-    command = "python \"$cp_py\" {{source}} {{output}}"
+    command = "$shell python \"$cp_py\" {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }
