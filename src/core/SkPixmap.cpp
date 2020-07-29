@@ -567,7 +567,7 @@ static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, SkEncoded
     SkBitmap bm;
     bm.installPixels(src);
 
-    SkMatrix m = SkEncodedOriginToMatrix(origin, src.width(), src.height());
+    SkMatrix m = SkEncodedOriginToMatrix(origin, dst.width(), dst.height());
 
     SkPaint p;
     p.setBlendMode(SkBlendMode::kSrc);

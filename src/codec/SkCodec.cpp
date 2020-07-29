@@ -167,6 +167,13 @@ SkCodec::SkCodec(SkEncodedInfo&& info, XformFormat srcFormat, std::unique_ptr<Sk
 
 SkCodec::~SkCodec() {}
 
+SkCodec::Result SkCodec::getYUVAPlanes(SkBitmap planes[4]) {
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
+    }
+    return this->onGetYUVAPlanes(planes);
+}
+
 bool SkCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque, bool needsColorXform) {
     if (!valid_alpha(dst.alphaType(), srcIsOpaque)) {
         return false;

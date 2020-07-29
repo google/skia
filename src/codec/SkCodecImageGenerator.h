@@ -90,6 +90,9 @@ public:
      */
     int getRepetitionCount() { return fCodec->getRepetitionCount(); }
 
+    bool getYUVASpec(SkYUVASpec* spec) const override;
+    bool getYUVAPlanes(SkBitmap bmps[4]) override;
+
 protected:
     sk_sp<SkData> onRefEncodedData() override;
 

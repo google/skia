@@ -253,16 +253,79 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> gene
 
 #if SK_SUPPORT_GPU
 
+static bool init_legacy_yuv_info(SkYUVASpec spec,
+                                 SkISize imageDims,
+                                 const SkBitmap planes[4],
+                                 SkYUVASizeInfo* yuvaSizeInfo,
+                                 SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount]) {
+    bool ok = true;
+    auto getIthChannel = [&ok](SkColorType ct, int idx) -> SkColorChannel {
+        int cnt = 0;
+        switch (SkColorTypeChannelFlags(ct)) {
+            case kAlpha_SkColorChannelFlag:
+                ok |= idx == 0;
+                return SkColorChannel::kA;
+            case kGray_SkColorChannelFlag:
+            case kRed_SkColorChannelFlag:
+                cnt += 1;
+                [[fallthrough]];
+            case kRG_SkColorChannelFlags:
+                cnt += 1;
+                [[fallthrough]];
+            case kRGB_SkColorChannelFlags:
+                cnt += 1;
+                [[fallthrough]];
+            case kRGBA_SkColorChannelFlags:
+                cnt += 1;
+                ok |= idx < cnt;
+                return static_cast<SkColorChannel>(idx);
+            default:
+                ok = false;
+                return SkColorChannel::kR;
+        }
+    };
+    SkColorType cts[] = {planes[0].colorType(), planes[1].colorType(), planes[2].colorType(),
+                         planes[3].colorType()};
+    switch (spec.fPlanes) {
+        case SkYUVASpec::Planes::kY_U_V_444:
+        case SkYUVASpec::Planes::kY_U_V_422:
+        case SkYUVASpec::Planes::kY_U_V_420:
+        case SkYUVASpec::Planes::kY_U_V_440:
+        case SkYUVASpec::Planes::kY_U_V_411:
+        case SkYUVASpec::Planes::kY_U_V_410:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex   = 0;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex   = 1;
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex   = 2;
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[2], 0);
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex   = -1;
+            break;
+    }
+    if (!ok) {
+        return false;
+    }
+    yuvaSizeInfo->fOrigin = spec.fOrigin;
+    SkISize expectedDims[4];
+    int n = spec.expectedPlaneDims(imageDims, expectedDims);
+    for (int i = 0; i < n; ++i) {
+        yuvaSizeInfo->fSizes[i] = planes[i].dimensions();
+        yuvaSizeInfo->fWidthBytes[i] = planes[i].rowBytes();
+        if (planes[i].dimensions() != expectedDims[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* ctx,
                                                             SkBudgeted budgeted) const {
     SkYUVASizeInfo yuvSizeInfo;
     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
-    const void* planes[SkYUVASizeInfo::kMaxCount];
+    SkBitmap planes[SkYUVASizeInfo::kMaxCount];
 
-    sk_sp<SkCachedData> dataStorage =
-            this->getPlanes(&yuvSizeInfo, yuvaIndices, &yuvColorSpace, planes);
-    if (!dataStorage) {
+    if (!this->getPlanes(&yuvSizeInfo, yuvaIndices, &yuvColorSpace, planes)) {
         return {};
     }
 
@@ -283,28 +346,7 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
                 (componentHeight != yuvSizeInfo.fSizes[0].fHeight)
                 ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
-        SkImageInfo imageInfo = SkImageInfo::MakeA8(componentWidth, componentHeight);
-        SkCachedData* dataStoragePtr = dataStorage.get();
-        // We grab a ref to cached yuv data. When the SkBitmap we create below goes away it will
-        // call the YUVGen_DataReleaseProc which will release this ref.
-        // DDL TODO: Currently we end up creating a lazy proxy that will hold onto a ref to the
-        // SkImage in its lambda. This means that we'll keep the ref on the YUV data around for the
-        // life time of the proxy and not just upload. For non-DDL draws we should look into
-        // releasing this SkImage after uploads (by deleting the lambda after instantiation).
-        dataStoragePtr->ref();
-        SkBitmap bitmap;
-        auto releaseProc = [](void*, void* data) {
-            SkCachedData* cachedData = static_cast<SkCachedData*>(data);
-            SkASSERT(cachedData);
-            cachedData->unref();
-        };
-
-        SkAssertResult(bitmap.installPixels(imageInfo, const_cast<void*>(planes[i]),
-                                            yuvSizeInfo.fWidthBytes[i], releaseProc,
-                                            dataStoragePtr));
-        bitmap.setImmutable();
-
-        GrBitmapTextureMaker maker(ctx, bitmap, fit);
+        GrBitmapTextureMaker maker(ctx, planes[i], fit);
         yuvViews[i] = maker.view(GrMipmapped::kNo);
 
         if (!yuvViews[i]) {
@@ -348,89 +390,37 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
     paint.setColorFragmentProcessor(std::move(colorConversionProcessor));
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    const SkRect r = SkRect::MakeIWH(yuvSizeInfo.fSizes[0].fWidth, yuvSizeInfo.fSizes[0].fHeight);
+    const SkRect r = SkRect::Make(this->dimensions());
 
-    SkMatrix m = SkEncodedOriginToMatrix(yuvSizeInfo.fOrigin, r.width(), r.height());
+    SkMatrix m = SkEncodedOriginToMatrix(yuvSizeInfo.fOrigin, this->width(), this->height());
     renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, m, r);
 
     SkASSERT(renderTargetContext->asTextureProxy());
     return renderTargetContext->readSurfaceView();
 }
 
-sk_sp<SkCachedData> SkImage_Lazy::getPlanes(
-        SkYUVASizeInfo* yuvaSizeInfo,
-        SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-        SkYUVColorSpace* yuvColorSpace,
-        const void* outPlanes[SkYUVASizeInfo::kMaxCount]) const {
+bool SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
+                             SkYUVAIndex yuvaIndices[4],
+                             SkYUVColorSpace* yuvColorSpace,
+                             SkBitmap planes[4]) const {
     ScopedGenerator generator(fSharedGenerator);
-
-    sk_sp<SkCachedData> data;
-    SkYUVPlanesCache::Info yuvInfo;
-    data.reset(SkYUVPlanesCache::FindAndRef(generator->uniqueID(), &yuvInfo));
-
-    void* planes[SkYUVASizeInfo::kMaxCount];
-
-    if (data.get()) {
-        planes[0] = (void*)data->data();  // we should always have at least one plane
-
-        for (int i = 1; i < SkYUVASizeInfo::kMaxCount; ++i) {
-            if (!yuvInfo.fSizeInfo.fWidthBytes[i]) {
-                SkASSERT(!yuvInfo.fSizeInfo.fWidthBytes[i] && !yuvInfo.fSizeInfo.fSizes[i].fHeight);
-                planes[i] = nullptr;
-                continue;
-            }
-
-            planes[i] = (uint8_t*)planes[i - 1] + (yuvInfo.fSizeInfo.fWidthBytes[i - 1] *
-                                                   yuvInfo.fSizeInfo.fSizes[i - 1].fHeight);
-        }
-    } else {
-        // Fetch yuv plane sizes for memory allocation.
-        if (!generator->queryYUVA8(&yuvInfo.fSizeInfo, yuvInfo.fYUVAIndices,
-                                   &yuvInfo.fColorSpace)) {
-            return nullptr;
-        }
-
-        // Allocate the memory for YUVA
-        size_t totalSize(0);
-        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; i++) {
-            SkASSERT((yuvInfo.fSizeInfo.fWidthBytes[i] && yuvInfo.fSizeInfo.fSizes[i].fHeight) ||
-                     (!yuvInfo.fSizeInfo.fWidthBytes[i] && !yuvInfo.fSizeInfo.fSizes[i].fHeight));
-
-            totalSize += yuvInfo.fSizeInfo.fWidthBytes[i] * yuvInfo.fSizeInfo.fSizes[i].fHeight;
-        }
-
-        data.reset(SkResourceCache::NewCachedData(totalSize));
-
-        planes[0] = data->writable_data();
-
-        for (int i = 1; i < SkYUVASizeInfo::kMaxCount; ++i) {
-            if (!yuvInfo.fSizeInfo.fWidthBytes[i]) {
-                SkASSERT(!yuvInfo.fSizeInfo.fWidthBytes[i] && !yuvInfo.fSizeInfo.fSizes[i].fHeight);
-                planes[i] = nullptr;
-                continue;
-            }
-
-            planes[i] = (uint8_t*)planes[i-1] + (yuvInfo.fSizeInfo.fWidthBytes[i-1] *
-                                                 yuvInfo.fSizeInfo.fSizes[i-1].fHeight);
-        }
-
-        // Get the YUV planes.
-        if (!generator->getYUVA8Planes(yuvInfo.fSizeInfo, yuvInfo.fYUVAIndices, planes)) {
-            return nullptr;
-        }
-
-        // Decoding is done, cache the resulting YUV planes
-        SkYUVPlanesCache::Add(this->uniqueID(), data.get(), &yuvInfo);
+    if (SkYUVASpec spec; generator->getYUVASpec(&spec) && generator->getYUVAPlanes(planes)) {
+        *yuvColorSpace = spec.fYUVColorSpace;
+        return init_legacy_yuv_info(spec, this->dimensions(), planes, yuvaSizeInfo, yuvaIndices);
     }
-
-    *yuvaSizeInfo = yuvInfo.fSizeInfo;
-    memcpy(yuvaIndices, yuvInfo.fYUVAIndices, sizeof(yuvInfo.fYUVAIndices));
-    *yuvColorSpace = yuvInfo.fColorSpace;
-    outPlanes[0] = planes[0];
-    outPlanes[1] = planes[1];
-    outPlanes[2] = planes[2];
-    outPlanes[3] = planes[3];
-    return data;
+    // Legacy path
+    if (!generator->queryYUVA8(yuvaSizeInfo, yuvaIndices, yuvColorSpace)) {
+        return false;
+    }
+    void* ptrs[4] = {};
+    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
+        if (!yuvaSizeInfo->fSizes[i].isEmpty()) {
+            planes[i].allocPixels(SkImageInfo::MakeA8(yuvaSizeInfo->fSizes[i]),
+                                  yuvaSizeInfo->fWidthBytes[i]);
+            ptrs[i] = planes[i].getPixels();
+        }
+    }
+    return generator->getYUVA8Planes(*yuvaSizeInfo, yuvaIndices, ptrs);
 }
 
 /*

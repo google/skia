@@ -14,6 +14,7 @@
 #include "src/image/SkImage_Base.h"
 
 #if SK_SUPPORT_GPU
+#include "include/core/SkYUVASizeInfo.h"
 #include "src/gpu/GrTextureMaker.h"
 #endif
 
@@ -66,10 +67,10 @@ public:
 private:
     void addUniqueIDListener(sk_sp<SkIDChangeListener>) const;
 #if SK_SUPPORT_GPU
-    sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*,
-                                  SkYUVAIndex[4],
-                                  SkYUVColorSpace*,
-                                  const void* planes[4]) const;
+    bool getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
+                   SkYUVAIndex yuvaIndices[4],
+                   SkYUVColorSpace* yuvColorSpace,
+                   SkBitmap planes[4]) const;
     GrSurfaceProxyView textureProxyViewFromPlanes(GrRecordingContext*, SkBudgeted) const;
 #endif
 
