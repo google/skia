@@ -42,6 +42,21 @@ SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec, sk_
     , fData(std::move(data))
 {}
 
+bool SkCodecImageGenerator::getYUVASpec(SkYUVASpec* spec) const {
+    return fCodec->getYUVASpec(spec);
+}
+
+bool SkCodecImageGenerator::getYUVAPlanes(SkBitmap bmps[4]) {
+    switch (fCodec->getYUVAPlanes(bmps)) {
+        case SkCodec::kSuccess:
+        case SkCodec::kIncompleteInput:
+        case SkCodec::kErrorInInput:
+            return true;
+        default:
+            return false;
+    }
+}
+
 sk_sp<SkData> SkCodecImageGenerator::onRefEncodedData() {
     return fData;
 }

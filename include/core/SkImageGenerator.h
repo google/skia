@@ -105,6 +105,9 @@ public:
                     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                     SkYUVColorSpace* colorSpace) const;
 
+    virtual bool getYUVASpec(SkYUVASpec* spec) const { return false; }
+    virtual bool getYUVAPlanes(SkBitmap bmps[4]) { return false; }
+
     /**
      *  Returns true on success and false on failure.
      *  This always attempts to perform a full decode.  If the client only
