@@ -561,9 +561,8 @@ bool GrDawnGpu::onCopySurface(GrSurface* dst,
     return true;
 }
 
-static void callback(WGPUBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
-                     void* userdata) {
-    (*reinterpret_cast<const void**>(userdata)) = data;
+static void callback(WGPUBufferMapAsyncStatus status, void* userdata) {
+    *static_cast<bool*>(userdata) = true;
 }
 
 bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
@@ -600,11 +599,12 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
     this->submitToGpu(true);
 
-    const void *readPixelsPtr = nullptr;
-    buf.MapReadAsync(callback, &readPixelsPtr);
-    while (!readPixelsPtr) {
+    bool mapped = false;
+    buf.MapAsync(wgpu::MapMode::Read, 0, 0, callback, &mapped);
+    while (!mapped) {
         device().Tick();
     }
+    const void* readPixelsPtr = buf.GetConstMappedRange();
 
     if (rowBytes == origRowBytes) {
         memcpy(buffer, readPixelsPtr, origSizeInBytes);
