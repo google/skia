@@ -22,6 +22,10 @@
 #include "src/gpu/gl/GrGLTexture.h"
 #include "src/utils/SkJSONWriter.h"
 
+#if defined(SK_BUILD_FOR_IOS)
+#include <TargetConditionals.h>
+#endif
+
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLContextInfo& ctxInfo,
                    const GrGLInterface* glInterface) : INHERITED(contextOptions) {
@@ -3148,7 +3152,7 @@ void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInter
                     // returned by GL so that the array is ascending.
                     fFormatTable[i].fColorSampleCounts[0] = 1;
                     for (int j = 0; j < count; ++j) {
-#if TARGET_OS_SIMULATOR
+#if defined(SK_BUILD_FOR_IOS) && TARGET_OS_SIMULATOR
                         // The iOS simulator is reporting incorrect values for sample counts,
                         // so force them to be a power of 2.
                         fFormatTable[i].fColorSampleCounts[j+1] = SkPrevPow2(temp[count - j - 1]);
