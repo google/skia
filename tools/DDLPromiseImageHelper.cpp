@@ -13,6 +13,7 @@
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTaskGroup.h"
@@ -34,11 +35,10 @@ DDLPromiseImageHelper::PromiseImageInfo::PromiseImageInfo(PromiseImageInfo&& oth
         , fImageInfo(other.fImageInfo)
         , fBaseLevel(other.fBaseLevel)
         , fMipLevels(std::move(other.fMipLevels))
-        , fYUVData(std::move(other.fYUVData))
         , fYUVColorSpace(other.fYUVColorSpace) {
     memcpy(fYUVAIndices, other.fYUVAIndices, sizeof(fYUVAIndices));
     for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
-        fYUVPlanes[i] = other.fYUVPlanes[i];
+        fYUVPlanes[i] = std::move(other.fYUVPlanes[i]);
         fCallbackContexts[i] = std::move(other.fCallbackContexts[i]);
     }
 }
@@ -68,6 +68,44 @@ void DDLPromiseImageHelper::PromiseImageInfo::setMipLevels(const SkBitmap& baseL
                                                            std::unique_ptr<SkMipmap> mipLevels) {
     fBaseLevel = baseLevel;
     fMipLevels = std::move(mipLevels);
+}
+
+void DDLPromiseImageHelper::PromiseImageInfo::setYUVPlanes(
+        const SkYUVASizeInfo& yuvaSizeInfo,
+        const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+        SkYUVColorSpace cs,
+        std::unique_ptr<char[]> planes[SkYUVAIndex::kIndexCount]) {
+    memcpy(fYUVAIndices, yuvaIndices, sizeof(fYUVAIndices));
+    fYUVColorSpace = cs;
+    SkColorType colorTypes[] = {kUnknown_SkColorType,
+                                kUnknown_SkColorType,
+                                kUnknown_SkColorType,
+                                kUnknown_SkColorType};
+    for (int yuvIndex = 0; yuvIndex < SkYUVAIndex::kIndexCount; ++yuvIndex) {
+        int texIdx = yuvaIndices[yuvIndex].fIndex;
+        if (texIdx < 0) {
+            SkASSERT(SkYUVAIndex::kA_Index == yuvIndex);
+            continue;
+        }
+        // In current testing only ever expect A8, RG_88
+        if (colorTypes[texIdx] == kUnknown_SkColorType) {
+            colorTypes[texIdx] = kAlpha_8_SkColorType;
+        } else {
+            SkASSERT(colorTypes[texIdx] == kAlpha_8_SkColorType);
+            colorTypes[texIdx] = kR8G8_unorm_SkColorType;
+        }
+    }
+
+    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
+        if (yuvaSizeInfo.fSizes[i].isEmpty()) {
+            SkASSERT(!yuvaSizeInfo.fWidthBytes[i] && colorTypes[i] == kUnknown_SkColorType);
+            continue;
+        }
+        auto info = SkImageInfo::Make(yuvaSizeInfo.fSizes[i], colorTypes[i], kPremul_SkAlphaType);
+        auto release = [](void* addr, void*) { std::unique_ptr<char[]>(static_cast<char*>(addr)); };
+        fYUVPlanes[i].installPixels(info, planes[i].get(), yuvaSizeInfo.fWidthBytes[i], release,
+                                    planes[i].release());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -429,42 +467,19 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
     SkYUVASizeInfo yuvaSizeInfo;
     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
-    const void* planes[SkYUVASizeInfo::kMaxCount];
-    sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvaSizeInfo, yuvaIndices, &yuvColorSpace, planes);
-    if (yuvData) {
-        newImageInfo.setYUVData(std::move(yuvData), yuvaIndices, yuvColorSpace);
-
-        // determine colortypes from index data
-        // for testing we only ever use A8, RG_88
-        SkColorType colorTypes[SkYUVASizeInfo::kMaxCount] = {
-            kUnknown_SkColorType, kUnknown_SkColorType,
-            kUnknown_SkColorType, kUnknown_SkColorType
-        };
-        for (int yuvIndex = 0; yuvIndex < SkYUVAIndex::kIndexCount; ++yuvIndex) {
-            int texIdx = yuvaIndices[yuvIndex].fIndex;
-            if (texIdx < 0) {
-                SkASSERT(SkYUVAIndex::kA_Index == yuvIndex);
-                continue;
+    auto codec = SkCodecImageGenerator::MakeFromEncodedCodec(ib->refEncodedData());
+    std::unique_ptr<char[]> planes[SkYUVASizeInfo::kMaxCount];
+    if (codec && codec->queryYUVA8(&yuvaSizeInfo, yuvaIndices, &yuvColorSpace)) {
+        void* data[4];
+        for (int i = 0; i < 4; ++i) {
+            size_t size = yuvaSizeInfo.fSizes[i].height() * yuvaSizeInfo.fWidthBytes[i];
+            if (size) {
+                planes[i].reset(new char[size]);
             }
-            if (kUnknown_SkColorType == colorTypes[texIdx]) {
-                colorTypes[texIdx] = kAlpha_8_SkColorType;
-            } else {
-                colorTypes[texIdx] = kR8G8_unorm_SkColorType;
-            }
+            data[i] = planes[i].get();
         }
-
-        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
-            if (yuvaSizeInfo.fSizes[i].isEmpty()) {
-                SkASSERT(!yuvaSizeInfo.fWidthBytes[i] && kUnknown_SkColorType == colorTypes[i]);
-                continue;
-            }
-
-            SkImageInfo planeII = SkImageInfo::Make(yuvaSizeInfo.fSizes[i].fWidth,
-                                                    yuvaSizeInfo.fSizes[i].fHeight,
-                                                    colorTypes[i],
-                                                    kUnpremul_SkAlphaType);
-            newImageInfo.addYUVPlane(i, planeII, planes[i], yuvaSizeInfo.fWidthBytes[i]);
-        }
+        SkAssertResult(codec->getYUVA8Planes(yuvaSizeInfo, yuvaIndices, data));
+        newImageInfo.setYUVPlanes(yuvaSizeInfo, yuvaIndices, yuvColorSpace, planes);
     } else {
         sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
         if (!rasterImage) {

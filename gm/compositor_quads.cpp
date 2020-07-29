@@ -897,7 +897,7 @@ public:
     int drawTiles(SkCanvas* canvas) override {
         // Refresh the SkImage at the start, so that it's not attempted for every set entry
         if (fYUVData) {
-            fImage = fYUVData->refImage(canvas->getGrContext());
+            fImage = fYUVData->refImage(canvas->recordingContext());
             if (!fImage) {
                 return 0;
             }

@@ -14,6 +14,7 @@
 #include "src/image/SkImage_Base.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/gpu/YUVUtils.h"
 
 // Modeled on the layout test css3/blending/background-blend-mode-image-image.html to reproduce
 // skbug.com/9619
@@ -27,26 +28,14 @@ DEF_SIMPLE_GM_CAN_FAIL(ducky_yuv_blend, canvas, errorMsg, 560, 1130) {
 
     // If we're on the GPU we do a second round of draws where the source image is YUV planes.
     // Otherwise we just draw the original again,
-    if (auto* context = canvas->getGrContext()) {
-        SkYUVASizeInfo info;
-        SkYUVAIndex indices[4];
-        SkYUVColorSpace yuvColorSpace;
-        const void* planes[4];
-        auto data = as_IB(duckyFG[0])->getPlanes(&info, indices, &yuvColorSpace, planes);
-        SkPixmap pixmaps[4];
-        for (int i = 0; i < 4; ++i) {
-            if (indices[i].fIndex >= 0) {
-                pixmaps[i].reset(
-                        SkImageInfo::MakeA8(info.fSizes[i]), planes[i], info.fWidthBytes[i]);
-            }
+    if (auto* rContext = canvas->recordingContext()) {
+        auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(GetResourceAsData("images/ducky.jpg"));
+        if (lazyYUV) {
+            duckyFG[1] = lazyYUV->refImage(rContext);
         }
-        duckyFG[1] = SkImage::MakeFromYUVAPixmaps(context,
-                                                  yuvColorSpace,
-                                                  pixmaps,
-                                                  indices,
-                                                  duckyFG[0]->dimensions(),
-                                                  kTopLeft_GrSurfaceOrigin,
-                                                  true);
+        if (!duckyFG[1]) {
+            return skiagm::DrawResult::kFail;
+        }
     } else {
         duckyFG[1] = duckyFG[0];
     }
