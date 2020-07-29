@@ -252,45 +252,63 @@ protected:
     }
 
     bool makeCaches(GrDirectContext* dContext) {
-        auto gen = fFactory(dContext, fPicture);
-        if (!gen) {
-            return false;
+        {
+            auto gen = fFactory(dContext, fPicture);
+            if (!gen) {
+                return false;
+            }
+            fImage = SkImage::MakeFromGenerator(std::move(gen));
+            if (!fImage) {
+                return false;
+            }
+            SkASSERT(fImage->dimensions() == SkISize::Make(100, 100));
         }
-        fImage = SkImage::MakeFromGenerator(std::move(gen));
-        SkASSERT(fImage->dimensions() == SkISize::Make(100, 100));
 
-        const SkIRect subset = SkIRect::MakeLTRB(50, 50, 100, 100);
-        gen = fFactory(dContext, fPicture);
-        if (!gen) {
-            return false;
+        {
+            const SkIRect subset = SkIRect::MakeLTRB(50, 50, 100, 100);
+
+            // We re-create the generator here on the off chance that making a subset from
+            // 'fImage' might perturb its state.
+            auto gen = fFactory(dContext, fPicture);
+            if (!gen) {
+                return false;
+            }
+            fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset, dContext);
+            if (!fImageSubset) {
+                return false;
+            }
+            SkASSERT(fImageSubset->dimensions() == SkISize::Make(50, 50));
         }
-        fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset,
-                                                                              dContext);
-        if (!fImageSubset) {
-            return false;
-        }
-        SkASSERT(fImageSubset->dimensions() == SkISize::Make(50, 50));
+
         return true;
+    }
+
+    static void draw_placeholder(SkCanvas* canvas, SkScalar x, SkScalar y, int w, int h) {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        SkRect r = SkRect::MakeXYWH(x, y, SkIntToScalar(w), SkIntToScalar(h));
+        canvas->drawRect(r, paint);
+        canvas->drawLine(r.left(), r.top(), r.right(), r.bottom(), paint);
+        canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
     }
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
         SkBitmap bitmap;
-        as_IB(image)->getROPixels(&bitmap);
-        canvas->drawBitmap(bitmap, x, y);
+        if (as_IB(image)->getROPixels(&bitmap)) {
+            canvas->drawBitmap(bitmap, x, y);
+        } else {
+            draw_placeholder(canvas, x, y, image->width(), image->height());
+        }
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
+        // The gpu-backed images are drawn in this manner bc the generator backed images
+        // aren't considered texture-backed
         GrSurfaceProxyView view = as_IB(image)->refView(canvas->recordingContext(),
                                                         GrMipmapped::kNo);
         if (!view) {
             // show placeholder if we have no texture
-            SkPaint paint;
-            paint.setStyle(SkPaint::kStroke_Style);
-            SkRect r = SkRect::MakeXYWH(x, y, SkIntToScalar(image->width()),
-                                        SkIntToScalar(image->width()));
-            canvas->drawRect(r, paint);
-            canvas->drawLine(r.left(), r.top(), r.right(), r.bottom(), paint);
-            canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
+            draw_placeholder(canvas, x, y, image->width(), image->height());
             return;
         }
 
@@ -305,18 +323,20 @@ protected:
         canvas->drawImage(texImage.get(), x, y);
     }
 
-    void drawSet(SkCanvas* canvas) const {
+    void drawRow(SkCanvas* canvas, float scale) const {
+        canvas->scale(scale, scale);
+
         SkMatrix matrix = SkMatrix::Translate(-100, -100);
         canvas->drawPicture(fPicture, &matrix, nullptr);
 
         // Draw the tex first, so it doesn't hit a lucky cache from the raster version. This
         // way we also can force the generateTexture call.
 
-        draw_as_tex(canvas, fImage.get(), 310, 0);
-        draw_as_tex(canvas, fImageSubset.get(), 310+101, 0);
+        draw_as_tex(canvas, fImage.get(), 150, 0);
+        draw_as_tex(canvas, fImageSubset.get(), 150+101, 0);
 
-        draw_as_bitmap(canvas, fImage.get(), 150, 0);
-        draw_as_bitmap(canvas, fImageSubset.get(), 150+101, 0);
+        draw_as_bitmap(canvas, fImage.get(), 310, 0);
+        draw_as_bitmap(canvas, fImageSubset.get(), 310+101, 0);
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
@@ -325,27 +345,28 @@ protected:
             return DrawResult::kSkip;
         }
 
-        canvas->translate(20, 20);
-
-        this->drawSet(canvas);
-
         canvas->save();
-        canvas->translate(0, 130);
-        canvas->scale(0.25f, 0.25f);
-        this->drawSet(canvas);
+            canvas->translate(20, 20);
+            this->drawRow(canvas, 1.0);
         canvas->restore();
 
         canvas->save();
-        canvas->translate(0, 200);
-        canvas->scale(2, 2);
-        this->drawSet(canvas);
+            canvas->translate(20, 150);
+            this->drawRow(canvas, 0.25f);
         canvas->restore();
+
+        canvas->save();
+            canvas->translate(20, 220);
+            this->drawRow(canvas, 2.0f);
+        canvas->restore();
+
         return DrawResult::kOk;
     }
 
 private:
     typedef skiagm::GM INHERITED;
 };
+
 DEF_GM( return new ImageCacheratorGM("picture", make_pic_generator); )
 DEF_GM( return new ImageCacheratorGM("raster", make_ras_generator); )
 DEF_GM( return new ImageCacheratorGM("texture", make_tex_generator); )
