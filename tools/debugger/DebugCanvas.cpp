@@ -86,9 +86,8 @@ DebugCanvas::DebugCanvas(int width, int height)
     this->INHERITED::onClipRect(large, kReplace_SkClipOp, kHard_ClipEdgeStyle);
 }
 
-DebugCanvas::DebugCanvas(SkIRect bounds) {
-    DebugCanvas(bounds.width(), bounds.height());
-}
+DebugCanvas::DebugCanvas(SkIRect bounds)
+        : DebugCanvas(bounds.width(), bounds.height()) {}
 
 DebugCanvas::~DebugCanvas() { fCommandVector.deleteAll(); }
 
