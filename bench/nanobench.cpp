@@ -1117,7 +1117,7 @@ private:
     SkTArray<SkString> fSKPs;
     SkTArray<SkString> fSVGs;
     SkTArray<SkString> fTextBlobTraces;
-    SkTArray<bool>     fUseMPDs;
+    SkTArray<uint8_t>  fUseMPDs;
     SkTArray<SkString> fImages;
     SkTArray<SkColorType, true> fColorTypes;
     SkScalar           fZoomMax;
