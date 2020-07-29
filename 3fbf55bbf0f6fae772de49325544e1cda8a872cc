@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d00c815b_e4972819",
+        "filename": "tools/gpu/YUVUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-29T13:58:48Z",
+      "side": 1,
+      "message": "This gives me some pause because of issues images with crossing recording contexts, even if they\u0027re in the same \"family\". If we made this on a direct context then it\u0027s ok to use with another context in the family but not if made on a non-direct-recording context (and hasn\u0027t yet hit the direct context).\n\nI wasn\u0027t sure how to check it. We have SkImage::isValid(GrRecordingContext*) but it suffers the same problem.",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 30
+      },
+      "revId": "3fbf55bbf0f6fae772de49325544e1cda8a872cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
