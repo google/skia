@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1d053e2_c8a46cc0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-29T20:40:05Z",
+      "side": 1,
+      "message": "I\u0027ve looked at all of this, at least briefly, and I think everything makes sense. I didn\u0027t do a line-by-line review of the de/re-hydrator, just enough to get the gist. I\u0027m counting on tests to catch any problems there.\n\nIt would have been nice to split out some of the incidental changes that were necessary (lifetime fixes, etc), but that may be too cumbersome at this point? I also noticed some other changes that seem orthogonal, but are probably contributing to the faster startup time (like only parsing certain includes on first use, rather than when the compiler is initially created).\n\nUltimately, I think it\u0027s okay, but I wish there were fewer copies/steps for some of it. Even if the compiler directly loaded the .sksl files from disk (rather than as embedded strings) when the rehydrator is disabled, so that we don\u0027t need the .inc versions. I\u0027m wary when we start needing fake outputs in GN to prevent circular dependencies. We could probably look at going back and cleaning some of this up after the fact, too - I\u0027ll noodle on this some more tonight.",
+      "revId": "ff341b235c8581e20e7898ce25cc34d2d5c74d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
