@@ -16,6 +16,24 @@
       "revId": "ee1275389361203acfd2501affdc531f7a2fd2e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10c87261_307189d0",
+        "filename": "tools/debugger/DebugCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-29T23:23:35Z",
+      "side": 1,
+      "message": "This seems like a very good hunch, but actually no, it\u0027s in use here.\n\n  void DebugLayerManager::storeSkPicture(int nodeId, int frame, sk_sp\u003cSkPicture\u003e picture,\n    SkIRect dirty) {\n  const LayerKey k \u003d {frame, nodeId};\n\n  // Make debug canvas using bounds from SkPicture. This will be equal to whatever width and\n  // height were passed into SkPictureRecorder::beginRecording(w, h) which is the layer bounds.\n  const auto\u0026 layerBounds \u003d picture-\u003ecullRect().roundOut();\n  auto debugCanvas \u003d std::make_unique\u003cDebugCanvas\u003e(layerBounds);",
+      "parentUuid": "ee0167ab_d4cd2965",
+      "revId": "ee1275389361203acfd2501affdc531f7a2fd2e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
