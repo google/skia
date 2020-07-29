@@ -16,42 +16,6 @@
 #include <utility>
 #include <vector>
 
-// number of bytes (on the stack) to receive the printf result
-static const size_t kBufferSize = 1024;
-
-struct StringBuffer {
-    char*  fText;
-    int    fLength;
-};
-
-template <int SIZE>
-static StringBuffer apply_format_string(const char* format, va_list args, char (&stackBuffer)[SIZE],
-                                        SkString* heapBuffer) {
-    // First, attempt to print directly to the stack buffer.
-    va_list argsCopy;
-    va_copy(argsCopy, args);
-    int outLength = std::vsnprintf(stackBuffer, SIZE, format, args);
-    if (outLength < 0) {
-        SkDebugf("SkString: vsnprintf reported error.");
-        va_end(argsCopy);
-        return {stackBuffer, 0};
-    }
-    if (outLength < SIZE) {
-        va_end(argsCopy);
-        return {stackBuffer, outLength};
-    }
-
-    // Our text was too long to fit on the stack! However, we now know how much space we need to
-    // format it. Format the string into our heap buffer. `set` automatically reserves an extra
-    // byte at the end of the buffer for a null terminator, so we don't need to add one here.
-    heapBuffer->set(nullptr, outLength);
-    char* heapBufferDest = heapBuffer->writable_str();
-    SkDEBUGCODE(int checkLength =) std::vsnprintf(heapBufferDest, outLength + 1, format, argsCopy);
-    SkASSERT(checkLength == outLength);
-    va_end(argsCopy);
-    return {heapBufferDest, outLength};
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkStrEndsWith(const char string[], const char suffixStr[]) {
@@ -161,7 +125,125 @@ char* SkStrAppendFloat(char string[], float value) {
     return string + len;
 }
 
+SkString SkStringPrintf(const char* format, ...) {
+    SkString formattedOutput;
+    va_list args;
+    va_start(args, format);
+    formattedOutput.printVAList(format, args);
+    va_end(args);
+    return formattedOutput;
+}
+
+void SkStrSplit(const char* str, const char* delimiters, SkStrSplitMode splitMode,
+                SkTArray<SkString>* out) {
+    if (splitMode == kCoalesce_SkStrSplitMode) {
+        // Skip any delimiters.
+        str += strspn(str, delimiters);
+    }
+    if (!*str) {
+        return;
+    }
+
+    while (true) {
+        // Find a token.
+        const size_t len = strcspn(str, delimiters);
+        if (splitMode == kStrict_SkStrSplitMode || len > 0) {
+            out->push_back().set(str, len);
+            str += len;
+        }
+
+        if (!*str) {
+            return;
+        }
+        if (splitMode == kCoalesce_SkStrSplitMode) {
+            // Skip any delimiters.
+            str += strspn(str, delimiters);
+        } else {
+            // Skip one delimiter.
+            str += 1;
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
+
+#if SK_DEBUG_CONTAINERS
+
+void SkString::printf(const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+    this->printVAList(format, args);
+    va_end(args);
+}
+
+void SkString::appendf(const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+    this->appendVAList(format, args);
+    va_end(args);
+}
+
+void SkString::prependf(const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+    this->prependVAList(format, args);
+    va_end(args);
+}
+
+void SkString::printVAList(const char format[], va_list args) {
+    // 1K should accommodate most string formatting attempts on the first try.
+    static constexpr size_t kDefaultBufferSize = 1024;
+
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+    int outLength;
+    if (fString.size() >= kDefaultBufferSize) {
+        // Our std::string buffer is already larger than the default buffer size; start there.
+        outLength = std::vsnprintf(fString.data(), fString.size() + 1, format, args);
+        va_end(argsCopy);
+        if (outLength >= 0 && outLength <= int(fString.size())) {
+            fString.resize(outLength);
+            return;
+        }
+    } else {
+        // Our std::string buffer is small; format to the stack, then copy if we succeed.
+        char stackBuffer[kDefaultBufferSize];
+        outLength = std::vsnprintf(stackBuffer, kDefaultBufferSize, format, args);
+        va_end(argsCopy);
+        if (outLength >= 0 && outLength <= kDefaultBufferSize) {
+            fString = std::string(stackBuffer, outLength);
+            return;
+        }
+    }
+
+    // A negative length indicates a formatting error.
+    if (outLength < 0) {
+        SkDebugf("printVAList: vsnprintf reported error.");
+        fString.clear();
+        return;
+    }
+
+    // Our text was too long! Try again, now that we know how much space we need.
+    fString.resize(outLength);
+    SkDEBUGCODE(int checkLength =) std::vsnprintf(fString.data(), fString.size() + 1,
+                                                  format, argsCopy);
+    SkASSERT(checkLength == outLength);
+    va_end(argsCopy);
+}
+
+void SkString::appendVAList(const char format[], va_list args) {
+    SkString str;
+    str.printVAList(format, args);
+    this->append(str);
+}
+
+void SkString::prependVAList(const char format[], va_list args) {
+    SkString str;
+    str.printVAList(format, args);
+    this->prepend(str);
+}
+
+#else  // !SK_DEBUG_CONTAINERS
 
 const SkString::Rec SkString::gEmptyRec(0, 0);
 
@@ -491,6 +573,44 @@ void SkString::insertScalar(size_t offset, SkScalar value) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// number of bytes (on the stack) to receive the printf result
+static const size_t kBufferSize = 1024;
+
+struct StringBuffer {
+    char*  fText;
+    int    fLength;
+};
+
+template <int SIZE>
+static StringBuffer apply_format_string(const char* format, va_list args, char (&stackBuffer)[SIZE],
+                                        SkString* heapBuffer) {
+    // First, attempt to print directly to the stack buffer.
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+    int outLength = std::vsnprintf(stackBuffer, SIZE, format, args);
+    if (outLength < 0) {
+        SkDebugf("SkString: vsnprintf reported error.");
+        va_end(argsCopy);
+        return {stackBuffer, 0};
+    }
+    if (outLength < SIZE) {
+        va_end(argsCopy);
+        return {stackBuffer, outLength};
+    }
+
+    // Our text was too long to fit on the stack! However, we now know how much space we need to
+    // format it. Format the string into our heap buffer. `set` automatically reserves an extra
+    // byte at the end of the buffer for a null terminator, so we don't need to add one here.
+    heapBuffer->set(nullptr, outLength);
+    char* heapBufferDest = heapBuffer->writable_str();
+    SkDEBUGCODE(int checkLength =) std::vsnprintf(heapBufferDest, outLength + 1, format, argsCopy);
+    SkASSERT(checkLength == outLength);
+    va_end(argsCopy);
+    return {heapBufferDest, outLength};
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkString::printf(const char format[], ...) {
     va_list args;
     va_start(args, format);
@@ -584,44 +704,4 @@ void SkString::swap(SkString& other) {
     swap(fRec, other.fRec);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-SkString SkStringPrintf(const char* format, ...) {
-    SkString formattedOutput;
-    va_list args;
-    va_start(args, format);
-    formattedOutput.printVAList(format, args);
-    va_end(args);
-    return formattedOutput;
-}
-
-void SkStrSplit(const char* str, const char* delimiters, SkStrSplitMode splitMode,
-                SkTArray<SkString>* out) {
-    if (splitMode == kCoalesce_SkStrSplitMode) {
-        // Skip any delimiters.
-        str += strspn(str, delimiters);
-    }
-    if (!*str) {
-        return;
-    }
-
-    while (true) {
-        // Find a token.
-        const size_t len = strcspn(str, delimiters);
-        if (splitMode == kStrict_SkStrSplitMode || len > 0) {
-            out->push_back().set(str, len);
-            str += len;
-        }
-
-        if (!*str) {
-            return;
-        }
-        if (splitMode == kCoalesce_SkStrSplitMode) {
-            // Skip any delimiters.
-            str += strspn(str, delimiters);
-        } else {
-            // Skip one delimiter.
-            str += 1;
-        }
-    }
-}
+#endif  // SK_DEBUG_CONTAINERS
