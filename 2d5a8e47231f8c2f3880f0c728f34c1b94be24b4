@@ -16,6 +16,23 @@
       "revId": "2d5a8e47231f8c2f3880f0c728f34c1b94be24b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d7291bd7_c6fbb09e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-29T19:39:55Z",
+      "side": 1,
+      "message": "Yeah, we\u0027re only documented to build with 2017 or 2019 (and I\u0027m almost certain that we\u0027re using other features not supported on 2015, like extended constexpr).",
+      "revId": "2d5a8e47231f8c2f3880f0c728f34c1b94be24b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
