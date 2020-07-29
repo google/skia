@@ -118,6 +118,30 @@
     },
     {
       "key": {
+        "uuid": "51303eb6_79bcb81d",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-29T19:06:14Z",
+      "side": 1,
+      "message": "You did not follow my feedback. I said to remove the png part of the fuzzer. This means to remove the bitmap too. I worry that having a bitmap here will cause the fuzzer to run out of memory because it will create skps that are very big. Just create a canvas and draw to it, similar to the canvas fuzzer.\n\nhttps://github.com/google/skia/blob/master/fuzz/FuzzCanvas.cpp#L1628",
+      "parentUuid": "bfc32988_da2d1cb9",
+      "range": {
+        "startLine": 21,
+        "startChar": 34,
+        "endLine": 21,
+        "endChar": 74
+      },
+      "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6468f0a7_931862fe",
         "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
         "patchSetId": 2
