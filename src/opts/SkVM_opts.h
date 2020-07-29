@@ -163,6 +163,28 @@ namespace SK_OPTS_NS {
                     // Ops that don't interact with memory should never care about the stride.
                 #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
 
+                    // These 128-bit ops are implemented serially for simplicity.
+                    CASE(Op::store128_lo): {
+                        U64 src = (skvx::cast<uint64_t>(r[x].u32) << 0 |
+                                   skvx::cast<uint64_t>(r[y].u32) << 32);
+                        for (int i = 0; i < stride; i++) {
+                            memcpy((char*)args[immz] + 16*i+0, &src[i], 8);
+                        }
+                    } break;
+                    CASE(Op::store128_hi): {
+                        U64 src = (skvx::cast<uint64_t>(r[x].u32) << 0 |
+                                   skvx::cast<uint64_t>(r[y].u32) << 32);
+                        for (int i = 0; i < stride; i++) {
+                            memcpy((char*)args[immz] + 16*i+8, &src[i], 8);
+                        }
+                    } break;
+
+                    CASE(Op::load128_32):
+                        r[d].i32 = 0;
+                        for (int i = 0; i < stride; i++) {
+                            memcpy(&r[d].i32[i], (const char*)args[immy] + 16*i+ 4*immz, 4);
+                        } break;
+
                     CASE(Op::assert_true):
                     #ifdef SK_DEBUG
                         if (!all(r[x].i32)) {
