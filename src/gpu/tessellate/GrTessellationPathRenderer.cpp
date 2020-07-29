@@ -141,7 +141,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         // of them will eventually go away.
         if (shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
             !args.fCaps->shaderCaps()->tessellationSupport() ||
-            GrAAType::kCoverage == args.fAAType || !args.fViewMatrix->isSimilarity() ||
+            GrAAType::kCoverage == args.fAAType ||
             !args.fPaint->isConstantBlendedColor(&constantColor) ||
             args.fPaint->hasCoverageFragmentProcessor()) {
             return CanDrawPath::kNo;
@@ -237,11 +237,29 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkASSERT(worstCaseResolveLevel <= kMaxResolveLevel);
     }
 
+    if (args.fShape->style().isSimpleHairline()) {
+        // Pre-transform the path into device space and use a stroke width of 1.
+#ifdef SK_DEBUG
+        // Since we will be transforming the path, just double check that we are still in a position
+        // where the paint will not use local coordinates.
+        SkPMColor4f constantColor;
+        SkASSERT(args.fPaint.isConstantBlendedColor(&constantColor));
+#endif
+        SkPath devPath;
+        path.transform(*args.fViewMatrix, &devPath);
+        SkStrokeRec devStroke = args.fShape->style().strokeRec();
+        devStroke.setStrokeStyle(1);
+        auto op = pool->allocate<GrTessellateStrokeOp>(args.fAAType, SkMatrix::I(), devPath,
+                                                       devStroke, std::move(args.fPaint));
+        renderTargetContext->addDrawOp(args.fClip, std::move(op));
+        return true;
+    }
+
     if (!args.fShape->style().isSimpleFill()) {
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
-        SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
-        auto op = pool->allocate<GrTessellateStrokeOp>(*args.fViewMatrix, path, stroke,
-                                                       std::move(args.fPaint), args.fAAType);
+        SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
+        auto op = pool->allocate<GrTessellateStrokeOp>(args.fAAType, *args.fViewMatrix, path,
+                                                       stroke, std::move(args.fPaint));
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }

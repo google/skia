@@ -45,11 +45,21 @@ public:
 
     constexpr static int kNumVerticesPerPatch = 5;
 
-    GrTessellateStrokeShader(const SkMatrix& viewMatrix, SkPMColor4f color, float miterLimitOrZero)
-            : GrPathShader(kTessellate_GrTessellateStrokeShader_ClassID, viewMatrix,
+    // 'skewMatrix' is applied to the post-tessellation triangles. It cannot expand the geometry in
+    // any direction. For now, patches should be pre-scaled on CPU by the view matrix's maxScale,
+    // which leaves 'skewMatrix' as the original view matrix divided by maxScale.
+    //
+    // If 'miterLimitOrZero' is zero, then the patches being drawn cannot include any miter joins.
+    // If a stroke uses miter joins with a miter limit of zero, then they need to be pre-converted
+    // to bevel joins.
+    GrTessellateStrokeShader(const SkMatrix& skewMatrix, SkPMColor4f color, float miterLimitOrZero)
+            : GrPathShader(kTessellate_GrTessellateStrokeShader_ClassID, skewMatrix,
                            GrPrimitiveType::kPatches, kNumVerticesPerPatch)
             , fColor(color)
             , fMiterLimitOrZero(miterLimitOrZero) {
+        // Since the skewMatrix is applied after tessellation, it cannot expand the geometry in any
+        // direction.
+        SkASSERT(skewMatrix.getMaxScale() < 1 + SK_ScalarNearlyZero);
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
