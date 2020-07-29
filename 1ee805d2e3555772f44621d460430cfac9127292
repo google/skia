@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "0329b56e_f2b5d729",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-29T20:45:16Z",
+      "side": 1,
+      "message": "This probably works better somewhere under site/dev?  We don\u0027t want our users depending on this stuff.",
+      "revId": "1ee805d2e3555772f44621d460430cfac9127292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b24fa0cf_6b9460f4",
         "filename": "site/user/build.md",
         "patchSetId": 3
