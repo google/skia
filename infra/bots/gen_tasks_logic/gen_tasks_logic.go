@@ -445,7 +445,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "OOPRDDL", "T8888",
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM",
 				"GpuTess", "NonNVPR", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
-				"SkottieFrames", "RenderSKP"}
+				"SkottieFrames", "RenderSKP", "CanvasPerf"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -1510,6 +1510,25 @@ func (b *jobBuilder) puppeteer() {
 				"--task_name", b.Name,
 				"--canvaskit_bin_path", "./build",
 				"--skps_path", "./skp",
+				"--node_bin_path", "./node/node/bin",
+				"--benchmark_path", "./tools/perf-canvaskit-puppeteer",
+				"--output_path", OUTPUT_PERF,
+				"--os_trace", b.parts["os"],
+				"--model_trace", b.parts["model"],
+				"--cpu_or_gpu_trace", b.parts["cpu_or_gpu"],
+				"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
+				"--webgl_version", webglversion,
+				"--alsologtostderr",
+			)
+			b.asset("skp")
+		} else if b.extraConfig("CanvasPerf") { // refers to the canvas_perf.js test suite
+			b.cmd(
+				"./perf_puppeteer_canvas",
+				"--project_id", "skia-swarming-bots",
+				"--git_hash", specs.PLACEHOLDER_REVISION,
+				"--task_id", specs.PLACEHOLDER_TASK_ID,
+				"--task_name", b.Name,
+				"--canvaskit_bin_path", "./build",
 				"--node_bin_path", "./node/node/bin",
 				"--benchmark_path", "./tools/perf-canvaskit-puppeteer",
 				"--output_path", OUTPUT_PERF,

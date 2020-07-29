@@ -25,5 +25,11 @@ skp_with_local:
 	--input_skp ${HOME}/skps/desk_nytimes.skp \
 	--bench_html render-skp.html
 
+# runs all the tests in canvas_perf.js
+perf_js:
+	node perf-canvaskit-with-puppeteer.js --canvaskit_js ../../out/canvaskit_wasm/canvaskit.js \
+	--canvaskit_wasm ../../out/canvaskit_wasm/canvaskit.wasm --use_gpu \
+	--bench_html canvas_perf.html
+
 skps_release_and_simd:
 	./perf_all_skps.sh --release --simd --summary

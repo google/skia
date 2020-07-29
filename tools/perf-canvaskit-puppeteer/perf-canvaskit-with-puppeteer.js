@@ -91,6 +91,11 @@ const opts = [
     type: Boolean,
     description: 'Print this usage guide.'
   },
+  {
+    name: 'timeout',
+    description: 'Number of seconds to allow test to run.',
+    type: Number,
+  },
 ];
 
 const usage = [
@@ -112,6 +117,9 @@ if (!options.output) {
 }
 if (!options.port) {
   options.port = 8081;
+}
+if (!options.timeout) {
+  options.timeout = 60;
 }
 
 if (options.help) {
@@ -144,10 +152,12 @@ if (!options.canvaskit_wasm) {
 }
 
 const benchmarkJS = fs.readFileSync('benchmark.js', 'utf8');
+const canvasPerfJS = fs.readFileSync('canvas_perf.js', 'utf8');
 const canvasKitJS = fs.readFileSync(options.canvaskit_js, 'utf8');
 const canvasKitWASM = fs.readFileSync(options.canvaskit_wasm, 'binary');
 
 app.get('/static/benchmark.js', (req, res) => res.send(benchmarkJS));
+app.get('/static/canvas_perf.js', (req, res) => res.send(canvasPerfJS));
 app.get('/static/canvaskit.js', (req, res) => res.send(canvasKitJS));
 app.get('/static/canvaskit.wasm', function(req, res) {
   // Set the MIME type so it can be streamed efficiently.
@@ -257,9 +267,9 @@ async function driveBrowser() {
     // debugging easier).
     await page.click('#start_bench');
 
-    console.log('Waiting 60s for run to be done');
+    console.log(`Waiting ${options.timeout}s for run to be done`);
     await page.waitForFunction(`(window._perfDone === true) || window._error`, {
-      timeout: 60000,
+      timeout: options.timeout*1000,
     });
 
     err = await page.evaluate('window._error');

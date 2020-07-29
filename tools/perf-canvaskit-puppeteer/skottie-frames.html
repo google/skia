@@ -85,7 +85,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
         }
         const canvas = surface.getCanvas();
 
-        document.getElementById('start_bench').addEventListener('click', () => {
+        document.getElementById('start_bench').addEventListener('click', async () => {
           const clearColor = CanvasKit.WHITE;
           let idx = 0;
           const startTime = Date.now();
@@ -100,7 +100,9 @@ would display the animation (e.g. using clock time to determine where to seek, n
             }
           }
 
-          startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES, MAX_SAMPLE_MS);
+          const results = await startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES, MAX_SAMPLE_MS);
+          Object.assign(window._perfData, results);
+          window._perfDone = true;
         });
         console.log('Perf is ready');
         window._perfReady = true;
