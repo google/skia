@@ -154,7 +154,7 @@ private:
 
         int index() const { return fIndex; }
         uint32_t originalUniqueID() const { return fOriginalUniqueID; }
-        bool isYUV() const { return SkToBool(fYUVData.get()); }
+        bool isYUV() const { return !fYUVPlanes[0].isNull(); }
 
         int overallWidth() const { return fImageInfo.width(); }
         int overallHeight() const { return fImageInfo.height(); }
@@ -173,7 +173,7 @@ private:
         const SkPixmap& yuvPixmap(int index) const {
             SkASSERT(this->isYUV());
             SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
-            return fYUVPlanes[index];
+            return fYUVPlanes[index].pixmap();
         }
 
         const SkBitmap& baseLevel() const {
@@ -215,18 +215,11 @@ private:
 
         void setMipLevels(const SkBitmap& baseLevel, std::unique_ptr<SkMipmap> mipLevels);
 
-        void setYUVData(sk_sp<SkCachedData> yuvData,
-                        SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                        SkYUVColorSpace cs) {
-            fYUVData = yuvData;
-            memcpy(fYUVAIndices, yuvaIndices, sizeof(fYUVAIndices));
-            fYUVColorSpace = cs;
-        }
-        void addYUVPlane(int index, const SkImageInfo& ii, const void* plane, size_t widthBytes) {
-            SkASSERT(this->isYUV());
-            SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
-            fYUVPlanes[index].reset(ii, plane, widthBytes);
-        }
+        /** Takes ownership of the plane data. */
+        void setYUVPlanes(const SkYUVASizeInfo& yuvaSizeInfo,
+                          const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                          SkYUVColorSpace cs,
+                          std::unique_ptr<char[]> planes[SkYUVAIndex::kIndexCount]);
 
     private:
         const int                          fIndex;                // index in the 'fImageInfo' array
@@ -239,10 +232,9 @@ private:
         std::unique_ptr<SkMipmap>          fMipLevels;
 
         // CPU-side cache of a YUV SkImage's contents
-        sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image
         SkYUVColorSpace                    fYUVColorSpace = kJPEG_SkYUVColorSpace;
         SkYUVAIndex                        fYUVAIndices[SkYUVAIndex::kIndexCount];
-        SkPixmap                           fYUVPlanes[SkYUVASizeInfo::kMaxCount];
+        SkBitmap                           fYUVPlanes[SkYUVASizeInfo::kMaxCount];
 
         // Up to SkYUVASizeInfo::kMaxCount for a YUVA image. Only one for a normal image.
         sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVASizeInfo::kMaxCount];
