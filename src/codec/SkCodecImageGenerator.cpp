@@ -42,6 +42,23 @@ SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec, sk_
     , fData(std::move(data))
 {}
 
+bool SkCodecImageGenerator::queryYUVASpec(SkYUVASpec* spec,
+                                          SkColorType colorType[SkYUVASpec::kMaxPlanes],
+                                          size_t rowbytes[SkYUVASpec::kMaxPlanes]) const {
+    return fCodec->queryYUVASpec(spec, colorType, rowbytes);
+}
+
+bool SkCodecImageGenerator::getYUVAPlanes(const SkPixmap planes[SkYUVASpec::kMaxPlanes]) {
+    switch (fCodec->getYUVAPlanes(planes)) {
+        case SkCodec::kSuccess:
+        case SkCodec::kIncompleteInput:
+        case SkCodec::kErrorInInput:
+            return true;
+        default:
+            return false;
+    }
+}
+
 sk_sp<SkData> SkCodecImageGenerator::onRefEncodedData() {
     return fData;
 }
