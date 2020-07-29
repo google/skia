@@ -40,6 +40,11 @@ declare_args() {
   # slowest steps in a build, so we don't want to limit too much. Use the number
   # of CPUs as a default.
   dlsymutil_pool_depth = exec_script("num_cpus.py", [], "value")
+
+  # Too many linkers running at once causes issues for some builders. Allow
+  # such builders to limit the number of concurrent link steps.
+  # link_pool_depth < 0 means no pool, 0 means cpu count, > 0 sets pool size.
+  link_pool_depth = -1
 }
 
 # For 'shell' see https://ninja-build.org/manual.html#ref_rule_command
@@ -54,6 +59,15 @@ if (host_os == "win") {
 if (current_toolchain == default_toolchain) {
   pool("dsymutil_pool") {
     depth = dlsymutil_pool_depth
+  }
+  if (0 <= link_pool_depth) {
+    pool("link_pool") {
+      if (link_pool_depth == 0) {
+        depth = exec_script("num_cpus.py", [], "value")
+      } else {
+        depth = link_pool_depth
+      }
+    }
   }
 }
 
@@ -147,6 +161,9 @@ toolchain("msvc") {
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}}"
     description = "link {{output}}"
+    if (0 <= link_pool_depth) {
+      pool = ":link_pool($default_toolchain)"
+    }
   }
 
   tool("solink") {
@@ -177,6 +194,9 @@ toolchain("msvc") {
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
     description = "link {{output}}"
+    if (0 <= link_pool_depth) {
+      pool = ":link_pool($default_toolchain)"
+    }
   }
 
   tool("link") {
@@ -192,6 +212,9 @@ toolchain("msvc") {
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
     description = "link {{output}}"
+    if (0 <= link_pool_depth) {
+      pool = ":link_pool($default_toolchain)"
+    }
   }
 
   tool("stamp") {
@@ -278,6 +301,9 @@ template("gcc_like_toolchain") {
       default_output_extension = ".a"
       output_prefix = "lib"
       description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
     }
 
     tool("solink") {
@@ -309,6 +335,9 @@ template("gcc_like_toolchain") {
       output_prefix = "lib"
       default_output_extension = ".so"
       description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
     }
 
     tool("link") {
@@ -332,6 +361,9 @@ template("gcc_like_toolchain") {
 
       outputs = [ "$exe_name" ]
       description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
     }
 
     tool("stamp") {
