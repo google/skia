@@ -177,6 +177,7 @@ void SkottieSlide::draw(SkCanvas* canvas) {
             stroke.setStyle(SkPaint::kStroke_Style);
 
             for (const auto& r : fInvalController) {
+                r.dump();
                 SkRect bounds;
                 t.mapRect(&bounds, r);
                 canvas->drawRect(bounds, fill);
@@ -217,7 +218,7 @@ bool SkottieSlide::animate(double nanos) {
             fCurrentFrame = std::trunc(fCurrentFrame * fps_scale) / fps_scale;
         }
 
-        fAnimation->seekFrame(fCurrentFrame);
+        fAnimation->seekFrame(fCurrentFrame, &fInvalController);
     }
     return true;
 }
