@@ -69,6 +69,24 @@
       "revId": "fb7fb435969c301c0fca5a4cbae419ea0554a60b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0edfdcb0_2fec790e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-29T16:30:59Z",
+      "side": 1,
+      "message": "On specifically the subject of \"Is the compiler allowed to assume all functions not marked noreturn will always return?\" I think https://stefansf.de/post/non-termination-considered-harmful/ does a good job of explaining a lot of the interesting bits. In general a C++ compiler is allowed to assume that forward progress will be made unless certain explicit constructs are used (not just that functions will return, which is included in that). Until C++11 I think the only valid infinite loop was one that relied on a volatile read (I think constants are now allowed as well).",
+      "parentUuid": "e3f5c100_c257646a",
+      "revId": "fb7fb435969c301c0fca5a4cbae419ea0554a60b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
