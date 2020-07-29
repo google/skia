@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "e1e4f5a6_a2ceac8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-07-29T17:32:39Z",
+      "side": 1,
+      "message": "friendly bump",
+      "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f358a119_2e67592f",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
         "patchSetId": 1
