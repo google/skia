@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3791d1f_d133fae8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-29T14:19:49Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look.\nA question is that when using FuzzSKP() in LLVMFuzzerTestOneInput, should the FLAG defined in FuzzMain.cpp be passed into the call (line 53) or create a FLAG using the random bytes?",
+      "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
