@@ -51,6 +51,24 @@
       "revId": "fb7fb435969c301c0fca5a4cbae419ea0554a60b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3f5c100_c257646a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-29T00:36:10Z",
+      "side": 1,
+      "message": "That\u0027s going to be annoying. Going back to the question on https://skia-review.googlesource.com/c/skia/+/233565:\nI trust Ben better than my own understanding (and admittedly don\u0027t know all the details of C++\u0027s \"abstract machine\" and all the reorderings it allows) but I don\u0027t understand why the compiler can omit the entire block even if sk_abort_no_print() isn\u0027t marked noreturn. It seems to me on an intuitive level (perhaps a fatal error when it comes to C++) that if there *might* be a path through sk_abort_no_print() that doesn\u0027t return then the compiler can\u0027t toss the whole block. Is the compiler allowed to assume all functions not marked noreturn will always return? \n\n*If* we could put a __builtin_unreachable back at the end of SK_ABORT then we wouldn\u0027t have the return problem and with this definition of SkUNREACHABLE would always cause a deliberate abort where it is used.",
+      "parentUuid": "697d7cb1_9226fb1e",
+      "revId": "fb7fb435969c301c0fca5a4cbae419ea0554a60b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
