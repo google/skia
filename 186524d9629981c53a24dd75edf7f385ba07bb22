@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "612066a1_0588245e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-29T17:44:53Z",
+      "side": 1,
+      "message": "I checked the diffs against a vanilla Skia run too... they match much more closely than before.\nSo I think both GMs are fixed, or at least \"fixed\".",
+      "revId": "186524d9629981c53a24dd75edf7f385ba07bb22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
