@@ -22,6 +22,8 @@
 
 #include <string>
 
+// Adding a comment to give ClangTidy a chance to inspect the file.
+
 #define SKDEBUGCANVAS_VERSION 1
 #define SKDEBUGCANVAS_ATTRIBUTE_VERSION "version"
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMANDS "commands"
