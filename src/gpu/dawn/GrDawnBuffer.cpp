@@ -44,10 +44,9 @@ GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType t
     if (fMappable == Mappable::kNot || fMappable == Mappable::kReadOnly) {
         fBuffer = this->getDawnGpu()->device().CreateBuffer(&bufferDesc);
     } else {
-        wgpu::CreateBufferMappedResult result =
-                this->getDawnGpu()->device().CreateBufferMapped(&bufferDesc);
-        fBuffer = result.buffer;
-        fMapPtr = result.data;
+        bufferDesc.mappedAtCreation = true;
+        fBuffer = this->getDawnGpu()->device().CreateBuffer(&bufferDesc);
+        fMapPtr = fBuffer.GetMappedRange();
     }
 
     this->registerWithCache(SkBudgeted::kYes);
@@ -104,27 +103,21 @@ GrDawnGpu* GrDawnBuffer::getDawnGpu() const {
     return static_cast<GrDawnGpu*>(this->getGpu());
 }
 
-static void callback_read(WGPUBufferMapAsyncStatus status,
-                          const void* data,
-                          uint64_t dataLength,
-                          void* userData) {
-    GrDawnBuffer* buffer = static_cast<GrDawnBuffer*>(userData);
-    buffer->setMapPtr(const_cast<void*>(data));
+static void callback_read(WGPUBufferMapAsyncStatus status, void* userData) {
+    auto buffer = static_cast<GrDawnBuffer*>(userData);
+    buffer->setMapPtr(const_cast<void*>(buffer->get().GetConstMappedRange()));
 }
 
-static void callback_write(WGPUBufferMapAsyncStatus status,
-                           void* data,
-                           uint64_t dataLength,
-                           void* userData) {
-    GrDawnBuffer* buffer = static_cast<GrDawnBuffer*>(userData);
-    buffer->setMapPtr(data);
+static void callback_write(WGPUBufferMapAsyncStatus status, void* userData) {
+    auto buffer = static_cast<GrDawnBuffer*>(userData);
+    buffer->setMapPtr(buffer->get().GetMappedRange());
 }
 
 void GrDawnBuffer::mapWriteAsync() {
     SkASSERT(!this->isMapped());
-    fBuffer.MapWriteAsync(callback_write, this);
+    fBuffer.MapAsync(wgpu::MapMode::Write, 0, 0, callback_write, this);
 }
 void GrDawnBuffer::mapReadAsync() {
     SkASSERT(!this->isMapped());
-    fBuffer.MapReadAsync(callback_read, this);
+    fBuffer.MapAsync(wgpu::MapMode::Read, 0, 0, callback_read, this);
 }
