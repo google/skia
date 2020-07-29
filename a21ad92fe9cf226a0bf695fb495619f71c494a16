@@ -118,6 +118,30 @@
       "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d392ef47_501dbeba",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-29T03:15:32Z",
+      "side": 1,
+      "message": "I\u0027ve opened an issue [0] with Microsoft about the __fastfail / extern \"C\" and code flow analysis in the compiler. Since that\u0027s going to take a while, I suppose in the mean time it\u0027s probably possible to just make a non-extern \"C\" wrapper that\u0027s inline, marked [[noreturn]], returns void, and just exists to call __fastfail.\n\n[0] https://developercommunity.visualstudio.com/content/problem/1128631/code-flow-doesnt-see-noreturn-with-extern-c.html",
+      "parentUuid": "f800cd5a_dce52ff5",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 6
+      },
+      "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
