@@ -295,6 +295,7 @@ static std::map<std::string, std::string> cf_map = {
     {"region_set_path", "region_set_path"},
     {"skdescriptor_deserialize", "skdescriptor_deserialize"},
     {"skjson", "json"},
+    {"skp", "skp"},
     {"skruntimeeffect", "skruntimeeffect"},
     {"sksl2glsl", "sksl2glsl"},
     {"sksl2metal", "sksl2metal"},
@@ -694,24 +695,14 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     dump_png(bitmap);
 }
 
+SkBitmap FuzzSKP(sk_sp<SkData> bytes);
 static void fuzz_skp(sk_sp<SkData> bytes) {
-    SkReadBuffer buf(bytes->data(), bytes->size());
-    SkDebugf("Decoding\n");
-    sk_sp<SkPicture> pic(SkPicturePriv::MakeFromBuffer(buf));
-    if (!pic) {
-        SkDebugf("[terminated] Couldn't decode as a picture.\n");
-        return;
+    CommandLineFlags::StringArray FLAGS_dump;
+    SkBitmap bitmap = FuzzSKP(bytes);
+    if (!bitmap.isNull() && !FLAGS_dump.isEmpty()) {
+        ToolUtils::EncodeImageToFile(FLAGS_dump[0], bitmap, SkEncodedImageFormat::kPNG, 100);
+        SkDebugf("Dumped to %s\n", FLAGS_dump[0]);
     }
-    SkDebugf("Rendering\n");
-    SkBitmap bitmap;
-    if (!FLAGS_dump.isEmpty()) {
-        SkIRect size = pic->cullRect().roundOut();
-        bitmap.allocN32Pixels(size.width(), size.height());
-    }
-    SkCanvas canvas(bitmap);
-    canvas.drawPicture(pic);
-    SkDebugf("[terminated] Success! Decoded and rendered an SkPicture!\n");
-    dump_png(bitmap);
 }
 
 static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
