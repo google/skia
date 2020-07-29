@@ -217,7 +217,8 @@ bool SkottieSlide::animate(double nanos) {
             fCurrentFrame = std::trunc(fCurrentFrame * fps_scale) / fps_scale;
         }
 
-        fAnimation->seekFrame(fCurrentFrame);
+        fAnimation->seekFrame(fCurrentFrame, fShowAnimationInval ? &fInvalController
+                                                                 : nullptr);
     }
     return true;
 }
