@@ -842,6 +842,7 @@ private:
 
         SkASSERT(desc->fNumTotalQuads == this->numChainedQuads());
 
+        //$$
         SkASSERT(!CombinedQuadCountWillOverflow(overallAAType, false, desc->fNumTotalQuads));
 
         auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(overallAAType,
