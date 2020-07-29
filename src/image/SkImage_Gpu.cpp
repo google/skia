@@ -186,29 +186,29 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
                                    GrColorTypeToSkColorType(colorType), at, std::move(colorSpace));
 }
 
-sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
+sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrDirectContext* dContext,
                                                   const GrBackendTexture& tex,
                                                   GrSurfaceOrigin origin,
                                                   SkAlphaType at,
                                                   sk_sp<SkColorSpace> cs,
                                                   TextureReleaseProc releaseP,
                                                   ReleaseContext releaseC) {
+    if (!dContext) {
+        return nullptr;
+    }
+
     sk_sp<GrRefCntedCallback> releaseHelper;
     if (releaseP) {
         releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
     }
 
-    if (!ctx) {
-        return nullptr;
-    }
-
-    const GrCaps* caps = ctx->priv().caps();
+    const GrCaps* caps = dContext->priv().caps();
 
     if (!SkImage_GpuBase::ValidateCompressedBackendTexture(caps, tex, at)) {
         return nullptr;
     }
 
-    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->wrapCompressedBackendTexture(
             tex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, std::move(releaseHelper));
     if (!proxy) {
@@ -219,24 +219,24 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
     SkColorType ct = GrCompressionTypeToSkColorType(type);
 
     GrSurfaceProxyView view(std::move(proxy), origin, GrSwizzle::RGBA());
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID,  std::move(view), ct, at,
-                                   std::move(cs));
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext), kNeedNewImageUniqueID,  std::move(view),
+                                   ct, at, std::move(cs));
 }
 
-sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
+sk_sp<SkImage> SkImage::MakeFromTexture(GrDirectContext* dContext,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    if (!dContext) {
+        return nullptr;
+    }
+
     sk_sp<GrRefCntedCallback> releaseHelper;
     if (releaseP) {
         releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
     }
 
-    if (!ctx) {
-        return nullptr;
-    }
-
-    const GrCaps* caps = ctx->priv().caps();
+    const GrCaps* caps = dContext->priv().caps();
 
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, ct, tex.getBackendFormat());
     if (GrColorType::kUnknown == grColorType) {
@@ -247,9 +247,19 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
         return nullptr;
     }
 
-    return new_wrapped_texture_common(ctx, tex, grColorType, origin, at, std::move(cs),
+    return new_wrapped_texture_common(dContext, tex, grColorType, origin, at, std::move(cs),
                                       kBorrow_GrWrapOwnership, std::move(releaseHelper));
 }
+
+#ifdef SK_IMAGE_MAKE_FROM_TEXTURE_LEGACY_API
+sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
+                                        const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                        SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    return MakeFromTexture(GrAsDirectContext(ctx), tex, origin, ct, at, std::move(cs),
+                           releaseP, releaseC);
+}
+#endif
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,

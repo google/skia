@@ -289,14 +289,14 @@ public:
         @param colorSpace      range of colors; may be nullptr
         @return                created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+    static sk_sp<SkImage> MakeFromTexture(GrDirectContext* context,
                                           const GrBackendTexture& backendTexture,
                                           GrSurfaceOrigin origin,
                                           SkColorType colorType,
                                           SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace) {
-        return MakeFromTexture(context, backendTexture, origin, colorType, alphaType, colorSpace,
-                               nullptr, nullptr);
+        return MakeFromTexture(context, backendTexture, origin, colorType, alphaType,
+                               std::move(colorSpace), nullptr, nullptr);
     }
 
     /** Creates SkImage from GPU texture associated with context. GPU texture must stay
@@ -319,6 +319,16 @@ public:
         @param releaseContext      state passed to textureReleaseProc
         @return                    created SkImage, or nullptr
     */
+    static sk_sp<SkImage> MakeFromTexture(GrDirectContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          TextureReleaseProc textureReleaseProc,
+                                          ReleaseContext releaseContext);
+
+#ifdef SK_IMAGE_MAKE_FROM_TEXTURE_LEGACY_API
     static sk_sp<SkImage> MakeFromTexture(GrContext* context,
                                           const GrBackendTexture& backendTexture,
                                           GrSurfaceOrigin origin,
@@ -327,6 +337,16 @@ public:
                                           sk_sp<SkColorSpace> colorSpace,
                                           TextureReleaseProc textureReleaseProc,
                                           ReleaseContext releaseContext);
+    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace) {
+        return MakeFromTexture(context, backendTexture, origin, colorType,
+                               alphaType, std::move(colorSpace));
+    }
+#endif
 
     /** Creates an SkImage from a GPU backend texture. The backend texture must stay
         valid and unchanged until textureReleaseProc is called. The textureReleaseProc is
@@ -352,7 +372,7 @@ public:
         @param releaseContext      state passed to textureReleaseProc
         @return                    created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromCompressedTexture(GrContext* context,
+    static sk_sp<SkImage> MakeFromCompressedTexture(GrDirectContext* context,
                                                     const GrBackendTexture& backendTexture,
                                                     GrSurfaceOrigin origin,
                                                     SkAlphaType alphaType,
