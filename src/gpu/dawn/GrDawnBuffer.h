@@ -29,9 +29,7 @@ public:
     void mapWriteAsync();
     void mapReadAsync();
 
-    void setMapPtr(void* mapPtr) {
-        fMapPtr = mapPtr;
-    }
+    void setMapPtr();
 
 private:
     wgpu::Buffer fBuffer;
