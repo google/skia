@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c87933c5_998bff8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-29T20:02:12Z",
+      "side": 1,
+      "message": "Mike, can you confirm that FuzzSKP is the blessed/sanctioned way to initialize an SKP (using readbuffer)?",
+      "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69c5833e_5a5fd5c5",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-29T20:02:12Z",
+      "side": 1,
+      "message": "Do log something (with SkDebugf) that indicates it completed.",
+      "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81d1c5b8_626c5453",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-29T20:02:12Z",
+      "side": 1,
+      "message": "Don\u0027t call SkDebugf here - oss-fuzz prefers that we don\u0027t log things. Log in FuzzMain.cpp",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 12
+      },
+      "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
