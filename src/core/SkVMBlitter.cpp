@@ -163,6 +163,7 @@ namespace {
 
         skvm::PixelFormat unused;
         if (!SkColorType_to_PixelFormat(params.dst.colorType(), &unused)) {
+            // All existing SkColorTypes pass this check.  We'd only get here adding new ones.
             *ok = false;
         }
 
@@ -781,8 +782,8 @@ SkBlitter* SkCreateSkVMSpriteBlitter(const SkPixmap& device,
         // TODO: SkVM support for mask filters?  definitely possible!
         return nullptr;
     }
-    // Almost all SkColorTypes pass this check.  This mostly just guards against 128-bit F32 now.
     if (skvm::PixelFormat unused; !SkColorType_to_PixelFormat(sprite.colorType(), &unused)) {
+        // All existing SkColorTypes pass this check.  We'd only get here adding new ones.
         return nullptr;
     }
     bool ok = true;

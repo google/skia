@@ -889,7 +889,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
 
     skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
 
-    // Bail out if sample() can't yet handle our image's color type(s).
+    // All existing SkColorTypes pass these checks.  We'd only fail here adding new ones.
     skvm::PixelFormat unused;
     if (true  && !SkColorType_to_PixelFormat(upper->colorType(), &unused)) {
         return {};
