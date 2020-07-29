@@ -12,12 +12,12 @@
 #include "include/core/SkPoint.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/tessellate/GrTessellateStrokeShader.h"
+#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
 class SkStrokeRec;
 
 // This is an RAII class that expands strokes into tessellation patches for consumption by
-// GrTessellateStrokeShader. The provided GrMeshDrawOp::Target must not be used externally for the
+// GrStrokeTessellateShader. The provided GrMeshDrawOp::Target must not be used externally for the
 // entire lifetime of this class. e.g.:
 //
 //   void onPrepare(GrOpFlushState* target)  {
@@ -40,7 +40,7 @@ public:
 
     // Stores raw pointers to the provided target and vertexChunkArray, which this class will use
     // and push to as addPath is called. The caller is responsible to bind and draw each chunk that
-    // gets pushed to the array. (See GrTessellateStrokeShader.)
+    // gets pushed to the array. (See GrStrokeTessellateShader.)
     //
     // All points are multiplied by 'matrixScale' before being written to the GPU buffer.
     GrStrokePatchBuilder(GrMeshDrawOp::Target* target, SkTArray<VertexChunk>* vertexChunkArray,
@@ -50,7 +50,7 @@ public:
             , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
             , fMatrixScale(matrixScale) {
         this->allocVertexChunk(
-                (totalCombinedVerbCnt * 3) * GrTessellateStrokeShader::kNumVerticesPerPatch);
+                (totalCombinedVerbCnt * 3) * GrStrokeTessellateShader::kNumVerticesPerPatch);
     }
 
     // "Releases" the target to be used externally again by putting back any unused pre-allocated
@@ -66,7 +66,7 @@ private:
     void allocVertexChunk(int minVertexAllocCount);
     SkPoint* reservePatch();
 
-    // Join types are written as floats in P4.x. See GrTessellateStrokeShader for definitions.
+    // Join types are written as floats in P4.x. See GrStrokeTessellateShader for definitions.
     void writeCubicSegment(float leftJoinType, const SkPoint pts[4], float overrideNumSegments = 0);
     void writeCubicSegment(float leftJoinType, const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
                            const Sk2f& p3, float overrideNumSegments = 0) {
@@ -115,7 +115,7 @@ private:
 
     // Variables related to the path that we are currently iterating.
     float fCurrStrokeRadius;
-    float fCurrStrokeJoinType;  // See GrTessellateStrokeShader for join type definitions .
+    float fCurrStrokeJoinType;  // See GrStrokeTessellateShader for join type definitions .
     SkPaint::Cap fCurrStrokeCapType;
     // Any curvature on the original curve gets magnified on the outer edge of the stroke,
     // proportional to how thick the stroke radius is. This field tells us the maximum curvature we

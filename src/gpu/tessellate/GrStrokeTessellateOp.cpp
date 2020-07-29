@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrTessellateStrokeOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/tessellate/GrStrokePatchBuilder.h"
-#include "src/gpu/tessellate/GrTessellateStrokeShader.h"
+#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
 static SkPMColor4f get_paint_constant_blended_color(const GrPaint& paint) {
     SkPMColor4f constantColor;
@@ -19,7 +19,7 @@ static SkPMColor4f get_paint_constant_blended_color(const GrPaint& paint) {
     return constantColor;
 }
 
-GrTessellateStrokeOp::GrTessellateStrokeOp(GrAAType aaType, const SkMatrix& viewMatrix,
+GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
                                            const SkPath& path, const SkStrokeRec& stroke,
                                            GrPaint&& paint)
         : GrDrawOp(ClassID())
@@ -54,7 +54,7 @@ GrTessellateStrokeOp::GrTessellateStrokeOp(GrAAType aaType, const SkMatrix& view
     this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
 }
 
-GrDrawOp::FixedFunctionFlags GrTessellateStrokeOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags GrStrokeTessellateOp::fixedFunctionFlags() const {
     auto flags = FixedFunctionFlags::kNone;
     if (GrAAType::kNone != fAAType) {
         flags |= FixedFunctionFlags::kUsesHWAA;
@@ -62,7 +62,7 @@ GrDrawOp::FixedFunctionFlags GrTessellateStrokeOp::fixedFunctionFlags() const {
     return flags;
 }
 
-GrProcessorSet::Analysis GrTessellateStrokeOp::finalize(const GrCaps& caps,
+GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
                                                         const GrAppliedClip* clip,
                                                         bool hasMixedSampledCoverage,
                                                         GrClampType clampType) {
@@ -71,10 +71,10 @@ GrProcessorSet::Analysis GrTessellateStrokeOp::finalize(const GrCaps& caps,
                                 clampType, &fColor);
 }
 
-GrOp::CombineResult GrTessellateStrokeOp::onCombineIfPossible(GrOp* grOp,
+GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
                                                               GrRecordingContext::Arenas* arenas,
                                                               const GrCaps&) {
-    auto* op = grOp->cast<GrTessellateStrokeOp>();
+    auto* op = grOp->cast<GrStrokeTessellateOp>();
     if (fColor != op->fColor ||
         // TODO: When stroking is finished, we may want to consider whether a unique matrix scale
         // can be stored with each PathStroke instead. This might improve batching.
@@ -97,18 +97,18 @@ GrOp::CombineResult GrTessellateStrokeOp::onCombineIfPossible(GrOp* grOp,
     return CombineResult::kMerged;
 }
 
-void GrTessellateStrokeOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView,
+void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView,
                                         GrAppliedClip*, const GrXferProcessor::DstProxyView&) {
 }
 
-void GrTessellateStrokeOp::onPrepare(GrOpFlushState* flushState) {
+void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     GrStrokePatchBuilder builder(flushState, &fVertexChunks, fMatrixScale, fTotalCombinedVerbCnt);
     for (auto& [path, stroke] : fPathStrokes) {
         builder.addPath(path, stroke);
     }
 }
 
-void GrTessellateStrokeOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     GrPipeline::InitArgs initArgs;
     if (GrAAType::kNone != fAAType) {
         initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
@@ -120,7 +120,7 @@ void GrTessellateStrokeOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
-    GrTessellateStrokeShader strokeShader(fSkewMatrix, fColor, fMiterLimitOrZero);
+    GrStrokeTessellateShader strokeShader(fSkewMatrix, fColor, fMiterLimitOrZero);
     GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline, &strokeShader);
 
     SkASSERT(chainBounds == this->bounds());
