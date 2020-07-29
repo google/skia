@@ -16,6 +16,7 @@ configure its builds.
 -   [Windows](#windows)
 -   [Windows ARM64](#win-arm64)
 -   [CMake](#cmake)
+-   [Debugging](#debugging)
 
 ## <span id="third-party">`is_official_build` and Third-party Dependencies</span>
 
@@ -411,3 +412,13 @@ project descriptions. This is not meant for any purpose beyond development.
 ```
 bin/gn gen out/config --ide=json --json-ide-script=../../gn/gn_to_cmake.py
 ```
+
+## <span id="cmake">Debugging</span>
+
+Skia uses custom container types, such as `SkString` and `SkTArray<>`, which can
+be inconvenient to view in a debugger. If you frequently debug code that uses
+Skia types, consider installing a debug visualizer. Skia offers debugger
+visualization support for the following platforms:
+
+-   [Visual Studio and VS Code](https://skia.googlesource.com/skia/+/refs/heads/master/platform_tools/debugging/vs/Skia.natvis)
+-   [LLDB and Xcode](https://skia.googlesource.com/skia/+/refs/heads/master/platform_tools/debugging/lldb/skia.py)
