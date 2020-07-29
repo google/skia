@@ -37,8 +37,8 @@ def GrabDependentValues(js, name, value_type, list_to_extend, exclude):
   for dep in js['targets'][name]['deps']:
     if 'modules' in dep:
       skip = True
-      for white_list in ['skshaper', 'skparagraph']:
-        if white_list in dep:
+      for include in ['skshaper', 'skparagraph']:
+        if include in dep:
           skip = False
       if skip:
         continue   # Modules require special handling -- skip for now.
