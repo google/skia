@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52729470_f8a43c9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-29T16:22:13Z",
+      "side": 1,
+      "message": "Seems to work now with the work-around for cl.exe iffy-ness.",
+      "revId": "1c617681534c3ff1465cc3691218c6290e42d0f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
