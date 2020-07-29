@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee0b1115_cec5fbde",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3097,
+      "author": {
+        "id": 6605
+      },
+      "writtenOn": "2020-07-29T00:43:39Z",
+      "side": 1,
+      "message": "Do this uses of TARGET_OS_SIMULATOR need to do IWYU for \u003cTargetConditionals.h\u003e ? Otherwise, where does it come from?\n\nI\u0027m doing a Skia-enabled PDFium build without SK_METAL and the build fails because it doesn\u0027t know about TARGET_OS_SIMULATOR. I\u0027m guessing the #define is suppose to come from include/gpu/mtl/GrMtlTypes.h, but that\u0027s guarded by SK_METAL.",
+      "revId": "5ca3e54301848400f755bda32079079d8660d9b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
