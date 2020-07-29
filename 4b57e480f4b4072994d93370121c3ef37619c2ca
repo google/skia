@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b695ccc_b8f36fd2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-29T19:26:28Z",
+      "side": 1,
+      "message": "Trying not to change any default behavior here since this is a little bit speculative.",
+      "revId": "4b57e480f4b4072994d93370121c3ef37619c2ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
