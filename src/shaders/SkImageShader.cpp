@@ -1121,6 +1121,5 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         c.b = clamp(c.b, 0.0f, limit);
     }
 
-    SkColorSpaceXformSteps steps{cs,at, dst.colorSpace(),kPremul_SkAlphaType};
-    return steps.program(p, uniforms, c);
+    return SkColorSpaceXformSteps{cs,at, dst.colorSpace(),dst.alphaType()}.program(p, uniforms, c);
 }
