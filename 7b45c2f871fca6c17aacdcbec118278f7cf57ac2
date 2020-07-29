@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e32334ca_05ab83c3",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-29T21:08:09Z",
+      "side": 0,
+      "message": "Maybe we should first try replacing all this with \"return grPaint.getColor4f()\"?",
+      "range": {
+        "startLine": 301,
+        "startChar": 0,
+        "endLine": 310,
+        "endChar": 26
+      },
+      "revId": "7b45c2f871fca6c17aacdcbec118278f7cf57ac2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
