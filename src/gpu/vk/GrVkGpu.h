@@ -50,7 +50,7 @@ public:
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
     GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
-    void takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer>) override;
+    void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) override;
 
     bool isDeviceLost() const override { return fDeviceIsLost; }
     void setDeviceLost() { fDeviceIsLost = true; }

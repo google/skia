@@ -152,8 +152,6 @@ public:
 
     void setPipelineState(sk_sp<GrD3DPipelineState> pipelineState);
 
-    void setCurrentConstantBuffer(GrRingBuffer* constantsRingBuffer);
-
     void setStencilRef(unsigned int stencilRef);
     void setBlendFactor(const float blendFactor[4]);
     void setPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
@@ -206,9 +204,6 @@ private:
     const GrBuffer* fCurrentInstanceBuffer;
     size_t fCurrentInstanceStride;
     const GrBuffer* fCurrentIndexBuffer;
-
-    GrRingBuffer* fCurrentConstantRingBuffer;
-    GrRingBuffer::SubmitData fConstantRingBufferSubmitData;
 
     D3D12_GPU_VIRTUAL_ADDRESS fCurrentConstantBufferAddress;
     D3D12_GPU_DESCRIPTOR_HANDLE fCurrentRootDescriptorTable[GrD3DRootSignature::kParamIndexCount];

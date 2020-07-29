@@ -2042,7 +2042,7 @@ void GrVkGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
     fResourceProvider.addFinishedProcToActiveCommandBuffers(std::move(finishedCallback));
 }
 
-void GrVkGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+void GrVkGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
     this->currentCommandBuffer()->addGrBuffer(std::move(buffer));
 }
 

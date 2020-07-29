@@ -382,9 +382,11 @@ public:
     virtual void insertSemaphore(GrSemaphore* semaphore) = 0;
     virtual void waitSemaphore(GrSemaphore* semaphore) = 0;
 
+    virtual void addFinishedProc(GrGpuFinishedProc finishedProc,
+                                 GrGpuFinishedContext finishedContext) = 0;
     virtual void checkFinishProcs() = 0;
 
-    virtual void takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer>) {}
+    virtual void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) {}
 
     /**
      * Checks if we detected an OOM from the underlying 3D API and if so returns true and resets
@@ -819,9 +821,6 @@ private:
     // overridden by backend specific derived class to perform the copy surface
     virtual bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                const SkIPoint& dstPoint) = 0;
-
-    virtual void addFinishedProc(GrGpuFinishedProc finishedProc,
-                                 GrGpuFinishedContext finishedContext) = 0;
 
     virtual void prepareSurfacesForBackendAccessAndStateUpdates(
             GrSurfaceProxy* proxies[],

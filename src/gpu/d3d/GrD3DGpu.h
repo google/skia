@@ -46,7 +46,7 @@ public:
     GrD3DDirectCommandList* currentCommandList() const { return fCurrentDirectCommandList.get(); }
 
     GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
-    void takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer>) override;
+    void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) override;
 
     // TODO: hoist up to GrGpu
     GrRingBuffer* constantsRingBuffer() { return &fConstantsRingBuffer; }

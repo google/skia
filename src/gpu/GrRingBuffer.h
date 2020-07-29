@@ -41,24 +41,19 @@ public:
     };
     Slice suballocate(size_t size);
 
-    class SubmitData {
-    public:
-        const GrRingBuffer* fRingBuffer;
-        std::vector<sk_sp<GrGpuBuffer>> fTrackedBuffers;
-    private:
-        friend class GrRingBuffer;
-        size_t fLastHead;
-        size_t fGenID;
-    };
-    // Backends should call startSubmit() at submit time, and finishSubmit() when the
-    // command buffer/list finishes.
-    void startSubmit(SubmitData*);
-    void finishSubmit(const SubmitData&);
+    // Backends should call startSubmit() at submit time
+    void startSubmit(GrGpu*);
 
     size_t size() const { return fTotalSize; }
 
 private:
     size_t getAllocationOffset(size_t size);
+    struct SubmitData {
+        GrRingBuffer* fOwner;
+        size_t fLastHead;
+        size_t fGenID;
+    };
+    static void FinishSubmit(void*);
 
     GrGpu* fGpu;
     sk_sp<GrGpuBuffer> fCurrentBuffer;
