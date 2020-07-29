@@ -14,6 +14,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/core/SkYUVASpec.h"
 
 class GrRecordingContext;
 class GrSurfaceProxyView;
@@ -96,6 +97,33 @@ public:
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
      *  returns false and does not modify any of the parameters.
      *
+     *  @param spec    Specifies the planar configuration, subsampling, orientation, and chroma
+     *                 siting.
+     *  @param colorTypes Output parameter. Color types for the up to 4 planes.
+     *  @param rowbytes  Output parameter. Row bytes for the up to 4 planes.
+     */
+    virtual bool queryYUVASpec(SkYUVASpec* spec,
+                               SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                               size_t rowbytes[SkYUVASpec::kMaxPlanes]) const {
+        return false;
+    }
+    /**
+     *  Returns true on success and false on failure.
+     *  This always attempts to perform a full decode.  If the client only wants planar information
+     *  it should call queryYUVASpec().
+     *
+     *  @param planes      Memory allocated by caller for the planes. Number of allocated planes,
+     *                     sizes, color types, and row bytes are initialized using the result of a
+     *                     successful call to queryYUVASpec().
+     */
+    virtual bool getYUVAPlanes(const SkPixmap planes[SkYUVASpec::kMaxPlanes]) { return false; }
+
+    /**
+     *  Deprecated. Use queryYUVASpec instead for more structured YUVA plane specification.
+     *
+     *  If decoding to YUV is supported, this returns true.  Otherwise, this
+     *  returns false and does not modify any of the parameters.
+     *
      *  @param sizeInfo    Output parameter indicating the sizes and required
      *                     allocation widths of the Y, U, V, and A planes.
      *  @param yuvaIndices How the YUVA planes are organized/used
@@ -106,6 +134,8 @@ public:
                     SkYUVColorSpace* colorSpace) const;
 
     /**
+     *  Deprecated. Use getYUVAPlanes instead for more structured YUVA plane retrieval.
+     *
      *  Returns true on success and false on failure.
      *  This always attempts to perform a full decode.  If the client only
      *  wants size, it should call queryYUVA8().

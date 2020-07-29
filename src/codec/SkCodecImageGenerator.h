@@ -90,6 +90,11 @@ public:
      */
     int getRepetitionCount() { return fCodec->getRepetitionCount(); }
 
+    bool queryYUVASpec(SkYUVASpec* spec,
+                       SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                       size_t rowbytes[SkYUVASpec::kMaxPlanes]) const override;
+    bool getYUVAPlanes(const SkPixmap pixmaps[SkYUVASpec::kMaxPlanes]) override;
+
 protected:
     sk_sp<SkData> onRefEncodedData() override;
 
