@@ -26,7 +26,7 @@ DEPS = [
   'vars',
 ]
 
-LOTTIE_WEB_BLACKLIST = [
+LOTTIE_WEB_EXCLUDE = [
   # See https://bugs.chromium.org/p/skia/issues/detail?id=9187#c4
   'lottiefiles.com - Progress Success.json',
   # Fails with "val2 is not defined".
@@ -44,7 +44,7 @@ LOTTIE_WEB_BLACKLIST = [
   'stacking.json',
 ]
 
-SKOTTIE_WASM_BLACKLIST = [
+SKOTTIE_WASM_EXCLUDE = [
   # Trace file has majority main_frame_aborted terminations in it and < 25
   # occurrences of submitted_frame + missed_frame.
   # Below descriptions are added from fmalita@'s comments in
@@ -73,7 +73,7 @@ SKOTTIE_WASM_BLACKLIST = [
 ]
 
 # These files work in SVG but not in Canvas.
-LOTTIE_WEB_CANVAS_BLACKLIST = LOTTIE_WEB_BLACKLIST + [
+LOTTIE_WEB_CANVAS_EXCLUDE = LOTTIE_WEB_EXCLUDE + [
   'Hello World.json',
   'interactive_menu.json',
   'Name.json',
@@ -104,7 +104,7 @@ def RunSteps(api):
         '--canvaskit_wasm', canvaskit_wasm_path,
     ]
     lottie_files = [x for x in lottie_files
-                    if api.path.basename(x) not in SKOTTIE_WASM_BLACKLIST]
+                    if api.path.basename(x) not in SKOTTIE_WASM_EXCLUDE]
   elif 'LottieWeb' in buildername:
     source_type = 'lottie-web'
     renderer = 'lottie-web'
@@ -112,11 +112,11 @@ def RunSteps(api):
       backend = 'canvas'
       lottie_files = [
           x for x in lottie_files
-          if api.path.basename(x) not in LOTTIE_WEB_CANVAS_BLACKLIST]
+          if api.path.basename(x) not in LOTTIE_WEB_CANVAS_EXCLUDE]
     else:
       backend = 'svg'
       lottie_files = [x for x in lottie_files
-                      if api.path.basename(x) not in LOTTIE_WEB_BLACKLIST]
+                      if api.path.basename(x) not in LOTTIE_WEB_EXCLUDE]
 
     perf_app_dir = checkout_root.join('skia', 'tools', 'lottie-web-perf')
     lottie_web_js_path = perf_app_dir.join('lottie-web-perf.js')
