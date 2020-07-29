@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37826e8e_dc38fbbe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-29T20:14:40Z",
+      "side": 1,
+      "message": "lgtm. Once we get things a little more sorted it seems like this could work with an image context, right?",
+      "revId": "16689aca5ce1b58b03e0ca5f10d3d65d7ba07dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
