@@ -85,10 +85,4 @@ bool SkImage_pinAsTexture(const SkImage*, GrRecordingContext*);
  */
 void SkImage_unpinAsTexture(const SkImage*, GrRecordingContext*);
 
-/**
- *  Returns the bounds of the image relative to its encoded buffer. For all non-lazy images,
- *  this returns (0,0,width,height). For a lazy-image, it may return a subset of that rect.
- */
-SkIRect SkImage_getSubset(const SkImage*);
-
 #endif
