@@ -1,1 +1,1 @@
-Checks: '-*,bugprone-use-after-move,google-build-namespaces'
+Checks: '-*,bugprone-use-after-move,bugprone-undelegated-constructor,google-build-namespaces'
