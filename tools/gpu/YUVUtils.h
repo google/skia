@@ -27,9 +27,9 @@ public:
     // Returns null if the data could not be extracted into YUVA8 planes
     static std::unique_ptr<LazyYUVImage> Make(sk_sp<SkData> data);
 
-    sk_sp<SkImage> refImage(GrContext* context);
+    sk_sp<SkImage> refImage(GrRecordingContext* context);
 
-    const SkImage* getImage(GrContext* context);
+    const SkImage* getImage(GrRecordingContext* context);
 
 private:
     // Decoded YUV data
@@ -47,7 +47,7 @@ private:
 
     bool reset(sk_sp<SkData> data);
 
-    bool ensureYUVImage(GrContext* context);
+    bool ensureYUVImage(GrRecordingContext* context);
 };
 
 // A helper for managing the lifetime of backend textures for YUVA images.
