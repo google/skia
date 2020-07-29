@@ -743,7 +743,10 @@ bool SkJpegCodec::onSkipScanlines(int count) {
     return (uint32_t) count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
 }
 
-static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
+static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
+                             SkYUVASpec::Planes* planes,
+                             SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                             size_t rowbytes[SkYUVASpec::kMaxPlanes]) {
     // Scaling is not supported in raw data mode.
     SkASSERT(dinfo->scale_num == dinfo->scale_denom);
 
@@ -790,17 +793,178 @@ static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
     //                     cases?
     int hSampY = dinfo->comp_info[0].h_samp_factor;
     int vSampY = dinfo->comp_info[0].v_samp_factor;
-    return (1 == hSampY && 1 == vSampY) ||
-           (2 == hSampY && 1 == vSampY) ||
-           (2 == hSampY && 2 == vSampY) ||
-           (1 == hSampY && 2 == vSampY) ||
-           (4 == hSampY && 1 == vSampY) ||
-           (4 == hSampY && 2 == vSampY);
+    SkASSERT(hSampY == dinfo->max_h_samp_factor);
+    SkASSERT(vSampY == dinfo->max_v_samp_factor);
+
+    SkYUVASpec::Planes tempPlanes;
+    if        (1 == hSampY && 1 == vSampY) {
+        tempPlanes = SkYUVASpec::Planes::kY_U_V_444;
+    } else if (2 == hSampY && 1 == vSampY) {
+        tempPlanes = SkYUVASpec::Planes::kY_U_V_422;
+    } else if (2 == hSampY && 2 == vSampY) {
+        tempPlanes = SkYUVASpec::Planes::kY_U_V_420;
+    } else if (1 == hSampY && 2 == vSampY) {
+        tempPlanes = SkYUVASpec::Planes::kY_U_V_440;
+    } else if (4 == hSampY && 1 == vSampY) {
+        tempPlanes = SkYUVASpec::Planes::kY_U_V_411;
+    } else if (4 == hSampY && 2 == vSampY) {
+        tempPlanes = SkYUVASpec::Planes::kY_U_V_410;
+    } else {
+        return false;
+    }
+    if (planes) {
+        *planes = tempPlanes;
+    }
+    if (colorTypes) {
+        for (int i = 0; i < 3; ++i) {
+            colorTypes[i] = kAlpha_8_SkColorType;
+        }
+    }
+    if (rowbytes) {
+        for (int i = 0; i < 3; ++i) {
+            for (int i = 0; i < 3; ++i) {
+                rowbytes[i] = dinfo->comp_info[i].width_in_blocks * DCTSIZE;
+            }
+        }
+    }
+    return true;
+}
+
+bool SkJpegCodec::onGetYUVASpec(SkYUVASpec* spec,
+                                SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                                size_t rowBytes[SkYUVASpec::kMaxPlanes]) const {
+    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
+    SkYUVASpec::Planes planes;
+    if (!is_yuv_supported(dinfo, &planes, colorTypes, rowBytes)) {
+        return false;
+    }
+    spec->fDimensions = this->dimensions();
+    spec->fPlanes = planes;
+    spec->fYUVColorSpace = kJPEG_Full_SkYUVColorSpace;
+    spec->fOrigin = this->getOrigin();
+    spec->fSitingX = spec->fSitingY = SkYUVASpec::Siting::kCentered;
+    return true;
+}
+
+SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkPixmap planes[SkYUVASpec::kMaxPlanes]) {
+    // Get a pointer to the decompress info since we will use it quite frequently
+    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
+    if (!is_yuv_supported(dinfo, nullptr, nullptr, nullptr)) {
+        return fDecoderMgr->returnFailure("onGetYUV8Planes", kInvalidInput);
+    }
+    // Set the jump location for libjpeg errors
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
+        return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
+    }
+
+    dinfo->raw_data_out = TRUE;
+    if (!jpeg_start_decompress(dinfo)) {
+        return fDecoderMgr->returnFailure("startDecompress", kInvalidInput);
+    }
+
+#ifdef SK_DEBUG
+    // A previous implementation claims that the return value of is_yuv_supported()
+    // may change after calling jpeg_start_decompress().  It looks to me like this
+    // was caused by a bug in the old code, but we'll be safe and check here.
+    // Also check that pixmap properties agree with expectations.
+    SkYUVASpec::Planes planeConfig;
+    SkColorType expectedColorTypes[SkYUVASpec::kMaxPlanes];
+    size_t expectedRowbytes[SkYUVASpec::kMaxPlanes];
+    SkASSERT(is_yuv_supported(dinfo, &planeConfig, expectedColorTypes, expectedRowbytes));
+    SkISize expectedDims[SkYUVASpec::kMaxPlanes];
+    int n = SkYUVASpec::ExpectedPlaneDims(planeConfig,
+                                          this->getOrigin(),
+                                          this->dimensions(),
+                                          expectedDims);
+    SkASSERT(n == 3);
+    for (int i = 0; i < n; ++i) {
+        SkASSERT(planes[i].colorType() == kAlpha_8_SkColorType);
+        SkASSERT(planes[i].dimensions() == expectedDims[i]);
+        SkASSERT(planes[i].rowBytes() == expectedRowbytes[i]);
+    }
+#endif
+    // Build a JSAMPIMAGE to handle output from libjpeg-turbo.  A JSAMPIMAGE has
+    // a 2-D array of pixels for each of the components (Y, U, V) in the image.
+    // Cheat Sheet:
+    //     JSAMPIMAGE == JSAMPLEARRAY* == JSAMPROW** == JSAMPLE***
+    JSAMPARRAY yuv[3];
+
+    // Set aside enough space for pointers to rows of Y, U, and V.
+    JSAMPROW rowptrs[2 * DCTSIZE + DCTSIZE + DCTSIZE];
+    yuv[0] = &rowptrs[0];            // Y rows (DCTSIZE or 2 * DCTSIZE)
+    yuv[1] = &rowptrs[2 * DCTSIZE];  // U rows (DCTSIZE)
+    yuv[2] = &rowptrs[3 * DCTSIZE];  // V rows (DCTSIZE)
+
+    // Initialize rowptrs.
+    int numYRowsPerBlock = DCTSIZE * dinfo->comp_info[0].v_samp_factor;
+    for (int i = 0; i < numYRowsPerBlock; i++) {
+        rowptrs[i] = static_cast<JSAMPLE*>(planes[0].writable_addr(0, i));
+    }
+    for (int i = 0; i < DCTSIZE; i++) {
+        rowptrs[i + 2 * DCTSIZE] = static_cast<JSAMPLE*>(planes[1].writable_addr(0, i));
+        rowptrs[i + 3 * DCTSIZE] = static_cast<JSAMPLE*>(planes[2].writable_addr(0, i));
+    }
+
+    // After each loop iteration, we will increment pointers to Y, U, and V.
+    size_t blockIncrementY = numYRowsPerBlock * planes[0].rowBytes();
+    size_t blockIncrementU = DCTSIZE * planes[1].rowBytes();
+    size_t blockIncrementV = DCTSIZE * planes[2].rowBytes();
+
+    uint32_t numRowsPerBlock = numYRowsPerBlock;
+
+    // We intentionally round down here, as this first loop will only handle
+    // full block rows.  As a special case at the end, we will handle any
+    // remaining rows that do not make up a full block.
+    const int numIters = dinfo->output_height / numRowsPerBlock;
+    for (int i = 0; i < numIters; i++) {
+        JDIMENSION linesRead = jpeg_read_raw_data(dinfo, yuv, numRowsPerBlock);
+        if (linesRead < numRowsPerBlock) {
+            // FIXME: Handle incomplete YUV decodes without signalling an error.
+            return kInvalidInput;
+        }
+
+        // Update rowptrs.
+        for (int i = 0; i < numYRowsPerBlock; i++) {
+            rowptrs[i] += blockIncrementY;
+        }
+        for (int i = 0; i < DCTSIZE; i++) {
+            rowptrs[i + 2 * DCTSIZE] += blockIncrementU;
+            rowptrs[i + 3 * DCTSIZE] += blockIncrementV;
+        }
+    }
+
+    uint32_t remainingRows = dinfo->output_height - dinfo->output_scanline;
+    SkASSERT(remainingRows == dinfo->output_height % numRowsPerBlock);
+    SkASSERT(dinfo->output_scanline == numIters * numRowsPerBlock);
+    if (remainingRows > 0) {
+        // libjpeg-turbo needs memory to be padded by the block sizes.  We will fulfill
+        // this requirement using an extra row buffer.
+        // FIXME: Should SkCodec have an extra memory buffer that can be shared among
+        //        all of the implementations that use temporary/garbage memory?
+        SkAutoTMalloc<JSAMPLE> extraRow(planes[0].rowBytes());
+        for (int i = remainingRows; i < numYRowsPerBlock; i++) {
+            rowptrs[i] = extraRow.get();
+        }
+        int remainingUVRows = dinfo->comp_info[1].downsampled_height - DCTSIZE * numIters;
+        for (int i = remainingUVRows; i < DCTSIZE; i++) {
+            rowptrs[i + 2 * DCTSIZE] = extraRow.get();
+            rowptrs[i + 3 * DCTSIZE] = extraRow.get();
+        }
+
+        JDIMENSION linesRead = jpeg_read_raw_data(dinfo, yuv, numRowsPerBlock);
+        if (linesRead < remainingRows) {
+            // FIXME: Handle incomplete YUV decodes without signalling an error.
+            return kInvalidInput;
+        }
+    }
+
+    return kSuccess;
 }
 
 bool SkJpegCodec::onQueryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
-    if (!is_yuv_supported(dinfo)) {
+    if (!is_yuv_supported(dinfo, nullptr, nullptr, nullptr)) {
         return false;
     }
 
@@ -844,7 +1008,7 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVASizeInfo& sizeInfo,
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
-    // Get a pointer to the decompress info since we will use it quite frequently
+    // Get a pointer to the decompress info since we will use it quite frequently.
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
 
     dinfo->raw_data_out = TRUE;
@@ -855,7 +1019,7 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVASizeInfo& sizeInfo,
     // A previous implementation claims that the return value of is_yuv_supported()
     // may change after calling jpeg_start_decompress().  It looks to me like this
     // was caused by a bug in the old code, but we'll be safe and check here.
-    SkASSERT(is_yuv_supported(dinfo));
+    SkASSERT(is_yuv_supported(dinfo, nullptr, nullptr, nullptr));
 
     // Currently, we require that the Y plane dimensions match the image dimensions
     // and that the U and V planes are the same dimensions.
