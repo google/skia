@@ -356,7 +356,7 @@ private:
         }
 
         if (CombinedQuadCountWillOverflow(fHelper.aaType(), upgradeToCoverageAAOnMerge,
-                                          fQuads.count() + that->fQuads.count())) {
+                                          fQuads.count() + that->fQuads.count(), true)) {
             return CombineResult::kCannotCombine;
         }
 
