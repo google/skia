@@ -657,7 +657,7 @@ void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
 
     fDX = next_ccw(fX2D) - fX2D;
     fDY = next_ccw(fY2D) - fY2D;
-    fInvLengths = 1.f / sqrt(mad(fDX, fDX, fDY * fDY));
+    fInvLengths = 1.f / sqrt(fDX*fDX + fDY*fDY);
 
     // Normalize edge vectors
     fDX *= fInvLengths;
@@ -668,7 +668,7 @@ void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
         fCosTheta = 0.f;
         fInvSinTheta = 1.f;
     } else {
-        fCosTheta = mad(fDX, next_cw(fDX), fDY * next_cw(fDY));
+        fCosTheta = fDX*next_cw(fDX) + fDY*next_cw(fDY);
         // NOTE: if cosTheta is close to 1, inset/outset math will avoid the fast paths that rely
         // on thefInvSinTheta since it will approach infinity.
         fInvSinTheta = 1.f / sqrt(1.f - fCosTheta * fCosTheta);
@@ -683,7 +683,7 @@ void TessellationHelper::EdgeEquations::reset(const EdgeVectors& edgeVectors) {
     // Correct for bad edges by copying adjacent edge information into the bad component
     correct_bad_edges(edgeVectors.fInvLengths >= kInvDistTolerance, &dx, &dy, nullptr);
 
-    V4f c = mad(dx, edgeVectors.fY2D, -dy * edgeVectors.fX2D);
+    V4f c = dx*edgeVectors.fY2D - dy*edgeVectors.fX2D;
     // Make sure normals point into the shape
     V4f test = mad(dy, next_cw(edgeVectors.fX2D), mad(-dx, next_cw(edgeVectors.fY2D), c));
     if (any(test < -kDistTolerance)) {
@@ -914,19 +914,19 @@ void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
     V4f signedOutsetsCW = edgeVectors.fInvSinTheta * signedEdgeDistances;
 
     // x = x + outset * mask * next_cw(xdiff) - outset * next_cw(mask) * xdiff
-    fX += mad(signedOutsetsCW, next_cw(edgeVectors.fDX), signedOutsets * edgeVectors.fDX);
-    fY += mad(signedOutsetsCW, next_cw(edgeVectors.fDY), signedOutsets * edgeVectors.fDY);
+    fX += signedOutsetsCW * next_cw(edgeVectors.fDX) + signedOutsets * edgeVectors.fDX;
+    fY += signedOutsetsCW * next_cw(edgeVectors.fDY) + signedOutsets * edgeVectors.fDY;
     if (fUVRCount > 0) {
         // We want to extend the texture coords by the same proportion as the positions.
         signedOutsets *= edgeVectors.fInvLengths;
         signedOutsetsCW *= next_cw(edgeVectors.fInvLengths);
         V4f du = next_ccw(fU) - fU;
         V4f dv = next_ccw(fV) - fV;
-        fU += mad(signedOutsetsCW, next_cw(du), signedOutsets * du);
-        fV += mad(signedOutsetsCW, next_cw(dv), signedOutsets * dv);
+        fU += signedOutsetsCW * next_cw(du) + signedOutsets * du;
+        fV += signedOutsetsCW * next_cw(dv) + signedOutsets * dv;
         if (fUVRCount == 3) {
             V4f dr = next_ccw(fR) - fR;
-            fR += mad(signedOutsetsCW, next_cw(dr), signedOutsets * dr);
+            fR += signedOutsetsCW * next_cw(dr) + signedOutsets * dr;
         }
     }
 }
@@ -936,14 +936,14 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
     V4f e1x = skvx::shuffle<2, 3, 2, 3>(fX) - skvx::shuffle<0, 1, 0, 1>(fX);
     V4f e1y = skvx::shuffle<2, 3, 2, 3>(fY) - skvx::shuffle<0, 1, 0, 1>(fY);
     V4f e1w = skvx::shuffle<2, 3, 2, 3>(fW) - skvx::shuffle<0, 1, 0, 1>(fW);
-    M4f e1Bad = mad(e1x, e1x, e1y * e1y) < kDist2Tolerance;
+    M4f e1Bad = e1x*e1x + e1y*e1y < kDist2Tolerance;
     correct_bad_edges(e1Bad, &e1x, &e1y, &e1w);
 
     // // Top to bottom, in device space, for each point
     V4f e2x = skvx::shuffle<1, 1, 3, 3>(fX) - skvx::shuffle<0, 0, 2, 2>(fX);
     V4f e2y = skvx::shuffle<1, 1, 3, 3>(fY) - skvx::shuffle<0, 0, 2, 2>(fY);
     V4f e2w = skvx::shuffle<1, 1, 3, 3>(fW) - skvx::shuffle<0, 0, 2, 2>(fW);
-    M4f e2Bad = mad(e2x, e2x, e2y * e2y) < kDist2Tolerance;
+    M4f e2Bad = e2x*e2x + e2y*e2y < kDist2Tolerance;
     correct_bad_edges(e2Bad, &e2x, &e2y, &e2w);
 
     // Can only move along e1 and e2 to reach the new 2D point, so we have

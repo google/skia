@@ -95,10 +95,10 @@ SkM44& SkM44::preTranslate(SkScalar x, SkScalar y, SkScalar z) {
 
 SkM44& SkM44::postTranslate(SkScalar x, SkScalar y, SkScalar z) {
     sk4f t = { x, y, z, 0 };
-    skvx::mad(t, fMat[ 3], sk4f::Load(fMat +  0)).store(fMat +  0);
-    skvx::mad(t, fMat[ 7], sk4f::Load(fMat +  4)).store(fMat +  4);
-    skvx::mad(t, fMat[11], sk4f::Load(fMat +  8)).store(fMat +  8);
-    skvx::mad(t, fMat[15], sk4f::Load(fMat + 12)).store(fMat + 12);
+    (t*fMat[ 3] + sk4f::Load(fMat +  0)).store(fMat +  0);
+    (t*fMat[ 7] + sk4f::Load(fMat +  4)).store(fMat +  4);
+    (t*fMat[11] + sk4f::Load(fMat +  8)).store(fMat +  8);
+    (t*fMat[15] + sk4f::Load(fMat + 12)).store(fMat + 12);
     return *this;
 }
 
