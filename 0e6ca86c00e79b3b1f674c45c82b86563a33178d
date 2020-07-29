@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "0bfb2a78_60f89e79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-29T20:35:29Z",
+      "side": 1,
+      "message": "What\u0027s the deal here?  I thought the general direction we were heading was to obsolete color filters, especially runtime color filters, and definitely convert everything that depends on position to be a shader?",
+      "revId": "0e6ca86c00e79b3b1f674c45c82b86563a33178d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3380f646_7d708387",
         "filename": "src/core/SkPaintPriv.cpp",
         "patchSetId": 1
