@@ -142,6 +142,30 @@
       "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f6b06ec_9621e2bd",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-29T03:17:37Z",
+      "side": 1,
+      "message": "Also, sk_abort_no_print was ok because it returns \u0027void\u0027.",
+      "parentUuid": "d392ef47_501dbeba",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 6
+      },
+      "revId": "a21ad92fe9cf226a0bf695fb495619f71c494a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
