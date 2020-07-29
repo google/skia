@@ -16,6 +16,52 @@
       "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "120e36f6_29e19309",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-29T14:26:45Z",
+      "side": 1,
+      "message": "Go ahead and just remove the ability to dump to png from this fuzzer. I doubt it seems much use and if we care, we can add it back in in a different way (maybe return SkCanvas from FuzzSKP)",
+      "range": {
+        "startLine": 21,
+        "startChar": 34,
+        "endLine": 21,
+        "endChar": 74
+      },
+      "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6468f0a7_931862fe",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-29T14:26:45Z",
+      "side": 1,
+      "message": "These two function calls do nothing interesting from the fuzzer\u0027s perspective (go look at the implementation) - remove them.",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 18
+      },
+      "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
