@@ -35,6 +35,7 @@ def SkString_SummaryProvider(valobj, dict):
     else:
         return '"' + string + '"'
 
+
 class SkTArray_SynthProvider:
 
     def __init__(self, valobj, dict):
@@ -79,6 +80,53 @@ class SkTArray_SynthProvider:
         return True
 
 
+class SkAutoTArray_SynthProvider:
+
+    def __init__(self, valobj, dict):
+        self.valobj = valobj
+
+    def num_children(self):
+        try:
+            count = self.fCount.GetValueAsSigned(0)
+            return count if count >= 0 else 0
+        except:
+            return 0
+
+    def get_child_index(self, name):
+        try:
+            return int(name.lstrip('[').rstrip(']'))
+        except:
+            return -1
+
+    def get_child_at_index(self, index):
+        if index < 0:
+            return None
+        if index >= self.num_children():
+            return None
+
+        try:
+            offset = index * self.dataSize
+            return self.fValue.CreateChildAtOffset('[' + str(index) + ']',
+                                                   offset, self.dataType)
+        except:
+            return None
+
+    def update(self):
+        try:
+            self.fCount = self.valobj.GetChildMemberWithName('fCount')
+            fArray = self.valobj.GetChildMemberWithName('fArray')
+            # These lookups rely on implementation details of unique_ptr and __compressed_pair.
+            ptr = fArray.GetChildMemberWithName('__ptr_')
+            self.fValue = ptr.GetChildMemberWithName('__value_')
+            self.dataType = self.fValue.GetType().GetPointeeType()
+            self.dataSize = self.dataType.GetByteSize()
+        except:
+            pass
+
+    def has_children(self):
+        return True
+
+
 def __lldb_init_module(debugger, dict):
     debugger.HandleCommand(
         'type summary add -F skia.SkString_SummaryProvider "SkString" -w skia')
@@ -86,4 +134,8 @@ def __lldb_init_module(debugger, dict):
         'type synthetic add -l skia.SkTArray_SynthProvider -x "^SkS?TArray<.+>$" -w skia')
     debugger.HandleCommand(
         'type summary add --summary-string "size=${svar%#}" -e -x "^SkS?TArray<.+>$" -w skia')
+    debugger.HandleCommand(
+        'type synthetic add -l skia.SkAutoTArray_SynthProvider -x "^SkAutoS?TArray<.+>$" -w skia')
+    debugger.HandleCommand(
+        'type summary add --summary-string "size=${svar%#}" -e -x "^SkAutoS?TArray<.+>$" -w skia')
     debugger.HandleCommand("type category enable skia")
