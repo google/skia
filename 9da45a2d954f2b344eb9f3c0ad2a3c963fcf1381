@@ -16,6 +16,23 @@
       "revId": "9da45a2d954f2b344eb9f3c0ad2a3c963fcf1381",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5bb91e80_e2b8634a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-29T12:24:17Z",
+      "side": 1,
+      "message": "I defer to Brian, as I don\u0027t know what the implications are here.",
+      "revId": "9da45a2d954f2b344eb9f3c0ad2a3c963fcf1381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
