@@ -200,6 +200,12 @@ skvm::Color SkShaderBase::program(skvm::Builder* p,
                                   const SkMatrixProvider& matrices, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    // Shader subclasses should always act as if the destination were premul or opaque.
+    // SkVMBlitter handles all the coordination of unpremul itself, via premul.
+    SkColorInfo tweaked = dst.alphaType() == kUnpremul_SkAlphaType
+                           ? dst.makeAlphaType(kPremul_SkAlphaType)
+                           : dst;
+
     // Force opaque alpha for all opaque shaders.
     //
     // This is primarily nice in that we usually have a 1.0f constant splat
@@ -212,7 +218,7 @@ skvm::Color SkShaderBase::program(skvm::Builder* p,
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (auto color = this->onProgram(p, device,local, paint, matrices,localM, quality,dst,
+    if (auto color = this->onProgram(p, device,local, paint, matrices,localM, quality,tweaked,
                                      uniforms,alloc)) {
         if (this->isOpaque()) {
             color.a = p->splat(1.0f);

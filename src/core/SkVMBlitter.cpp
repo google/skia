@@ -394,9 +394,7 @@ namespace {
 
             skvm::Color c = p->load(fmt, p->arg(SkColorTypeBytesPerPixel(ct)));
 
-            return SkColorSpaceXformSteps{fSprite.colorSpace(), fSprite.alphaType(),
-                                              dst.colorSpace(), kPremul_SkAlphaType}
-                .program(p, uniforms, c);
+            return SkColorSpaceXformSteps{fSprite, dst}.program(p, uniforms, c);
         }
     };
 
