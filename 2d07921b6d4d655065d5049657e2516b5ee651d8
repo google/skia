@@ -16,6 +16,97 @@
       "revId": "2d07921b6d4d655065d5049657e2516b5ee651d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e808548_5122a5fc",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-29T18:13:16Z",
+      "side": 1,
+      "message": "nit: make these static ints so that we see something like BACKING_VIEW_TEXTURE or BACKING_VIEW_SURFACE in the case statement.",
+      "range": {
+        "startLine": 37,
+        "startChar": 21,
+        "endLine": 37,
+        "endChar": 22
+      },
+      "revId": "2d07921b6d4d655065d5049657e2516b5ee651d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21424ebe_26092f2c",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-29T18:13:16Z",
+      "side": 1,
+      "message": "if(Color.alpha(bg) !\u003d 255))\n\nThere is a utility function to extract the alpha value.",
+      "revId": "2d07921b6d4d655065d5049657e2516b5ee651d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0b0481b_a94bdbcb",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-29T18:13:16Z",
+      "side": 1,
+      "message": "nit: line length needs to be less than 100",
+      "revId": "2d07921b6d4d655065d5049657e2516b5ee651d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c093535_9ec0c3dd",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-29T18:13:16Z",
+      "side": 1,
+      "message": "nit: line length needs to be less than 100",
+      "revId": "2d07921b6d4d655065d5049657e2516b5ee651d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "090126d6_198d7bd0",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-29T18:13:16Z",
+      "side": 1,
+      "message": "nit: line length needs to be less than 100",
+      "revId": "2d07921b6d4d655065d5049657e2516b5ee651d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
