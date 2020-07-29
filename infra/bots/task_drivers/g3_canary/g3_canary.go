@@ -111,6 +111,22 @@ func main() {
 	taskFileName := fmt.Sprintf("%s-%s.json", rs.Issue, rs.Patchset)
 	taskStoragePath := fmt.Sprintf("gs://%s/%s", g3CanaryBucketName, taskFileName)
 
+	if _, err := store.Bucket(g3CanaryBucketName).Object(taskFileName).Attrs(ctx); err != nil {
+		if err == storage.ErrObjectNotExist {
+			fmt.Println("ERR OBJECT NOT EXIST")
+		} else if strings.Contains(err.Error(), "No such object") {
+			// https://github.com/googleapis/google-cloud-go/issues/2635
+			fmt.Println("NO SUCH OBJECT")
+		} else if t, ok := err.(*googleapi.Error); ok {
+			// The storage library doesn't return gs.ErrObjectNotExist when Delete
+			// returns a 404. Catch that explicitly.
+			if t.Code == http.StatusNotFound {
+				fmt.Println("STATUS NOT FOUND")
+			}
+		}
+	}
+	return
+
 	err = td.Do(ctx, td.Props("Trigger new task if not already running"), func(ctx context.Context) error {
 		if _, err := gcsClient.GetFileContents(ctx, taskFileName); err != nil {
 			if isNotFoundError(err) {
