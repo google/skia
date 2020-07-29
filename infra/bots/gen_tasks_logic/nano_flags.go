@@ -289,7 +289,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	}
 
 	if doUpload {
-		keysBlacklist := map[string]bool{
+		keysExclude := map[string]bool{
 			"configuration": true,
 			"role":          true,
 			"test_filter":   true,
@@ -301,7 +301,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		sort.Strings(keys)
 		args = append(args, "--key")
 		for _, k := range keys {
-			if !keysBlacklist[k] {
+			if !keysExclude[k] {
 				args = append(args, k, b.parts[k])
 			}
 		}
