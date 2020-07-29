@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "19c0130f_e5c16ab0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-29T17:26:45Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look.\nThe current execution speed is around 600/sec, and for the return value is a SkBitmap. As the speed looks ok, the dump_png is still in Fuzzmain taking the SkBitmap as input.",
+      "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "120e36f6_29e19309",
         "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
         "patchSetId": 2
@@ -42,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "bfc32988_da2d1cb9",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-29T17:26:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "120e36f6_29e19309",
+      "range": {
+        "startLine": 21,
+        "startChar": 34,
+        "endLine": 21,
+        "endChar": 74
+      },
+      "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6468f0a7_931862fe",
         "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
         "patchSetId": 2
@@ -62,6 +103,30 @@
       "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f7736eb_9a5d0e78",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-29T17:26:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6468f0a7_931862fe",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 18
+      },
+      "revId": "03b7fff437c3de7ea14f8d20245c8364b28fbd10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
