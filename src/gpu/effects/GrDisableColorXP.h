@@ -55,12 +55,7 @@ private:
 #endif
 
 inline const GrDisableColorXPFactory* GrDisableColorXPFactory::Get() {
-    // If this is constructed as static constexpr by cl.exe (2015 SP2) the vtable is null.
-#ifdef SK_BUILD_FOR_WIN
-    static const GrDisableColorXPFactory gDisableColorXPFactory;
-#else
     static constexpr const GrDisableColorXPFactory gDisableColorXPFactory;
-#endif
     return &gDisableColorXPFactory;
 }
 
