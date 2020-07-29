@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39cb71f3_c870dc55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-29T18:22:26Z",
+      "side": 1,
+      "message": "Nothing tricky. Just a bunch of renames.",
+      "revId": "89567c7999df90f8216d3259ff2fc851b2b6be82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
