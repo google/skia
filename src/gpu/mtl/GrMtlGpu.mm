@@ -126,6 +126,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
         , fCompiler(new SkSL::Compiler())
         , fResourceProvider(this)
+        , fStagingBufferManager(this)
         , fDisconnected(false)
         , fFinishCallbacks(this) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
@@ -160,6 +161,8 @@ void GrMtlGpu::destroyResources() {
         fOutstandingCommandBuffers.pop_front();
     }
 
+    fStagingBufferManager.reset();
+
     fResourceProvider.destroyResources();
 
     fQueue = nil;
@@ -191,6 +194,10 @@ GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
         this->checkForFinishedCommandBuffers();
     }
     return fCurrentCmdBuffer.get();
+}
+
+void GrMtlGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+    fCurrentCmdBuffer->addGrBuffer(std::move(buffer));
 }
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
@@ -305,13 +312,18 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             bpp, {width, height}, &individualMipOffsets, mipLevelCount);
     SkASSERT(combinedBufferSize);
 
-    size_t bufferOffset;
-    id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(combinedBufferSize,
-                                                                             &bufferOffset);
-    if (!transferBuffer) {
+    #ifdef SK_BUILD_FOR_MAC
+        static const int kAlignment = 4;
+    #else
+        static const int kAlignment = 1;
+    #endif
+    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            combinedBufferSize, kAlignment);
+    if (!slice.fBuffer) {
         return false;
     }
-    char* buffer = (char*) transferBuffer.contents + bufferOffset;
+    char* bufferData = (char*)slice.fOffsetMapPtr;
+    GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
 
     int currentWidth = width;
     int currentHeight = height;
@@ -326,12 +338,12 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             const size_t rowBytes = texels[currentMipLevel].fRowBytes;
 
             // copy data into the buffer, skipping any trailing bytes
-            char* dst = buffer + individualMipOffsets[currentMipLevel];
+            char* dst = bufferData + individualMipOffsets[currentMipLevel];
             const char* src = (const char*)texels[currentMipLevel].fPixels;
             SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
 
-            [blitCmdEncoder copyFromBuffer: transferBuffer
-                              sourceOffset: bufferOffset + individualMipOffsets[currentMipLevel]
+            [blitCmdEncoder copyFromBuffer: mtlBuffer->mtlBuffer()
+                              sourceOffset: slice.fOffset + individualMipOffsets[currentMipLevel]
                          sourceBytesPerRow: trimRowBytes
                        sourceBytesPerImage: trimRowBytes*currentHeight
                                 sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
@@ -345,7 +357,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         layerHeight = currentHeight;
     }
 #ifdef SK_BUILD_FOR_MAC
-    [transferBuffer didModifyRange: NSMakeRange(bufferOffset, combinedBufferSize)];
+    [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
 #endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
@@ -590,20 +602,25 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     SkASSERT(individualMipOffsets.count() == numMipLevels);
     SkASSERT(dataSize == combinedBufferSize);
 
-    size_t bufferOffset;
-    id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(dataSize,
-                                                                             &bufferOffset);
-    if (!transferBuffer) {
+#ifdef SK_BUILD_FOR_MAC
+    static const int kAlignment = 4;
+#else
+    static const int kAlignment = 1;
+#endif
+    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            combinedBufferSize, kAlignment);
+    if (!slice.fBuffer) {
         return nullptr;
     }
-    char* buffer = (char*) transferBuffer.contents + bufferOffset;
+    char* bufferData = (char*)slice.fOffsetMapPtr;
+    GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
 
     MTLOrigin origin = MTLOriginMake(0, 0, 0);
 
     id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
 
     // copy data into the buffer, skipping any trailing bytes
-    memcpy(buffer, data, dataSize);
+    memcpy(bufferData, data, dataSize);
 
     SkISize levelDimensions = dimensions;
     for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
@@ -611,8 +628,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
         size_t levelSize = SkCompressedDataSize(compressionType, levelDimensions, nullptr, false);
 
         // TODO: can this all be done in one go?
-        [blitCmdEncoder copyFromBuffer: transferBuffer
-                          sourceOffset: bufferOffset + individualMipOffsets[currentMipLevel]
+        [blitCmdEncoder copyFromBuffer: mtlBuffer->mtlBuffer()
+                          sourceOffset: slice.fOffset + individualMipOffsets[currentMipLevel]
                      sourceBytesPerRow: levelRowBytes
                    sourceBytesPerImage: levelSize
                             sourceSize: MTLSizeMake(levelDimensions.width(),
@@ -626,7 +643,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                            std::max(1, levelDimensions.height()/2)};
     }
 #ifdef SK_BUILD_FOR_MAC
-    [transferBuffer didModifyRange: NSMakeRange(bufferOffset, dataSize)];
+    [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
 #endif
 
     return std::move(tex);
