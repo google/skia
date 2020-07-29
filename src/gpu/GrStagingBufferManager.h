@@ -30,9 +30,9 @@ public:
     Slice allocateStagingBufferSlice(size_t size, size_t requiredAlignment = 1);
 
     // This call is used to move all the buffers off of the manager and to backend gpu by calling
-    // the virtual GrGpu::takeOwnershipOfStagingBuffer on each buffer. This is called during
+    // the virtual GrGpu::takeOwnershipOfBuffer on each buffer. This is called during
     // submitToGpu. It is up to the backend to take refs to the buffers in their implemented
-    // takeOwnershipOfStagingBuffer implementation if they need to. After this call returns the
+    // takeOwnershipOfBuffer implementation if they need to. After this call returns the
     // manager will have released all refs to its buffers.
     void detachBuffers();
 

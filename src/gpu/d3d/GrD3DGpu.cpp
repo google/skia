@@ -121,7 +121,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     SkASSERT(fCurrentDirectCommandList);
 
     // set up constant data
-    fCurrentDirectCommandList->setCurrentConstantBuffer(&fConstantsRingBuffer);
+    fConstantsRingBuffer.startSubmit(this);
 
     fResourceProvider.prepForSubmit();
 
@@ -1290,7 +1290,7 @@ void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
     }
 }
 
-void GrD3DGpu::takeOwnershipOfStagingBuffer(sk_sp<GrGpuBuffer> buffer) {
+void GrD3DGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
     fCurrentDirectCommandList->addGrBuffer(std::move(buffer));
 }
 
