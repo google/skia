@@ -142,6 +142,10 @@ func (b *jobBuilder) genTasksForJob() {
 		b.checkGeneratedFiles()
 		return
 	}
+	if b.Name == "Housekeeper-PerCommit-RunGnToBp" {
+		b.checkGnToBp()
+		return
+	}
 	if b.Name == "Housekeeper-OnDemand-Presubmit" {
 		b.priority(1)
 		b.presubmit()
