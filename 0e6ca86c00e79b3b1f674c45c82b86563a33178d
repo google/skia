@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9bcac82_27dce0fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-29T20:23:44Z",
+      "side": 1,
+      "message": "From our discussion about SkSL signature, where we realized that we\u0027re breaking the color filter rules...",
+      "revId": "0e6ca86c00e79b3b1f674c45c82b86563a33178d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3380f646_7d708387",
+        "filename": "src/core/SkPaintPriv.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-29T20:23:44Z",
+      "side": 1,
+      "message": "I think this is right (vs. the case when there was a shader on the paint): SkColorShader will premul the input, so we don\u0027t need the extra modulation by the paint alpha. But we leave the paint alpha intact, because it shouldn\u0027t affect anything else?",
+      "revId": "0e6ca86c00e79b3b1f674c45c82b86563a33178d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3272a3b7_1d49ae45",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-29T20:23:44Z",
+      "side": 1,
+      "message": "Is this right? I couldn\u0027t figure out how/where the color filter would get applied if this check fails? Presumably as part of grPaint (that will still include it due to the changes in paint conversion)?",
+      "revId": "0e6ca86c00e79b3b1f674c45c82b86563a33178d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
