@@ -400,12 +400,21 @@ public:
         @param colorSpace      range of colors; may be nullptr
         @return                created SkImage, or nullptr
     */
+    static sk_sp<SkImage> MakeFromAdoptedTexture(GrDirectContext* context,
+                                                 const GrBackendTexture& backendTexture,
+                                                 GrSurfaceOrigin surfaceOrigin,
+                                                 SkColorType colorType,
+                                                 SkAlphaType alphaType = kPremul_SkAlphaType,
+                                                 sk_sp<SkColorSpace> colorSpace = nullptr);
+
+#ifdef SK_IMAGE_MAKE_FROM_ADOPTED_TEXTURE_LEGACY_API
     static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
                                                  const GrBackendTexture& backendTexture,
                                                  GrSurfaceOrigin surfaceOrigin,
                                                  SkColorType colorType,
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
+#endif
 
     /** Creates an SkImage by flattening the specified YUVA planes into a single, interleaved RGBA
         image.

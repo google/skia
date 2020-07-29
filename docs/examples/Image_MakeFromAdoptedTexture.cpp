@@ -4,7 +4,9 @@
 // HASH=b034517e39394b7543f06ec885e36d7d
 REG_FIDDLE(Image_MakeFromAdoptedTexture, 256, 256, false, 5) {
 void draw(SkCanvas* canvas) {
-    if (!canvas->getGrContext()) {
+    GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
+    // Example does not support DDL.
+    if (!dContext) {
         return;
     }
     canvas->scale(.5f, .5f);
@@ -12,7 +14,7 @@ void draw(SkCanvas* canvas) {
     int x = 0, y = 0;
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
         for (auto alpha : { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {
-            sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(canvas->getGrContext(),
+            sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(dContext,
                                                                    backEndTexture, origin,
                                                                    kRGBA_8888_SkColorType, alpha);
             canvas->drawImage(image, x, y);
