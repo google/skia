@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "dfee3f26_ab33e825",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-29T20:57:18Z",
+      "side": 1,
+      "message": "SGTM, will do.",
+      "parentUuid": "de431450_a36904c6",
+      "revId": "1ee805d2e3555772f44621d460430cfac9127292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b24fa0cf_6b9460f4",
         "filename": "site/user/build.md",
         "patchSetId": 3
