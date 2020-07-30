@@ -1384,8 +1384,6 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
         return this->dirtyAfterEdit();
     }
 
-    SkPathRef::Editor(&fPathRef, src->countVerbs(), src->countPoints());
-
     SkMatrixPriv::MapPtsProc mapPtsProc = SkMatrixPriv::GetMapPtsProc(matrix);
     bool firstVerb = true;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(*src)) {
