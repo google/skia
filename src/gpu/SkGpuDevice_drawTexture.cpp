@@ -501,15 +501,12 @@ static void draw_texture_producer(GrRecordingContext* context,
     } else {
         fp = producer->createFragmentProcessor(textureMatrix, subset, domain, sampler);
     }
-    if (fp) {
-        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
-    }
-    fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                       producer->colorSpace(), producer->alphaType(),
-                                       rtc->colorInfo().colorSpace(), kPremul_SkAlphaType);
     if (!fp) {
         return;
     }
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), producer->colorSpace(), producer->alphaType(),
+                                       rtc->colorInfo().colorSpace(), kPremul_SkAlphaType);
+    fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
 
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(context, rtc->colorInfo(), paint, matrixProvider,
