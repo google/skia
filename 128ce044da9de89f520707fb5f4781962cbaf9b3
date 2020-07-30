@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "701cae7b_09074170",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-30T17:19:30Z",
+      "side": 1,
+      "message": "Is there no general utility for this in SkPathPriv?",
+      "range": {
+        "startLine": 149,
+        "startChar": 10,
+        "endLine": 149,
+        "endChar": 26
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e39a4f42_7cc99753",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-30T17:19:30Z",
+      "side": 1,
+      "message": "We should assert that the viewmatrix doesn\u0027t have perspective, since getMaxScale() doesn\u0027t support that.",
+      "range": {
+        "startLine": 45,
+        "startChar": 34,
+        "endLine": 45,
+        "endChar": 45
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bd75ecb_7bf2c918",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-30T17:19:30Z",
+      "side": 1,
+      "message": "Since we transform hairlines into device space and use a stroke width of 1, could we relax this constraint for hairline strokes?",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 42
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
