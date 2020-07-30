@@ -725,7 +725,8 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     Variable* loopIdx = (Variable*) (*fSymbolTable)["sk_InvocationID"];
     SkASSERT(loopIdx);
     std::unique_ptr<Expression> test(new BinaryExpression(-1,
-                    std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx)),
+                    std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx,
+                                                                VariableReference::kWrite_RefKind)),
                     Token::Kind::TK_LT,
                     std::unique_ptr<IntLiteral>(new IntLiteral(fContext, -1, fInvocations)),
                     *fContext.fBool_Type));
@@ -750,7 +751,8 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                      std::move(endPrimitive),
                                                      std::vector<std::unique_ptr<Expression>>()))));
     std::unique_ptr<Expression> assignment(new BinaryExpression(-1,
-                    std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx)),
+                    std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx,
+                                                                VariableReference::kWrite_RefKind)),
                     Token::Kind::TK_EQ,
                     std::unique_ptr<IntLiteral>(new IntLiteral(fContext, -1, 0)),
                     *fContext.fInt_Type));
@@ -774,9 +776,11 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     SkASSERT(fSkPerVertex && fRTAdjust);
     #define REF(var) std::unique_ptr<Expression>(\
                                   new VariableReference(-1, *var, VariableReference::kRead_RefKind))
+    #define WREF(var) std::unique_ptr<Expression>(\
+                                 new VariableReference(-1, *var, VariableReference::kWrite_RefKind))
     #define FIELD(var, idx) std::unique_ptr<Expression>(\
                     new FieldAccess(REF(var), idx, FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
-    #define POS std::unique_ptr<Expression>(new FieldAccess(REF(fSkPerVertex), 0, \
+    #define POS std::unique_ptr<Expression>(new FieldAccess(WREF(fSkPerVertex), 0, \
                                                    FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
     #define ADJUST (fRTAdjustInterfaceBlock ? \
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
@@ -1800,8 +1804,11 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
         return nullptr;
     }
     if (Compiler::IsAssignment(op)) {
-        this->setRefKind(*left, op != Token::Kind::TK_EQ ? VariableReference::kReadWrite_RefKind :
-                                                           VariableReference::kWrite_RefKind);
+        if (!this->setRefKind(*left, op != Token::Kind::TK_EQ
+                                                             ? VariableReference::kReadWrite_RefKind
+                                                             : VariableReference::kWrite_RefKind)) {
+            return nullptr;
+        }
     }
     left = this->coerce(std::move(left), *leftType);
     right = this->coerce(std::move(right), *rightType);
@@ -2731,8 +2738,9 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
 
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
                                                         StringFragment fields) {
-    if (base->fType.kind() != Type::kVector_Kind) {
-        fErrors.error(base->fOffset, "cannot swizzle type '" + base->fType.displayName() + "'");
+    if (base->fType.kind() != Type::kVector_Kind && !base->fType.isNumber()) {
+        fErrors.error(base->fOffset, "cannot swizzle value of type '" + base->fType.displayName() +
+                                     "'");
         return nullptr;
     }
     std::vector<int> swizzleComponents;
@@ -2787,6 +2795,71 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     if (swizzleComponents.size() > 4) {
         fErrors.error(base->fOffset, "too many components in swizzle mask '" + fields + "'");
         return nullptr;
+    }
+    if (base->fType.isNumber()) {
+        int offset = base->fOffset;
+        std::unique_ptr<Expression> expr;
+        bool initialized;
+        switch (base->fKind) {
+            case Expression::kVariableReference_Kind:
+            case Expression::kFloatLiteral_Kind:
+            case Expression::kIntLiteral_Kind:
+                initialized = true;
+                expr = std::move(base);
+                break;
+            default:
+                initialized = false;
+                int varIndex = fInlineVarCounter++;
+                std::unique_ptr<String> name(new String());
+                name->appendf("_tmpSwizzle%d", varIndex);
+                String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
+                Variable* var = (Variable*) fSymbolTable->takeOwnership(std::unique_ptr<Symbol>(
+                                                     new Variable(-1, Modifiers(), namePtr->c_str(),
+                                                                  base->fType,
+                                                                  Variable::kLocal_Storage,
+                                                                  nullptr)));
+                expr.reset(new VariableReference(offset, *var));
+                std::vector<std::unique_ptr<VarDeclaration>> variables;
+                variables.emplace_back(new VarDeclaration(var, {}, nullptr));
+                fExtraStatements.emplace_back(new VarDeclarationsStatement(
+                        std::unique_ptr<VarDeclarations>(new VarDeclarations(
+                                                                           offset,
+                                                                           &expr->fType,
+                                                                           std::move(variables)))));
+        }
+        std::vector<std::unique_ptr<Expression>> args;
+        for (int c : swizzleComponents) {
+            switch (c) {
+                case 0:
+                    if (initialized) {
+                        args.push_back(expr->clone());
+                    } else {
+                        SkASSERT(expr->fKind == Expression::kVariableReference_Kind);
+                        std::unique_ptr<Expression> ref(new VariableReference(
+                                                             offset,
+                                                             ((VariableReference&) *expr).fVariable,
+                                                             VariableReference::kWrite_RefKind));
+                        args.emplace_back(new BinaryExpression(-1, std::move(ref),
+                                                               Token::Kind::TK_EQ, std::move(base),
+                                                               expr->fType));
+                        initialized = true;
+                    }
+                    break;
+                case SKSL_SWIZZLE_0:
+                    args.emplace_back(new IntLiteral(fContext, offset, 0));
+                    break;
+                case SKSL_SWIZZLE_1:
+                    args.emplace_back(new IntLiteral(fContext, offset, 1));
+                    break;
+            }
+        }
+        SkASSERT(args.size() == swizzleComponents.size());
+        return std::unique_ptr<Expression>(new Constructor(offset,
+                                                           expr->fType.toCompound(
+                                                                           fContext,
+                                                                           swizzleComponents.size(),
+                                                                           1),
+                                                           std::move(args)));
     }
     return std::unique_ptr<Expression>(new Swizzle(fContext, std::move(base), swizzleComponents));
 }
@@ -2910,15 +2983,11 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
         return this->convertField(std::move(base), field);
     }
     switch (base->fType.kind()) {
-        case Type::kVector_Kind:
-            return this->convertSwizzle(std::move(base), field);
         case Type::kOther_Kind:
         case Type::kStruct_Kind:
             return this->convertField(std::move(base), field);
         default:
-            fErrors.error(base->fOffset, "cannot swizzle value of type '" +
-                                         base->fType.displayName() + "'");
-            return nullptr;
+            return this->convertSwizzle(std::move(base), field);
     }
 }
 
@@ -2972,34 +3041,30 @@ bool IRGenerator::checkSwizzleWrite(const Swizzle& swizzle) {
     return true;
 }
 
-void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind kind) {
+bool IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind kind) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) expr).fVariable;
             if (var.fModifiers.fFlags &
                 (Modifiers::kConst_Flag | Modifiers::kUniform_Flag | Modifiers::kVarying_Flag)) {
                 fErrors.error(expr.fOffset, "cannot modify immutable variable '" + var.fName + "'");
+                return false;
             }
             ((VariableReference&) expr).setRefKind(kind);
-            break;
+            return true;
         }
         case Expression::kFieldAccess_Kind:
-            this->setRefKind(*((FieldAccess&) expr).fBase, kind);
-            break;
+            return this->setRefKind(*((FieldAccess&) expr).fBase, kind);
         case Expression::kSwizzle_Kind: {
             const Swizzle& swizzle = (Swizzle&) expr;
             this->checkSwizzleWrite(swizzle);
-            this->setRefKind(*swizzle.fBase, kind);
-            break;
+            return this->setRefKind(*swizzle.fBase, kind);
         }
         case Expression::kIndex_Kind:
-            this->setRefKind(*((IndexExpression&) expr).fBase, kind);
-            break;
+            return this->setRefKind(*((IndexExpression&) expr).fBase, kind);
         case Expression::kTernary_Kind: {
             TernaryExpression& t = (TernaryExpression&) expr;
-            this->setRefKind(*t.fIfTrue, kind);
-            this->setRefKind(*t.fIfFalse, kind);
-            break;
+            return this->setRefKind(*t.fIfTrue, kind) && this->setRefKind(*t.fIfFalse, kind);
         }
         case Expression::kExternalValue_Kind: {
             const ExternalValue& v = *((ExternalValueReference&) expr).fValue;
@@ -3007,11 +3072,11 @@ void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind 
                 fErrors.error(expr.fOffset,
                               "cannot modify immutable external value '" + v.fName + "'");
             }
-            break;
+            return true;
         }
         default:
             fErrors.error(expr.fOffset, "cannot assign to this expression");
-            break;
+            return false;
     }
 }
 
