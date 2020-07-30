@@ -33,6 +33,24 @@
       "revId": "4fadce46b90fdd4b2ab10735d0411f9df85f462b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37700ce0_da807ddb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-30T20:03:05Z",
+      "side": 1,
+      "message": "Actually, I didn\u0027t notice this was in a header. I don\u0027t think there\u0027s any reason for it to be at all. It\u0027s not performance-critical. Let\u0027s just move the implementation out of the header entirely. Maybe a class static method.",
+      "parentUuid": "2a06776a_49615f17",
+      "revId": "4fadce46b90fdd4b2ab10735d0411f9df85f462b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
