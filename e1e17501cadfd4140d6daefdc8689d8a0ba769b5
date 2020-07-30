@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6678f8cd_6d2166f8",
+        "filename": "modules/skresources/src/SkResources.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-07-30T19:02:06Z",
+      "side": 1,
+      "message": "I have to say I know that you\u0027re looking these up by name because (I think) that\u0027s how the data is set up, but it seems ridiculous that this isn\u0027t just requiring a relative url (that doesn\u0027t have any \u0027..\u0027 in it, unless you want to live dangerously), and using the \u0027url\u0027 parameter instead. I mean, this is loading a url, it just happens to be relative to something. Is there data already existing preventing that?",
+      "revId": "e1e17501cadfd4140d6daefdc8689d8a0ba769b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
