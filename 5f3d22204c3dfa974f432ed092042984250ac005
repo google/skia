@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "ff573176_62487f36",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T21:26:20Z",
+      "side": 1,
+      "message": "Looking at skcms_ICCProfile, I can\u0027t think of anything else there that would mismatch.\n\nThe whole A2B block is moot if we\u0027re talking about a profile that can be represented by SkColorSpace.\n\nI guess you could have an skcms_ICCProfile with three different TRC curves, and we\u0027d pick only the best of those three for the SkColorSpace, but that should all be moot for grayscale.  The three TRC curves in the skcms_ICCProfile are always duplicates of the original gray TRC curve.",
+      "parentUuid": "85e826cf_0e39aff3",
+      "range": {
+        "startLine": 660,
+        "startChar": 22,
+        "endLine": 661,
+        "endChar": 40
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8bb21123_79b36e5a",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 3
