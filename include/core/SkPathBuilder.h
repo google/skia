@@ -13,7 +13,7 @@
 #include "include/core/SkPathTypes.h"
 #include "include/private/SkTDArray.h"
 
-class SkPathBuilder {
+class SK_API SkPathBuilder {
 public:
     SkPathBuilder();
     ~SkPathBuilder();
