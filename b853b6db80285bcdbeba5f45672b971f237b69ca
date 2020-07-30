@@ -98,6 +98,30 @@
       "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1df58b44_6067f052",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T17:27:31Z",
+      "side": 1,
+      "message": "Ok. I think this is supposed to work like drawImage (with a color image) where RGB of paint is ignored. It\u0027d be nice if in the future we can use a paint setup at 297 that gives us the right color to provide in the text op but that may require a cascade of additional changes/simplifications of a paint setup. What you have here is definitely progress towards simplification.",
+      "parentUuid": "b0c9e9e9_5cdb2473",
+      "range": {
+        "startLine": 301,
+        "startChar": 8,
+        "endLine": 301,
+        "endChar": 37
+      },
+      "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
