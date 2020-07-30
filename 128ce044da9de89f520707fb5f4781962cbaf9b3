@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "cef6e66e_bdac4e4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T19:29:08Z",
+      "side": 1,
+      "message": "Just a few other comments.",
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "701cae7b_09074170",
         "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
         "patchSetId": 3
@@ -64,6 +81,53 @@
         "startChar": 34,
         "endLine": 45,
         "endChar": 45
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56680215_73b8fe5d",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T19:29:08Z",
+      "side": 1,
+      "message": "Or assert that fMatrixScale \u003e 0",
+      "parentUuid": "e39a4f42_7cc99753",
+      "range": {
+        "startLine": 45,
+        "startChar": 34,
+        "endLine": 45,
+        "endChar": 45
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f50c48fa_f63d783f",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T19:29:08Z",
+      "side": 1,
+      "message": "Is there a certain ratio of the original viewMatrix\u0027s minScale and maxScale that ensures that this is true?",
+      "range": {
+        "startLine": 62,
+        "startChar": 17,
+        "endLine": 62,
+        "endChar": 67
       },
       "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
