@@ -37,6 +37,10 @@ static void busy_wait_for_callback(int* count, int expectedValue, GrDirectContex
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
+    if (ctxInfo.backend() != GrBackendApi::kMetal) {
+        return;
+    }
+
     auto dContext = ctxInfo.directContext();
 
     SkImageInfo info =

@@ -126,10 +126,10 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
         , fCompiler(new SkSL::Compiler())
         , fResourceProvider(this)
-        , fDisconnected(false)
-        , fFinishCallbacks(this) {
+        , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
+    fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
 }
 
 GrMtlGpu::~GrMtlGpu() {
@@ -181,30 +181,38 @@ void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {
     delete renderPass;
 }
 
-GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
-    if (!fCurrentCmdBuffer) {
-        fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
-
-        // This should be done after we have a new command buffer in case the freeing of any
-        // resources held by a finished command buffer causes us to send a new command to the gpu
-        // (like changing the resource state).
-        this->checkForFinishedCommandBuffers();
-    }
-    return fCurrentCmdBuffer.get();
-}
-
-void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
-    // TODO: handle sync with empty command buffer
-    if (fCurrentCmdBuffer) {
+bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
+    SkASSERT(fCurrentCmdBuffer);
+    if (!fCurrentCmdBuffer->hasWork()) {
+         if (SyncQueue::kForce_SyncQueue == sync) {
+            // unfortunately Metal has no way to check for queue completion without
+            // submitting a command buffer, so just submit this
+            fCurrentCmdBuffer->commit(true);
+        }
+    } else {
         fResourceProvider.addBufferCompletionHandler(fCurrentCmdBuffer.get());
 
         GrFence fence = this->insertFence();
         new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(
                 fCurrentCmdBuffer, fence);
 
-        fCurrentCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync);
-        fCurrentCmdBuffer.reset();
+        if (!fCurrentCmdBuffer->commit(SyncQueue::kForce_SyncQueue == sync)) {
+            return false;
+        }
     }
+
+    // A little wasteful for the non-work non-sync case, but finishedProcs are executed
+    // upon GrMtlCommandBuffer deletion. Resetting the current command buffer keeps the
+    // flow simpler and ensures that the finishedProcs are invoked.
+    fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
+
+    // This should be done after we have a new command buffer in case the freeing of any
+    // resources held by a finished command buffer causes us to send a new command to the gpu
+    // (like changing the resource state).
+    this->checkForFinishedCommandBuffers();
+
+    SkASSERT(fCurrentCmdBuffer);
+    return true;
 }
 
 void GrMtlGpu::checkForFinishedCommandBuffers() {
@@ -225,21 +233,33 @@ void GrMtlGpu::checkForFinishedCommandBuffers() {
 
 void GrMtlGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                                GrGpuFinishedContext finishedContext) {
-    fFinishCallbacks.add(finishedProc, finishedContext);
+    SkASSERT(finishedProc);
+    sk_sp<GrRefCntedCallback> finishedCallback(
+            new GrRefCntedCallback(finishedProc, finishedContext));
+    this->addFinishedCallback(std::move(finishedCallback));
+}
+
+void GrMtlGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
+    SkASSERT(finishedCallback);
+    // Besides the current commandbuffer, we also add the finishedCallback to the newest outstanding
+    // commandbuffer. Our contract for calling the proc is that all previous submitted cmdbuffers
+    // have finished when we call it. However, if our current command buffer has no work when it is
+    // flushed it will drop its ref to the callback immediately. But the previous work may not have
+    // finished. It is safe to only add the proc to the newest outstanding commandbuffer cause that
+    // must finish after all previously submitted command buffers.
+    OutstandingCommandBuffer* back = (OutstandingCommandBuffer*)fOutstandingCommandBuffers.back();
+    if (back) {
+        back->fCommandBuffer->addFinishedCallback(finishedCallback);
+    }
+    fCurrentCmdBuffer->addFinishedCallback(std::move(finishedCallback));
 }
 
 bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
     if (syncCpu) {
-        this->submitCommandBuffer(kForce_SyncQueue);
-        fFinishCallbacks.callAll(true);
+        return this->submitCommandBuffer(kForce_SyncQueue);
     } else {
-        this->submitCommandBuffer(kSkip_SyncQueue);
+        return this->submitCommandBuffer(kSkip_SyncQueue);
     }
-    return true;
-}
-
-void GrMtlGpu::checkFinishProcs() {
-    fFinishCallbacks.check();
 }
 
 std::unique_ptr<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
@@ -1001,6 +1021,11 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 #ifdef SK_BUILD_FOR_MAC
     [transferBuffer didModifyRange: NSMakeRange(0, transferBufferSize)];
 #endif
+
+    // TODO: Add this when we switch over to using the main cmdbuffer
+//    if (finishedCallback) {
+//        this->addFinishedCallback(std::move(finishedCallback));
+//    }
 
     [blitCmdEncoder endEncoding];
     [cmdBuffer commit];

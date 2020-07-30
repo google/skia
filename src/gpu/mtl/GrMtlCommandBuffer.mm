@@ -30,6 +30,8 @@ sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
 GrMtlCommandBuffer::~GrMtlCommandBuffer() {
     this->endAllEncoding();
     fTrackedGrBuffers.reset();
+    this->callFinishedCallbacks();
+
     fCmdBuffer = nil;
 }
 
@@ -43,6 +45,7 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
         fActiveBlitCommandEncoder = [fCmdBuffer blitCommandEncoder];
     }
     fPreviousRenderPassDescriptor = nil;
+    fHasWork = true;
 
     return fActiveBlitCommandEncoder;
 }
@@ -88,11 +91,12 @@ id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
         opsRenderPass->initRenderState(fActiveRenderCommandEncoder);
     }
     fPreviousRenderPassDescriptor = descriptor;
+    fHasWork = true;
 
     return fActiveRenderCommandEncoder;
 }
 
-void GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
+bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
     this->endAllEncoding();
     [fCmdBuffer commit];
     if (waitUntilCompleted) {
@@ -105,7 +109,7 @@ void GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
         SkDebugf("Error submitting command buffer: %s\n", errorString);
     }
 
-    fCmdBuffer = nil;
+    return (MTLCommandBufferStatusError != fCmdBuffer.status);
 }
 
 void GrMtlCommandBuffer::endAllEncoding() {
@@ -126,6 +130,7 @@ void GrMtlCommandBuffer::encodeSignalEvent(id<MTLEvent> event, uint64_t eventVal
     if (@available(macOS 10.14, iOS 12.0, *)) {
         [fCmdBuffer encodeSignalEvent:event value:eventValue];
     }
+    fHasWork = true;
 }
 
 void GrMtlCommandBuffer::encodeWaitForEvent(id<MTLEvent> event, uint64_t eventValue) {
@@ -135,5 +140,6 @@ void GrMtlCommandBuffer::encodeWaitForEvent(id<MTLEvent> event, uint64_t eventVa
     if (@available(macOS 10.14, iOS 12.0, *)) {
         [fCmdBuffer encodeWaitForEvent:event value:eventValue];
     }
+    fHasWork = true;
 }
 
