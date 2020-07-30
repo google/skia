@@ -524,8 +524,8 @@ static sk_sp<SkVertices> make_cone(Attr::Usage u, const char* markerName) {
     // +1 for the center, +1 to repeat the first perimeter point (so we draw a complete circle)
     constexpr int kNumVerts = kPerimeterVerts + 2;
 
-    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, kNumVerts, /*index_count=*/ 0,
-                                &attr, /*attr_count=*/ 1);
+    SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, kNumVerts, /*indexCount=*/0,
+                                &attr, /*attrCount=*/1);
 
     SkPoint* pos = builder.positions();
     SkPoint3* vec = static_cast<SkPoint3*>(builder.customData());

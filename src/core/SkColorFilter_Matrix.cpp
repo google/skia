@@ -132,7 +132,7 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
     switch (fDomain) {
         case Domain::kRGBA:
             fp = GrColorMatrixFragmentProcessor::Make(std::move(fp), fMatrix,
-                                                      /* premulInput = */    true,
+                                                      /* unpremulInput = */  true,
                                                       /* clampRGBOutput = */ true,
                                                       /* premulOutput = */   true);
             break;
@@ -140,7 +140,7 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
         case Domain::kHSLA:
             fp = GrRGBToHSLFilterEffect::Make(std::move(fp));
             fp = GrColorMatrixFragmentProcessor::Make(std::move(fp), fMatrix,
-                                                      /* premulInput = */    false,
+                                                      /* unpremulInput = */  false,
                                                       /* clampRGBOutput = */ false,
                                                       /* premulOutput = */   false);
             fp = GrHSLToRGBFilterEffect::Make(std::move(fp));
