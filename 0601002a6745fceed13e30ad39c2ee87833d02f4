@@ -16,6 +16,23 @@
       "revId": "0601002a6745fceed13e30ad39c2ee87833d02f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89154b9e_6b40d96b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T18:59:24Z",
+      "side": 1,
+      "message": "Totally fine with this but it\u0027s interesting to know that it fixes correctness bugs. It\u0027d be good to know if those are bugs in Skia or Freedreno.  Also, just want to call out that for testing purposes it is possible to disable correctness workarounds while still taking device-specific performance code paths. In our tools this is enabled by passing --disableDriverCorrectnessWorkarounds and at the API level here: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/include/gpu/GrContextOptions.h;l\u003d194?q\u003dGrContextOptions.h\u0026ss\u003dchromium\u0026originalUrl\u003dhttps:%2F%2Fcs.chromium.org%2F",
+      "revId": "0601002a6745fceed13e30ad39c2ee87833d02f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
