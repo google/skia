@@ -26,7 +26,7 @@ private:
     //
     // Patches can overlap, so until a stencil technique is implemented, the provided paint must be
     // a constant blended color.
-    GrTessellateStrokeOp(const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&, GrAAType);
+    GrTessellateStrokeOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
 
     const char* name() const override { return "GrTessellateStrokeOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
@@ -48,10 +48,11 @@ private:
     GrSTArenaList<PathStroke> fPathStrokes;
     int fTotalCombinedVerbCnt;
 
-    SkPMColor4f fColor;
-    const SkMatrix fViewMatrix = SkMatrix::I();
     const GrAAType fAAType;
+    float fMatrixScale;  // The matrix scale is applied to control points before tessellation.
+    SkMatrix fSkewMatrix;  // The skew matrix is applied to the post-tessellation triangles.
     float fMiterLimitOrZero = 0;  // Zero if there is not a stroke with a miter join type.
+    SkPMColor4f fColor;
     GrProcessorSet fProcessors;
 
     // S=1 because we will almost always fit everything into one single chunk.

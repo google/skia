@@ -21,7 +21,7 @@ class SkStrokeRec;
 // entire lifetime of this class. e.g.:
 //
 //   void onPrepare(GrOpFlushState* target)  {
-//        GrStrokePatchBuilder builder(target, &fMyVertexChunks, count);  // Locks target.
+//        GrStrokePatchBuilder builder(target, &fMyVertexChunks, scale, count);  // Locks target.
 //        for (...) {
 //            builder.addPath(path, stroke);
 //        }
@@ -41,11 +41,14 @@ public:
     // Stores raw pointers to the provided target and vertexChunkArray, which this class will use
     // and push to as addPath is called. The caller is responsible to bind and draw each chunk that
     // gets pushed to the array. (See GrTessellateStrokeShader.)
+    //
+    // All points are multiplied by 'matrixScale' before being written to the GPU buffer.
     GrStrokePatchBuilder(GrMeshDrawOp::Target* target, SkTArray<VertexChunk>* vertexChunkArray,
-                         int totalCombinedVerbCnt)
-            : fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
-            , fTarget(target)
-            , fVertexChunkArray(vertexChunkArray) {
+                         float matrixScale, int totalCombinedVerbCnt)
+            : fTarget(target)
+            , fVertexChunkArray(vertexChunkArray)
+            , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
+            , fMatrixScale(matrixScale) {
         this->allocVertexChunk(
                 (totalCombinedVerbCnt * 3) * GrTessellateStrokeShader::kNumVerticesPerPatch);
     }
@@ -79,7 +82,7 @@ private:
     void writeSquareCap(const SkPoint& endPoint, const SkPoint& controlPoint);
     void writeCaps();
 
-    void beginPath(const SkStrokeRec&, float strokeDevWidth);
+    void beginPath(const SkStrokeRec&);
     void moveTo(const SkPoint&);
     void lineTo(const SkPoint& p0, const SkPoint& p1);
     void quadraticTo(const SkPoint[3]);
@@ -98,11 +101,12 @@ private:
     // This is used when we convert a curve to a lineTo, and that behavior will soon go away.
     void rotateTo(float leftJoinType, const SkPoint& anchorPoint, const SkPoint& controlPoint);
 
-    const int fMaxTessellationSegments;
-
     // These are raw pointers whose lifetimes are controlled outside this class.
     GrMeshDrawOp::Target* const fTarget;
     SkTArray<VertexChunk>* const fVertexChunkArray;
+
+    const int fMaxTessellationSegments;
+    const float fMatrixScale;
 
     // Variables related to the vertex chunk that we are currently filling.
     int fCurrChunkVertexCapacity;
