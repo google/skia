@@ -1012,7 +1012,11 @@ private:
             thisProxy != thatProxy) {
             // We can't merge across different proxies. Check if 'this' can be chained with 'that'.
             if (GrTextureProxy::ProxiesAreCompatibleAsDynamicState(thisProxy, thatProxy) &&
-                caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
+                caps.dynamicStateArrayGeometryProcessorTextureSupport() &&
+                fMetadata.aaType() == that->fMetadata.aaType()) {
+                // We only allow chaining when the aaTypes match bc otherwise the AA type used
+                // in the above CombinedQuadCountWillOverflow call can be incorrect (i.e.,
+                // 'upgradeToCoverageAAOnMerge' doesn't propagate throughout the op chain).
                 return CombineResult::kMayChain;
             }
             return CombineResult::kCannotCombine;
@@ -1031,7 +1035,6 @@ private:
 
         return CombineResult::kMerged;
     }
-
     GrQuadBuffer<ColorSubsetAndAA> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     // Most state of TextureOp is packed into these two field to minimize the op's size.
@@ -1293,6 +1296,14 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
                         // large. Calve it off as its own GrTextureOp.
                         state.createOp(set, GrResourceProvider::MaxNumNonAAQuads(),
                                        GrAAType::kNone); // definitely downgrading AA here
+                        clumped = true;
+                        break;
+                    }
+                } else if (runningAA == GrAAType::kCoverage) {
+
+                    if (i >= GrResourceProvider::MaxNumAAQuads()) {
+                        state.createOp(set, GrResourceProvider::MaxNumAAQuads(),
+                                       GrAAType::kCoverage);
                         clumped = true;
                         break;
                     }
