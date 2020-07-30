@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d41998a_461e92ff",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T17:00:34Z",
+      "side": 1,
+      "message": "This reference is just reading, right?",
+      "revId": "742cbb7334a0f31c28ee65653de109a1bdc40bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b6c051e_56077559",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2998,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T17:00:34Z",
+      "side": 1,
+      "message": "checkSwizzleWrite also returns bool (false if it\u0027s illegal), so how about:\n\nreturn this-\u003echeckSwizzleWrite(swizzle) \u0026\u0026 this-\u003esetRefKind(...);",
+      "revId": "742cbb7334a0f31c28ee65653de109a1bdc40bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "219a41cd_c556f1fa",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3011,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T17:00:34Z",
+      "side": 1,
+      "message": "return false here, for consistency?",
+      "revId": "742cbb7334a0f31c28ee65653de109a1bdc40bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
