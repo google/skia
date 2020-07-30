@@ -106,6 +106,24 @@
       "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29bfa55e_66868476",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-30T15:23:56Z",
+      "side": 1,
+      "message": "I think Mike is correct, I don\u0027t see any private access to the pathref, only public accessors, so the unique-sideeffect is not needed.\n\nSame appears to be the case in reverseAddPath() btw.",
+      "parentUuid": "1a201b8d_789db632",
+      "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
