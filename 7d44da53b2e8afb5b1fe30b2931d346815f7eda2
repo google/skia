@@ -34,6 +34,24 @@
       "revId": "7d44da53b2e8afb5b1fe30b2931d346815f7eda2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f59a64e_36be562b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T20:42:06Z",
+      "side": 1,
+      "message": "Oh, yeah, of course you can run it locally.\n\nAnyway, with ninja, -k N will stop after the N\u0027th failure, with N defaulting to 1 and 0 meaning infinite.",
+      "parentUuid": "e1d6d82a_159ec431",
+      "revId": "7d44da53b2e8afb5b1fe30b2931d346815f7eda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
