@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2eb09a57_40f9f88a",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-07-30T14:13:06Z",
+      "side": 1,
+      "message": "So, this adds 1 to 2*index if the lane is 1, otherwise 2*index. I\u0027m I understanding this correcthly?",
+      "range": {
+        "startLine": 695,
+        "startChar": 52,
+        "endLine": 695,
+        "endChar": 72
+      },
+      "revId": "6ce85ff566d496ff487de7caad57f5d9806498ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
