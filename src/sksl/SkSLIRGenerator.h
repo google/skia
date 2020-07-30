@@ -158,7 +158,7 @@ private:
     std::unique_ptr<Statement> getNormalizeSkPositionCode();
 
     void checkValid(const Expression& expr);
-    bool setRefKind(const Expression& expr, VariableReference::RefKind kind);
+    void setRefKind(const Expression& expr, VariableReference::RefKind kind);
     void getConstantInt(const Expression& value, int64_t* out);
     bool checkSwizzleWrite(const Swizzle& swizzle);
 
