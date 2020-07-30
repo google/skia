@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fd89a24d_9eae3a1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T20:33:43Z",
+      "side": 1,
+      "message": "I\u0027ve revised the CL to avoid deleting command buffers if they\u0027re empty.",
+      "parentUuid": "21db38fd_f8402fc5",
+      "revId": "5cc64e5491b9b8758c4a5322fb53b3c83ac6ed31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "184a606d_142cf0b9",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
         "patchSetId": 3
