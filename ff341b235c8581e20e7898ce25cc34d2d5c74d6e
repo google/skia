@@ -16,6 +16,23 @@
       "revId": "ff341b235c8581e20e7898ce25cc34d2d5c74d6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3df488d_ab975c1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T19:22:16Z",
+      "side": 1,
+      "message": "I think this lgtm, up to the limits of my ability to review it. Like I said before, I\u0027d be more comfortable if we didn\u0027t need the .inc files or the fake output target in GN. I\u0027m hoping that we can try to reduce some of the build complexity in a follow-up? (Knowing that clients will never be rebuilding the dehydrated SkSL, I think we can afford to have the raw SkSL ingested via file I/O in that case?)",
+      "revId": "ff341b235c8581e20e7898ce25cc34d2d5c74d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
