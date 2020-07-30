@@ -2223,6 +2223,10 @@ namespace skvm {
     void Assembler::vmovd(Operand dst, Xmm src) { this->op(0x66,0x0f,0x7e, src,dst); }
     void Assembler::vmovd(Xmm dst, Operand src) { this->op(0x66,0x0f,0x6e, dst,src); }
 
+    void Assembler::vpinsrd(Xmm dst, Xmm src, Operand y, int imm) {
+        this->op(0x66,0x3a0f,0x22, dst,src,y);
+        this->imm_byte_after_operand(y, imm);
+    }
     void Assembler::vpinsrw(Xmm dst, Xmm src, Operand y, int imm) {
         this->op(0x66,0x0f,0xc4, dst,src,y);
         this->imm_byte_after_operand(y, imm);
@@ -3420,11 +3424,6 @@ namespace skvm {
                     (void)constants[immy];
                     break;
 
-                case Op::store128:
-                case Op::load128:
-                    // TODO
-                    return false;
-
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
                     a->vptest (r(x), &constants[0xffffffff]);
@@ -3476,6 +3475,33 @@ namespace skvm {
                                       free_tmp(H);
                                   } break;
 
+                case Op::store128: {
+                    // TODO: 8 64-bit stores instead of 16 32-bit stores?
+                    int ptr = immz>>1,
+                        lane = immz&1;
+                    a->vmovd  (A::Mem{arg[ptr], 0*16 + 8*lane + 0}, (A::Xmm)r(x)   );
+                    a->vmovd  (A::Mem{arg[ptr], 0*16 + 8*lane + 4}, (A::Xmm)r(y)   );
+                    if (scalar) { break; }
+                    a->vpextrd(A::Mem{arg[ptr], 1*16 + 8*lane + 0}, (A::Xmm)r(x), 1);
+                    a->vpextrd(A::Mem{arg[ptr], 1*16 + 8*lane + 4}, (A::Xmm)r(y), 1);
+                    a->vpextrd(A::Mem{arg[ptr], 2*16 + 8*lane + 0}, (A::Xmm)r(x), 2);
+                    a->vpextrd(A::Mem{arg[ptr], 2*16 + 8*lane + 4}, (A::Xmm)r(y), 2);
+                    a->vpextrd(A::Mem{arg[ptr], 3*16 + 8*lane + 0}, (A::Xmm)r(x), 3);
+                    a->vpextrd(A::Mem{arg[ptr], 3*16 + 8*lane + 4}, (A::Xmm)r(y), 3);
+                    // Now we need to store the upper 128 bits of x and y.
+                    // Storing x then y rather than interlacing minimizes temporaries.
+                    a->vextracti128(dst(), r(x), 1);
+                    a->vmovd  (A::Mem{arg[ptr], 4*16 + 8*lane + 0}, (A::Xmm)dst()   );
+                    a->vpextrd(A::Mem{arg[ptr], 5*16 + 8*lane + 0}, (A::Xmm)dst(), 1);
+                    a->vpextrd(A::Mem{arg[ptr], 6*16 + 8*lane + 0}, (A::Xmm)dst(), 2);
+                    a->vpextrd(A::Mem{arg[ptr], 7*16 + 8*lane + 0}, (A::Xmm)dst(), 3);
+                    a->vextracti128(dst(), r(y), 1);
+                    a->vmovd  (A::Mem{arg[ptr], 4*16 + 8*lane + 4}, (A::Xmm)dst()   );
+                    a->vpextrd(A::Mem{arg[ptr], 5*16 + 8*lane + 4}, (A::Xmm)dst(), 1);
+                    a->vpextrd(A::Mem{arg[ptr], 6*16 + 8*lane + 4}, (A::Xmm)dst(), 2);
+                    a->vpextrd(A::Mem{arg[ptr], 7*16 + 8*lane + 4}, (A::Xmm)dst(), 3);
+                } break;
+
                 case Op::load8:  if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
                                      a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), A::Mem{arg[immy]}, 0);
@@ -3505,6 +3531,29 @@ namespace skvm {
                                     a->vperm2f128(dst(), dst(),tmp, immz ? 0x31 : 0x20);
                                     free_tmp(tmp);
                                  } break;
+
+                case Op::load128: if (scalar) {
+                                      a->vmovd((A::Xmm)dst(), A::Mem{arg[immy], 4*immz});
+                                  } else {
+                                      // Load 4 low values into xmm tmp,
+                                      A::Ymm tmp = alloc_tmp();
+                                      A::Xmm t = (A::Xmm)tmp;
+                                      a->vmovd  (t,   A::Mem{arg[immy], 0*16 + 4*immz}   );
+                                      a->vpinsrd(t,t, A::Mem{arg[immy], 1*16 + 4*immz}, 1);
+                                      a->vpinsrd(t,t, A::Mem{arg[immy], 2*16 + 4*immz}, 2);
+                                      a->vpinsrd(t,t, A::Mem{arg[immy], 3*16 + 4*immz}, 3);
+
+                                      // Load 4 high values into xmm dst(),
+                                      A::Xmm d = (A::Xmm)dst();
+                                      a->vmovd  (d,   A::Mem{arg[immy], 4*16 + 4*immz}   );
+                                      a->vpinsrd(d,d, A::Mem{arg[immy], 5*16 + 4*immz}, 1);
+                                      a->vpinsrd(d,d, A::Mem{arg[immy], 6*16 + 4*immz}, 2);
+                                      a->vpinsrd(d,d, A::Mem{arg[immy], 7*16 + 4*immz}, 3);
+
+                                      // Merge the two, ymm dst() = {xmm tmp|xmm dst()}
+                                      a->vperm2f128(dst(), tmp,dst(), 0x20);
+                                      free_tmp(tmp);
+                                  } break;
 
                 case Op::gather8: {
                     // As usual, the gather base pointer is immz bytes off of uniform immy.

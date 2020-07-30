@@ -197,6 +197,7 @@ namespace skvm {
         void vmovd(Operand dst, Xmm src);  // dst = src,  32-bit
         void vmovd(Xmm dst, Operand src);  // dst = src,  32-bit
 
+        void vpinsrd(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y, 32-bit
         void vpinsrw(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y, 16-bit
         void vpinsrb(Xmm dst, Xmm src, Operand y, int imm);  // dst = src; dst[imm] = y,  8-bit
 
