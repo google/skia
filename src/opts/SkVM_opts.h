@@ -100,18 +100,15 @@ namespace SK_OPTS_NS {
                     STRIDE_1(Op::load8 ): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 1); break;
                     STRIDE_1(Op::load16): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 2); break;
                     STRIDE_1(Op::load32): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 4); break;
-                    STRIDE_1(Op::load64_lo):
-                        r[d].i32 = 0; memcpy(&r[d].i32, (char*)args[immy] + 0, 4); break;
-                    STRIDE_1(Op::load64_hi):
-                        r[d].i32 = 0; memcpy(&r[d].i32, (char*)args[immy] + 4, 4); break;
+                    STRIDE_1(Op::load64):
+                        r[d].i32 = 0; memcpy(&r[d].i32, (char*)args[immy] + 4*immz, 4); break;
 
                     STRIDE_K(Op::load8 ): r[d].i32= skvx::cast<int>(U8 ::Load(args[immy])); break;
                     STRIDE_K(Op::load16): r[d].i32= skvx::cast<int>(U16::Load(args[immy])); break;
                     STRIDE_K(Op::load32): r[d].i32=                 I32::Load(args[immy]) ; break;
-                    STRIDE_K(Op::load64_lo):
-                        r[d].i32 = skvx::cast<int>(U64::Load(args[immy]) & 0xffff'ffff); break;
-                    STRIDE_K(Op::load64_hi):
-                        r[d].i32 = skvx::cast<int>(U64::Load(args[immy]) >> 32); break;
+                    STRIDE_K(Op::load64):
+                        // Low 32 bits if immz=0, or high 32 bits if immz=1.
+                        r[d].i32 = skvx::cast<int>(U64::Load(args[immy]) >> (32*immz)); break;
 
                     // The pointer we base our gather on is loaded indirectly from a uniform:
                     //     - args[immy] is the uniform holding our gather base pointer somewhere;
@@ -179,7 +176,7 @@ namespace SK_OPTS_NS {
                         }
                     } break;
 
-                    CASE(Op::load128_32):
+                    CASE(Op::load128):
                         r[d].i32 = 0;
                         for (int i = 0; i < stride; i++) {
                             memcpy(&r[d].i32[i], (const char*)args[immy] + 16*i+ 4*immz, 4);

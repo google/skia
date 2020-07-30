@@ -375,7 +375,7 @@ namespace skvm {
         M(assert_true)                                                               \
         M(store8)   M(store16)   M(store32) M(store64) M(store128_lo) M(store128_hi) \
         M(index)                                                                     \
-        M(load8)    M(load16)    M(load32)  M(load64_lo) M(load64_hi) M(load128_32)  \
+        M(load8)    M(load16)    M(load32)  M(load64) M(load128)                     \
         M(gather8)  M(gather16)  M(gather32)                                         \
         M(uniform8) M(uniform16) M(uniform32)                                        \
         M(splat)                                                                     \
@@ -585,13 +585,12 @@ namespace skvm {
         I32 index();
 
         // Load {8,16,32,64,128}-bit varying.
-        I32 load8     (Arg ptr);
-        I32 load16    (Arg ptr);
-        I32 load32    (Arg ptr);
-        F32 loadF     (Arg ptr) { return bit_cast(load32(ptr)); }
-        I32 load64_lo (Arg ptr);
-        I32 load64_hi (Arg ptr);
-        I32 load128_32(Arg ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit lane.
+        I32 load8  (Arg ptr);
+        I32 load16 (Arg ptr);
+        I32 load32 (Arg ptr);
+        F32 loadF  (Arg ptr) { return bit_cast(load32(ptr)); }
+        I32 load64 (Arg ptr, int lane);  // Load 32-bit lane 0-1 of  64-bit value.
+        I32 load128(Arg ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
 
         // Load u8,u16,i32 uniform with byte-count offset.
         I32 uniform8 (Arg ptr, int offset);
