@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b342ee8a_595b68cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-30T20:08:44Z",
+      "side": 1,
+      "message": "Does \"primary context\" make sense here, or would you prefer something else?",
+      "revId": "e594862940c5b01bebc858eb8dad9268587b4cfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
