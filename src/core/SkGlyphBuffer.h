@@ -170,7 +170,7 @@ public:
     // So, a single point P = {Floor(x)-Q_x, Floor(y)-Q_y}; this does not have to be integer.
     // This allows positioning to be P + Q', which given ideal numbers would be an integer. Since
     // the addition is done with floating point, it must be rounded.
-    void startGPUDevice(
+    SkPoint startGPUDevice(
             const SkZip<const SkGlyphID, const SkPoint>& source,
             SkPoint origin, const SkMatrix& viewMatrix,
             const SkGlyphPositionRoundingSpec& roundingSpec);
