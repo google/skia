@@ -47,6 +47,14 @@
   <UIVisualizer ServiceId="{A452AFEA-3DF6-46BB-9177-C0B08F318025}" Id="1"
                 MenuName="Add to Image Watch"/>
 
+  <!-- sk_sp -->
+  <Type Name="sk_sp&lt;*&gt;">
+    <DisplayString>{fPtr}</DisplayString>
+    <Expand>
+      <ExpandedItem>fPtr</ExpandedItem>
+    </Expand>
+  </Type>
+
   <!-- SkString -->
   <Type Name="SkString">
     <DisplayString>{&amp;fRec.fPtr->fBeginningOfData}</DisplayString>
