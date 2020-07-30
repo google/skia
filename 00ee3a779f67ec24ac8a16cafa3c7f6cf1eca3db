@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5d02ef1_3745c21b",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T20:35:36Z",
+      "side": 1,
+      "message": "What\u0027s the deal?",
+      "revId": "00ee3a779f67ec24ac8a16cafa3c7f6cf1eca3db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
