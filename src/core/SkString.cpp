@@ -292,7 +292,7 @@ bool SkString::equals(const char text[]) const {
 bool SkString::equals(const char text[], size_t len) const {
     SkASSERT(len == 0 || text != nullptr);
 
-    return fRec->fLength == len && !memcmp(fRec->data(), text, len);
+    return fRec->fLength == len && !sk_careful_memcmp(fRec->data(), text, len);
 }
 
 SkString& SkString::operator=(const SkString& src) {
