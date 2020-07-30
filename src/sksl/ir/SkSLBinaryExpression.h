@@ -19,7 +19,7 @@
 
 namespace SkSL {
 
-static bool check_ref(Expression* expr) {
+static inline bool check_ref(Expression* expr) {
     switch (expr->fKind) {
         case Expression::kExternalValue_Kind:
             return true;
