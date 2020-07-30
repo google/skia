@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8c45f7a7_a43b7803",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-30T10:55:44Z",
+      "side": 1,
+      "message": "Yep!",
+      "parentUuid": "6c87c772_94f9ce6f",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 16
+      },
+      "revId": "5b7acc143ba9b0149b61e090d38681588c0fff59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8fc2746_ebd69b9d",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2020-07-29T19:37:55Z",
       "side": 1,
       "message": "Thanks! I missed these due to their different formats...",
+      "revId": "5b7acc143ba9b0149b61e090d38681588c0fff59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23471d8d_2f2cd507",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-30T10:55:44Z",
+      "side": 1,
+      "message": "I was actually intending to update PRESUBMIT.py, but I guess you\u0027d already done that.  I used `git grep --ignore-case \"white.?list\"`",
+      "parentUuid": "b8fc2746_ebd69b9d",
       "revId": "5b7acc143ba9b0149b61e090d38681588c0fff59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
