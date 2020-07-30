@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "0c7da74c_44c69bca",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T21:09:02Z",
+      "side": 1,
+      "message": "Does something like this help?  https://skia-review.googlesource.com/c/skcms/+/306979",
+      "parentUuid": "b4d7eb36_70520675",
+      "range": {
+        "startLine": 660,
+        "startChar": 22,
+        "endLine": 661,
+        "endChar": 40
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8bb21123_79b36e5a",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 3
