@@ -74,6 +74,30 @@
       "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0c9e9e9_5cdb2473",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T17:07:43Z",
+      "side": 1,
+      "message": "I don\u0027t think we can guarantee that about line 298. I tried to reason about what happens in that code path, and it\u0027s a circus of creating FPs that get immediately discarded, but I think the final paint color is the original paint color, with alpha set to 1. Then we attach an FP that ends up being a modulation of null (so, input color) by a const-color that is the original paint alpha splatted to all four channels.\n\nThis code (line 298) then ignores the paint color and returns white, so I think *that\u0027s* what the modulation sees when it samples the null input, giving us a final result of [A, A, A, A]. Which all seems to suggest that the paint color RGB is ignored in this case? I may have made an incorrect deduction along the way.",
+      "parentUuid": "2e123c91_f2985290",
+      "range": {
+        "startLine": 301,
+        "startChar": 8,
+        "endLine": 301,
+        "endChar": 37
+      },
+      "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
