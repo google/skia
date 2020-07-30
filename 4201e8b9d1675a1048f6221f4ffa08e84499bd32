@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79e7158b_7dcb0e52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9219
+      },
+      "writtenOn": "2020-07-30T14:35:54Z",
+      "side": 1,
+      "message": "Just wanted to say, thank you very much for introducing this functionality, we\u0027ve been pining for this for some years now. Very valuable to us design tooling folks using Skia. Please do land this when feasible.",
+      "revId": "4201e8b9d1675a1048f6221f4ffa08e84499bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
