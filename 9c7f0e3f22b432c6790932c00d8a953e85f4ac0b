@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "1e670447_c5018540",
+        "filename": "gm/yuv420_odd_dim.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-30T18:19:48Z",
+      "side": 1,
+      "message": "It\u0027s low priority but skipping the GM in that case seems fine (we do it a lot of other GMs).",
+      "parentUuid": "dedf8dd6_80d2ce1f",
+      "range": {
+        "startLine": 60,
+        "startChar": 17,
+        "endLine": 60,
+        "endChar": 18
+      },
+      "revId": "9c7f0e3f22b432c6790932c00d8a953e85f4ac0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "714f43bb_657d591d",
         "filename": "tools/DDLPromiseImageHelper.cpp",
         "patchSetId": 6
