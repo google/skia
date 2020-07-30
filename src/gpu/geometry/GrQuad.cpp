@@ -36,11 +36,10 @@ static void map_rect_translate_scale(const SkRect& rect, const SkMatrix& m,
 
 static void map_quad_general(const V4f& qx, const V4f& qy, const SkMatrix& m,
                              V4f* xs, V4f* ys, V4f* ws) {
-    *xs = mad(m.getScaleX(), qx, mad(m.getSkewX(), qy, m.getTranslateX()));
-    *ys = mad(m.getSkewY(), qx, mad(m.getScaleY(), qy, m.getTranslateY()));
+    *xs = m.getScaleX() * qx + (m.getSkewX() * qy + m.getTranslateX());
+    *ys = m.getSkewY() * qx + (m.getScaleY() * qy + m.getTranslateY());
     if (m.hasPerspective()) {
-        V4f w = mad(m.getPerspX(), qx,
-                    mad(m.getPerspY(), qy, m.get(SkMatrix::kMPersp2)));
+        V4f w = m.getPerspX() * qx + (m.getPerspY() * qy + m.get(SkMatrix::kMPersp2));
         if (ws) {
             // Output the calculated w coordinates
             *ws = w;
