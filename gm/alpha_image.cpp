@@ -58,3 +58,29 @@ DEF_SIMPLE_GM(alpha_image, canvas, 256, 256) {
     paint.setMaskFilter(nullptr);
     canvas->drawImage(image.get(), 144, 144, &paint);
 }
+
+// Created to demonstrate skbug.com/10556 - GPU backend was failing to apply paint alpha to
+// alpha-only image shaders. The two boxes should look the same.
+DEF_SIMPLE_GM(alpha_image_alpha_tint, canvas, 152, 80) {
+    canvas->clear(SK_ColorGRAY);
+
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::MakeA8(64, 64));
+    for (int y = 0; y < bm.height(); ++y) {
+        for (int x = 0; x < bm.width(); ++x) {
+            *bm.getAddr8(x, y) = y * 4;
+        }
+    }
+    bm.setImmutable();
+    auto image = SkImage::MakeFromBitmap(bm);
+
+    SkPaint paint;
+    paint.setColor4f({ 0, 1, 0, 0.5f });
+
+    canvas->translate(8, 8);
+    canvas->drawImage(image.get(), 0, 0, &paint);
+
+    canvas->translate(72, 0);
+    paint.setShader(image->makeShader());
+    canvas->drawRect({ 0, 0, 64, 64 }, paint);
+}

@@ -266,9 +266,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                         std::move(paintFP), {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
             }
         } else {
-            // The shader's FP sees the paint *unpremul* color
-            SkPMColor4f origColorAsPM = { origColor.fR, origColor.fG, origColor.fB, origColor.fA };
-            grPaint->setColor4f(origColorAsPM);
+            grPaint->setColor4f(origColor.premul());
         }
     } else {
         if (primColorMode) {
