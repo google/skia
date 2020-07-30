@@ -52,6 +52,24 @@
       "revId": "7d44da53b2e8afb5b1fe30b2931d346815f7eda2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0255f872_7208035c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T20:45:12Z",
+      "side": 1,
+      "message": "(The bot does it by setting cxx\u003d\"tools/clang-tidy.sh\".  You can see that here: https://logs.chromium.org/logs/skia/4dba15b05ea74911/+/steps/gn_gen/0/logs/execution_details/0",
+      "parentUuid": "6f59a64e_36be562b",
+      "revId": "7d44da53b2e8afb5b1fe30b2931d346815f7eda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
