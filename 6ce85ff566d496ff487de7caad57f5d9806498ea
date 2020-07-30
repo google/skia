@@ -22,6 +22,30 @@
       "revId": "6ce85ff566d496ff487de7caad57f5d9806498ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c81986e_1bd0da04",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T14:14:34Z",
+      "side": 1,
+      "message": "Think of it more like, \"pack ptr.ix and lane together into one int, knowing lane is 1-bit\".",
+      "parentUuid": "2eb09a57_40f9f88a",
+      "range": {
+        "startLine": 695,
+        "startChar": 52,
+        "endLine": 695,
+        "endChar": 72
+      },
+      "revId": "6ce85ff566d496ff487de7caad57f5d9806498ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
