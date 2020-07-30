@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bafa968_e7871829",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T20:37:52Z",
+      "side": 1,
+      "message": "We could set the -Tidy bot to build with -k 0 if that\u0027ll help you find all of the issues at once.",
+      "revId": "7d44da53b2e8afb5b1fe30b2931d346815f7eda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
