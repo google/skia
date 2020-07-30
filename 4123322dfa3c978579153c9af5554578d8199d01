@@ -22,6 +22,30 @@
       "revId": "4123322dfa3c978579153c9af5554578d8199d01",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "037bb747_832b011e",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T21:11:05Z",
+      "side": 1,
+      "message": "Yeah, we only use it internally to the backend. Otherwise the id\u003c\u003e objects below would also cause trouble.",
+      "parentUuid": "4f0129d3_1b0bfbcf",
+      "range": {
+        "startLine": 51,
+        "startChar": 5,
+        "endLine": 51,
+        "endChar": 40
+      },
+      "revId": "4123322dfa3c978579153c9af5554578d8199d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
