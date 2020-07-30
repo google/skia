@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "467400ec_c6bf087e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-30T18:45:59Z",
+      "side": 1,
+      "message": "Sorry for the late response! I had this mostly written up but a contractor came by (kitchen remodel) and I had to walk away for a bit.",
+      "revId": "4fadce46b90fdd4b2ab10735d0411f9df85f462b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

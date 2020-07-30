@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c8bbc73_8bbdfe41",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-30T18:45:59Z",
+      "side": 1,
+      "message": "optional: Does make_unique work here?",
+      "range": {
+        "startLine": 753,
+        "startChar": 20,
+        "endLine": 753,
+        "endChar": 69
+      },
+      "revId": "083c8f7e2023ecbaa5ce70123ec968097c9d4cd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28b9f688_890d1131",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-30T18:45:59Z",
+      "side": 1,
+      "message": "std::make_unique\u003cIntLiteral\u003e",
+      "range": {
+        "startLine": 756,
+        "startChar": 20,
+        "endLine": 756,
+        "endChar": 62
+      },
+      "revId": "083c8f7e2023ecbaa5ce70123ec968097c9d4cd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "667e0cfd_8ee7ed50",
+        "filename": "src/sksl/SkSLIRGenerator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-30T18:45:59Z",
+      "side": 1,
+      "message": "Please add a comment describing the return value (looks like \"if false is returned, the set failed, and an error was already written out\")",
+      "range": {
+        "startLine": 161,
+        "startChar": 4,
+        "endLine": 161,
+        "endChar": 8
+      },
+      "revId": "083c8f7e2023ecbaa5ce70123ec968097c9d4cd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "556f2975_a41141d0",
+        "filename": "src/sksl/ir/SkSLBinaryExpression.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-30T18:45:59Z",
+      "side": 1,
+      "message": "optional: This name doesn\u0027t really convey a lot to me. Would `is_ref_writable` sum up what we\u0027re trying to do?",
+      "range": {
+        "startLine": 22,
+        "startChar": 12,
+        "endLine": 22,
+        "endChar": 21
+      },
+      "revId": "083c8f7e2023ecbaa5ce70123ec968097c9d4cd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
