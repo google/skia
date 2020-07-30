@@ -16,6 +16,46 @@
       "revId": "5cc64e5491b9b8758c4a5322fb53b3c83ac6ed31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74b88c31_6f9a6ccc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T19:56:13Z",
+      "side": 1,
+      "message": "Am I right that the empty command buffer case should be relatively rare?",
+      "revId": "5cc64e5491b9b8758c4a5322fb53b3c83ac6ed31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "184a606d_142cf0b9",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T19:56:13Z",
+      "side": 1,
+      "message": "I know we used to write comparisons this way but most newer code doesn\u0027t. I personally find the other order easier to read. But up to you.",
+      "range": {
+        "startLine": 112,
+        "startChar": 12,
+        "endLine": 112,
+        "endChar": 60
+      },
+      "revId": "5cc64e5491b9b8758c4a5322fb53b3c83ac6ed31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
