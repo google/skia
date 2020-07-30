@@ -298,16 +298,7 @@ static SkPMColor4f calculate_colors(GrRenderTargetContext* rtc,
         return SK_PMColor4fWHITE;
     } else {
         SkPaintToGrPaint(rContext, colorInfo, paint, matrix, grPaint);
-
-        // Calculate the drawing color.
-        SkColor4f c = paint.getColor4f();
-        if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
-            c = xform->apply(c);
-        }
-        if (auto* cf = paint.getColorFilter()) {
-            c = cf->filterColor4f(c, colorInfo.colorSpace(), colorInfo.colorSpace());
-        }
-        return c.premul();
+        return grPaint->getColor4f();
     }
 }
 
