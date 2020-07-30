@@ -1497,8 +1497,6 @@ SkPath& SkPath::reverseAddPath(const SkPath& srcPath) {
         src = tmp.set(srcPath);
     }
 
-    SkPathRef::Editor ed(&fPathRef, src->countVerbs(), src->countPoints());
-
     const uint8_t* verbsBegin = src->fPathRef->verbsBegin();
     const uint8_t* verbs = src->fPathRef->verbsEnd();
     const SkPoint* pts = src->fPathRef->pointsEnd();
