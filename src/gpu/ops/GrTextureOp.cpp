@@ -806,6 +806,25 @@ private:
     int numQuads() const final { return this->totNumQuads(); }
 #endif
 
+    static const char* bar(GrAAType aaType) {
+        switch (aaType) {
+        case GrAAType::kNone: return "kNone";
+        case GrAAType::kCoverage: return "kCoverage";
+        case GrAAType::kMSAA: return "kMSAA";
+        }
+
+        return "kUnknown";
+    }
+
+    int numInChain() const {
+        int count = 0;
+
+        for (const auto& op : ChainRange<TextureOp>(this)) {
+            ++count;
+        }
+        return count;
+    }
+
     void characterize(Desc* desc) const {
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
         ColorType colorType = ColorType::kNone;
@@ -813,10 +832,13 @@ private:
         Subset subset = Subset::kNo;
         GrAAType overallAAType = fMetadata.aaType();
 
+        printf("initialAA %s num-in-chain %d\n", bar(overallAAType), this->numInChain());
+
         desc->fNumProxies = 0;
         desc->fNumTotalQuads = 0;
         int maxQuadsPerMesh = 0;
 
+        int opIndex = 0;
         for (const auto& op : ChainRange<TextureOp>(this)) {
             if (op.fQuads.deviceQuadType() > quadType) {
                 quadType = op.fQuads.deviceQuadType();
@@ -837,12 +859,16 @@ private:
 
             if (op.fMetadata.aaType() == GrAAType::kCoverage) {
                 overallAAType = GrAAType::kCoverage;
+                printf("changing to kCoverage in op %d\n", opIndex);
             }
+
+            ++opIndex;
         }
 
         SkASSERT(desc->fNumTotalQuads == this->numChainedQuads());
 
-        SkASSERT(!CombinedQuadCountWillOverflow(overallAAType, false, desc->fNumTotalQuads));
+        //$$
+        SkASSERT(!CombinedQuadCountWillOverflow(overallAAType, false, desc->fNumTotalQuads, false));
 
         auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(overallAAType,
                                                                         maxQuadsPerMesh);
@@ -990,7 +1016,7 @@ private:
         }
 
         if (CombinedQuadCountWillOverflow(fMetadata.aaType(), upgradeToCoverageAAOnMerge,
-                                          this->numChainedQuads() + that->numChainedQuads())) {
+                                          this->numChainedQuads() + that->numChainedQuads(), true)) {
             return CombineResult::kCannotCombine;
         }
 
@@ -1293,6 +1319,14 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
                         // large. Calve it off as its own GrTextureOp.
                         state.createOp(set, GrResourceProvider::MaxNumNonAAQuads(),
                                        GrAAType::kNone); // definitely downgrading AA here
+                        clumped = true;
+                        break;
+                    }
+                } else if (runningAA == GrAAType::kCoverage) {
+
+                    if (i >= GrResourceProvider::MaxNumAAQuads()) {
+                        state.createOp(set, GrResourceProvider::MaxNumAAQuads(),
+                                       GrAAType::kCoverage);
                         clumped = true;
                         break;
                     }

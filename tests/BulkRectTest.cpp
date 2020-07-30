@@ -90,17 +90,22 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrDirect
 
     std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext);
 
-    sk_sp<GrSurfaceProxy> proxyA = create_proxy(dContext);
-    sk_sp<GrSurfaceProxy> proxyB = create_proxy(dContext);
-    GrSurfaceProxyView proxyViewA(std::move(proxyA), kTopLeft_GrSurfaceOrigin, GrSwizzle::RGBA());
-    GrSurfaceProxyView proxyViewB(std::move(proxyB), kTopLeft_GrSurfaceOrigin, GrSwizzle::RGBA());
+//    sk_sp<GrSurfaceProxy> proxyA = create_proxy(dContext);
+//    sk_sp<GrSurfaceProxy> proxyB = create_proxy(dContext);
+//    GrSurfaceProxyView proxyViewA(std::move(proxyA), kTopLeft_GrSurfaceOrigin, GrSwizzle::RGBA());
+//    GrSurfaceProxyView proxyViewB(std::move(proxyB), kTopLeft_GrSurfaceOrigin, GrSwizzle::RGBA());
 
     auto set = new GrRenderTargetContext::TextureSetEntry[requestedTotNumQuads];
 
     for (int i = 0; i < requestedTotNumQuads; ++i) {
         // Alternate between two proxies to prevent op merging if the batch API was forced to submit
         // one op at a time (to work, this does require that all fDstRects overlap).
-        set[i].fProxyView = i % 2 == 0 ? proxyViewA : proxyViewB;
+//        set[i].fProxyView = i % 2 == 0 ? proxyViewA : proxyViewB;
+
+        sk_sp<GrSurfaceProxy> proxyA = create_proxy(dContext);
+        GrSurfaceProxyView boyah(std::move(proxyA), kTopLeft_GrSurfaceOrigin, GrSwizzle::RGBA());
+
+        set[i].fProxyView = boyah;
         set[i].fSrcAlphaType = kPremul_SkAlphaType;
         set[i].fSrcRect = SkRect::MakeWH(100.0f, 100.0f);
         set[i].fDstRect = SkRect::MakeWH(100.5f, 100.5f); // prevent the int non-AA optimization
@@ -156,6 +161,8 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrDirect
 
 //-------------------------------------------------------------------------------------------------
 static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter, BulkRectTest test) {
+
+#if 0
     // This is the simple case where there is no AA at all. We expect 2 non-AA clumps of quads.
     {
         auto noAA = [](int i) -> GrQuadAAFlags {
@@ -224,6 +231,22 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter, Bu
         test(reporter, dContext, fixedAA, GrAAType::kCoverage, SkBlendMode::kSrcATop,
              2*GrResourceProvider::MaxNumAAQuads(), kNumExpectedOps);
     }
+#endif
+
+    {
+        GrResourceProvider::MaxNumNonAAQuads();  // 4096
+        GrResourceProvider::MaxNumAAQuads();     // 512
+
+        auto fixedAA = [](int i) -> GrQuadAAFlags {
+            return i == 256 ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+        };
+
+        static const int kNumExpectedOps = 2;
+
+        test(reporter, dContext, fixedAA, GrAAType::kCoverage, SkBlendMode::kSrcOver,
+             1024, kNumExpectedOps);
+    }
+
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BulkFillRectTest, reporter, ctxInfo) {
