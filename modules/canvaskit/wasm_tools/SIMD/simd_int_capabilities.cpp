@@ -82,8 +82,6 @@ int main() {
 
   //vec1 = skvx::rcp(vec1); //N/A
   //vec1 = skvx::rsqrt(vec1); //N/A
-  //vec1 = skvx::mad(vec1, vec2, vec1); //???
-  // note: skvx::mad is probably not used in practice for integers
 
   //vec1 = skvx::if_then_else(vec1, vec1, vec2); //???
 

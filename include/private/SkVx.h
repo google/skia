@@ -307,9 +307,6 @@ SIT Vec<1,int> lrint(const Vec<1,T>& x) { return (int)std::lrint(x.val); }
 
 SIT Vec<1,T>   rcp(const Vec<1,T>& x) { return 1 / x.val; }
 SIT Vec<1,T> rsqrt(const Vec<1,T>& x) { return rcp(sqrt(x)); }
-SIT Vec<1,T>   mad(const Vec<1,T>& f,
-                   const Vec<1,T>& m,
-                   const Vec<1,T>& a) { return f*m+a; }
 
 // All default N != 1 implementations just recurse on lo and hi halves.
 SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
@@ -371,9 +368,6 @@ SINT Vec<N,int> lrint(const Vec<N,T>& x) { return join(lrint(x.lo), lrint(x.hi))
 
 SINT Vec<N,T>   rcp(const Vec<N,T>& x) { return join(  rcp(x.lo),   rcp(x.hi)); }
 SINT Vec<N,T> rsqrt(const Vec<N,T>& x) { return join(rsqrt(x.lo), rsqrt(x.hi)); }
-SINT Vec<N,T>   mad(const Vec<N,T>& f,
-                    const Vec<N,T>& m,
-                    const Vec<N,T>& a) { return join(mad(f.lo, m.lo, a.lo), mad(f.hi, m.hi, a.hi)); }
 
 
 // Scalar/vector operations just splat the scalar to a vector...
@@ -411,14 +405,6 @@ SINTU Vec<N,M<T>> operator> (const Vec<N,T>& x, U y) { return x >  Vec<N,T>(y); 
 SINTU Vec<N,T>           min(const Vec<N,T>& x, U y) { return min(x, Vec<N,T>(y)); }
 SINTU Vec<N,T>           max(const Vec<N,T>& x, U y) { return max(x, Vec<N,T>(y)); }
 SINTU Vec<N,T>           pow(const Vec<N,T>& x, U y) { return pow(x, Vec<N,T>(y)); }
-
-// All vector/scalar combinations for mad() with at least one vector.
-SINTU Vec<N,T> mad(U f, const Vec<N,T>& m, const Vec<N,T>& a) { return Vec<N,T>(f)*m + a; }
-SINTU Vec<N,T> mad(const Vec<N,T>& f, U m, const Vec<N,T>& a) { return f*Vec<N,T>(m) + a; }
-SINTU Vec<N,T> mad(const Vec<N,T>& f, const Vec<N,T>& m, U a) { return f*m + Vec<N,T>(a); }
-SINTU Vec<N,T> mad(const Vec<N,T>& f, U m, U a) { return f*Vec<N,T>(m) + Vec<N,T>(a); }
-SINTU Vec<N,T> mad(U f, const Vec<N,T>& m, U a) { return Vec<N,T>(f)*m + Vec<N,T>(a); }
-SINTU Vec<N,T> mad(U f, U m, const Vec<N,T>& a) { return Vec<N,T>(f)*Vec<N,T>(m) + a; }
 
 // The various op= operators, for vectors...
 SINT Vec<N,T>& operator+=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x + y); }
@@ -706,11 +692,6 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
         static inline Vec<4,float> rsqrt(const Vec<4,float>& x) {
             return 1.0f / sqrt(x);
         }
-        static inline Vec<4,float> mad(const Vec<4,float>& f,
-                                       const Vec<4,float>& m,
-                                       const Vec<4,float>& a) {
-            return f*m+a;
-        }
 
         static inline Vec<2,double> min(const Vec<2,double>& x, const Vec<2,double>& y) {
             return to_vec<2,double>(wasm_f64x2_min(to_vext(x), to_vext(y)));
@@ -729,14 +710,6 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
         }
         static inline Vec<2,double> rsqrt(const Vec<2,double>& x) {
             return 1.0f / sqrt(x);
-        }
-        static inline Vec<2,double> mad(const Vec<2,double>& f,
-                                       const Vec<2,double>& m,
-                                       const Vec<2,double>& a) {
-            return to_vec<2,double>(wasm_f64x2_add(
-                wasm_f64x2_mul(to_vext(f), to_vext(m)),
-                to_vext(a)
-            ));
         }
 
         static inline bool any(const Vec<4,int32_t>& x) {

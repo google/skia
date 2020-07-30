@@ -685,7 +685,7 @@ void TessellationHelper::EdgeEquations::reset(const EdgeVectors& edgeVectors) {
 
     V4f c = dx*edgeVectors.fY2D - dy*edgeVectors.fX2D;
     // Make sure normals point into the shape
-    V4f test = mad(dy, next_cw(edgeVectors.fX2D), mad(-dx, next_cw(edgeVectors.fY2D), c));
+    V4f test = dy * next_cw(edgeVectors.fX2D) + (-dx * next_cw(edgeVectors.fY2D) + c);
     if (any(test < -kDistTolerance)) {
         fA = -dy;
         fB = dx;
@@ -699,10 +699,10 @@ void TessellationHelper::EdgeEquations::reset(const EdgeVectors& edgeVectors) {
 
 V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4f& y2d) const {
     // Calculate distance of the 4 inset points (px, py) to the 4 edges
-    V4f d0 = mad(fA[0], x2d, mad(fB[0], y2d, fC[0]));
-    V4f d1 = mad(fA[1], x2d, mad(fB[1], y2d, fC[1]));
-    V4f d2 = mad(fA[2], x2d, mad(fB[2], y2d, fC[2]));
-    V4f d3 = mad(fA[3], x2d, mad(fB[3], y2d, fC[3]));
+    V4f d0 = fA[0]*x2d + (fB[0]*y2d + fC[0]);
+    V4f d1 = fA[1]*x2d + (fB[1]*y2d + fC[1]);
+    V4f d2 = fA[2]*x2d + (fB[2]*y2d + fC[2]);
+    V4f d3 = fA[3]*x2d + (fB[3]*y2d + fC[3]);
 
     // For each point, pretend that there's a rectangle that touches e0 and e3 on the horizontal
     // axis, so its width is "approximately" d0 + d3, and it touches e1 and e2 on the vertical axis
