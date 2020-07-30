@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cfdf8f2_139f1294",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T18:47:38Z",
+      "side": 1,
+      "message": "onUpdateBackendTexture is using a temporary command buffer to upload the data so it can\u0027t invoke the finishedCallback -- I\u0027d like to make fixing that a separate change.",
+      "range": {
+        "startLine": 1025,
+        "startChar": 7,
+        "endLine": 1025,
+        "endChar": 69
+      },
+      "revId": "06507f251ebf8747760372ef1fd867b18b5f2e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
