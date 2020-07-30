@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc3f6146_6ddbb464",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-30T10:51:55Z",
+      "side": 1,
+      "message": "LGTM with one nit",
+      "revId": "c741bf01e298d5c1985ffef7bcb3f2d5c913e73b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5eb68b2_03ca96e4",
+        "filename": "infra/bots/task_drivers/run_gn_to_bp/run_gn_to_bp.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-30T10:51:55Z",
+      "side": 1,
+      "message": "I think we should either add a flag which points to the root of the Skia checkout or add a check that detects when CWD is not the root of the Skia checkout and produces a helpful error message.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 42
+      },
+      "revId": "c741bf01e298d5c1985ffef7bcb3f2d5c913e73b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
