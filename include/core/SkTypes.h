@@ -246,16 +246,7 @@
 #  define SK_SUPPORT_GPU 1
 #endif
 
-/**
- * If GPU is enabled but no GPU backends are enabled then enable GL by default.
- * Traditionally clients have relied on Skia always building with the GL backend
- * and opting in to additional backends. TODO: Require explicit opt in for GL.
- */
-#if SK_SUPPORT_GPU
-#  if !defined(SK_GL) && !defined(SK_VULKAN) && !defined(SK_METAL) && !defined(SK_DAWN) && !defined(SK_DIRECT3D)
-#    define SK_GL
-#  endif
-#else
+#if !SK_SUPPORT_GPU
 #  undef SK_GL
 #  undef SK_VULKAN
 #  undef SK_METAL
