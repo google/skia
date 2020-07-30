@@ -403,14 +403,12 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     } else {
         fp = producer->createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm, mm});
     }
-    if (fp) {
-        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
-    }
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->colorSpace(), producer->alphaType(),
-                                       args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
     if (!fp) {
         return nullptr;
     }
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->colorSpace(), producer->alphaType(),
+                                       args.fDstColorInfo->colorSpace(), kPremul_SkAlphaType);
+    fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
     bool isAlphaOnly = SkColorTypeIsAlphaOnly(fImage->colorType());
     if (isAlphaOnly) {
         return fp;
