@@ -190,14 +190,15 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            fDrawable.startGPUDevice(fRejects.source(), origin, drawMatrix, strike->roundingSpec());
+            SkPoint residual = fDrawable.startGPUDevice(
+                    fRejects.source(), origin, drawMatrix, strike->roundingSpec());
             strike->prepareForMaskDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
             if (process && !fDrawable.drawableIsEmpty()) {
                 // processDeviceMasks must be called even if there are no glyphs to make sure runs
                 // are set correctly.
-                process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
+                process->processDeviceMasks(fDrawable.drawable(), strikeSpec, residual);
             }
         }
 

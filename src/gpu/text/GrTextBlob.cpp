@@ -226,11 +226,13 @@ static GrAtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
 
 // -- GrDirectMaskSubRun ---------------------------------------------------------------------------
 GrDirectMaskSubRun::GrDirectMaskSubRun(GrMaskFormat format,
+                                       SkPoint residual,
                                        GrTextBlob* blob,
                                        const SkRect& bounds,
                                        SkSpan<const VertexData> vertexData,
                                        GrGlyphVector glyphs)
         : fMaskFormat{format}
+        , fResidual{residual}
         , fBlob{blob}
         , fVertexBounds{bounds}
         , fVertexData{vertexData}
@@ -239,10 +241,12 @@ GrDirectMaskSubRun::GrDirectMaskSubRun(GrMaskFormat format,
 GrSubRun* GrDirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    const SkStrikeSpec& strikeSpec,
                                    GrMaskFormat format,
+                                   SkPoint residual,
                                    GrTextBlob* blob,
                                    SkArenaAlloc* alloc) {
     size_t vertexCount = drawables.size();
     SkRect bounds = SkRectPriv::MakeLargestInverted();
+
     auto initializer = [&](size_t i) {
         auto [variant, pos] = drawables[i];
         SkGlyph* skGlyph = variant;
@@ -254,14 +258,14 @@ GrSubRun* GrDirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawabl
                 rb = SkPoint::Make(r, b) + pos;
 
         bounds.joinPossiblyEmptyRect(SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
-        return lt;
+        return VertexData{SkScalarRoundToInt(lt.x()), SkScalarRoundToInt(lt.y())};
     };
 
     SkSpan<const VertexData> vertexData{
             alloc->makeInitializedArray<VertexData>(vertexCount, initializer), vertexCount};
 
     GrDirectMaskSubRun* subRun = alloc->make<GrDirectMaskSubRun>(
-            format, blob, bounds, vertexData,
+            format, residual, blob, bounds, vertexData,
             GrGlyphVector::Make(strikeSpec, drawables.get<0>(), alloc));
 
     return subRun;
@@ -386,15 +390,15 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
 
     auto direct2D = [&](auto dst, SkIRect* clip) {
         // Rectangles in device space
-        SkPoint originInDeviceSpace = matrix.mapXY(0, 0);
+        SkPoint originInDeviceSpace = matrix.mapXY(0, 0) + fResidual;
+        SkIPoint originInDeviceSpaceI = {SkScalarRoundToInt(originInDeviceSpace.x()),
+                                         SkScalarRoundToInt(originInDeviceSpace.y())};
         for (auto[quad, glyph, leftTop] : vertices(dst)) {
             GrIRect16 rect = glyph->fAtlasLocator.rect();
             int16_t w = rect.width(),
                     h = rect.height();
+            auto[l, t] = leftTop + originInDeviceSpaceI;
             auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-            auto[fl, ft] = leftTop + originInDeviceSpace;
-            int l = SkScalarRoundToInt(fl),
-                t = SkScalarRoundToInt(ft);
             if (clip == nullptr) {
                 auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
                 quad[0] = {{dl, dt}, color, {al, at}};  // L,T
@@ -411,16 +415,14 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
                         int tD = clipped.top() - devIRect.top();
                         int rD = clipped.right() - devIRect.right();
                         int bD = clipped.bottom() - devIRect.bottom();
-                        int indexLT, indexRB;
                         std::tie(dl, dt, dr, db) = ltbr(clipped);
-                        std::tie(tl, tt, indexLT) =
-                                GrDrawOpAtlas::UnpackIndexFromTexCoords(al, at);
-                        std::tie(tr, tb, indexRB) =
-                                GrDrawOpAtlas::UnpackIndexFromTexCoords(ar, ab);
+                        int index = glyph->fAtlasLocator.pageIndex();
                         std::tie(tl, tt) =
-                                GrDrawOpAtlas::PackIndexInTexCoords(tl + lD, tt + tD, indexLT);
+                                GrDrawOpAtlas::PackIndexInTexCoords(
+                                        rect.fLeft + lD, rect.fTop + tD, index);
                         std::tie(tr, tb) =
-                                GrDrawOpAtlas::PackIndexInTexCoords(tr + rD, tb + bD, indexRB);
+                                GrDrawOpAtlas::PackIndexInTexCoords(
+                                        rect.fRight + rD, rect.fBottom + bD, index);
                     } else {
                         // TODO: omit generating any vertex data for fully clipped glyphs ?
                         std::tie(dl, dt, dr, db) = std::make_tuple(0, 0, 0, 0);
@@ -491,6 +493,7 @@ GrTransformedMaskSubRun::GrTransformedMaskSubRun(GrMaskFormat format,
 GrSubRun* GrTransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                         const SkStrikeSpec& strikeSpec,
                                         GrMaskFormat format,
+                                        SkPoint residual,
                                         GrTextBlob* blob,
                                         SkArenaAlloc* alloc) {
     size_t vertexCount = drawables.size();
@@ -1059,7 +1062,8 @@ template<typename AddSingleMaskFormat>
 void GrTextBlob::addMultiMaskFormat(
         AddSingleMaskFormat addSingle,
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
-        const SkStrikeSpec& strikeSpec) {
+        const SkStrikeSpec& strikeSpec,
+        SkPoint residual) {
     this->setHasBitmap();
     if (drawables.empty()) { return; }
 
@@ -1072,14 +1076,19 @@ void GrTextBlob::addMultiMaskFormat(
         GrMaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
         if (format != nextFormat) {
             auto sameFormat = drawables.subspan(startIndex, i - startIndex);
-            GrSubRun* subRun = addSingle(sameFormat, strikeSpec, format, this, &fAlloc);
+            GrSubRun* subRun = addSingle(sameFormat, strikeSpec, format, residual, this, &fAlloc);
             this->insertSubRun(subRun);
             format = nextFormat;
             startIndex = i;
         }
     }
     auto sameFormat = drawables.last(drawables.size() - startIndex);
-    GrSubRun* subRun = addSingle(sameFormat, strikeSpec, format, this, &fAlloc);
+    GrSubRun* subRun = addSingle(sameFormat,
+                                 strikeSpec,
+                                 format,
+                                 residual,
+                                 this,
+                                 &fAlloc);
     this->insertSubRun(subRun);
 }
 
@@ -1098,9 +1107,10 @@ void GrTextBlob::insertSubRun(GrSubRun* subRun) {
 }
 
 void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                    const SkStrikeSpec& strikeSpec) {
+                                    const SkStrikeSpec& strikeSpec,
+                                    SkPoint residual) {
 
-    this->addMultiMaskFormat(GrDirectMaskSubRun::Make, drawables, strikeSpec);
+    this->addMultiMaskFormat(GrDirectMaskSubRun::Make, drawables, strikeSpec, residual);
 }
 
 void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -1127,5 +1137,7 @@ void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawabl
 
 void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) {
-    this->addMultiMaskFormat(GrTransformedMaskSubRun::Make, drawables, strikeSpec);
+    // In this case the residual is {0, 0} because it is not used to calculate the positions of
+    // transformed mask. Any value would do.
+    this->addMultiMaskFormat(GrTransformedMaskSubRun::Make, drawables, strikeSpec, {0, 0});
 }
