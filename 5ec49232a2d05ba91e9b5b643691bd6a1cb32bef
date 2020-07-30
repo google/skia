@@ -70,6 +70,24 @@
       "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ff4bd3f_0e50e0a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T15:15:29Z",
+      "side": 1,
+      "message": "Yeah, if we\u0027re doing it for side effects, it might be clearer as\n\n  {   // This constructor has side effects that ...\n      SkPathRef::Editor just_call_constructor(...);\n  }",
+      "parentUuid": "bd6543fc_e4678512",
+      "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
