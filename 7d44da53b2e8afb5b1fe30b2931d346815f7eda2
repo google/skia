@@ -16,6 +16,24 @@
       "revId": "7d44da53b2e8afb5b1fe30b2931d346815f7eda2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1d6d82a_159ec431",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-30T20:40:38Z",
+      "side": 1,
+      "message": "If that means \"don\u0027t stop on first error,\" yeah that\u0027d be awesome! Or if it can be run locally, that would be great too.",
+      "parentUuid": "2bafa968_e7871829",
+      "revId": "7d44da53b2e8afb5b1fe30b2931d346815f7eda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
