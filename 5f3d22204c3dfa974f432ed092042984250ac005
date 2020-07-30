@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b4d7eb36_70520675",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-30T20:56:20Z",
+      "side": 1,
+      "message": "\u003e Is this the root bug, skcms_ApproximatelyEqual() rejecting profile pairs we should consider equal?  The issue is comparing a natively grayscale profile with a profile we\u0027ve translated from grayscale to RGB, right?  If we just let the transforms at the bottom of skcms_ApproximatelyEqual() run without short circuiting, wouldn\u0027t we see they end up with approximately equal XYZ outputs and decide it was fine?\n\nYes to all of the above.\n\n\u003e \n\u003e (I don\u0027t have any objection to using SkColorSpace::Equals() per se, and I think if it had been written this way without any comment it would have raised no eyebrows.)",
+      "parentUuid": "b2147b08_2c42478c",
+      "range": {
+        "startLine": 660,
+        "startChar": 22,
+        "endLine": 661,
+        "endChar": 40
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8bb21123_79b36e5a",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3302d4d1_1d379fcf",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-30T20:56:20Z",
+      "side": 1,
+      "message": "\u003e I keep getting tripped up why F16 is special at all in SkCodec.  Is it special in a way that F16Norm or F32 isn\u0027t?\n\nYes - F16 is currently supported, while the other two are not.\n\n\u003e I can\u0027t understand why any individual SkColorType would get its own control flow... is there some class of SkColorTypes we\u0027re trying to cover here?\n\nWe cover the SkColorTypes supported by Android\u0027s decoders (plus the non-native config), which is a superset of what Chromium\u0027s decoders support.\n\nI believe F16 is special because we had written custom optimizations for the other SkColorTypes, but when we added color correction we decided to handle it directly in (whatever the precursor to skcms was). I think we should ultimately switch over everything to skcms, which would allow us to support the other color types and simplify the code.",
+      "parentUuid": "8bb21123_79b36e5a",
+      "range": {
+        "startLine": 672,
+        "startChar": 12,
+        "endLine": 672,
+        "endChar": 33
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5e131282_c58429cc",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-30T20:56:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e55d9a74_f64c4a1c",
+      "range": {
+        "startLine": 706,
+        "startChar": 0,
+        "endLine": 713,
+        "endChar": 61
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d482d89_c8c4d376",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b844aa1b_d10c3d11",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-07-30T20:56:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d482d89_c8c4d376",
+      "range": {
+        "startLine": 715,
+        "startChar": 17,
+        "endLine": 715,
+        "endChar": 32
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
