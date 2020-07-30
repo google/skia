@@ -13,21 +13,18 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/tessellate/GrTessellateStrokeShader.h"
+#include "src/gpu/tessellate/GrVectorXform.h"
+#include "src/gpu/tessellate/GrWangsFormula.h"
 
 // This is the maximum distance in pixels that we can stray from the edge of a stroke when
 // converting it to flat line segments.
-static constexpr float kMaxErrorFromLinearization = 1/8.f;
+static constexpr float kLinearizationIntolerance = 8;  // 1/8 pixel.
 
 constexpr static float kInternalRoundJoinType = GrTessellateStrokeShader::kInternalRoundJoinType;
 
 static Sk2f lerp(const Sk2f& a, const Sk2f& b, float T) {
     SkASSERT(1 != T);  // The below does not guarantee lerp(a, b, 1) === b.
     return (b - a) * T + a;
-}
-
-static inline float length(const Sk2f& n) {
-    Sk2f nn = n*n;
-    return SkScalarSqrt(nn[0] + nn[1]);
 }
 
 static inline void transpose(const Sk2f& a, const Sk2f& b, Sk2f* X, Sk2f* Y) {
@@ -56,7 +53,8 @@ void GrStrokePatchBuilder::allocVertexChunk(int minVertexAllocCount) {
 SkPoint* GrStrokePatchBuilder::reservePatch() {
     constexpr static int kNumVerticesPerPatch = GrTessellateStrokeShader::kNumVerticesPerPatch;
     if (fVertexChunkArray->back().fVertexCount + kNumVerticesPerPatch > fCurrChunkVertexCapacity) {
-        // No need to put back vertices; the buffer is full.
+        // The current chunk is full. Time to allocate a new one. (And no need to put back vertices;
+        // the buffer is full.)
         this->allocVertexChunk(fCurrChunkMinVertexAllocCount * 2);
     }
     if (!fCurrChunkVertexData) {
@@ -149,9 +147,17 @@ void GrStrokePatchBuilder::writeCaps() {
 }
 
 void GrStrokePatchBuilder::addPath(const SkPath& path, const SkStrokeRec& stroke) {
-    this->beginPath(stroke, stroke.getWidth());
+    this->beginPath(stroke);
     SkPathVerb previousVerb = SkPathVerb::kClose;
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+    for (auto [verb, rawPts, w] : SkPathPriv::Iterate(path)) {
+        SkPoint pts[4];
+        int numPtsInVerb = SkPathPriv::PtsInIter((unsigned)verb);
+        for (int i = 0; i < numPtsInVerb; ++i) {
+            // TEMPORORY: Scale all the points up front. SkFind*MaxCurvature and GrWangsFormula::*
+            // both expect arrays of points. As we refine this class and its math, this scale will
+            // hopefully be integrated more efficiently.
+            pts[i] = rawPts[i] * fMatrixScale;
+        }
         switch (verb) {
             case SkPathVerb::kMove:
                 // "A subpath ... consisting of a single moveto shall not be stroked."
@@ -199,17 +205,20 @@ static float join_type_from_join(SkPaint::Join join) {
     SkUNREACHABLE;
 }
 
-void GrStrokePatchBuilder::beginPath(const SkStrokeRec& stroke, float strokeDevWidth) {
-    // Client should have already converted the stroke to device space (i.e. width=1 for hairline).
-    SkASSERT(strokeDevWidth > 0);
+void GrStrokePatchBuilder::beginPath(const SkStrokeRec& stroke) {
+    // We don't support hairline strokes. For now, the client can transform the path into device
+    // space and then use a stroke width of 1.
+    SkASSERT(stroke.getWidth() > 0);
 
-    fCurrStrokeRadius = strokeDevWidth/2;
+    fCurrStrokeRadius = stroke.getWidth()/2 * fMatrixScale;
     fCurrStrokeJoinType = join_type_from_join(stroke.getJoin());
     fCurrStrokeCapType = stroke.getCap();
 
     // Find the angle of curvature where the arc height above a simple line from point A to point B
-    // is equal to kMaxErrorFromLinearization.
-    float r = std::max(1 - kMaxErrorFromLinearization / fCurrStrokeRadius, 0.f);
+    // is equal to 1/kLinearizationIntolerance. (The arc height is always the same no matter how
+    // long the line is. What we are interested in is the difference in height between the part of
+    // the stroke whose normal is orthogonal to the line, vs the heights at the endpoints.)
+    float r = std::max(1 - 1/(fCurrStrokeRadius * kLinearizationIntolerance), 0.f);
     fMaxCurvatureCosTheta = 2*r*r - 1;
 
     fHasPreviousSegment = false;
@@ -237,17 +246,18 @@ void GrStrokePatchBuilder::quadraticTo(const SkPoint P[3]) {
     this->quadraticTo(fCurrStrokeJoinType, P, SkFindQuadMaxCurvature(P));
 }
 
-// Wang's formula for quadratics (1985) gives us the number of evenly spaced (in the parametric
-// sense) line segments that are guaranteed to be within a distance of "kMaxErrorFromLinearization"
-// from the actual curve.
-static inline float wangs_formula_quadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
-    static constexpr float k = 2 / (8 * kMaxErrorFromLinearization);
-    float f = SkScalarSqrt(k * length(p2 - p1*2 + p0));
-    return SkScalarCeilToInt(f);
-}
-
 void GrStrokePatchBuilder::quadraticTo(float leftJoinType, const SkPoint P[3],
                                        float maxCurvatureT) {
+    if (P[1] == P[0] || P[1] == P[2]) {
+        this->lineTo(leftJoinType, P[0], P[2]);
+        return;
+    }
+
+    // Decide a lower bound on the length (in parametric sense) of linear segments the curve will be
+    // chopped into.
+    int numSegments = 1 << GrWangsFormula::quadratic_log2(kLinearizationIntolerance, P);
+    float segmentLength = SkScalarInvert(numSegments);
+
     Sk2f p0 = Sk2f::Load(P);
     Sk2f p1 = Sk2f::Load(P+1);
     Sk2f p2 = Sk2f::Load(P+2);
@@ -255,24 +265,11 @@ void GrStrokePatchBuilder::quadraticTo(float leftJoinType, const SkPoint P[3],
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
 
-    // Snap to a "lineTo" if the control point is so close to an endpoint that FP error will become
-    // an issue.
-    if ((tan0.abs() < SK_ScalarNearlyZero).allTrue() ||  // p0 ~= p1
-        (tan1.abs() < SK_ScalarNearlyZero).allTrue()) {  // p1 ~= p2
-        this->lineTo(leftJoinType, P[0], P[2]);
-        return;
-    }
-
-    // Decide how many flat line segments to chop the curve into.
-    int numSegments = wangs_formula_quadratic(p0, p1, p2);
-    numSegments = std::max(numSegments, 1);
-
     // At + B gives a vector tangent to the quadratic.
     Sk2f A = p0 - p1*2 + p2;
     Sk2f B = p1 - p0;
 
     // Find a line segment that crosses max curvature.
-    float segmentLength = SkScalarInvert(numSegments);
     float leftT = maxCurvatureT - segmentLength/2;
     float rightT = maxCurvatureT + segmentLength/2;
     Sk2f leftTan, rightTan;
@@ -343,19 +340,18 @@ void GrStrokePatchBuilder::cubicTo(const SkPoint P[4]) {
                   numRoots > 2 ? roots[2] : kRightMaxCurvatureNone);
 }
 
-// Wang's formula for cubics (1985) gives us the number of evenly spaced (in the parametric sense)
-// line segments that are guaranteed to be within a distance of "kMaxErrorFromLinearization"
-// from the actual curve.
-static inline float wangs_formula_cubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                        const Sk2f& p3) {
-    static constexpr float k = (3 * 2) / (8 * kMaxErrorFromLinearization);
-    float f = SkScalarSqrt(k * length(Sk2f::Max((p2 - p1*2 + p0).abs(),
-                                                (p3 - p2*2 + p1).abs())));
-    return SkScalarCeilToInt(f);
-}
-
 void GrStrokePatchBuilder::cubicTo(float leftJoinType, const SkPoint P[4], float maxCurvatureT,
                                    float leftMaxCurvatureT, float rightMaxCurvatureT) {
+    if (P[1] == P[2] && (P[1] == P[0] || P[1] == P[3])) {
+        this->lineTo(leftJoinType, P[0], P[3]);
+        return;
+    }
+
+    // Decide a lower bound on the length (in parametric sense) of linear segments the curve will be
+    // chopped into.
+    int numSegments = 1 << GrWangsFormula::cubic_log2(kLinearizationIntolerance, P);
+    float segmentLength = SkScalarInvert(numSegments);
+
     Sk2f p0 = Sk2f::Load(P);
     Sk2f p1 = Sk2f::Load(P+1);
     Sk2f p2 = Sk2f::Load(P+2);
@@ -364,29 +360,6 @@ void GrStrokePatchBuilder::cubicTo(float leftJoinType, const SkPoint P[4], float
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p3 - p2;
 
-    // Snap control points to endpoints if they are so close that FP error will become an issue.
-    if ((tan0.abs() < SK_ScalarNearlyZero).allTrue()) {  // p0 ~= p1
-        p1 = p0;
-        tan0 = p2 - p0;
-        if ((tan0.abs() < SK_ScalarNearlyZero).allTrue()) {  // p0 ~= p1 ~= p2
-            this->lineTo(leftJoinType, P[0], P[3]);
-            return;
-        }
-    }
-    if ((tan1.abs() < SK_ScalarNearlyZero).allTrue()) {  // p2 ~= p3
-        p2 = p3;
-        tan1 = p3 - p1;
-        if ((tan1.abs() < SK_ScalarNearlyZero).allTrue() ||  // p1 ~= p2 ~= p3
-            (p0 == p1).allTrue()) {  // p0 ~= p1 AND p2 ~= p3
-            this->lineTo(leftJoinType, P[0], P[3]);
-            return;
-        }
-    }
-
-    // Decide how many flat line segments to chop the curve into.
-    int numSegments = wangs_formula_cubic(p0, p1, p2, p3);
-    numSegments = std::max(numSegments, 1);
-
     // At^2 + Bt + C gives a vector tangent to the cubic. (More specifically, it's the derivative
     // minus an irrelevant scale by 3, since all we care about is the direction.)
     Sk2f A = p3 + (p1 - p2)*3 - p0;
@@ -394,7 +367,6 @@ void GrStrokePatchBuilder::cubicTo(float leftJoinType, const SkPoint P[4], float
     Sk2f C = p1 - p0;
 
     // Find a line segment that crosses max curvature.
-    float segmentLength = SkScalarInvert(numSegments);
     float leftT = maxCurvatureT - segmentLength/2;
     float rightT = maxCurvatureT + segmentLength/2;
     Sk2f leftTan, rightTan;

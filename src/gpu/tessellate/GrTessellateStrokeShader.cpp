@@ -19,17 +19,30 @@ public:
         return uniformHandler.getUniformCStr(fMiterLimitUniform);
     }
 
+    const char* getSkewMatrixUniformName(const GrGLSLUniformHandler& uniformHandler) const {
+        return uniformHandler.getUniformCStr(fSkewMatrixUniform);
+    }
+
 private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& shader = args.fGP.cast<GrTessellateStrokeShader>();
         args.fVaryingHandler->emitAttributes(shader);
 
-        fMiterLimitUniform = args.fUniformHandler->addUniform(
-                nullptr, kTessControl_GrShaderFlag, kFloat_GrSLType, "miterLimit", nullptr);
+        fMiterLimitUniform = args.fUniformHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
+                                                              kFloat_GrSLType, "miterLimit",
+                                                              nullptr);
+
+        if (!shader.viewMatrix().isIdentity()) {
+            fSkewMatrixUniform = args.fUniformHandler->addUniform(nullptr,
+                                                                  kTessEvaluation_GrShaderFlag,
+                                                                  kFloat3x3_GrSLType, "skewMatrix",
+                                                                  nullptr);
+        }
 
         const char* colorUniformName;
-        fColorUniform = args.fUniformHandler->addUniform(
-                nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &colorUniformName);
+        fColorUniform = args.fUniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
+                                                         kHalf4_GrSLType, "color",
+                                                         &colorUniformName);
 
         // The vertex shader is pure pass-through. Stroke widths and normals are defined in local
         // path space, so we don't apply the view matrix until after tessellation.
@@ -51,18 +64,21 @@ private:
             fCachedMiterLimitValue = shader.fMiterLimitOrZero;
         }
 
-        if (fCachedColorValue != shader.fColor) {
-            pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
-            fCachedColorValue = shader.fColor;
+        if (!shader.viewMatrix().isIdentity()) {
+            // Since the view matrix is applied after tessellation, it cannot expand the geometry in
+            // any direction.
+            SkASSERT(shader.viewMatrix().getMaxScale() < 1 + SK_ScalarNearlyZero);
+            pdman.setSkMatrix(fSkewMatrixUniform, shader.viewMatrix());
         }
+
+        pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
     }
 
     GrGLSLUniformHandler::UniformHandle fMiterLimitUniform;
+    GrGLSLUniformHandler::UniformHandle fSkewMatrixUniform;
     GrGLSLUniformHandler::UniformHandle fColorUniform;
 
     float fCachedMiterLimitValue = -1;
-    SkMatrix fCachedViewMatrixValue = SkMatrix::I();
-    SkPMColor4f fCachedColorValue = {-1, -1, -1, -1};
 };
 
 SkString GrTessellateStrokeShader::getTessControlShaderGLSL(
@@ -177,12 +193,20 @@ SkString GrTessellateStrokeShader::getTessControlShaderGLSL(
 }
 
 SkString GrTessellateStrokeShader::getTessEvaluationShaderGLSL(
-        const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
-        const GrGLSLUniformHandler&, const GrShaderCaps&) const {
-    SkString code(versionAndExtensionDecls);
-    code.append(R"(
-            layout(quads, equal_spacing, ccw) in;
+        const GrGLSLPrimitiveProcessor* glslPrimProc, const char* versionAndExtensionDecls,
+        const GrGLSLUniformHandler& uniformHandler, const GrShaderCaps&) const {
+    auto impl = static_cast<const GrTessellateStrokeShader::Impl*>(glslPrimProc);
 
+    SkString code(versionAndExtensionDecls);
+    code.append("layout(quads, equal_spacing, ccw) in;\n");
+
+    const char* skewMatrixName = nullptr;
+    if (!this->viewMatrix().isIdentity()) {
+        skewMatrixName = impl->getSkewMatrixUniformName(uniformHandler);
+        code.appendf("uniform mat3x3 %s;\n", skewMatrixName);
+    }
+
+    code.append(R"(
             in vec4 X[];
             in vec4 Y[];
             in vec2 fanAngles[];
@@ -239,8 +263,7 @@ SkString GrTessellateStrokeShader::getTessEvaluationShaderGLSL(
     // Transform after tessellation. Stroke widths and normals are defined in (pre-transform) local
     // path space.
     if (!this->viewMatrix().isIdentity()) {
-        SK_ABORT("Non-identity matrices not supported.");
-        // TODO: implement.
+        code.appendf("vertexpos = (%s * vec3(vertexpos, 1)).xy;\n", skewMatrixName);
     }
 
     code.append(R"(

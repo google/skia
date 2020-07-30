@@ -11,26 +11,6 @@
 #include "src/gpu/tessellate/GrStrokePatchBuilder.h"
 #include "src/gpu/tessellate/GrTessellateStrokeShader.h"
 
-static SkPath transform_path(const SkMatrix& viewMatrix, const SkPath& path) {
-    SkPath devPath;
-    // The provided matrix must be a similarity matrix for the time being. This is so we can
-    // bootstrap this Op on top of GrStrokePatchBuilder with minimal modifications.
-    SkASSERT(viewMatrix.isSimilarity());
-    path.transform(viewMatrix, &devPath);
-    return devPath;
-}
-
-static SkStrokeRec transform_stroke(const SkMatrix& viewMatrix, const SkStrokeRec& stroke) {
-    SkStrokeRec devStroke = stroke;
-    // kStrokeAndFill_Style is not yet supported.
-    SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
-             stroke.getStyle() == SkStrokeRec::kHairline_Style);
-    float strokeWidth = (stroke.getStyle() == SkStrokeRec::kHairline_Style) ?
-            1 : viewMatrix.getMaxScale() * stroke.getWidth();
-    devStroke.setStrokeStyle(strokeWidth, /*strokeAndFill=*/false);
-    return devStroke;
-}
-
 static SkPMColor4f get_paint_constant_blended_color(const GrPaint& paint) {
     SkPMColor4f constantColor;
     // Patches can overlap, so until a stencil technique is implemented, the provided paints must be
@@ -39,28 +19,40 @@ static SkPMColor4f get_paint_constant_blended_color(const GrPaint& paint) {
     return constantColor;
 }
 
-GrTessellateStrokeOp::GrTessellateStrokeOp(const SkMatrix& viewMatrix, const SkPath& path,
-                                           const SkStrokeRec& stroke, GrPaint&& paint,
-                                           GrAAType aaType)
+GrTessellateStrokeOp::GrTessellateStrokeOp(GrAAType aaType, const SkMatrix& viewMatrix,
+                                           const SkPath& path, const SkStrokeRec& stroke,
+                                           GrPaint&& paint)
         : GrDrawOp(ClassID())
-        , fPathStrokes(transform_path(viewMatrix, path), transform_stroke(viewMatrix, stroke))
+        , fPathStrokes(path, stroke)
         , fTotalCombinedVerbCnt(path.countVerbs())
-        , fColor(get_paint_constant_blended_color(paint))
         , fAAType(aaType)
+        , fColor(get_paint_constant_blended_color(paint))
         , fProcessors(std::move(paint)) {
     SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples support yet.
-    SkStrokeRec& headStroke = fPathStrokes.head().fStroke;
-    if (headStroke.getJoin() == SkPaint::kMiter_Join) {
-        float miter = headStroke.getMiter();
+    if (stroke.getJoin() == SkPaint::kMiter_Join) {
+        float miter = stroke.getMiter();
         if (miter <= 0) {
-            headStroke.setStrokeParams(headStroke.getCap(), SkPaint::kBevel_Join, 0);
+            fPathStrokes.head().fStroke.setStrokeParams(stroke.getCap(), SkPaint::kBevel_Join, 0);
         } else {
             fMiterLimitOrZero = miter;
         }
     }
+    if (!(viewMatrix.getType() & ~SkMatrix::kScale_Mask) &&
+        viewMatrix.getScaleX() == viewMatrix.getScaleY()) {
+        fMatrixScale = viewMatrix.getScaleX();
+        fSkewMatrix = SkMatrix::I();
+    } else {
+        SkASSERT(!viewMatrix.hasPerspective());  // getMaxScale() doesn't work with perspective.
+        fMatrixScale = viewMatrix.getMaxScale();
+        float invScale = SkScalarInvert(fMatrixScale);
+        fSkewMatrix = viewMatrix;
+        fSkewMatrix.preScale(invScale, invScale);
+    }
+    SkASSERT(fMatrixScale >= 0);
     SkRect devBounds = fPathStrokes.head().fPath.getBounds();
     float inflationRadius = fPathStrokes.head().fStroke.getInflationRadius();
     devBounds.outset(inflationRadius, inflationRadius);
+    viewMatrix.mapRect(&devBounds, devBounds);
     this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
 }
 
@@ -86,7 +78,10 @@ GrOp::CombineResult GrTessellateStrokeOp::onCombineIfPossible(GrOp* grOp,
                                                               const GrCaps&) {
     auto* op = grOp->cast<GrTessellateStrokeOp>();
     if (fColor != op->fColor ||
-        fViewMatrix != op->fViewMatrix ||
+        // TODO: When stroking is finished, we may want to consider whether a unique matrix scale
+        // can be stored with each PathStroke instead. This might improve batching.
+        fMatrixScale != op->fMatrixScale ||
+        fSkewMatrix != op->fSkewMatrix ||
         fAAType != op->fAAType ||
         ((fMiterLimitOrZero * op->fMiterLimitOrZero != 0) &&  // Are both non-zero?
          fMiterLimitOrZero != op->fMiterLimitOrZero) ||
@@ -109,7 +104,7 @@ void GrTessellateStrokeOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProx
 }
 
 void GrTessellateStrokeOp::onPrepare(GrOpFlushState* flushState) {
-    GrStrokePatchBuilder builder(flushState, &fVertexChunks, fTotalCombinedVerbCnt);
+    GrStrokePatchBuilder builder(flushState, &fVertexChunks, fMatrixScale, fTotalCombinedVerbCnt);
     for (auto& [path, stroke] : fPathStrokes) {
         builder.addPath(path, stroke);
     }
@@ -127,8 +122,7 @@ void GrTessellateStrokeOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
-    SkASSERT(fViewMatrix.isIdentity());  // Only identity matrices supported for now.
-    GrTessellateStrokeShader strokeShader(fViewMatrix, fColor, fMiterLimitOrZero);
+    GrTessellateStrokeShader strokeShader(fSkewMatrix, fColor, fMiterLimitOrZero);
     GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline, &strokeShader);
 
     SkASSERT(chainBounds == this->bounds());
