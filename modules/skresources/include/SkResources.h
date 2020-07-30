@@ -65,7 +65,10 @@ public:
 private:
     explicit MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer>, bool predecode);
 
+    sk_sp<SkImage> generateFrame(float t);
+
     std::unique_ptr<SkAnimCodecPlayer> fPlayer;
+    sk_sp<SkImage>                     fCachedFrame;
     bool                               fPreDecode;
 
     using INHERITED = ImageAsset;
