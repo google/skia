@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "955fd4ee_2a5f6d26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T16:18:53Z",
+      "side": 1,
+      "message": "I think this is just removing duplicated calculation within Gr.",
+      "parentUuid": "f5708456_fb218e7e",
+      "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2e123c91_f2985290",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 1
