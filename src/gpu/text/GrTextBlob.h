@@ -113,7 +113,8 @@ public:
     void addMultiMaskFormat(
             AddSingleMaskFormat addSingle,
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
-            const SkStrikeSpec& strikeSpec);
+            const SkStrikeSpec& strikeSpec,
+            SkPoint smidge);
 
     const SkTInternalLList<GrSubRun>& subRunList() const { return fSubRunList; }
 
@@ -138,7 +139,8 @@ private:
 
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkStrikeSpec& strikeSpec) override;
+                            const SkStrikeSpec& strikeSpec,
+                            SkPoint smidge) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkFont& runFont,
                             const SkStrikeSpec& strikeSpec) override;
@@ -314,12 +316,10 @@ private:
 // -- GrDirectMaskSubRun ---------------------------------------------------------------------------
 class GrDirectMaskSubRun final : public GrAtlasSubRun {
 public:
-    using VertexData = std::tuple<
-            SkPoint,   // glyph position.
-            GrIRect16  // glyph bounding rectangle.
-    >;
+    using VertexData = SkIPoint;
 
     GrDirectMaskSubRun(GrMaskFormat format,
+                       SkPoint smidge,
                        GrTextBlob* blob,
                        const SkRect& bounds,
                        SkSpan<const VertexData> vertexData,
@@ -328,6 +328,7 @@ public:
     static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                           const SkStrikeSpec& strikeSpec,
                           GrMaskFormat format,
+                          SkPoint smidge,
                           GrTextBlob* blob,
                           SkArenaAlloc* alloc);
 
@@ -353,10 +354,12 @@ public:
                         const SkMatrix& drawMatrix, SkPoint drawOrigin,
                         SkIRect clip) const override;
 private:
+
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
     const GrMaskFormat fMaskFormat;
+    const SkPoint fSmidge;
     GrTextBlob* const fBlob;
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
@@ -387,6 +390,7 @@ public:
     static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                           const SkStrikeSpec& strikeSpec,
                           GrMaskFormat format,
+                          SkPoint,
                           GrTextBlob* blob,
                           SkArenaAlloc* alloc);
 
