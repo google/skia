@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2147b08_2c42478c",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T19:58:00Z",
+      "side": 1,
+      "message": "Is this the root bug, skcms_ApproximatelyEqual() rejecting profile pairs we should consider equal?  The issue is comparing a natively grayscale profile with a profile we\u0027ve translated from grayscale to RGB, right?  If we just let the transforms at the bottom of skcms_ApproximatelyEqual() run without short circuiting, wouldn\u0027t we see they end up with approximately equal XYZ outputs and decide it was fine?\n\n(I don\u0027t have any objection to using SkColorSpace::Equals() per se, and I think if it had been written this way without any comment it would have raised no eyebrows.)",
+      "range": {
+        "startLine": 660,
+        "startChar": 22,
+        "endLine": 661,
+        "endChar": 40
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bb21123_79b36e5a",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T19:58:00Z",
+      "side": 1,
+      "message": "I keep getting tripped up why F16 is special at all in SkCodec.  Is it special in a way that F16Norm or F32 isn\u0027t?  I can\u0027t understand why any individual SkColorType would get its own control flow... is there some class of SkColorTypes we\u0027re trying to cover here?",
+      "range": {
+        "startLine": 672,
+        "startChar": 12,
+        "endLine": 672,
+        "endChar": 33
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e55d9a74_f64c4a1c",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T19:58:00Z",
+      "side": 1,
+      "message": "You can probably avoid the heap allocations?\n\n   // skcms\u0027 largest supported pixel format is 128-bit.\n   uint64_t src[2], dst[2];\n   SkASSERT(SkColorTypeBytesPerPixel(dstInfo.colorType()) \u003c\u003d sizeof(dst);",
+      "range": {
+        "startLine": 706,
+        "startChar": 0,
+        "endLine": 713,
+        "endChar": 61
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d482d89_c8c4d376",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T19:58:00Z",
+      "side": 1,
+      "message": "maybe add a this-\u003e in here?",
+      "range": {
+        "startLine": 715,
+        "startChar": 17,
+        "endLine": 715,
+        "endChar": 32
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
