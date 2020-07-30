@@ -16,6 +16,24 @@
       "revId": "59bd5258f8c9d4121316102148f4971c7789e970",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09e2ac18_9590c508",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T20:55:22Z",
+      "side": 1,
+      "message": "If the CPU backend does one thing and the GPU backend does the other, doesn\u0027t that mean we can drop the feature?  I hate all these magic paint-controlled features like this.",
+      "parentUuid": "6fcf5e84_8805e512",
+      "revId": "59bd5258f8c9d4121316102148f4971c7789e970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
