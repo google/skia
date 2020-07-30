@@ -151,12 +151,6 @@ DEF_TEST(SkSLConstructorArgumentCount, r) {
                  "4)\n1 error\n");
 }
 
-DEF_TEST(SkSLSwizzleScalar, r) {
-    test_failure(r,
-                 "void main() { float x = 1; float y = x.y; }",
-                 "error: 1: cannot swizzle value of type 'float'\n1 error\n");
-}
-
 DEF_TEST(SkSLSwizzleMatrix, r) {
     test_failure(r,
                  "void main() { float2x2 x = float2x2(1); float y = x.y; }",
