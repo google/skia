@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "949f4c99_a7061f04",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T19:16:13Z",
+      "side": 1,
+      "message": "Why not handle the scale in lineTo, quadraticTo, etc.? Then you could do the multiply in-place instead of using a temporary.",
+      "range": {
+        "startLine": 190,
+        "startChar": 22,
+        "endLine": 190,
+        "endChar": 28
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e39a4f42_7cc99753",
         "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
         "patchSetId": 3
