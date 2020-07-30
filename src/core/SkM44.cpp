@@ -48,7 +48,7 @@ SkM44& SkM44::setConcat(const SkM44& a, const SkM44& b) {
     sk4f c3 = sk4f::Load(a.fMat + 12);
 
     auto compute = [&](sk4f r) {
-        return skvx::mad(c0, r[0], skvx::mad(c1, r[1], skvx::mad(c2, r[2], c3 * r[3])));
+        return c0*r[0] + (c1*r[1] + (c2*r[2] + c3*r[3]));
     };
 
     sk4f m0 = compute(sk4f::Load(b.fMat +  0));
@@ -69,7 +69,7 @@ SkM44& SkM44::preConcat(const SkMatrix& b) {
     sk4f c3 = sk4f::Load(fMat + 12);
 
     auto compute = [&](float r0, float r1, float r3) {
-        return skvx::mad(c0, r0, skvx::mad(c1, r1, c3 * r3));
+        return (c0*r0 + (c1*r1 + c3*r3));
     };
 
     sk4f m0 = compute(b[0], b[3], b[6]);
@@ -89,7 +89,7 @@ SkM44& SkM44::preTranslate(SkScalar x, SkScalar y, SkScalar z) {
     sk4f c3 = sk4f::Load(fMat + 12);
 
     // only need to update the last column
-    skvx::mad(c0, x, skvx::mad(c1, y, skvx::mad(c2, z, c3))).store(fMat + 12);
+    (c0*x + (c1*y + (c2*z + c3))).store(fMat + 12);
     return *this;
 }
 
