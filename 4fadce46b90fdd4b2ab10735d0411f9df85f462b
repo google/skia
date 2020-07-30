@@ -51,6 +51,24 @@
       "revId": "4fadce46b90fdd4b2ab10735d0411f9df85f462b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ccce0fb2_969e303d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T20:04:16Z",
+      "side": 1,
+      "message": "Yeah, I missed that too - and had the same reaction.",
+      "parentUuid": "37700ce0_da807ddb",
+      "revId": "4fadce46b90fdd4b2ab10735d0411f9df85f462b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
