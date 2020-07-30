@@ -85,7 +85,6 @@ int main() {
 
   //vec1 = skvx::rcp(vec1); //GOOD (FIXED) previous: N/A-BAD, doesn't use SIMD div
   //vec1 = skvx::rsqrt(vec1); //GOOD (FIXED) previous: BAD, doesn't use SIMD sqrt or div
-  //vec1 = skvx::mad(vec1, vec2, vec1); //GOOD (FIXED) previous: BAD doesn't used SIMD add or mul
 
   //vec1 = skvx::if_then_else(vec1, vec1, vec2); //N/A
 
