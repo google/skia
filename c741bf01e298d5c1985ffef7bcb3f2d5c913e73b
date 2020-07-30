@@ -87,6 +87,30 @@
       "revId": "c741bf01e298d5c1985ffef7bcb3f2d5c913e73b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c642f0c2_61064c94",
+        "filename": "infra/bots/task_drivers/run_gn_to_bp/run_gn_to_bp.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-07-30T13:07:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e14610eb_df002667",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 42
+      },
+      "revId": "c741bf01e298d5c1985ffef7bcb3f2d5c913e73b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
