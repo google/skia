@@ -155,22 +155,76 @@ public:
 
     // Load the buffer with SkPackedGlyphIDs, calculating positions so they can be constant.
     //
-    // A final device position is computed in the following manner:
-    //  [x,y] = Floor[M][T][x',y']^t
-    // M is complicated but includes the rounding offsets for subpixel positioning.
-    // T is the translation matrix derived from the text blob origin.
-    // The final position is {Floor(x), Floor(y)}. If we want to move this position around in
-    // device space given a start origin T in source space and a end position T' in source space
-    // and new device matrix M', we need to calculate a suitable device space translation V. We
-    // know that V must be integer.
-    // V = [M'][T'](0,0)^t - [M][T](0,0)^t.
-    // V = Q' - Q
-    // So all the positions Ps are translated by V to translate from T to T' in source space. We can
-    // generate Ps such that we just need to add any Q' to the constant Ps to get a final positions.
-    // So, a single point P = {Floor(x)-Q_x, Floor(y)-Q_y}; this does not have to be integer.
-    // This allows positioning to be P + Q', which given ideal numbers would be an integer. Since
-    // the addition is done with floating point, it must be rounded.
-    void startGPUDevice(
+    // We are looking for constant values for the x,y positions for all the glyphs that are not
+    // dependant on the device origin Q such that we can just add a new value to translate all the
+    // glyph positions to a new device origin Q'. We want (cx,cy,0) + [Q'](0,0,1) draw the blob
+    // with device origin Q'. Ultimately we show there is an integer solution for the glyph
+    // positions where (ix,iy,0) + ([Q'](0,0,1) + (sx,sy,0)) both parts of the top level + are
+    // integers, and preserve all the flooring properties.
+    //
+    // Given (px,py) the glyph origin in source space. The glyph origin in device space (x,y) is:
+    //   (x,y,1) = Floor([R][V][O](px,py,1))
+    // where:
+    //   * R - is the rounding matrix given as translate(sampling_freq_x/2, sampling_freq_y/2).
+    //   * V - is the mapping from source space to device space.
+    //   * O - is the blob origin given, as translate(origin.x(), origin.y()).
+    //   * (px,py,1) - is the vector of the glyph origin in source space. There is a position for
+    //                 each glyph.
+    //
+    // The three matrices R,V, and O constitute the device origin Q. [Q] = [R][V][O]. Thus,
+    //   (x,y,1) = Floor([Q](0,0,1) + [V](px,py,0)).
+    //   Note: [V](px,py,0) is the vector transform without the translation portion of V. That
+    //         translation of V is accounted for in [Q](0,0,1)..
+    //
+    // If we want to translate the blog from the device origin Q to the device position Q', we
+    // can use the following translation. Restate as [Q'](0,0,1) - [Q](0,0,1).
+    //   (x',y',1) = Floor([Q](0,0,1) + [V](px,py,0) + [Q'](0,0,1) - [Q](0,0,1)).
+    //
+    // We are given that [Q'](0,0,1) - [Q](0,0,1) is an integer translation. We can recast the
+    // translation as:
+    //   (x',y',1) = Floor([Q](0,0,1) + [V](px,py,0)) + [Q'](0,0,1) - [Q](0,0,1)               (1)
+    //
+    // We can now see that (cx, cy,0) is constructed but dropping [Q'](0,0,1) from above.
+    //   (cx,cy,0) = Floor([Q](0,0,1) + [V](px,py,0)) - [Q](0,0,1)
+    //
+    // Notice that cx and cy are not guaranteed to be integers because [Q](0,0,1) is not
+    // constrained to be integer; only [Q'](0,0,1) - [Q](0,0,1) is constrained to be an integer.
+    //
+    // Let Floor([Q](0,0,1)) be the integer portion and {[Q](0,0,1)} be the fractional portion
+    // calculated as [Q](0,0,1) - Floor([Q](0,0,1). This vector has a zero in the third place.
+    // Rewriting (1) with this substitution of Floor([Q](0,0,1)) + {[Q](0,0,1)} for [Q](0,0,1).
+    //    (x',y',1) = Floor([Q](0,0,1) + [V](px,py,0)) + [Q'](0,0,1) - [Q](0,0,1)
+    // becomes,
+    //    (x',y',1) = Floor(Floor([Q](0,0,1)) + {[Q](0,0,1)} + [V](px,py,0)) +
+    //                [Q'](0,0,1) - (Floor([Q](0,0,1)) + {[Q](0,0,1)})
+    // simplifying by moving Floor([Q](0,0,1)) out of the Floor(),
+    //    (x',y',1) = Floor({[Q](0,0,1)} + [V](px,py,0)) +
+    //                [Q'](0,0,1) + Floor([Q](0,0,1)) - Floor([Q](0,0,1)) - {[Q](0,0,1)}
+    // removing terms that result in zero gives,
+    //    (x',y',1) = Floor({[Q](0,0,1)} + [V](px,py,0)) + [Q'](0,0,1) - {[Q](0,0,1)}
+    // Notice that [Q'](0,0,1) - {[Q](0,0,1)} and Floor({[Q](0,0,1)} + [V](px,py,0)) are integer.
+    // Let,
+    //    (ix,iy,0) = Floor({[Q](0,0,1)} + [V](px,py,0)),
+    //    (sx,sy,0) = -{[Q](0,0,1)}.
+    // I call the (sx,sy,0) value the smidge.
+    // Thus,
+    //    (x',y',1) = (ix,iy,0) + ([Q](0,0,1) + (sx,sy,0)).
+    //
+    // As a matter of practicality, we have the following already calculated for sub-pixel
+    // positioning, and use it to calculate (ix,iy,0):
+    //    (fx,fy,1) = [R][V][O](px,py,1)
+    //                = [Q](0,0,1) + [V](px,py,0)
+    //                = Floor([Q](0,0,1)) + {[Q](0,0,1)} + [V](px,py,0)
+    // So,
+    //    (ix,iy,0) = Floor((fx,fy,1) - Floor([Q](0,0,1))).
+    //
+    // When calculating Q' we don't have the values for [R]. But we can just fold the values for
+    // R into the smidge, so the full definition of smidge is:
+    //    (sx,sy,0) = (rx,ry,1) - ([Q](0,0,1) - Floor([Q](0,0,1)),
+    //              = Floor([Q](0,0,1) - [Q](0,0,1) + (rx,ry,1).
+    //
+    // Returns the smidge -- (sx,sy,0).
+    SkPoint startGPUDevice(
             const SkZip<const SkGlyphID, const SkPoint>& source,
             SkPoint origin, const SkMatrix& viewMatrix,
             const SkGlyphPositionRoundingSpec& roundingSpec);
