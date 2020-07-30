@@ -90,13 +90,31 @@ protected:
         typedef PatternHelper INHERITED;
     };
 
+    static const char* foo(GrAAType aaType) {
+        switch (aaType) {
+        case GrAAType::kNone: return "kNone";
+        case GrAAType::kCoverage: return "kCoverage";
+        case GrAAType::kMSAA: return "kMSAA";
+        }
+
+        return "kUnknown";
+    }
+
     static bool CombinedQuadCountWillOverflow(GrAAType aaType,
                                               bool willBeUpgradedToAA,
-                                              int combinedQuadCount) {
+                                              int combinedQuadCount,
+                                              bool prospective) {
         bool willBeAA = (aaType == GrAAType::kCoverage) || willBeUpgradedToAA;
 
-        return combinedQuadCount > (willBeAA ? GrResourceProvider::MaxNumAAQuads()
-                                             : GrResourceProvider::MaxNumNonAAQuads());
+        bool result = combinedQuadCount > (willBeAA ? GrResourceProvider::MaxNumAAQuads()
+                                                     : GrResourceProvider::MaxNumNonAAQuads());
+
+        printf("aaType %s willBeUpgradedToAA %s combinedQuadCount %d maxAA %d maxNonAA %d %s - result %s\n",
+               foo(aaType), willBeUpgradedToAA ? "true" : "false", combinedQuadCount,
+               GrResourceProvider::MaxNumAAQuads(), GrResourceProvider::MaxNumNonAAQuads(),
+               prospective ? "prospective" : "assert",
+               result ? "true" : "false");
+        return result;
     }
 
     virtual void onPrePrepareDraws(GrRecordingContext*,
