@@ -34,6 +34,24 @@
       "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "106cd7b6_37616925",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-30T15:12:04Z",
+      "side": 1,
+      "message": "The constructor does have interesting side effects but I don\u0027t know if they are necessary here or not.\n\nIf the Editor object exists intentionally, we probably want to give it a name, right? That will keep it in scope for the function duration. Constructing a nameless/ephemeral object just to invoke the side-effects of its constructor is kind of dicey IMO :)",
+      "parentUuid": "98b52d20_2fbeec05",
+      "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
