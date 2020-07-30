@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b46bdd68_919da941",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-07-30T18:24:05Z",
+      "side": 1,
+      "message": "sending over to our GPU lead for review.",
+      "revId": "0601002a6745fceed13e30ad39c2ee87833d02f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
