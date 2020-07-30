@@ -740,6 +740,7 @@ def base_defines(os_conditions):
                 "SK_ENCODE_PNG",
                 "SK_ENCODE_WEBP",
                 "SK_R32_SHIFT=16",
+                "SK_GL",
             ],
             # ANDROID
             [
@@ -748,6 +749,7 @@ def base_defines(os_conditions):
                 "SK_CODEC_DECODES_WEBP",
                 "SK_ENCODE_PNG",
                 "SK_ENCODE_WEBP",
+                "SK_GL",
             ],
             # IOS
             [
@@ -755,11 +757,13 @@ def base_defines(os_conditions):
                 "SK_BUILD_NO_OPTS",
                 "SKNX_NO_SIMD",
                 "SK_NO_COMMAND_BUFFER",  # Test tools that use thread_local.
+                "SK_GL",
             ],
             # WASM
             [
                 "SK_DISABLE_LEGACY_SHADERCONTEXT",
                 "SK_DISABLE_TRACING",
+                "SK_GL",
                 "GR_GL_CHECK_ALLOC_WITH_GET_ERROR=0",
                 "SK_SUPPORT_GPU=1",
                 "SK_DISABLE_AAA",
@@ -775,11 +779,13 @@ def base_defines(os_conditions):
                 "SK_ENCODE_PNG",
                 "SK_ENCODE_WEBP",
                 "SK_R32_SHIFT=16",
+                "SK_VULKAN",
             ],
             # MACOS
             [
                 "SK_BUILD_FOR_MAC",
                 "SK_BUILD_NO_OPTS",
+                "SK_GL",
             ],
         ],
     )
