@@ -70,6 +70,30 @@
       "revId": "7b45c2f871fca6c17aacdcbec118278f7cf57ac2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df991f38_44deb28d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T13:40:16Z",
+      "side": 0,
+      "message": "That is odd. I would guess usually the shader ignores the r,g,b of the paint color and just uses alpha. But I\u0027d expect that to draw incorrectly when we have an \"alpha\" shader like a a8 image shader. Maybe we somehow inject a premul step after multiplying the shader\u0027s alpha by the paint color rgb?",
+      "parentUuid": "43c6992c_9d057d78",
+      "range": {
+        "startLine": 301,
+        "startChar": 0,
+        "endLine": 310,
+        "endChar": 26
+      },
+      "revId": "7b45c2f871fca6c17aacdcbec118278f7cf57ac2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
