@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "21db38fd_f8402fc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T20:04:21Z",
+      "side": 1,
+      "message": "In real-world cases I\u0027d expect it\u0027s pretty rare. We have a number of them in our tests.",
+      "parentUuid": "74b88c31_6f9a6ccc",
+      "revId": "5cc64e5491b9b8758c4a5322fb53b3c83ac6ed31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "184a606d_142cf0b9",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
         "patchSetId": 3
@@ -47,6 +65,30 @@
       "writtenOn": "2020-07-30T19:56:13Z",
       "side": 1,
       "message": "I know we used to write comparisons this way but most newer code doesn\u0027t. I personally find the other order easier to read. But up to you.",
+      "range": {
+        "startLine": 112,
+        "startChar": 12,
+        "endLine": 112,
+        "endChar": 60
+      },
+      "revId": "5cc64e5491b9b8758c4a5322fb53b3c83ac6ed31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92957bc8_253391f6",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-30T20:04:21Z",
+      "side": 1,
+      "message": "I\u0027ll tweak them before the final submit.",
+      "parentUuid": "184a606d_142cf0b9",
       "range": {
         "startLine": 112,
         "startChar": 12,
