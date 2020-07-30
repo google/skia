@@ -206,8 +206,8 @@ static void init(Source* source, sk_sp<skottie::Animation> animation) {
         for (int x : order) {
             SkRect dst = {x*dim, y*dim, (x+1)*dim, (y+1)*dim};
 
-            SkAutoCanvasRestore _(canvas, true/*save now*/);
-            canvas->clipRect(dst, /*aa=*/true);
+            SkAutoCanvasRestore _(canvas, /*doSave=*/true);
+            canvas->clipRect(dst, /*doAntiAlias=*/true);
             canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(animation->size()),
                                                     dst,
                                                     SkMatrix::kCenter_ScaleToFit));

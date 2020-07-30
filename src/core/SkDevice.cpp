@@ -33,7 +33,7 @@
 #include "src/utils/SkPatchUtils.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
-        : SkMatrixProvider(/* fLocalToDevice = */ SkMatrix::I())
+        : SkMatrixProvider(/* localToDevice = */ SkMatrix::I())
         , fInfo(info)
         , fSurfaceProps(surfaceProps) {
     fDeviceToGlobal.reset();
