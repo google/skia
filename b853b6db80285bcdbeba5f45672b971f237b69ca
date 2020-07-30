@@ -122,6 +122,30 @@
       "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d32100b9_f2842d20",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T17:35:18Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s almost right. It\u0027s actually more complicated than that - I just did some testing with the scaledemoji GM (simplest case I could find that drew some full-color emoji through this path). The paint RGB *is* used, but not in the draw - it\u0027s baked into the mask for the \"primary\" parts of the emoji. It looks like that\u0027s usually the outlines, so black (default paint color) works well. Changing the paint RGB does nothing to the colored portions of the emoji, but does alter the outlines (by directly changing the mask).\n\nSo - not sure how much simpler that path can get, but I think this change is okay.",
+      "parentUuid": "1df58b44_6067f052",
+      "range": {
+        "startLine": 301,
+        "startChar": 8,
+        "endLine": 301,
+        "endChar": 37
+      },
+      "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
