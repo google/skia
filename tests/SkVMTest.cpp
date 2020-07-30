@@ -1480,11 +1480,14 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.vpinsrd(A::xmm1, A::xmm8, A::Mem{A::rsi}, 1);   // vpinsrd $1, (%rsi), %xmm8, %xmm1
+        a.vpinsrd(A::xmm8, A::xmm1, A::Mem{A::r8 }, 3);   // vpinsrd $3, (%r8), %xmm1, %xmm8;
+
         a.vpinsrw(A::xmm1, A::xmm8, A::Mem{A::rsi}, 4);   // vpinsrw $4, (%rsi), %xmm8, %xmm1
         a.vpinsrw(A::xmm8, A::xmm1, A::Mem{A::r8 }, 12);  // vpinrsw $12, (%r8), %xmm1, %xmm8
 
         a.vpinsrb(A::xmm1, A::xmm8, A::Mem{A::rsi}, 4);   // vpinsrb $4, (%rsi), %xmm8, %xmm1
-        a.vpinsrb(A::xmm8, A::xmm1, A::Mem{A::r8 }, 12);  // vpinsrb $4, (%rsi), %xmm8, %xmm1
+        a.vpinsrb(A::xmm8, A::xmm1, A::Mem{A::r8 }, 12);  // vpinsrb $12, (%r8), %xmm1, %xmm8
 
         a.vextracti128(A::xmm1, A::ymm8, 1);  // vextracti128 $1, %ymm8, %xmm1
         a.vextracti128(A::xmm8, A::ymm1, 0);  // vextracti128 $0, %ymm1, %xmm8
@@ -1498,6 +1501,9 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vpextrb(A::Mem{A::rsi}, A::xmm8, 7);
         a.vpextrb(A::Mem{A::r8 }, A::xmm1, 15);
     },{
+        0xc4,0xe3,0x39, 0x22, 0x0e, 1,
+        0xc4,0x43,0x71, 0x22, 0x00, 3,
+
         0xc5,0xb9,      0xc4, 0x0e,  4,
         0xc4,0x41,0x71, 0xc4, 0x00, 12,
 
