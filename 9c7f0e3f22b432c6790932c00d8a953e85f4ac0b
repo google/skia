@@ -34,6 +34,46 @@
       "revId": "9c7f0e3f22b432c6790932c00d8a953e85f4ac0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f309a78_0a8459bf",
+        "filename": "gm/yuv420_odd_dim.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-30T15:00:37Z",
+      "side": 1,
+      "message": "Maybe \"|| rContext-\u003eabandoned()\" and remove the check below ?",
+      "range": {
+        "startLine": 60,
+        "startChar": 17,
+        "endLine": 60,
+        "endChar": 18
+      },
+      "revId": "9c7f0e3f22b432c6790932c00d8a953e85f4ac0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "714f43bb_657d591d",
+        "filename": "tools/DDLPromiseImageHelper.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-30T15:00:37Z",
+      "side": 1,
+      "message": "// for testing we only ever use A8, RG_88\n\n??",
+      "revId": "9c7f0e3f22b432c6790932c00d8a953e85f4ac0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
