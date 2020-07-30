@@ -63,6 +63,30 @@
       "revId": "c741bf01e298d5c1985ffef7bcb3f2d5c913e73b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e14610eb_df002667",
+        "filename": "infra/bots/task_drivers/run_gn_to_bp/run_gn_to_bp.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-30T11:15:28Z",
+      "side": 1,
+      "message": "Both local and on bots.  One of the biggest problems with our recipes is that they make a whole bunch of assumptions about their execution context: CWD, environment variables, expecting files to come in via isolate or CIPD and be in a specific relative location, etc, and there\u0027s no explicit declaration of these dependencies.  Moving those things into flags makes them explicit and far less error-prone.\n\nWe\u0027ll have to see how the dust settles with RBE and Niagara, but I think it\u0027d be great to move the downloading (and uploading) of CIPD and Isolate dependencies into the task driver itself, rather than relying on Swarming.\n\nIn this case, I think it\u0027s okay for the default to be \"./skia\", just as long as there\u0027s a flag to make it clear that it\u0027s something that may need to be set.",
+      "parentUuid": "55de5ffa_18d6a9c8",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 42
+      },
+      "revId": "c741bf01e298d5c1985ffef7bcb3f2d5c913e73b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
