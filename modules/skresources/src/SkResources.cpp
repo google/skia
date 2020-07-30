@@ -180,6 +180,22 @@ sk_sp<ImageAsset> FileResourceProvider::loadImageAsset(const char resource_path[
     return nullptr;
 }
 
+sk_sp<SkTypeface> FileResourceProvider::loadTypeface(const char name[],
+                                                     const char /*url*/[]) const {
+    auto load_font_data = [this](const char name[]) -> sk_sp<SkData> {
+        static const char* try_exts[] = { ".ttf", ".otf", ".woff" };
+        for (const auto& ext : try_exts) {
+            const auto file_name = SkStringPrintf("%s%s", name, ext);
+            if (auto data = this->load("", file_name.c_str())) {
+                return data;
+            }
+        }
+        return nullptr;
+    };
+
+    return SkTypeface::MakeFromData(load_font_data(name));
+}
+
 ResourceProviderProxyBase::ResourceProviderProxyBase(sk_sp<ResourceProvider> rp)
     : fProxy(std::move(rp)) {}
 

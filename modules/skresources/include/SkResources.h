@@ -136,6 +136,8 @@ public:
 
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
 
+    sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override;
+
 private:
     FileResourceProvider(SkString, bool);
 
