@@ -16,6 +16,23 @@
       "revId": "411758f2965941c130fdc218285fc7f2ea03306f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97ac0412_f65d47c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T19:36:36Z",
+      "side": 1,
+      "message": "I think we have an additional spot where we get this wrong in QuadPerEdgeAAGeometryProcessor",
+      "revId": "411758f2965941c130fdc218285fc7f2ea03306f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
