@@ -16,6 +16,24 @@
       "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98b52d20_2fbeec05",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T15:10:03Z",
+      "side": 1,
+      "message": "I don\u0027t think so.  The rest of the function just uses normal public SkPath mutator methods that will attach and detach editors and copy on write as needed, right?",
+      "parentUuid": "d4b55cc8_bcdfbdb0",
+      "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
