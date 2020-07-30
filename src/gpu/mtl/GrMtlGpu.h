@@ -47,7 +47,10 @@ public:
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
 
-    GrMtlCommandBuffer* commandBuffer();
+    GrMtlCommandBuffer* commandBuffer() {
+        SkASSERT(fCurrentCmdBuffer);
+        return fCurrentCmdBuffer.get();
+     }
 
     enum SyncQueue {
         kForce_SyncQueue,
@@ -101,7 +104,7 @@ public:
             GrWrapOwnership ownership) override;
     void insertSemaphore(GrSemaphore* semaphore) override;
     void waitSemaphore(GrSemaphore* semaphore) override;
-    void checkFinishProcs() override;
+    void checkFinishProcs() override { this->checkForFinishedCommandBuffers(); }
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     // When the Metal backend actually uses indirect command buffers, this function will actually do
@@ -208,13 +211,14 @@ private:
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;
+    void addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback);
 
     bool onSubmitToGpu(bool syncCpu) override;
 
     // Commits the current command buffer to the queue and then creates a new command buffer. If
     // sync is set to kForce_SyncQueue, the function will wait for all work in the committed
     // command buffer to finish before returning.
-    void submitCommandBuffer(SyncQueue sync);
+    bool submitCommandBuffer(SyncQueue sync);
 
     void checkForFinishedCommandBuffers();
 
@@ -267,8 +271,6 @@ private:
     GrMtlResourceProvider fResourceProvider;
 
     bool fDisconnected;
-
-    GrFinishCallbacks fFinishCallbacks;
 
     typedef GrGpu INHERITED;
 };
