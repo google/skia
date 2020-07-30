@@ -750,7 +750,8 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                      std::move(endPrimitive),
                                                      std::vector<std::unique_ptr<Expression>>()))));
     std::unique_ptr<Expression> assignment(new BinaryExpression(-1,
-                    std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx)),
+                    std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx,
+                                                                VariableReference::kWrite_RefKind)),
                     Token::Kind::TK_EQ,
                     std::unique_ptr<IntLiteral>(new IntLiteral(fContext, -1, 0)),
                     *fContext.fInt_Type));
@@ -774,9 +775,11 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     SkASSERT(fSkPerVertex && fRTAdjust);
     #define REF(var) std::unique_ptr<Expression>(\
                                   new VariableReference(-1, *var, VariableReference::kRead_RefKind))
+    #define WREF(var) std::unique_ptr<Expression>(\
+                                 new VariableReference(-1, *var, VariableReference::kWrite_RefKind))
     #define FIELD(var, idx) std::unique_ptr<Expression>(\
                     new FieldAccess(REF(var), idx, FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
-    #define POS std::unique_ptr<Expression>(new FieldAccess(REF(fSkPerVertex), 0, \
+    #define POS std::unique_ptr<Expression>(new FieldAccess(WREF(fSkPerVertex), 0, \
                                                    FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
     #define ADJUST (fRTAdjustInterfaceBlock ? \
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
@@ -1800,8 +1803,11 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
         return nullptr;
     }
     if (Compiler::IsAssignment(op)) {
-        this->setRefKind(*left, op != Token::Kind::TK_EQ ? VariableReference::kReadWrite_RefKind :
-                                                           VariableReference::kWrite_RefKind);
+        if (!this->setRefKind(*left, op != Token::Kind::TK_EQ
+                                                             ? VariableReference::kReadWrite_RefKind
+                                                             : VariableReference::kWrite_RefKind)) {
+            return nullptr;
+        }
     }
     left = this->coerce(std::move(left), *leftType);
     right = this->coerce(std::move(right), *rightType);
@@ -2972,46 +2978,42 @@ bool IRGenerator::checkSwizzleWrite(const Swizzle& swizzle) {
     return true;
 }
 
-void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind kind) {
+bool IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind kind) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) expr).fVariable;
             if (var.fModifiers.fFlags &
                 (Modifiers::kConst_Flag | Modifiers::kUniform_Flag | Modifiers::kVarying_Flag)) {
                 fErrors.error(expr.fOffset, "cannot modify immutable variable '" + var.fName + "'");
+                return false;
             }
             ((VariableReference&) expr).setRefKind(kind);
-            break;
+            return true;
         }
         case Expression::kFieldAccess_Kind:
-            this->setRefKind(*((FieldAccess&) expr).fBase, kind);
-            break;
+            return this->setRefKind(*((FieldAccess&) expr).fBase, kind);
         case Expression::kSwizzle_Kind: {
             const Swizzle& swizzle = (Swizzle&) expr;
-            this->checkSwizzleWrite(swizzle);
-            this->setRefKind(*swizzle.fBase, kind);
-            break;
+            return this->checkSwizzleWrite(swizzle) && this->setRefKind(*swizzle.fBase, kind);
         }
         case Expression::kIndex_Kind:
-            this->setRefKind(*((IndexExpression&) expr).fBase, kind);
-            break;
+            return this->setRefKind(*((IndexExpression&) expr).fBase, kind);
         case Expression::kTernary_Kind: {
             TernaryExpression& t = (TernaryExpression&) expr;
-            this->setRefKind(*t.fIfTrue, kind);
-            this->setRefKind(*t.fIfFalse, kind);
-            break;
+            return this->setRefKind(*t.fIfTrue, kind) && this->setRefKind(*t.fIfFalse, kind);
         }
         case Expression::kExternalValue_Kind: {
             const ExternalValue& v = *((ExternalValueReference&) expr).fValue;
             if (!v.canWrite()) {
                 fErrors.error(expr.fOffset,
                               "cannot modify immutable external value '" + v.fName + "'");
+                return false;
             }
-            break;
+            return true;
         }
         default:
             fErrors.error(expr.fOffset, "cannot assign to this expression");
-            break;
+            return false;
     }
 }
 
