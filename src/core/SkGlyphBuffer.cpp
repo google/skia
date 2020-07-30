@@ -68,7 +68,7 @@ void SkDrawableGlyphBuffer::startBitmapDevice(
     SkDEBUGCODE(fPhase = kInput);
 }
 
-void SkDrawableGlyphBuffer::startGPUDevice(
+SkPoint SkDrawableGlyphBuffer::startGPUDevice(
         const SkZip<const SkGlyphID, const SkPoint>& source,
         SkPoint origin, const SkMatrix& viewMatrix,
         const SkGlyphPositionRoundingSpec& roundingSpec) {
@@ -79,11 +79,9 @@ void SkDrawableGlyphBuffer::startGPUDevice(
     auto positions = source.get<1>();
     SkMatrix matrix = viewMatrix;
     matrix.preTranslate(origin.x(), origin.y());
-
-    // Q = [M][T](0,0).
-    SkPoint Q = matrix.mapXY(0, 0);
     SkPoint halfSampleFreq = roundingSpec.halfAxisSampleFreq;
     matrix.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
+
     matrix.mapPoints(fPositions, positions.data(), positions.size());
 
     // Mask for controlling axis alignment.
@@ -97,12 +95,17 @@ void SkDrawableGlyphBuffer::startGPUDevice(
         *packedIDCursor++ = SkPackedGlyphID{glyphID, pos, mask};
     }
 
+    // Q = [R][M][T](0,0).
+    SkPoint Q = matrix.mapXY(0, 0);
+    SkPoint floorQ = {SkScalarFloorToScalar(Q.x()), SkScalarFloorToScalar(Q.y())};
+
     for (SkPoint& pos : SkSpan<SkPoint>(fPositions, source.size())) {
-        SkPoint P = SkPoint::Make(SkScalarFloorToScalar(pos.x()), SkScalarFloorToScalar(pos.y()));
-        pos = P - Q;
+        SkPoint v = pos - floorQ;
+        pos = {SkScalarFloorToScalar(v.x()), SkScalarFloorToScalar(v.y())};
     }
 
     SkDEBUGCODE(fPhase = kInput);
+    return floorQ - Q + roundingSpec.halfAxisSampleFreq;
 }
 
 
