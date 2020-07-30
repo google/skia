@@ -127,9 +127,37 @@ class SkAutoTArray_SynthProvider:
         return True
 
 
+class sk_sp_SynthProvider:
+
+    def __init__(self, valobj, dict):
+        self.valobj = valobj
+
+    def num_children(self):
+        return self.fPtr.GetNumChildren()
+
+    def get_child_at_index(self, index):
+        try:
+            return self.fPtr.GetChildAtIndex(index)
+        except:
+            return None
+
+    def get_child_index(self, name):
+        return self.fPtr.GetIndexOfChildWithName(name)
+
+    def update(self):
+        try:
+            self.fPtr = self.valobj.GetChildMemberWithName('fPtr')
+        except:
+            pass
+
+
 def __lldb_init_module(debugger, dict):
     debugger.HandleCommand(
         'type summary add -F skia.SkString_SummaryProvider "SkString" -w skia')
+    debugger.HandleCommand(
+        'type synthetic add -l skia.sk_sp_SynthProvider -x "^sk_sp<.+>$" -w skia')
+    debugger.HandleCommand(
+        'type summary add --summary-string "fPtr = ${var.fPtr}" -x "^sk_sp<.+>$" -w skia')
     debugger.HandleCommand(
         'type synthetic add -l skia.SkTArray_SynthProvider -x "^SkS?TArray<.+>$" -w skia')
     debugger.HandleCommand(
