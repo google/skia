@@ -34,6 +34,24 @@
       "revId": "59bd5258f8c9d4121316102148f4971c7789e970",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7618905a_b6621d99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T20:58:30Z",
+      "side": 1,
+      "message": "I agree in general with the sentiment. Here GPU is failing to apply paint alpha to a draw. Applying paint alpha seems like something we always or nearly always do so I\u0027m not sure the behavior we\u0027re modifying is really a quirk (say compared to what we do with paint rgb based on image color type).",
+      "parentUuid": "09e2ac18_9590c508",
+      "revId": "59bd5258f8c9d4121316102148f4971c7789e970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
