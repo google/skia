@@ -120,9 +120,6 @@ GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
 bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     SkASSERT(fCurrentDirectCommandList);
 
-    // set up constant data
-    fConstantsRingBuffer.startSubmit(this);
-
     fResourceProvider.prepForSubmit();
 
     GrD3DDirectCommandList::SubmitResult result = fCurrentDirectCommandList->submit(fQueue.get());

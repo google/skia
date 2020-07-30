@@ -199,7 +199,7 @@ D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, 
 
     // upload the data
     size_t paddedSize = GrAlignTo(size, kConstantAlignment);
-    GrRingBuffer::Slice slice = fGpu->constantsRingBuffer()->suballocate(paddedSize);
+    GrRingBuffer::Slice slice = fGpu->uniformsRingBuffer()->suballocate(paddedSize);
     char* destPtr = static_cast<char*>(slice.fBuffer->map()) + slice.fOffset;
     memcpy(destPtr, data, size);
 

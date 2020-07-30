@@ -48,8 +48,7 @@ public:
     GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
     void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) override;
 
-    // TODO: hoist up to GrGpu
-    GrRingBuffer* constantsRingBuffer() { return &fConstantsRingBuffer; }
+    GrRingBuffer* uniformsRingBuffer() override { return &fConstantsRingBuffer; }
 
     bool protectedContext() const { return false; }
 

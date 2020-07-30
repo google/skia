@@ -33,6 +33,7 @@ class GrPathRendering;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
+class GrRingBuffer;
 class GrSemaphore;
 class GrStagingBufferManager;
 class GrStencilAttachment;
@@ -58,6 +59,8 @@ public:
     GrPathRendering* pathRendering() { return fPathRendering.get();  }
 
     virtual GrStagingBufferManager* stagingBufferManager() { return nullptr; }
+
+    virtual GrRingBuffer* uniformsRingBuffer() { return nullptr; }
 
     enum class DisconnectType {
         // No cleanup should be attempted, immediately cease making backend API calls

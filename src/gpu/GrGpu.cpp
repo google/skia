@@ -26,6 +26,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrRingBuffer.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/GrStencilAttachment.h"
@@ -657,6 +658,10 @@ bool GrGpu::submitToGpu(bool syncCpu) {
 
     if (auto manager = this->stagingBufferManager()) {
         manager->detachBuffers();
+    }
+
+    if (auto uniformsBuffer = this->uniformsRingBuffer()) {
+        uniformsBuffer->startSubmit(this);
     }
 
     bool submitted = this->onSubmitToGpu(syncCpu);
