@@ -287,7 +287,9 @@ void GLBlendFragmentProcessor::emitCode(EmitArgs& args) {
 
         case BlendBehavior::kComposeTwoBehavior:
             // Compose-two operations historically have forced the input color to opaque.
-            fragBuilder->codeAppendf("half4 inputOpaque = %s.rgb1;\n", args.fInputColor);
+            // We're going to re-apply the input color's alpha below, so feed the *unpremul* RGB
+            // to the children, to avoid double-applying alpha.
+            fragBuilder->codeAppendf("half4 inputOpaque = unpremul(%s).rgb1;\n", args.fInputColor);
             srcColor = this->invokeChild(0, "inputOpaque", args);
             dstColor = this->invokeChild(1, "inputOpaque", args);
             break;
