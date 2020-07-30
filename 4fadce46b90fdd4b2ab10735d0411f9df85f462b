@@ -16,6 +16,23 @@
       "revId": "4fadce46b90fdd4b2ab10735d0411f9df85f462b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2a06776a_49615f17",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-07-30T19:57:53Z",
+      "side": 1,
+      "message": "It seems this CL broke Android roll with:\nexternal/skia/src/sksl/ir/SkSLBinaryExpression.h:22:13: error: \u0027static\u0027 function \u0027check_ref\u0027 declared in header file should be declared \u0027static inline\u0027 [-Werror,-Wunneeded-internal-declaration]\nstatic bool check_ref(Expression* expr) {\n            ^\n1 error generated.\nIn file included from external/skia/src/sksl/SkSLSectionAndParameterHelper.cpp:9:\nexternal/skia/src/sksl/ir/SkSLBinaryExpression.h:22:13: error: \u0027static\u0027 function \u0027check_ref\u0027 declared in header file should be declared \u0027static inline\u0027 [-Werror,-Wunneeded-internal-declaration]\nstatic bool check_ref(Expression* expr) {\n            ^\n1 error generated.",
+      "revId": "4fadce46b90fdd4b2ab10735d0411f9df85f462b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
