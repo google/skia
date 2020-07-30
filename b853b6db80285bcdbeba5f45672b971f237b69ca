@@ -146,6 +146,30 @@
       "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "939c354a_b440c4eb",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T17:40:58Z",
+      "side": 1,
+      "message": "Ohh... I forgot about that wrinkle. Ick. FWIW we could consider reversing things and so the non-paint returned color is the \"primary color since we usually intend the GrPaint\u0027s color to be the color the Op uses to populate vertex colors or uniforms.",
+      "parentUuid": "d32100b9_f2842d20",
+      "range": {
+        "startLine": 301,
+        "startChar": 8,
+        "endLine": 301,
+        "endChar": 37
+      },
+      "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
