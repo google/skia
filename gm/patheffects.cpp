@@ -218,9 +218,9 @@ protected:
         paint.setColor(0xFF8888FF);
         paint.setAntiAlias(true);
 
-        for (auto& path : { path0, path1 }) {
+        for (const SkPath& path : { path0, path1 }) {
             canvas->save();
-            for (auto pe : effects) {
+            for (const sk_sp<SkPathEffect>& pe : effects) {
                 paint.setPathEffect(pe);
                 canvas->drawPath(path, paint);
                 canvas->drawPath(path, wireframe);
