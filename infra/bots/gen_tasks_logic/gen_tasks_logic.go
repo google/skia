@@ -1135,6 +1135,23 @@ func (b *jobBuilder) checkGeneratedFiles() {
 	})
 }
 
+// checkGnToBp verifies that the gn_to_bp.py script continues to work.
+func (b *jobBuilder) checkGnToBp() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.isolate("compile.isolate")
+		b.dep(b.buildTaskDrivers())
+		b.cmd("./run_gn_to_bp",
+			"--local=false",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--alsologtostderr")
+		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+		b.usesPython()
+		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
+	})
+}
+
 // housekeeper generates a Housekeeper task.
 func (b *jobBuilder) housekeeper() {
 	b.addTask(b.Name, func(b *taskBuilder) {
