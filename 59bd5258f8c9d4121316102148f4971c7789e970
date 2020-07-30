@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fcf5e84_8805e512",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T20:53:49Z",
+      "side": 1,
+      "message": "We were right about this Brian: CPU and GPU draw the second box differently. CPU applies the paint alpha, whether it\u0027s drawImage or an image shader. GPU drops the paint alpha if it\u0027s an image shader. I\u0027ll put together the fix and add it to this CL.",
+      "revId": "59bd5258f8c9d4121316102148f4971c7789e970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
