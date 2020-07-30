@@ -105,9 +105,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     static constexpr SkISize kDims = {64, 64};
 
     const std::vector<GrCaps::TestFormatColorTypeCombination>& combos =
-                                                                    caps->getTestingCombinations();
+            caps->getTestingCombinations();
 
-    for (auto combo : combos) {
+    for (const GrCaps::TestFormatColorTypeCombination& combo : combos) {
 
         SkASSERT(combo.fColorType != GrColorType::kUnknown);
         SkASSERT(combo.fFormat.isValid());
@@ -209,9 +209,9 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
         const GrCaps* caps = context->priv().caps();
 
         const std::vector<GrCaps::TestFormatColorTypeCombination>& combos =
-                                                                    caps->getTestingCombinations();
+                caps->getTestingCombinations();
 
-        for (auto combo : combos) {
+        for (const GrCaps::TestFormatColorTypeCombination& combo : combos) {
 
             SkASSERT(combo.fColorType != GrColorType::kUnknown);
             SkASSERT(combo.fFormat.isValid());
