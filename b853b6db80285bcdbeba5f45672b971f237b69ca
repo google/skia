@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e9aa729_d8004bd5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T15:57:31Z",
+      "side": 1,
+      "message": "I\u0027m running layout tests, etc... as well, but I think this makes sense. No gold diffs at all. Ultimately, the color that\u0027s fed to the GP should match the GrPaint color, so that the effects in the converted paint see the color they\u0027re expecting.",
+      "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
