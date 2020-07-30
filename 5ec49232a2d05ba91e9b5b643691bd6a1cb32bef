@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4b55cc8_bcdfbdb0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-30T15:04:14Z",
+      "side": 1,
+      "message": "Does that constructor ensure unique ownership of the buffers, so they can be safely modified?",
+      "revId": "5ec49232a2d05ba91e9b5b643691bd6a1cb32bef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
