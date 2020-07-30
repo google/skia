@@ -3,8 +3,10 @@
 # found in the LICENSE file.
 
 # The following Skia types can be natively visualized in LLDB:
-# - SkTArray, SkSTArray
+# - SkAutoTArray, SkAutoSTArray
 # - SkString
+# - SkTArray, SkSTArray
+# - sk_sp
 #
 # To enable LLDB debugging support, run the following command at the (lldb) prompt:
 #
