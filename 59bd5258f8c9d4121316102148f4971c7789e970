@@ -52,6 +52,24 @@
       "revId": "59bd5258f8c9d4121316102148f4971c7789e970",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e1b4d9f_2c098188",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-30T21:00:02Z",
+      "side": 1,
+      "message": "Yeah, I just kind of think this could be done more explicitly with a color filter or wrapping the shader.  It\u0027s always so error prone to have to think \"wait, does the paint color affect something here\" at every point in the pipeline.",
+      "parentUuid": "7618905a_b6621d99",
+      "revId": "59bd5258f8c9d4121316102148f4971c7789e970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
