@@ -6,7 +6,6 @@
  */
 
 #include "src/core/SkBlendModePriv.h"
-#include "src/core/SkCoverageModePriv.h"
 #include "src/core/SkRasterPipeline.h"
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
@@ -160,9 +159,3 @@ const SkBlendMode gUncorrelatedCoverageToBlend[] = {
     SkBlendMode::kDstOut,
     SkBlendMode::kXor,
 };
-
-SkBlendMode SkUncorrelatedCoverageModeToBlendMode(SkCoverageMode cm) {
-    unsigned index = static_cast<unsigned>(cm);
-    SkASSERT(index < SK_ARRAY_COUNT(gUncorrelatedCoverageToBlend));
-    return gUncorrelatedCoverageToBlend[index];
-}
