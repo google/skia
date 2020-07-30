@@ -33,6 +33,23 @@
       "revId": "f4ce9fe134f2bf3c11ba7be4f5b1c7479fe2fef6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13f93191_3daddc88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11929
+      },
+      "writtenOn": "2020-07-30T21:08:11Z",
+      "side": 1,
+      "message": "Broken up into two subset CLs: https://skia-review.googlesource.com/c/skia/+/306722 and https://skia-review.googlesource.com/c/skia/+/306702",
+      "revId": "f4ce9fe134f2bf3c11ba7be4f5b1c7479fe2fef6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
