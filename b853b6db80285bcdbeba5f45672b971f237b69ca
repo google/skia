@@ -16,6 +16,29 @@
       "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e123c91_f2985290",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-30T16:12:32Z",
+      "side": 1,
+      "message": "Do we need a return value at all? I assume the paint color at line 298 will be (1,1,1,1). Maybe the callers of this can just call grPaint-\u003egetColor4f()?",
+      "range": {
+        "startLine": 301,
+        "startChar": 8,
+        "endLine": 301,
+        "endChar": 37
+      },
+      "revId": "b853b6db80285bcdbeba5f45672b971f237b69ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
