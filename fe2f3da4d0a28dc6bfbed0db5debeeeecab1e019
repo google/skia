@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1734e822_1baf4f7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-30T18:21:04Z",
+      "side": 1,
+      "message": "We have a few GMs that demonstrate this bug, at least when drawn in something other than sRGB (eg, glp3). The \u0027p3\u0027 GM actually tests this case, and detects that GPU is doing it wrong (when we\u0027re in glp3), so we used to get a red X, now we get a green check.",
+      "revId": "fe2f3da4d0a28dc6bfbed0db5debeeeecab1e019",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
