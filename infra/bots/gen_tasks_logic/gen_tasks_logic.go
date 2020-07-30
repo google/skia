@@ -1147,21 +1147,6 @@ func (b *jobBuilder) housekeeper() {
 	})
 }
 
-// androidFrameworkCompile generates an Android Framework Compile task. Returns
-// the name of the last task in the generated chain of tasks, which the Job
-// should add as a dependency.
-func (b *jobBuilder) androidFrameworkCompile() {
-	b.addTask(b.Name, func(b *taskBuilder) {
-		b.recipeProps(EXTRA_PROPS)
-		b.kitchenTask("android_compile", OUTPUT_NONE)
-		b.isolate("compile_android_framework.isolate")
-		b.serviceAccount("skia-android-framework-compile@skia-swarming-bots.iam.gserviceaccount.com")
-		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-		b.timeout(2 * time.Hour)
-		b.usesGit()
-	})
-}
-
 // g3FrameworkCanary generates a G3 Framework Canary task. Returns
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
