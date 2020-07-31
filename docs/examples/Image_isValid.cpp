@@ -4,6 +4,9 @@
 // HASH=afc62f38aebc56af8e425297ec67dd37
 REG_FIDDLE(Image_isValid, 256, 256, false, 5) {
 void draw(SkCanvas* canvas) {
+    GrRecordingContext* rContext = canvas->recordingContext();
+    GrDirectContext *dContext = rContext ? rContext->asDirectContext() : nullptr;
+
     auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
         if (nullptr == image) {
             return;
@@ -19,16 +22,15 @@ void draw(SkCanvas* canvas) {
             canvas->drawString(msg, 20, image->height() * 5 / 8, font, paint);
         }
 
-        // CONTEXT TODO: Once GrContext is gone, remove this cast
-        const char* msg = image->isValid((GrRecordingContext*) nullptr) ? "is valid on CPU"
-                                                                        : "not valid on CPU";
+        const char* msg = image->isValid(nullptr) ? "is valid on CPU" : "not valid on CPU";
 
         canvas->drawString(msg, 20, image->height() * 7 / 8, font, paint);
     };
     sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
-    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
-                                kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                                kOpaque_SkAlphaType, nullptr));
+    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(dContext, backEndTexture,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kRGBA_8888_SkColorType,
+                                                         kOpaque_SkAlphaType, nullptr));
     drawImage(image, "image");
     canvas->translate(image->width(), 0);
     drawImage(bitmapImage, "source");

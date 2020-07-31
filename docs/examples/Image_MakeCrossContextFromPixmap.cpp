@@ -4,10 +4,20 @@
 // HASH=45bca8747b8f49b5be34b520897ef048
 REG_FIDDLE(Image_MakeCrossContextFromPixmap, 256, 64, false, 4) {
 void draw(SkCanvas* canvas) {
-    GrContext* context = canvas->getGrContext();
+    GrRecordingContext* rContext = canvas->recordingContext();
+
+    GrDirectContext *dContext = rContext ? rContext->asDirectContext() : nullptr;
+    if (!dContext) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        SkFont font;
+        canvas->drawString("GPU only!", 20, 40, font, paint);
+        return;
+    }
+
     SkPixmap pixmap;
     if (source.peekPixels(&pixmap)) {
-        sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(context, pixmap, false);
+        sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(dContext, pixmap, false);
         canvas->drawImage(image, 0, 0);
     }
 }
