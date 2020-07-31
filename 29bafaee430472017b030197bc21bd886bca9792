@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92ac5b8a_0282d55f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13219
+      },
+      "writtenOn": "2020-07-31T18:31:25Z",
+      "side": 1,
+      "message": "I think this is my first contribution to Skia, not sure about the exact procedure (i.e. tryjob is not working for me).",
+      "revId": "29bafaee430472017b030197bc21bd886bca9792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
