@@ -22,6 +22,30 @@
       "revId": "b9bb0d9d262aac1a340b5e61218b0540b19885f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d72361d4_5d200506",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-31T18:49:27Z",
+      "side": 1,
+      "message": "Mainly is to test more coverages, so for here we are trying as many SkPicture API as possible.",
+      "parentUuid": "2a7e3510_fff7da13",
+      "range": {
+        "startLine": 25,
+        "startChar": 9,
+        "endLine": 25,
+        "endChar": 29
+      },
+      "revId": "b9bb0d9d262aac1a340b5e61218b0540b19885f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
