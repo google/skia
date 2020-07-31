@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLOutputStream.h"
 
+#include <memory>
+
 namespace SkSL {
 
 void OutputStream::writeString(String s) {
