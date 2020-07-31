@@ -52,6 +52,23 @@
       "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7dae2b71_97379c1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-31T15:22:50Z",
+      "side": 1,
+      "message": "I\u0027ll say that I\u0027m not determined to land this CL - I wrote it up based on a discussion with several stakeholders. I got a little uneasy about it - I think if we\u0027re not going to do this, we do need to either:\n\n1) Make sure runtime color filters can\u0027t use position.\n2) Disallow runtime color filters entirely.\n\nI think we convinced ourselves that #2 was overly-strict, particularly if we\u0027re going to start allowing SkSL-programmable image filters, blending, etc... What\u0027s one more stage?\n\nAt the same time, we were really trying to converge on the one-true model for composition, which had evolved into \"no magic input color\" - everything comes from sampling children (and sampling a null or other sentinel valued child gets you the input (or other special) colors).\n\nUltimately - the model of sampling children to get late-bound or paint colors is very flexible (it lets you easily re-combine effects in new ways, or move them elsewhere in the Skia pipeline), but it runs into these other limitations, where some values should only be sample-able at one point (or have no spatial awareness at all). We had a similar discussion yesterday about getting the destination color for programmable blending - how do we do that if we can only (quickly) provide the pixel you\u0027re on?\n\nI don\u0027t have a good answer yet.",
+      "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
