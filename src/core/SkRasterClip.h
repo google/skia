@@ -205,7 +205,6 @@ public:
 private:
     const SkRasterClip& fRC;
 };
-#define SkAutoRasterClipValidate(...) SK_REQUIRE_LOCAL_VAR(SkAutoRasterClipValidate)
 
 #ifdef SK_DEBUG
     #define AUTO_RASTERCLIP_VALIDATE(rc)    SkAutoRasterClipValidate arcv(rc)

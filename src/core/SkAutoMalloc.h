@@ -78,7 +78,6 @@ private:
     std::unique_ptr<void, WrapFree> fPtr;
     size_t fSize;  // can be larger than the requested size (see kReuse)
 };
-#define SkAutoMalloc(...) SK_REQUIRE_LOCAL_VAR(SkAutoMalloc)
 
 /**
  *  Manage an allocated block of memory. If the requested size is <= kSizeRequested (or slightly

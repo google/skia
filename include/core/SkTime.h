@@ -57,6 +57,5 @@ private:
     const char* fLabel;
     double      fNow;
 };
-#define SkAutoTime(...) SK_REQUIRE_LOCAL_VAR(SkAutoTime)
 
 #endif
