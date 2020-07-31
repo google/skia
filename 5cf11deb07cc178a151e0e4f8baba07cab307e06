@@ -1,0 +1,120 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10511e90_60d242d4",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T17:41:46Z",
+      "side": 1,
+      "message": "This is now a use after free bug. The delete probably makes more sense to show off in the animation case. Maybe animating the text? Then deleting the paragraph that\u0027s generated every time would be a natural fit.",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 11
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68cb78f6_8f0b70b4",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T17:41:46Z",
+      "side": 1,
+      "message": "new or are prefixed with Make",
+      "range": {
+        "startLine": 118,
+        "startChar": 65,
+        "endLine": 118,
+        "endChar": 68
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c761753a_dba1b300",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T17:41:46Z",
+      "side": 1,
+      "message": "\u003e \"typicall\" is a possible misspelling of \"typically\" or \"typical\".\n\nPlease fix.",
+      "parentUuid": "282669b5_a454fe28",
+      "range": {
+        "startLine": 232,
+        "startChar": 18,
+        "endLine": 232,
+        "endChar": 26
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c27b5a2c_a3130578",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T17:41:46Z",
+      "side": 1,
+      "message": "more column wrapping",
+      "range": {
+        "startLine": 307,
+        "startChar": 87,
+        "endLine": 307,
+        "endChar": 90
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36ad36c5_8048fc3d",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T17:41:46Z",
+      "side": 1,
+      "message": "nit: name these text styles something a bit more descriptive like \"boldText\" etc.",
+      "range": {
+        "startLine": 337,
+        "startChar": 18,
+        "endLine": 337,
+        "endChar": 28
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

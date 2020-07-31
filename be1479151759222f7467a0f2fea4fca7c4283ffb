@@ -177,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "58cd2214_6db91a8e",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T17:41:46Z",
+      "side": 1,
+      "message": "You might be able to just leave off the version number",
+      "parentUuid": "2db32c14_eb62da1c",
+      "range": {
+        "startLine": 13,
+        "startChar": 71,
+        "endLine": 13,
+        "endChar": 75
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7cc98092_94d6dc8f",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 2
