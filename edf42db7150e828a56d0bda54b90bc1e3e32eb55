@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "23635a23_5de5aa27",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-31T13:53:14Z",
+      "side": 1,
+      "message": "can we remove references to ...Priv.h (e.g. SkPicturePriv.h)",
+      "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "69c5833e_5a5fd5c5",
         "filename": "fuzz/FuzzMain.cpp",
         "patchSetId": 5
@@ -47,6 +64,30 @@
       "writtenOn": "2020-07-29T20:02:12Z",
       "side": 1,
       "message": "Don\u0027t call SkDebugf here - oss-fuzz prefers that we don\u0027t log things. Log in FuzzMain.cpp",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 12
+      },
+      "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32f09831_014dd909",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-07-31T13:53:14Z",
+      "side": 1,
+      "message": "eek, there is a public way...\n\npicture \u003d SkPicture::MakeFromData(...)",
+      "parentUuid": "81d1c5b8_626c5453",
       "range": {
         "startLine": 29,
         "startChar": 4,
