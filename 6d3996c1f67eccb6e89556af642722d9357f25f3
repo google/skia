@@ -34,6 +34,24 @@
       "revId": "6d3996c1f67eccb6e89556af642722d9357f25f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6daa318f_d860ec23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:50:44Z",
+      "side": 1,
+      "message": "PTAL http://review.skia.org/307297",
+      "parentUuid": "8feb935a_393e29ca",
+      "revId": "6d3996c1f67eccb6e89556af642722d9357f25f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
