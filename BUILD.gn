@@ -2124,6 +2124,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzPathDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+      "fuzz/oss_fuzz/FuzzSKP.cpp",
       "fuzz/oss_fuzz/FuzzSKSL2GLSL.cpp",
       "fuzz/oss_fuzz/FuzzSKSL2Metal.cpp",
       "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",

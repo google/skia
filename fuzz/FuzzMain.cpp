@@ -19,7 +19,6 @@
 #include "include/core/SkTextBlob.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
-#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/ToolUtils.h"
@@ -294,6 +293,7 @@ static std::map<std::string, std::string> cf_map = {
     {"region_set_path", "region_set_path"},
     {"skdescriptor_deserialize", "skdescriptor_deserialize"},
     {"skjson", "json"},
+    {"skp", "skp"},
     {"skruntimeeffect", "skruntimeeffect"},
     {"sksl2glsl", "sksl2glsl"},
     {"sksl2metal", "sksl2metal"},
@@ -693,24 +693,10 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     dump_png(bitmap);
 }
 
+void FuzzSKP(sk_sp<SkData> bytes);
 static void fuzz_skp(sk_sp<SkData> bytes) {
-    SkReadBuffer buf(bytes->data(), bytes->size());
-    SkDebugf("Decoding\n");
-    sk_sp<SkPicture> pic(SkPicturePriv::MakeFromBuffer(buf));
-    if (!pic) {
-        SkDebugf("[terminated] Couldn't decode as a picture.\n");
-        return;
-    }
-    SkDebugf("Rendering\n");
-    SkBitmap bitmap;
-    if (!FLAGS_dump.isEmpty()) {
-        SkIRect size = pic->cullRect().roundOut();
-        bitmap.allocN32Pixels(size.width(), size.height());
-    }
-    SkCanvas canvas(bitmap);
-    canvas.drawPicture(pic);
-    SkDebugf("[terminated] Success! Decoded and rendered an SkPicture!\n");
-    dump_png(bitmap);
+    FuzzSKP(bytes);
+    SkDebugf("[terminated] Finished SKP\n");
 }
 
 static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
