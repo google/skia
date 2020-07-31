@@ -69,7 +69,7 @@ public:
     explicit GrShape(const GrArc& arc) { this->setArc(arc); }
     explicit GrShape(const GrLineSegment& line){ this->setLine(line); }
 
-    explicit GrShape(const GrShape& shape) { *this = shape; }
+    GrShape(const GrShape& shape) { *this = shape; }
 
     ~GrShape() { this->reset(); }
 
@@ -121,7 +121,7 @@ public:
                 fPath.toggleInverseFillType();
             }
         } else {
-            fInverted = static_cast<uint16_t>(inverted);
+            fInverted = inverted;
         }
     }
 
@@ -182,10 +182,9 @@ public:
         }
         // Must also set these since we didn't call reset() like other setX functions.
         this->setPathWindingParams(kDefaultDir, kDefaultStart);
-        fInverted = path.isInverseFillType();
     }
     void reset() {
-        this->setType(Type::kEmpty);
+        this->reset(Type::kEmpty);
     }
 
     // Flags that enable more aggressive, "destructive" simplifications to the geometry
@@ -210,6 +209,8 @@ public:
     // True if the given bounding box is completely inside the shape.
     bool contains(const SkRect& rect) const;
 
+    bool contains(const SkPoint& point) const;
+
     // True if the underlying geometry represents a closed shape, without the need for an
     // implicit close (note that if simplified earlier with 'simpleFill' = true, a shape that was
     // not closed may become closed).
@@ -232,6 +233,7 @@ private:
 
     void setType(Type type) {
         if (this->isPath() && type != Type::kPath) {
+            fInverted = fPath.isInverseFillType();
             fPath.~SkPath();
         }
         fType = type;

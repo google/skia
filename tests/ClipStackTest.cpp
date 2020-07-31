@@ -1467,7 +1467,7 @@ static void test_is_rrect_deep_rect_stack(skiatest::Reporter* reporter) {
         bool isAA;
         SkRRect expected = SkRRect::MakeRect(
                 SkRect::MakeLTRB(100, 0.5, kTargetBounds.width(), kTargetBounds.height()));
-        if (stack.isRRect(kTargetBounds, &rrect, &isAA)) {
+        if (stack.isRRect(kTargetBounds, &rrect, &isAA, nullptr)) {
             REPORTER_ASSERT(reporter, rrect == expected);
             REPORTER_ASSERT(reporter, aa == isAA);
         } else {
@@ -1485,7 +1485,7 @@ static void test_is_rrect_deep_rect_stack(skiatest::Reporter* reporter) {
     }
     SkRRect rrect;
     bool isAA;
-    REPORTER_ASSERT(reporter, !stack.isRRect(kTargetBounds, &rrect, &isAA));
+    REPORTER_ASSERT(reporter, !stack.isRRect(kTargetBounds, &rrect, &isAA, nullptr));
 }
 
 DEF_TEST(ClipStack, reporter) {
@@ -1549,7 +1549,8 @@ DEF_TEST(ClipStack, reporter) {
 sk_sp<GrTextureProxy> GrClipStackClip::testingOnly_createClipMask(
         GrRecordingContext* context) const {
     const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), 0);
-    return this->createSoftwareClipMask(context, reducedClip, nullptr).asTextureProxyRef();
+    bool cached;
+    return this->createSoftwareClipMask(context, reducedClip, nullptr, &cached).asTextureProxyRef();
 }
 
 // Verify that clip masks are freed up when the clip state that generated them goes away.

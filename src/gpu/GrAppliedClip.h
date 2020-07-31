@@ -52,6 +52,10 @@ public:
         return fScissorState.intersect(irect) && clippedDrawBounds->intersect(SkRect::Make(irect));
     }
 
+    void setScissor(const SkIRect& irect) {
+        fScissorState.set(irect);
+    }
+
     void addWindowRectangles(const GrWindowRectsState& windowState) {
         SkASSERT(!fWindowRectsState.enabled());
         fWindowRectsState = windowState;
@@ -69,6 +73,10 @@ public:
 
     bool doesClip() const {
         return fScissorState.enabled() || this->hasStencilClip() || fWindowRectsState.enabled();
+    }
+
+    bool doesClip(const SkIRect& rtDims) const {
+        return (fScissorState.enabled() && fScissorState.rect() != rtDims) || this->doesClip();
     }
 
     bool operator==(const GrAppliedHardClip& that) const {
@@ -130,6 +138,10 @@ public:
         return fHardClip.doesClip() || fCoverageFP != nullptr;
     }
 
+    bool doesClip(const SkIRect& rtDims) const {
+        return fHardClip.doesClip(rtDims) || fCoverageFP != nullptr;
+    }
+
     bool operator==(const GrAppliedClip& that) const {
         if (fHardClip != that.fHardClip ||
             this->hasCoverageFragmentProcessor() != that.hasCoverageFragmentProcessor()) {
@@ -147,6 +159,19 @@ public:
             fCoverageFP->visitProxies(func);
         }
     }
+
+    // Temporary stat tracking
+    int fElementsConsidered = 0;
+    int fAnalyticElements = 0; // # clip coverage FPs minus mask FP and any CCPR mask FPs
+    int fCCPRElements = 0; // # of CCPR clip coverage FPs
+    int fMaskElements = 0; // stencil or sw mask
+    bool fMaskInCache = false;
+
+    int fOldElementsConsidered = 0;
+    int fOldAnalyticElements = 0;
+    int fOldCCPRElements = 0;
+    int fOldMaskElements = 0;
+    bool fOldMaskInCache = 0;
 
 private:
     GrAppliedHardClip fHardClip;

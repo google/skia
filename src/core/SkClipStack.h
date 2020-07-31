@@ -207,6 +207,7 @@ public:
 
     private:
         friend class SkClipStack;
+        friend class GrReducedClip;
 
         SkTLazy<SkPath> fDeviceSpacePath;
         SkRRect fDeviceSpaceRRect;
@@ -392,7 +393,7 @@ public:
      *                 antialiased.
      * @return true if the stack is equivalent to a single rrect intersect clip, false otherwise.
      */
-    bool isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const;
+    bool isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa, int* count) const;
 
     /**
      * The generation ID has three reserved values to indicate special

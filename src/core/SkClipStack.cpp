@@ -990,7 +990,8 @@ void SkClipStack::getConservativeBounds(int offsetX,
     }
 }
 
-bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const {
+bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa, int* considered) const {
+    *considered = 0;
     const Element* back = static_cast<const Element*>(fDeque.back());
     if (!back) {
         // TODO: return bounds?
@@ -1028,6 +1029,7 @@ bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const 
             SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
             SkAssertResult(static_cast<const Element*>(iter.prev()) == back);
             while (const Element* prior = (const Element*)iter.prev()) {
+                *considered += 1;
                 if ((prior->getOp() != kIntersect_SkClipOp &&
                      prior->getOp() != kReplace_SkClipOp) ||
                     !prior->contains(backBounds)) {

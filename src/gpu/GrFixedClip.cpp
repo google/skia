@@ -14,8 +14,9 @@ SkIRect GrFixedClip::getConservativeBounds() const {
     return fScissorState.rect();
 }
 
-GrClip::PreClipResult GrFixedClip::preApply(const SkRect& drawBounds) const {
-    if (IsOutsideClip(fScissorState.rect(), drawBounds)) {
+GrClip::PreClipResult GrFixedClip::preApply(const SkRect& drawBounds, GrAAType aa) const {
+    SkIRect pixelBounds = GetPixelIBounds(drawBounds, aa);
+    if (IsOutsideClip(fScissorState.rect(), pixelBounds)) {
         return Effect::kClippedOut;
     }
 
@@ -23,7 +24,7 @@ GrClip::PreClipResult GrFixedClip::preApply(const SkRect& drawBounds) const {
         return Effect::kClipped;
     }
 
-    if (!fScissorState.enabled() || IsInsideClip(fScissorState.rect(), drawBounds)) {
+    if (!fScissorState.enabled() || IsInsideClip(fScissorState.rect(), pixelBounds)) {
         // Either no scissor or the scissor doesn't clip the draw
         return Effect::kUnclipped;
     }
@@ -31,16 +32,16 @@ GrClip::PreClipResult GrFixedClip::preApply(const SkRect& drawBounds) const {
     return {SkRect::Make(fScissorState.rect()), GrAA::kNo};
 }
 
-GrClip::Effect GrFixedClip::apply(GrAppliedHardClip* out, SkRect* bounds) const {
+GrClip::Effect GrFixedClip::apply(GrAppliedHardClip* out, SkIRect* bounds) const {
     if (IsOutsideClip(fScissorState.rect(), *bounds)) {
         return Effect::kClippedOut;
     }
 
     Effect effect = Effect::kUnclipped;
     if (fScissorState.enabled() && !IsInsideClip(fScissorState.rect(), *bounds)) {
-        SkIRect tightScissor = bounds->roundOut();
+        SkIRect tightScissor = *bounds;
         SkAssertResult(tightScissor.intersect(fScissorState.rect()));
-        out->addScissor(tightScissor, bounds);
+        out->setScissor(tightScissor);
         effect = Effect::kClipped;
     }
 

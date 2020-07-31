@@ -723,7 +723,7 @@ SkRect SkRRectPriv::InnerBounds(const SkRRect& rr) {
     // safe shift per edge (since the shifts already are the max radius for that edge).
     // - We actually scale by a value slightly increased to make it so that the shifted corners are
     //   safely inside the curves, otherwise numerical stability can cause it to fail contains().
-    static constexpr SkScalar kScale = (1.f - SK_ScalarRoot2Over2) + 1e-5f;
+    static constexpr SkScalar kScale = (1.f - SK_ScalarRoot2Over2) + 1e-2f;
     SkScalar innerArea = (innerBounds.width() - kScale * dw) * (innerBounds.height() - kScale * dh);
 
     if (horizArea > vertArea && horizArea > innerArea) {

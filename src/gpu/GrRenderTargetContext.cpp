@@ -5,7 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include <iostream>
+#include <fstream>
+
 #include "src/gpu/GrRenderTargetContext.h"
+
+#include "src/gpu/GrReducedClip.h"
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkVertices.h"
@@ -631,6 +636,8 @@ enum class GrRenderTargetContext::QuadOptimization {
     kCropped
 };
 
+static void dump_state(const SkIRect& rtDims, const GrAppliedClip& clip, bool drawSkipped);
+
 GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimization(
         const GrClip* clip, const SkPMColor4f* constColor,
         const GrUserStencilSettings* stencilSettings, GrAA* aa, DrawQuad* quad) {
@@ -653,6 +660,10 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     SkRect drawBounds = quad->fDevice.bounds();
     if (!quad->fDevice.isFinite() || drawBounds.isEmpty() ||
         GrClip::IsOutsideClip(rtRect, drawBounds)) {
+            if (clip && clip->isClipStack()) {
+            GrAppliedClip out(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
+            dump_state(SkIRect::MakeSize(this->dimensions()), out, true);
+            }
         return QuadOptimization::kDiscarded;
     }
     auto conservativeCrop = [&]() {
@@ -666,7 +677,8 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     };
 
     bool simpleColor = !stencilSettings && constColor;
-    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds)
+    GrAAType aaType = *aa == GrAA::kYes ? GrAAType::kCoverage : GrAAType::kNone;
+    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds, aaType)
                                         : GrClip::PreClipResult(GrClip::Effect::kUnclipped);
     switch(result.fEffect) {
         case GrClip::Effect::kClippedOut:
@@ -674,6 +686,11 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
         case GrClip::Effect::kUnclipped:
             if (!simpleColor) {
                 conservativeCrop();
+                if (clip && clip->isClipStack()) {
+                GrAppliedClip out(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
+                out.fElementsConsidered = result.fConsideredCount;
+                dump_state(SkIRect::MakeSize(this->dimensions()), out, false);
+                }
                 return QuadOptimization::kClipApplied;
             } else {
                 // Update result to store the render target bounds in order and then fall
@@ -709,12 +726,23 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
                 if (drawBounds.contains(rtRect)) {
                     // Fullscreen clear
                     this->clear(*constColor);
+                    if (clip && clip->isClipStack()) {
+                    GrAppliedClip out(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
+                    out.fElementsConsidered = result.fConsideredCount;
+                    dump_state(SkIRect::MakeSize(this->dimensions()), out, false);
+                    }
                     return QuadOptimization::kSubmitted;
                 } else if (GrClip::IsPixelAligned(drawBounds) &&
                            drawBounds.width() > 256 && drawBounds.height() > 256) {
                     // Scissor + clear (round shouldn't do anything since we are pixel aligned)
                     SkIRect scissorRect;
                     drawBounds.round(&scissorRect);
+
+                    if (clip && clip->isClipStack()) {
+                    GrAppliedClip out(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
+                    out.fElementsConsidered = result.fConsideredCount;
+                    dump_state(SkIRect::MakeSize(this->dimensions()), out, false);
+                    }
                     this->clear(scissorRect, *constColor);
                     return QuadOptimization::kSubmitted;
                 }
@@ -732,6 +760,11 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
             // use GrResolveAATypeForQuad() to turn off coverage AA when all flags are off.
             // deviceQuad is exactly the intersection of original quad and clip, so it can be
             // drawn with no clip (submitted by caller)
+            if (clip && clip->isClipStack()) {
+            GrAppliedClip out(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
+                    out.fElementsConsidered = result.fConsideredCount;
+                    dump_state(SkIRect::MakeSize(this->dimensions()), out, false);
+            }
             return QuadOptimization::kClipApplied;
         }
     } else {
@@ -748,6 +781,11 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
             clear_to_grpaint(*constColor, &paint);
             this->drawRRect(nullptr, std::move(paint), result.fAA, SkMatrix::I(), result.fRRect,
                             GrStyle::SimpleFill());
+            if (clip && clip->isClipStack()) {
+            GrAppliedClip out(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
+            out.fElementsConsidered = result.fConsideredCount;
+            dump_state(SkIRect::MakeSize(this->dimensions()), out, false);
+            }
             return QuadOptimization::kSubmitted;
         }
     }
@@ -974,7 +1012,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
 
     // FIXME: Use path bounds instead of this WAR once
     // https://bugs.chromium.org/p/skia/issues/detail?id=5640 is resolved.
-    SkRect bounds = SkRect::MakeIWH(fRenderTargetContext->width(), fRenderTargetContext->height());
+    SkIRect bounds = SkIRect::MakeSize(fRenderTargetContext->dimensions());
 
     // Setup clip and reject offscreen paths; we do this explicitly instead of relying on addDrawOp
     // because GrStencilPathOp is not a draw op as its state depends directly on the choices made
@@ -998,7 +1036,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     if (!op) {
         return;
     }
-    op->setClippedBounds(bounds);
+    op->setClippedBounds(SkRect::Make(bounds));
 
     fRenderTargetContext->setNeedsStencil(GrAA::kYes == doStencilMSAA);
     fRenderTargetContext->addOp(std::move(op));
@@ -1095,6 +1133,8 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
        return;
     }
 
+    GrAAType aaType = this->chooseAAType(aa);
+
     const GrClip* clip = origClip;
     // It is not uncommon to clip to a round rect and then draw that same round rect. Since our
     // lower level clip code works from op bounds, which are SkRects, it doesn't detect that the
@@ -1105,11 +1145,10 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
     // optimization was turned on outside of Android Framework. I (michaelludwig) believe this is
     // do to the overhead in determining if an SkClipStack is just a rrect. Once that is improved,
     // re-enable this and see if we avoid the regressions.
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkRRect devRRect;
     if (clip && stroke.getStyle() == SkStrokeRec::kFill_Style &&
         rrect.transform(viewMatrix, &devRRect)) {
-        GrClip::PreClipResult result = clip->preApply(devRRect.getBounds());
+        GrClip::PreClipResult result = clip->preApply(devRRect.getBounds(), aaType);
         switch(result.fEffect) {
             case GrClip::Effect::kClippedOut:
                 return;
@@ -1123,7 +1162,11 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
                 if (result.fIsRRect && result.fRRect == devRRect) {
                     // NOTE: On the android framework, we allow this optimization even when the clip
                     // is non-AA and the draw is AA.
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
                     if (result.fAA == aa || (result.fAA == GrAA::kNo && aa == GrAA::kYes)) {
+#else
+                    if (result.fAA == aa) {
+#endif
                         clip = nullptr;
                     }
                 }
@@ -1132,11 +1175,8 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
                 SkUNREACHABLE;
         }
     }
-#endif
 
     AutoCheckFlush acf(this->drawingManager());
-
-    GrAAType aaType = this->chooseAAType(aa);
 
     std::unique_ptr<GrDrawOp> op;
     if (GrAAType::kCoverage == aaType && rrect.isSimple() &&
@@ -1978,6 +2018,190 @@ void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
             std::move(op), GrTextureResolveManager(drawingMgr), *this->caps());
 }
 
+struct Hist {
+    // Deltas 0 and up are accumulated here, indexed as i
+    std::vector<int> posDeltaCounts;
+    // Deltas -1 and down are accumulated here, indexed as (-i - 1)
+    std::vector<int> negDeltaCounts;
+
+    void update(int delta) {
+        std::vector<int>* histogram = delta < 0 ? &negDeltaCounts : &posDeltaCounts;
+        int index = delta < 0 ? (-delta - 1) : delta;
+        if (index >= (int) histogram->size()) {
+            histogram->resize(index + 1, 0);
+        }
+        (*histogram)[index] += 1;
+    }
+
+    void dump(std::ostream& o) const {
+        int zeroSpanDelta = -1;
+        bool zeroSpanValid = false;
+        for (int i = (int) negDeltaCounts.size() - 1; i >= 0; --i) {
+            int delta = -i - 1;
+            int count = negDeltaCounts[i];
+            if (count == 0) {
+                if (!zeroSpanValid) {
+                    zeroSpanValid = true;
+                    zeroSpanDelta = delta;
+                } // else within a zero span so keep going
+            } else {
+                if (zeroSpanValid) {
+                    // Terminate zero span
+                    if (delta - zeroSpanDelta == 1) {
+                        o << zeroSpanDelta << ": 0" << std::endl;
+                    } else {
+                        o << zeroSpanDelta << "-" << (delta - 1) << ": 0" << std::endl;
+                    }
+                    zeroSpanValid = false;
+                }
+                o << delta << ": " << count << std::endl;
+            }
+        }
+        for (int i = 0; i < (int) posDeltaCounts.size(); ++i) {
+            int delta = i;
+            int count = posDeltaCounts[i];
+            if (count == 0) {
+                if (!zeroSpanValid) {
+                    zeroSpanValid = true;
+                    zeroSpanDelta = delta;
+                } // else within a zero span so keep going
+            } else {
+                if (zeroSpanValid) {
+                    // Terminate zero span
+                    if (delta - zeroSpanDelta == 1) {
+                        o << zeroSpanDelta << ": 0" << std::endl;
+                    } else {
+                        o << zeroSpanDelta << "-" << (delta - 1) << ": 0" << std::endl;
+                    }
+                    zeroSpanValid = false;
+                }
+                o << delta << ": " << count << std::endl;
+            }
+        }
+        // even if we're in a zero span at the end, we don't really care,
+    }
+};
+
+struct AggStats {
+    // Total draw count
+    int drawCount = 0;
+    // Draws that had 0 clip elements ever (not that the draw itself could skip the existing clip)
+    int wideOpenCount = 0;
+    // Draws that had a non-wide open clip, but could be unclipped
+    int unclippedCount = 0;
+    // Draws that were skipped because of the clip (includes empty clips)
+    int skippedCount = 0;
+    // Draws that were scissor-only
+    int scissorOnlyCount = 0;
+    // Draws identified as just analytic (and no ccpr and no mask)
+    int analyticDrawCount = 0;
+    // Draws needing CCPR but no mask
+    int ccprDrawCount = 0;
+    // Draws needing a mask
+    int maskDrawCount = 0;
+
+    // Draws finding a cached mask
+    int cachedCount = 0;
+
+    // Clip size
+    int elementsConsidered = 0;
+
+    Hist considered;
+    Hist maskComplexities;
+    Hist analyticComplexities;
+    Hist ccprComplexities;
+
+    Hist consideredDeltas;
+    Hist maskDeltas;
+    Hist analyticDeltas;
+    Hist ccprDeltas;
+
+    ~AggStats() {
+        std::ofstream f("aggregate.txt");
+        f << "draw count:         " << drawCount << std::endl;
+        f << "wide open count:    " << wideOpenCount << std::endl;
+        f << "unclipped count:    " << unclippedCount << std::endl;
+        f << "skipped count:      " << skippedCount << std::endl;
+        f << "hw-only count:      " << scissorOnlyCount << std::endl;
+        f << "analytic count:     " << analyticDrawCount << std::endl;
+        f << "ccpr count:         " << ccprDrawCount << std::endl;
+        f << "mask count:         " << maskDrawCount << std::endl;
+        f << "cached count:       " << cachedCount << std::endl;
+        f << "considered:         " << elementsConsidered << std::endl;
+
+        f << "Considered count distribution:" << std::endl;
+        considered.dump(f);
+        f << "Considered count change from old:" << std::endl;
+        consideredDeltas.dump(f);
+
+        f << std::endl << "Analytic complexity distribution:" << std::endl;
+        analyticComplexities.dump(f);
+        f << "Analytic complexity change from old:" << std::endl;
+        analyticDeltas.dump(f);
+
+        f << std::endl << "CCPR complexity distribution:" << std::endl;
+        ccprComplexities.dump(f);
+        f << "CCPR complexity change from old:" << std::endl;
+        ccprDeltas.dump(f);
+
+        f << std::endl << "Mask complexity distribution:" << std::endl;
+        maskComplexities.dump(f);
+        f << "Mask complexity change from old:" << std::endl;
+        maskDeltas.dump(f);
+
+        f.close();
+    }
+
+    void update(const SkIRect& rtDims, const GrAppliedClip& clip, bool drawSkipped) {
+        drawCount++;
+
+        considered.update(clip.fElementsConsidered);
+        consideredDeltas.update(clip.fElementsConsidered - clip.fOldElementsConsidered);
+
+        elementsConsidered += clip.fElementsConsidered;
+
+        if (drawSkipped) {
+            skippedCount++;
+        } else if (!clip.doesClip(rtDims)) {
+            if (clip.fElementsConsidered == 0) {
+                wideOpenCount++;
+            } else {
+                unclippedCount++;
+            }
+        } else {
+            if (clip.fAnalyticElements == 0 && clip.fCCPRElements == 0 && clip.fMaskElements == 0) {
+                scissorOnlyCount++;
+            } else if (clip.fAnalyticElements > 0 && clip.fCCPRElements == 0 && clip.fMaskElements == 0) {
+                analyticDrawCount++;
+            } else if (clip.fCCPRElements > 0 && clip.fMaskElements == 0) {
+                ccprDrawCount++;
+            } else if (clip.fMaskElements > 0) {
+                maskDrawCount++;
+                if (clip.fMaskInCache) {
+                    cachedCount++;
+                }
+            }
+
+            analyticComplexities.update(clip.fAnalyticElements);
+            ccprComplexities.update(clip.fCCPRElements);
+            maskComplexities.update(clip.fMaskElements);
+
+            analyticDeltas.update(clip.fAnalyticElements - clip.fOldAnalyticElements);
+            ccprDeltas.update(clip.fCCPRElements - clip.fOldCCPRElements);
+            maskDeltas.update(clip.fMaskElements - clip.fOldMaskElements);
+        }
+    }
+};
+
+static void dump_state(const SkIRect& rtDims, const GrAppliedClip& clip, bool drawSkipped) {
+    static std::unique_ptr<AggStats> agg = nullptr;
+
+    if (!agg) {
+        // agg = std::make_unique<AggStats>();
+    }
+    // agg->update(rtDims, clip, drawSkipped);
+}
+
 void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDrawOp> op,
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
@@ -2004,7 +2228,10 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     bool skipDraw = false;
     if (clip) {
         // Have a complex clip, so defer to its early clip culling
-        skipDraw = clip->apply(fContext, this, usesHWAA, usesUserStencilBits,
+        GrAAType aaType = usesHWAA ? GrAAType::kMSAA :
+                                (op->hasAABloat() ? GrAAType::kCoverage :
+                                                    GrAAType::kNone);
+        skipDraw = clip->apply(fContext, this, aaType, usesUserStencilBits,
                                &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
     } else {
         // No clipping, so just clip the bounds against the logical render target dimensions
@@ -2013,7 +2240,12 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
 
     if (skipDraw) {
         fContext->priv().opMemoryPool()->release(std::move(op));
+        if (clip && clip->isClipStack())
+            dump_state(SkIRect::MakeSize(this->dimensions()), appliedClip, true);
         return;
+    } else {
+        if (clip && clip->isClipStack())
+            dump_state(SkIRect::MakeSize(this->dimensions()), appliedClip, false);
     }
 
     bool willUseStencil = usesUserStencilBits || appliedClip.hasStencilClip();
