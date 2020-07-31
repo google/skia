@@ -461,6 +461,7 @@ skia_core_sources = [
   "$_include/private/SkFloatingPoint.h",
   "$_include/private/SkHalf.h",
   "$_include/private/SkIDChangeListener.h",
+  "$_include/private/SkMacros.h",
   "$_include/private/SkMalloc.h",
   "$_include/private/SkMutex.h",
   "$_include/private/SkNoncopyable.h",

@@ -231,7 +231,6 @@ private:
     HFONT fFont;
     HFONT fSavefont;
 };
-#define SkAutoHDC(...) SK_REQUIRE_LOCAL_VAR(SkAutoHDC)
 
 class LogFontTypeface : public SkTypeface {
 public:
