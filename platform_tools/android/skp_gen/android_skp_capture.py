@@ -118,7 +118,7 @@ def capture_skp(skp_file, package, device):
     # Spin, wait for the SKP to be written.
     timeout = 10  # Seconds
     start = time.time()
-    device.drag((300, 300), (300, 350), 1, 10)  # Dummy action to force a draw.
+    device.drag((300, 300), (300, 350), 1, 10)  # Arbitrary action to force a draw.
     while not remote_file_exists(remote_path):
       if time.time() - start > timeout:
         raise Exception('Timed out waiting for SKP capture.')

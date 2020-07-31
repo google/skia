@@ -229,7 +229,7 @@ void setUpDebuggingFromArgs(const char* vargs0) {
     binaries_path[pos_last_slash] = '\0';
     setBinariesPath(binaries_path);
 
-    setAppVersion("1.0");  // Dummy for now, but use revision instead if we use
+    setAppVersion("1.0");  // Placeholder for now, but use revision instead if we use
                            // the minidump for anything else other than
                            // collecting the callstack.
 

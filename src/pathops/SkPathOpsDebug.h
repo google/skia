@@ -34,20 +34,20 @@ class SkTSect;
 // define this when running fuzz
 // #define IS_FUZZING_WITH_LIBFUZZER
 
-// dummy classes to fool msvs Visual Studio 2018 Immediate Window
-#define DummyClasses(a, b) \
+// fake classes to fool msvs Visual Studio 2018 Immediate Window
+#define FakeClasses(a, b) \
 class SkDebugTCoincident##a##b; \
 class SkDebugTSect##a##b; \
 class SkDebugTSpan##a##b
 
-DummyClasses(Quad, Quad);
-DummyClasses(Conic, Quad);
-DummyClasses(Conic, Conic);
-DummyClasses(Cubic, Quad);
-DummyClasses(Cubic, Conic);
-DummyClasses(Cubic, Cubic);
+FakeClasses(Quad, Quad);
+FakeClasses(Conic, Quad);
+FakeClasses(Conic, Conic);
+FakeClasses(Cubic, Quad);
+FakeClasses(Cubic, Conic);
+FakeClasses(Cubic, Cubic);
 
-#undef DummyClasses
+#undef FakeClasses
 
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1

@@ -97,10 +97,10 @@ public:
 
     void debugInit(const SkTCurve& curve, SkArenaAlloc& heap) {
 #ifdef SK_DEBUG
-        SkTCurve* dummy = curve.make(heap);
-        dummy->debugInit();
-        init(*dummy);
-        initBounds(*dummy);
+        SkTCurve* fake = curve.make(heap);
+        fake->debugInit();
+        init(*fake);
+        initBounds(*fake);
         fCoinStart.init();
         fCoinEnd.init();
 #endif
