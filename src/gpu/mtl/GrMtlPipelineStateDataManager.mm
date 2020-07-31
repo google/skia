@@ -7,6 +7,7 @@
 
 #include "src/gpu/mtl/GrMtlPipelineStateDataManager.h"
 
+#include "src/gpu/GrRingBuffer.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 
@@ -331,28 +332,31 @@ void GrMtlPipelineStateDataManager::uploadAndBindUniformBuffers(
         GrMtlGpu* gpu,
         id<MTLRenderCommandEncoder> renderCmdEncoder) const {
     if (fUniformSize && fUniformsDirty) {
-        SkASSERT(fUniformSize < 4*1024);
         if (@available(macOS 10.11, iOS 8.3, *)) {
-            [renderCmdEncoder setVertexBytes: fUniformData.get()
-                                      length: fUniformSize
-                                     atIndex: GrMtlUniformHandler::kUniformBinding];
-            [renderCmdEncoder setFragmentBytes: fUniformData.get()
-                                        length: fUniformSize
-                                       atIndex: GrMtlUniformHandler::kUniformBinding];
-        } else {
-            size_t bufferOffset;
-            id<MTLBuffer> uniformBuffer = gpu->resourceProvider().getDynamicBuffer(
-                                                  fUniformSize, &bufferOffset);
-            SkASSERT(uniformBuffer);
-            char* bufferData = (char*) uniformBuffer.contents + bufferOffset;
-            memcpy(bufferData, fUniformData.get(), fUniformSize);
-            [renderCmdEncoder setVertexBuffer: uniformBuffer
-                                       offset: bufferOffset
-                                      atIndex: GrMtlUniformHandler::kUniformBinding];
-            [renderCmdEncoder setFragmentBuffer: uniformBuffer
-                                         offset: bufferOffset
-                                        atIndex: GrMtlUniformHandler::kUniformBinding];
+            if (fUniformSize <= 4*1024) {
+                [renderCmdEncoder setVertexBytes: fUniformData.get()
+                                          length: fUniformSize
+                                         atIndex: GrMtlUniformHandler::kUniformBinding];
+                [renderCmdEncoder setFragmentBytes: fUniformData.get()
+                                            length: fUniformSize
+                                           atIndex: GrMtlUniformHandler::kUniformBinding];
+                fUniformsDirty = false;
+                return;
+            }
         }
+
+        GrRingBuffer::Slice slice = gpu->uniformsRingBuffer()->suballocate(fUniformSize);
+        SkASSERT(slice.fBuffer);
+        id<MTLBuffer> uniformBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer)->mtlBuffer();
+
+        char* bufferData = (char*) uniformBuffer.contents + slice.fOffset;
+        memcpy(bufferData, fUniformData.get(), fUniformSize);
+        [renderCmdEncoder setVertexBuffer: uniformBuffer
+                                   offset: slice.fOffset
+                                  atIndex: GrMtlUniformHandler::kUniformBinding];
+        [renderCmdEncoder setFragmentBuffer: uniformBuffer
+                                     offset: slice.fOffset
+                                    atIndex: GrMtlUniformHandler::kUniformBinding];
         fUniformsDirty = false;
     }
 }
