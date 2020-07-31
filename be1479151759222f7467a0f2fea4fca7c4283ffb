@@ -82,6 +82,54 @@
     },
     {
       "key": {
+        "uuid": "ba826f5b_7fdf8cf6",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e53f5523_3fc44aab",
+      "range": {
+        "startLine": 7,
+        "startChar": 42,
+        "endLine": 7,
+        "endChar": 45
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b68498fe_1b117a94",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecdbbfbb_a308fd47",
+      "range": {
+        "startLine": 7,
+        "startChar": 62,
+        "endLine": 7,
+        "endChar": 68
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "29f262fb_a30b0588",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 2
@@ -93,6 +141,30 @@
       "writtenOn": "2020-07-31T13:50:15Z",
       "side": 1,
       "message": "0.17.2 is the latest as of today",
+      "range": {
+        "startLine": 13,
+        "startChar": 71,
+        "endLine": 13,
+        "endChar": 75
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2db32c14_eb62da1c",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "is there an alias for the latest version?",
+      "parentUuid": "29f262fb_a30b0588",
       "range": {
         "startLine": 13,
         "startChar": 71,
@@ -128,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "6c1d8d26_fa408ff9",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cc98092_94d6dc8f",
+      "range": {
+        "startLine": 20,
+        "startChar": 10,
+        "endLine": 20,
+        "endChar": 15
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1394d81_61b68b8a",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 2
@@ -148,6 +244,30 @@
       "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff9dd6b5_52150e20",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1394d81_61b68b8a",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 17
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -174,6 +294,30 @@
     },
     {
       "key": {
+        "uuid": "3051c2a9_796f227b",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "I really hate English contractions and I ought to get as worked up about it as those people who want to eradicate gendered pronouns",
+      "parentUuid": "7acef766_c28c354f",
+      "range": {
+        "startLine": 57,
+        "startChar": 48,
+        "endLine": 57,
+        "endChar": 52
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8dac1da9_ad22ccdf",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 2
@@ -194,6 +338,30 @@
       "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0d057d2_07361069",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "I think I may add another doc with details on a variety of topics like this one, and link to the section on CPU/GPU backend selection.",
+      "parentUuid": "8dac1da9_ad22ccdf",
+      "range": {
+        "startLine": 60,
+        "startChar": 14,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -220,6 +388,30 @@
     },
     {
       "key": {
+        "uuid": "7788256a_687fe5b5",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e0eb663_04c9f821",
+      "range": {
+        "startLine": 80,
+        "startChar": 94,
+        "endLine": 80,
+        "endChar": 103
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "945534fe_c0550d6f",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 2
@@ -240,6 +432,30 @@
       "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ea22567_297402f6",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "945534fe_c0550d6f",
+      "range": {
+        "startLine": 95,
+        "startChar": 42,
+        "endLine": 95,
+        "endChar": 47
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -266,6 +482,30 @@
     },
     {
       "key": {
+        "uuid": "b4ccc295_f10d661d",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "716919fa_297ea776",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 110
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f125eace_54018980",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 2
@@ -289,6 +529,30 @@
     },
     {
       "key": {
+        "uuid": "ee955a0f_bef7ad1e",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f125eace_54018980",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 4
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ad3453f_e0ebd0d5",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 2
@@ -309,6 +573,30 @@
       "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "847dcde9_0ba8baaa",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ad3453f_e0ebd0d5",
+      "range": {
+        "startLine": 206,
+        "startChar": 18,
+        "endLine": 206,
+        "endChar": 24
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
