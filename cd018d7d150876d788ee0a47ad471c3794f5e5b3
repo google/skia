@@ -16,6 +16,23 @@
       "revId": "cd018d7d150876d788ee0a47ad471c3794f5e5b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c9550dc_7d03ca84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-31T18:07:09Z",
+      "side": 1,
+      "message": "I think you could use an SkRuntimeEffect to force a huge uniform block, if you need a test case. Something like this should work?:\n\nconst char* src \u003d \"uniform half4 big[257]; void main(float2 p, inout half4 color) { color \u003d big[256]; }\";\nauto [effect, errorText] \u003d SkRuntimeEffect::Make(src);\nSkColor4f bigData[257];\nbigData[256] \u003d SkColor4f { 1, 1, 0, 1 };\nauto inputs \u003d SkData::MakeWithCopy(bigData, sizeof(bigData));\nauto shader \u003d effect-\u003emakeShader(inputs, nullptr, 0, nullptr, true);\n\nSkPaint paint;\npaint.setShader(shader);\ncanvas-\u003edrawPaint(paint);",
+      "revId": "cd018d7d150876d788ee0a47ad471c3794f5e5b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
