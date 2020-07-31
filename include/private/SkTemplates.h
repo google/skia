@@ -127,10 +127,11 @@ private:
  */
 template <int kCountRequested, typename T> class SkAutoSTArray {
 public:
-    SkAutoSTArray(SkAutoSTArray&&) = delete;
     SkAutoSTArray(const SkAutoSTArray&) = delete;
-    SkAutoSTArray& operator=(SkAutoSTArray&&) = delete;
     SkAutoSTArray& operator=(const SkAutoSTArray&) = delete;
+
+    SkAutoSTArray(SkAutoSTArray&&) = delete;
+    SkAutoSTArray& operator=(SkAutoSTArray&&) = delete;
 
     /** Initialize with no objects */
     SkAutoSTArray() {
@@ -291,10 +292,21 @@ public:
         }
     }
 
-    SkAutoSTMalloc(SkAutoSTMalloc&&) = delete;
     SkAutoSTMalloc(const SkAutoSTMalloc&) = delete;
-    SkAutoSTMalloc& operator=(SkAutoSTMalloc&&) = delete;
     SkAutoSTMalloc& operator=(const SkAutoSTMalloc&) = delete;
+
+    SkAutoSTMalloc(SkAutoSTMalloc&& that) : fPtr(nullptr) { *this = std::move(that); }
+    SkAutoSTMalloc& operator=(SkAutoSTMalloc&& that) {
+        this->reset(0);
+        if (that.fPtr != that.fTStorage) {
+            fPtr = that.fPtr;
+            that.fPtr = nullptr;
+        } else {
+            fPtr = fTStorage;
+            memcpy((void*)fPtr, that.fTStorage, kCount * sizeof(T));
+        }
+        return *this;
+    }
 
     ~SkAutoSTMalloc() {
         if (fPtr != fTStorage) {
