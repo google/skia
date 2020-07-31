@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "977e584f_53f95695",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-31T16:17:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26dec891_b6075cdc",
+      "range": {
+        "startLine": 776,
+        "startChar": 29,
+        "endLine": 776,
+        "endChar": 30
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21a5ebad_eefab01f",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 15
@@ -62,6 +86,30 @@
       "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f25f3748_0502029b",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-31T16:17:02Z",
+      "side": 1,
+      "message": "I\u0027ve made this the only validate call now. The old one assumed it was called on the head of the chain which limited where it could be invoked. The new one can be called anywhere.",
+      "parentUuid": "21a5ebad_eefab01f",
+      "range": {
+        "startLine": 808,
+        "startChar": 8,
+        "endLine": 808,
+        "endChar": 24
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "ff38d093_e3ec6bfb",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-31T16:17:02Z",
+      "side": 1,
+      "message": "I\u0027ve updated the comment to, hopefully, be clearer.",
+      "parentUuid": "ab57fe3f_684b6f3a",
+      "range": {
+        "startLine": 1059,
+        "startChar": 16,
+        "endLine": 1061,
+        "endChar": 84
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0a975bfc_dcb805fb",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 15
@@ -111,6 +183,30 @@
     },
     {
       "key": {
+        "uuid": "02850b8a_fad719f9",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1354,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-31T16:17:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a975bfc_dcb805fb",
+      "range": {
+        "startLine": 1347,
+        "startChar": 22,
+        "endLine": 1354,
+        "endChar": 21
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "778adb12_e678e75a",
         "filename": "tests/BulkRectTest.cpp",
         "patchSetId": 15
@@ -131,6 +227,30 @@
       "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18f670bd_a74d1528",
+        "filename": "tests/BulkRectTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-31T16:17:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "778adb12_e678e75a",
+      "range": {
+        "startLine": 283,
+        "startChar": 46,
+        "endLine": 283,
+        "endChar": 47
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
