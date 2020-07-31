@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2ce83dc9_e387f23f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1891,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T20:06:02Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4b80a51c_59084b77",
+      "range": {
+        "startLine": 1891,
+        "startChar": 76,
+        "endLine": 1891,
+        "endChar": 97
+      },
+      "revId": "ca25f74a149403cd2184c0b148b1251441bb7a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d32967d5_7b323b24",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 7
@@ -69,6 +93,30 @@
       "revId": "ca25f74a149403cd2184c0b148b1251441bb7a87",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42859493_2719ee6b",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T20:06:02Z",
+      "side": 1,
+      "message": "Thanks for confirming!",
+      "parentUuid": "1fbfb9d9_1546b61f",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 23
+      },
+      "revId": "ca25f74a149403cd2184c0b148b1251441bb7a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
