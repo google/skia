@@ -291,7 +291,10 @@ public:
 
     SkScalar strikeToSourceRatio() const { return fStrikeSpec.strikeToSourceRatio(); }
     std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMaskFormat maskFormat, int padding, GrMeshDrawOp::Target *target);
+            int begin, int end,
+            GrMaskFormat maskFormat,
+            GrMeshDrawOp::Target *target,
+            bool bilerpPadding = false);
 
     static size_t GlyphVectorSize(size_t count) {
         return sizeof(Variant) * count;
