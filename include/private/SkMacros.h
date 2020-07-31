@@ -24,32 +24,6 @@
  */
 #define SK_MACRO_APPEND_LINE(name)  SK_MACRO_CONCAT(name, __LINE__)
 
-/**
- * For some classes, it's almost always an error to instantiate one without a name, e.g.
- *   {
- *       SkAutoMutexAcquire(&mutex);
- *       <some code>
- *   }
- * In this case, the writer meant to hold mutex while the rest of the code in the block runs,
- * but instead the mutex is acquired and then immediately released.  The correct usage is
- *   {
- *       SkAutoMutexAcquire lock(&mutex);
- *       <some code>
- *   }
- *
- * To prevent callers from instantiating your class without a name, use SK_REQUIRE_LOCAL_VAR
- * like this:
- *   class classname {
- *       <your class>
- *   };
- *   #define classname(...) SK_REQUIRE_LOCAL_VAR(classname)
- *
- * This won't work with templates, and you must inline the class' constructors and destructors.
- * Take a look at SkAutoFree and SkAutoMalloc in this file for examples.
- */
-#define SK_REQUIRE_LOCAL_VAR(classname) \
-    static_assert(false, "missing name for " #classname)
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // Can be used to bracket data types that must be dense, e.g. hash keys.

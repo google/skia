@@ -127,7 +127,6 @@ private:
         fInfo_ptr = nullptr;
     }
 };
-#define AutoCleanPng(...) SK_REQUIRE_LOCAL_VAR(AutoCleanPng)
 
 static inline bool is_chunk(const png_byte* chunk, const char* tag) {
     return memcmp(chunk + 4, tag, 4) == 0;

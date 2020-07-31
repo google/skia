@@ -2850,7 +2850,4 @@ private:
     SkAutoCanvasRestore& operator=(const SkAutoCanvasRestore&) = delete;
 };
 
-// Private
-#define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
-
 #endif
