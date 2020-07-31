@@ -139,10 +139,10 @@ static void get_packed_glyph_image(
 // TODO we can handle some of these cases if we really want to, but the long term solution is to
 // get the actual glyph image itself when we get the glyph metrics.
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
-                                                         int padding,
                                                          GrGlyph* grGlyph,
                                                          GrResourceProvider* resourceProvider,
-                                                         GrDeferredUploadTarget* uploadTarget) {
+                                                         GrDeferredUploadTarget* uploadTarget,
+                                                         bool bilerpPadding) {
     if (skGlyph.image() == nullptr) {
         return GrDrawOpAtlas::ErrorCode::kError;
     }
@@ -152,12 +152,8 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     GrMaskFormat expectedMaskFormat = this->resolveMaskFormat(glyphFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
-    if (padding > 0) {
-        SkASSERT(skGlyph.maskFormat() != SkMask::kSDF_Format);
-    }
-
-    SkASSERT(padding == 0 || padding == 1);
     // Add 1 pixel padding around grGlyph if needed.
+    int padding = bilerpPadding ? 1 : 0;
     const int width = skGlyph.width() + 2*padding;
     const int height = skGlyph.height() + 2*padding;
     int rowBytes = width * bytesPerPixel;
