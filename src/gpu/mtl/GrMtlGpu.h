@@ -12,6 +12,7 @@
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRingBuffer.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/GrTexture.h"
@@ -47,6 +48,8 @@ public:
     id<MTLDevice> device() const { return fDevice; }
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
+
+    GrRingBuffer* uniformsRingBuffer() override { return &fUniformsRingBuffer; }
 
     GrMtlCommandBuffer* commandBuffer() {
         SkASSERT(fCurrentCmdBuffer);
@@ -274,6 +277,7 @@ private:
 
     GrMtlResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
+    GrRingBuffer fUniformsRingBuffer;
 
     bool fDisconnected;
 

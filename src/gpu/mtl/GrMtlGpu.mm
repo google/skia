@@ -118,6 +118,9 @@ sk_sp<GrGpu> GrMtlGpu::Make(GrDirectContext* direct, const GrContextOptions& opt
 // command buffers we expect to see.
 static const int kDefaultOutstandingAllocCnt = 8;
 
+// uniforms should be aligned to 256
+constexpr int kUniformAlignment = 256;
+
 GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
                    id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet)
         : INHERITED(direct)
@@ -127,6 +130,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fCompiler(new SkSL::Compiler())
         , fResourceProvider(this)
         , fStagingBufferManager(this)
+        , fUniformsRingBuffer(this, 16*1024, kUniformAlignment, GrGpuBufferType::kVertex)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
@@ -206,8 +210,6 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
         fCurrentCmdBuffer->callFinishedCallbacks();
         return true;
     }
-
-    fResourceProvider.addBufferCompletionHandler(fCurrentCmdBuffer.get());
 
     GrFence fence = this->insertFence();
     new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(
