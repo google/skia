@@ -47,8 +47,8 @@ layout(ctype=SkPMColor4f, when=intervalCount > 7) in uniform float4 bias14_15;
 in uniform half4 thresholds1_7;
 in uniform half4 thresholds9_13;
 
-void main() {
-    half t = sk_InColor.x;
+void main(float2 coord) {
+    half t = half(coord.x);
 
     float4 scale, bias;
     // Explicit binary search for the proper interval that t falls within. The interval count

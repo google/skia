@@ -2101,8 +2101,10 @@ if (skia_enable_tools) {
   test_app("fuzz") {
     sources = [
       "fuzz/Fuzz.cpp",
+      "fuzz/Fuzz.h",
       "fuzz/FuzzCanvas.cpp",
       "fuzz/FuzzCommon.cpp",
+      "fuzz/FuzzCommon.h",
       "fuzz/FuzzCreateDDL.cpp",
       "fuzz/FuzzDrawFunctions.cpp",
       "fuzz/FuzzEncoders.cpp",
@@ -2476,6 +2478,7 @@ if (skia_enable_tools) {
         "tools/viewer/TouchGesture.cpp",
         "tools/viewer/TouchGesture.h",
         "tools/viewer/Viewer.cpp",
+        "tools/viewer/Viewer.h",
       ]
       libs = []
 

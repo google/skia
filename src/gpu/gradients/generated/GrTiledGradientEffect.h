@@ -49,7 +49,7 @@ private:
             , makePremul(makePremul)
             , colorsAreOpaque(colorsAreOpaque) {
         SkASSERT(colorizer);
-        this->registerChild(std::move(colorizer), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(colorizer), SkSL::SampleUsage::Explicit());
         SkASSERT(gradLayout);
         this->registerChild(std::move(gradLayout), SkSL::SampleUsage::PassThrough());
     }

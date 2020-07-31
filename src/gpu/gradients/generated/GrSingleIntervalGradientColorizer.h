@@ -32,7 +32,9 @@ private:
     GrSingleIntervalGradientColorizer(SkPMColor4f start, SkPMColor4f end)
             : INHERITED(kGrSingleIntervalGradientColorizer_ClassID, kNone_OptimizationFlags)
             , start(start)
-            , end(end) {}
+            , end(end) {
+        this->setUsesSampleCoordsDirectly();
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
