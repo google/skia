@@ -2,6 +2,167 @@
   "comments": [
     {
       "key": {
+        "uuid": "dfb64c13_9a9257ec",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2868,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:25:14Z",
+      "side": 1,
+      "message": "This feels worthy of being hoisted into a helper function `count_contiguous_swizzle_chunks` or something. It\u0027s nontrivial to reason about and interrupts the flow of the function.",
+      "range": {
+        "startLine": 2860,
+        "startChar": 0,
+        "endLine": 2868,
+        "endChar": 17
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5ed3b97_2a2cd4b3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2877,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:25:14Z",
+      "side": 1,
+      "message": "auto name \u003d std::make_unique\u003cString\u003e();",
+      "range": {
+        "startLine": 2877,
+        "startChar": 20,
+        "endLine": 2877,
+        "endChar": 63
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5890ab59_eeed6ae3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2878,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:25:14Z",
+      "side": 1,
+      "message": "printf",
+      "range": {
+        "startLine": 2878,
+        "startChar": 26,
+        "endLine": 2878,
+        "endChar": 33
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b39b3e0f_ff54befc",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2881,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:25:14Z",
+      "side": 1,
+      "message": "Please identify this with a /*arg_comment\u003d*/ ... I\u0027m guessing this is offset in source? \n\n(Is -1 actually better than giving this the swizzle source-offset?)",
+      "range": {
+        "startLine": 2881,
+        "startChar": 66,
+        "endLine": 2881,
+        "endChar": 68
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca9bebd9_21bdf3d0",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2887,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:25:14Z",
+      "side": 1,
+      "message": ".\n  std::vector\u003cstd::unique_ptr\u003cVarDeclaration\u003e\u003e variables{std::make_unique\u003cVarDeclaration\u003e(var, {}, nullptr)};",
+      "range": {
+        "startLine": 2886,
+        "startChar": 1,
+        "endLine": 2887,
+        "endChar": 81
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08a74abd_e81f1ba9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2889,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:25:14Z",
+      "side": 1,
+      "message": "make_unique",
+      "range": {
+        "startLine": 2889,
+        "startChar": 28,
+        "endLine": 2889,
+        "endChar": 80
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "202bf8c5_81a91af0",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2919,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:25:14Z",
+      "side": 1,
+      "message": ".\n\n  std::vector\u003cstd::unique_ptr\u003cExpression\u003e\u003e constructorArgs{std::move(args.back())};",
+      "range": {
+        "startLine": 2918,
+        "startChar": 0,
+        "endLine": 2919,
+        "endChar": 74
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7085da28_0b343168",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 9
