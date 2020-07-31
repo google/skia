@@ -16,6 +16,299 @@
       "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a34be78_18599c2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "If you mean syntax highlighting, no I don\u0027t think our docs do that.",
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e53f5523_3fc44aab",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "draws what?",
+      "range": {
+        "startLine": 7,
+        "startChar": 42,
+        "endLine": 7,
+        "endChar": 45
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecdbbfbb_a308fd47",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "looks",
+      "range": {
+        "startLine": 7,
+        "startChar": 62,
+        "endLine": 7,
+        "endChar": 68
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29f262fb_a30b0588",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "0.17.2 is the latest as of today",
+      "range": {
+        "startLine": 13,
+        "startChar": 71,
+        "endLine": 13,
+        "endChar": 75
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cc98092_94d6dc8f",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "I don\u0027t see delete() anywhere in this guide; it\u0027s important to call that out, I would think.",
+      "range": {
+        "startLine": 20,
+        "startChar": 10,
+        "endLine": 20,
+        "endChar": 15
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1394d81_61b68b8a",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "Lets encourage users to use surface.drawOnce() or surface.requestAnimationFrame(). That\u0027s a nicer model, as the user doesn\u0027t have to call flush, nor worry about \"Oh, do I have to call delete on the canvas I get?",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 17
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7acef766_c28c354f",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "The possessive of \"it\" is \"its\"; it\u0027s means \"it is\" (check all uses of its and it\u0027s)",
+      "range": {
+        "startLine": 57,
+        "startChar": 48,
+        "endLine": 57,
+        "endChar": 52
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dac1da9_ad22ccdf",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "what about in the software case? You don\u0027t have to go into details (maybe just say \"by default...GPU. There\u0027s also an option to not use GPU acceleration, discussed later.\"",
+      "range": {
+        "startLine": 60,
+        "startChar": 14,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e0eb663_04c9f821",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "nit: wrap markdown to 100 cols where practical.",
+      "range": {
+        "startLine": 80,
+        "startChar": 94,
+        "endLine": 80,
+        "endChar": 103
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "945534fe_c0550d6f",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "clear the entire canvas",
+      "range": {
+        "startLine": 95,
+        "startChar": 42,
+        "endLine": 95,
+        "endChar": 47
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "716919fa_297ea776",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "omit these as they load a second copy of CanvasKit",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 110
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f125eace_54018980",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "one too many backticks.",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 4
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ad3453f_e0ebd0d5",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T13:50:15Z",
+      "side": 1,
+      "message": "typically target",
+      "range": {
+        "startLine": 206,
+        "startChar": 18,
+        "endLine": 206,
+        "endChar": 24
+      },
+      "revId": "be1479151759222f7467a0f2fea4fca7c4283ffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
