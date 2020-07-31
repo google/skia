@@ -47,6 +47,4 @@ private:
     SkMutex& fMutex;
 };
 
-#define SkAutoMutexExclusive(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexExclusive)
-
 #endif  // SkMutex_DEFINED

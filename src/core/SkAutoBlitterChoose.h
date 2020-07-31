@@ -54,6 +54,5 @@ private:
 
     SkSTArenaAlloc<kSkBlitterContextSize> fAlloc;
 };
-#define SkAutoBlitterChoose(...) SK_REQUIRE_LOCAL_VAR(SkAutoBlitterChoose)
 
 #endif
