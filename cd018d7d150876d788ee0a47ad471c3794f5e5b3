@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5160d7a2_4762112b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-31T17:09:03Z",
+      "side": 1,
+      "message": "PTAL. I\u0027m pondering how to test this as we don\u0027t seem to have hit a case where a set of uniforms is bigger than 4K, and the setVertexBytes: interface is supported on pretty much all platforms except iOS 8.0.",
+      "revId": "cd018d7d150876d788ee0a47ad471c3794f5e5b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
