@@ -144,6 +144,7 @@ SkSpan<const GrGlyph*> GrGlyphVector::glyphs() const {
 
 std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
                                                      GrMaskFormat maskFormat,
+                                                     int srcPadding,
                                                      GrMeshDrawOp::Target* target,
                                                      bool bilerpPadding) {
     GrAtlasManager* atlasManager = target->atlasManager();
@@ -178,7 +179,7 @@ std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
             if (!atlasManager->hasGlyph(maskFormat, grGlyph)) {
                 const SkGlyph& skGlyph = *metricsAndImages.glyph(grGlyph->fPackedID);
                 auto code = atlasManager->addGlyphToAtlas(
-                        skGlyph, grGlyph, target->resourceProvider(),
+                        skGlyph, grGlyph, srcPadding, target->resourceProvider(),
                         uploadTarget, bilerpPadding);
                 if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
                     success = code != GrDrawOpAtlas::ErrorCode::kError;
@@ -363,7 +364,7 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
 
 std::tuple<bool, int>
 GrDirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, target);
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
 }
 
 template <typename Rect>
@@ -567,13 +568,12 @@ GrTransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
 
 std::tuple<bool, int> GrTransformedMaskSubRun::regenerateAtlas(int begin, int end,
                                                                GrMeshDrawOp::Target* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, target, true);
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
 }
 
 template<typename Quad, typename VertexData>
 static void fill_transformed_vertices_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
                                          SkScalar dstPadding,
-                                         SkScalar srcPadding,
                                          SkScalar strikeToSource,
                                          GrColor color,
                                          const SkMatrix& matrix) {
@@ -587,7 +587,7 @@ static void fill_transformed_vertices_2D(SkZip<Quad, const GrGlyph*, const Verte
                 lb = matrix.mapXY(sLT.x(), sRB.y()),
                 rt = matrix.mapXY(sRB.x(), sLT.y()),
                 rb = matrix.mapXY(sRB.x(), sRB.y());
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(srcPadding);
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(0);
         quad[0] = {lt, color, {al, at}};  // L,T
         quad[1] = {lb, color, {al, ab}};  // L,B
         quad[2] = {rt, color, {ar, at}};  // R,T
@@ -598,7 +598,6 @@ static void fill_transformed_vertices_2D(SkZip<Quad, const GrGlyph*, const Verte
 template<typename Quad, typename VertexData>
 static void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
                                          SkScalar dstPadding,
-                                         SkScalar srcPadding,
                                          SkScalar strikeToSource,
                                          GrColor color,
                                          const SkMatrix& matrix) {
@@ -618,7 +617,7 @@ static void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const Verte
                  lb = mapXYZ(sLT.x(), sRB.y()),
                  rt = mapXYZ(sRB.x(), sLT.y()),
                  rb = mapXYZ(sRB.x(), sRB.y());
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(srcPadding);
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(0);
         quad[0] = {lt, color, {al, at}};  // L,T
         quad[1] = {lb, color, {al, ab}};  // L,B
         quad[2] = {rt, color, {ar, at}};  // R,T
@@ -632,7 +631,6 @@ void GrTransformedMaskSubRun::fillVertexData(void* vertexDst,
                                              const SkMatrix& drawMatrix, SkPoint drawOrigin,
                                              SkIRect clip) const {
     constexpr SkScalar kDstPadding = 0.f;
-    constexpr SkScalar kSrcPadding = 1.f;
     SkMatrix matrix = drawMatrix;
     matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 
@@ -648,7 +646,7 @@ void GrTransformedMaskSubRun::fillVertexData(void* vertexDst,
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
             fill_transformed_vertices_2D(
                     quadData((Quad*) vertexDst),
-                    kDstPadding, kSrcPadding,
+                    kDstPadding,
                     fGlyphs.strikeToSourceRatio(),
                     color,
                     matrix);
@@ -657,7 +655,7 @@ void GrTransformedMaskSubRun::fillVertexData(void* vertexDst,
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
             fill_transformed_vertices_2D(
                     quadData((Quad*) vertexDst),
-                    kDstPadding, kSrcPadding,
+                    kDstPadding,
                     fGlyphs.strikeToSourceRatio(),
                     color,
                     matrix);
@@ -668,7 +666,7 @@ void GrTransformedMaskSubRun::fillVertexData(void* vertexDst,
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
             fill_transformed_vertices_3D(
                     quadData((Quad*) vertexDst),
-                    kDstPadding, kSrcPadding,
+                    kDstPadding,
                     fGlyphs.strikeToSourceRatio(),
                     color,
                     matrix);
@@ -677,7 +675,7 @@ void GrTransformedMaskSubRun::fillVertexData(void* vertexDst,
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
             fill_transformed_vertices_3D(
                     quadData((Quad*) vertexDst),
-                    kDstPadding, kSrcPadding,
+                    kDstPadding,
                     fGlyphs.strikeToSourceRatio(),
                     color,
                     matrix);
@@ -839,7 +837,7 @@ void GrSDFTSubRun::draw(const GrClip* clip,
 std::tuple<bool, int> GrSDFTSubRun::regenerateAtlas(
         int begin, int end, GrMeshDrawOp::Target *target) const {
 
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, target);
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, SK_DistanceFieldInset, target);
 }
 
 size_t GrSDFTSubRun::vertexStride() const {
@@ -864,7 +862,7 @@ void GrSDFTSubRun::fillVertexData(
         SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
         fill_transformed_vertices_2D(
                 quadData((Quad*) vertexDst),
-                SK_DistanceFieldInset, SK_DistanceFieldInset,
+                SK_DistanceFieldInset,
                 fGlyphs.strikeToSourceRatio(),
                 color,
                 matrix);
@@ -873,7 +871,7 @@ void GrSDFTSubRun::fillVertexData(
         SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
         fill_transformed_vertices_3D(
                 quadData((Quad*) vertexDst),
-                SK_DistanceFieldInset, SK_DistanceFieldInset,
+                SK_DistanceFieldInset,
                 fGlyphs.strikeToSourceRatio(),
                 color,
                 matrix);

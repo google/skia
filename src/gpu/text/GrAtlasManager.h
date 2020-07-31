@@ -50,6 +50,7 @@ public:
     // inserting it into the atlas.
     GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph& skGlyph,
                                              GrGlyph* grGlyph,
+                                             int srcPadding,
                                              GrResourceProvider* resourceProvider,
                                              GrDeferredUploadTarget* uploadTarget,
                                              bool bilerpPadding = false);
