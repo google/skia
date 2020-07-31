@@ -33,6 +33,24 @@
       "revId": "81aea1c99533fa6b27f3692c9c53d2882002359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "401d3036_5513d224",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T21:49:54Z",
+      "side": 1,
+      "message": "Yeah, I think in the case that you actually intended this, the explicit nullptr check is worth having.",
+      "parentUuid": "9f8d29b8_0670c019",
+      "revId": "81aea1c99533fa6b27f3692c9c53d2882002359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
