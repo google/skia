@@ -9,7 +9,7 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkClipOpPriv.h"
@@ -39,7 +39,6 @@ static void show_fill(SkCanvas* canvas, bool doAA) {
 
     for (int i = 0; i < 50; ++i) {
         SkRect r;
-        SkPath p;
 
         r.setXYWH(rand.nextSScalar1() * W, rand.nextSScalar1() * H,
                   rand.nextUScalar1() * W, rand.nextUScalar1() * H);
@@ -49,8 +48,7 @@ static void show_fill(SkCanvas* canvas, bool doAA) {
         r.setXYWH(rand.nextSScalar1() * W, rand.nextSScalar1() * H,
                   rand.nextUScalar1() * W, rand.nextUScalar1() * H);
         paint.setColor(rand.nextU());
-        p.addOval(r);
-        canvas->drawPath(p, paint);
+        canvas->drawOval(r, paint);
     }
 }
 
@@ -68,7 +66,6 @@ static void show_stroke(SkCanvas* canvas, bool doAA, SkScalar strokeWidth, int n
 
     for (int i = 0; i < n; ++i) {
         SkRect r;
-        SkPath p;
 
         r.setXYWH(rand.nextSScalar1() * W, rand.nextSScalar1() * H,
                   rand.nextUScalar1() * W, rand.nextUScalar1() * H);
@@ -78,8 +75,7 @@ static void show_stroke(SkCanvas* canvas, bool doAA, SkScalar strokeWidth, int n
         r.setXYWH(rand.nextSScalar1() * W, rand.nextSScalar1() * H,
                   rand.nextUScalar1() * W, rand.nextUScalar1() * H);
         paint.setColor(rand.nextU());
-        p.addOval(r);
-        canvas->drawPath(p, paint);
+        canvas->drawOval(r, paint);
 
         const SkScalar minx = -SkIntToScalar(W)/4;
         const SkScalar maxx = 5*SkIntToScalar(W)/4;
@@ -114,9 +110,8 @@ class ClipView : public Sample {
         };
 
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
-        SkPath clipPath;
         r.inset(SK_Scalar1 / 4, SK_Scalar1 / 4);
-        clipPath.addRoundRect(r, SkIntToScalar(20), SkIntToScalar(20));
+        SkPath clipPath = SkPathBuilder().addRRect(SkRRect::MakeRectXY(r, 20, 20)).detach();
 
 //        clipPath.toggleInverseFillType();
 
@@ -213,7 +208,7 @@ struct SkHalfPlane {
 
 #include "src/core/SkEdgeClipper.h"
 
-static void clip(const SkPath& path, SkPoint p0, SkPoint p1, SkPath* clippedPath) {
+static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
     SkMatrix mx, inv;
     SkVector v = p1 - p0;
     mx.setAll(v.fX, -v.fY, p0.fX,
@@ -228,9 +223,9 @@ static void clip(const SkPath& path, SkPoint p0, SkPoint p1, SkPath* clippedPath
     SkRect clip = {-big, 0, big, big };
 
     struct Rec {
-        SkPath* fResult;
-        SkPoint fPrev;
-    } rec = { clippedPath, {0, 0} };
+        SkPathBuilder   fResult;
+        SkPoint         fPrev = {0, 0};
+    } rec;
 
     SkEdgeClipper::ClipPath(rotated, clip, false,
                             [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
@@ -241,26 +236,26 @@ static void clip(const SkPath& path, SkPoint p0, SkPoint p1, SkPath* clippedPath
         SkPath::Verb verb;
         while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
             if (newCtr) {
-                rec->fResult->moveTo(pts[0]);
+                rec->fResult.moveTo(pts[0]);
                 rec->fPrev = pts[0];
                 newCtr = false;
             }
 
             if (addLineTo || pts[0] != rec->fPrev) {
-                rec->fResult->lineTo(pts[0]);
+                rec->fResult.lineTo(pts[0]);
             }
 
             switch (verb) {
                 case SkPath::kLine_Verb:
-                    rec->fResult->lineTo(pts[1]);
+                    rec->fResult.lineTo(pts[1]);
                     rec->fPrev = pts[1];
                     break;
                 case SkPath::kQuad_Verb:
-                    rec->fResult->quadTo(pts[1], pts[2]);
+                    rec->fResult.quadTo(pts[1], pts[2]);
                     rec->fPrev = pts[2];
                     break;
                 case SkPath::kCubic_Verb:
-                    rec->fResult->cubicTo(pts[1], pts[2], pts[3]);
+                    rec->fResult.cubicTo(pts[1], pts[2], pts[3]);
                     rec->fPrev = pts[3];
                     break;
                 default: break;
@@ -269,7 +264,7 @@ static void clip(const SkPath& path, SkPoint p0, SkPoint p1, SkPath* clippedPath
         }
     }, &rec);
 
-    rec.fResult->transform(mx);
+    return rec.fResult.detach().makeTransform(mx);
 }
 
 static void draw_halfplane(SkCanvas* canvas, SkPoint p0, SkPoint p1, SkColor c) {
@@ -290,7 +285,7 @@ static SkPath make_path() {
         return SkPoint{x * 400, y * 400};
     };
 
-    SkPath path;
+    SkPathBuilder path;
     for (int i = 0; i < 4; ++i) {
         SkPoint pts[6];
         for (auto& p : pts) {
@@ -298,7 +293,7 @@ static SkPath make_path() {
         }
         path.moveTo(pts[0]).quadTo(pts[1], pts[2]).quadTo(pts[3], pts[4]).lineTo(pts[5]);
     }
-    return path;
+    return path.detach();
 }
 
 class HalfPlaneView : public Sample {
@@ -321,9 +316,7 @@ class HalfPlaneView : public Sample {
 
         paint.setColor({0, 0, 0, 1}, nullptr);
 
-        SkPath clippedPath;
-        clip(fPath, fPts[0], fPts[1], &clippedPath);
-        canvas->drawPath(clippedPath, paint);
+        canvas->drawPath(clip(fPath, fPts[0], fPts[1]), paint);
 
         draw_halfplane(canvas, fPts[0], fPts[1], SK_ColorRED);
     }
