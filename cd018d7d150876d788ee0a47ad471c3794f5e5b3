@@ -33,6 +33,24 @@
       "revId": "cd018d7d150876d788ee0a47ad471c3794f5e5b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e26c168_8f9cbd56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-07-31T21:25:47Z",
+      "side": 1,
+      "message": "It appears that SkSL has asserts in the bytecode generator that assume that uniforms won\u0027t get this big. Based on that, and that our minimum iOS version is 9, I think I\u0027m going to revise this to drop the buffer support entirely. We can add it back later if it\u0027s needed.",
+      "parentUuid": "8c9550dc_7d03ca84",
+      "revId": "cd018d7d150876d788ee0a47ad471c3794f5e5b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
