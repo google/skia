@@ -207,9 +207,13 @@ DEF_FUZZ(CreateDDL, fuzz) {
     fuzz->nextEnum(&surfaceType, SkColorType::kLastEnum_SkColorType);
     fuzz->nextEnum(&origin, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin);
     sk_gpu_test::GrContextFactory factory;
-    sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(
-        factory.ContextType::kGL_ContextType);
+    sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(factory.ContextType::kGL_ContextType);
+
     GrDirectContext* dContext = ctxInfo.directContext();
+    if (!dContext) {
+        SkDebugf("Context creation failed for");
+        return;
+    }
 
     auto[surface, c] = create_surface_and_characterization(fuzz, dContext, surfaceType, origin);
     if (!surface || !c.isValid()) {
