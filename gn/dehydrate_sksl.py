@@ -27,7 +27,7 @@ for inc in includes:
         target = os.path.join(targetDir, tail)
         subprocess.check_output([skslc, inc, target + ".dehydrated.sksl"])
         contents = open(inc, "r").read()
-        open(target + ".c.inc", "w").write("R\"SKSL(\n" + contents + ")SKSL\";")
+        open(target + ".c.inc", "wb").write("R\"SKSL(\n" + contents + ")SKSL\";")
     except subprocess.CalledProcessError as err:
         print("### Error compiling " + inc + ":")
         print(err.output)
