@@ -22,6 +22,30 @@
       "revId": "802d7d069f93664ac57fdc555a097d55e9977d95",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10aa53d7_83134805",
+        "filename": "gm/ducky_yuv_blend.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-31T14:13:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "785b8867_eb122dda",
+      "range": {
+        "startLine": 34,
+        "startChar": 55,
+        "endLine": 34,
+        "endChar": 73
+      },
+      "revId": "802d7d069f93664ac57fdc555a097d55e9977d95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
