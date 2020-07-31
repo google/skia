@@ -40,7 +40,7 @@ void main() {
 
         // t.x has been tiled (repeat or mirrored), but pass through remaining 3 components
         // unmodified.
-        sk_OutColor = sample(colorizer, t);
+        sk_OutColor = sample(colorizer, t.xy);
     }
 
     @if (makePremul) {
