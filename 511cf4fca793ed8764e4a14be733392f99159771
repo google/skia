@@ -16,6 +16,24 @@
       "revId": "511cf4fca793ed8764e4a14be733392f99159771",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d11ba29_6b1c20bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T20:28:24Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll write up an overview sometime.\n\nBriefly, if you\u0027re familiar with llvm IR Builder, SSA, and the idea of SIMT vectorization, then skvm::Builder should look pretty straightfoward.  It allows building a single basic block program that\u0027s automatically vectorized and looped over by skvm::Program\u0027s backends to handle the sort of do-this-to-each-pixel operations we tend to use.  Those skvm::Program backends include a vectorized interpreter (in SkVM_opts.h), an optional LLVM backend (look for code guarded by SKVM_LLVM) an an optional homebrewed JIT (look for SKVM_JIT).  It could back onto other things like Subzero as well, of course, or V8 if it had that sort of API.\n\nThe main thrust of SIMT is that you write scalar code, here working mostly with 32-bit I32 and F32, and the backend handles vectorizing that as it sees fit.  Since you aren\u0027t aware of the vectorization when building the program, its code naturally vectorizes to any width the backend wants to use.  We typically optimize for what works for 32-bit float best, but that\u0027s not exactly carved in stone.  The whole SkVM system works with a 3-argument SSA form, mostly because that\u0027s easy to translate to AVX and NEON, and because of how easy it is to optimize SSA-form IR and how hard to introduce bugs.\n\nThere are a few basic little optimization passes in SkVM spread between skvm::Builder itself and passes made after skvm::Builder and before skvm::Program.  Let\u0027s see if I can remember them: constant-propagation, mul-add fusion, common sub-expression elimination, and a little bit of strength reduction all happen on the fly in skvm::Builder, and then dead code elimination and scheduling to reduce register pressure are done once the whole program\u0027s available.  Once you get into the backends you\u0027re mostly just handling register and instruction selection and setting up the implicit loops around the basic block.\n\nThis all mainly comes together in Skia today via SkVMBlitter, which coordinates the various Skia effects like SkShader and SkColorFilter and settings on the SkPaint to append to an skvm::Builder and build an skvm::Program.  Effects can push uniforms like you\u0027d expect, and all the varyings like the destination and coverage are handled by SkVMBlitter itself.  I think it\u0027s feature complete as of about yesterday, though there may be some effects I\u0027ve forgotten to port.  You can see how each effect integrates by looking at its onProgram() method.  Some effects run only on SkVM, but most of them are implemented via SkRasterPipeline too, and a few directly in hand-coded C++.\n\nIn terms of backends, the interpreter is the fastest to set up and runs the slowest, the LLVM backend takes 100\u0027s of milliseconds to set up but runs the fastest, and the homebrewed JIT is way faster to set up and runs just about as fast as LLVM, provided we support the target (AVX2 x86-64 SYS-V or Windows ABI today, with a little neglected ARMv8 NEON support).",
+      "parentUuid": "6b4492c8_19b9056f",
+      "revId": "511cf4fca793ed8764e4a14be733392f99159771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
