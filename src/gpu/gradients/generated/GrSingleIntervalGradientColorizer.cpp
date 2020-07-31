@@ -35,7 +35,7 @@ public:
                                                   "end");
         fragBuilder->codeAppendf(
                 R"SkSL(half t = %s.x;
-%s = (1.0 - t) * %s + t * %s;
+%s = mix(%s, %s, t);
 )SkSL",
                 args.fInputColor, args.fOutputColor, args.fUniformHandler->getUniformCStr(startVar),
                 args.fUniformHandler->getUniformCStr(endVar));
