@@ -241,7 +241,8 @@ static void invalidation_test(GrDirectContext* dContext, skiatest::Reporter* rep
     int bufferResources = 0;
     if (dContext->backend() == GrBackendApi::kDawn ||
         dContext->backend() == GrBackendApi::kVulkan ||
-        dContext->backend() == GrBackendApi::kDirect3D) {
+        dContext->backend() == GrBackendApi::kDirect3D ||
+        dContext->backend() == GrBackendApi::kMetal) {
         bufferResources = 1;
     }
 
