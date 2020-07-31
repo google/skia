@@ -183,30 +183,21 @@ void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const
         case SerializeBehavior::kIncludeDataIfLocal: shouldSerializeData = isLocalData; break;
     }
 
-    // TODO: why do we check hasFontData() and allow the data to pass through even if the caller
-    //       has said they don't want the fontdata? Does this actually happen (getDescriptor returns
-    //       fontdata as well?)
-    if (shouldSerializeData && !desc.hasFontData()) {
-        SkFontArguments args;
-
+    if (shouldSerializeData) {
         int index;
-        std::unique_ptr<SkStreamAsset> stream = this->openStream(&index);
-        args.setCollectionIndex(index);
+        desc.setStream(this->openStream(&index));
+        if (desc.hasStream()) {
+            desc.setCollectionIndex(index);
+        }
 
-        SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> variation;
+        SkFontDescriptor::Coordinates variation;
         int numAxes = this->getVariationDesignPosition(nullptr, 0);
         if (0 < numAxes) {
             variation.reset(numAxes);
             numAxes = this->getVariationDesignPosition(variation.get(), numAxes);
             if (0 < numAxes) {
-                SkFontArguments::VariationPosition pos{variation.get(), numAxes};
-                args.setVariationDesignPosition(pos);
+                desc.setVariationCoordinates(std::move(variation), numAxes);
             }
-        }
-
-        if (stream) {
-            std::unique_ptr<SkFontData> fontData(new SkFontData(std::move(stream), args));
-            desc.setFontData(std::move(fontData));
         }
     }
     desc.serialize(wstream);
@@ -224,9 +215,22 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
         return nullptr;
     }
 
-    std::unique_ptr<SkFontData> data = desc.detachFontData();
+    // Have to check for old data format first.
+    std::unique_ptr<SkFontData> data = desc.maybeAsSkFontData();
     if (data) {
+        // Should only get here with old skps.
         sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(std::move(data)));
+        if (typeface) {
+            return typeface;
+        }
+    }
+
+    if (desc.hasStream()) {
+        SkFontArguments args;
+        args.setCollectionIndex(desc.getCollectionIndex());
+        args.setVariationDesignPosition({desc.getVariation(), desc.getVariationCoordinateCount()});
+        sk_sp<SkFontMgr> defaultFm = SkFontMgr::RefDefault();
+        sk_sp<SkTypeface> typeface = defaultFm->makeFromStream(desc.detachStream(), args);
         if (typeface) {
             return typeface;
         }
