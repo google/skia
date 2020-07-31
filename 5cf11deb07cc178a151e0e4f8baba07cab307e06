@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a53cc6d5_cb256279",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T19:50:01Z",
+      "side": 1,
+      "message": "It seems to work though. deleting after surface.drawOnce(draw); would be a use after free, and throws an error saying so.",
+      "parentUuid": "10511e90_60d242d4",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 11
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "68cb78f6_8f0b70b4",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 6
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "7cb201e3_5cfcc59a",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T19:50:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c761753a_dba1b300",
+      "range": {
+        "startLine": 232,
+        "startChar": 18,
+        "endLine": 232,
+        "endChar": 26
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c27b5a2c_a3130578",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 6
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "4431b4ba_9f4031d0",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T19:50:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c27b5a2c_a3130578",
+      "range": {
+        "startLine": 307,
+        "startChar": 87,
+        "endLine": 307,
+        "endChar": 90
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36ad36c5_8048fc3d",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 6
@@ -115,6 +187,30 @@
       "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a5a44e9_7310543f",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-07-31T19:50:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36ad36c5_8048fc3d",
+      "range": {
+        "startLine": 337,
+        "startChar": 18,
+        "endLine": 337,
+        "endChar": 28
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
