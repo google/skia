@@ -116,7 +116,6 @@ void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fSigma.fWidth);
     buffer.writeScalar(fSigma.fHeight);
 
-    // Fuzzer sanity checks
     static_assert((int) SkTileMode::kLastTileMode == 3 && SkBlurImageFilter::kLast_TileMode == 2,
                   "SkBlurImageFilterImpl::flatten");
     SkASSERT(fTileMode <= SkTileMode::kLastTileMode);

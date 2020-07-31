@@ -176,7 +176,7 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
     child->fParent = this;
     fChildProcessors.push_back(std::move(child));
 
-    // Sanity check: our sample strategy comes from a parent we shouldn't have yet.
+    // Validate: our sample strategy comes from a parent we shouldn't have yet.
     SkASSERT(!this->isSampledWithExplicitCoords() && !this->hasPerspectiveTransform() &&
              !fUsage.isSampled() && !fParent);
 }

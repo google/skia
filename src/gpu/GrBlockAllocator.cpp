@@ -109,7 +109,7 @@ void GrBlockAllocator::releaseBlock(Block* block) {
 
         // The released block becomes the new scratch block (if it's bigger), or delete it
         if (this->scratchBlockSize() < block->fSize) {
-            SkASSERT(block != fHead.fPrev); // sanity check, shouldn't already be the scratch block
+            SkASSERT(block != fHead.fPrev); // shouldn't already be the scratch block
             if (fHead.fPrev) {
                 delete fHead.fPrev;
             }

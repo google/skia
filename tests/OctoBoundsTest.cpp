@@ -189,7 +189,7 @@ DEF_TEST(OctoBounds, reporter) {
     test_octagon(reporter, &rand, 0, -10, 100, 0);
     // We can't test Infs or NaNs because they trigger internal asserts when setting GrOctoBounds.
 
-    // Sanity check on our random clip testing.. Just make we hit both types of clip.
+    // Verify that our random clip testing hit both types of clip.
     REPORTER_ASSERT(reporter, numClipsOut > 0);
     REPORTER_ASSERT(reporter, numIntersectClips > 0);
 }

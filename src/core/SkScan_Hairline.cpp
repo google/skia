@@ -439,7 +439,7 @@ static int compute_quad_level(const SkPoint pts[3]) {
      than a pixel.
      */
     int level = (33 - SkCLZ(d)) >> 1;
-    // sanity check on level (from the previous version)
+    // safety check on level (from the previous version)
     if (level > kMaxQuadSubdivideLevel) {
         level = kMaxQuadSubdivideLevel;
     }

@@ -63,7 +63,7 @@ def skpbench_steps(api):
         '-v5']
   if 'DDL' in api.vars.builder_name:
     skpbench_args += ['--ddl']
-    # disable the mask generation threads for sanity's sake in DDL mode
+    # disable the mask generation threads for simplicity's sake in DDL mode
     skpbench_args += ['--gpuThreads', '0']
   if '9x9' in api.vars.builder_name:
     skpbench_args += [

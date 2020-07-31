@@ -478,7 +478,7 @@ DEF_TEST(GrBlockAllocatorScratchBlockReserve, r) {
     avail = oldTail->avail();
     size_t scratchAvail = 2 * avail;
     pool->reserve(scratchAvail);
-    REPORTER_ASSERT(r, (size_t) pool->testingOnly_scratchBlockSize() >= scratchAvail); // sanity
+    REPORTER_ASSERT(r, (size_t) pool->testingOnly_scratchBlockSize() >= scratchAvail);
 
     // This allocation request is higher than oldTail's available, and the scratch size so we
     // should add a new block and scratch size should stay the same.

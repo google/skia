@@ -122,7 +122,6 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.clipRect(r, SkMatrix::I(), kUnion_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 
-    // Sanity check
     s.restore();
     REPORTER_ASSERT(reporter, 2 == s.getSaveCount());
 

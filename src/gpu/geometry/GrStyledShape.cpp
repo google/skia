@@ -70,7 +70,7 @@ GrStyledShape GrStyledShape::MakeFilled(const GrStyledShape& original, FillInver
         result.fSimplified = true;
     }
 
-    // Sanity check that lines/points were converted to empty by the style change
+    // Verify that lines/points were converted to empty by the style change
     SkASSERT((!original.fShape.isLine() && !original.fShape.isPoint()) || result.fShape.isEmpty());
 
     // We don't copy the inherited key since it can contain path effect information that we just
@@ -426,7 +426,7 @@ bool GrStyledShape::asRRect(SkRRect* rrect, SkPathDirection* dir, unsigned* star
         return false;
     }
 
-    // Sanity check here, if we don't have a path effect on the style, we should have passed
+    // Validity check here, if we don't have a path effect on the style, we should have passed
     // appropriate flags to GrShape::simplify() to have reset these parameters.
     SkASSERT(fStyle.hasPathEffect() || (fShape.dir() == GrShape::kDefaultDir &&
                                         fShape.startIndex() == GrShape::kDefaultStart));

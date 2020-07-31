@@ -751,7 +751,7 @@ void SkCanvas::restore() {
 }
 
 void SkCanvas::restoreToCount(int count) {
-    // sanity check
+    // safety check
     if (count < 1) {
         count = 1;
     }

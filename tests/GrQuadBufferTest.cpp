@@ -71,7 +71,7 @@ static std::vector<GrQuad> generate_quads(float seed, int cnt, const GrQuad::Typ
                 break;
         }
 
-        SkASSERT(quad.quadType() == types[i]); // sanity check
+        SkASSERT(quad.quadType() == types[i]);
         quads.push_back(quad);
     }
     return quads;
@@ -149,7 +149,6 @@ TEST(Concat) {
         buffer2.append(quadsB[i], {2 * i, 0.5f * i}, i % 2 == 0 ? nullptr : &quadsA[i]);
     }
 
-    // Sanity check
     ASSERT(kQuadCount == buffer1.count());
     ASSERT(kQuadCount == buffer2.count());
 
