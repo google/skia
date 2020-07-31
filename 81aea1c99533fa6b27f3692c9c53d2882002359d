@@ -51,6 +51,23 @@
       "revId": "81aea1c99533fa6b27f3692c9c53d2882002359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1b942914_c76d5250",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T21:50:50Z",
+      "side": 1,
+      "message": "I\u0027m further on board to turn on any of these bugprone- that don\u0027t need any code changes.  They\u0027re either enforcing the same sort of rigor we already use or are moot... either way is harmless, and if the first, potentially helpful.  We can always drop them if they get too tedious.",
+      "revId": "81aea1c99533fa6b27f3692c9c53d2882002359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
