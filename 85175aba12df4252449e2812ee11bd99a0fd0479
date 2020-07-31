@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64f176c0_60c72be7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T14:42:26Z",
+      "side": 1,
+      "message": "I\u0027m still concerned that this subverts the reason for color filters to exist.  If a color filter depends on position, it\u0027s not a color filter... it\u0027s a shader in a color filter\u0027s clothing.  The space-invariance of color filters is their fundamental sine-qua-non property.\n\nCan\u0027t we block runtime color filters from seeing position?",
+      "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
