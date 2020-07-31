@@ -15,9 +15,9 @@
 
 namespace sk_gpu_test {
 
-std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(sk_sp<SkData> data) {
+std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(sk_sp<SkData> data, GrMipmapped mipmapped) {
     std::unique_ptr<LazyYUVImage> image(new LazyYUVImage());
-    if (image->reset(std::move(data))) {
+    if (image->reset(std::move(data), mipmapped)) {
         return image;
     } else {
         return nullptr;
@@ -40,7 +40,8 @@ const SkImage* LazyYUVImage::getImage(GrRecordingContext* rContext) {
     }
 }
 
-bool LazyYUVImage::reset(sk_sp<SkData> data) {
+bool LazyYUVImage::reset(sk_sp<SkData> data, GrMipmapped mipmapped) {
+    fMipmapped = mipmapped;
     auto codec = SkCodecImageGenerator::MakeFromEncodedCodec(data);
     if (!codec) {
         return false;
@@ -86,7 +87,7 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext) {
                                              fComponents,
                                              fSizeInfo.fSizes[0],
                                              kTopLeft_GrSurfaceOrigin,
-                                             false,
+                                             static_cast<bool>(fMipmapped),
                                              false);
     return fYUVImage != nullptr;
 }
