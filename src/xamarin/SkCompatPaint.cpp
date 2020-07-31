@@ -16,6 +16,7 @@ SkCompatPaint::SkCompatPaint()
     , fTextAlign(SkTextUtils::Align::kLeft_Align)
     , fTextEncoding(SkTextEncoding::kUTF8)
 {
+    fFont.setLinearMetrics(true);
 }
 
 SkCompatPaint::SkCompatPaint(const SkCompatPaint& paint) = default;
