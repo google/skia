@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f4ca407_163c8b3d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-07-31T18:10:24Z",
+      "side": 1,
+      "message": "Not necessarily for landing, just trying to replicate some of the conditions in b/162518877.\n\nI sicced it on the same font files they\u0027re using, under ASAN and TSAN, and so far it hasn\u0027t caught anything.  May try a g3 build next.\n\nAny suggestions?",
+      "revId": "3dc4b6f178cf104d396275521eb9bc06fa58dd66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
