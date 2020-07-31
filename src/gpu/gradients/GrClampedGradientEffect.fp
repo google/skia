@@ -38,7 +38,8 @@ void main() {
     } else if (t.x > 1.0) {
         sk_OutColor = rightBorderColor;
     } else {
-        sk_OutColor = sample(colorizer, t.xy);
+        // Always sample from (x, 0), discarding y, since the layout FP can use y as a side-channel.
+        sk_OutColor = sample(colorizer, t.x0);
     }
 
     @if (makePremul) {
