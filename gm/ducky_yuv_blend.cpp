@@ -10,6 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/Resources.h"
@@ -28,7 +29,7 @@ DEF_SIMPLE_GM_CAN_FAIL(ducky_yuv_blend, canvas, errorMsg, 560, 1130) {
 
     // If we're on the GPU we do a second round of draws where the source image is YUV planes.
     // Otherwise we just draw the original again,
-    if (auto* rContext = canvas->recordingContext()) {
+    if (auto* rContext = canvas->recordingContext(); rContext && !rContext->abandoned()) {
         auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(GetResourceAsData("images/ducky.jpg"));
         if (lazyYUV) {
             duckyFG[1] = lazyYUV->refImage(rContext);
