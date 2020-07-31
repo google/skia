@@ -246,11 +246,6 @@ public:
             int begin, int end, GrMeshDrawOp::Target* target) const = 0;
 
 protected:
-    using VertexData = std::tuple<
-            SkPoint,   // glyph position.
-            GrIRect16  // glyph bounding rectangle.
-        >;
-
     struct AtlasPt {
         uint16_t u;
         uint16_t v;
@@ -315,6 +310,11 @@ private:
 // -- GrDirectMaskSubRun ---------------------------------------------------------------------------
 class GrDirectMaskSubRun final : public GrAtlasSubRun {
 public:
+    using VertexData = std::tuple<
+            SkPoint,   // glyph position.
+            GrIRect16  // glyph bounding rectangle.
+    >;
+
     GrDirectMaskSubRun(GrMaskFormat format,
                        GrTextBlob* blob,
                        const SkRect& bounds,
