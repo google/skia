@@ -49,7 +49,7 @@ public:
         , fConicWeights(std::move(weights))
     {
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
-        fGenerationID = kEmptyGenID;
+        fGenerationID = 0;        // recompute
         fSegmentMask = segmentMask;
         fIsOval = false;
         fIsRRect = false;

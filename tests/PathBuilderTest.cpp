@@ -166,3 +166,13 @@ DEF_TEST(pathbuilder_make, reporter) {
     auto p1 = SkPath::Make(pts, N, vbs, N, nullptr, 0, p0.getFillType());
     REPORTER_ASSERT(reporter, p0 == p1);
 }
+
+DEF_TEST(pathbuilder_empty, r) {
+    SkPath empty;
+    SkPathBuilder builder;
+
+    REPORTER_ASSERT(r, empty.getGenerationID() == builder.detach().getGenerationID());
+
+    builder.lineTo(10, 10);
+    REPORTER_ASSERT(r, empty.getGenerationID() != builder.detach().getGenerationID());
+}
