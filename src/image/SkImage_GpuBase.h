@@ -46,7 +46,7 @@ public:
     bool onIsValid(GrRecordingContext*) const final;
 
 #if GR_TEST_UTILS
-    void resetContext(sk_sp<GrContext> newContext);
+    void resetContext1(sk_sp<GrContext> newContext);
 #endif
 
     static bool ValidateBackendTexture(const GrCaps*, const GrBackendTexture& tex,

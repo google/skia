@@ -77,7 +77,7 @@ void DDLTileHelper::TileData::createDDL() {
 
         if (fPromiseImages[i]->isTextureBacked()) {
             SkImage_GpuBase* gpuImage = (SkImage_GpuBase*) fPromiseImages[i].get();
-            gpuImage->resetContext(sk_ref_sp(newContext));
+            gpuImage->resetContext1(sk_ref_sp(newContext));
         }
     }
 
