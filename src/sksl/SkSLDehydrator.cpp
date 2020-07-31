@@ -231,7 +231,11 @@ void Dehydrator::write(const SymbolTable& symbols) {
         this->write(*s);
     }
     this->writeU16(symbols.fSymbols.size());
+    std::map<StringFragment, const Symbol*> ordered;
     for (std::pair<StringFragment, const Symbol*> p : symbols.fSymbols) {
+        ordered.insert(p);
+    }
+    for (std::pair<StringFragment, const Symbol*> p : ordered) {
         this->write(p.first);
         bool found = false;
         for (size_t i = 0; i < symbols.fOwnedSymbols.size(); ++i) {
@@ -515,8 +519,12 @@ void Dehydrator::write(const ProgramElement& e) {
             this->writeU16(this->symbolId(&f.fDeclaration));
             this->write(f.fBody.get());
             this->writeU8(f.fReferencedIntrinsics.size());
+            std::set<uint16_t> ordered;
             for (const FunctionDeclaration* ref : f.fReferencedIntrinsics) {
-                this->writeU16(this->symbolId(ref));
+                ordered.insert(this->symbolId(ref));
+            }
+            for (uint16_t ref : ordered) {
+                this->writeU16(ref);
             }
             break;
         }
