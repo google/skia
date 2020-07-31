@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cff66f3a_9630da06",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-07-31T17:01:28Z",
+      "side": 1,
+      "message": "If you have to mess around with rebaselining layout tests then you may find it easier to just incorporate this into this change rather than going through the extra churn.",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 1
+      },
+      "revId": "9e989a752960806506c951146354e51c3acc2019",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
