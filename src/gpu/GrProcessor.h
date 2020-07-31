@@ -140,7 +140,6 @@ public:
         kGrSampleMaskProcessor_ClassID,
         kGrSweepGradientLayout_ClassID,
         kGrTextureEffect_ClassID,
-        kGrTextureGradientColorizer_ClassID,
         kGrTiledGradientEffect_ClassID,
         kGrTwoPointConicalGradientLayout_ClassID,
         kGrUnrolledBinaryGradientColorizer_ClassID,
