@@ -21,7 +21,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   # Currently we mount this directory to /SRC in Docker.
   # TODO(westont): Add docker module API to match binding to actual structure.
-  top_level = '/SRC' if 'Docker' in builder_name else str(api.vars.slave_dir)
+  top_level = '/SRC' if 'Docker' in builder_name else str(api.vars.workdir)
 
   clang_linux = os.path.join(top_level, 'clang_linux')
   # This is a pretty typical arm-linux-gnueabihf sysroot

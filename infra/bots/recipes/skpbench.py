@@ -47,7 +47,7 @@ def skpbench_steps(api):
     app = api.vars.build_dir.join('skpbench')
     _adb(api, 'push skpbench', 'push', app, api.flavor.device_dirs.bin_dir)
 
-  skpbench_dir = api.vars.slave_dir.join('skia', 'tools', 'skpbench')
+  skpbench_dir = api.vars.workdir.join('skia', 'tools', 'skpbench')
   table = api.path.join(api.vars.swarming_out_dir, 'table')
 
   if 'Vulkan' in api.vars.builder_name:

@@ -31,7 +31,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
       '-DSWIFTSHADER_BUILD_TESTS=OFF',
       '-DSWIFTSHADER_WARNINGS_AS_ERRORS=0',
   ]
-  cmake_bin = str(api.vars.slave_dir.join('cmake_linux', 'bin'))
+  cmake_bin = str(api.vars.workdir.join('cmake_linux', 'bin'))
   env = {
       'CC': cc,
       'CXX': cxx,
@@ -47,7 +47,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
 
   if san:
     short,full = san
-    clang_linux = str(api.vars.slave_dir.join('clang_linux'))
+    clang_linux = str(api.vars.workdir.join('clang_linux'))
     libcxx = clang_linux + '/' + short
     cflags = ' '.join([
       '-fsanitize=' + full,
@@ -80,8 +80,8 @@ def compile_fn(api, checkout_root, out_dir):
   os            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
-  clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
-  win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
+  clang_linux      = str(api.vars.workdir.join('clang_linux'))
+  win_toolchain    = str(api.vars.workdir.join('win_toolchain'))
 
   cc, cxx, ccache = None, None, None
   extra_cflags = []
@@ -99,7 +99,7 @@ def compile_fn(api, checkout_root, out_dir):
       XCODE_BUILD_VERSION = '11e503a'
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
-    mac_toolchain_cmd = api.vars.slave_dir.join(
+    mac_toolchain_cmd = api.vars.workdir.join(
         'mac_toolchain', 'mac_toolchain')
     xcode_app_path = api.vars.cache_dir.join('Xcode.app')
     # Copied from
@@ -139,12 +139,12 @@ def compile_fn(api, checkout_root, out_dir):
   # ccache + clang-tidy.sh chokes on the argument list.
   if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
-      ccache = api.vars.slave_dir.join('ccache_linux', 'bin', 'ccache')
+      ccache = api.vars.workdir.join('ccache_linux', 'bin', 'ccache')
       # As of 2020-02-07, the sum of each Debian10-Clang-x86
       # non-flutter/android/chromebook build takes less than 75G cache space.
       env['CCACHE_MAXSIZE'] = '75G'
     else:
-      ccache = api.vars.slave_dir.join('ccache_mac', 'bin', 'ccache')
+      ccache = api.vars.workdir.join('ccache_mac', 'bin', 'ccache')
       # As of 2020-02-10, the sum of each Build-Mac-Clang- non-android build
       # takes ~30G cache space.
       env['CCACHE_MAXSIZE'] = '50G'
@@ -280,12 +280,12 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_opencl'] = 'true'
     if api.vars.is_linux:
       extra_cflags.append(
-          '-isystem%s' % api.vars.slave_dir.join('opencl_headers'))
+          '-isystem%s' % api.vars.workdir.join('opencl_headers'))
       extra_ldflags.append(
-          '-L%s' % api.vars.slave_dir.join('opencl_ocl_icd_linux'))
+          '-L%s' % api.vars.workdir.join('opencl_ocl_icd_linux'))
     elif 'Win' in os:
       extra_cflags.append(
-          '-imsvc%s' % api.vars.slave_dir.join('opencl_headers'))
+          '-imsvc%s' % api.vars.workdir.join('opencl_headers'))
       extra_ldflags.append(
           '/LIBPATH:%s' %
           skia_dir.join('third_party', 'externals', 'opencl-lib', '3-0', 'lib',
@@ -294,11 +294,11 @@ def compile_fn(api, checkout_root, out_dir):
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*GS9WA.*"'
     # Get mobileprovision via the CIPD package.
-    args['skia_ios_profile'] = '"%s"' % api.vars.slave_dir.join(
+    args['skia_ios_profile'] = '"%s"' % api.vars.workdir.join(
         'provisioning_profile_ios',
         'Upstream_Testing_Provisioning_Profile.mobileprovision')
   if compiler == 'Clang' and 'Win' in os:
-    args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
+    args['clang_win'] = '"%s"' % api.vars.workdir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
 
