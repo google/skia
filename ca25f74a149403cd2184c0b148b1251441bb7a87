@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4b80a51c_59084b77",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1891,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-31T20:04:35Z",
+      "side": 1,
+      "message": "^^^",
+      "range": {
+        "startLine": 1891,
+        "startChar": 76,
+        "endLine": 1891,
+        "endChar": 97
+      },
+      "revId": "ca25f74a149403cd2184c0b148b1251441bb7a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d32967d5_7b323b24",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 7
@@ -13,6 +36,30 @@
       "writtenOn": "2020-07-31T19:33:34Z",
       "side": 1,
       "message": "I noticed we check the true-type above (since the true- and false-cases should be the same), but what happens for a case like this? Is it caught?\n\n    test(\"in shader? child1; in shader? child2;\",\n         \"color \u003d sample(p.x \u003e 10 ? null : child2);\",\n         \"expression\");",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 23
+      },
+      "revId": "ca25f74a149403cd2184c0b148b1251441bb7a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fbfb9d9_1546b61f",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-31T20:04:35Z",
+      "side": 1,
+      "message": "I pointed out the code that would guard against that. (We actually fail to coerce the two types to be equivalent if I pass null as one of the two, but even if it could be coerced, the trueType and falseType are the coerced result type - not the original type - and must be equal, so testing either one is sufficient).\n\nExample message today: error: 1: ternary operator result mismatch: \u0027null\u0027, \u0027fragmentProcessor\u0027",
+      "parentUuid": "d32967d5_7b323b24",
       "range": {
         "startLine": 78,
         "startChar": 0,
