@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "785b8867_eb122dda",
+        "filename": "gm/ducky_yuv_blend.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-07-31T11:28:36Z",
+      "side": 1,
+      "message": "GrMipmapped?",
+      "range": {
+        "startLine": 34,
+        "startChar": 55,
+        "endLine": 34,
+        "endChar": 73
+      },
+      "revId": "802d7d069f93664ac57fdc555a097d55e9977d95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
