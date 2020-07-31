@@ -106,7 +106,7 @@ GrCCPathCache::~GrCCPathCache() {
 
     // Now take all the atlas textures we just invalidated and purge them from the GrResourceCache.
     // We just purge via message bus since we don't have any access to the resource cache right now.
-    for (sk_sp<GrTextureProxy>& proxy : fInvalidatedProxies) {
+    for (const sk_sp<GrTextureProxy>& proxy : fInvalidatedProxies) {
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
                 GrUniqueKeyInvalidatedMessage(proxy->getUniqueKey(), fContextUniqueID));
     }
@@ -295,7 +295,7 @@ void GrCCPathCache::purgeEntriesOlderThan(GrProxyProvider* proxyProvider,
 }
 
 void GrCCPathCache::purgeInvalidatedAtlasTextures(GrOnFlushResourceProvider* onFlushRP) {
-    for (sk_sp<GrTextureProxy>& proxy : fInvalidatedProxies) {
+    for (const sk_sp<GrTextureProxy>& proxy : fInvalidatedProxies) {
         onFlushRP->removeUniqueKeyFromProxy(proxy.get());
     }
     fInvalidatedProxies.reset();
@@ -307,7 +307,7 @@ void GrCCPathCache::purgeInvalidatedAtlasTextures(GrOnFlushResourceProvider* onF
 }
 
 void GrCCPathCache::purgeInvalidatedAtlasTextures(GrProxyProvider* proxyProvider) {
-    for (sk_sp<GrTextureProxy>& proxy : fInvalidatedProxies) {
+    for (const sk_sp<GrTextureProxy>& proxy : fInvalidatedProxies) {
         proxyProvider->removeUniqueKeyFromProxy(proxy.get());
     }
     fInvalidatedProxies.reset();

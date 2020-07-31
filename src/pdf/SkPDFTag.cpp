@@ -184,7 +184,7 @@ void SkPDF::AttributeList::appendStringArray(
     std::unique_ptr<SkPDFDict> attrDict = SkPDFMakeDict();
     attrDict->insertName("O", owner);
     std::unique_ptr<SkPDFArray> pdfArray = SkPDFMakeArray();
-    for (SkString element : values) {
+    for (const SkString& element : values) {
         pdfArray->appendString(element);
     }
     attrDict->insertObject(name, std::move(pdfArray));

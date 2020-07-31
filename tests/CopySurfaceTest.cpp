@@ -75,9 +75,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
         for (auto dOrigin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
             for (auto sRenderable : {GrRenderable::kYes, GrRenderable::kNo}) {
                 for (auto dRenderable : {GrRenderable::kYes, GrRenderable::kNo}) {
-                    for (auto srcRect : kSrcRects) {
-                        for (auto dstPoint : kDstPoints) {
-                            for (auto ii: kImageInfos) {
+                    for (const SkIRect& srcRect : kSrcRects) {
+                        for (const SkIPoint& dstPoint : kDstPoints) {
+                            for (const SkImageInfo& ii: kImageInfos) {
                                 auto src = sk_gpu_test::MakeTextureProxyFromData(
                                         direct, sRenderable, sOrigin, ii, srcPixels.get(),
                                         kRowBytes);

@@ -366,8 +366,8 @@ DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
 
     constexpr SkScalar kPad = 5.f;
     canvas->translate(kPad, kPad);
-    for (auto factory : imageFactories) {
-        auto image(factory());
+    for (const auto& factory : imageFactories) {
+        sk_sp<SkImage> image(factory());
         if (image) {
             sk_sp<SkImage> texImage(image->makeTextureImage(direct));
             if (texImage) {
