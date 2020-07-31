@@ -23,7 +23,7 @@ void main() {
         // preserves opacity is false)
         sk_OutColor = half4(0);
     } else {
-        @if(mirror) {
+        @if (mirror) {
             half t_1 = t.x - 1;
             half tiled_t = t_1 - 2 * floor(t_1 * 0.5) - 1;
             if (sk_Caps.mustDoOpBetweenFloorAndAbs) {
@@ -38,9 +38,8 @@ void main() {
             t.x = fract(t.x);
         }
 
-        // t.x has been tiled (repeat or mirrored), but pass through remaining 3 components
-        // unmodified.
-        sk_OutColor = sample(colorizer, t.xy);
+        // Always sample from (x, 0), discarding y, since the layout FP can use y as a side-channel.
+        sk_OutColor = sample(colorizer, t.x0);
     }
 
     @if (makePremul) {
