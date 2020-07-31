@@ -238,7 +238,7 @@ void GrShape::simplifyPoint(const SkPoint& point, unsigned flags) {
 }
 
 bool GrShape::simplify(unsigned flags) {
-    // Sanity check that winding parameters are valid for the current type.
+    // Verify that winding parameters are valid for the current type.
     SkASSERT((fType == Type::kRect || fType == Type::kRRect) ||
              (this->dir() == kDefaultDir && this->startIndex() == kDefaultStart));
 

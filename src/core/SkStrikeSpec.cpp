@@ -147,7 +147,7 @@ bool SkStrikeSpec::ShouldDrawAsPath(
     SkMatrix textMatrix = SkFontPriv::MakeTextMatrix(font);
     textMatrix.postConcat(viewMatrix);
 
-    // we have a self-imposed maximum, just for memory-usage sanity
+    // we have a self-imposed maximum, just to limit memory-usage
     SkScalar limit = std::min(SkGraphics::GetFontCachePointSizeLimit(), 1024);
     SkScalar maxSizeSquared = limit * limit;
 

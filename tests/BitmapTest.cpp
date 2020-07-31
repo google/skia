@@ -147,9 +147,6 @@ static void test_bigwidth(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !bm.setInfo(info.makeColorType(kN32_SkColorType)));
 }
 
-/**
- *  This test contains basic sanity checks concerning bitmaps.
- */
 DEF_TEST(Bitmap, reporter) {
     // Zero-sized bitmaps are allowed
     for (int width = 0; width < 2; ++width) {

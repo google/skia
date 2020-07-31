@@ -526,7 +526,6 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetOutputLayerBounds(
 
 template<skif::Usage kU>
 skif::FilterResult<kU> SkImageFilter_Base::filterInput(int index, const skif::Context& ctx) const {
-    // Sanity checks for the index-specific input usages
     SkASSERT(kU != skif::Usage::kInput0 || index == 0);
     SkASSERT(kU != skif::Usage::kInput1 || index == 1);
 

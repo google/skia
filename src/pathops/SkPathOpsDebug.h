@@ -84,7 +84,7 @@ FakeClasses(Cubic, Cubic);
 #define DEBUG_ALIGNMENT 0
 #define DEBUG_ANGLE 0
 #define DEBUG_ASSEMBLE 0
-#define DEBUG_COINCIDENCE 0  // sanity checking
+#define DEBUG_COINCIDENCE 0
 #define DEBUG_COINCIDENCE_DUMP 0  // accumulate and dump which algorithms fired
 #define DEBUG_COINCIDENCE_ORDER 0  // for well behaved curves, check if pairs match up in t-order
 #define DEBUG_COINCIDENCE_VERBOSE 0  // usually whether the next function generates coincidence
