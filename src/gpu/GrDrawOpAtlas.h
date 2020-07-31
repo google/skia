@@ -117,16 +117,25 @@ public:
 
         uint64_t genID() const { return fPlotLocator.genID(); }
 
+        void insetSrc(int padding) {
+            fRect.fLeft += padding;
+            fRect.fTop += padding;
+            fRect.fRight -= padding;
+            fRect.fBottom -= padding;
+        }
+
     private:
         friend class GrDrawOpAtlas;
 
         SkDEBUGCODE(void validate(const GrDrawOpAtlas*) const;)
 
         PlotLocator fPlotLocator;
+
+        // GrGlyphs store the fully padded bounds, small paths store unpadded bounds.
         GrIRect16   fRect{0, 0, 0, 0};
 
-        // TODO: the inset to the actual data w/in 'fRect' could also be stored in this class
-        // This would simplify the 'getUVs' call. The valid values would be 0, 1, 2 & 4.
+        // TODO: Adjust fRect for small paths to hold the fully padded bounds.
+        // This would simplify the 'getUVs' call. The valid values would be 0, 1, 2.
     };
 
     /**
