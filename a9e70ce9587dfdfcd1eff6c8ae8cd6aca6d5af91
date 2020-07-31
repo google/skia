@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63f09a0d_bd8e2fb7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T22:25:55Z",
+      "side": 1,
+      "message": "Don\u0027t feel too strongly about this one either, but it did find one SK_DEBUG inside an SK_DEBUG.",
+      "revId": "a9e70ce9587dfdfcd1eff6c8ae8cd6aca6d5af91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
