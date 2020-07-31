@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "859e4115_2e66736a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T21:45:12Z",
+      "side": 1,
+      "message": "Up to you--we don\u0027t violate this anywhere in our codebase today, but seems like a reasonable check. No super strong feelings about it either way.\n",
+      "revId": "81aea1c99533fa6b27f3692c9c53d2882002359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
