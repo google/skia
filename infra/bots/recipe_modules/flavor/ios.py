@@ -29,7 +29,7 @@ class iOSFlavor(default.DefaultFlavor):
   def env(self):
     return {
       'IOS_BUNDLE_ID': 'com.google.%s' % self.app_name,
-      'IOS_MOUNT_POINT': self.m.vars.slave_dir.join('mnt_iosdevice'),
+      'IOS_MOUNT_POINT': self.m.vars.workdir.join('mnt_iosdevice'),
     }
 
   def context(self):

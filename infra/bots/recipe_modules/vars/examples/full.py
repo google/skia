@@ -36,7 +36,7 @@ def RunSteps(api):
       'patch_storage',
       'patchset',
       'role',
-      'slave_dir',
+      'workdir',
       'swarming_out_dir',
       'tmp_dir',
       ]:
