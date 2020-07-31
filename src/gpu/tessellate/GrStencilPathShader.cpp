@@ -76,7 +76,7 @@ GrGLSLPrimitiveProcessor* GrStencilPathShader::createGLSLInstance(const GrShader
     return new Impl;
 }
 
-SkString GrTessellateCubicShader::getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+SkString GrCubicTessellateShader::getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
                                                            const char* versionAndExtensionDecls,
                                                            const GrGLSLUniformHandler&,
                                                            const GrShaderCaps&) const {
@@ -118,7 +118,7 @@ SkString GrTessellateCubicShader::getTessControlShaderGLSL(const GrGLSLPrimitive
     return code;
 }
 
-SkString GrTessellateCubicShader::getTessEvaluationShaderGLSL(
+SkString GrCubicTessellateShader::getTessEvaluationShaderGLSL(
         const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler&, const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
@@ -151,7 +151,7 @@ SkString GrTessellateCubicShader::getTessEvaluationShaderGLSL(
     return code;
 }
 
-SkString GrTessellateWedgeShader::getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+SkString GrWedgeTessellateShader::getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
                                                            const char* versionAndExtensionDecls,
                                                            const GrGLSLUniformHandler&,
                                                            const GrShaderCaps&) const {
@@ -189,7 +189,7 @@ SkString GrTessellateWedgeShader::getTessControlShaderGLSL(const GrGLSLPrimitive
     return code;
 }
 
-SkString GrTessellateWedgeShader::getTessEvaluationShaderGLSL(
+SkString GrWedgeTessellateShader::getTessEvaluationShaderGLSL(
         const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler&, const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTessellatePathOp_DEFINED
-#define GrTessellatePathOp_DEFINED
+#ifndef GrPathTessellateOp_DEFINED
+#define GrPathTessellateOp_DEFINED
 
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
@@ -18,11 +18,11 @@ class GrResolveLevelCounter;
 // Renders paths using a hybrid "Red Book" (stencil, then cover) method. Curves get linearized by
 // either GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it
 // requires a render target that supports either MSAA or mixed samples if AA is desired.
-class GrTessellatePathOp : public GrDrawOp {
+class GrPathTessellateOp : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
-    GrTessellatePathOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
+    GrPathTessellateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
                        GrAAType aaType, GrTessellationPathRenderer::OpFlags opFlags)
             : GrDrawOp(ClassID())
             , fOpFlags(opFlags)
@@ -36,7 +36,7 @@ private:
         this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
     }
 
-    const char* name() const override { return "GrTessellatePathOp"; }
+    const char* name() const override { return "GrPathTessellateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
     GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                       bool hasMixedSampledCoverage,
@@ -159,7 +159,7 @@ private:
     friend class GrOpMemoryPool;  // For ctor.
 
 public:
-    // This serves as a base class for benchmarking individual methods on GrTessellatePathOp.
+    // This serves as a base class for benchmarking individual methods on GrPathTessellateOp.
     class TestingOnly_Benchmark;
 };
 

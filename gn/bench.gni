@@ -119,7 +119,7 @@ bench_sources = [
   "$_bench/StrokeBench.cpp",
   "$_bench/SwizzleBench.cpp",
   "$_bench/TableBench.cpp",
-  "$_bench/TessellatePathBench.cpp",
+  "$_bench/TessellateBench.cpp",
   "$_bench/TextBlobBench.cpp",
   "$_bench/TileBench.cpp",
   "$_bench/TileImageFilterBench.cpp",

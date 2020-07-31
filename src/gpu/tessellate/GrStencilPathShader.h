@@ -43,13 +43,13 @@ public:
 
 // Uses GPU tessellation shaders to linearize, triangulate, and render standalone closed cubics.
 // TODO: Eventually we want to use rational cubic wedges in order to support perspective and conics.
-class GrTessellateCubicShader : public GrStencilPathShader {
+class GrCubicTessellateShader : public GrStencilPathShader {
 public:
-    GrTessellateCubicShader(const SkMatrix& viewMatrix) : GrStencilPathShader(
-            kTessellate_GrTessellateCubicShader_ClassID, viewMatrix, GrPrimitiveType::kPatches, 4) {
+    GrCubicTessellateShader(const SkMatrix& viewMatrix) : GrStencilPathShader(
+            kTessellate_GrCubicTessellateShader_ClassID, viewMatrix, GrPrimitiveType::kPatches, 4) {
         this->setVertexAttributes(&kSinglePointAttrib, 1);
     }
-    const char* name() const override { return "tessellate_GrTessellateCubicShader"; }
+    const char* name() const override { return "tessellate_GrCubicTessellateShader"; }
 
 private:
     SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
@@ -66,13 +66,13 @@ private:
 // wedge is a 5-point patch consisting of 4 cubic control points, plus an anchor point fanning from
 // the center of the curve's resident contour.
 // TODO: Eventually we want to use rational cubic wedges in order to support perspective and conics.
-class GrTessellateWedgeShader : public GrStencilPathShader {
+class GrWedgeTessellateShader : public GrStencilPathShader {
 public:
-    GrTessellateWedgeShader(const SkMatrix& viewMatrix) : GrStencilPathShader(
-            kTessellate_GrTessellateWedgeShader_ClassID, viewMatrix, GrPrimitiveType::kPatches, 5) {
+    GrWedgeTessellateShader(const SkMatrix& viewMatrix) : GrStencilPathShader(
+            kTessellate_GrWedgeTessellateShader_ClassID, viewMatrix, GrPrimitiveType::kPatches, 5) {
         this->setVertexAttributes(&kSinglePointAttrib, 1);
     }
-    const char* name() const override { return "tessellate_GrTessellateWedgeShader"; }
+    const char* name() const override { return "tessellate_GrWedgeTessellateShader"; }
 
 private:
     SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,

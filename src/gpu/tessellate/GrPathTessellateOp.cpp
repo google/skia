@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrTessellatePathOp.h"
+#include "src/gpu/tessellate/GrPathTessellateOp.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrGpu.h"
@@ -25,7 +25,7 @@ constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveL
 
 using OpFlags = GrTessellationPathRenderer::OpFlags;
 
-GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() const {
+GrPathTessellateOp::FixedFunctionFlags GrPathTessellateOp::fixedFunctionFlags() const {
     auto flags = FixedFunctionFlags::kUsesStencil;
     if (GrAAType::kNone != fAAType) {
         flags |= FixedFunctionFlags::kUsesHWAA;
@@ -33,13 +33,13 @@ GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() 
     return flags;
 }
 
-void GrTessellatePathOp::onPrePrepare(GrRecordingContext*,
+void GrPathTessellateOp::onPrePrepare(GrRecordingContext*,
                                       const GrSurfaceProxyView* writeView,
                                       GrAppliedClip*,
                                       const GrXferProcessor::DstProxyView&) {
 }
 
-void GrTessellatePathOp::onPrepare(GrOpFlushState* flushState) {
+void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
     int numVerbs = fPath.countVerbs();
     if (numVerbs <= 0) {
         return;
@@ -103,7 +103,7 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* flushState) {
     this->prepareTessellatedCubicWedges(flushState);
 }
 
-bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrMeshDrawOp::Target* target,
+bool GrPathTessellateOp::prepareNonOverlappingInnerTriangles(GrMeshDrawOp::Target* target,
                                                              int* numCountedCurves) {
     SkASSERT(!fTriangleBuffer);
     SkASSERT(!fDoStencilTriangleBuffer);
@@ -134,7 +134,7 @@ bool GrTessellatePathOp::prepareNonOverlappingInnerTriangles(GrMeshDrawOp::Targe
     return true;
 }
 
-void GrTessellatePathOp::prepareMiddleOutTrianglesAndCubics(
+void GrPathTessellateOp::prepareMiddleOutTrianglesAndCubics(
         GrMeshDrawOp::Target* target, GrResolveLevelCounter* resolveLevelCounter,
         bool drawTrianglesAsIndirectCubicDraw) {
     SkASSERT(!fTriangleBuffer);
@@ -257,7 +257,7 @@ static void quad2cubic(const SkPoint pts[], SkPoint* out) {
     out[3] = pts[2];
 }
 
-void GrTessellatePathOp::prepareIndirectOuterCubics(
+void GrPathTessellateOp::prepareIndirectOuterCubics(
         GrMeshDrawOp::Target* target, const GrResolveLevelCounter& resolveLevelCounter) {
     SkASSERT(resolveLevelCounter.totalCubicInstanceCount() >= 0);
     if (resolveLevelCounter.totalCubicInstanceCount() == 0) {
@@ -277,7 +277,7 @@ void GrTessellatePathOp::prepareIndirectOuterCubics(
                                                  /*numTrianglesAtBeginningOfData=*/0);
 }
 
-void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
+void GrPathTessellateOp::prepareIndirectOuterCubicsAndTriangles(
         GrMeshDrawOp::Target* target, const GrResolveLevelCounter& resolveLevelCounter,
         SkPoint* cubicData, int numTrianglesAtBeginningOfData) {
     SkASSERT(target->caps().drawInstancedSupport());
@@ -399,7 +399,7 @@ void GrTessellatePathOp::prepareIndirectOuterCubicsAndTriangles(
     fStencilCubicsShader = target->allocator()->make<GrMiddleOutCubicShader>(fViewMatrix);
 }
 
-void GrTessellatePathOp::prepareTessellatedOuterCubics(GrMeshDrawOp::Target* target,
+void GrPathTessellateOp::prepareTessellatedOuterCubics(GrMeshDrawOp::Target* target,
                                                        int numCountedCurves) {
     SkASSERT(target->caps().shaderCaps()->tessellationSupport());
     SkASSERT(numCountedCurves >= 0);
@@ -434,10 +434,10 @@ void GrTessellatePathOp::prepareTessellatedOuterCubics(GrMeshDrawOp::Target* tar
     }
     SkASSERT(fCubicVertexCount == numCountedCurves * 4);
 
-    fStencilCubicsShader = target->allocator()->make<GrTessellateCubicShader>(fViewMatrix);
+    fStencilCubicsShader = target->allocator()->make<GrCubicTessellateShader>(fViewMatrix);
 }
 
-void GrTessellatePathOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* target) {
+void GrPathTessellateOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* target) {
     SkASSERT(target->caps().shaderCaps()->tessellationSupport());
     SkASSERT(!fCubicBuffer);
     SkASSERT(!fStencilCubicsShader);
@@ -493,18 +493,18 @@ void GrTessellatePathOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* tar
     vertexAlloc.unlock(fCubicVertexCount);
 
     if (fCubicVertexCount) {
-        fStencilCubicsShader = target->allocator()->make<GrTessellateWedgeShader>(fViewMatrix);
+        fStencilCubicsShader = target->allocator()->make<GrWedgeTessellateShader>(fViewMatrix);
     }
 }
 
-void GrTessellatePathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void GrPathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     this->drawStencilPass(flushState);
     if (!(OpFlags::kStencilOnly & fOpFlags)) {
         this->drawCoverPass(flushState);
     }
 }
 
-void GrTessellatePathOp::drawStencilPass(GrOpFlushState* flushState) {
+void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
     // Increments clockwise triangles and decrements counterclockwise. Used for "winding" fill.
     constexpr static GrUserStencilSettings kIncrDecrStencil(
         GrUserStencilSettings::StaticInitSeparate<
@@ -570,7 +570,7 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* flushState) {
     }
 }
 
-void GrTessellatePathOp::drawCoverPass(GrOpFlushState* flushState) {
+void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
     // Allows non-zero stencil values to pass and write a color, and resets the stencil value back
     // to zero; discards immediately on stencil values of zero.
     // NOTE: It's ok to not check the clip here because the previous stencil pass only wrote to
