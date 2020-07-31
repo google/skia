@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93f98d7c_c36ef612",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T22:29:57Z",
+      "side": 0,
+      "message": "I think just drop these?",
+      "revId": "ad1e2005f194fc859ad3d30bd7d00e41ce952022",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
