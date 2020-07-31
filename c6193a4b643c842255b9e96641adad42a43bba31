@@ -16,6 +16,24 @@
       "revId": "c6193a4b643c842255b9e96641adad42a43bba31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68529542_373ce2a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-07-31T12:21:29Z",
+      "side": 1,
+      "message": "CockroachDB is only used in the infra repo, right?  If so, then this is expected.",
+      "parentUuid": "4f9017d7_0fe91d09",
+      "revId": "c6193a4b643c842255b9e96641adad42a43bba31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
