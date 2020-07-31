@@ -1314,7 +1314,10 @@ bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICC
     // skcms_252_random_bytes are 252 of a random shuffle of all possible bytes.
     // 252 is evenly divisible by 3 and 4.  Only 192, 10, 241, and 43 are missing.
 
-    if (A->data_color_space != B->data_color_space) {
+    // We want to allow otherwise equivalent profiles tagged as grayscale and RGB
+    // to be treated as equal.  But CMYK profiles are a totally different ballgame.
+    const auto CMYK = skcms_Signature_CMYK;
+    if ((A->data_color_space == CMYK) != (B->data_color_space == CMYK)) {
         return false;
     }
 
