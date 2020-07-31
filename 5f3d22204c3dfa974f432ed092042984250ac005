@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "f0bca64d_cd042590",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-31T13:23:38Z",
+      "side": 1,
+      "message": "Yeah, I was probably being overly pessimistic. Looking back at the skcms code, I think you\u0027re right - the data color space was the only special check we had (no other header fields were examined).",
+      "parentUuid": "ff573176_62487f36",
+      "range": {
+        "startLine": 660,
+        "startChar": 22,
+        "endLine": 661,
+        "endChar": 40
+      },
+      "revId": "5f3d22204c3dfa974f432ed092042984250ac005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8bb21123_79b36e5a",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 3
