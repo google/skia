@@ -49,8 +49,8 @@ if (!%s && t.y < 0.0) {
                 _sample453.c_str(),
                 (_outer.childProcessor(1)->preservesOpaqueInput() ? "true" : "false"),
                 args.fOutputColor, (_outer.mirror ? "true" : "false"));
-        SkString _coords1464("float2(t.xy)");
-        SkString _sample1464 = this->invokeChild(0, args, _coords1464.c_str());
+        SkString _coords1451("float2(half2(t.x, 0))");
+        SkString _sample1451 = this->invokeChild(0, args, _coords1451.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     %s = %s;
@@ -59,7 +59,7 @@ if (!%s && t.y < 0.0) {
     %s.xyz *= %s.w;
 }
 )SkSL",
-                args.fOutputColor, _sample1464.c_str(), (_outer.makePremul ? "true" : "false"),
+                args.fOutputColor, _sample1451.c_str(), (_outer.makePremul ? "true" : "false"),
                 args.fOutputColor, args.fOutputColor);
     }
 
