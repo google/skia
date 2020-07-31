@@ -22,6 +22,30 @@
       "revId": "9e989a752960806506c951146354e51c3acc2019",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c67dd0d_47c3f590",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T17:18:12Z",
+      "side": 1,
+      "message": "SGTM!",
+      "parentUuid": "cff66f3a_9630da06",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 1
+      },
+      "revId": "9e989a752960806506c951146354e51c3acc2019",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
