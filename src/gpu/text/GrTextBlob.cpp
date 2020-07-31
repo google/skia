@@ -904,12 +904,21 @@ GrTextBlob::~GrTextBlob() = default;
 
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList, const SkMatrix& drawMatrix) {
     // The difference in alignment from the storage of VertexData to SubRun;
-    using AllSubRuns = std::aligned_union_t<1, GrSDFTSubRun, GrDirectMaskSubRun, GrPathSubRun>;
-    constexpr size_t alignDiff = alignof(AllSubRuns) - alignof(GrSDFTSubRun::VertexData);
+    using AllSubRuns = std::aligned_union_t<1,
+            GrDirectMaskSubRun,
+            GrTransformedMaskSubRun,
+            GrSDFTSubRun,
+            GrPathSubRun>;
+
+    using AllVertexData = std::aligned_union<1,
+            GrDirectMaskSubRun::VertexData,
+            GrTransformedMaskSubRun::VertexData,
+            GrSDFTSubRun::VertexData>;
+    constexpr size_t alignDiff = alignof(AllSubRuns) - alignof(AllVertexData);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
     size_t totalGlyphCount = glyphRunList.totalGlyphCount();
     size_t arenaSize =
-            totalGlyphCount * sizeof(GrSDFTSubRun::VertexData)
+            totalGlyphCount * sizeof(AllVertexData)
             + GrGlyphVector::GlyphVectorSize(totalGlyphCount)
             + glyphRunList.runCount() * (sizeof(AllSubRuns) + vertexDataToSubRunPadding)
             + 32;  // Misc arena overhead.
