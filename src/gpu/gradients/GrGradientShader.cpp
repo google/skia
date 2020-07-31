@@ -18,7 +18,6 @@
 #include "src/gpu/gradients/GrGradientBitmapCache.h"
 #include "src/gpu/gradients/generated/GrDualIntervalGradientColorizer.h"
 #include "src/gpu/gradients/generated/GrSingleIntervalGradientColorizer.h"
-#include "src/gpu/gradients/generated/GrTextureGradientColorizer.h"
 #include "src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h"
 
 #include "include/gpu/GrRecordingContext.h"
@@ -65,11 +64,9 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
         SkDebugf("Gradient won't draw. Could not create texture.");
         return nullptr;
     }
-    // TODO(skbug.com/10548): When we start sampling colorizers with explicit coords rather than
-    // using sk_InColor, the GrTextureEffect can simply be the colorizer.
+
     auto m = SkMatrix::Scale(view.width(), 1.f);
-    auto te = GrTextureEffect::Make(std::move(view), alphaType, m, GrSamplerState::Filter::kLinear);
-    return GrTextureGradientColorizer::Make(std::move(te));
+    return GrTextureEffect::Make(std::move(view), alphaType, m, GrSamplerState::Filter::kLinear);
 }
 
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent
