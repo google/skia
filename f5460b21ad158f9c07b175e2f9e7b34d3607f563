@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7085da28_0b343168",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2576,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-31T18:38:38Z",
+      "side": 1,
+      "message": "Does SkSL (or the underlying shading languages) assert that constructor arguments form sequence points? Even so, it seems like this would be easier to read if the initialization was moved to the declaration? (It might make the code to generate this simpler, too? By hoisting that logic out of the final loop?)",
+      "range": {
+        "startLine": 2576,
+        "startChar": 14,
+        "endLine": 2576,
+        "endChar": 83
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
