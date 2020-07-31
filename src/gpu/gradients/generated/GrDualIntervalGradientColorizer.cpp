@@ -46,7 +46,7 @@ public:
         thresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                         kHalf_GrSLType, "threshold");
         fragBuilder->codeAppendf(
-                R"SkSL(half t = %s.x;
+                R"SkSL(half t = half(%s.x);
 float4 scale, bias;
 if (t < %s) {
     scale = %s;
@@ -57,7 +57,7 @@ if (t < %s) {
 }
 %s = half4(float(t) * scale + bias);
 )SkSL",
-                args.fInputColor, args.fUniformHandler->getUniformCStr(thresholdVar),
+                args.fSampleCoord, args.fUniformHandler->getUniformCStr(thresholdVar),
                 args.fUniformHandler->getUniformCStr(scale01Var),
                 args.fUniformHandler->getUniformCStr(bias01Var),
                 args.fUniformHandler->getUniformCStr(scale23Var),
@@ -132,6 +132,7 @@ GrDualIntervalGradientColorizer::GrDualIntervalGradientColorizer(
         , bias23(src.bias23)
         , threshold(src.threshold) {
     this->cloneAndRegisterAllChildProcessors(src);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(*this));

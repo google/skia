@@ -51,8 +51,8 @@ if (!%s && t.y < 0.0) {
                 args.fOutputColor, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(leftBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
-        SkString _input1767("t");
-        SkString _sample1767 = this->invokeChild(0, _input1767.c_str(), args);
+        SkString _coords1767("float2(t.xy)");
+        SkString _sample1767 = this->invokeChild(0, args, _coords1767.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     %s = %s;

@@ -128,7 +128,7 @@ public:
         thresholds9_13Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf4_GrSLType, "thresholds9_13");
         fragBuilder->codeAppendf(
-                R"SkSL(half t = %s.x;
+                R"SkSL(half t = half(%s.x);
 float4 scale, bias;
 if (%d <= 4 || t < %s.w) {
     if (%d <= 2 || t < %s.y) {
@@ -169,7 +169,7 @@ if (%d <= 4 || t < %s.w) {
 }
 %s = half4(float(t) * scale + bias);
 )SkSL",
-                args.fInputColor, _outer.intervalCount,
+                args.fSampleCoord, _outer.intervalCount,
                 args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
                 args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
                 args.fUniformHandler->getUniformCStr(thresholds1_7Var),
@@ -339,6 +339,7 @@ GrUnrolledBinaryGradientColorizer::GrUnrolledBinaryGradientColorizer(
         , thresholds1_7(src.thresholds1_7)
         , thresholds9_13(src.thresholds9_13) {
     this->cloneAndRegisterAllChildProcessors(src);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrUnrolledBinaryGradientColorizer(*this));

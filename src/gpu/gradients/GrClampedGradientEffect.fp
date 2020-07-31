@@ -38,10 +38,10 @@ void main() {
     } else if (t.x > 1.0) {
         sk_OutColor = rightBorderColor;
     } else {
-        sk_OutColor = sample(colorizer, t);
+        sk_OutColor = sample(colorizer, t.xy);
     }
 
-    @if(makePremul) {
+    @if (makePremul) {
         sk_OutColor.xyz *= sk_OutColor.w;
     }
 }

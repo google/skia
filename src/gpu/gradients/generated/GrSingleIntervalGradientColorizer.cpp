@@ -34,10 +34,11 @@ public:
         endVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                   "end");
         fragBuilder->codeAppendf(
-                R"SkSL(half t = %s.x;
+                R"SkSL(half t = half(%s.x);
 %s = mix(%s, %s, t);
 )SkSL",
-                args.fInputColor, args.fOutputColor, args.fUniformHandler->getUniformCStr(startVar),
+                args.fSampleCoord, args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(startVar),
                 args.fUniformHandler->getUniformCStr(endVar));
     }
 
@@ -82,6 +83,7 @@ GrSingleIntervalGradientColorizer::GrSingleIntervalGradientColorizer(
         , start(src.start)
         , end(src.end) {
     this->cloneAndRegisterAllChildProcessors(src);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrSingleIntervalGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrSingleIntervalGradientColorizer(*this));

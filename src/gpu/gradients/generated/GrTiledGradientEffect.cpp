@@ -49,8 +49,8 @@ if (!%s && t.y < 0.0) {
                 _sample453.c_str(),
                 (_outer.childProcessor(1)->preservesOpaqueInput() ? "true" : "false"),
                 args.fOutputColor, (_outer.mirror ? "true" : "false"));
-        SkString _input1464("t");
-        SkString _sample1464 = this->invokeChild(0, _input1464.c_str(), args);
+        SkString _coords1464("float2(t.xy)");
+        SkString _sample1464 = this->invokeChild(0, args, _coords1464.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     %s = %s;
