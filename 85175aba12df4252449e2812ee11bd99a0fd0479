@@ -34,6 +34,24 @@
       "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e3d4d16_1357aeb0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T14:57:30Z",
+      "side": 1,
+      "message": "I\u0027m more than happy to eliminate color filters, but I don\u0027t want to break their fundamental invariant along the way.  The path to eliminating color filters can simply convert filters one by one to shaders, without adding more degrees of freedom to color filters. I don\u0027t want to have to think about two subtly different color-producing space-dependent types of effects.",
+      "parentUuid": "3e70853b_654716ff",
+      "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
