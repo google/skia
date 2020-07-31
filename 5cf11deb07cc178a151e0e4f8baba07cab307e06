@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "793e27da_008bbf28",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T19:57:18Z",
+      "side": 1,
+      "message": "You are correct - this is fine as is.",
+      "parentUuid": "a53cc6d5_cb256279",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 11
+      },
+      "revId": "5cf11deb07cc178a151e0e4f8baba07cab307e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "68cb78f6_8f0b70b4",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 6

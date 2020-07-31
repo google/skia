@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad8164c6_2696f7c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-07-31T19:57:18Z",
+      "side": 1,
+      "message": "lgtm, would like hcm@ to also take a pass.",
+      "revId": "f387d99217230eacb844a7c1ba5d148ff853c070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
