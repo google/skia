@@ -263,7 +263,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             continue;
         }
         DeathFn contextKillers[] = {destroy, abandon, releaseResourcesAndAbandon};
-        for (auto contextDeath : contextKillers) {
+        for (const DeathFn& contextDeath : contextKillers) {
             sk_gpu_test::GrContextFactory factory;
             auto ctx = factory.get(contextType);
             if (!ctx) {

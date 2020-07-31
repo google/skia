@@ -888,7 +888,7 @@ static bool gather_srcs() {
         return false;
     }
 
-    for (auto image : images) {
+    for (const SkString& image : images) {
         push_codec_srcs(image);
     }
 
@@ -897,7 +897,7 @@ static bool gather_srcs() {
         return false;
     }
 
-    for (auto colorImage : colorImages) {
+    for (const SkString& colorImage : colorImages) {
         push_src("colorImage", "decode_native", new ColorCodecSrc(colorImage, false));
         push_src("colorImage", "decode_to_dst", new ColorCodecSrc(colorImage,  true));
     }

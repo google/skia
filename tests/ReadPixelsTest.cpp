@@ -565,11 +565,11 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
     };
 
     for (SkColorType dstCT : kColorTypes) {
-        for (SkAlphaType dstAT: kAlphaTypes) {
-            for (sk_sp<SkColorSpace> dstCS : kColorSpaces) {
+        for (SkAlphaType dstAT : kAlphaTypes) {
+            for (const sk_sp<SkColorSpace>& dstCS : kColorSpaces) {
                 for (SkColorType srcCT : kColorTypes) {
-                    for (SkAlphaType srcAT: kAlphaTypes) {
-                        for (sk_sp<SkColorSpace> srcCS : kColorSpaces) {
+                    for (SkAlphaType srcAT : kAlphaTypes) {
+                        for (const sk_sp<SkColorSpace>& srcCS : kColorSpaces) {
                             test_conversion(reporter,
                                             SkImageInfo::Make(kNumPixels, 1, dstCT, dstAT, dstCS),
                                             SkImageInfo::Make(kNumPixels, 1, srcCT, srcAT, srcCS));

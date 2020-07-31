@@ -262,7 +262,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(
 }
 
 inline void GrDrawOpAtlas::processEviction(PlotLocator plotLocator) {
-    for (auto evictor : fEvictionCallbacks) {
+    for (EvictionCallback* evictor : fEvictionCallbacks) {
         evictor->evict(plotLocator);
     }
 

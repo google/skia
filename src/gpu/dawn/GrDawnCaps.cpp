@@ -214,7 +214,7 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrDawnCaps::getTestingCombin
     };
 
 #ifdef SK_DEBUG
-    for (auto combo : combos) {
+    for (const GrCaps::TestFormatColorTypeCombination& combo : combos) {
         SkASSERT(this->onAreColorTypeAndFormatCompatible(combo.fColorType, combo.fFormat));
     }
 #endif

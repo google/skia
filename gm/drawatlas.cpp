@@ -340,7 +340,7 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
         for (float alpha : { 1.0f, 0.5f }) {
             paint.setAlphaf(alpha);
             canvas->save();
-            for (auto cf : filters) {
+            for (const sk_sp<SkColorFilter>& cf : filters) {
                 paint.setColorFilter(cf);
                 canvas->drawAtlas(image, &xform, &tex, &color, 1,
                                   mode, &tex, &paint);
