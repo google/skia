@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ed93453_72cdf5c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-31T16:26:06Z",
+      "side": 1,
+      "message": "ptal: Running layout-tests to be sure, but I think this is safe and makes more sense.",
+      "revId": "e4197898185fdc352466129913f078dd2f72bf88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
