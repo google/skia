@@ -52,6 +52,24 @@
       "revId": "511cf4fca793ed8764e4a14be733392f99159771",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "274aaa3b_c50ef540",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T20:55:33Z",
+      "side": 1,
+      "message": "Oh, yeah, I guess it went without saying that this JIT is not enabled in Chromium, and I\u0027d never let it be unless Chrome security signed off.  Really, I\u0027d never turn it on in Chromium unless someone came kicking and screaming to me to turn it on... there\u0027s way too much risk and not enough benefit for Chromium in my mind.\n\nThis JIT would be most beneficial in the renderer process if we used it, and even there really only where we don\u0027t use GPU-backed rendering.  Skia could benefit from more speed in some minor corner situations in the GPU process, but we could deal with maxing out at the interpreter or needing hand-coded fast paths there.\n\nIt\u0027s very easy to compile out all the JIT code, and the default, and would be very easy to turn it on and off at runtime.",
+      "parentUuid": "6491f79f_6eda15d3",
+      "revId": "511cf4fca793ed8764e4a14be733392f99159771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
