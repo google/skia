@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "8e16f67a_54412457",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-31T00:57:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "701cae7b_09074170",
+      "range": {
+        "startLine": 149,
+        "startChar": 10,
+        "endLine": 149,
+        "endChar": 26
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "949f4c99_a7061f04",
         "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
         "patchSetId": 3
@@ -79,6 +103,30 @@
       "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "187f8dc6_cac19b00",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-31T00:57:11Z",
+      "side": 1,
+      "message": "See the comment I added above. SkFind*MaxCurvature and GrWangsFormula::* both expect arrays of points. I am still refining this class. Once the math is all smoothed out and optimized I will integrate the scale better.",
+      "parentUuid": "949f4c99_a7061f04",
+      "range": {
+        "startLine": 190,
+        "startChar": 22,
+        "endLine": 190,
+        "endChar": 28
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -129,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "7eb8e27d_6bf409b8",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-31T00:57:11Z",
+      "side": 1,
+      "message": "Or both :-)",
+      "parentUuid": "56680215_73b8fe5d",
+      "range": {
+        "startLine": 45,
+        "startChar": 34,
+        "endLine": 45,
+        "endChar": 45
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f50c48fa_f63d783f",
         "filename": "src/gpu/tessellate/GrTessellateStrokeShader.h",
         "patchSetId": 3
@@ -152,6 +224,30 @@
     },
     {
       "key": {
+        "uuid": "d9e05780_086a7bd3",
+        "filename": "src/gpu/tessellate/GrTessellateStrokeShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-31T00:57:11Z",
+      "side": 1,
+      "message": "Added a comment. They just need to divide the matrix by maxScale.",
+      "parentUuid": "f50c48fa_f63d783f",
+      "range": {
+        "startLine": 62,
+        "startChar": 17,
+        "endLine": 62,
+        "endChar": 67
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7bd75ecb_7bf2c918",
         "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
         "patchSetId": 3
@@ -172,6 +268,30 @@
       "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5087475_4cc0d577",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-07-31T00:57:11Z",
+      "side": 1,
+      "message": "We could, however I\u0027m not convinced that will always be the case. I\u0027d rather refine stroking a bit more before committing to perspective support on hairlines. Also, SkMatrix::transform doesn\u0027t work correctly for perspective last I knew. (And if it did, it would convert quadratics to conics, and conics aren\u0027t supported yet.)",
+      "parentUuid": "7bd75ecb_7bf2c918",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 42
+      },
+      "revId": "128ce044da9de89f520707fb5f4781962cbaf9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
