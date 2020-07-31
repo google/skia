@@ -140,6 +140,7 @@ static void get_packed_glyph_image(
 // get the actual glyph image itself when we get the glyph metrics.
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                          GrGlyph* grGlyph,
+                                                         int srcPadding,
                                                          GrResourceProvider* resourceProvider,
                                                          GrDeferredUploadTarget* uploadTarget,
                                                          bool bilerpPadding) {
@@ -170,13 +171,17 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
 
     get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
 
-    return this->addToAtlas(resourceProvider,
-                            uploadTarget,
-                            expectedMaskFormat,
-                            width,
-                            height,
-                            storage.get(),
-                            &grGlyph->fAtlasLocator);
+    auto errorCode = this->addToAtlas(resourceProvider,
+                                      uploadTarget,
+                                      expectedMaskFormat,
+                                      width,
+                                      height,
+                                      storage.get(),
+                                      &grGlyph->fAtlasLocator);
+
+    grGlyph->fAtlasLocator.insetSrc(srcPadding);
+
+    return errorCode;
 }
 
 // add to texture atlas that matches this format

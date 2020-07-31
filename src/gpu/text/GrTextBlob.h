@@ -293,6 +293,7 @@ public:
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end,
             GrMaskFormat maskFormat,
+            int srcPadding,
             GrMeshDrawOp::Target *target,
             bool bilerpPadding = false);
 
