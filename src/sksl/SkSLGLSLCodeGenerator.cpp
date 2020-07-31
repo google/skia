@@ -1794,7 +1794,7 @@ bool GLSLCodeGenerator::generateCode() {
     }
     write_stringstream(fExtraFunctions, *rawOut);
     write_stringstream(body, *rawOut);
-    return true;
+    return 0 == fErrors.errorCount();
 }
 
 }
