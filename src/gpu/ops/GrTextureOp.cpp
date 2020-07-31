@@ -772,34 +772,45 @@ private:
     }
 
 #ifdef SK_DEBUG
+    static int validate_op(GrTextureType textureType,
+                           GrAAType aaType,
+                           GrSwizzle swizzle,
+                           const TextureOp* op) {
+        SkASSERT(op->fMetadata.fSwizzle == swizzle);
+
+        int quadCount = 0;
+        for (unsigned p = 0; p < op->fMetadata.fProxyCount; ++p) {
+            auto* proxy = op->fViewCountPairs[p].fProxy->asTextureProxy();
+            quadCount += op->fViewCountPairs[p].fQuadCnt;
+            SkASSERT(proxy);
+            SkASSERT(proxy->textureType() == textureType);
+        }
+
+        SkASSERT(aaType == op->fMetadata.aaType());
+        return quadCount;
+    }
+
     void validate() const override {
         // NOTE: Since this is debug-only code, we use the virtual asTextureProxy()
         auto textureType = fViewCountPairs[0].fProxy->asTextureProxy()->textureType();
         GrAAType aaType = fMetadata.aaType();
+        GrSwizzle swizzle = fMetadata.fSwizzle;
 
-        int quadCount = 0;
-        for (const auto& op : ChainRange<TextureOp>(this)) {
-            SkASSERT(op.fMetadata.fSwizzle == fMetadata.fSwizzle);
+        int quadCount = validate_op(textureType, aaType, swizzle, this);
 
-            for (unsigned p = 0; p < op.fMetadata.fProxyCount; ++p) {
-                auto* proxy = op.fViewCountPairs[p].fProxy->asTextureProxy();
-                quadCount += op.fViewCountPairs[p].fQuadCnt;
-                SkASSERT(proxy);
-                SkASSERT(proxy->textureType() == textureType);
-            }
+        for (const GrOp* tmp = this->prevInChain(); tmp; tmp = tmp->prevInChain()) {
+            quadCount += validate_op(textureType, aaType, swizzle,
+                                     static_cast<const TextureOp*>(tmp));
+        }
 
-            // Each individual op must be a single aaType. kCoverage and kNone ops can chain
-            // together but kMSAA ones do not.
-            if (aaType == GrAAType::kCoverage || aaType == GrAAType::kNone) {
-                SkASSERT(op.fMetadata.aaType() == GrAAType::kCoverage ||
-                         op.fMetadata.aaType() == GrAAType::kNone);
-            } else {
-                SkASSERT(aaType == GrAAType::kMSAA && op.fMetadata.aaType() == GrAAType::kMSAA);
-            }
+        for (const GrOp* tmp = this->nextInChain(); tmp; tmp = tmp->nextInChain()) {
+            quadCount += validate_op(textureType, aaType, swizzle,
+                                     static_cast<const TextureOp*>(tmp));
         }
 
         SkASSERT(quadCount == this->numChainedQuads());
     }
+
 #endif
 
 #if GR_TEST_UTILS
@@ -807,6 +818,8 @@ private:
 #endif
 
     void characterize(Desc* desc) const {
+        SkDEBUGCODE(this->validate();)
+
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
         ColorType colorType = ColorType::kNone;
         GrQuad::Type srcQuadType = GrQuad::Type::kAxisAligned;
@@ -959,10 +972,31 @@ private:
         SkASSERT(numDraws == fDesc->fNumProxies);
     }
 
+    void propagateCoverageAAThroughoutChain() {
+        fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
+
+        for (GrOp* tmp = this->prevInChain(); tmp; tmp = tmp->prevInChain()) {
+            TextureOp* tex = static_cast<TextureOp*>(tmp);
+            SkASSERT(tex->fMetadata.aaType() == GrAAType::kCoverage ||
+                     tex->fMetadata.aaType() == GrAAType::kNone);
+            tex->fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
+        }
+
+        for (GrOp* tmp = this->nextInChain(); tmp; tmp = tmp->nextInChain()) {
+            TextureOp* tex = static_cast<TextureOp*>(tmp);
+            SkASSERT(tex->fMetadata.aaType() == GrAAType::kCoverage ||
+                     tex->fMetadata.aaType() == GrAAType::kNone);
+            tex->fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
+        }
+    }
+
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                       const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
+
+        SkDEBUGCODE(this->validate();)
+        SkDEBUGCODE(that->validate();)
 
         if (fDesc || that->fDesc) {
             // This should never happen (since only DDL recorded ops should be prePrepared)
@@ -1012,7 +1046,16 @@ private:
             thisProxy != thatProxy) {
             // We can't merge across different proxies. Check if 'this' can be chained with 'that'.
             if (GrTextureProxy::ProxiesAreCompatibleAsDynamicState(thisProxy, thatProxy) &&
-                caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
+                caps.dynamicStateArrayGeometryProcessorTextureSupport() &&
+                fMetadata.aaType() == that->fMetadata.aaType()) {
+                // We only allow chaining when the aaTypes match bc otherwise the AA type
+                // reported by the chain can be inconsistent. That is, since chaining doesn't
+                // propagate revised AA information throughout the chain, the head of the chain
+                // could have an AA setting of kNone while the chain as a whole could have a
+                // setting of kCoverage. This inconsistency would then interfere with the validity
+                // of the CombinedQuadCountWillOverflow calls.
+                // This problem doesn't occur w/ merging bc we do propagate the AA information
+                // (in propagateCoverageAAThroughoutChain) below.
                 return CombineResult::kMayChain;
             }
             return CombineResult::kCannotCombine;
@@ -1020,18 +1063,20 @@ private:
 
         fMetadata.fSubset |= that->fMetadata.fSubset;
         fMetadata.fColorType = std::max(fMetadata.fColorType, that->fMetadata.fColorType);
-        if (upgradeToCoverageAAOnMerge) {
-            fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
-        }
 
         // Concatenate quad lists together
         fQuads.concat(that->fQuads);
         fViewCountPairs[0].fQuadCnt += that->fQuads.count();
         fMetadata.fTotalQuadCount += that->fQuads.count();
 
+        if (upgradeToCoverageAAOnMerge) {
+            this->propagateCoverageAAThroughoutChain();
+        }
+
+        SkDEBUGCODE(this->validate();)
+
         return CombineResult::kMerged;
     }
-
     GrQuadBuffer<ColorSubsetAndAA> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     // Most state of TextureOp is packed into these two field to minimize the op's size.
@@ -1270,7 +1315,8 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
             for (int i = 0; i < state.numLeft(); ++i) {
                 int absIndex = state.baseIndex() + i;
 
-                if (set[absIndex].fAAFlags != GrQuadAAFlags::kNone) {
+                if (set[absIndex].fAAFlags != GrQuadAAFlags::kNone ||
+                    runningAA == GrAAType::kCoverage) {
 
                     if (i >= GrResourceProvider::MaxNumAAQuads()) {
                         // Here we either need to boost the AA type to kCoverage, but doing so with
