@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b46cb536_fe994ffe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T18:16:24Z",
+      "side": 1,
+      "message": "I appreciate the effort you put into the replacements.  I have a few thoughts, but lgtm as is.",
+      "revId": "f3adef277c0f1f9bb1460e4f45759044666a26c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8439a359_10f7efff",
+        "filename": "modules/skottie/gm/ExternalProperties.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T18:16:24Z",
+      "side": 1,
+      "message": "Given the name, maybe Fake?",
+      "range": {
+        "startLine": 25,
+        "startChar": 3,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "f3adef277c0f1f9bb1460e4f45759044666a26c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f8e7136_7555dc9f",
+        "filename": "modules/skottie/gm/SkottieGM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T18:16:24Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "f3adef277c0f1f9bb1460e4f45759044666a26c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "665f4853_814eff53",
+        "filename": "src/utils/SkEventTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T18:16:24Z",
+      "side": 1,
+      "message": "maybe return \"default\", given the type name?",
+      "range": {
+        "startLine": 37,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 20
+      },
+      "revId": "f3adef277c0f1f9bb1460e4f45759044666a26c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
