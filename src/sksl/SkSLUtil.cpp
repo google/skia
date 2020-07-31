@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLUtil.h"
 
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLStringStream.h"
 
 #ifndef __STDC_FORMAT_MACROS
@@ -72,5 +73,26 @@ Token::Kind remove_assignment(Token::Kind op) {
         default: return op;
     }
 }
+
+#if !defined(SKSL_STANDALONE)
+bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outType) {
+    if (type == *context.fFloat_Type)    { *outType = kFloat_GrSLType;    return true; }
+    if (type == *context.fHalf_Type)     { *outType = kHalf_GrSLType;     return true; }
+    if (type == *context.fFloat2_Type)   { *outType = kFloat2_GrSLType;   return true; }
+    if (type == *context.fHalf2_Type)    { *outType = kHalf2_GrSLType;    return true; }
+    if (type == *context.fFloat3_Type)   { *outType = kFloat3_GrSLType;   return true; }
+    if (type == *context.fHalf3_Type)    { *outType = kHalf3_GrSLType;    return true; }
+    if (type == *context.fFloat4_Type)   { *outType = kFloat4_GrSLType;   return true; }
+    if (type == *context.fHalf4_Type)    { *outType = kHalf4_GrSLType;    return true; }
+    if (type == *context.fFloat2x2_Type) { *outType = kFloat2x2_GrSLType; return true; }
+    if (type == *context.fHalf2x2_Type)  { *outType = kHalf2x2_GrSLType;  return true; }
+    if (type == *context.fFloat3x3_Type) { *outType = kFloat3x3_GrSLType; return true; }
+    if (type == *context.fHalf3x3_Type)  { *outType = kHalf3x3_GrSLType;  return true; }
+    if (type == *context.fFloat4x4_Type) { *outType = kFloat4x4_GrSLType; return true; }
+    if (type == *context.fHalf4x4_Type)  { *outType = kHalf4x4_GrSLType;  return true; }
+    if (type == *context.fVoid_Type)     { *outType = kVoid_GrSLType;     return true; }
+    return false;
+}
+#endif
 
 } // namespace

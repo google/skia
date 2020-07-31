@@ -177,26 +177,6 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
     INHERITED::writeSwitchStatement(s);
 }
 
-static GrSLType glsltype(const Context& context, const Type& type) {
-    if (type == *context.fFloat_Type)    { return kFloat_GrSLType;    }
-    if (type == *context.fHalf_Type)     { return kHalf_GrSLType;     }
-    if (type == *context.fFloat2_Type)   { return kFloat2_GrSLType;   }
-    if (type == *context.fHalf2_Type)    { return kHalf2_GrSLType;    }
-    if (type == *context.fFloat3_Type)   { return kFloat3_GrSLType;   }
-    if (type == *context.fHalf3_Type)    { return kHalf3_GrSLType;    }
-    if (type == *context.fFloat4_Type)   { return kFloat4_GrSLType;   }
-    if (type == *context.fHalf4_Type)    { return kHalf4_GrSLType;    }
-    if (type == *context.fFloat2x2_Type) { return kFloat2x2_GrSLType; }
-    if (type == *context.fHalf2x2_Type)  { return kHalf2x2_GrSLType;  }
-    if (type == *context.fFloat3x3_Type) { return kFloat3x3_GrSLType; }
-    if (type == *context.fHalf3x3_Type)  { return kHalf3x3_GrSLType;  }
-    if (type == *context.fFloat4x4_Type) { return kFloat4x4_GrSLType; }
-    if (type == *context.fHalf4x4_Type)  { return kHalf4x4_GrSLType;  }
-    if (type == *context.fVoid_Type)     { return kVoid_GrSLType;     }
-    SK_ABORT("Unsupported type");
-}
-
-
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fFunctionHeader = "";
     OutputStream* oldOut = fOut;
@@ -219,10 +199,18 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     } else {
         const FunctionDeclaration& decl = f.fDeclaration;
         Compiler::GLSLFunction result;
-        result.fReturnType = glsltype(fContext, decl.fReturnType);
+        if (!type_to_grsltype(fContext, decl.fReturnType, &result.fReturnType)) {
+            fErrors.error(f.fOffset, "unsupported return type");
+            return;
+        }
         result.fName = decl.fName;
         for (const Variable* v : decl.fParameters) {
-            result.fParameters.emplace_back(v->fName, glsltype(fContext, v->fType));
+            GrSLType paramSLType;
+            if (!type_to_grsltype(fContext, v->fType, &paramSLType)) {
+                fErrors.error(v->fOffset, "unsupported parameter type");
+                return;
+            }
+            result.fParameters.emplace_back(v->fName, paramSLType);
         }
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
