@@ -220,7 +220,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     buffer.setTypefaceRecorder(sk_ref_sp(typefaceSet));
     this->flattenToBuffer(buffer, textBlobsOnly);
 
-    // Dummy serialize our sub-pictures for the side effect of filling typefaceSet
+    // Pretend to serialize our sub-pictures for the side effect of filling typefaceSet
     // with typefaces from sub-pictures.
     struct DevNull: public SkWStream {
         DevNull() : fBytesWritten(0) {}
@@ -231,7 +231,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     for (const auto& pic : fPictures) {
         pic->serialize(&devnull, nullptr, typefaceSet, /*textBlobsOnly=*/ true);
     }
-    if (textBlobsOnly) { return; } // return early from dummy serialize
+    if (textBlobsOnly) { return; } // return early from fake serialize
 
     // We need to write factories before we write the buffer.
     // We need to write typefaces before we write the buffer or any sub-picture.

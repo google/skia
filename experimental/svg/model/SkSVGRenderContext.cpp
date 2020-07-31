@@ -287,18 +287,18 @@ SkSVGPresentationContext::SkSVGPresentationContext()
     fStrokePaint.setAntiAlias(true);
 
     // Commit initial values to the paint cache.
-    SkCanvas dummyCanvas(0, 0);
-    SkSVGRenderContext dummy(&dummyCanvas, SkSVGIDMapper(), SkSVGLengthContext(SkSize::Make(0, 0)),
+    SkCanvas fakeCanvas(0, 0);
+    SkSVGRenderContext fake(&fakeCanvas, SkSVGIDMapper(), SkSVGLengthContext(SkSize::Make(0, 0)),
                              *this);
 
-    commitToPaint<SkSVGAttribute::kFill>(fInherited, dummy, this);
-    commitToPaint<SkSVGAttribute::kFillOpacity>(fInherited, dummy, this);
-    commitToPaint<SkSVGAttribute::kStroke>(fInherited, dummy, this);
-    commitToPaint<SkSVGAttribute::kStrokeLineCap>(fInherited, dummy, this);
-    commitToPaint<SkSVGAttribute::kStrokeLineJoin>(fInherited, dummy, this);
-    commitToPaint<SkSVGAttribute::kStrokeMiterLimit>(fInherited, dummy, this);
-    commitToPaint<SkSVGAttribute::kStrokeOpacity>(fInherited, dummy, this);
-    commitToPaint<SkSVGAttribute::kStrokeWidth>(fInherited, dummy, this);
+    commitToPaint<SkSVGAttribute::kFill>(fInherited, fake, this);
+    commitToPaint<SkSVGAttribute::kFillOpacity>(fInherited, fake, this);
+    commitToPaint<SkSVGAttribute::kStroke>(fInherited, fake, this);
+    commitToPaint<SkSVGAttribute::kStrokeLineCap>(fInherited, fake, this);
+    commitToPaint<SkSVGAttribute::kStrokeLineJoin>(fInherited, fake, this);
+    commitToPaint<SkSVGAttribute::kStrokeMiterLimit>(fInherited, fake, this);
+    commitToPaint<SkSVGAttribute::kStrokeOpacity>(fInherited, fake, this);
+    commitToPaint<SkSVGAttribute::kStrokeWidth>(fInherited, fake, this);
 }
 
 SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,

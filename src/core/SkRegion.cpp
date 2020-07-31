@@ -896,7 +896,7 @@ static int operate(const SkRegionPriv::RunType a_runs[],
                    SkRegion::Op op,
                    bool quickExit) {
     const SkRegionPriv::RunType gEmptyScanline[] = {
-        0,  // dummy bottom value
+        0,  // fake bottom value
         0,  // zero intervals
         SkRegion_kRunTypeSentinel,
         // just need a 2nd value, since spanRec.init() reads 2 values, even

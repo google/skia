@@ -176,7 +176,7 @@ static void test_read_beyond_buffer(skiatest::Reporter* reporter, size_t bufferS
     test_read(reporter, bufferedStream.get(), gAbcs, bufferSize);
 }
 
-// Dummy stream that optionally has a length and/or position. Tests that FrontBufferedStream's
+// Mock stream that optionally has a length and/or position. Tests that FrontBufferedStream's
 // length depends on the stream it's buffering having a length and position.
 class LengthOptionalStream : public SkStream {
 public:
@@ -268,7 +268,7 @@ DEF_TEST(FrontBufferedStream, reporter) {
 }
 
 // Test that a FrontBufferedStream does not allow reading after the end of a stream.
-// This class is a dummy SkStream which reports that it is at the end on the first
+// This class is a mock SkStream which reports that it is at the end on the first
 // read (simulating a failure). Then it tracks whether someone calls read() again.
 class FailingStream : public SkStream {
 public:

@@ -316,7 +316,7 @@ public:
 
     /**
      *  Return a scalercontext for the given descriptor. It may return a
-     *  dummy scalercontext that will not crash, but will draw nothing.
+     *  stub scalercontext that will not crash, but will draw nothing.
      */
     std::unique_ptr<SkScalerContext> createScalerContext(const SkScalerContextEffects&,
                                                          const SkDescriptor*) const;
