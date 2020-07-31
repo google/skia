@@ -87,6 +87,24 @@
       "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd39d212_e37a6cee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T15:56:20Z",
+      "side": 1,
+      "message": "I guess the tricky part comes when an effect calls sample(kid, xy), right?\n\nsample(kid) with no explicit xy should work just fine for any effect, and would be the main way effects can be used as color filters.\n\nI\u0027d think if we want to guarantee an effect used as color filter sees only its single input, in addition to providing (0,0) local and device coordinates, and perhaps too obvious to say only allowing one child, we\u0027d also need to make sample(kid, xy) return sample(kid).  It\u0027s not enough to not know where you are... you also have to allow access to exactly that one color to be a color filter.  If an effect calls sample(kid) and then later sample(kid,xy) with xy depending on the result of the first sample(kid) call, that filter\u0027s not space-invariant.\n\nI don\u0027t have a strong opinion on whether we should analyze the effect for non-color-filter properties and return null on creation, or allow these effects to make color filters while disabling features that could let them be spatially-sensitive.  My main point is that if we want to make a runtime effect act as a color filter, let\u0027s restrict the effect to the constraints of a color filter, not change the rules of color filters to accommodate our shared implementation with runtime shaders.\n\nThis will come up with blend modes too... today we allow our blend modes to depend on two varying pixels only, and when those two pixels (or properties of them) are known we can confidently apply the blend mode or strength reduce the math.  If we let a blend mode depend on arbitrary inputs, we\u0027ll lose that constraint.",
+      "parentUuid": "e5f456fd_c6d3b9e3",
+      "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
