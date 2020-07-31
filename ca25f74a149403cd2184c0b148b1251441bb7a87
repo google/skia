@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d32967d5_7b323b24",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:33:34Z",
+      "side": 1,
+      "message": "I noticed we check the true-type above (since the true- and false-cases should be the same), but what happens for a case like this? Is it caught?\n\n    test(\"in shader? child1; in shader? child2;\",\n         \"color \u003d sample(p.x \u003e 10 ? null : child2);\",\n         \"expression\");",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 23
+      },
+      "revId": "ca25f74a149403cd2184c0b148b1251441bb7a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ad52dfe_92944691",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-07-31T19:33:34Z",
+      "side": 1,
+      "message": "Same question as above (x ? null : child2)",
+      "range": {
+        "startLine": 875,
+        "startChar": 0,
+        "endLine": 879,
+        "endChar": 0
+      },
+      "revId": "ca25f74a149403cd2184c0b148b1251441bb7a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
