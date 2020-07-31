@@ -93,6 +93,9 @@ public:
         kMin_Version     = kMorphologyTakesScalar_Version,
         kCurrent_Version = kCubicResamplerImageShader_Version
     };
+
+    static_assert(SkPicturePriv::kMin_Version <= SkPicturePriv::kCubicResamplerImageShader_Version,
+        "Remove SkFontDescriptor::maybeAsSkFontData, SkFontMgr::makeFromFontData, kFontAxes");
 };
 
 #endif
