@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7683fda5_28ff9aed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-31T18:07:06Z",
+      "side": 1,
+      "message": "I just saw this come through status and it\u0027s not 100% the right way to do this, based on how the layout FP returns values to the main gradient FP. The layout t is stored in the returned \"color\"\u0027s x channel, and the returned color\u0027s y channel is used as a discard flag for complex gradients (two-point conical). \n\nAt the moment, it just so happens that we tend to return y \u003d 0 for the other layouts, and most colorizers don\u0027t depend on the y channel of their coord. The exception to this is texture-based one, which samples by xy now. Since we always bind a texture with h\u003d1, there shouldn\u0027t be any real change between the likely y \u003d 0, and original y \u003d 0.5.\n\nIn a follow up CL it would be good to just have the clamp/tile gradient effects sample their colorizer FP at t.x0 instead of t.xy so that there isn\u0027t a future risk of contamination from layout to colorizer.",
+      "revId": "6d3996c1f67eccb6e89556af642722d9357f25f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
