@@ -34,6 +34,24 @@
       "revId": "511cf4fca793ed8764e4a14be733392f99159771",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6491f79f_6eda15d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10717
+      },
+      "writtenOn": "2020-07-31T20:47:20Z",
+      "side": 1,
+      "message": "Okay thanks for the info - that\u0027s really useful.\n\nThe reason why I ask is that JIT requires memory to be marked executable and we\u0027re trying to land mitigations (on e.g. Windows) that block the creation of new executable pages (think, mprotect on Linux) - on Windows this is called Arbitrary Code Guard (ACG) or ProhibitDynamicCode as described in https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-process_mitigation_dynamic_code_policy.\n\nSo, I was doing an audit of places in the codebase that do this, obviously V8 does for its JIT but I was surprised that Skia might also want to do this. I am most concerned if this intends to run in the browser process, since that\u0027s likely where marking pages executable would likely be prohibited going forward.\n\nSo, I suppose my question is - you mentioned this JIT would be optional, so are you likely to deploy this and under what circumstances, and would it be for code running in Chromium renderers, or the parts of Skia that run in the browser process?\n\nThere\u0027s also the case of CFG (Control Flow Guard) - which is like clang-cfi, and likely to be enabled sooner and across all processes in Chromium, and I would want to check if you were planning to make indirect calls directly into the JIT - if so then these pages would have to remain as valid call targets.\n\nThanks!",
+      "parentUuid": "5d11ba29_6b1c20bf",
+      "revId": "511cf4fca793ed8764e4a14be733392f99159771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
