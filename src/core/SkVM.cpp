@@ -51,7 +51,7 @@ bool gSkVMJITViaDylib{false};
         }
         static void remap_as_executable(void* ptr, size_t len) {
             DWORD old;
-            VirtualProtect(ptr, len, PAGE_EXECUTE_READ, &old);
+            VirtualProtect(ptr, len, PAGE_EXECUTE_READ | PAGE_TARGETS_INVALID, &old);
             SkASSERT(old == PAGE_READWRITE);
         }
         static void close_dylib(void* dylib) {
