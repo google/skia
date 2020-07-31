@@ -25,7 +25,7 @@ namespace sk_gpu_test {
 class LazyYUVImage {
 public:
     // Returns null if the data could not be extracted into YUVA8 planes
-    static std::unique_ptr<LazyYUVImage> Make(sk_sp<SkData> data);
+    static std::unique_ptr<LazyYUVImage> Make(sk_sp<SkData> data, GrMipmapped = GrMipmapped::kNo);
 
     sk_sp<SkImage> refImage(GrRecordingContext* rContext);
 
@@ -38,13 +38,14 @@ private:
     SkYUVAIndex fComponents[SkYUVAIndex::kIndexCount];
     SkAutoMalloc fPlaneData;
     SkPixmap fPlanes[SkYUVASizeInfo::kMaxCount];
+    GrMipmapped fMipmapped;
 
     // Memoized SkImage formed with planes
     sk_sp<SkImage> fYUVImage;
 
     LazyYUVImage() = default;
 
-    bool reset(sk_sp<SkData> data);
+    bool reset(sk_sp<SkData> data, GrMipmapped);
 
     bool ensureYUVImage(GrRecordingContext* rContext);
 };

@@ -30,7 +30,8 @@ DEF_SIMPLE_GM_CAN_FAIL(ducky_yuv_blend, canvas, errorMsg, 560, 1130) {
     // If we're on the GPU we do a second round of draws where the source image is YUV planes.
     // Otherwise we just draw the original again,
     if (auto* rContext = canvas->recordingContext(); rContext && !rContext->abandoned()) {
-        auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(GetResourceAsData("images/ducky.jpg"));
+        auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(GetResourceAsData("images/ducky.jpg"),
+                                                       GrMipmapped::kYes);
         if (lazyYUV) {
             duckyFG[1] = lazyYUV->refImage(rContext);
         }
