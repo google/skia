@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrTessellateStrokeShader.h"
+#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -13,7 +13,7 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-class GrTessellateStrokeShader::Impl : public GrGLSLGeometryProcessor {
+class GrStrokeTessellateShader::Impl : public GrGLSLGeometryProcessor {
 public:
     const char* getMiterLimitUniformName(const GrGLSLUniformHandler& uniformHandler) const {
         return uniformHandler.getUniformCStr(fMiterLimitUniform);
@@ -25,7 +25,7 @@ public:
 
 private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGP.cast<GrTessellateStrokeShader>();
+        const auto& shader = args.fGP.cast<GrStrokeTessellateShader>();
         args.fVaryingHandler->emitAttributes(shader);
 
         fMiterLimitUniform = args.fUniformHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
@@ -57,7 +57,7 @@ private:
 
     void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& primProc) override {
-        const auto& shader = primProc.cast<GrTessellateStrokeShader>();
+        const auto& shader = primProc.cast<GrStrokeTessellateShader>();
 
         if (shader.fMiterLimitOrZero != 0 && fCachedMiterLimitValue != shader.fMiterLimitOrZero) {
             pdman.set1f(fMiterLimitUniform, shader.fMiterLimitOrZero);
@@ -81,10 +81,10 @@ private:
     float fCachedMiterLimitValue = -1;
 };
 
-SkString GrTessellateStrokeShader::getTessControlShaderGLSL(
+SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         const GrGLSLPrimitiveProcessor* glslPrimProc, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler& uniformHandler, const GrShaderCaps& shaderCaps) const {
-    auto impl = static_cast<const GrTessellateStrokeShader::Impl*>(glslPrimProc);
+    auto impl = static_cast<const GrStrokeTessellateShader::Impl*>(glslPrimProc);
 
     SkString code(versionAndExtensionDecls);
     code.append("layout(vertices = 1) out;\n");
@@ -192,10 +192,10 @@ SkString GrTessellateStrokeShader::getTessControlShaderGLSL(
     return code;
 }
 
-SkString GrTessellateStrokeShader::getTessEvaluationShaderGLSL(
+SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         const GrGLSLPrimitiveProcessor* glslPrimProc, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler& uniformHandler, const GrShaderCaps&) const {
-    auto impl = static_cast<const GrTessellateStrokeShader::Impl*>(glslPrimProc);
+    auto impl = static_cast<const GrStrokeTessellateShader::Impl*>(glslPrimProc);
 
     SkString code(versionAndExtensionDecls);
     code.append("layout(quads, equal_spacing, ccw) in;\n");
@@ -274,7 +274,7 @@ SkString GrTessellateStrokeShader::getTessEvaluationShaderGLSL(
     return code;
 }
 
-GrGLSLPrimitiveProcessor* GrTessellateStrokeShader::createGLSLInstance(
+GrGLSLPrimitiveProcessor* GrStrokeTessellateShader::createGLSLInstance(
         const GrShaderCaps&) const {
     return new Impl;
 }

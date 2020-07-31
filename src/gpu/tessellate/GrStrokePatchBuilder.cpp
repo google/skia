@@ -12,7 +12,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/tessellate/GrTessellateStrokeShader.h"
+#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 #include "src/gpu/tessellate/GrVectorXform.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
@@ -20,7 +20,7 @@
 // converting it to flat line segments.
 static constexpr float kLinearizationIntolerance = 8;  // 1/8 pixel.
 
-constexpr static float kInternalRoundJoinType = GrTessellateStrokeShader::kInternalRoundJoinType;
+constexpr static float kInternalRoundJoinType = GrStrokeTessellateShader::kInternalRoundJoinType;
 
 static Sk2f lerp(const Sk2f& a, const Sk2f& b, float T) {
     SkASSERT(1 != T);  // The below does not guarantee lerp(a, b, 1) === b.
@@ -51,7 +51,7 @@ void GrStrokePatchBuilder::allocVertexChunk(int minVertexAllocCount) {
 }
 
 SkPoint* GrStrokePatchBuilder::reservePatch() {
-    constexpr static int kNumVerticesPerPatch = GrTessellateStrokeShader::kNumVerticesPerPatch;
+    constexpr static int kNumVerticesPerPatch = GrStrokeTessellateShader::kNumVerticesPerPatch;
     if (fVertexChunkArray->back().fVertexCount + kNumVerticesPerPatch > fCurrChunkVertexCapacity) {
         // The current chunk is full. Time to allocate a new one. (And no need to put back vertices;
         // the buffer is full.)
@@ -134,9 +134,9 @@ void GrStrokePatchBuilder::writeCaps() {
             break;
         case SkPaint::kRound_Cap:
             // A round cap is the same thing as a 180-degree round join.
-            this->writeJoin(GrTessellateStrokeShader::kRoundJoinType, fCurrContourStartPoint,
+            this->writeJoin(GrStrokeTessellateShader::kRoundJoinType, fCurrContourStartPoint,
                             fCurrContourFirstControlPoint, fCurrContourFirstControlPoint);
-            this->writeJoin(GrTessellateStrokeShader::kRoundJoinType, fCurrentPoint,
+            this->writeJoin(GrStrokeTessellateShader::kRoundJoinType, fCurrentPoint,
                             fLastControlPoint, fLastControlPoint);
             break;
         case SkPaint::kSquare_Cap:
@@ -196,11 +196,11 @@ void GrStrokePatchBuilder::addPath(const SkPath& path, const SkStrokeRec& stroke
 static float join_type_from_join(SkPaint::Join join) {
     switch (join) {
         case SkPaint::kBevel_Join:
-            return GrTessellateStrokeShader::kBevelJoinType;
+            return GrStrokeTessellateShader::kBevelJoinType;
         case SkPaint::kMiter_Join:
-            return GrTessellateStrokeShader::kMiterJoinType;
+            return GrStrokeTessellateShader::kMiterJoinType;
         case SkPaint::kRound_Join:
-            return GrTessellateStrokeShader::kRoundJoinType;
+            return GrStrokeTessellateShader::kRoundJoinType;
     }
     SkUNREACHABLE;
 }

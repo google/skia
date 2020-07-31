@@ -18,8 +18,8 @@
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
-#include "src/gpu/tessellate/GrTessellatePathOp.h"
-#include "src/gpu/tessellate/GrTessellateStrokeOp.h"
+#include "src/gpu/tessellate/GrPathTessellateOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
 constexpr static SkISize kAtlasInitialSize{512, 512};
@@ -249,7 +249,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         path.transform(*args.fViewMatrix, &devPath);
         SkStrokeRec devStroke = args.fShape->style().strokeRec();
         devStroke.setStrokeStyle(1);
-        auto op = pool->allocate<GrTessellateStrokeOp>(args.fAAType, SkMatrix::I(), devPath,
+        auto op = pool->allocate<GrStrokeTessellateOp>(args.fAAType, SkMatrix::I(), devPath,
                                                        devStroke, std::move(args.fPaint));
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
@@ -258,7 +258,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!args.fShape->style().isSimpleFill()) {
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
         SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
-        auto op = pool->allocate<GrTessellateStrokeOp>(args.fAAType, *args.fViewMatrix, path,
+        auto op = pool->allocate<GrStrokeTessellateOp>(args.fAAType, *args.fViewMatrix, path,
                                                        stroke, std::move(args.fPaint));
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
@@ -272,7 +272,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         drawPathFlags |= OpFlags::kDisableHWTessellation;
     }
 
-    auto op = pool->allocate<GrTessellatePathOp>(*args.fViewMatrix, path, std::move(args.fPaint),
+    auto op = pool->allocate<GrPathTessellateOp>(*args.fViewMatrix, path, std::move(args.fPaint),
                                                  args.fAAType, drawPathFlags);
     renderTargetContext->addDrawOp(args.fClip, std::move(op));
     return true;
@@ -343,7 +343,7 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
 
-    auto op = args.fContext->priv().opMemoryPool()->allocate<GrTessellatePathOp>(
+    auto op = args.fContext->priv().opMemoryPool()->allocate<GrPathTessellateOp>(
             *args.fViewMatrix, path, GrPaint(), aaType, OpFlags::kStencilOnly);
     args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
 }
@@ -392,7 +392,7 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
             }
             uberPath->setFillType(fillType);
             GrAAType aaType = (antialias) ? GrAAType::kMSAA : GrAAType::kNone;
-            auto op = onFlushRP->opMemoryPool()->allocate<GrTessellatePathOp>(
+            auto op = onFlushRP->opMemoryPool()->allocate<GrPathTessellateOp>(
                     SkMatrix::I(), *uberPath, GrPaint(), aaType, fStencilAtlasFlags);
             rtc->addDrawOp(nullptr, std::move(op));
         }

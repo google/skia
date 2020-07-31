@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTessellateStrokeShader_DEFINED
-#define GrTessellateStrokeShader_DEFINED
+#ifndef GrStrokeTessellateShader_DEFINED
+#define GrStrokeTessellateShader_DEFINED
 
 #include "src/gpu/tessellate/GrPathShader.h"
 
@@ -36,7 +36,7 @@ class GrGLSLUniformHandler;
 //
 // To use this shader, construct a GrProgramInfo with a primitiveType of "kPatches" and a
 // tessellationPatchVertexCount of 5.
-class GrTessellateStrokeShader : public GrPathShader {
+class GrStrokeTessellateShader : public GrPathShader {
 public:
     constexpr static float kBevelJoinType = -1;
     constexpr static float kMiterJoinType = -2;
@@ -52,8 +52,8 @@ public:
     // If 'miterLimitOrZero' is zero, then the patches being drawn cannot include any miter joins.
     // If a stroke uses miter joins with a miter limit of zero, then they need to be pre-converted
     // to bevel joins.
-    GrTessellateStrokeShader(const SkMatrix& skewMatrix, SkPMColor4f color, float miterLimitOrZero)
-            : GrPathShader(kTessellate_GrTessellateStrokeShader_ClassID, skewMatrix,
+    GrStrokeTessellateShader(const SkMatrix& skewMatrix, SkPMColor4f color, float miterLimitOrZero)
+            : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, skewMatrix,
                            GrPrimitiveType::kPatches, kNumVerticesPerPatch)
             , fColor(color)
             , fMiterLimitOrZero(miterLimitOrZero) {
@@ -67,7 +67,7 @@ public:
     }
 
 private:
-    const char* name() const override { return "GrTessellateStrokeShader"; }
+    const char* name() const override { return "GrStrokeTessellateShader"; }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32(this->viewMatrix().isIdentity());
     }

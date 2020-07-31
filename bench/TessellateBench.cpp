@@ -11,8 +11,8 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
+#include "src/gpu/tessellate/GrPathTessellateOp.h"
 #include "src/gpu/tessellate/GrResolveLevelCounter.h"
-#include "src/gpu/tessellate/GrTessellatePathOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
 
@@ -104,8 +104,8 @@ private:
     SkSTArenaAlloc<1024 * 1024> fAllocator;
 };
 
-// This serves as a base class for benchmarking individual methods on GrTessellatePathOp.
-class GrTessellatePathOp::TestingOnly_Benchmark : public Benchmark {
+// This serves as a base class for benchmarking individual methods on GrPathTessellateOp.
+class GrPathTessellateOp::TestingOnly_Benchmark : public Benchmark {
 public:
     TestingOnly_Benchmark(const char* subName, SkPath path, const SkMatrix& m)
             : fOp(m, path, GrPaint(), GrAAType::kMSAA, GrTessellationPathRenderer::OpFlags::kNone) {
@@ -142,23 +142,23 @@ private:
         }
     }
 
-    virtual void runBench(GrMeshDrawOp::Target*, GrTessellatePathOp*) = 0;
+    virtual void runBench(GrMeshDrawOp::Target*, GrPathTessellateOp*) = 0;
 
-    GrTessellatePathOp fOp;
+    GrPathTessellateOp fOp;
     BenchmarkTarget fTarget;
     SkString fName;
 };
 
 #define DEF_TESS_BENCH(NAME, PATH, MATRIX, TARGET, OP) \
-    class GrTessellatePathOp::TestingOnly_Benchmark::NAME \
-            : public GrTessellatePathOp::TestingOnly_Benchmark { \
+    class GrPathTessellateOp::TestingOnly_Benchmark::NAME \
+            : public GrPathTessellateOp::TestingOnly_Benchmark { \
     public: \
         NAME() : TestingOnly_Benchmark(#NAME, (PATH), (MATRIX)) {} \
-        void runBench(GrMeshDrawOp::Target* target, GrTessellatePathOp* op) override; \
+        void runBench(GrMeshDrawOp::Target* target, GrPathTessellateOp* op) override; \
     }; \
-    DEF_BENCH( return new GrTessellatePathOp::TestingOnly_Benchmark::NAME(); ); \
-    void GrTessellatePathOp::TestingOnly_Benchmark::NAME::runBench( \
-            GrMeshDrawOp::Target* TARGET, GrTessellatePathOp* op)
+    DEF_BENCH( return new GrPathTessellateOp::TestingOnly_Benchmark::NAME(); ); \
+    void GrPathTessellateOp::TestingOnly_Benchmark::NAME::runBench( \
+            GrMeshDrawOp::Target* TARGET, GrPathTessellateOp* op)
 
 DEF_TESS_BENCH(prepareMiddleOutStencilGeometry, make_cubic_path(), SkMatrix::I(), target, op) {
     op->prepareMiddleOutTrianglesAndCubics(target);

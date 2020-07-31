@@ -13,7 +13,7 @@
 #include "src/gpu/GrPathRenderer.h"
 #include <map>
 
-// This is the tie-in point for path rendering via GrTessellatePathOp. This path renderer draws
+// This is the tie-in point for path rendering via GrPathTessellateOp. This path renderer draws
 // paths using a hybrid Red Book "stencil, then cover" method. Curves get linearized by GPU
 // tessellation shaders. This path renderer doesn't apply analytic AA, so it requires a render
 // target that supports either MSAA or mixed samples if AA is desired.
