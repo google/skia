@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7a4803b_3e421f5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-31T15:50:55Z",
+      "side": 1,
+      "message": "Do you want to remove the dehydrated SkSL from this CL? (That\u0027s there because of a non-determinism bug in the generation that Ethan is fixing). Other than that, lgtm.",
+      "revId": "072e488aa18b12ee4965fe8795e2d6f7edc9e04b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
