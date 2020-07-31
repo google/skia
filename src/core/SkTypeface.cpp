@@ -151,16 +151,6 @@ sk_sp<SkTypeface> SkTypeface::MakeFromData(sk_sp<SkData> data, int index) {
     return SkFontMgr::RefDefault()->makeFromData(std::move(data), index);
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeFromFontData(std::unique_ptr<SkFontData> data) {
-    if (data->hasStream()) {
-        if (auto tf = SkCustomTypefaceBuilder::Deserialize(data->getStream())) {
-            return tf;
-        }
-    }
-
-    return SkFontMgr::RefDefault()->makeFromFontData(std::move(data));
-}
-
 sk_sp<SkTypeface> SkTypeface::MakeFromFile(const char path[], int index) {
     return SkFontMgr::RefDefault()->makeFromFile(path, index);
 }
@@ -183,30 +173,19 @@ void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const
         case SerializeBehavior::kIncludeDataIfLocal: shouldSerializeData = isLocalData; break;
     }
 
-    // TODO: why do we check hasFontData() and allow the data to pass through even if the caller
-    //       has said they don't want the fontdata? Does this actually happen (getDescriptor returns
-    //       fontdata as well?)
-    if (shouldSerializeData && !desc.hasFontData()) {
-        SkFontArguments args;
-
+    if (shouldSerializeData) {
         int index;
-        std::unique_ptr<SkStreamAsset> stream = this->openStream(&index);
-        args.setCollectionIndex(index);
-
-        SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> variation;
-        int numAxes = this->getVariationDesignPosition(nullptr, 0);
-        if (0 < numAxes) {
-            variation.reset(numAxes);
-            numAxes = this->getVariationDesignPosition(variation.get(), numAxes);
-            if (0 < numAxes) {
-                SkFontArguments::VariationPosition pos{variation.get(), numAxes};
-                args.setVariationDesignPosition(pos);
-            }
+        desc.setStream(this->openStream(&index));
+        if (desc.hasStream()) {
+            desc.setCollectionIndex(index);
         }
 
-        if (stream) {
-            std::unique_ptr<SkFontData> fontData(new SkFontData(std::move(stream), args));
-            desc.setFontData(std::move(fontData));
+        int numAxes = this->getVariationDesignPosition(nullptr, 0);
+        if (0 < numAxes) {
+            numAxes = this->getVariationDesignPosition(desc.setVariationCoordinates(numAxes), numAxes);
+            if (numAxes <= 0) {
+                desc.setVariationCoordinates(0);
+            }
         }
     }
     desc.serialize(wstream);
@@ -224,9 +203,29 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
         return nullptr;
     }
 
-    std::unique_ptr<SkFontData> data = desc.detachFontData();
+    if (desc.hasStream()) {
+        if (auto tf = SkCustomTypefaceBuilder::Deserialize(desc.dupStream().get())) {
+            return tf;
+        }
+    }
+
+    // Have to check for old data format first.
+    std::unique_ptr<SkFontData> data = desc.maybeAsSkFontData();
     if (data) {
-        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(std::move(data)));
+        // Should only get here with old skps.
+        sk_sp<SkFontMgr> defaultFm = SkFontMgr::RefDefault();
+        sk_sp<SkTypeface> typeface(defaultFm->makeFromFontData(std::move(data)));
+        if (typeface) {
+            return typeface;
+        }
+    }
+
+    if (desc.hasStream()) {
+        SkFontArguments args;
+        args.setCollectionIndex(desc.getCollectionIndex());
+        args.setVariationDesignPosition({desc.getVariation(), desc.getVariationCoordinateCount()});
+        sk_sp<SkFontMgr> defaultFm = SkFontMgr::RefDefault();
+        sk_sp<SkTypeface> typeface = defaultFm->makeFromStream(desc.detachStream(), args);
         if (typeface) {
             return typeface;
         }

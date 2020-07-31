@@ -73,22 +73,41 @@ public:
     const char* getFamilyName() const { return fFamilyName.c_str(); }
     const char* getFullName() const { return fFullName.c_str(); }
     const char* getPostscriptName() const { return fPostscriptName.c_str(); }
-    bool hasFontData() const { return fFontData.get() != nullptr; }
-    std::unique_ptr<SkFontData> detachFontData() { return std::move(fFontData); }
 
     void setFamilyName(const char* name) { fFamilyName.set(name); }
     void setFullName(const char* name) { fFullName.set(name); }
     void setPostscriptName(const char* name) { fPostscriptName.set(name); }
-    /** Set the font data only if it is necessary for serialization. */
-    void setFontData(std::unique_ptr<SkFontData> data) { fFontData = std::move(data); }
+
+    bool hasStream() const { return bool(fStream); }
+    std::unique_ptr<SkStreamAsset> dupStream() const { return fStream->duplicate(); }
+    int getCollectionIndex() const { return fCollectionIndex; }
+    int getVariationCoordinateCount() const { return fCoordinateCount; }
+    const SkFontArguments::VariationPosition::Coordinate* getVariation() const {
+        return fVariation.get();
+    }
+
+    std::unique_ptr<SkStreamAsset> detachStream() { return std::move(fStream); }
+    void setStream(std::unique_ptr<SkStreamAsset> stream) { fStream = std::move(stream); }
+    void setCollectionIndex(int collectionIndex) { fCollectionIndex = collectionIndex; }
+    SkFontArguments::VariationPosition::Coordinate* setVariationCoordinates(int coordinateCount) {
+        fCoordinateCount = coordinateCount;
+        return fVariation.reset(coordinateCount);
+    }
+
+    std::unique_ptr<SkFontData> maybeAsSkFontData();
 
 private:
     SkString fFamilyName;
     SkString fFullName;
     SkString fPostscriptName;
-    std::unique_ptr<SkFontData> fFontData;
-
     SkFontStyle fStyle;
+
+    std::unique_ptr<SkStreamAsset> fStream;
+    int fCollectionIndex = 0;
+    using Coordinates = SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate>;
+    bool fVariationDataIsOldAndBad = false;
+    int fCoordinateCount = 0;
+    Coordinates fVariation;
 };
 
 #endif // SkFontDescriptor_DEFINED

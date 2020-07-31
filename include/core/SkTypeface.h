@@ -134,11 +134,6 @@ public:
      */
     static sk_sp<SkTypeface> MakeFromData(sk_sp<SkData>, int index = 0);
 
-    /** Return a new typeface given font data and configuration. If the data
-        is not valid font data, returns nullptr.
-    */
-    static sk_sp<SkTypeface> MakeFromFontData(std::unique_ptr<SkFontData>);
-
     /** Return a new typeface based on this typeface but parameterized as specified in the
         SkFontArguments. If the SkFontArguments does not supply an argument for a parameter
         in the font then the value from this typeface will be used as the value for that
