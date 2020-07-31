@@ -69,6 +69,24 @@
       "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5f456fd_c6d3b9e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-31T15:35:59Z",
+      "side": 1,
+      "message": "I do think there is a good answer here, which is to remove all color filters [1].  I just don\u0027t want to break them before we do.\n\nCan we not just force (0,0) into the local/device coordinates for runtime color filters?  You can write a space-dependent effect, and you\u0027ll just be lied to if it\u0027s used as a filter, but not when used as a composed shader of course.\n\n[1] There\u0027s a edge case where color filters are not just shader adapters today, in that paint alpha modulation happens _between_ the shader and color filter, see SkPaintPriv::RemoveColorFilter().  But it\u0027s the weird caveats like this and colorizing alpha shaders that really make me want to insist on the extreme one-true model and remove paint color too.  I want all this logic to be explicit, with some high-level could-be-external adapters to bridge over old users.",
+      "parentUuid": "7dae2b71_97379c1c",
+      "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
