@@ -24,15 +24,11 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrTextureGradientColorizer& _outer = args.fFp.cast<GrTextureGradientColorizer>();
         (void)_outer;
+        SkString _sample295 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
-                R"SkSL(half2 coord = half2(%s.x, 0.5);)SkSL", args.fInputColor);
-        SkString _coords327("float2(coord)");
-        SkString _sample327 = this->invokeChild(0, args, _coords327.c_str());
-        fragBuilder->codeAppendf(
-                R"SkSL(
-%s = %s;
+                R"SkSL(%s = %s;
 )SkSL",
-                args.fOutputColor, _sample327.c_str());
+                args.fOutputColor, _sample295.c_str());
     }
 
 private:
