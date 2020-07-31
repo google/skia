@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "c08798a5_ef238493",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-31T18:20:09Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look",
+      "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "69c5833e_5a5fd5c5",
         "filename": "fuzz/FuzzMain.cpp",
         "patchSetId": 5
@@ -50,6 +67,24 @@
       "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "464a1167_321fc4fd",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-31T18:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69c5833e_5a5fd5c5",
+      "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -97,6 +132,30 @@
       "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58f7365c_e318da19",
+        "filename": "fuzz/oss_fuzz/FuzzSKP.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-07-31T18:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32f09831_014dd909",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 12
+      },
+      "revId": "edf42db7150e828a56d0bda54b90bc1e3e32eb55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
