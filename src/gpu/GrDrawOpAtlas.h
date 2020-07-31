@@ -117,6 +117,13 @@ public:
 
         uint64_t genID() const { return fPlotLocator.genID(); }
 
+        void insetSrc(int padding) {
+            fRect.fLeft += padding;
+            fRect.fTop += padding;
+            fRect.fRight -= padding;
+            fRect.fBottom -= padding;
+        }
+
     private:
         friend class GrDrawOpAtlas;
 
