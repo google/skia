@@ -393,7 +393,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 return otherContextImage;
             }};
     for (auto mipMapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
-        for (auto factory : imageFactories) {
+        for (const auto& factory : imageFactories) {
             sk_sp<SkImage> image(factory());
             if (!image) {
                 ERRORF(reporter, "Error creating image.");
@@ -458,7 +458,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contex
         create_picture_image,
         [context] { return create_gpu_image(context); },
     };
-    for (auto factory : imageFactories) {
+    for (const auto& factory : imageFactories) {
         sk_sp<SkImage> image = factory();
         if (!image->isTextureBacked()) {
             REPORTER_ASSERT(reporter, image->makeNonTextureImage().get() == image.get());
@@ -1064,11 +1064,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
     auto createLarge = [context] {
         return create_image_large(context->priv().caps()->maxTextureSize());
     };
-    struct {
-        std::function<sk_sp<SkImage> ()>                      fImageFactory;
-        bool                                                  fExpectation;
-        bool                                                  fCanTakeDirectly;
-    } testCases[] = {
+    struct TestCase {
+        std::function<sk_sp<SkImage>()> fImageFactory;
+        bool                            fExpectation;
+        bool                            fCanTakeDirectly;
+    };
+    TestCase testCases[] = {
         { create_image, true, false },
         { create_codec_image, true, false },
         { create_data_image, true, false },
@@ -1085,7 +1086,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
         { createLarge, false, false }
     };
 
-    for (auto testCase : testCases) {
+    for (const TestCase& testCase : testCases) {
         sk_sp<SkImage> image(testCase.fImageFactory());
         if (!image) {
             ERRORF(reporter, "Failed to create image!");

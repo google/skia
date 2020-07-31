@@ -162,7 +162,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         }
     }
 
-    for (const auto [i, name] : SkMakeEnumerate(fEffect->children())) {
+    for (const auto& [i, name] : SkMakeEnumerate(fEffect->children())) {
         auto curShader = std::find_if(fShaders.begin(), fShaders.end(),
                                       [tgt = fChildren[i]](auto p) { return p.second == tgt; });
         SkASSERT(curShader!= fShaders.end());

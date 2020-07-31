@@ -242,7 +242,7 @@ DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, 2 * SCALE + 10) {
         SkColorSpace::MakeSRGB(),
         nullptr,
     };
-    for (auto colorSpace : colorSpaces) {
+    for (const sk_sp<SkColorSpace>& colorSpace : colorSpaces) {
         canvas->save();
         for (auto alphaType : {kPremul_SkAlphaType, kUnpremul_SkAlphaType}) {
             canvas->save();

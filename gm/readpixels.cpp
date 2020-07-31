@@ -158,7 +158,7 @@ protected:
                 make_small_gamut(),
         };
 
-        for (sk_sp<SkColorSpace> dstColorSpace : colorSpaces) {
+        for (const sk_sp<SkColorSpace>& dstColorSpace : colorSpaces) {
             for (SkColorType srcColorType : colorTypes) {
                 canvas->save();
                 sk_sp<SkImage> image = make_raster_image(srcColorType);
@@ -227,7 +227,7 @@ protected:
         };
 
         sk_sp<SkImage> image = make_codec_image();
-        for (sk_sp<SkColorSpace> dstColorSpace : colorSpaces) {
+        for (const sk_sp<SkColorSpace>& dstColorSpace : colorSpaces) {
             canvas->save();
             for (SkColorType dstColorType : colorTypes) {
                 for (SkAlphaType dstAlphaType : alphaTypes) {
@@ -293,8 +293,8 @@ protected:
                 SkImage::kDisallow_CachingHint,
         };
 
-        for (sk_sp<SkImage> image : images) {
-            for (sk_sp<SkColorSpace> dstColorSpace : colorSpaces) {
+        for (const sk_sp<SkImage>& image : images) {
+            for (const sk_sp<SkColorSpace>& dstColorSpace : colorSpaces) {
                 canvas->save();
                 for (SkColorType dstColorType : colorTypes) {
                     for (SkAlphaType dstAlphaType : alphaTypes) {
