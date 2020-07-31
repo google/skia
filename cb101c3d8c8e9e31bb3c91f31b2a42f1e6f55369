@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a32c411_7de95220",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-31T15:17:31Z",
+      "side": 1,
+      "message": "oof that\u0027s sneaky, I just have some minor tweaks/clarifications",
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26dec891_b6075cdc",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-31T15:17:31Z",
+      "side": 1,
+      "message": "nit: alignment",
+      "range": {
+        "startLine": 776,
+        "startChar": 29,
+        "endLine": 776,
+        "endChar": 30
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21a5ebad_eefab01f",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-31T15:17:31Z",
+      "side": 1,
+      "message": "I find this name a little hard to grok. Does anywhere mean it can be called anywhere else in the code? Or that the op can be anywhere in the op chain?",
+      "range": {
+        "startLine": 808,
+        "startChar": 8,
+        "endLine": 808,
+        "endChar": 24
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab57fe3f_684b6f3a",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-31T15:17:31Z",
+      "side": 1,
+      "message": "It took me a moment to appreciate this, since at face value, this feels like its redundant with the CanUpgradeAAOnMerge+CombinedQuadCountWillOverflow, but this really is a chain-specific scenario.\n\nSo, if I\u0027m understanding the bug correctly, this is what happens:\nBecause it\u0027s only a maybe-chain, and we don\u0027t update this op to reflect the upgradeToCoverageAAOnMerge for a chain, we land in a situation where a non-aa and coverage-aa op are chained together. But the head op reports non-aa, so subsequent chains with non-aa see a different aa type than the net aa type of the chain once we finalize/characterize things.\n\nMerging can still occur with different AA types because then we properly update the metadata at the time of combining.\n\n--\n\nSo maybe, add to this comment that it sees the incorrect AA type *later* because we don\u0027t update metadata when ops are only chained?",
+      "range": {
+        "startLine": 1059,
+        "startChar": 16,
+        "endLine": 1061,
+        "endChar": 84
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a975bfc_dcb805fb",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1354,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-31T15:17:31Z",
+      "side": 1,
+      "message": "I think this can just be removed, and just add replace the first if condition with:\n \n   if (set[absIndex].fAAFlags !\u003d GrQuadAAFlags::kNone || runningAA \u003d\u003d GrAAType::kCoverage) {",
+      "range": {
+        "startLine": 1347,
+        "startChar": 22,
+        "endLine": 1354,
+        "endChar": 21
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "778adb12_e678e75a",
+        "filename": "tests/BulkRectTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-07-31T15:17:31Z",
+      "side": 1,
+      "message": "nit: create?",
+      "range": {
+        "startLine": 283,
+        "startChar": 46,
+        "endLine": 283,
+        "endChar": 47
+      },
+      "revId": "cb101c3d8c8e9e31bb3c91f31b2a42f1e6f55369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
