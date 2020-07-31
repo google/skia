@@ -534,7 +534,7 @@ static inline Vec<N,float> from_half(const Vec<N,uint16_t>& x) {
 #endif
 #if defined(__aarch64__)
     if /*constexpr*/ (N == 4) {
-        return unchecked_bit_pun<Vec<N,float>>(vcvt_f32_f16(unchecked_bit_pun<uint16x4_t>(x)));
+        return unchecked_bit_pun<Vec<N,float>>(vcvt_f32_f16(unchecked_bit_pun<float16x4_t>(x)));
     }
 #endif
     if /*constexpr*/ (N > 4) {
