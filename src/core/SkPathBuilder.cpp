@@ -113,6 +113,16 @@ SkPathBuilder& SkPathBuilder::close() {
     return *this;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
+SkPathBuilder& SkPathBuilder::rConicTo(SkPoint p1, SkPoint p2, SkScalar w) {
+    this->ensureMove();
+    SkPoint base = fPts[fPts.count() - 1];
+    return this->conicTo(base + p1, base + p2, w);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 SkPath SkPathBuilder::snapshot() {
     return SkPath(sk_sp<SkPathRef>(new SkPathRef(fPts, fVerbs, fConicWeights, fSegmentMask)),
                   fFillType, fIsVolatile);
