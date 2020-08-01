@@ -14,6 +14,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
@@ -815,7 +816,7 @@ void SkSVGDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
 
 void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
                              const SkPoint pts[], const SkPaint& paint) {
-    SkPath path;
+    SkPathBuilder path;
 
     switch (mode) {
             // todo
@@ -825,20 +826,18 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
         case SkCanvas::kLines_PointMode:
             count -= 1;
             for (size_t i = 0; i < count; i += 2) {
-                path.rewind();
                 path.moveTo(pts[i]);
                 path.lineTo(pts[i+1]);
             }
             break;
         case SkCanvas::kPolygon_PointMode:
             if (count > 1) {
-                path.addPoly(pts, SkToInt(count), false);
-                path.moveTo(pts[0]);
+                path.addPolygon(pts, SkToInt(count), false);
             }
             break;
     }
 
-    this->drawPath(path, paint, true);
+    this->drawPath(path.detach(), paint, true);
 }
 
 void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {

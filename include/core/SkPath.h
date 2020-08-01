@@ -20,6 +20,9 @@ class SkData;
 class SkRRect;
 class SkWStream;
 
+// WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/9000)
+//#define SK_HIDE_PATH_EDIT_METHODS
+
 /** \class SkPath
     SkPath contain geometry. SkPath may be empty, or contain one or more verbs that
     outline a figure. SkPath always starts with a move verb to a Cartesian coordinate,
@@ -547,6 +550,10 @@ public:
     */
     void shrinkToFit();
 
+#ifdef SK_HIDE_PATH_EDIT_METHODS
+private:
+#endif
+
     /** Adds beginning of contour at SkPoint (x, y).
 
         @param x  x-axis value of contour start
@@ -993,6 +1000,10 @@ public:
         example: https://fiddle.skia.org/c/@Path_close
     */
     SkPath& close();
+
+#ifdef SK_HIDE_PATH_EDIT_METHODS
+public:
+#endif
 
     /** Approximates conic with quad array. Conic is constructed from start SkPoint p0,
         control SkPoint p1, end SkPoint p2, and weight w.

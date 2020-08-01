@@ -89,6 +89,8 @@ public:
         return this->addRRect(rect, dir, 0);
     }
 
+    SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool isClosed);
+
     // Performance hint, to reserve extra storage for subsequent calls to lineTo, quadTo, etc.
 
     void incReserve(int extraPtCount, int extraVerbCount);

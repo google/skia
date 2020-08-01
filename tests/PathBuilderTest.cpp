@@ -178,3 +178,29 @@ DEF_TEST(pathbuilder_genid, r) {
 
     REPORTER_ASSERT(r, p1.getGenerationID() != p2.getGenerationID());
 }
+
+DEF_TEST(pathbuilder_addPolygon, reporter) {
+    SkPoint pts[] = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
+
+    auto addpoly = [](const SkPoint pts[], int count, bool isClosed) {
+        SkPathBuilder builder;
+        if (count > 0) {
+            builder.moveTo(pts[0]);
+            for (int i = 1; i < count; ++i) {
+                builder.lineTo(pts[i]);
+            }
+            if (isClosed) {
+                builder.close();
+            }
+        }
+        return builder.detach();
+    };
+
+    for (bool isClosed : {false, true}) {
+        for (size_t i = 0; i <= SK_ARRAY_COUNT(pts); ++i) {
+            auto path0 = SkPathBuilder().addPolygon(pts, i, isClosed).detach();
+            auto path1 = addpoly(pts, i, isClosed);
+            REPORTER_ASSERT(reporter, path0 == path1);
+        }
+    }
+}
