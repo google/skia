@@ -430,19 +430,17 @@ struct FourPoints {
 };
 
 DEF_TEST(PathOpsAngleAfter, reporter) {
-    SkSTArenaAlloc<4096> allocator;
-    SkOpContourHead contour;
-    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
-    contour.init(&state, false, false);
     for (int index = intersectDataSetsSize - 1; index >= 0; --index) {
         IntersectData* dataArray = intersectDataSets[index];
         const int dataSize = intersectDataSetSizes[index];
         for (int index2 = 0; index2 < dataSize - 2; ++index2) {
-            allocator.reset();
-            contour.reset();
+            SkSTArenaAlloc<4096> alloc;
+            SkOpContourHead contour;
+            SkOpGlobalState state(&contour, &alloc  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+            contour.init(&state, false, false);
             for (int index3 = 0; index3 < 3; ++index3) {
                 IntersectData& data = dataArray[index2 + index3];
-                SkPoint* temp = (SkPoint*) allocator.make<FourPoints>();
+                SkPoint* temp = (SkPoint*) alloc.make<FourPoints>();
                 for (int idx2 = 0; idx2 < data.fPtCount; ++idx2) {
                     temp[idx2] = data.fPts.fPts[idx2].asSkPoint();
                 }

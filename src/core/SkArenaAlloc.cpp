@@ -17,13 +17,10 @@ static uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllo
 }
 
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
-    : fDtorCursor{block}
-    , fCursor{block}
-    , fEnd{block + ToU32(size)}
-    , fFirstBlock{block}
-    , fFirstSize{ToU32(size)}
-    , fFirstHeapAllocationSize{first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
-    , fNextHeapAlloc{fFirstHeapAllocationSize}
+    : fDtorCursor {block}
+    , fCursor     {block}
+    , fEnd        {block + ToU32(size)}
+    , fNextHeapAlloc{first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
     , fYetNextHeapAlloc{fNextHeapAlloc}
 {
     if (size < sizeof(Footer)) {
@@ -37,11 +34,6 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
 
 SkArenaAlloc::~SkArenaAlloc() {
     RunDtorsOnBlock(fDtorCursor);
-}
-
-void SkArenaAlloc::reset() {
-    this->~SkArenaAlloc();
-    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
 }
 
 void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
@@ -174,4 +166,22 @@ restart:
     }
 
     return objStart;
+}
+
+static uint32_t to_uint32_t(size_t v) {
+    assert(SkTFitsIn<uint32_t>(v));
+    return (uint32_t)v;
+}
+
+SkArenaAllocWithReset::SkArenaAllocWithReset(char* block,
+                                             size_t size,
+                                             size_t firstHeapAllocation)
+        : SkArenaAlloc(block, size, firstHeapAllocation)
+        , fFirstBlock{block}
+        , fFirstSize{to_uint32_t(size)}
+        , fFirstHeapAllocationSize{to_uint32_t(firstHeapAllocation)} {}
+
+void SkArenaAllocWithReset::reset() {
+    this->~SkArenaAllocWithReset();
+    new (this) SkArenaAllocWithReset{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
 }

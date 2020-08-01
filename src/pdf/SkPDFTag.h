@@ -51,7 +51,7 @@ private:
                                                 SkPDFTagNode* node,
                                                 SkPDFDocument* doc);
 
-    SkArenaAlloc fArena;
+    SkArenaAllocWithReset fArena;
     SkTHashMap<int, SkPDFTagNode*> fNodeMap;
     SkPDFTagNode* fRoot = nullptr;
     SkTArray<SkTArray<SkPDFTagNode*>> fMarksPerPage;
