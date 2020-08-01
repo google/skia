@@ -430,7 +430,7 @@ struct FourPoints {
 };
 
 DEF_TEST(PathOpsAngleAfter, reporter) {
-    SkSTArenaAlloc<4096> allocator;
+    SkSTArenaAllocWithReset<4096> allocator;
     SkOpContourHead contour;
     SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
