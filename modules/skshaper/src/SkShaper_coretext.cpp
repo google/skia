@@ -175,7 +175,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
     SkUniqueCFRef<CTTypesetterRef> typesetter(
             CTTypesetterCreateWithAttributedString(attrString.get()));
 
-    SkSTArenaAlloc<4096> arena;
+    SkSTArenaAllocWithReset<4096> arena;
 
     // We have to compute RunInfos in a loop, and then reuse them in a 2nd loop,
     // so we store them in an array (we reuse the array's storage for each line).

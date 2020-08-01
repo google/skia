@@ -101,7 +101,7 @@ private:
     sk_sp<GrDirectContext> fMockContext;
     SkPoint fStaticVertexData[(kNumCubicsInChalkboard + 2) * 8];
     GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
-    SkSTArenaAlloc<1024 * 1024> fAllocator;
+    SkSTArenaAllocWithReset<1024 * 1024> fAllocator;
 };
 
 // This serves as a base class for benchmarking individual methods on GrPathTessellateOp.
