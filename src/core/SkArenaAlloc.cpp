@@ -20,9 +20,8 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     : fDtorCursor {block}
     , fCursor     {block}
     , fEnd        {block + ToU32(size)}
-    , fFirstBlock {block}
-    , fFirstSize  {ToU32(size)}
-    , fFirstHeapAllocationSize  {first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
+    , fFib0       {first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
+    , fFib1       {fFib0}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
@@ -35,11 +34,6 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
 
 SkArenaAlloc::~SkArenaAlloc() {
     RunDtorsOnBlock(fDtorCursor);
-}
-
-void SkArenaAlloc::reset() {
-    this->~SkArenaAlloc();
-    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
 }
 
 void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
@@ -110,13 +104,12 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
         objSizeAndOverhead += alignmentOverhead;
     }
 
-    uint32_t minAllocationSize;
-    if (fFirstHeapAllocationSize <= maxSize / fFib0) {
-        minAllocationSize = fFirstHeapAllocationSize * fFib0;
+    uint32_t minAllocationSize = fFib0;
+    if (fFib1 <= maxSize - fFib0){
         fFib0 += fFib1;
         std::swap(fFib0, fFib1);
     } else {
-        minAllocationSize = maxSize;
+        fFib0 = maxSize;
     }
     uint32_t allocationSize = std::max(objSizeAndOverhead, minAllocationSize);
 
@@ -171,4 +164,22 @@ restart:
     }
 
     return objStart;
+}
+
+static uint32_t to_uint32_t(size_t v) {
+    assert(SkTFitsIn<uint32_t>(v));
+    return (uint32_t)v;
+}
+
+SkArenaAllocWithReset::SkArenaAllocWithReset(char* block,
+                                             size_t size,
+                                             size_t firstHeapAllocation)
+        : SkArenaAlloc(block, size, firstHeapAllocation)
+        , fFirstBlock{block}
+        , fFirstSize{to_uint32_t(size)}
+        , fFirstHeapAllocationSize{to_uint32_t(firstHeapAllocation)} {}
+
+void SkArenaAllocWithReset::reset() {
+    this->~SkArenaAllocWithReset();
+    new (this) SkArenaAllocWithReset{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
 }

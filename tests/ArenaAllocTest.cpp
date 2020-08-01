@@ -149,7 +149,7 @@ DEF_TEST(ArenaAlloc, r) {
     REPORTER_ASSERT(r, destroyed == 11);
 
     {
-        SkSTArenaAlloc<64> arena;
+        SkSTArenaAllocWithReset<64> arena;
         arena.makeArrayDefault<char>(256);
         arena.reset();
         arena.reset();

@@ -67,8 +67,7 @@ public:
     SkArenaAlloc(char* block, size_t blockSize, size_t firstHeapAllocation);
 
     explicit SkArenaAlloc(size_t firstHeapAllocation)
-        : SkArenaAlloc(nullptr, 0, firstHeapAllocation)
-    {}
+        : SkArenaAlloc(nullptr, 0, firstHeapAllocation) {}
 
     ~SkArenaAlloc();
 
@@ -135,9 +134,6 @@ public:
         fCursor = objStart + size;
         return objStart;
     }
-
-    // Destroy all allocated objects, free any heap allocations.
-    void reset();
 
 private:
     static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
@@ -219,14 +215,27 @@ private:
     char*          fDtorCursor;
     char*          fCursor;
     char*          fEnd;
-    char* const    fFirstBlock;
-    const uint32_t fFirstSize;
-    const uint32_t fFirstHeapAllocationSize;
 
     // Use the Fibonacci sequence as the growth factor for block size. The size of the block
     // allocated is fFib0 * fFirstHeapAllocationSize. Using 2 ^ n * fFirstHeapAllocationSize
     // had too much slop for Android.
-    uint32_t       fFib0 {1}, fFib1 {1};
+    uint32_t       fFib0, fFib1;
+};
+
+class SkArenaAllocWithReset : public SkArenaAlloc {
+public:
+    SkArenaAllocWithReset(char* block, size_t blockSize, size_t firstHeapAllocation);
+
+    explicit SkArenaAllocWithReset(size_t firstHeapAllocation)
+    : SkArenaAllocWithReset(nullptr, 0, firstHeapAllocation) {}
+
+    // Destroy all allocated objects, free any heap allocations.
+    void reset();
+
+private:
+    char* const    fFirstBlock;
+    const uint32_t fFirstSize;
+    const uint32_t fFirstHeapAllocationSize;
 };
 
 // Helper for defining allocators with inline/reserved storage.
@@ -239,6 +248,14 @@ class SkSTArenaAlloc : private std::array<char, InlineStorageSize>, public SkAre
 public:
     explicit SkSTArenaAlloc(size_t firstHeapAllocation = InlineStorageSize)
         : SkArenaAlloc{this->data(), this->size(), firstHeapAllocation} {}
+};
+
+template <size_t InlineStorageSize>
+class SkSTArenaAllocWithReset
+        : private std::array<char, InlineStorageSize>, public SkArenaAllocWithReset {
+public:
+    explicit SkSTArenaAllocWithReset(size_t firstHeapAllocation = InlineStorageSize)
+            : SkArenaAllocWithReset{this->data(), this->size(), firstHeapAllocation} {}
 };
 
 #endif  // SkArenaAlloc_DEFINED
