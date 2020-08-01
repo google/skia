@@ -33,6 +33,11 @@ public:
     SkPathBuilder& cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3);
     SkPathBuilder& close();
 
+    SkPathBuilder& rConicTo(SkPoint p1, SkPoint p2, SkScalar w);
+    SkPathBuilder& rConicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar w) {
+        return this->rConicTo({x1, y1}, {x2, y2}, w);
+    }
+
     SkPathBuilder&  moveTo(SkScalar x, SkScalar y) { return this->moveTo(SkPoint::Make(x, y)); }
     SkPathBuilder&  lineTo(SkScalar x, SkScalar y) { return this->lineTo(SkPoint::Make(x, y)); }
     SkPathBuilder&  quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
