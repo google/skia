@@ -17,12 +17,14 @@ static uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllo
 }
 
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
-    : fDtorCursor {block}
-    , fCursor     {block}
-    , fEnd        {block + ToU32(size)}
-    , fFirstBlock {block}
-    , fFirstSize  {ToU32(size)}
-    , fFirstHeapAllocationSize  {first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
+    : fDtorCursor{block}
+    , fCursor{block}
+    , fEnd{block + ToU32(size)}
+    , fFirstBlock{block}
+    , fFirstSize{ToU32(size)}
+    , fFirstHeapAllocationSize{first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
+    , fNextHeapAlloc{fFirstHeapAllocationSize}
+    , fYetNextHeapAlloc{fNextHeapAlloc}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
@@ -110,13 +112,14 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
         objSizeAndOverhead += alignmentOverhead;
     }
 
-    uint32_t minAllocationSize;
-    if (fFirstHeapAllocationSize <= maxSize / fFib0) {
-        minAllocationSize = fFirstHeapAllocationSize * fFib0;
-        fFib0 += fFib1;
-        std::swap(fFib0, fFib1);
+    uint32_t minAllocationSize = fNextHeapAlloc;
+
+    // Calculate the next heap alloc that won't overflow.
+    if (fYetNextHeapAlloc <= maxSize - fNextHeapAlloc) {
+        fNextHeapAlloc += fYetNextHeapAlloc;
+        std::swap(fNextHeapAlloc, fYetNextHeapAlloc);
     } else {
-        minAllocationSize = maxSize;
+        fNextHeapAlloc = maxSize;
     }
     uint32_t allocationSize = std::max(objSizeAndOverhead, minAllocationSize);
 
