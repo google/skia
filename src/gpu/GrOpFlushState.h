@@ -261,7 +261,7 @@ private:
     };
 
     // Storage for ops' pipelines, draws, and inline uploads.
-    SkArenaAlloc fArena{sizeof(GrPipeline) * 100};
+    SkArenaAllocWithReset fArena{sizeof(GrPipeline) * 100};
 
     // Store vertex and index data on behalf of ops that are flushed.
     GrVertexBufferAllocPool fVertexPool;
