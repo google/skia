@@ -115,10 +115,28 @@ SkPathBuilder& SkPathBuilder::close() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+SkPathBuilder& SkPathBuilder::rLineTo(SkPoint p1) {
+    this->ensureMove();
+    SkPoint base = fPts[fPts.count() - 1];
+    return this->lineTo(base + p1);
+}
+
+SkPathBuilder& SkPathBuilder::rQuadTo(SkPoint p1, SkPoint p2) {
+    this->ensureMove();
+    SkPoint base = fPts[fPts.count() - 1];
+    return this->quadTo(base + p1, base + p2);
+}
+
 SkPathBuilder& SkPathBuilder::rConicTo(SkPoint p1, SkPoint p2, SkScalar w) {
     this->ensureMove();
     SkPoint base = fPts[fPts.count() - 1];
     return this->conicTo(base + p1, base + p2, w);
+}
+
+SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
+    this->ensureMove();
+    SkPoint base = fPts[fPts.count() - 1];
+    return this->cubicTo(base + p1, base + p2, base + p3);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
