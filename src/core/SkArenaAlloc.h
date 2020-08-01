@@ -224,9 +224,8 @@ private:
     const uint32_t fFirstHeapAllocationSize;
 
     // Use the Fibonacci sequence as the growth factor for block size. The size of the block
-    // allocated is fFib0 * fFirstHeapAllocationSize. Using 2 ^ n * fFirstHeapAllocationSize
-    // had too much slop for Android.
-    uint32_t       fFib0 {1}, fFib1 {1};
+    // allocated is fFib0.. Using 2 ^ n * fFirstHeapAllocationSize had too much slop for Android.
+    uint32_t       fFib0, fFib1;
 };
 
 // Helper for defining allocators with inline/reserved storage.

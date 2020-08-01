@@ -23,6 +23,8 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     , fFirstBlock {block}
     , fFirstSize  {ToU32(size)}
     , fFirstHeapAllocationSize  {first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
+    , fFib0 {fFirstHeapAllocationSize}
+    , fFib1 {fFib0}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
@@ -110,13 +112,14 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
         objSizeAndOverhead += alignmentOverhead;
     }
 
-    uint32_t minAllocationSize;
-    if (fFirstHeapAllocationSize <= maxSize / fFib0) {
-        minAllocationSize = fFirstHeapAllocationSize * fFib0;
+    uint32_t minAllocationSize = fFib0;
+
+    // Calculate the next fib number if it won't overflow.
+    if (fFib1 <= maxSize - fFib0) {
         fFib0 += fFib1;
         std::swap(fFib0, fFib1);
     } else {
-        minAllocationSize = maxSize;
+        fFib0 = maxSize;
     }
     uint32_t allocationSize = std::max(objSizeAndOverhead, minAllocationSize);
 
