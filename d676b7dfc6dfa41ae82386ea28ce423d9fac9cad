@@ -285,6 +285,30 @@
       "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "887dc374_9122d8d8",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 12724
+      },
+      "writtenOn": "2020-08-01T13:11:28Z",
+      "side": 1,
+      "message": "I realized that the reference to the paper might sound like a brush-off. It\u0027s more that that section is about 1/5 of a page and does a better job describing the equations than I could in rephrasing it.\n\nBasically the author has come up with a very compact way of calculating the characteristics of the conic described by a rational quadratic bezier via complex arithmetic. The derivation is quite short (and, one hopes, peer reviewed). I\u0027ve also verified the accuracy while solving a different problem in FontForge.\n\nThe tests I\u0027ve added to GeometryTest.cpp are also good evidence of the accuracy. SkConic::findMaxCurvature() effectively finds the intersection between the conic and the major axis of the ellipse, using the calculations of the center C and relative focal vector c. It then verifies that the curvature at that point is higher compared with a small t-step to either side. \n\nIf it helps I could whip up a demo that shows an SkConic and the corresponding ellipse.",
+      "parentUuid": "f24d47b1_8d2c7b6d",
+      "range": {
+        "startLine": 667,
+        "startChar": 10,
+        "endLine": 667,
+        "endChar": 31
+      },
+      "revId": "d676b7dfc6dfa41ae82386ea28ce423d9fac9cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
