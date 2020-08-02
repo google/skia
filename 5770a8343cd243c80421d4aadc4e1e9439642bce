@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3fdcd77_aa57772e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-02T00:05:29Z",
+      "side": 1,
+      "message": "The scaler context bits seem fine.",
+      "revId": "5770a8343cd243c80421d4aadc4e1e9439642bce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "422f8c33_f9e4c218",
+        "filename": "src/ports/SkScalerContext_mac_ct.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-02T00:05:29Z",
+      "side": 1,
+      "message": "I suppose in the future \u0027generatePath\u0027 want to return a std::optional\u003cSkPath\u003e and not take the SkPath* parameter. (Thought that\u0027s a ways in the future yet.)\n\nAlso the FreeType and DirectWrite ones look a lot like this, will also need to be updated eventually.",
+      "range": {
+        "startLine": 619,
+        "startChar": 0,
+        "endLine": 619,
+        "endChar": 4
+      },
+      "revId": "5770a8343cd243c80421d4aadc4e1e9439642bce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
