@@ -66,7 +66,7 @@ static Sk4px xfer_aa(const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
 
 // For some transfermodes we specialize AA, either for correctness or performance.
 #define XFERMODE_AA(Xfermode) \
-    template <> Sk4px xfer_aa<Xfermode>(const Sk4px& d, const Sk4px& s, const Sk4px& aa)
+    template <> inline Sk4px xfer_aa<Xfermode>(const Sk4px& d, const Sk4px& s, const Sk4px& aa)
 
 // Plus' clamp needs to happen after AA.  skia:3852
 XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
@@ -75,14 +75,14 @@ XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
 
 #undef XFERMODE_AA
 
-// Src and Clear modes are safe to use with unitialized dst buffers,
+// Src and Clear modes are safe to use with uninitialized dst buffers,
 // even if the implementation branches based on bytes from dst (e.g. asserts in Debug mode).
 // For those modes, just lie to MSAN that dst is always intialized.
 template <typename Xfermode> static void mark_dst_initialized_if_safe(void*, void*) {}
-template <> void mark_dst_initialized_if_safe<Src>(void* dst, void* end) {
+template <> inline void mark_dst_initialized_if_safe<Src>(void* dst, void* end) {
     sk_msan_mark_initialized(dst, end, "Src doesn't read dst.");
 }
-template <> void mark_dst_initialized_if_safe<Clear>(void* dst, void* end) {
+template <> inline void mark_dst_initialized_if_safe<Clear>(void* dst, void* end) {
     sk_msan_mark_initialized(dst, end, "Clear doesn't read dst.");
 }
 
