@@ -68,7 +68,7 @@ GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffec
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(*this));
+    return std::make_unique<GrConfigConversionEffect>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 #if GR_TEST_UTILS
