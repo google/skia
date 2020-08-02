@@ -83,12 +83,16 @@ public:
         return this->addRect(rect, dir, 0);
     }
     SkPathBuilder& addOval(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW) {
-        return this->addOval(rect, dir, 0);
+        // legacy start index: 1
+        return this->addOval(rect, dir, 1);
     }
-    SkPathBuilder& addRRect(const SkRRect& rect, SkPathDirection dir = SkPathDirection::kCW) {
-        return this->addRRect(rect, dir, 0);
+    SkPathBuilder& addRRect(const SkRRect& rrect, SkPathDirection dir = SkPathDirection::kCW) {
+        // legacy start indices: 6 (CW) and 7 (CCW)
+        return this->addRRect(rrect, dir, dir == SkPathDirection::kCW ? 6 : 7);
     }
 
+    SkPathBuilder& addCircle(SkScalar center_x, SkScalar center_y, SkScalar radius,
+                             SkPathDirection dir = SkPathDirection::kCW);
     SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool isClosed);
 
     // Performance hint, to reserve extra storage for subsequent calls to lineTo, quadTo, etc.

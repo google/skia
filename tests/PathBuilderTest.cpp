@@ -116,16 +116,17 @@ DEF_TEST(pathbuilder_addRect, reporter) {
 DEF_TEST(pathbuilder_addOval, reporter) {
     const SkRect r = { 10, 20, 30, 40 };
 
-    for (int i = 0; i < 4; ++i) {
-        for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
-            SkPathBuilder b;
-            b.addOval(r, dir, i);
-            auto bp = b.detach();
-
+    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+        for (int i = 0; i < 4; ++i) {
+            auto bp = SkPathBuilder().addOval(r, dir, i).detach();
             SkPath p;
             p.addOval(r, dir, i);
             REPORTER_ASSERT(reporter, p == bp);
         }
+        auto bp = SkPathBuilder().addOval(r, dir).detach();
+        SkPath p;
+        p.addOval(r, dir);
+        REPORTER_ASSERT(reporter, p == bp);
     }
 }
 

@@ -67,6 +67,18 @@ public:
                        const SkScalar[], int conicWeightCount,
                        SkPathFillType, bool isVolatile = false);
 
+    static SkPath Rect(const SkRect&,   SkPathDirection dir = SkPathDirection::kCW);
+    static SkPath Oval(const SkRect&,   SkPathDirection dir = SkPathDirection::kCW);
+    static SkPath Circle(SkScalar center_x, SkScalar center_y, SkScalar radius,
+                         SkPathDirection dir = SkPathDirection::kCW);
+    static SkPath RRect(const SkRRect&, SkPathDirection dir = SkPathDirection::kCW);
+    static SkPath Polygon(const SkPoint pts[], int count, bool isClosed);
+
+    static SkPath Line(const SkPoint a, const SkPoint b) {
+        SkPoint pts[] = { a, b };
+        return Polygon(pts, 2, false);
+    }
+
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
         FillType is set to kWinding.
 
