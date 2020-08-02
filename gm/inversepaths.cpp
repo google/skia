@@ -19,30 +19,19 @@
 #include <utility>
 
 static SkPath generate_square(SkScalar cx, SkScalar cy, SkScalar w) {
-    SkRect rect = SkRect::MakeXYWH(cx - w / 2, cy - w / 2, w, w);
-    SkPath path;
-    path.addRect(rect);
-    return path;
+    return SkPath::Rect(SkRect::MakeXYWH(cx - w / 2, cy - w / 2, w, w));
 }
 
 static SkPath generate_rect_line(SkScalar cx, SkScalar cy, SkScalar l) {
-    SkRect rect = SkRect::MakeXYWH(cx - l / 2, cy, l, 0);
-    SkPath path;
-    path.addRect(rect);
-    return path;
+    return SkPath::Rect(SkRect::MakeXYWH(cx - l / 2, cy, l, 0));
 }
 
 static SkPath generate_circle(SkScalar cx, SkScalar cy, SkScalar d) {
-    SkPath path;
-    path.addCircle(cx, cy, d/2, SkPathDirection::kCW);
-    return path;
+    return SkPath::Circle(cx, cy, d/2, SkPathDirection::kCW);
 }
 
 static SkPath generate_line(SkScalar cx, SkScalar cy, SkScalar l) {
-    SkPath path;
-    path.moveTo(cx - l / 2, cy);
-    path.lineTo(cx + l / 2, cy);
-    return path;
+    return SkPath::Line({cx - l / 2, cy}, {cx + l / 2, cy});
 }
 
 namespace {
