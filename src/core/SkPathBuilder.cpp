@@ -310,6 +310,13 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
     return *this;
 }
 
+SkPathBuilder& SkPathBuilder::addCircle(SkScalar x, SkScalar y, SkScalar r, SkPathDirection dir) {
+    if (r >= 0) {
+        this->addOval(SkRect::MakeLTRB(x - r, y - r, x + r, y + r), dir);
+    }
+    return *this;
+}
+
 SkPathBuilder& SkPathBuilder::addPolygon(const SkPoint pts[], int count, bool isClosed) {
     if (count <= 0) {
         return *this;

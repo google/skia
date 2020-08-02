@@ -9,6 +9,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkMath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkPathRef.h"
@@ -3396,6 +3397,26 @@ SkPath SkPath::Make(const SkPoint pts[], int pointCount,
                                                  SkTDArray<SkScalar>(ws, info.weights),
                                                  info.segmentMask)),
                   ft, isVolatile);
+}
+
+SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir) {
+    return SkPathBuilder().addRect(r, dir).detach();
+}
+
+SkPath SkPath::Oval(const SkRect& r, SkPathDirection dir) {
+    return SkPathBuilder().addOval(r, dir).detach();
+}
+
+SkPath SkPath::Circle(SkScalar x, SkScalar y, SkScalar r, SkPathDirection dir) {
+    return SkPathBuilder().addCircle(x, y, r, dir).detach();
+}
+
+SkPath SkPath::RRect(const SkRRect& rr, SkPathDirection dir) {
+    return SkPathBuilder().addRRect(rr, dir).detach();
+}
+
+SkPath SkPath::Polygon(const SkPoint pts[], int count, bool isClosed) {
+    return SkPathBuilder().addPolygon(pts, count, isClosed).detach();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
