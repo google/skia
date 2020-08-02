@@ -8,6 +8,8 @@
 #include "include/core/SkCanvas.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
+
+#include <memory>
 #include "src/core/SkSurfacePriv.h"
 
  ///////////////////////////////////////////////////////////////////////////////
@@ -70,7 +72,7 @@ public:
         fBitmap.setInfo(info, info.minRowBytes());
         fBitmap.setPixelRef(std::move(pr), 0, 0);
 
-        fCanvas.reset(new SkCanvas(fBitmap, this->props()));
+        fCanvas = std::make_unique<SkCanvas>(fBitmap, this->props());
         fCanvas->clipRect(SkRect::Make(subset));
 #ifdef SK_IS_BOT
         fCanvas->clear(SK_ColorRED);  // catch any imageFilter sloppiness
@@ -132,7 +134,7 @@ public:
             return;
         }
 
-        fCanvas.reset(new SkCanvas(std::move(device)));
+        fCanvas = std::make_unique<SkCanvas>(std::move(device));
         fCanvas->clipRect(SkRect::Make(subset));
 #ifdef SK_IS_BOT
         fCanvas->clear(SK_ColorRED);  // catch any imageFilter sloppiness

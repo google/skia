@@ -230,7 +230,7 @@ protected:
                 break;
             }
 
-            data.reset(new SkPoint[numPts]);
+            data = std::make_unique<SkPoint[]>(numPts);
 
             create_ngon(numPts, data.get(), width, height);
             points = data.get();

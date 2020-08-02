@@ -183,7 +183,7 @@ GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(*this));
+    return std::make_unique<GrTwoPointConicalGradientLayout>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTwoPointConicalGradientLayout);
 #if GR_TEST_UTILS
