@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "403b4938_afbc4061",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-02T18:32:05Z",
+      "side": 1,
+      "message": "This is all going to become less and less clear as we no longer have any fields that hold a Fibonacci number.  Can we find some way to reword comments and rename fields so that it continues to make sense?  E.g.\n\n// We found allocating strictly doubling amounts of memory from the heap left too\n// much unused slop, particularly on Android.  Instead we\u0027ll follow a Fibonacci-like\n// progression that\u0027s simple to implement and grows with roughly a 1.6 exponent:\n//\n// To start,\n//    fNextHeapAlloc \u003d fYetNextHeapAlloc \u003d 1*fFirstHeapAllocationSize;\n//\n// And then when we do allocate, follow a Fibonacci f(n+2) \u003d f(n+1) + f(n) rule:\n//    void* block \u003d malloc(fNextHeapAlloc);\n//    std::swap(fNextHeapAlloc, fYetNextHeapAlloc)\n//    fYetNextHeapAlloc +\u003d fNextHeapAlloc;\n//\n// That makes the nth allocation fib(n) * fFirstHeapAllocationSize bytes.\n\n  uint32_t fNextHeapAlloc,     // How many bytes minimum will we allocate next from the heap?\n           fYetNextHeapAlloc;  // And then how many the next allocation after that?",
+      "revId": "b307ddbbe5f512c70075379791226b78d26b28a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
