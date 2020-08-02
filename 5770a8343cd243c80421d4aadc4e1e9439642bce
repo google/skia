@@ -39,6 +39,30 @@
       "revId": "5770a8343cd243c80421d4aadc4e1e9439642bce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c14a4c8_4e004dab",
+        "filename": "src/ports/SkScalerContext_mac_ct.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-02T20:50:07Z",
+      "side": 1,
+      "message": "Ah, true -- keep forgetting that when I build locally, it only covers 1/3 of the font files",
+      "parentUuid": "422f8c33_f9e4c218",
+      "range": {
+        "startLine": 619,
+        "startChar": 0,
+        "endLine": 619,
+        "endChar": 4
+      },
+      "revId": "5770a8343cd243c80421d4aadc4e1e9439642bce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
