@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fe9cf57_afc45e19",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-02T18:35:24Z",
+      "side": 0,
+      "message": "I\u0027m curious why we\u0027d care to write this CL.\n\nIs it to save these 16 bytes per SkArenaAlloc in situations where we don\u0027t need a reset()?",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 44
+      },
+      "revId": "5bc663a55b26c22f658232e68285201489dfc8f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
