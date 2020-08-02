@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  *
  *
- * This header provides some std:: features early in the skstd namespace
- * and several Skia-specific additions in the sknonstd namespace.
+ * This header provides several Skia-specific std:: enhancements in the sknonstd namespace.
  */
 
 #ifndef SkTLogic_DEFINED
@@ -15,19 +14,6 @@
 #include <cstddef>
 #include <type_traits>
 #include <utility>
-
-namespace skstd {
-
-// C++17, <variant>
-struct monostate {};
-
-// C++17, <type_traits>
-template<typename...> struct conjunction : std::true_type { };
-template<typename T> struct conjunction<T> : T { };
-template<typename T, typename... Ts>
-struct conjunction<T, Ts...> : std::conditional<bool(T::value), conjunction<Ts...>, T>::type { };
-
-}  // namespace skstd
 
 // The sknonstd namespace contains things we would like to be proposed and feel std-ish.
 namespace sknonstd {
