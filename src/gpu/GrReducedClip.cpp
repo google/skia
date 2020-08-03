@@ -74,7 +74,6 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         }
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
-
         if (!iter.prev()->isAA() || GrClip::IsPixelAligned(stackBounds)) {
             // The clip is a non-aa rect. Here we just implement the entire thing using fScissor.
             stackBounds.round(&fScissor);
@@ -167,6 +166,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
     int numAAElements = 0;
     while (InitialTriState::kUnknown == initialTriState) {
         const Element* element = iter.prev();
+
         if (nullptr == element) {
             initialTriState = InitialTriState::kAllIn;
             break;
@@ -930,4 +930,3 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticEleme
     // Compose the clip and shader FPs.
     return GrFragmentProcessor::Compose(std::move(clipFP), std::move(shaderFP));
 }
-
