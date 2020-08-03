@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c287d113_26c09fd6",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-03T19:07:49Z",
+      "side": 1,
+      "message": "Doesn\u0027t this still need to check fUsesDistanceField  ?",
+      "range": {
+        "startLine": 631,
+        "startChar": 42,
+        "endLine": 631,
+        "endChar": 61
+      },
+      "revId": "f6b16deaadceb7c54d9f861b8fe2fe10f04fc428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
