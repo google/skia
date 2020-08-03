@@ -7,6 +7,8 @@
 
 #include "src/gpu/GrProcessorUnitTest.h"
 
+#include <memory>
+
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -24,7 +26,7 @@ GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* c
                                          std::unique_ptr<GrFragmentProcessor> inputFP)
         : fRandom(random), fContext(context), fInputFP(std::move(inputFP)) {
     fViews.reset(views, numViews);
-    fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
+    fArena = std::make_unique<SkArenaAlloc>(1000);
 }
 
 GrProcessorTestData::~GrProcessorTestData() {}

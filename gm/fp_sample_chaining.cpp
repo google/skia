@@ -201,13 +201,13 @@ static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProce
                                                  EffectType effectType) {
     switch (effectType) {
         case kConstant:
-            return std::unique_ptr<GrFragmentProcessor>(new ConstantMatrixEffect(std::move(fp)));
+            return std::make_unique<ConstantMatrixEffect>(std::move(fp));
         case kUniform:
-            return std::unique_ptr<GrFragmentProcessor>(new UniformMatrixEffect(std::move(fp)));
+            return std::make_unique<UniformMatrixEffect>(std::move(fp));
         case kVariable:
-            return std::unique_ptr<GrFragmentProcessor>(new VariableMatrixEffect(std::move(fp)));
+            return std::make_unique<VariableMatrixEffect>(std::move(fp));
         case kExplicit:
-            return std::unique_ptr<GrFragmentProcessor>(new ExplicitCoordEffect(std::move(fp)));
+            return std::make_unique<ExplicitCoordEffect>(std::move(fp));
     }
     SkUNREACHABLE;
 }
