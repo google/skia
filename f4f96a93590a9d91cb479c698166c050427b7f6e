@@ -56,6 +56,30 @@
       "revId": "f4f96a93590a9d91cb479c698166c050427b7f6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69ada078_75b95bc2",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-03T18:05:36Z",
+      "side": 1,
+      "message": "Done. Also fixed the alignment values.",
+      "parentUuid": "9b958446_6c5ae8a8",
+      "range": {
+        "startLine": 941,
+        "startChar": 0,
+        "endLine": 945,
+        "endChar": 10
+      },
+      "revId": "f4f96a93590a9d91cb479c698166c050427b7f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
