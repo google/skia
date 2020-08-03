@@ -734,7 +734,12 @@ optional("gpu") {
         "d3dcompiler.lib",
       ]
     } else if (dawn_enable_metal) {
-      libs += [ "Metal.framework" ]
+      libs += [
+        "Metal.framework",
+        "IOKit.framework",
+        "IOSurface.framework",
+        "QuartzCore.framework",
+      ]
     }
   }
 
