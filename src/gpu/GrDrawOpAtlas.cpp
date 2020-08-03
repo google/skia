@@ -23,17 +23,12 @@
 static bool gDumpAtlasData = false;
 #endif
 
-std::array<uint16_t, 4> GrDrawOpAtlas::AtlasLocator::getUVs(int padding) const {
-
-    uint16_t left   = fRect.fLeft   + padding;
-    uint16_t top    = fRect.fTop    + padding;
-    uint16_t right  = fRect.fRight  - padding;
-    uint16_t bottom = fRect.fBottom - padding;
+std::array<uint16_t, 4> GrDrawOpAtlas::AtlasLocator::getUVs() const {
 
     // We pack the 2bit page index in the low bit of the u and v texture coords
     uint32_t pageIndex = this->pageIndex();
-    std::tie(left, bottom) = GrDrawOpAtlas::PackIndexInTexCoords(left, bottom, pageIndex);
-    std::tie(right, top) = GrDrawOpAtlas::PackIndexInTexCoords(right, top, pageIndex);
+    auto [left, top] = PackIndexInTexCoords(fRect.fLeft, fRect.fTop, pageIndex);
+    auto [right, bottom] = PackIndexInTexCoords(fRect.fRight, fRect.fBottom, pageIndex);
     return { left, top, right, bottom };
 }
 

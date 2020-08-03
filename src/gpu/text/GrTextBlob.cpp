@@ -391,7 +391,7 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
             auto[pos, rect] = vertexData;
             auto[l, t, r, b] = rect;
             auto[fx, fy] = pos + originInDeviceSpace;
-            auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(0);
+            auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
             if (clip == nullptr) {
                 SkScalar dx = SkScalarRoundToScalar(fx),
                          dy = SkScalarRoundToScalar(fy);
@@ -587,7 +587,7 @@ static void fill_transformed_vertices_2D(SkZip<Quad, const GrGlyph*, const Verte
                 lb = matrix.mapXY(sLT.x(), sRB.y()),
                 rt = matrix.mapXY(sRB.x(), sLT.y()),
                 rb = matrix.mapXY(sRB.x(), sRB.y());
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(0);
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         quad[0] = {lt, color, {al, at}};  // L,T
         quad[1] = {lb, color, {al, ab}};  // L,B
         quad[2] = {rt, color, {ar, at}};  // R,T
@@ -617,7 +617,7 @@ static void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const Verte
                  lb = mapXYZ(sLT.x(), sRB.y()),
                  rt = mapXYZ(sRB.x(), sLT.y()),
                  rb = mapXYZ(sRB.x(), sRB.y());
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs(0);
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         quad[0] = {lt, color, {al, at}};  // L,T
         quad[1] = {lb, color, {al, ab}};  // L,B
         quad[2] = {rt, color, {ar, at}};  // R,T

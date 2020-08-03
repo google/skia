@@ -106,7 +106,7 @@ public:
 
     class AtlasLocator {
     public:
-        std::array<uint16_t, 4> getUVs(int padding) const;
+        std::array<uint16_t, 4> getUVs() const;
 
         // TODO: Remove the small path renderer's use of this for eviction
         PlotLocator plotLocator() const { return fPlotLocator; }
@@ -131,11 +131,8 @@ public:
 
         PlotLocator fPlotLocator;
 
-        // GrGlyphs store the fully padded bounds, small paths store unpadded bounds.
+        // The inset padded bounds in the atlas.
         GrIRect16   fRect{0, 0, 0, 0};
-
-        // TODO: Adjust fRect for small paths to hold the fully padded bounds.
-        // This would simplify the 'getUVs' call. The valid values would be 0, 1, 2.
     };
 
     /**
