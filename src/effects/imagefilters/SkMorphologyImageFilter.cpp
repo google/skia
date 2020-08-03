@@ -273,7 +273,10 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
             fragBuilder->codeAppend("}");
 
             SkString inputColor = this->invokeChild(kInputFPIndex, args);
-            fragBuilder->codeAppendf("%s *= %s;", args.fOutputColor, inputColor.c_str());
+            fragBuilder->codeAppendf(
+                    "%s *= %s;"
+                    "return %s;",
+                    args.fOutputColor, inputColor.c_str(), args.fOutputColor);
         }
 
     protected:

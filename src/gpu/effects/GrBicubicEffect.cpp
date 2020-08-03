@@ -99,7 +99,9 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
                     "bicubicColor.rgb = max(half3(0.0), min(bicubicColor.rgb, bicubicColor.aaa));");
             break;
     }
-    fragBuilder->codeAppendf("%s = bicubicColor;", args.fOutputColor);
+    fragBuilder->codeAppendf("%s = bicubicColor;\n"
+                             "return %s;",
+                             args.fOutputColor, args.fOutputColor);
 }
 
 void GrBicubicEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,

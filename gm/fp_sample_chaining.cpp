@@ -39,7 +39,10 @@ public:
         class Impl : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 SkString sample = this->invokeChildWithMatrix(0, args);
-                args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+                args.fFragBuilder->codeAppendf(
+                        "%s = %s;\n"
+                        "return %s;\n",
+                        args.fOutputColor, sample.c_str(), args.fOutputColor);
             }
         };
         return new Impl;
@@ -68,7 +71,10 @@ public:
                 fMatrixVar = args.fUniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
                                                               kFloat3x3_GrSLType, "matrix");
                 SkString sample = this->invokeChildWithMatrix(0, args);
-                args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+                args.fFragBuilder->codeAppendf(
+                        "%s = %s;\n"
+                        "return %s;\n",
+                        args.fOutputColor, sample.c_str(), args.fOutputColor);
             }
             void onSetData(const GrGLSLProgramDataManager& pdman,
                            const GrFragmentProcessor& proc) override {
@@ -103,7 +109,10 @@ public:
             void emitCode(EmitArgs& args) override {
                 SkString sample = this->invokeChildWithMatrix(
                         0, args, "float3x3(1, 0, 0, 0, 1, 0, 8, 0, 1)");
-                args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+                args.fFragBuilder->codeAppendf(
+                        "%s = %s;\n"
+                        "return %s;\n",
+                        args.fOutputColor, sample.c_str(), args.fOutputColor);
             }
         };
         return new Impl;
@@ -133,7 +142,10 @@ public:
                 args.fFragBuilder->codeAppendf("float2 coord = %s + float2(0, 8);",
                                                args.fSampleCoord);
                 SkString sample = this->invokeChild(0, args, "coord");
-                args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+                args.fFragBuilder->codeAppendf(
+                        "%s = %s;\n"
+                        "return %s;\n",
+                        args.fOutputColor, sample.c_str(), args.fOutputColor);
             }
         };
         return new Impl;
@@ -160,7 +172,9 @@ public:
                 auto fb = args.fFragBuilder;
                 fb->codeAppendf("float2 coord = %s / 64.0;", args.fSampleCoord);
                 fb->codeAppendf("coord = floor(coord * 4) / 3;");
-                fb->codeAppendf("%s = half4(half2(coord.rg), 0, 1);\n", args.fOutputColor);
+                fb->codeAppendf("%s = half4(half2(coord.rg), 0, 1);\n"
+                                "return %s;\n",
+                                args.fOutputColor, args.fOutputColor);
             }
         };
         return new Impl;

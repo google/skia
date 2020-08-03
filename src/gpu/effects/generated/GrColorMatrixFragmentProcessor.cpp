@@ -39,7 +39,7 @@ public:
                                                 "m");
         vVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                 "v");
-        SkString _sample585 = this->invokeChild(0, args);
+        SkString _sample586 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 @if (%s) {
@@ -60,13 +60,14 @@ public:
 @if (%s) {
     %s.xyz *= %s.w;
 }
+return %s;
 )SkSL",
-                _sample585.c_str(), (_outer.unpremulInput ? "true" : "false"), args.fOutputColor,
+                _sample586.c_str(), (_outer.unpremulInput ? "true" : "false"), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(mVar),
                 args.fUniformHandler->getUniformCStr(vVar),
                 (_outer.clampRGBOutput ? "true" : "false"), args.fOutputColor, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor, (_outer.premulOutput ? "true" : "false"),
-                args.fOutputColor, args.fOutputColor);
+                args.fOutputColor, args.fOutputColor, args.fOutputColor);
     }
 
 private:

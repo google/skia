@@ -56,12 +56,14 @@ if (t < %s) {
     bias = %s;
 }
 %s = half4(float(t) * scale + bias);
+return %s;
 )SkSL",
                 args.fSampleCoord, args.fUniformHandler->getUniformCStr(thresholdVar),
                 args.fUniformHandler->getUniformCStr(scale01Var),
                 args.fUniformHandler->getUniformCStr(bias01Var),
                 args.fUniformHandler->getUniformCStr(scale23Var),
-                args.fUniformHandler->getUniformCStr(bias23Var), args.fOutputColor);
+                args.fUniformHandler->getUniformCStr(bias23Var), args.fOutputColor,
+                args.fOutputColor);
     }
 
 private:

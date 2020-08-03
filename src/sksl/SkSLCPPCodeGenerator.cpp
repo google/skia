@@ -333,13 +333,6 @@ void CPPCodeGenerator::writeIfStatement(const IfStatement& s) {
     INHERITED::writeIfStatement(s);
 }
 
-void CPPCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
-    if (fInMain) {
-        fErrors.error(s.fOffset, "fragmentProcessor main() may not contain return statements");
-    }
-    INHERITED::writeReturnStatement(s);
-}
-
 void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     if (s.fIsStatic) {
         this->write("@");

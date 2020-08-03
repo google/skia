@@ -76,7 +76,10 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf(" * %s;", kernelIndex.c_str());
         fragBuilder->codeAppendf("coord += %s;", inc);
     }
-    fragBuilder->codeAppendf("%s *= %s;", args.fOutputColor, args.fInputColor);
+    fragBuilder->codeAppendf(
+            "%s *= %s;"
+            "return %s;",
+            args.fOutputColor, args.fInputColor, args.fOutputColor);
 }
 
 void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgramDataManager& pdman,

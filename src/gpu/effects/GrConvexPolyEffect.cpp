@@ -68,7 +68,10 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
 
     SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
 
-    fragBuilder->codeAppendf("\t%s = %s * alpha;\n", args.fOutputColor, inputSample.c_str());
+    fragBuilder->codeAppendf(
+            "%s = %s * alpha;\n"
+            "return %s;\n",
+            args.fOutputColor, inputSample.c_str(), args.fOutputColor);
 }
 
 void GrGLConvexPolyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
