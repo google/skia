@@ -51,6 +51,24 @@
       "revId": "4dddf683eac68d70f6cb0eb6a226544df67b10c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "10d628dc_8ac48c67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T13:56:23Z",
+      "side": 1,
+      "message": "I\u0027m not familiar with how to edit and test infra changes, unfortunately.\n\nMy first step would be to add `skia_use_expat\u003dtrue` and `skia_use_freetype\u003dtrue` to the args of the Debug-Tidy bot and see what happens.",
+      "parentUuid": "1de0a296_5664a844",
+      "revId": "4dddf683eac68d70f6cb0eb6a226544df67b10c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
