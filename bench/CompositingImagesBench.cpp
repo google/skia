@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <memory>
+
 #include "bench/Benchmark.h"
 
 #include "include/core/SkCanvas.h"
@@ -97,7 +99,7 @@ protected:
                                     kPremul_SkAlphaType, nullptr);
         SkRandom random;
         int numImages = fLayerCnt * fTileGridSize.fWidth * fTileGridSize.fHeight;
-        fImages.reset(new sk_sp<SkImage>[numImages]);
+        fImages = std::make_unique<sk_sp<SkImage>[]>(numImages);
         for (int i = 0; i < numImages; ++i) {
             auto surf = canvas->makeSurface(ii);
             SkColor color = random.nextU();

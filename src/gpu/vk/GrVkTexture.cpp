@@ -280,7 +280,5 @@ const GrVkDescriptorSet* GrVkTexture::cachedSingleDescSet(GrSamplerState state) 
 void GrVkTexture::addDescriptorSetToCache(const GrVkDescriptorSet* descSet, GrSamplerState state) {
     SkASSERT(!fDescSetCache.find(state));
     descSet->ref();
-    fDescSetCache.insert(state,
-                         std::unique_ptr<DescriptorCacheEntry>(
-                                 new DescriptorCacheEntry(descSet, this->getVkGpu())));
+    fDescSetCache.insert(state, std::make_unique<DescriptorCacheEntry>(descSet, this->getVkGpu()));
 }
