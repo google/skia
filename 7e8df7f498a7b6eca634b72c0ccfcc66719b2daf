@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a84db1f_b6cc8ad8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-03T18:18:01Z",
+      "side": 1,
+      "message": "Yes, that is the point. you could stroke the outline of text, use shaders, etc.\nThere is an email to skia discuss from corey.lucier@gmail.com asking whether this is possible.\n\nI thought it would be a good idea to keep SimpleTextStyle as a value object WDYT?",
+      "parentUuid": "744a4888_ecabf5d5",
+      "revId": "7e8df7f498a7b6eca634b72c0ccfcc66719b2daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "24de7215_e6edaa84",
         "filename": "modules/canvaskit/paragraph_bindings.cpp",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "7568a327_2e60515b",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-03T18:18:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24de7215_e6edaa84",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 103
+      },
+      "revId": "7e8df7f498a7b6eca634b72c0ccfcc66719b2daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ce6b9bf_6b13ecf1",
         "filename": "modules/canvaskit/tests/paragraph.spec.js",
         "patchSetId": 2
@@ -62,6 +104,30 @@
       "revId": "7e8df7f498a7b6eca634b72c0ccfcc66719b2daf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55f0fb84_df065734",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-03T18:18:01Z",
+      "side": 1,
+      "message": "yes.",
+      "parentUuid": "1ce6b9bf_6b13ecf1",
+      "range": {
+        "startLine": 159,
+        "startChar": 33,
+        "endLine": 159,
+        "endChar": 40
+      },
+      "revId": "7e8df7f498a7b6eca634b72c0ccfcc66719b2daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
