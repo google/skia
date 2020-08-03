@@ -87,7 +87,7 @@ static Display* get_display() {
     };
     static std::unique_ptr<AutoDisplay> ad;
     static SkOnce once;
-    once([] { ad.reset(new AutoDisplay{}); });
+    once([] { ad = std::make_unique<AutoDisplay>(); });
     return ad->display();
 }
 

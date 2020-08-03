@@ -17,6 +17,7 @@
 
 #include <initializer_list>
 #include <functional>
+#include <memory>
 #include <utility>
 
 uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
@@ -586,9 +587,9 @@ private:
     }
 
     void init(skiatest::Reporter* r, SkScalar scale) {
-        fAppliedPE.reset(new GrStyledShape);
-        fAppliedPEThenStroke.reset(new GrStyledShape);
-        fAppliedFull.reset(new GrStyledShape);
+        fAppliedPE = std::make_unique<GrStyledShape>();
+        fAppliedPEThenStroke = std::make_unique<GrStyledShape>();
+        fAppliedFull = std::make_unique<GrStyledShape>();
 
         *fAppliedPE = fBase->applyStyle(GrStyle::Apply::kPathEffectOnly, scale);
         *fAppliedPEThenStroke =
@@ -771,7 +772,7 @@ static sk_sp<SkPathEffect> make_null_dash() {
 // the maximum stack frame limit.  make_TestCase() moves those temporaries over to the heap.
 template <typename... Args>
 static std::unique_ptr<TestCase> make_TestCase(Args&&... args) {
-    return std::unique_ptr<TestCase>{ new TestCase(std::forward<Args>(args)...) };
+    return std::make_unique<TestCase>( std::forward<Args>(args)... );
 }
 
 static void test_basic(skiatest::Reporter* reporter, const Geo& geo) {
