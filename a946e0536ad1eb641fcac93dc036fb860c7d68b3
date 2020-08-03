@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe95dcf4_436c7535",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-03T20:43:13Z",
+      "side": 1,
+      "message": "mtklein@, can you help me find the right place for this? I think I need to apply it everywhere, but I haven\u0027t figured out where.\n- gn/BUILD.gn sets it in some situations, but warns against using it on Linux because it makes stack traces worse. I\u0027m guessing that applies to Android, too, so we won\u0027t want to do it always on Android, but I don\u0027t think from here I can know whether skia_use_ndk_decode is turned on. (It does look like I can tell whether ndk_api exists and is \u003e\u003d 30, so I could use those checks.)\n- I also tried in BUILD.gn, when defining my optional target. But I think I need to apply it to the rest of Skia. https://gn.googlesource.com/gn/+/master/docs/quick_start.md seems to indicate I can apply this to skia with public_configs, but it\u0027s still not applied everywhere.",
+      "range": {
+        "startLine": 25,
+        "startChar": 11,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3ecd8ed_a04d27ca",
+        "filename": "include/ports/SkImageGeneratorNDK.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-03T20:43:13Z",
+      "side": 1,
+      "message": "From discussions with Flutter, I\u0027m leaning towards making the \"platform generators\" subclasses of SkCodec. In particular, they\u0027re interested in HEIF and animation support on iOS. Animation doesn\u0027t fit with SkImageGenerator, and they\u0027re already using SkCodec. This CL adds an SkImageGenerator rather than an SkCodec, which matches the existing ports. I\u0027m leaning towards switching over SkImageGeneratorCG first, where there\u0027s a motivating client and added functionality, but I could put this straight in an SkCodec, if preferred.",
+      "range": {
+        "startLine": 16,
+        "startChar": 10,
+        "endLine": 16,
+        "endChar": 29
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9412c713_36ea3075",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-03T20:43:13Z",
+      "side": 1,
+      "message": "Note that this supports a limited (by Android) subset of output color spaces. We could use skcms/readPixels to convert to others, and perhaps we might as well do it always, rather than just for cases unsupported by the NDK APIs.\n\nThe tricky case is if the NDK reports ADATASPACE_UNKNOWN. In that case we don\u0027t know what the original profile looks like, so we would have to convert it to something the NDK knows how to do. Then if we have to convert again, I think we may have lost information in the first conversion (unless we chose rec2020?).\n\nThoughts?",
+      "range": {
+        "startLine": 204,
+        "startChar": 0,
+        "endLine": 254,
+        "endChar": 5
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
