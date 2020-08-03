@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <memory>
+
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 
@@ -36,7 +38,7 @@ GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
 void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
     fCaps = std::move(caps);
-    fTextBlobCache.reset(new GrTextBlobCache(fContextID));
+    fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(

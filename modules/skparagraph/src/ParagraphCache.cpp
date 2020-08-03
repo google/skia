@@ -1,4 +1,6 @@
 // Copyright 2019 Google LLC.
+#include <memory>
+
 #include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 
@@ -278,7 +280,7 @@ bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
     std::unique_ptr<Entry>* entry = fLRUCacheMap.find(key);
     if (!entry) {
         ParagraphCacheValue* value = new ParagraphCacheValue(paragraph);
-        fLRUCacheMap.insert(key, std::unique_ptr<Entry>(new Entry(value)));
+        fLRUCacheMap.insert(key, std::make_unique<Entry>(value));
         fChecker(paragraph, "addedParagraph", true);
         return true;
     } else {
