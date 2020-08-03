@@ -110,6 +110,7 @@ half v = 1.0;
         break;
 }
 %s = half4(half(t), v, 0.0, 0.0);
+return %s;
 )SkSL",
                 (int)_outer.type, args.fUniformHandler->getUniformCStr(focalParamsVar),
                 args.fSampleCoord, args.fSampleCoord, args.fSampleCoord,
@@ -126,7 +127,7 @@ half v = 1.0;
                 (_outer.isRadiusIncreasing ? "true" : "false"),
                 (_outer.isNativelyFocal ? "true" : "false"),
                 (_outer.isNativelyFocal ? "true" : "false"), (_outer.isSwapped ? "true" : "false"),
-                args.fOutputColor);
+                args.fOutputColor, args.fOutputColor);
     }
 
 private:

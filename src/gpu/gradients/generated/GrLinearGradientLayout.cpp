@@ -27,8 +27,9 @@ public:
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x) + 9.9999997473787516e-06;
 %s = half4(t, 1.0, 0.0, 0.0);
+return %s;
 )SkSL",
-                args.fSampleCoord, args.fOutputColor);
+                args.fSampleCoord, args.fOutputColor, args.fOutputColor);
     }
 
 private:

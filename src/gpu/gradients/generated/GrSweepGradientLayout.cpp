@@ -41,10 +41,12 @@ if (sk_Caps.atan2ImplementedAsAtanYOverX) {
 }
 half t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;
 %s = half4(t, 1.0, 0.0, 0.0);
+return %s;
 )SkSL",
                 args.fSampleCoord, args.fSampleCoord, args.fSampleCoord, args.fSampleCoord,
                 args.fSampleCoord, args.fUniformHandler->getUniformCStr(biasVar),
-                args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor);
+                args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor,
+                args.fOutputColor);
     }
 
 private:
