@@ -40,6 +40,11 @@ public:
 
     static void WriteToBuffer(const SkRRect& rr, SkWBuffer* buffer);
 
+    // Test if a point is in the rrect, if it were a closed set.
+    static bool ContainsPoint(const SkRRect& rr, const SkPoint& p) {
+        return rr.getBounds().contains(p.fX, p.fY) && rr.checkCornerContainment(p.fX, p.fY);
+    }
+
     // Compute an approximate largest inscribed bounding box of the rounded rect. For empty,
     // rect, oval, and simple types this will be the largest inscribed rectangle. Otherwise it may
     // not be the global maximum, but will be non-empty, touch at least one edge and be contained
