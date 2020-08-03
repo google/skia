@@ -36,7 +36,7 @@ public:
         return fFixedClip.getConservativeBounds();
     }
 
-    Effect apply(GrAppliedHardClip* out, SkRect* bounds) const final {
+    Effect apply(GrAppliedHardClip* out, SkIRect* bounds) const final {
         Effect effect = fFixedClip.apply(out, bounds);
         if (effect == Effect::kClippedOut) {
             // Stencil won't bring back coverage
@@ -49,11 +49,11 @@ public:
         return effect;
     }
 
-    PreClipResult preApply(const SkRect& drawBounds) const final {
+    PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const final {
         if (this->hasStencilClip()) {
-            return this->INHERITED::preApply(drawBounds);
+            return this->INHERITED::preApply(drawBounds, aa);
         } else {
-            return fFixedClip.preApply(drawBounds);
+            return fFixedClip.preApply(drawBounds, aa);
         }
     }
 
