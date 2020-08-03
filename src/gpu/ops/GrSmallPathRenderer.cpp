@@ -628,6 +628,8 @@ private:
             return false;
         }
 
+        shapeData->fAtlasLocator.insetSrc(SK_DistanceFieldPad);
+
         // add to cache
         shapeData->fKey.set(shape, dimension);
 
@@ -739,8 +741,7 @@ private:
         }
 
         // set up texture coordinates
-        auto texCoords = GrVertexWriter::TriStripFromUVs(shapeData->fAtlasLocator.getUVs(
-                                fUsesDistanceField ? SK_DistanceFieldPad : 0));
+        auto texCoords = GrVertexWriter::TriStripFromUVs(shapeData->fAtlasLocator.getUVs());
 
         if (fUsesDistanceField && !ctm.hasPerspective()) {
             vertices.writeQuad(GrQuad::MakeFromRect(translatedBounds, ctm),
