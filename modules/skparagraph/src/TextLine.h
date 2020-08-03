@@ -43,7 +43,7 @@ public:
     TextLine& operator=(TextLine&&) = default;
     ~TextLine() = default;
 
-    TextLine(ParagraphImpl* master,
+    TextLine(ParagraphImpl* owner,
              SkVector offset,
              SkVector advance,
              BlockRange blocks,
@@ -53,8 +53,6 @@ public:
              ClusterRange clustersWithGhosts,
              SkScalar widthWithSpaces,
              InternalLineMetrics sizes);
-
-    void setMaster(ParagraphImpl* master) { fMaster = master; }
 
     TextRange trimmedText() const { return fTextRange; }
     TextRange textWithSpaces() const { return fTextWithWhitespacesRange; }
@@ -132,7 +130,7 @@ private:
 
     void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);
 
-    ParagraphImpl* fMaster;
+    ParagraphImpl* fOwner;
     BlockRange fBlockRange;
     TextRange fTextRange;
     TextRange fTextWithWhitespacesRange;

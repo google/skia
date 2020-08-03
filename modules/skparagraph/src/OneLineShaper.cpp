@@ -287,7 +287,7 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
 #ifdef SK_PARAGRAPH_OLD_SPACE_RESOLUTION
 void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
 
-    auto text = fCurrentRun->fMaster->text();
+    auto text = fCurrentRun->fOwner->text();
     size_t unresolvedGlyphs = 0;
 
     GlyphRange block = EMPTY_RANGE;
@@ -342,7 +342,7 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
 // (so we don't have chinese text with english whitespaces broken into millions of tiny runs)
 void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
 
-    auto text = fCurrentRun->fMaster->text();
+    auto text = fCurrentRun->fOwner->text();
     size_t unresolvedGlyphs = 0;
 
     TextIndex whitespacesStart = EMPTY_INDEX;

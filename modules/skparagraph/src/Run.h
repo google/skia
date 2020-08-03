@@ -54,7 +54,7 @@ class DirText {
 
 class Run {
 public:
-    Run(ParagraphImpl* master,
+    Run(ParagraphImpl* owner,
         const SkShaper::RunHandler::RunInfo& info,
         size_t firstChar,
         SkScalar heightMultiplier,
@@ -66,7 +66,7 @@ public:
     Run& operator=(Run&&) = delete;
     ~Run() = default;
 
-    void setMaster(ParagraphImpl* master) { fMaster = master; }
+    void setOwner(ParagraphImpl* owner) { fOwner = owner; }
 
     SkShaper::RunHandler::Buffer newRunBuffer();
 
@@ -104,7 +104,7 @@ public:
     TextRange textRange() const { return fTextRange; }
     ClusterRange clusterRange() const { return fClusterRange; }
 
-    ParagraphImpl* master() const { return fMaster; }
+    ParagraphImpl* owner() const { return fOwner; }
 
     bool isEllipsis() const { return fEllipsis; }
 
@@ -173,7 +173,7 @@ private:
     friend class ParagraphCache;
     friend class OneLineShaper;
 
-    ParagraphImpl* fMaster;
+    ParagraphImpl* fOwner;
     TextRange fTextRange;
     ClusterRange fClusterRange;
 
@@ -213,7 +213,7 @@ public:
     };
 
     Cluster()
-            : fMaster(nullptr)
+            : fOwner(nullptr)
             , fRunIndex(EMPTY_RUN)
             , fTextRange(EMPTY_TEXT)
             , fGraphemeRange(EMPTY_RANGE)
@@ -224,7 +224,7 @@ public:
             , fHeight()
             , fHalfLetterSpacing(0.0) {}
 
-    Cluster(ParagraphImpl* master,
+    Cluster(ParagraphImpl* owner,
             RunIndex runIndex,
             size_t start,
             size_t end,
@@ -236,7 +236,6 @@ public:
 
     ~Cluster() = default;
 
-    void setMaster(ParagraphImpl* master) { fMaster = master; }
     SkScalar sizeToChar(TextIndex ch) const;
     SkScalar sizeFromChar(TextIndex ch) const;
 
@@ -264,7 +263,7 @@ public:
     TextRange textRange() const { return fTextRange; }
 
     RunIndex runIndex() const { return fRunIndex; }
-    ParagraphImpl* master() const { return fMaster; }
+    ParagraphImpl* owner() const { return fOwner; }
 
     Run* run() const;
     SkFont font() const;
@@ -285,7 +284,7 @@ private:
 
     friend ParagraphImpl;
 
-    ParagraphImpl* fMaster;
+    ParagraphImpl* fOwner;
     RunIndex fRunIndex;
     TextRange fTextRange;
     GraphemeRange fGraphemeRange;
