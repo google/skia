@@ -331,8 +331,8 @@ void GrMtlPipelineStateDataManager::uploadAndBindUniformBuffers(
         GrMtlGpu* gpu,
         id<MTLRenderCommandEncoder> renderCmdEncoder) const {
     if (fUniformSize && fUniformsDirty) {
-        SkASSERT(fUniformSize < 4*1024);
         if (@available(macOS 10.11, iOS 8.3, *)) {
+            SkASSERT(fUniformSize <= 4*1024);
             [renderCmdEncoder setVertexBytes: fUniformData.get()
                                       length: fUniformSize
                                      atIndex: GrMtlUniformHandler::kUniformBinding];
@@ -340,18 +340,8 @@ void GrMtlPipelineStateDataManager::uploadAndBindUniformBuffers(
                                         length: fUniformSize
                                        atIndex: GrMtlUniformHandler::kUniformBinding];
         } else {
-            size_t bufferOffset;
-            id<MTLBuffer> uniformBuffer = gpu->resourceProvider().getDynamicBuffer(
-                                                  fUniformSize, &bufferOffset);
-            SkASSERT(uniformBuffer);
-            char* bufferData = (char*) uniformBuffer.contents + bufferOffset;
-            memcpy(bufferData, fUniformData.get(), fUniformSize);
-            [renderCmdEncoder setVertexBuffer: uniformBuffer
-                                       offset: bufferOffset
-                                      atIndex: GrMtlUniformHandler::kUniformBinding];
-            [renderCmdEncoder setFragmentBuffer: uniformBuffer
-                                         offset: bufferOffset
-                                        atIndex: GrMtlUniformHandler::kUniformBinding];
+            // We only support iOS 9.0+, so we should never hit this
+            SK_ABORT("Missing interface. Skia only supports Metal on iOS 9.0 and higher");
         }
         fUniformsDirty = false;
     }
