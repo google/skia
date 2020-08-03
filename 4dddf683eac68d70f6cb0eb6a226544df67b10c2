@@ -16,6 +16,24 @@
       "revId": "4dddf683eac68d70f6cb0eb6a226544df67b10c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de658e9d_9c15f77e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T13:27:30Z",
+      "side": 1,
+      "message": "Good question--I\u0027m not sure! I got this error when building the FreeType cpps locally with these args set:\n\nskia_use_expat \u003d true\nskia_use_freetype \u003d true\n\nWith no args set, it was building without error. I\u0027m not entirely sure what the root cause is since it looks like the Debug-Tidy bot should be building this file either way.",
+      "parentUuid": "91056d11_001822b2",
+      "revId": "4dddf683eac68d70f6cb0eb6a226544df67b10c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
