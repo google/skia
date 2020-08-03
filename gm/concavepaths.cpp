@@ -8,107 +8,78 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkScalar.h"
 
 namespace {
 // Concave test
 void test_concave(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->translate(0, 0);
-    path.moveTo(SkIntToScalar(20), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(30), SkIntToScalar(30))
-        .lineTo(SkIntToScalar(20), SkIntToScalar(80));
-    canvas->drawPath(path, paint);
+    canvas->drawPath(SkPath::Polygon({{20,20}, {80,20}, {30,30}, {20,80}}, false), paint);
 }
 
 // Reverse concave test
 void test_reverse_concave(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->save();
     canvas->translate(100, 0);
-    path.moveTo(SkIntToScalar(20), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(20), SkIntToScalar(80))
-        .lineTo(SkIntToScalar(30), SkIntToScalar(30))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(20));
-    canvas->drawPath(path, paint);
+    canvas->drawPath(SkPath::Polygon({{20,20}, {20,80}, {30,30}, {80,20}}, false), paint);
     canvas->restore();
 }
 
 // Bowtie (intersection)
 void test_bowtie(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->save();
     canvas->translate(200, 0);
-    path.moveTo(SkIntToScalar(20), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(80))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(20), SkIntToScalar(80));
-    canvas->drawPath(path, paint);
+    canvas->drawPath(SkPath::Polygon({{20,20}, {80,80}, {80,20}, {20,80}}, false), paint);
     canvas->restore();
 }
 
 // "fake" bowtie (concave, but no intersection)
 void test_fake_bowtie(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->save();
     canvas->translate(300, 0);
-    path.moveTo(SkIntToScalar(20), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(50), SkIntToScalar(40))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(80))
-        .lineTo(SkIntToScalar(50), SkIntToScalar(60))
-        .lineTo(SkIntToScalar(20), SkIntToScalar(80));
-    canvas->drawPath(path, paint);
+    canvas->drawPath(SkPath::Polygon({{20,20}, {50,40}, {80,20}, {80,80}, {50,60}, {20,80}},
+                                     false), paint);
     canvas->restore();
 }
 
 // Bowtie with a smaller right hand lobe. The outer vertex of the left hand
 // lobe intrudes into the interior of the right hand lobe.
 void test_intruding_vertex(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->save();
     canvas->translate(400, 0);
-    path.setIsVolatile(true);
-    path.moveTo(20, 20)
-        .lineTo(50, 50)
-        .lineTo(68, 20)
-        .lineTo(68, 80)
-        .lineTo(50, 50)
-        .lineTo(20, 80);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(SkPath::Polygon({{20,20}, {50,50}, {68,20}, {68,80}, {50,50}, {20,80}},
+                                     false, SkPathFillType::kWinding, true), paint);
     canvas->restore();
 }
 
 // A shape with an edge that becomes inverted on AA stroking and that also contains
 // a repeated start/end vertex.
 void test_inversion_repeat_vertex(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->save();
     canvas->translate(400, 100);
-    path.setIsVolatile(true);
-    path.moveTo(80,     50)
-        .lineTo(40,     80)
-        .lineTo(60,     20)
-        .lineTo(20,     20)
-        .lineTo(39.99f, 80)
-        .lineTo(80,     50);
-    canvas->drawPath(path, paint);
+    const SkPoint pts[] = {
+        {80,50}, {40,80}, {60,20}, {20,20}, {39.99f,80}, {80,50},
+    };
+    canvas->drawPath(SkPath::Polygon(pts, SK_ARRAY_COUNT(pts), false,
+                                     SkPathFillType::kWinding, true), paint);
     canvas->restore();
 }
 
 // Fish test (intersection/concave)
 void test_fish(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->save();
     canvas->translate(0, 100);
-    path.moveTo(SkIntToScalar(20), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(80))
-        .lineTo(SkIntToScalar(70), SkIntToScalar(50))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(20), SkIntToScalar(80))
-        .lineTo(SkIntToScalar(0), SkIntToScalar(50));
+//    const SkPoint pts[] = { {20, 20}, {80, 80}, {70, 50}, {80, 20}, {20, 80}, {0, 50}, };
+
+    SkPath path;
+      path.moveTo(SkIntToScalar(20), SkIntToScalar(20))
+          .lineTo(SkIntToScalar(80), SkIntToScalar(80))
+          .lineTo(SkIntToScalar(70), SkIntToScalar(50))
+          .lineTo(SkIntToScalar(80), SkIntToScalar(20))
+          .lineTo(SkIntToScalar(20), SkIntToScalar(80))
+          .lineTo(SkIntToScalar(0), SkIntToScalar(50));
+
     canvas->drawPath(path, paint);
     canvas->restore();
 }
@@ -116,26 +87,22 @@ void test_fish(SkCanvas* canvas, const SkPaint& paint) {
 // Overlapping "Fast-forward" icon: tests coincidence of inner and outer
 // vertices generated by intersection.
 void test_fast_forward(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->save();
     canvas->translate(100, 100);
-    path.moveTo(SkIntToScalar(20), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(60), SkIntToScalar(50))
-        .lineTo(SkIntToScalar(20), SkIntToScalar(80))
-        .moveTo(SkIntToScalar(40), SkIntToScalar(20))
-        .lineTo(SkIntToScalar(40), SkIntToScalar(80))
-        .lineTo(SkIntToScalar(80), SkIntToScalar(50));
+    auto path = SkPathBuilder().addPolygon({{20,20}, {60,50}, {20,80}}, false)
+                               .addPolygon({{40,20}, {40,80}, {80,50}}, false)
+                               .detach();
     canvas->drawPath(path, paint);
     canvas->restore();
 }
 
 // Square polygon with a square hole.
 void test_hole(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
     canvas->save();
     canvas->translate(200, 100);
-    path.addPoly({{20,20}, {80,20}, {80,80}, {20,80}}, false)
-        .addPoly({{30,30}, {30,70}, {70,70}, {70,30}}, false);
+    auto path = SkPathBuilder().addPolygon({{20,20}, {80,20}, {80,80}, {20,80}}, false)
+                               .addPolygon({{30,30}, {30,70}, {70,70}, {70,30}}, false)
+                               .detach();
     canvas->drawPath(path, paint);
     canvas->restore();
 }

@@ -72,11 +72,19 @@ public:
     static SkPath Circle(SkScalar center_x, SkScalar center_y, SkScalar radius,
                          SkPathDirection dir = SkPathDirection::kCW);
     static SkPath RRect(const SkRRect&, SkPathDirection dir = SkPathDirection::kCW);
-    static SkPath Polygon(const SkPoint pts[], int count, bool isClosed);
+
+    static SkPath Polygon(const SkPoint pts[], int count, bool isClosed,
+                          SkPathFillType = SkPathFillType::kWinding,
+                          bool isVolatile = false);
+
+    static SkPath Polygon(const std::initializer_list<SkPoint>& list, bool isClosed,
+                          SkPathFillType fillType = SkPathFillType::kWinding,
+                          bool isVolatile = false) {
+        return Polygon(list.begin(), SkToInt(list.size()), isClosed, fillType, isVolatile);
+    }
 
     static SkPath Line(const SkPoint a, const SkPoint b) {
-        SkPoint pts[] = { a, b };
-        return Polygon(pts, 2, false);
+        return Polygon({a, b}, false);
     }
 
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.

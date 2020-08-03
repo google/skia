@@ -3415,8 +3415,12 @@ SkPath SkPath::RRect(const SkRRect& rr, SkPathDirection dir) {
     return SkPathBuilder().addRRect(rr, dir).detach();
 }
 
-SkPath SkPath::Polygon(const SkPoint pts[], int count, bool isClosed) {
-    return SkPathBuilder().addPolygon(pts, count, isClosed).detach();
+SkPath SkPath::Polygon(const SkPoint pts[], int count, bool isClosed,
+                       SkPathFillType ft, bool isVolatile) {
+    return SkPathBuilder().addPolygon(pts, count, isClosed)
+                          .setFillType(ft)
+                          .setIsVolatile(isVolatile)
+                          .detach();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
