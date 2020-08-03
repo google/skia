@@ -29,7 +29,7 @@ static constexpr bool SkCompressionTypeIsOpaque(SkImage::CompressionType compres
 
 size_t SkCompressedDataSize(SkImage::CompressionType, SkISize baseDimensions,
                             SkTArray<size_t>* individualMipOffsets, bool mipMapped);
-
+size_t SkCompressedBlockSize(SkImage::CompressionType type);
 
 /**
  * Returns the data size for the given SkImage::CompressionType

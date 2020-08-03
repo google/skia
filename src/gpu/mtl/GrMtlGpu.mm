@@ -337,13 +337,16 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             bpp, {width, height}, &individualMipOffsets, mipLevelCount);
     SkASSERT(combinedBufferSize);
 
+
+    // offset value must be a multiple of the destination texture's pixel size in bytes
 #ifdef SK_BUILD_FOR_MAC
-    static const int kAlignment = 4;
+    static const size_t kMinAlignment = 4;
 #else
-    static const int kAlignment = 1;
+    static const size_t kMinAlignment = 1;
 #endif
+    size_t alignment = std::max(bpp, kMinAlignment);
     GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
-            combinedBufferSize, kAlignment);
+            combinedBufferSize, alignment);
     if (!slice.fBuffer) {
         return false;
     }
@@ -627,13 +630,11 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     SkASSERT(individualMipOffsets.count() == numMipLevels);
     SkASSERT(dataSize == combinedBufferSize);
 
-#ifdef SK_BUILD_FOR_MAC
-    static const int kAlignment = 4;
-#else
-    static const int kAlignment = 1;
-#endif
+    // offset value must be a multiple of the destination texture's pixel size in bytes
+    // for compressed textures, this is the block size
+    size_t alignment = SkCompressedBlockSize(compressionType);
     GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
-            dataSize, kAlignment);
+            dataSize, alignment);
     if (!slice.fBuffer) {
         return nullptr;
     }
