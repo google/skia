@@ -32,6 +32,8 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
+#include <fstream>
+
 #if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -62,20 +64,13 @@
 
 #warning SkSL rehydrator is disabled
 
-static const char* SKSL_GPU_INCLUDE =
-#include "src/sksl/generated/sksl_gpu.c.inc"
-static const char* SKSL_INTERP_INCLUDE =
-#include "src/sksl/generated/sksl_interp.c.inc"
-static const char* SKSL_VERT_INCLUDE =
-#include "src/sksl/generated/sksl_vert.c.inc"
-static const char* SKSL_FRAG_INCLUDE =
-#include "src/sksl/generated/sksl_frag.c.inc"
-static const char* SKSL_GEOM_INCLUDE =
-#include "src/sksl/generated/sksl_geom.c.inc"
-static const char* SKSL_FP_INCLUDE =
-#include "src/sksl/generated/sksl_fp.c.inc"
-static const char* SKSL_PIPELINE_INCLUDE =
-#include "src/sksl/generated/sksl_pipeline.c.inc"
+static const char* SKSL_GPU_INCLUDE      = "src/sksl/sksl_gpu.sksl";
+static const char* SKSL_INTERP_INCLUDE   = "src/sksl/sksl_interp.sksl";
+static const char* SKSL_VERT_INCLUDE     = "src/sksl/sksl_vert.sksl";
+static const char* SKSL_FRAG_INCLUDE     = "src/sksl/sksl_frag.sksl";
+static const char* SKSL_GEOM_INCLUDE     = "src/sksl/sksl_geom.sksl";
+static const char* SKSL_FP_INCLUDE       = "src/sksl/generated/sksl_fp.sksl";
+static const char* SKSL_PIPELINE_INCLUDE = "src/sksl/sksl_pipeline.sksl";
 
 #endif
 
@@ -256,15 +251,12 @@ Compiler::Compiler(Flags flags)
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
     std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
 #if !REHYDRATE
-    this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, strlen(SKSL_GPU_INCLUDE),
-                             symbols, &gpuIntrinsics, &fGpuSymbolTable);
-    // need to hang on to the source so that FunctionDefinition.fSource pointers in this file
-    // remain valid
-    fGpuIncludeSource = std::move(fIRGenerator->fFile);
-    this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, strlen(SKSL_VERT_INCLUDE),
-                             fGpuSymbolTable, &fVertexInclude, &fVertexSymbolTable);
-    this->processIncludeFile(Program::kFragment_Kind, SKSL_FRAG_INCLUDE, strlen(SKSL_FRAG_INCLUDE),
-                             fGpuSymbolTable, &fFragmentInclude, &fFragmentSymbolTable);
+    this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, symbols, &gpuIntrinsics,
+                             &fGpuSymbolTable);
+    this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, fGpuSymbolTable,
+                             &fVertexInclude, &fVertexSymbolTable);
+    this->processIncludeFile(Program::kFragment_Kind, SKSL_FRAG_INCLUDE, fGpuSymbolTable,
+                             &fFragmentInclude, &fFragmentSymbolTable);
 #else
     {
         Rehydrator rehydrator(fContext.get(), symbols, this, SKSL_INCLUDE_sksl_gpu,
@@ -305,9 +297,8 @@ void Compiler::loadGeometryIntrinsics() {
             fGeometryInclude = rehydrator.elements();
         }
     #else
-        this->processIncludeFile(Program::kGeometry_Kind, SKSL_GEOM_INCLUDE,
-                                 strlen(SKSL_GEOM_INCLUDE), fGpuSymbolTable, &fGeometryInclude,
-                                 &fGeometrySymbolTable);
+        this->processIncludeFile(Program::kGeometry_Kind, SKSL_GEOM_INCLUDE, fGpuSymbolTable,
+                                 &fGeometryInclude, &fGeometrySymbolTable);
     #endif
 }
 
@@ -325,8 +316,7 @@ void Compiler::loadPipelineIntrinsics() {
         }
     #else
         this->processIncludeFile(Program::kPipelineStage_Kind, SKSL_PIPELINE_INCLUDE,
-                                 strlen(SKSL_PIPELINE_INCLUDE), fGpuSymbolTable, &fPipelineInclude,
-                                 &fPipelineSymbolTable);
+                                 fGpuSymbolTable, &fPipelineInclude, &fPipelineSymbolTable);
     #endif
 }
 
@@ -345,19 +335,22 @@ void Compiler::loadInterpreterIntrinsics() {
         }
     #else
         this->processIncludeFile(Program::kGeneric_Kind, SKSL_INTERP_INCLUDE,
-                                 strlen(SKSL_INTERP_INCLUDE), fIRGenerator->fSymbolTable,
-                                 &fInterpreterInclude, &fInterpreterSymbolTable);
+                                 fIRGenerator->fSymbolTable, &fInterpreterInclude,
+                                 &fInterpreterSymbolTable);
     #endif
 }
 
-void Compiler::processIncludeFile(Program::Kind kind, const char* src, size_t length,
+void Compiler::processIncludeFile(Program::Kind kind, const char* path,
                                   std::shared_ptr<SymbolTable> base,
                                   std::vector<std::unique_ptr<ProgramElement>>* outElements,
                                   std::shared_ptr<SymbolTable>* outSymbolTable) {
-#ifdef SK_DEBUG
-    String source(src, length);
-    fSource = &source;
-#endif
+    std::ifstream in(path);
+    std::string stdText((std::istreambuf_iterator<char>(in)),
+                        std::istreambuf_iterator<char>());
+    SkASSERT(!in.rdstate());
+    SkASSERT(base);
+    String* source = base->takeOwnership(std::unique_ptr<String>(new String(stdText.c_str())));
+    fSource = source;
     std::shared_ptr<SymbolTable> old = fIRGenerator->fSymbolTable;
     if (base) {
         fIRGenerator->fSymbolTable = std::move(base);
@@ -371,7 +364,7 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* src, size_t le
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
     fIRGenerator->start(&settings, nullptr, true);
-    fIRGenerator->convertProgram(kind, src, length, outElements);
+    fIRGenerator->convertProgram(kind, source->c_str(), source->length(), outElements);
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
@@ -1563,7 +1556,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             fIRGenerator->fIntrinsics = &fGPUIntrinsics;
             fIRGenerator->start(&settings, inherited);
             break;
-        case Program::kFragmentProcessor_Kind:
+        case Program::kFragmentProcessor_Kind: {
 #if REHYDRATE
             {
                 Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this,
@@ -1582,10 +1575,17 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             fIRGenerator->fSymbolTable = fGpuSymbolTable;
             fIRGenerator->start(&settings, nullptr, true);
             fIRGenerator->fIntrinsics = &fGPUIntrinsics;
-            fIRGenerator->convertProgram(kind, SKSL_FP_INCLUDE, strlen(SKSL_FP_INCLUDE), &elements);
+            std::ifstream in(SKSL_FP_INCLUDE);
+            std::string stdText((std::istreambuf_iterator<char>(in)),
+                                std::istreambuf_iterator<char>());
+            SkASSERT(!in.rdstate());
+            String* source = fGpuSymbolTable->takeOwnership(std::unique_ptr<String>(
+                                                                     new String(stdText.c_str())));
+            fIRGenerator->convertProgram(kind, source->c_str(), source->length(), &elements);
             fIRGenerator->fIsBuiltinCode = false;
             break;
 #endif
+        }
         case Program::kPipelineStage_Kind:
             this->loadPipelineIntrinsics();
             inherited = &fPipelineInclude;
