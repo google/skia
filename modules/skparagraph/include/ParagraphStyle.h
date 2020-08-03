@@ -70,6 +70,7 @@ private:
 
 struct ParagraphStyle {
     ParagraphStyle();
+    ParagraphStyle(const TextStyle& defaultTextStyle);
 
     bool operator==(const ParagraphStyle& rhs) const {
         return this->fHeight == rhs.fHeight && this->fEllipsis == rhs.fEllipsis &&
