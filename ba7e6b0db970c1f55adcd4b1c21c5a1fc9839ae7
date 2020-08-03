@@ -16,6 +16,144 @@
       "revId": "ba7e6b0db970c1f55adcd4b1c21c5a1fc9839ae7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "436b754c_96bc4f68",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-03T12:10:41Z",
+      "side": 1,
+      "message": "This has to go first - we promise to call releaseP no matter what",
+      "range": {
+        "startLine": 200,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 5
+      },
+      "revId": "ba7e6b0db970c1f55adcd4b1c21c5a1fc9839ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4312b2bc_d92ab1a2",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-03T12:10:41Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 230,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 5
+      },
+      "revId": "ba7e6b0db970c1f55adcd4b1c21c5a1fc9839ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0db35f6_434beb71",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-03T12:10:41Z",
+      "side": 1,
+      "message": "It doesn\u0027t have to be in this CL but we should probably remove this parameter and just call:\n\nauto proxyProvider \u003d rContext-\u003epriv().proxyProvider();\n\nin this method.",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 353,
+        "endChar": 39
+      },
+      "revId": "ba7e6b0db970c1f55adcd4b1c21c5a1fc9839ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9101ca42_72c8c280",
+        "filename": "tests/ImageFilterCacheTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-03T12:10:41Z",
+      "side": 1,
+      "message": "rContext ?",
+      "range": {
+        "startLine": 210,
+        "startChar": 64,
+        "endLine": 210,
+        "endChar": 66
+      },
+      "revId": "ba7e6b0db970c1f55adcd4b1c21c5a1fc9839ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29f47cb8_c6ccecc0",
+        "filename": "tests/VkBackendSurfaceTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-03T12:10:41Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027 ?",
+      "range": {
+        "startLine": 38,
+        "startChar": 76,
+        "endLine": 38,
+        "endChar": 78
+      },
+      "revId": "ba7e6b0db970c1f55adcd4b1c21c5a1fc9839ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a33eeb75_e9172445",
+        "filename": "tools/fiddle/draw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-03T12:10:41Z",
+      "side": 1,
+      "message": "auto ?",
+      "range": {
+        "startLine": 29,
+        "startChar": 8,
+        "endLine": 29,
+        "endChar": 24
+      },
+      "revId": "ba7e6b0db970c1f55adcd4b1c21c5a1fc9839ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
