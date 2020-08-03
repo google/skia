@@ -476,27 +476,27 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contex
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     static constexpr int kSize = 10;
 
     for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
         SkColorType colorType = static_cast<SkColorType>(ct);
-        bool can = context->colorTypeSupportedAsImage(colorType);
+        bool can = dContext->colorTypeSupportedAsImage(colorType);
 
         GrBackendTexture backendTex;
-        CreateBackendTexture(context, &backendTex, kSize, kSize, colorType, SkColors::kTransparent,
+        CreateBackendTexture(dContext, &backendTex, kSize, kSize, colorType, SkColors::kTransparent,
                              GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
-        auto img = SkImage::MakeFromTexture(context, backendTex, kTopLeft_GrSurfaceOrigin,
+        auto img = SkImage::MakeFromTexture(dContext, backendTex, kTopLeft_GrSurfaceOrigin,
                                             colorType, kOpaque_SkAlphaType, nullptr);
         REPORTER_ASSERT(reporter, can == SkToBool(img),
                         "colorTypeSupportedAsImage:%d, actual:%d, ct:%d", can, SkToBool(img),
                         colorType);
 
         img.reset();
-        context->flushAndSubmit();
-        context->deleteBackendTexture(backendTex);
+        dContext->flushAndSubmit();
+        dContext->deleteBackendTexture(backendTex);
     }
 }
 
@@ -818,12 +818,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     const int kWidth = 10;
     const int kHeight = 10;
 
-    auto ctx = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
     GrBackendTexture backendTex;
-    if (!CreateBackendTexture(ctx, &backendTex, ii, SkColors::kRed, GrMipmapped::kNo,
+    if (!CreateBackendTexture(dContext, &backendTex, ii, SkColors::kRed, GrMipmapped::kNo,
                               GrRenderable::kNo)) {
         ERRORF(reporter, "couldn't create backend texture\n");
     }
@@ -831,7 +831,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     TextureReleaseChecker releaseChecker;
     GrSurfaceOrigin texOrigin = kBottomLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(
-        SkImage::MakeFromTexture(ctx, backendTex, texOrigin, kRGBA_8888_SkColorType,
+        SkImage::MakeFromTexture(dContext, backendTex, texOrigin, kRGBA_8888_SkColorType,
                                  kPremul_SkAlphaType, nullptr,
                                  TextureReleaseChecker::Release, &releaseChecker));
 
@@ -851,7 +851,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     refImg.reset(nullptr); // force a release of the image
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 
-    DeleteBackendTexture(ctx, backendTex);
+    DeleteBackendTexture(dContext, backendTex);
 }
 
 static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,

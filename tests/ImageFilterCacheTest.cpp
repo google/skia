@@ -207,9 +207,9 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 
-static GrSurfaceProxyView create_proxy_view(GrRecordingContext* context) {
+static GrSurfaceProxyView create_proxy_view(GrRecordingContext* rContext) {
     SkBitmap srcBM = create_bm();
-    GrBitmapTextureMaker maker(context, srcBM, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+    GrBitmapTextureMaker maker(rContext, srcBM, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
     return maker.view(GrMipmapped::kNo);
 }
 
@@ -255,9 +255,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
-    GrSurfaceProxyView srcView = create_proxy_view(context);
+    GrSurfaceProxyView srcView = create_proxy_view(dContext);
     if (!srcView.proxy()) {
         return;
     }
@@ -265,7 +265,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
     sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeDeferredFromGpu(
-                                                              context, full,
+                                                              dContext, full,
                                                               kNeedNewImageUniqueID_SpecialImage,
                                                               srcView,
                                                               GrColorType::kRGBA_8888, nullptr));
@@ -273,7 +273,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeDeferredFromGpu(
-                                                                context, subset,
+                                                                dContext, subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
                                                                 std::move(srcView),
                                                                 GrColorType::kRGBA_8888, nullptr));
