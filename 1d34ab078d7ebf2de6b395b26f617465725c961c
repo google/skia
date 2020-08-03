@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2422b2e0_4a061908",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2020-08-03T16:37:58Z",
+      "side": 1,
+      "message": "thanks for doing this, would like an update to the query but otherwise good",
+      "revId": "1d34ab078d7ebf2de6b395b26f617465725c961c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b7330f5_99c5537d",
+        "filename": "site/dev/sheriffing/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2020-08-03T16:37:58Z",
+      "side": 1,
+      "message": "Let\u0027s add available to start, because we are getting bugs sometimes that have been \"triaged\" by Blink, for example, but need a Skia look/owner to get anywhere:\nhttps://bugs.chromium.org/p/chromium/issues/list?sort\u003d-modified%20pri\u0026q\u003dcomponent%3AInternals%3ESkia%20status%3AUntriaged%2CUnconfirmed%2CAvailable\u0026can\u003d2",
+      "range": {
+        "startLine": 44,
+        "startChar": 11,
+        "endLine": 44,
+        "endChar": 152
+      },
+      "revId": "1d34ab078d7ebf2de6b395b26f617465725c961c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
