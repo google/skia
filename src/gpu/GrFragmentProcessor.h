@@ -189,6 +189,12 @@ public:
         return SkToBool(fFlags & kNetTransformHasPerspective_Flag);
     }
 
+    // True if emitted code assigns the output color to sk_OutColor, instead of returning it
+    // directly.
+    virtual bool usesImplicitReturn() const {
+        return false;
+    }
+
     // The SampleUsage describing how this FP is invoked by its parent using 'sample(matrix)'
     // This only reflects the immediate sampling from parent to this FP
     const SkSL::SampleUsage& sampleUsage() const {

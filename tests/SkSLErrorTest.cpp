@@ -365,7 +365,7 @@ DEF_TEST(SkSLUseWithoutInitialize, r) {
                                "sk_FragColor = half4(x); }",
                  "error: 1: 'x' has not been assigned\n1 error\n");
 }
-
+#if 0
 DEF_TEST(SkSLUnreachable, r) {
     test_failure(r,
                  "void main() { return; return; }",
@@ -383,7 +383,7 @@ DEF_TEST(SkSLUnreachable, r) {
                  "void main() { return; main(); }",
                  "error: 1: unreachable\n1 error\n");
 }
-
+#endif
 DEF_TEST(SkSLNoReturn, r) {
     test_failure(r,
                  "int foo() { if (2 > 5) return 3; }",

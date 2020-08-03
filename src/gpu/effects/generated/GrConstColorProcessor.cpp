@@ -30,8 +30,10 @@ public:
                                                     kHalf4_GrSLType, "color");
         fragBuilder->codeAppendf(
                 R"SkSL(%s = %s;
+return %s;
 )SkSL",
-                args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar));
+                args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar),
+                args.fOutputColor);
     }
 
 private:

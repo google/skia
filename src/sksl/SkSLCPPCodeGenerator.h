@@ -51,8 +51,6 @@ private:
 
     void writeIfStatement(const IfStatement& s) override;
 
-    void writeReturnStatement(const ReturnStatement& s) override;
-
     void writeSwitchStatement(const SwitchStatement& s) override;
 
     void writeFunctionCall(const FunctionCall& c) override;

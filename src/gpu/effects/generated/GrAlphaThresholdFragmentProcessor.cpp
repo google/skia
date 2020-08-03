@@ -33,10 +33,10 @@ public:
                                                              kHalf_GrSLType, "innerThreshold");
         outerThresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                              kHalf_GrSLType, "outerThreshold");
-        SkString _sample515 = this->invokeChild(0, args);
+        SkString _sample516 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
-                R"SkSL(half4 color = %s;)SkSL", _sample515.c_str());
-        SkString _sample555 = this->invokeChild(1, args);
+                R"SkSL(half4 color = %s;)SkSL", _sample516.c_str());
+        SkString _sample556 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 mask_color = %s;
@@ -52,13 +52,15 @@ if (mask_color.w < 0.5) {
     color.w = %s;
 }
 %s = color;
+return %s;
 )SkSL",
-                _sample555.c_str(), args.fUniformHandler->getUniformCStr(outerThresholdVar),
+                _sample556.c_str(), args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(innerThresholdVar),
                 args.fUniformHandler->getUniformCStr(innerThresholdVar),
-                args.fUniformHandler->getUniformCStr(innerThresholdVar), args.fOutputColor);
+                args.fUniformHandler->getUniformCStr(innerThresholdVar), args.fOutputColor,
+                args.fOutputColor);
     }
 
 private:

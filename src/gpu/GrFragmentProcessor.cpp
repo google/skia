@@ -265,8 +265,11 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
                     const GrSwizzle& swizzle = sfp.swizzle();
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-                    fragBuilder->codeAppendf("%s = %s.%s;",
-                            args.fOutputColor, childColor.c_str(), swizzle.asString().c_str());
+                    fragBuilder->codeAppendf(
+                            "%s = %s.%s;\n"
+                            "return %s;\n",
+                            args.fOutputColor, childColor.c_str(), swizzle.asString().c_str(),
+                            args.fOutputColor);
                 }
             };
             return new GLFP;
@@ -327,10 +330,13 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
                     SkString temp = this->invokeChild(0, "half4(1)", args);
-                    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, temp.c_str());
-                    fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
-                                                                  args.fInputColor);
-                    fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
+                    fragBuilder->codeAppendf(
+                            "%s = %s;\n"
+                            "%s.rgb *= %s.rgb;\n"
+                            "%s *= %s.a;\n"
+                            "return %s;\n",
+                            args.fOutputColor, temp.c_str(), args.fOutputColor, args.fInputColor,
+                            args.fOutputColor, args.fInputColor, args.fOutputColor);
                 }
             };
             return new GLFP;
@@ -401,7 +407,10 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
                 void emitCode(EmitArgs& args) override {
                     SkString result = this->invokeChild(0, args);
                     result = this->invokeChild(1, result.c_str(), args);
-                    args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, result.c_str());
+                    args.fFragBuilder->codeAppendf(
+                            "%s = %s;\n"
+                            "return %s;\n",
+                            args.fOutputColor, result.c_str(), args.fOutputColor);
                 }
             };
             return new GLFP;
