@@ -16,6 +16,7 @@
 #include "src/utils/mac/SkUniqueCFRef.h"
 
 #include <climits>
+#include <memory>
 
 static CGBitmapInfo compute_cgalpha_info_rgba(SkAlphaType at) {
     CGBitmapInfo info = kCGBitmapByteOrder32Big;
@@ -97,7 +98,7 @@ static std::unique_ptr<SkBitmap> prepare_for_image_ref(const SkBitmap& bm,
         bm.readPixels(copy->info(), copy->getPixels(), copy->rowBytes(), 0, 0);
         return copy;
     }
-    return std::unique_ptr<SkBitmap>(new SkBitmap(bm));
+    return std::make_unique<SkBitmap>(bm);
 }
 
 CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,

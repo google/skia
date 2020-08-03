@@ -121,7 +121,7 @@ GrColorMatrixFragmentProcessor::GrColorMatrixFragmentProcessor(
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(*this));
+    return std::make_unique<GrColorMatrixFragmentProcessor>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrColorMatrixFragmentProcessor);
 #if GR_TEST_UTILS

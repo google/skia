@@ -157,7 +157,7 @@ GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrRRectBlurEffect(*this));
+    return std::make_unique<GrRRectBlurEffect>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 #if GR_TEST_UTILS

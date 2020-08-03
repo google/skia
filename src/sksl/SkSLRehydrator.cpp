@@ -6,6 +6,8 @@
  */
 
 #include "src/sksl/SkSLRehydrator.h"
+
+#include <memory>
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
@@ -430,9 +432,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                 SkASSERT(s->fKind == Statement::kVarDeclaration_Kind);
                 vars.emplace_back((VarDeclaration*) s.release());
             }
-            return std::unique_ptr<Statement>(new VarDeclarationsStatement(
-                           std::unique_ptr<VarDeclarations>(new VarDeclarations(-1, baseType,
-                                                                                std::move(vars)))));
+            return std::make_unique<VarDeclarationsStatement>(
+                    std::make_unique<VarDeclarations>(-1, baseType, std::move(vars)));
         }
         case Rehydrator::kVoid_Command:
             return nullptr;
