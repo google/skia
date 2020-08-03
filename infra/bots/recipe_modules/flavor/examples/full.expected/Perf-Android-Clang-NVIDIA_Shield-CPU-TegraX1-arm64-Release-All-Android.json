@@ -63,6 +63,25 @@
   },
   {
     "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "stat",
+      "file.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat file.txt",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -105,6 +124,25 @@
     },
     "infra_step": true,
     "name": "rm device_results_dir"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "stat",
+      "device_results_dir"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat device_results_dir",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
   },
   {
     "cmd": [
@@ -229,6 +267,25 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "rm",
       "-rf",
       "/sdcard/revenge_of_the_skiabot/text_blob_traces"
@@ -241,6 +298,25 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/text_blob_traces"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/text_blob_traces"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/text_blob_traces",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
   },
   {
     "cmd": [
@@ -514,6 +590,25 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "rm",
       "-rf",
       "/sdcard/revenge_of_the_skiabot/skps"
@@ -526,6 +621,25 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/skps"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/skps"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/skps",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
   },
   {
     "cmd": [
@@ -716,6 +830,25 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "rm",
       "-rf",
       "/sdcard/revenge_of_the_skiabot/images"
@@ -728,6 +861,25 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/images"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/images"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/images",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
   },
   {
     "cmd": [
@@ -918,6 +1070,25 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "rm",
       "-rf",
       "/sdcard/revenge_of_the_skiabot/svgs"
@@ -930,6 +1101,25 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/svgs"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/svgs"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/svgs",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
   },
   {
     "cmd": [
