@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c412d37e_2f4585a6",
+        "filename": "docs/examples/Image_isTextureBacked.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-03T15:07:16Z",
+      "side": 1,
+      "message": "GrAsDirectContext?",
+      "revId": "f5678c1629354fd9def4aa046c992eec302b43a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86127dc4_172c58b4",
+        "filename": "docs/examples/Image_isTextureBacked.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-03T15:07:16Z",
+      "side": 1,
+      "message": "This will take a recording context after I update my CL in a minute.",
+      "revId": "f5678c1629354fd9def4aa046c992eec302b43a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59987baf_55c49c98",
+        "filename": "docs/examples/Image_isValid.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-03T15:07:16Z",
+      "side": 1,
+      "message": "Same comments apply to this and the other examples",
+      "revId": "f5678c1629354fd9def4aa046c992eec302b43a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
