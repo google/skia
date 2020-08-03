@@ -24,12 +24,13 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDeviceSpaceEffect& _outer = args.fFp.cast<GrDeviceSpaceEffect>();
         (void)_outer;
-        SkString _coords203("sk_FragCoord.xy");
-        SkString _sample203 = this->invokeChild(0, args, _coords203.c_str());
+        SkString _coords204("sk_FragCoord.xy");
+        SkString _sample204 = this->invokeChild(0, args, _coords204.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(%s = %s;
+return %s;
 )SkSL",
-                args.fOutputColor, _sample203.c_str());
+                args.fOutputColor, _sample204.c_str(), args.fOutputColor);
     }
 
 private:

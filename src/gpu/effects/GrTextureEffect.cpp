@@ -701,8 +701,9 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     "}",
                     subsetName, subsetName, borderName);
         }
-        fb->codeAppendf("%s = textureColor;", args.fOutputColor);
+        fb->codeAppendf("%s = textureColor;\n", args.fOutputColor);
     }
+    fb->codeAppendf("return %s;\n", args.fOutputColor);
 }
 
 void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
