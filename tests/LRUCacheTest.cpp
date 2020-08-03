@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <memory>
+
 #include "src/core/SkLRUCache.h"
 #include "tests/Test.h"
 
@@ -30,7 +32,7 @@ DEF_TEST(LRUCacheSequential, r) {
         SkLRUCache<int, std::unique_ptr<Value>> test(kSize);
         for (int i = 1; i < kSize * 2; i++) {
             REPORTER_ASSERT(r, !test.find(i));
-            test.insert(i, std::unique_ptr<Value>(new Value(i * i, &instances)));
+            test.insert(i, std::make_unique<Value>(i * i, &instances));
             REPORTER_ASSERT(r, test.find(i));
             REPORTER_ASSERT(r, i * i == (*test.find(i))->fValue);
             if (i > kSize) {
@@ -55,7 +57,7 @@ DEF_TEST(LRUCacheRandom, r) {
         for (int i = 0; i < (int) (sizeof(seq) / sizeof(int)); i++) {
             int k = seq[i];
             if (!test.find(k)) {
-                test.insert(k, std::unique_ptr<Value>(new Value(k, &instances)));
+                test.insert(k, std::make_unique<Value>(k, &instances));
             }
         }
         REPORTER_ASSERT(r, kSize == instances);

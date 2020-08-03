@@ -108,7 +108,7 @@ GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrAARectEffect(*this));
+    return std::make_unique<GrAARectEffect>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAARectEffect);
 #if GR_TEST_UTILS

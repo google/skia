@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "stdio.h"
-#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLParser.h"
+
+#include <memory>
+#include "stdio.h"
+
+#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -136,7 +139,7 @@ Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorRepor
 
 /* (directive | section | declaration)* END_OF_FILE */
 std::unique_ptr<ASTFile> Parser::file() {
-    fFile.reset(new ASTFile());
+    fFile = std::make_unique<ASTFile>();
     CREATE_NODE(result, 0, ASTNode::Kind::kFile);
     fFile->fRoot = result;
     for (;;) {
@@ -524,8 +527,7 @@ ASTNode::ID Parser::structDeclaration() {
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(this->text(name), std::unique_ptr<Type>(new Type(name.fOffset, this->text(name),
-                                                                  fields)));
+    fSymbols.add(this->text(name), std::make_unique<Type>(name.fOffset, this->text(name), fields));
     RETURN_NODE(name.fOffset, ASTNode::Kind::kType,
                 ASTNode::TypeData(this->text(name), true, false));
 }
