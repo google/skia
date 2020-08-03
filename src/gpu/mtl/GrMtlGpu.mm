@@ -207,8 +207,6 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
         return true;
     }
 
-    fResourceProvider.addBufferCompletionHandler(fCurrentCmdBuffer.get());
-
     GrFence fence = this->insertFence();
     new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(
             fCurrentCmdBuffer, fence);
