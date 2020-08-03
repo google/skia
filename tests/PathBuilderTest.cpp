@@ -115,6 +115,7 @@ DEF_TEST(pathbuilder_addRect, reporter) {
 
 DEF_TEST(pathbuilder_addOval, reporter) {
     const SkRect r = { 10, 20, 30, 40 };
+    SkRect tmp;
 
     for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
         for (int i = 0; i < 4; ++i) {
@@ -122,19 +123,24 @@ DEF_TEST(pathbuilder_addOval, reporter) {
             SkPath p;
             p.addOval(r, dir, i);
             REPORTER_ASSERT(reporter, p == bp);
+            REPORTER_ASSERT(reporter,  p.isOval(&tmp) && (tmp == r));
+            REPORTER_ASSERT(reporter, bp.isOval(&tmp) && (tmp == r));
         }
         auto bp = SkPathBuilder().addOval(r, dir).detach();
         SkPath p;
         p.addOval(r, dir);
         REPORTER_ASSERT(reporter, p == bp);
+        REPORTER_ASSERT(reporter,  p.isOval(&tmp) && (tmp == r));
+        REPORTER_ASSERT(reporter, bp.isOval(&tmp) && (tmp == r));
     }
 }
 
 DEF_TEST(pathbuilder_addRRect, reporter) {
     const SkRRect rr = SkRRect::MakeRectXY({ 10, 20, 30, 40 }, 5, 6);
+    SkRRect tmp;
 
-    for (int i = 0; i < 4; ++i) {
-        for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+        for (int i = 0; i < 4; ++i) {
             SkPathBuilder b;
             b.addRRect(rr, dir, i);
             auto bp = b.detach();
@@ -142,7 +148,15 @@ DEF_TEST(pathbuilder_addRRect, reporter) {
             SkPath p;
             p.addRRect(rr, dir, i);
             REPORTER_ASSERT(reporter, p == bp);
+            REPORTER_ASSERT(reporter,  p.isRRect(&tmp) && (tmp == rr));
+            REPORTER_ASSERT(reporter, bp.isRRect(&tmp) && (tmp == rr));
         }
+        auto bp = SkPathBuilder().addRRect(rr, dir).detach();
+        SkPath p;
+        p.addRRect(rr, dir);
+        REPORTER_ASSERT(reporter, p == bp);
+        REPORTER_ASSERT(reporter,  p.isRRect(&tmp) && (tmp == rr));
+        REPORTER_ASSERT(reporter, bp.isRRect(&tmp) && (tmp == rr));
     }
 }
 
