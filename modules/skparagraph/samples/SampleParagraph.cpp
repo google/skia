@@ -13,6 +13,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
+#include "modules/skparagraph/api/Format.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
@@ -27,7 +28,6 @@
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
-
 
 static DEFINE_bool(verboseParagraph, false, "paragraph samples very verbose.");
 
@@ -2898,6 +2898,45 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView46 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph46"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+      canvas->drawColor(SK_ColorWHITE);
+
+      auto fontCollection = sk_make_sp<FontCollection>();
+      fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+      fontCollection->enableFontFallback();
+
+      // World domination is such an ugly phrase - I prefer to call it world optimisation
+
+      SkPaint blackText; blackText.setColor(SK_ColorBLACK);
+      SkPaint redText; redText.setColor(SK_ColorRED);
+      SkPaint greenText; greenText.setColor(SK_ColorGREEN);
+      SkPaint blueText; blueText.setColor(SK_ColorBLUE);
+      SkPaint yellowBrush; yellowBrush.setColor(SK_ColorYELLOW);
+      FormatStyle style;
+      Format format(fontCollection);
+      format.setForegroundPaint(blackText)
+            .addText("World ")
+            .addText("domination ", format.font("Roboto").fontSize(20))
+            .addText("is such an ugly phrase - I ", format.backgroundPaint(yellowBrush))
+            .addText("prefer to call it ", format.italic())
+            .addText("world ", format.font("Assyrian").fontSize(20))
+            .addText("opti", format.foregroundPaint(redText))
+            .addText("miza", format.foregroundPaint(greenText))
+            .addText("tion", format.foregroundPaint(blueText));
+
+        format.format(SkSize::Make(width(), SK_ScalarInfinity));
+        format.paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2944,3 +2983,4 @@ DEF_SAMPLE(return new ParagraphView42();)
 DEF_SAMPLE(return new ParagraphView43();)
 DEF_SAMPLE(return new ParagraphView44();)
 DEF_SAMPLE(return new ParagraphView45();)
+DEF_SAMPLE(return new ParagraphView46();)
