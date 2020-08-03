@@ -16,6 +16,24 @@
       "revId": "e40240c6ee333b73ed1ffaa1a43493adefc2cc4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c3de99a_1c92bb39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T13:19:20Z",
+      "side": 1,
+      "message": "Ah, I didn\u0027t realize Chromium could #include straight into src/core, but that appears to be exactly what it\u0027s doing:\n\nhttps://source.chromium.org/chromium/chromium/src/+/master:cc/paint/paint_op_buffer_serializer.h;l\u003d10;drc\u003ddb584c1ff881cc318d7f3c0e3597916083330be1",
+      "parentUuid": "688c1f89_01eb744b",
+      "revId": "e40240c6ee333b73ed1ffaa1a43493adefc2cc4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
