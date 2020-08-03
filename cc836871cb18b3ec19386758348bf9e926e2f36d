@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4b2cc1b_19ba9487",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T18:42:47Z",
+      "side": 1,
+      "message": "I can\u0027t remember why we did this, can you?",
+      "revId": "cc836871cb18b3ec19386758348bf9e926e2f36d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
