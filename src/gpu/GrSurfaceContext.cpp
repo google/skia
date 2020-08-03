@@ -7,6 +7,8 @@
 
 #include "src/gpu/GrSurfaceContext.h"
 
+#include <memory>
+
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -54,12 +56,12 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
                     context->priv().caps()->getWriteSwizzle(proxy->backendFormat(), colorType);
         }
         GrSurfaceProxyView writeView(readView.refProxy(), readView.origin(), writeSwizzle);
-        surfaceContext.reset(new GrRenderTargetContext(context, std::move(readView),
+        surfaceContext = std::make_unique<GrRenderTargetContext>(context, std::move(readView),
                                                        std::move(writeView), colorType,
-                                                       std::move(colorSpace), nullptr));
+                                                       std::move(colorSpace), nullptr);
     } else {
-        surfaceContext.reset(new GrSurfaceContext(context, std::move(readView), colorType,
-                                                  alphaType, std::move(colorSpace)));
+        surfaceContext = std::make_unique<GrSurfaceContext>(context, std::move(readView), colorType,
+                                                  alphaType, std::move(colorSpace));
     }
     SkDEBUGCODE(surfaceContext->validate();)
     return surfaceContext;
@@ -267,7 +269,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
         size_t tmpRB = tmpInfo.minRowBytes();
         size_t size = tmpRB * tmpInfo.height();
         // Chrome MSAN bots require the data to be initialized (hence the ()).
-        tmpPixels.reset(new char[size]());
+        tmpPixels = std::make_unique<char[]>(size);
 
         readDst = tmpPixels.get();
         readRB = tmpRB;
