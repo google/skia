@@ -48,7 +48,7 @@ if (t > 1.0) t -= 1.0;
 return t < 0.16666666666666666 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0.66666666666666663 ? p + ((q - p) * (0.66666666666666663 - t)) * 6.0 : p));
 )SkSL",
                                   &HSLToRGB_name);
-        SkString _sample896 = this->invokeChild(0, args);
+        SkString _sample897 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inColor = %s;
@@ -109,15 +109,16 @@ color = clamp(color, 0.0, 1.0);
     color.xyz = sqrt(color.xyz);
 }
 %s = half4(color.xyz, 1) * inColor.w;
+return %s;
 )SkSL",
-                _sample896.c_str(), (_outer.linearize ? "true" : "false"),
+                _sample897.c_str(), (_outer.linearize ? "true" : "false"),
                 (_outer.grayscale ? "true" : "false"), (_outer.invertBrightness ? "true" : "false"),
                 (_outer.invertLightness ? "true" : "false"), HSLToRGB_name.c_str(),
                 HSLToRGB_name.c_str(), HSLToRGB_name.c_str(),
                 (_outer.hasContrast ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(contrastModVar),
                 args.fUniformHandler->getUniformCStr(contrastModVar),
-                (_outer.linearize ? "true" : "false"), args.fOutputColor);
+                (_outer.linearize ? "true" : "false"), args.fOutputColor, args.fOutputColor);
     }
 
 private:

@@ -594,7 +594,9 @@ void GrDisplacementMapEffect::Impl::emitCode(EmitArgs& args) {
 
     auto colorSample = this->invokeChild(1, args, cCoords);
 
-    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorSample.c_str());
+    fragBuilder->codeAppendf("%s = %s;"
+                             "return %s;",
+                             args.fOutputColor, colorSample.c_str(), args.fOutputColor);
 }
 
 void GrDisplacementMapEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdman,

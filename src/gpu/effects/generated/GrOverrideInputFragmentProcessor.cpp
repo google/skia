@@ -47,13 +47,14 @@ public:
                                           : "half4(0)",
                 _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
                 _outer.literalColor.fA);
-        SkString _input1992("constColor");
-        SkString _sample1992 = this->invokeChild(0, _input1992.c_str(), args);
+        SkString _input1994("constColor");
+        SkString _sample1994 = this->invokeChild(0, _input1994.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = %s;
+return %s;
 )SkSL",
-                args.fOutputColor, _sample1992.c_str());
+                args.fOutputColor, _sample1994.c_str(), args.fOutputColor);
     }
 
 private:

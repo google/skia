@@ -179,7 +179,7 @@ uniform half blurRadius;
     return GrRRectBlurEffect::Make(d->inputFP(), d->context(), sigma, sigma, rrect, rrect);
 }
 
-void main() {
+half4 main() {
     // Warp the fragment position to the appropriate part of the 9-patch blur texture by snipping
     // out the middle section of the proxy rect.
     half2 translatedFragPos = half2(sk_FragCoord.xy - proxyRect.LT);
@@ -216,6 +216,7 @@ void main() {
 
     half4 inputColor = sample(inputFP);
     sk_OutColor = inputColor * sample(ninePatchFP, texCoord);
+    return sk_OutColor;
 }
 
 @setData(pdman) {
