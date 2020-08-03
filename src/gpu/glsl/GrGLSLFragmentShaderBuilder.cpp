@@ -189,7 +189,12 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
 
     this->codeAppendf("half4 %s;\n", args.fOutputColor);
     fp->emitCode(args);
-    this->codeAppendf("return %s;\n", args.fOutputColor);
+    if (args.fFp.usesImplicitReturn()) {
+        // Runtime shaders don't currently return the color in-out.
+        this->codeAppendf("return %s;\n", args.fOutputColor);
+    } else {
+        SkASSERT(SkStrContains(this->code().c_str(), "return"));
+    }
 
     SkString result;
     this->emitFunction(kHalf4_GrSLType, args.fFp.name(), paramCount, params,

@@ -81,13 +81,14 @@ half alpha;
                 args.fUniformHandler->getUniformCStr(ellipseVar),
                 scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
                 (int)_outer.edgeType);
-        SkString _sample4481 = this->invokeChild(0, args);
+        SkString _sample4482 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
 %s = inputColor * alpha;
+return %s;
 )SkSL",
-                _sample4481.c_str(), args.fOutputColor);
+                _sample4482.c_str(), args.fOutputColor, args.fOutputColor);
     }
 
 private:
