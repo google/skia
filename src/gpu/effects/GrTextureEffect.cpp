@@ -323,8 +323,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
     auto& te = args.fFp.cast<GrTextureEffect>();
     auto* fb = args.fFragBuilder;
 
-    if (te.fShaderModes[0] == ShaderMode::kNone &&
-        te.fShaderModes[1] == ShaderMode::kNone) {
+    if (te.fShaderModes[0] == ShaderMode::kNone && te.fShaderModes[1] == ShaderMode::kNone) {
         fb->codeAppendf("%s = ", args.fOutputColor);
         if (te.fLazyProxyNormalization) {
             const char* norm = nullptr;
@@ -701,8 +700,9 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     "}",
                     subsetName, subsetName, borderName);
         }
-        fb->codeAppendf("%s = textureColor;", args.fOutputColor);
+        fb->codeAppendf("%s = textureColor;\n", args.fOutputColor);
     }
+    fb->codeAppendf("return %s;\n", args.fOutputColor);
 }
 
 void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,

@@ -36,10 +36,11 @@ public:
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x);
 %s = mix(%s, %s, t);
+return %s;
 )SkSL",
                 args.fSampleCoord, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(startVar),
-                args.fUniformHandler->getUniformCStr(endVar));
+                args.fUniformHandler->getUniformCStr(endVar), args.fOutputColor);
     }
 
 private:

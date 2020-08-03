@@ -14,7 +14,7 @@ in fragmentProcessor dstFP;
 layout(ctype=SkV4) in uniform float4 k;
 layout(key) in bool enforcePMColor;
 
-void main() {
+half4 main() {
     half4 src = sample(srcFP);
     half4 dst = sample(dstFP);
     sk_OutColor = saturate(half(k.x) * src * dst +
@@ -24,6 +24,7 @@ void main() {
     @if (enforcePMColor) {
         sk_OutColor.rgb = min(sk_OutColor.rgb, sk_OutColor.a);
     }
+    return sk_OutColor;
 }
 
 @optimizationFlags {

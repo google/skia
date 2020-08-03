@@ -26,7 +26,7 @@ public:
         (void)_outer;
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
-        SkString _sample464 = this->invokeChild(0, args);
+        SkString _sample465 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 @if (%s) {
@@ -35,9 +35,10 @@ public:
 } else {
     %s = clamp(inputColor, 0.0, 1.0);
 }
+return %s;
 )SkSL",
-                _sample464.c_str(), (_outer.clampToPremul ? "true" : "false"), args.fOutputColor,
-                args.fOutputColor);
+                _sample465.c_str(), (_outer.clampToPremul ? "true" : "false"), args.fOutputColor,
+                args.fOutputColor, args.fOutputColor);
     }
 
 private:
