@@ -87,6 +87,24 @@
       "revId": "4dddf683eac68d70f6cb0eb6a226544df67b10c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6949a19_d2967938",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T14:29:49Z",
+      "side": 1,
+      "message": "Cool, hunch confirmed: http://review.skia.org/307557\n\nI\u0027ll start iterating on fixing the stuff it finds. Will probably take a while due to the slowness of ClangTidy in general and inability to locally test a lot of it.",
+      "parentUuid": "96f7aff4_1ae5e031",
+      "revId": "4dddf683eac68d70f6cb0eb6a226544df67b10c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
