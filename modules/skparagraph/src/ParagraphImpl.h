@@ -229,6 +229,8 @@ private:
     friend class TextWrapper;
     friend class OneLineShaper;
 
+    friend class Format;
+
     void calculateBoundaries();
 
     void computeEmptyMetrics();

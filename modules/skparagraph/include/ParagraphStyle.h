@@ -70,6 +70,7 @@ private:
 
 struct ParagraphStyle {
     ParagraphStyle();
+    ParagraphStyle(const TextStyle& defaultTextStyle);
 
     bool operator==(const ParagraphStyle& rhs) const {
         return this->fHeight == rhs.fHeight && this->fEllipsis == rhs.fEllipsis &&
@@ -99,6 +100,9 @@ struct ParagraphStyle {
     SkScalar getHeight() const { return fHeight; }
     void setHeight(SkScalar height) { fHeight = height; }
 
+    SkScalar getDesiredHeight() const { return fDesiredHeight; }
+    void setDesiredHeight(SkScalar height) { fDesiredHeight = height; }
+    bool hasDesiredHeight() const { return !SkScalarIsNaN(fDesiredHeight); }
 
     TextHeightBehavior getTextHeightBehavior() const { return fTextHeightBehavior; }
     void setTextHeightBehavior(TextHeightBehavior v) { fTextHeightBehavior = v; }
@@ -117,6 +121,7 @@ private:
     TextAlign fTextAlign;
     TextDirection fTextDirection;
     size_t fLinesLimit;
+    SkScalar fDesiredHeight = SK_ScalarNaN;
     SkString fEllipsis;
     SkScalar fHeight;
     TextHeightBehavior fTextHeightBehavior;
