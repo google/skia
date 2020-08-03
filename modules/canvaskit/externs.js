@@ -142,11 +142,13 @@ var CanvasKit = {
 
     prototype: {
       pushStyle: function() {},
+      pushPaintStyle: function() {},
     },
 
     // private API
     _Make: function() {},
     _pushStyle: function() {},
+    _pushPaintStyle: function() {},
   },
 
   SkRuntimeEffect: {

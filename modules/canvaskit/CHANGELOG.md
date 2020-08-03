@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - Compile option to deserialize effects in skps `include_effects_deserialization`.
+ - ParagraphBuilder.pushPaintStyle which allows Paints to be used to color text.
 
 ### Changed
 - Pathops and SKP deserialization/serialization enabled on the npm build.

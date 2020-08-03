@@ -109,11 +109,6 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_foreground_and_background_color', (canvas) => {
-        const paint = new CanvasKit.SkPaint();
-
-        paint.setColor(CanvasKit.RED);
-        paint.setStyle(CanvasKit.PaintStyle.Stroke);
-
         const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
@@ -139,7 +134,47 @@ describe('Paragraph Behavior', function() {
 
         canvas.drawParagraph(paragraph, 10, 10);
 
-        paint.delete();
+        fontMgr.delete();
+        paragraph.delete();
+        builder.delete();
+    });
+
+    gm('paragraph_foreground_stroke_paint', (canvas) => {
+        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        expect(fontMgr.countFamilies()).toEqual(1);
+        expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
+
+        const wrapTo = 200;
+
+        const textStyle = {
+            fontFamilies: ['Noto Serif'],
+            fontSize: 40,
+        };
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: textStyle,
+            textAlign: CanvasKit.TextAlign.Center,
+        });
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+
+        const fg = new CanvasKit.SkPaint();
+        fg.setColor(CanvasKit.BLACK);
+        fg.setStyle(CanvasKit.PaintStyle.Stroke);
+
+        const bg = new CanvasKit.SkPaint();
+        bg.setColor(CanvasKit.TRANSPARENT);
+
+        builder.pushPaintStyle(textStyle, fg, bg);
+        builder.addText(
+            'This text is stroked in black and has no fill');
+        const paragraph = builder.build();
+        paragraph.layout(300);
+
+        canvas.drawParagraph(paragraph, 10, 10);
+        // Again 5px to the right so you can tell the fill is transparent
+        canvas.drawParagraph(paragraph, 15, 10);
+
+        fg.delete();
+        bg.delete();
         fontMgr.delete();
         paragraph.delete();
         builder.delete();
