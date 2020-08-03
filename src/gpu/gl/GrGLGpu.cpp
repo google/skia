@@ -40,6 +40,7 @@
 #include "src/sksl/SkSLCompiler.h"
 
 #include <cmath>
+#include <memory>
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)
@@ -359,11 +360,11 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* direct)
     static_assert(kGrGpuBufferTypeCount == SK_ARRAY_COUNT(fHWBufferState));
 
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
-        fPathRendering.reset(new GrGLPathRendering(this));
+        fPathRendering = std::make_unique<GrGLPathRendering>(this);
     }
 
     if (this->glCaps().samplerObjectSupport()) {
-        fSamplerObjectCache.reset(new SamplerObjectCache(this));
+        fSamplerObjectCache = std::make_unique<SamplerObjectCache>(this);
     }
 }
 
@@ -2204,7 +2205,7 @@ GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
         const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
     if (!fCachedOpsRenderPass) {
-        fCachedOpsRenderPass.reset(new GrGLOpsRenderPass(this));
+        fCachedOpsRenderPass = std::make_unique<GrGLOpsRenderPass>(this);
     }
 
     fCachedOpsRenderPass->set(rt, bounds, origin, colorInfo, stencilInfo);

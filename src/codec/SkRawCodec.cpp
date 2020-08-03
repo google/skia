@@ -35,6 +35,7 @@
 
 #include <cmath>  // for std::round,floor,ceil
 #include <limits>
+#include <memory>
 
 namespace {
 
@@ -566,9 +567,9 @@ private:
     bool readDng() {
         try {
             // Due to the limit of DNG SDK, we need to reset host and info.
-            fHost.reset(new SkDngHost(&fAllocator));
-            fInfo.reset(new dng_info);
-            fDngStream.reset(new SkDngStream(fStream.get()));
+            fHost = std::make_unique<SkDngHost>(&fAllocator);
+            fInfo = std::make_unique<dng_info>();
+            fDngStream = std::make_unique<SkDngStream>(fStream.get());
 
             fHost->ValidateSizes();
             fInfo->Parse(*fHost, *fDngStream);
@@ -620,9 +621,9 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
                                                     Result* result) {
     std::unique_ptr<SkRawStream> rawStream;
     if (is_asset_stream(*stream)) {
-        rawStream.reset(new SkRawAssetStream(std::move(stream)));
+        rawStream = std::make_unique<SkRawAssetStream>(std::move(stream));
     } else {
-        rawStream.reset(new SkRawBufferedStream(std::move(stream)));
+        rawStream = std::make_unique<SkRawBufferedStream>(std::move(stream));
     }
 
     // Does not take the ownership of rawStream.
