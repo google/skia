@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6d3c067_a0060bfd",
+        "filename": "src/sksl/SkSLOutputStream.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-08-03T13:49:39Z",
+      "side": 1,
+      "message": "Since we use va_copy() here...",
+      "revId": "c18bb51735164c8b32b30e9fc736923e60dc5f2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5a30dba_2d6fe624",
+        "filename": "src/sksl/SkSLOutputStream.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-08-03T13:49:39Z",
+      "side": 1,
+      "message": "...should we have:\n\n  va_end(copy);\n\nbefore we exit this function?",
+      "revId": "c18bb51735164c8b32b30e9fc736923e60dc5f2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
