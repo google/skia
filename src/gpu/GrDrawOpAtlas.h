@@ -106,7 +106,7 @@ public:
 
     class AtlasLocator {
     public:
-        std::array<uint16_t, 4> getUVs(int padding) const;
+        std::array<uint16_t, 4> getUVs() const;
 
         // TODO: Remove the small path renderer's use of this for eviction
         PlotLocator plotLocator() const { return fPlotLocator; }
