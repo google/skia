@@ -61,5 +61,5 @@ GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrComposeLerpEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrComposeLerpEffect(*this));
+    return std::make_unique<GrComposeLerpEffect>(*this);
 }

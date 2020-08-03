@@ -1,5 +1,7 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+#include <memory>
+
 #include "tools/fiddle/examples.h"
 // HASH=4486d0c0b22ad2931db130f42da4c80c
 REG_FIDDLE(Canvas_accessTopRasterHandle, 256, 256, true, 0) {
@@ -25,8 +27,7 @@ public:
 void draw(SkCanvas* canvas) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
     std::unique_ptr<SkCanvas> c2 =
-            SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<CustomAllocator>(
-            new CustomAllocator()), info);
+            SkRasterHandleAllocator::MakeCanvas(std::make_unique<CustomAllocator>(), info);
     char* context = (char*) c2->accessTopRasterHandle();
     SkDebugf("context = %.4s\n", context);
 }
