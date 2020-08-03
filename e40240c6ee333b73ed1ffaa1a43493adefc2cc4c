@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "688c1f89_01eb744b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T13:13:50Z",
+      "side": 1,
+      "message": "We can use C++17 in .cpp files and private headers, but only C++14 in public headers and headers used by public headers, and only the C++14 standard library.",
+      "revId": "e40240c6ee333b73ed1ffaa1a43493adefc2cc4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
