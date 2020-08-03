@@ -63,6 +63,30 @@
       "revId": "5770a8343cd243c80421d4aadc4e1e9439642bce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b140947a_881c1f5b",
+        "filename": "src/ports/SkScalerContext_mac_ct.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-03T13:16:10Z",
+      "side": 1,
+      "message": "If you\u0027re interested, can add\n\n    skia_use_freetype\u003dtrue\n    skia_use_system_freetype\u003dfalse\n\nto args gn to get FreeType on all platforms. DirectWrite needs a Windows box of course.",
+      "parentUuid": "4c14a4c8_4e004dab",
+      "range": {
+        "startLine": 619,
+        "startChar": 0,
+        "endLine": 619,
+        "endChar": 4
+      },
+      "revId": "5770a8343cd243c80421d4aadc4e1e9439642bce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
