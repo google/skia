@@ -55,7 +55,11 @@ public:
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
     std::unique_ptr<Paragraph> Build() override;
 
+    size_t styles() const { return fTextStyles.size(); }
+
 private:
+    friend class Format;
+
     void endRunIfNeeded();
     void addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne);
 

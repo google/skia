@@ -4,6 +4,7 @@
 _src = get_path_info("src", "abspath")
 _include = get_path_info("include", "abspath")
 _utils = get_path_info("utils", "abspath")
+_api = get_path_info("api", "abspath")
 
 skparagraph_public = [
   "$_include/ParagraphStyle.h",
@@ -43,6 +44,7 @@ skparagraph_sources = [
   "$_src/TextWrapper.h",
   "$_src/TypefaceFontProvider.cpp",
   "$_utils/TestFontCollection.cpp",
+  "$_api/Format.cpp",
 ]
 
 skparagraph_utils = [

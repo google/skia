@@ -13,6 +13,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
+#include "modules/skparagraph/api/Format.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
@@ -27,7 +28,6 @@
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
-
 
 static DEFINE_bool(verboseParagraph, false, "paragraph samples very verbose.");
 
@@ -2898,6 +2898,83 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView46 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph46"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+      canvas->drawColor(SK_ColorWHITE);
+
+      auto fontCollection = sk_make_sp<FontCollection>();
+      fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+      fontCollection->enableFontFallback();
+
+      // World domination is such an ugly phrase - I prefer to call it world optimisation
+
+      SkPaint blackText; blackText.setColor(SK_ColorBLACK);
+      SkPaint redText; redText.setColor(SK_ColorRED);
+      SkPaint greenText; greenText.setColor(SK_ColorGREEN);
+      SkPaint blueText; blueText.setColor(SK_ColorBLUE);
+      SkPaint yellowBrush; yellowBrush.setColor(SK_ColorYELLOW);
+      SkPaint grayBrush; grayBrush.setColor(SK_ColorGRAY);
+      SkPaint ltgrayBrush; ltgrayBrush.setColor(SK_ColorLTGRAY);
+      FormatStyle style;
+      Format format(fontCollection);
+      format.foregroundPaint(blackText)
+            .fontSize(16)
+            .addText("\U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467").font("Noto Color Emoji")
+            .addText("\U0001f467\U0001f468\U0001f469").font("Noto Color Emoji")
+            .addText("World ").backgroundPaint(grayBrush)
+            .addText("domination ").font("Roboto").fontSize(8)
+            .addText("is such an ugly phrase - I ").backgroundPaint(yellowBrush)
+            .addText("prefer to call it ").italic()
+            .addText("world ").font("Assyrian").fontSize(32)
+            .addText("opti").foregroundPaint(redText)
+            .addText("miza").foregroundPaint(greenText)
+            .addText("tion").foregroundPaint(blueText);
+
+        auto size = format.measure(SkSize::Make(width()/10, height()/10));
+        canvas->drawRect(SkRect::MakeWH(size.width(), size.height()), ltgrayBrush);
+        format.format(SkSize::Make(width()/10, height()/10));
+        format.paint(canvas, 0, 0);
+
+        std::vector<size_t> colors = {SK_ColorBLUE, SK_ColorCYAN,  SK_ColorGRAY, SK_ColorGREEN,
+                              SK_ColorRED,  SK_ColorWHITE, SK_ColorYELLOW, SK_ColorMAGENTA};
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+        /*
+        auto rect = SkRect::MakeEmpty();
+        for (size_t i = 0; i < colors.size(); ++i) {
+            SkScalar x = 0;
+            SkScalar y = 0;
+            if (rect.right() >= size.width()) {
+                x = 0;
+                y = rect.bottom() + 1;
+            } else {
+                x = rect.right() + 1;
+                y = rect.centerY();
+            }
+            rect = format.hitTest(x, y);
+            paint.setColor(colors[i % colors.size()]);
+            canvas->drawRect(rect, paint);
+        }
+         */
+        std::vector<Format::HitMapping> graphemes = format.hitTestMapping();
+        size_t i = 0;
+        for (auto& grapheme : graphemes) {
+            paint.setColor(colors[i % colors.size()]);
+            canvas->drawRect(grapheme.fRect, paint);
+            ++i;
+        }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2944,3 +3021,4 @@ DEF_SAMPLE(return new ParagraphView42();)
 DEF_SAMPLE(return new ParagraphView43();)
 DEF_SAMPLE(return new ParagraphView44();)
 DEF_SAMPLE(return new ParagraphView45();)
+DEF_SAMPLE(return new ParagraphView46();)
