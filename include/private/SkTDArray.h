@@ -125,6 +125,8 @@ public:
         return (*this)[index];
     }
 
+    const T& back() const { SkASSERT(fCount > 0); return fArray[fCount-1]; }
+          T& back()       { SkASSERT(fCount > 0); return fArray[fCount-1]; }
 
     void reset() {
         if (fArray) {

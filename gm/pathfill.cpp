@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -668,7 +668,7 @@ DEF_SIMPLE_GM(path_arcto_skbug_9077, canvas, 200, 200) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(2);
 
-    SkPath path;
+    SkPathBuilder path;
     SkPoint pts[] = { {20, 20}, {100, 20}, {100, 60}, {130, 150}, {180, 160} };
     SkScalar radius = 60;
     path.moveTo(pts[0]);
@@ -676,5 +676,5 @@ DEF_SIMPLE_GM(path_arcto_skbug_9077, canvas, 200, 200) {
     path.lineTo(pts[2]);
     path.close();
     path.arcTo(pts[3], pts[4], radius);
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 }

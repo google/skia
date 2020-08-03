@@ -156,9 +156,9 @@ DEF_SIMPLE_GM(arccirclegap, canvas, 250, 250) {
     paint.setAntiAlias(true);
     paint.setStroke(true);
     canvas->drawCircle(c, radius, paint);
-    SkPath path;
-    path.moveTo(288.88884710654133f, -280.26680862609f);
-    path.arcTo(0, 0, -39.00216443306411f, 400.6058925796476f, radius);
+    SkPath path = SkPathBuilder().moveTo(288.88884710654133f, -280.26680862609f)
+                                 .arcTo({0, 0}, {-39.00216443306411f, 400.6058925796476f}, radius)
+                                 .detach();
     paint.setColor(0xff007f00);
     canvas->drawPath(path, paint);
 }
