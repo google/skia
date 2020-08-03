@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76da5b9b_e0f87b58",
+        "filename": "site/dev/sheriffing/index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2020-08-03T15:55:58Z",
+      "side": 1,
+      "message": "trailing whitespace",
+      "range": {
+        "startLine": 43,
+        "startChar": 67,
+        "endLine": 43,
+        "endChar": 68
+      },
+      "revId": "e648a750198c326c43a3e33dfb1d70c06a95399e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
