@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "744a4888_ecabf5d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-03T17:30:29Z",
+      "side": 1,
+      "message": "So, if I\u0027m understanding it - this is a second way to specify colors. This second way is superior to what we have because it means the client doesn\u0027t have to allocate as many objects? Or does it give us more power to style our text (e.g. gradients)?\n\nThe API looks ok to me, I just want to understand more about the \"why\".",
+      "revId": "7e8df7f498a7b6eca634b72c0ccfcc66719b2daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24de7215_e6edaa84",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-03T17:30:29Z",
+      "side": 1,
+      "message": "nit: wrap to 100 cols.",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 103
+      },
+      "revId": "7e8df7f498a7b6eca634b72c0ccfcc66719b2daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ce6b9bf_6b13ecf1",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-03T17:30:29Z",
+      "side": 1,
+      "message": "Does this mean we could have a gradient or something on our text?",
+      "range": {
+        "startLine": 159,
+        "startChar": 33,
+        "endLine": 159,
+        "endChar": 40
+      },
+      "revId": "7e8df7f498a7b6eca634b72c0ccfcc66719b2daf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
