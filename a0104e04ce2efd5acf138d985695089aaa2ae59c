@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4af04a1a_a1111d55",
+        "filename": "bench/RectanizerBench.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T13:39:39Z",
+      "side": 1,
+      "message": "Not unrelated. The build fails with a link error if I don\u0027t make this change. With the `expr` removed:\n\n   ~/skia ± ● makeunique $ ninja -C out/Debug nanobench\n   ninja: Entering directory `out/Debug\u0027\n   [3/85] ACTION //:dehydrate_sksl(//gn/toolchain:gcc_like)\n   Recompiling /Users/johnstiles/skia/src/sksl/generated/sksl_fp.sksl...\n   .....\n   Recompiling /Users/johnstiles/skia/src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp...\n   [85/85] link nanobench\n   FAILED: nanobench \n   /Users/johnstiles/clang/bin/clang++ -Wl,-rpath,@loader_path/. -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -Wl,-w  @./nanobench.rsp   -ldl -framework ApplicationServices -framework OpenGL -framework AppKit -framework Metal -framework MetalKit -framework Foundation -o ./nanobench\n   Undefined symbols for architecture x86_64:\n     \"RectanizerBench::kWidth\", referenced from:\n         RectanizerBench::onDelayedSetup() in bench.RectanizerBench.o\n     \"RectanizerBench::kHeight\", referenced from:\n         RectanizerBench::onDelayedSetup() in bench.RectanizerBench.o\n   ld: symbol(s) not found for architecture x86_64\n   clang: error: linker command failed with exit code 1 (use -v to see invocation)\n   ninja: build stopped: subcommand failed.",
+      "parentUuid": "22cfa6db_e53d7323",
+      "range": {
+        "startLine": 30,
+        "startChar": 16,
+        "endLine": 30,
+        "endChar": 20
+      },
+      "revId": "a0104e04ce2efd5acf138d985695089aaa2ae59c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35eb9b45_822e8e98",
         "filename": "src/codec/SkBmpCodec.cpp",
         "patchSetId": 7
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "4156fccf_85b81797",
+        "filename": "src/codec/SkBmpCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T13:39:39Z",
+      "side": 1,
+      "message": "`clang-tidy -fix` will add headers like `#include \u003cmemory\u003e`. It always adds them directly after the \"main\" header (the corresponding .h for your .cpp--that is, the main header for SkBmpCodec.cpp is SkBmpCodec.h). \n\nThe generated code from `clang-tidy -fix` for this file came out originally like this:\n\n  #include \"include/core/SkStream.h\"\n  #include \"include/private/SkColorData.h\"\n  #include \"src/codec/SkBmpCodec.h\"\n  \n  #include \u003cmemory\u003e\n  #include \"src/codec/SkBmpMaskCodec.h\"\n  #include \"src/codec/SkBmpRLECodec.h\"\n  #include \"src/codec/SkBmpStandardCodec.h\"\n  #include \"src/codec/SkCodecPriv.h\"\n\nWith \u003cmemory\u003e jammed randomly in the middle and breaking up our headers into two goofy blocks.\n\nMoving the \"main\" header to the top means that future runs of clang-tidy -fix will come out cleanly and not need fixup by hand.",
+      "parentUuid": "35eb9b45_822e8e98",
+      "revId": "a0104e04ce2efd5acf138d985695089aaa2ae59c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38658c35_41eff582",
         "filename": "src/ports/SkFontHost_FreeType.cpp",
         "patchSetId": 7
@@ -53,6 +95,30 @@
       "writtenOn": "2020-08-03T13:23:40Z",
       "side": 1,
       "message": "I think you mean to rebase this on top of that other CL?",
+      "range": {
+        "startLine": 1972,
+        "startChar": 0,
+        "endLine": 1985,
+        "endChar": 5
+      },
+      "revId": "a0104e04ce2efd5acf138d985695089aaa2ae59c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9833a325_ab6f71b8",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T13:39:39Z",
+      "side": 1,
+      "message": "Yes, thanks, rebase error. Will fix.",
+      "parentUuid": "38658c35_41eff582",
       "range": {
         "startLine": 1972,
         "startChar": 0,
