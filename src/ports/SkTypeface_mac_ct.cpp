@@ -728,7 +728,7 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const
     }
 
     // reserve memory for stream, and zero it (tables must be zero padded)
-    fStream.reset(new SkMemoryStream(totalSize));
+    fStream = std::make_unique<SkMemoryStream>(totalSize);
     char* dataStart = (char*)fStream->getMemoryBase();
     sk_bzero(dataStart, totalSize);
     char* dataPtr = dataStart;

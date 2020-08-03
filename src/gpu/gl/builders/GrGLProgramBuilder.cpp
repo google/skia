@@ -23,6 +23,8 @@
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLProgram.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
+
+#include <memory>
 #include "src/gpu/gl/builders/GrGLShaderStringBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -115,8 +117,8 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
                                                  bool bindAttribLocations) {
     fVertexAttributeCnt = primProc.numVertexAttributes();
     fInstanceAttributeCnt = primProc.numInstanceAttributes();
-    fAttributes.reset(
-            new GrGLProgram::Attribute[fVertexAttributeCnt + fInstanceAttributeCnt]);
+    fAttributes = std::make_unique<GrGLProgram::Attribute[]>(
+            fVertexAttributeCnt + fInstanceAttributeCnt);
     auto addAttr = [&](int i, const auto& a, size_t* stride) {
         fAttributes[i].fCPUType = a.cpuType();
         fAttributes[i].fGPUType = a.gpuType();

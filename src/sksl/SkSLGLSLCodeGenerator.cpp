@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLGLSLCodeGenerator.h"
 
+#include <memory>
+
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -1548,8 +1550,7 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
         if (fProgram.fSettings.fCaps->addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
                     -1, f.fTest->clone(), Token::Kind::TK_LOGICALAND,
-                    std::unique_ptr<BoolLiteral>(new BoolLiteral(fContext, -1,
-                                                                 true)),
+                    std::make_unique<BoolLiteral>(fContext, -1, true),
                     *fContext.fBool_Type));
             this->writeExpression(*and_true, kTopLevel_Precedence);
         } else {
