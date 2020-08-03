@@ -498,6 +498,33 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\ntry:\n  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
@@ -512,6 +539,33 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/skps"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\ntry:\n  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/skps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/skps",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
@@ -700,6 +754,33 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\ntry:\n  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
@@ -714,6 +795,33 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/images"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\ntry:\n  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/images"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/images",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
@@ -902,6 +1010,33 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\ntry:\n  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
@@ -916,6 +1051,33 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/svgs"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\ntry:\n  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/svgs"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/svgs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
@@ -1077,6 +1239,33 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/dm_out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\ntry:\n  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/dm_out"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/dm_out",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'stat', path])@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
