@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 /*
  * Canvas example. Expected large blue stroked circle, white middle, small red circle.
@@ -43,7 +43,6 @@ DEF_SIMPLE_GM_BG(crbug_996140, canvas, 300, 300, SK_ColorWHITE) {
     canvas->translate(-800, -200);
 
     // 3: ctx.beginPath();
-    SkPath path;
 
     // 4: ctx.scale(203.20, 203.20);
     canvas->scale(s, s);
@@ -66,8 +65,10 @@ DEF_SIMPLE_GM_BG(crbug_996140, canvas, 300, 300, SK_ColorWHITE) {
     // 9: ctx.arc(19.221, 720-6.76,0.0295275590551181,0,2*Math.PI);
     // This matches how Canvas prepares an arc(x, y, radius, 0, 2pi) call
     SkRect boundingBox = SkRect::MakeLTRB(cx - radius, cy - radius, cx + radius, cy + radius);
-    path.arcTo(boundingBox, 0, 180.f, false);
-    path.arcTo(boundingBox, 180.f, 180.f, false);
+
+    auto path = SkPathBuilder().arcTo(boundingBox, 0, 180.f, false)
+                               .arcTo(boundingBox, 180.f, 180.f, false)
+                               .detach();
 
     // 12: ctx.closePath();
     // path.close();

@@ -11,7 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -45,21 +45,18 @@ protected:
     SkISize onISize() override { return SkISize::Make(400, 950); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPath clipSimple;
-        clipSimple.addCircle(SkIntToScalar(70), SkIntToScalar(50), SkIntToScalar(20));
+        SkPath clipSimple = SkPath::Circle(70, 50, 20);
 
         SkRect r1 = { 10, 20, 70, 80 };
-        SkPath clipComplex;
-        clipComplex.moveTo(SkIntToScalar(40),  SkIntToScalar(50));
-        clipComplex.arcTo(r1, SkIntToScalar(30), SkIntToScalar(300), false);
-        clipComplex.close();
+        SkPath clipComplex = SkPathBuilder().moveTo(40,  50)
+                                            .arcTo(r1, 30, 300, false)
+                                            .close()
+                                            .detach();
 
         SkPath* firstClip = &clipSimple;
         SkPath* secondClip = &clipComplex;
-
         if (!fDoSimpleClipFirst) {
-            using std::swap;
-            swap(firstClip, secondClip);
+            std::swap(firstClip, secondClip);
         }
 
         SkPaint paint;

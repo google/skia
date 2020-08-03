@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 // crbug.com/982968
 // Intended to draw a curvy triangle.
@@ -18,25 +18,25 @@
 // The fix was to use doubles for this part of the calc in SkPath::arcTo().
 //
 DEF_SIMPLE_GM(shallow_angle_path_arcto, canvas, 300, 300) {
-    SkPath path;
+    SkPathBuilder path;
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
 
-    path.moveTo(313.44189096331155f, 106.6009423589212f);
-    path.arcTo(284.3113082008462f, 207.1407719157063f,
-               255.15053777129728f, 307.6718505416374f,
-               697212.0011054524f);
-    path.lineTo(255.15053777129728f, 307.6718505416374f);
-    path.arcTo(340.4737465981018f, 252.6907319346971f,
-               433.54333477716153f, 212.18116363345337f,
-               1251.2484277907251f);
-    path.lineTo(433.54333477716153f, 212.18116363345337f);
-    path.arcTo(350.19513833839466f, 185.89280014838369f,
-               313.44189096331155f, 106.6009423589212f,
+    path.moveTo(313.44189096331155f, 106.6009423589212f)
+        .arcTo({284.3113082008462f, 207.1407719157063f},
+               {255.15053777129728f, 307.6718505416374f},
+               697212.0011054524f)
+        .lineTo(255.15053777129728f, 307.6718505416374f)
+        .arcTo({340.4737465981018f, 252.6907319346971f},
+               {433.54333477716153f, 212.18116363345337f},
+               1251.2484277907251f)
+        .lineTo(433.54333477716153f, 212.18116363345337f)
+        .arcTo({350.19513833839466f, 185.89280014838369f},
+               {313.44189096331155f, 106.6009423589212f},
                198.03116885327813f);
 
     canvas->translate(-200, -50);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 };
 
 #include "include/utils/SkParsePath.h"

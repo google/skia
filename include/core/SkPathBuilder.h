@@ -73,7 +73,95 @@ public:
         return this->rCubicTo({x1, y1}, {x2, y2}, {x3, y3});
     }
 
-    // Add a closed contour
+    // Arcs
+
+    /** Appends arc to the builder. Arc added is part of ellipse
+        bounded by oval, from startAngle through sweepAngle. Both startAngle and
+        sweepAngle are measured in degrees, where zero degrees is aligned with the
+        positive x-axis, and positive sweeps extends arc clockwise.
+
+        arcTo() adds line connecting the builder's last point to initial arc point if forceMoveTo
+        is false and the builder is not empty. Otherwise, added contour begins with first point
+        of arc. Angles greater than -360 and less than 360 are treated modulo 360.
+
+        @param oval          bounds of ellipse containing arc
+        @param startAngleDeg starting angle of arc in degrees
+        @param sweepAngleDeg sweep, in degrees. Positive is clockwise; treated modulo 360
+        @param forceMoveTo   true to start a new contour with arc
+        @return              reference to the builder
+    */
+    SkPathBuilder& arcTo(const SkRect& oval, SkScalar startAngleDeg, SkScalar sweepAngleDeg,
+                         bool forceMoveTo);
+
+    /** Appends arc to SkPath, after appending line if needed. Arc is implemented by conic
+        weighted to describe part of circle. Arc is contained by tangent from
+        last SkPath point to p1, and tangent from p1 to p2. Arc
+        is part of circle sized to radius, positioned so it touches both tangent lines.
+
+        If last SkPath SkPoint does not start arc, arcTo() appends connecting line to SkPath.
+        The length of vector from p1 to p2 does not affect arc.
+
+        Arc sweep is always less than 180 degrees. If radius is zero, or if
+        tangents are nearly parallel, arcTo() appends line from last SkPath SkPoint to p1.
+
+        arcTo() appends at most one line and one conic.
+        arcTo() implements the functionality of PostScript arct and HTML Canvas arcTo.
+
+        @param p1      SkPoint common to pair of tangents
+        @param p2      end of second tangent
+        @param radius  distance from arc to circle center
+        @return        reference to SkPath
+    */
+    SkPathBuilder& arcTo(SkPoint p1, SkPoint p2, SkScalar radius);
+
+    enum ArcSize {
+        kSmall_ArcSize, //!< smaller of arc pair
+        kLarge_ArcSize, //!< larger of arc pair
+    };
+
+    /** Appends arc to SkPath. Arc is implemented by one or more conic weighted to describe
+        part of oval with radii (r.fX, r.fY) rotated by xAxisRotate degrees. Arc curves
+        from last SkPath SkPoint to (xy.fX, xy.fY), choosing one of four possible routes:
+        clockwise or counterclockwise,
+        and smaller or larger.
+
+        Arc sweep is always less than 360 degrees. arcTo() appends line to xy if either
+        radii are zero, or if last SkPath SkPoint equals (xy.fX, xy.fY). arcTo() scales radii r to
+        fit last SkPath SkPoint and xy if both are greater than zero but too small to describe
+        an arc.
+
+        arcTo() appends up to four conic curves.
+        arcTo() implements the functionality of SVG arc, although SVG sweep-flag value is
+        opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise, while
+        kCW_Direction cast to int is zero.
+
+        @param r            radii on axes before x-axis rotation
+        @param xAxisRotate  x-axis rotation in degrees; positive values are clockwise
+        @param largeArc     chooses smaller or larger arc
+        @param sweep        chooses clockwise or counterclockwise arc
+        @param xy           end of arc
+        @return             reference to SkPath
+    */
+    SkPathBuilder& arcTo(SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, SkPathDirection sweep,
+                         SkPoint xy);
+
+    /** Appends arc to the builder, as the start of new contour. Arc added is part of ellipse
+        bounded by oval, from startAngle through sweepAngle. Both startAngle and
+        sweepAngle are measured in degrees, where zero degrees is aligned with the
+        positive x-axis, and positive sweeps extends arc clockwise.
+
+        If sweepAngle <= -360, or sweepAngle >= 360; and startAngle modulo 90 is nearly
+        zero, append oval instead of arc. Otherwise, sweepAngle values are treated
+        modulo 360, and arc may or may not draw depending on numeric rounding.
+
+        @param oval          bounds of ellipse containing arc
+        @param startAngleDeg starting angle of arc in degrees
+        @param sweepAngleDeg sweep, in degrees. Positive is clockwise; treated modulo 360
+        @return              reference to this builder
+    */
+    SkPathBuilder& addArc(const SkRect& oval, SkScalar startAngleDeg, SkScalar sweepAngleDeg);
+
+    // Add a new contour
 
     SkPathBuilder& addRect(const SkRect&, SkPathDirection, unsigned startIndex);
     SkPathBuilder& addOval(const SkRect&, SkPathDirection, unsigned startIndex);
