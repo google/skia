@@ -372,13 +372,12 @@ void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
         fBufferBindings[index].fBuffer = mtlVertexBuffer;
         fBufferBindings[index].fOffset = offset;
     } else if (fBufferBindings[index].fOffset != offset) {
-        if (@available(macOS 10.11, iOS 8.3, *)) {
+        if (@available(macOS 10.11, iOS 9.0, *)) {
             [encoder setVertexBufferOffset: offset
                                    atIndex: index];
         } else {
-            [encoder setVertexBuffer: mtlVertexBuffer
-                              offset: offset
-                             atIndex: index];
+            // We only support iOS 9.0+, so we should never hit this
+            SK_ABORT("Missing interface. Skia only supports Metal on iOS 9.0 and higher");
         }
         fBufferBindings[index].fOffset = offset;
     }

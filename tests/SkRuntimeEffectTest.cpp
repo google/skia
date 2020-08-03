@@ -245,6 +245,23 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
 
+    // Using a large set of uniforms
+    effect.build("uniform half4 big1[63]; uniform half4 big2[63];"
+                 "uniform half4 big3[63]; uniform half4 big4[63]; uniform half4 big5[63];",
+                 "color = big1[62]*big2[62]*big3[62]*big4[62]*big5[62];");
+    SkColor4f bigData[5][63];
+    bigData[0][62] = SkColor4f{ 1, 1, 0, 1};
+    bigData[1][62] = SkColor4f{ 1, 1, 0, 1};
+    bigData[2][62] = SkColor4f{ 1, 1, 0, 1};
+    bigData[3][62] = SkColor4f{ 1, 1, 0, 1};
+    bigData[4][62] = SkColor4f{ 1, 1, 0, 1};
+    effect.input("big1") = bigData[0];
+    effect.input("big2") = bigData[1];
+    effect.input("big3") = bigData[2];
+    effect.input("big4") = bigData[3];
+    effect.input("big5") = bigData[4];
+    effect.test(0xFFFF00FF);
+
     //
     // Helper functions
     //
