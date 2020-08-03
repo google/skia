@@ -14,6 +14,7 @@
 #include "include/private/SkTHash.h"
 #include "include/private/SkTo.h"
 
+#include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -187,7 +188,7 @@ private:
 };
 
 static inline std::unique_ptr<SkPDFDict> SkPDFMakeDict(const char* type = nullptr) {
-    return std::unique_ptr<SkPDFDict>(new SkPDFDict(type));
+    return std::make_unique<SkPDFDict>(type);
 }
 
 #ifdef SK_PDF_LESS_COMPRESSION

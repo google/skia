@@ -7,6 +7,8 @@
 
 #include "src/gpu/GrDrawingManager.h"
 
+#include <memory>
+
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrDirectContext.h"
@@ -915,7 +917,8 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
                                                   GrPathRenderer::StencilSupport* stencilSupport) {
 
     if (!fPathRendererChain) {
-        fPathRendererChain.reset(new GrPathRendererChain(fContext, fOptionsForPathRendererChain));
+        fPathRendererChain =
+                std::make_unique<GrPathRendererChain>(fContext, fOptionsForPathRendererChain);
     }
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
@@ -946,7 +949,7 @@ GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
 
 GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRenderer() {
     if (!fPathRendererChain) {
-        fPathRendererChain.reset(new GrPathRendererChain(fContext, fOptionsForPathRendererChain));
+        fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext, fOptionsForPathRendererChain);
     }
     return fPathRendererChain->getCoverageCountingPathRenderer();
 }

@@ -135,7 +135,7 @@ GrDualIntervalGradientColorizer::GrDualIntervalGradientColorizer(
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(*this));
+    return std::make_unique<GrDualIntervalGradientColorizer>(*this);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::Make(const SkPMColor4f& c0,

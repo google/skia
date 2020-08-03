@@ -192,10 +192,10 @@ public:
         }
         std::unique_ptr<GpuDrawHandler> draw;
         if (fDContext) {
-            draw.reset(new DrawHandlerImport(this, ImportDraw, ImportSubmitted, matrix,
-                                             clipBounds, bufferInfo));
+            draw = std::make_unique<DrawHandlerImport>(this, ImportDraw, ImportSubmitted, matrix,
+                                                       clipBounds, bufferInfo);
         } else {
-            draw.reset(new DrawHandlerBasic(fInterface, fWidth, fHeight));
+            draw = std::make_unique<DrawHandlerBasic>(fInterface, fWidth, fHeight);
         }
         return draw;
     }

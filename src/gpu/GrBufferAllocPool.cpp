@@ -11,6 +11,8 @@
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrBufferAllocPool.h"
+
+#include <memory>
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCpuBuffer.h"
@@ -26,7 +28,7 @@ sk_sp<GrBufferAllocPool::CpuBufferCache> GrBufferAllocPool::CpuBufferCache::Make
 GrBufferAllocPool::CpuBufferCache::CpuBufferCache(int maxBuffersToCache)
         : fMaxBuffersToCache(maxBuffersToCache) {
     if (fMaxBuffersToCache) {
-        fBuffers.reset(new Buffer[fMaxBuffersToCache]);
+        fBuffers = std::make_unique<Buffer[]>(fMaxBuffersToCache);
     }
 }
 

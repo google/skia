@@ -36,6 +36,7 @@
 #include "src/image/SkImage_GpuBase.h"
 #include "src/image/SkSurface_Gpu.h"
 #include <atomic>
+#include <memory>
 
 #define ASSERT_OWNED_PROXY(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this)
@@ -73,7 +74,7 @@ bool GrContext::init() {
     SkASSERT(this->getTextBlobCache());
 
     if (fGpu) {
-        fStrikeCache.reset(new GrStrikeCache{});
+        fStrikeCache = std::make_unique<GrStrikeCache>();
         fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner());
         fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->contextID());

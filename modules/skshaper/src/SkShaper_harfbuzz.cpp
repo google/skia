@@ -903,7 +903,7 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
                 modelGlyphOffset = 0;
 
                 SkVector advance = {0, 0};
-                modelText.reset(new TextProps[utf8runLength + 1]());
+                modelText = std::make_unique<TextProps[]>(utf8runLength + 1);
                 size_t modelStartCluster = utf8Start - utf8;
                 for (size_t i = 0; i < model.fNumGlyphs; ++i) {
                     SkASSERT(modelStartCluster <= model.fGlyphs[i].fCluster);
@@ -990,7 +990,7 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
                 line.fAdvance = {0, 0};
             } else {
                 if (bestUsesModelForGlyphs) {
-                    best.fGlyphs.reset(new ShapedGlyph[best.fNumGlyphs]);
+                    best.fGlyphs = std::make_unique<ShapedGlyph[]>(best.fNumGlyphs);
                     memcpy(best.fGlyphs.get(), model.fGlyphs.get() + modelGlyphOffset,
                            best.fNumGlyphs * sizeof(ShapedGlyph));
                     modelGlyphOffset += best.fNumGlyphs;

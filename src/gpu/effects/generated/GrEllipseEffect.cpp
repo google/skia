@@ -159,7 +159,7 @@ GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(*this));
+    return std::make_unique<GrEllipseEffect>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrEllipseEffect);
 #if GR_TEST_UTILS

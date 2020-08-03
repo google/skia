@@ -79,7 +79,7 @@ GrArithmeticProcessor::GrArithmeticProcessor(const GrArithmeticProcessor& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrArithmeticProcessor::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrArithmeticProcessor(*this));
+    return std::make_unique<GrArithmeticProcessor>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticProcessor);
 #if GR_TEST_UTILS

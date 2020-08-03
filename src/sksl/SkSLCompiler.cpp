@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
+#include <memory>
+
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLCPPCodeGenerator.h"
@@ -1602,14 +1604,14 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     std::unique_ptr<String> textPtr(new String(std::move(text)));
     fSource = textPtr.get();
     fIRGenerator->convertProgram(kind, textPtr->c_str(), textPtr->size(), &elements);
-    auto result = std::unique_ptr<Program>(new Program(kind,
-                                                       std::move(textPtr),
-                                                       settings,
-                                                       fContext,
-                                                       inherited,
-                                                       std::move(elements),
-                                                       fIRGenerator->fSymbolTable,
-                                                       fIRGenerator->fInputs));
+    auto result = std::make_unique<Program>(kind,
+                                            std::move(textPtr),
+                                            settings,
+                                            fContext,
+                                            inherited,
+                                            std::move(elements),
+                                            fIRGenerator->fSymbolTable,
+                                            fIRGenerator->fInputs);
     if (fErrorCount) {
         return nullptr;
     }

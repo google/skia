@@ -63,7 +63,7 @@ GrClampFragmentProcessor::GrClampFragmentProcessor(const GrClampFragmentProcesso
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrClampFragmentProcessor::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrClampFragmentProcessor(*this));
+    return std::make_unique<GrClampFragmentProcessor>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrClampFragmentProcessor);
 #if GR_TEST_UTILS

@@ -960,7 +960,7 @@ DEF_TEST(Codec_wbmp_max_size, r) {
     const unsigned char tooBigWbmp[] = { 0x00, 0x00,           // Header
                                          0x84, 0x80, 0x00,     // W: 65536
                                          0x84, 0x80, 0x00 };   // H: 65536
-    stream.reset(new SkMemoryStream(tooBigWbmp, sizeof(tooBigWbmp), false));
+    stream = std::make_unique<SkMemoryStream>(tooBigWbmp, sizeof(tooBigWbmp), false);
     codec = SkCodec::MakeFromStream(std::move(stream));
 
     REPORTER_ASSERT(r, !codec);

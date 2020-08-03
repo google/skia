@@ -25,6 +25,7 @@
 #include <iterator>
 #include <limits>
 #include <map>
+#include <memory>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -571,7 +572,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, Run* run)
 
         Buffer runBuffer(const RunInfo& info) override {
             SkASSERT(!fRun);
-            fRun = std::unique_ptr<Run>(new Run(nullptr, info, 0, fLineHeight, 0, 0));
+            fRun = std::make_unique<Run>(nullptr, info, 0, fLineHeight, 0, 0);
             return fRun->newRunBuffer();
         }
 

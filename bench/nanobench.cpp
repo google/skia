@@ -58,6 +58,7 @@
 
 #include <cinttypes>
 #include <stdlib.h>
+#include <memory>
 #include <thread>
 
 extern bool gSkForceRasterPipelineBlitter;
@@ -246,7 +247,7 @@ struct GPUTarget : public Target {
     bool init(SkImageInfo info, Benchmark* bench) override {
         GrContextOptions options = grContextOpts;
         bench->modifyGrContextOptions(&options);
-        this->factory.reset(new GrContextFactory(options));
+        this->factory = std::make_unique<GrContextFactory>(options);
         uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);

@@ -443,7 +443,7 @@ protected:
         if (index < (int)SK_ARRAY_COUNT(PolygonOffsetData::gConvexPoints)) {
             // manually specified
             *numPts = (int)PolygonOffsetData::gConvexSizes[index];
-            data->reset(new SkPoint[*numPts]);
+            *data = std::make_unique<SkPoint[]>(*numPts);
             if (SkPathDirection::kCW == dir) {
                 for (int i = 0; i < *numPts; ++i) {
                     (*data)[i] = PolygonOffsetData::gConvexPoints[index][i];
@@ -467,7 +467,7 @@ protected:
                 width = kMaxPathHeight / 5;
             }
 
-            data->reset(new SkPoint[*numPts]);
+            *data = std::make_unique<SkPoint[]>(*numPts);
 
             create_ngon(*numPts, data->get(), width, height, dir);
         }
@@ -478,7 +478,7 @@ protected:
         if (index < (int)SK_ARRAY_COUNT(PolygonOffsetData::gSimplePoints)) {
             // manually specified
             *numPts = (int)PolygonOffsetData::gSimpleSizes[index];
-            data->reset(new SkPoint[*numPts]);
+            *data = std::make_unique<SkPoint[]>(*numPts);
             if (SkPathDirection::kCW == dir) {
                 for (int i = 0; i < *numPts; ++i) {
                     (*data)[i] = PolygonOffsetData::gSimplePoints[index][i];
@@ -501,7 +501,7 @@ protected:
             // squash horizontally
             width = kMaxPathHeight / 5;
 
-            data->reset(new SkPoint[*numPts]);
+            *data = std::make_unique<SkPoint[]>(*numPts);
 
             create_ngon(*numPts, data->get(), width, height, dir);
         }

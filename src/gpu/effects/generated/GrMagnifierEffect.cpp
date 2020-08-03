@@ -145,7 +145,7 @@ GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrMagnifierEffect(*this));
+    return std::make_unique<GrMagnifierEffect>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 #if GR_TEST_UTILS

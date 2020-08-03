@@ -319,7 +319,7 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
     if (!fCachedOpsRenderPass) {
-        fCachedOpsRenderPass.reset(new GrVkOpsRenderPass(this));
+        fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
     }
 
     if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds,

@@ -10,6 +10,7 @@
 #include "FrontBufferedStream.h"
 
 #include <algorithm>
+#include <memory>
 
 namespace {
 class FrontBufferedStream : public SkStreamRewindable {
@@ -76,8 +77,8 @@ std::unique_ptr<SkStreamRewindable> FrontBufferedStream::Make(std::unique_ptr<Sk
     if (!stream) {
         return nullptr;
     }
-    auto frontBufferedStream = std::unique_ptr<::FrontBufferedStream>(
-            new ::FrontBufferedStream(std::move(stream), bufferSize));
+    auto frontBufferedStream = std::make_unique<::FrontBufferedStream>(
+            std::move(stream), bufferSize);
     if (frontBufferedStream->failedToAllocateBuffer()) {
         return nullptr;
     }

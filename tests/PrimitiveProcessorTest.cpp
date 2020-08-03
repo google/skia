@@ -7,6 +7,8 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
+#include <memory>
+
 #include "include/core/SkTypes.h"
 #include "tests/Test.h"
 
@@ -98,8 +100,8 @@ private:
 
             GP(int numAttribs) : INHERITED(kGP_ClassID), fNumAttribs(numAttribs) {
                 SkASSERT(numAttribs > 1);
-                fAttribNames.reset(new SkString[numAttribs]);
-                fAttributes.reset(new Attribute[numAttribs]);
+                fAttribNames = std::make_unique<SkString[]>(numAttribs);
+                fAttributes = std::make_unique<Attribute[]>(numAttribs);
                 for (auto i = 0; i < numAttribs; ++i) {
                     fAttribNames[i].printf("attr%d", i);
                     // This gives us more of a mix of attribute types, and allows the

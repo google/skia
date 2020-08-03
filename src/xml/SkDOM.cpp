@@ -7,6 +7,8 @@
 
 #include "src/xml/SkDOM.h"
 
+#include <memory>
+
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
 #include "src/xml/SkXMLParser.h"
@@ -344,7 +346,7 @@ const SkDOM::Node* SkDOM::copy(const SkDOM& dom, const SkDOM::Node* node) {
 
 SkXMLParser* SkDOM::beginParsing() {
     SkASSERT(!fParser);
-    fParser.reset(new SkDOMParser(&fAlloc));
+    fParser = std::make_unique<SkDOMParser>(&fAlloc);
 
     return fParser.get();
 }

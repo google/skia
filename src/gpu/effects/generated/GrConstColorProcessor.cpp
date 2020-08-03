@@ -65,7 +65,7 @@ GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(*this));
+    return std::make_unique<GrConstColorProcessor>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 #if GR_TEST_UTILS

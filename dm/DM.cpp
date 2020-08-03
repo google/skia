@@ -40,6 +40,7 @@
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/trace/SkDebugfTracer.h"
 
+#include <memory>
 #include <vector>
 
 #include <stdlib.h>
@@ -1168,7 +1169,7 @@ struct Task {
                         hash.writeStream(data, data->getLength());
                         data->rewind();
                     } else {
-                        hashAndEncode.reset(new HashAndEncode(bitmap));
+                        hashAndEncode = std::make_unique<HashAndEncode>(bitmap);
                         hashAndEncode->write(&hash);
                     }
                     SkMD5::Digest digest = hash.finish();
@@ -1227,7 +1228,7 @@ struct Task {
                         CGContextDrawPDFPage(ctx.get(), page);
 
                         // Skip calling hashAndEncode->write(SkMD5*)... we want the .pdf's hash.
-                        hashAndEncode.reset(new HashAndEncode(rasterized));
+                        hashAndEncode = std::make_unique<HashAndEncode>(rasterized);
                         WriteToDisk(task, md5, "png", nullptr,0, &rasterized, hashAndEncode.get());
                     } else
                 #endif

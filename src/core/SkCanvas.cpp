@@ -47,6 +47,7 @@
 #include "src/image/SkSurface_Base.h"
 #include "src/utils/SkPatchUtils.h"
 
+#include <memory>
 #include <new>
 
 #if SK_SUPPORT_GPU
@@ -1241,7 +1242,8 @@ void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
     // we really need the save, so we can wack the fMCRec
     this->checkForDeferredSave();
 
-    fMCRec->fBackImage.reset(new BackImage{std::move(backImage), devBounds.topLeft()});
+    fMCRec->fBackImage =
+            std::make_unique<BackImage>(BackImage{std::move(backImage), devBounds.topLeft()});
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kClear);

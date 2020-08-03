@@ -56,7 +56,7 @@ GrVkSecondaryCBDrawContext::~GrVkSecondaryCBDrawContext() {
 
 SkCanvas* GrVkSecondaryCBDrawContext::getCanvas() {
     if (!fCachedCanvas) {
-        fCachedCanvas = std::unique_ptr<SkCanvas>(new SkCanvas(fDevice));
+        fCachedCanvas = std::make_unique<SkCanvas>(fDevice);
     }
     return fCachedCanvas.get();
 }

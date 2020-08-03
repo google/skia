@@ -7,6 +7,8 @@
 
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
+#include <memory>
+
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -130,7 +132,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
 void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* coverage) {
     int transformedCoordVarsIdx = 0;
     int fpCount = this->pipeline().numFragmentProcessors();
-    fFragmentProcessors.reset(new std::unique_ptr<GrGLSLFragmentProcessor>[fpCount]);
+    fFragmentProcessors = std::make_unique<std::unique_ptr<GrGLSLFragmentProcessor>[]>(fpCount);
     for (int i = 0; i < fpCount; ++i) {
         SkString* inOut = this->pipeline().isColorFragmentProcessor(i) ? color : coverage;
         SkString output;

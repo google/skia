@@ -91,5 +91,5 @@ GrTiledGradientEffect::GrTiledGradientEffect(const GrTiledGradientEffect& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrTiledGradientEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrTiledGradientEffect(*this));
+    return std::make_unique<GrTiledGradientEffect>(*this);
 }

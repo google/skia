@@ -86,5 +86,5 @@ GrSingleIntervalGradientColorizer::GrSingleIntervalGradientColorizer(
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrSingleIntervalGradientColorizer::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrSingleIntervalGradientColorizer(*this));
+    return std::make_unique<GrSingleIntervalGradientColorizer>(*this);
 }

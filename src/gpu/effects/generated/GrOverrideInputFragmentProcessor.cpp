@@ -101,5 +101,5 @@ GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrOverrideInputFragmentProcessor::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrOverrideInputFragmentProcessor(*this));
+    return std::make_unique<GrOverrideInputFragmentProcessor>(*this);
 }

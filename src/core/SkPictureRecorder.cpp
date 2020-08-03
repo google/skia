@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <memory>
+
 #include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPictureRecorder.h"
@@ -19,8 +21,8 @@
 
 SkPictureRecorder::SkPictureRecorder() {
     fActivelyRecording = false;
-    fMiniRecorder.reset(new SkMiniRecorder);
-    fRecorder.reset(new SkRecorder(nullptr, SkRect::MakeEmpty(), fMiniRecorder.get()));
+    fMiniRecorder = std::make_unique<SkMiniRecorder>();
+    fRecorder = std::make_unique<SkRecorder>(nullptr, SkRect::MakeEmpty(), fMiniRecorder.get());
 }
 
 SkPictureRecorder::~SkPictureRecorder() {}

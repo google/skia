@@ -1102,7 +1102,7 @@ void CPPCodeGenerator::writeClone() {
         this->write("}\n");
         this->writef("std::unique_ptr<GrFragmentProcessor> %s::clone() const {\n",
                      fFullName.c_str());
-        this->writef("    return std::unique_ptr<GrFragmentProcessor>(new %s(*this));\n",
+        this->writef("    return std::make_unique<%s>(*this);\n",
                      fFullName.c_str());
         this->write("}\n");
     }

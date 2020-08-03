@@ -67,5 +67,5 @@ GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrMixerEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrMixerEffect(*this));
+    return std::make_unique<GrMixerEffect>(*this);
 }

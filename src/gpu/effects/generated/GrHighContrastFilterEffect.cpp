@@ -161,7 +161,7 @@ GrHighContrastFilterEffect::GrHighContrastFilterEffect(const GrHighContrastFilte
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrHighContrastFilterEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrHighContrastFilterEffect(*this));
+    return std::make_unique<GrHighContrastFilterEffect>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrHighContrastFilterEffect);
 #if GR_TEST_UTILS

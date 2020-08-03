@@ -68,5 +68,5 @@ GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(*this));
+    return std::make_unique<GrBlurredEdgeFragmentProcessor>(*this);
 }

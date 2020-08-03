@@ -1,1 +1,1 @@
-Checks: '-*,bugprone-use-after-move,bugprone-unused-raii,bugprone-undelegated-constructor,bugprone-argument-comment,performance-for-range-copy,bugprone-bool-pointer-implicit-conversion,readability-redundant-preprocessor,misc-definitions-in-headers,google-build-namespaces'
+Checks: '-*,bugprone-use-after-move,bugprone-unused-raii,bugprone-undelegated-constructor,bugprone-argument-comment,performance-for-range-copy,bugprone-bool-pointer-implicit-conversion,readability-redundant-preprocessor,misc-definitions-in-headers,modernize-make-unique,google-build-namespaces'

@@ -121,7 +121,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         if (!pipelineState) {
             return nullptr;
         }
-        entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu, pipelineState)));
+        entry = fMap.insert(desc, std::make_unique<Entry>(fGpu, pipelineState));
         return (*entry)->fPipelineState.get();
     }
     return (*entry)->fPipelineState.get();

@@ -174,7 +174,7 @@ GrTest::GrTest(const GrTest& src)
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrTest(*this));
+    return std::make_unique<GrTest>(*this);
 }
 )__Cpp__"
          });

@@ -51,7 +51,7 @@ GrRadialGradientLayout::GrRadialGradientLayout(const GrRadialGradientLayout& src
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout(*this));
+    return std::make_unique<GrRadialGradientLayout>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradientLayout);
 #if GR_TEST_UTILS

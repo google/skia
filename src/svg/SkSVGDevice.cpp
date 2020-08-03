@@ -7,6 +7,8 @@
 
 #include "src/svg/SkSVGDevice.h"
 
+#include <memory>
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColorFilter.h"
@@ -692,7 +694,7 @@ SkSVGDevice::SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter> write
     fWriter->writeHeader();
 
     // The root <svg> tag gets closed by the destructor.
-    fRootElement.reset(new AutoElement("svg", fWriter));
+    fRootElement = std::make_unique<AutoElement>("svg", fWriter);
 
     fRootElement->addAttribute("xmlns", "http://www.w3.org/2000/svg");
     fRootElement->addAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
@@ -843,7 +845,7 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
 void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {
     std::unique_ptr<AutoElement> svg;
     if (RequiresViewportReset(paint)) {
-      svg.reset(new AutoElement("svg", this, fResourceBucket.get(), MxCp(this), paint));
+      svg = std::make_unique<AutoElement>("svg", this, fResourceBucket.get(), MxCp(this), paint);
       svg->addRectAttributes(r);
     }
 

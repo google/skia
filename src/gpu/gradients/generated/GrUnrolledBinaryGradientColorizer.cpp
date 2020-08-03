@@ -342,7 +342,7 @@ GrUnrolledBinaryGradientColorizer::GrUnrolledBinaryGradientColorizer(
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrUnrolledBinaryGradientColorizer(*this));
+    return std::make_unique<GrUnrolledBinaryGradientColorizer>(*this);
 }
 
 static const int kMaxIntervals = 8;

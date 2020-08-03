@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <memory>
+
 #include "include/private/GrImageContext.h"
 
 #include "src/gpu/GrCaps.h"
@@ -16,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrImageContext::GrImageContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(std::move(proxy)) {
-    fProxyProvider.reset(new GrProxyProvider(this));
+    fProxyProvider = std::make_unique<GrProxyProvider>(this);
 }
 
 GrImageContext::~GrImageContext() {}

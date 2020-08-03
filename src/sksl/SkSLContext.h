@@ -8,6 +8,8 @@
 #ifndef SKSL_CONTEXT
 #define SKSL_CONTEXT
 
+#include <memory>
+
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -401,7 +403,7 @@ private:
             Type::Field(mods, "preservesOpaqueInput", boolType),
             Type::Field(mods, "hasConstantOutputForConstantInput", boolType)
         };
-        return std::unique_ptr<Type>(new Type("fragmentProcessor", fields));
+        return std::make_unique<Type>("fragmentProcessor", fields);
     }
 };
 

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <memory>
+
 #include "bench/Benchmark.h"
 
 #include "include/core/SkCanvas.h"
@@ -75,7 +77,7 @@ private:
 
         SkSurfaceCharacterization c = create_characterization(context);
 
-        fRecorder.reset(new SkDeferredDisplayListRecorder(c));
+        fRecorder = std::make_unique<SkDeferredDisplayListRecorder>(c);
     }
 
     // We defer the clean up of the DDLs so it is done outside of the timing loop

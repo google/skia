@@ -53,5 +53,5 @@ GrLumaColorFilterEffect::GrLumaColorFilterEffect(const GrLumaColorFilterEffect& 
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrLumaColorFilterEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrLumaColorFilterEffect(*this));
+    return std::make_unique<GrLumaColorFilterEffect>(*this);
 }
