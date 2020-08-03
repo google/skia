@@ -12,6 +12,7 @@
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrWindowRectangles.h"
+#include "src/gpu/GrClipStack.h"
 
 class GrCoverageCountingPathRenderer;
 class GrRecordingContext;
@@ -107,6 +108,8 @@ public:
     std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticElements(
             GrRecordingContext*, const SkMatrixProvider& matrixProvider,
             GrCoverageCountingPathRenderer*, uint32_t opsTaskID);
+
+    int fElementsConsidered = 0;
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);

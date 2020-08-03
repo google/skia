@@ -56,6 +56,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     SkRect stackBounds;
     bool iior;
     stack.getBounds(&stackBounds, &stackBoundsType, &iior);
+    fElementsConsidered++;
 
     if (GrClip::IsOutsideClip(stackBounds, queryBounds)) {
         bool insideOut = SkClipStack::kInsideOut_BoundsType == stackBoundsType;
@@ -73,8 +74,9 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
             return;
         }
 
-        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+        fElementsConsidered++;
 
+        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
         if (!iter.prev()->isAA() || GrClip::IsPixelAligned(stackBounds)) {
             // The clip is a non-aa rect. Here we just implement the entire thing using fScissor.
             stackBounds.round(&fScissor);
@@ -167,6 +169,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
     int numAAElements = 0;
     while (InitialTriState::kUnknown == initialTriState) {
         const Element* element = iter.prev();
+
         if (nullptr == element) {
             initialTriState = InitialTriState::kAllIn;
             break;
@@ -191,6 +194,8 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
             }
             continue;
         }
+
+        fElementsConsidered++;
 
         bool skippable = false;
         bool isFlip = false; // does this op just flip the in/out state of every point in the bounds
@@ -930,4 +935,3 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticEleme
     // Compose the clip and shader FPs.
     return GrFragmentProcessor::Compose(std::move(clipFP), std::move(shaderFP));
 }
-

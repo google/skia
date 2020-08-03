@@ -5,7 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include <iostream>
+#include <fstream>
+
 #include "src/gpu/GrRenderTargetContext.h"
+
+#include "src/gpu/GrReducedClip.h"
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkVertices.h"
@@ -666,7 +671,8 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     };
 
     bool simpleColor = !stencilSettings && constColor;
-    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds)
+    GrAAType aaType = *aa == GrAA::kYes ? GrAAType::kCoverage : GrAAType::kNone;
+    GrClip::PreClipResult result = clip ? clip->preApply(drawBounds, aaType)
                                         : GrClip::PreClipResult(GrClip::Effect::kUnclipped);
     switch(result.fEffect) {
         case GrClip::Effect::kClippedOut:
@@ -974,7 +980,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
 
     // FIXME: Use path bounds instead of this WAR once
     // https://bugs.chromium.org/p/skia/issues/detail?id=5640 is resolved.
-    SkRect bounds = SkRect::MakeIWH(fRenderTargetContext->width(), fRenderTargetContext->height());
+    SkIRect bounds = SkIRect::MakeSize(fRenderTargetContext->dimensions());
 
     // Setup clip and reject offscreen paths; we do this explicitly instead of relying on addDrawOp
     // because GrStencilPathOp is not a draw op as its state depends directly on the choices made
@@ -998,7 +1004,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     if (!op) {
         return;
     }
-    op->setClippedBounds(bounds);
+    op->setClippedBounds(SkRect::Make(bounds));
 
     fRenderTargetContext->setNeedsStencil(GrAA::kYes == doStencilMSAA);
     fRenderTargetContext->addOp(std::move(op));
@@ -1095,6 +1101,8 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
        return;
     }
 
+    GrAAType aaType = this->chooseAAType(aa);
+
     const GrClip* clip = origClip;
     // It is not uncommon to clip to a round rect and then draw that same round rect. Since our
     // lower level clip code works from op bounds, which are SkRects, it doesn't detect that the
@@ -1105,11 +1113,10 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
     // optimization was turned on outside of Android Framework. I (michaelludwig) believe this is
     // do to the overhead in determining if an SkClipStack is just a rrect. Once that is improved,
     // re-enable this and see if we avoid the regressions.
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkRRect devRRect;
     if (clip && stroke.getStyle() == SkStrokeRec::kFill_Style &&
         rrect.transform(viewMatrix, &devRRect)) {
-        GrClip::PreClipResult result = clip->preApply(devRRect.getBounds());
+        GrClip::PreClipResult result = clip->preApply(devRRect.getBounds(), aaType);
         switch(result.fEffect) {
             case GrClip::Effect::kClippedOut:
                 return;
@@ -1123,7 +1130,11 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
                 if (result.fIsRRect && result.fRRect == devRRect) {
                     // NOTE: On the android framework, we allow this optimization even when the clip
                     // is non-AA and the draw is AA.
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
                     if (result.fAA == aa || (result.fAA == GrAA::kNo && aa == GrAA::kYes)) {
+#else
+                    if (result.fAA == aa) {
+#endif
                         clip = nullptr;
                     }
                 }
@@ -1132,11 +1143,8 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
                 SkUNREACHABLE;
         }
     }
-#endif
 
     AutoCheckFlush acf(this->drawingManager());
-
-    GrAAType aaType = this->chooseAAType(aa);
 
     std::unique_ptr<GrDrawOp> op;
     if (GrAAType::kCoverage == aaType && rrect.isSimple() &&
@@ -2004,16 +2012,14 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     bool skipDraw = false;
     if (clip) {
         // Have a complex clip, so defer to its early clip culling
-        skipDraw = clip->apply(fContext, this, usesHWAA, usesUserStencilBits,
+        GrAAType aaType = usesHWAA ? GrAAType::kMSAA :
+                                (op->hasAABloat() ? GrAAType::kCoverage :
+                                                    GrAAType::kNone);
+        skipDraw = clip->apply(fContext, this, aaType, usesUserStencilBits,
                                &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
     } else {
         // No clipping, so just clip the bounds against the logical render target dimensions
         skipDraw = !bounds.intersect(this->asSurfaceProxy()->getBoundsRect());
-    }
-
-    if (skipDraw) {
-        fContext->priv().opMemoryPool()->release(std::move(op));
-        return;
     }
 
     bool willUseStencil = usesUserStencilBits || appliedClip.hasStencilClip();
