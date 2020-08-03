@@ -58,6 +58,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrClientMappedBufferManager.cpp",
   "$_src/gpu/GrClientMappedBufferManager.h",
   "$_src/gpu/GrClip.h",
+  "$_src/gpu/GrClipStack.cpp",
+  "$_src/gpu/GrClipStack.h",
   "$_src/gpu/GrClipStackClip.cpp",
   "$_src/gpu/GrClipStackClip.h",
   "$_src/gpu/GrColor.h",

@@ -8,4 +8,4 @@ set -x
 set -e
 
 DOWNLOAD_SCRIPT=$(cd $(dirname $0)/..; pwd)/infra/bots/assets/skp/download.py
-python ${DOWNLOAD_SCRIPT} -t $(pwd)/skps
+python ${DOWNLOAD_SCRIPT} -t $(pwd)/skps --gsutil /c/Users/Michael/Desktop/Code/depot_tools/gsutil.py
