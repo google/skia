@@ -117,6 +117,25 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
       "rm",
       "-rf",
       "/sdcard/revenge_of_the_skiabot/skps"
@@ -129,6 +148,25 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/skps"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "stat",
+      "/sdcard/revenge_of_the_skiabot/skps"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "stat /sdcard/revenge_of_the_skiabot/skps",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
   },
   {
     "cmd": [
@@ -394,6 +432,24 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      " ",
+      "/home/chrome-bot/skia-bot-123.force_quarantine"
+    ],
+    "infra_step": true,
+    "name": "Quarantining Bot",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@skia-bot-123.force_quarantine@ @@@",
+      "@@@STEP_LOG_END@skia-bot-123.force_quarantine@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "kill-server"
     ],
@@ -407,6 +463,10 @@
     "name": "kill adb server"
   },
   {
+    "failure": {
+      "failure": {},
+      "humanReason": "Failed build steps: stat /sdcard/revenge_of_the_skiabot/SKP_VERSION, stat /sdcard/revenge_of_the_skiabot/skps"
+    },
     "name": "$result"
   }
 ]
