@@ -89,7 +89,7 @@ GrSweepGradientLayout::GrSweepGradientLayout(const GrSweepGradientLayout& src)
     this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrSweepGradientLayout(*this));
+    return std::make_unique<GrSweepGradientLayout>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSweepGradientLayout);
 #if GR_TEST_UTILS

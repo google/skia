@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 
 #include <array>
+#include <memory>
 #include <vector>
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrDirectContext.h"
@@ -436,7 +437,7 @@ private:
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&) override {}
     void onPrepare(GrOpFlushState* state) override {
-        fHelper.reset(new DrawMeshHelper(state));
+        fHelper = std::make_unique<DrawMeshHelper>(state);
         fPrepareFn(fHelper.get());
     }
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
