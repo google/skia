@@ -14,13 +14,13 @@
 namespace skia {
 namespace textlayout {
 
-Run::Run(ParagraphImpl* master,
+Run::Run(ParagraphImpl* owner,
          const SkShaper::RunHandler::RunInfo& info,
          size_t firstChar,
          SkScalar heightMultiplier,
          size_t index,
          SkScalar offsetX)
-    : fMaster(master)
+    : fOwner(owner)
     , fTextRange(firstChar + info.utf8Range.begin(), firstChar + info.utf8Range.end())
     , fClusterRange(EMPTY_CLUSTERS)
     , fFont(info.fFont)
@@ -112,15 +112,15 @@ std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange
     if (text.width() == 0) {
         // Special Flutter case for "\n" and "...\n"
         if (text.end > this->fTextRange.start) {
-            ClusterIndex index = fMaster->clusterIndex(text.end - 1);
+            ClusterIndex index = fOwner->clusterIndex(text.end - 1);
             return std::make_tuple(true, index, index);
         } else {
             return std::make_tuple(false, 0, 0);
         }
     }
 
-    ClusterIndex startIndex = fMaster->clusterIndex(text.start);
-    ClusterIndex endIndex = fMaster->clusterIndex(text.end - 1);
+    ClusterIndex startIndex = fOwner->clusterIndex(text.start);
+    ClusterIndex endIndex = fOwner->clusterIndex(text.end - 1);
     if (!leftToRight()) {
         std::swap(startIndex, endIndex);
     }
@@ -176,7 +176,7 @@ void Run::iterateThroughClusters(const ClusterVisitor& visitor) {
 
     for (size_t index = 0; index < fClusterRange.width(); ++index) {
         auto correctIndex = leftToRight() ? fClusterRange.start + index : fClusterRange.end - index - 1;
-        auto cluster = &fMaster->cluster(correctIndex);
+        auto cluster = &fOwner->cluster(correctIndex);
         visitor(cluster);
     }
 }
@@ -316,7 +316,7 @@ size_t Cluster::roundPos(SkScalar s) const {
 SkScalar Cluster::trimmedWidth(size_t pos) const {
     // Find the width until the pos and return the min between trimmedWidth and the width(pos)
     // We don't have to take in account cluster shift since it's the same for 0 and for pos
-    auto& run = fMaster->run(fRunIndex);
+    auto& run = fOwner->run(fRunIndex);
     return std::min(run.positionX(pos) - run.positionX(fStart), fWidth);
 }
 
@@ -327,45 +327,45 @@ SkScalar Run::positionX(size_t pos) const {
 
 PlaceholderStyle* Run::placeholderStyle() const {
     if (isPlaceholder()) {
-        return &fMaster->placeholders()[fPlaceholderIndex].fStyle;
+        return &fOwner->placeholders()[fPlaceholderIndex].fStyle;
     } else {
         return nullptr;
     }
 }
 
 Run* Cluster::run() const {
-    if (fRunIndex >= fMaster->runs().size()) {
+    if (fRunIndex >= fOwner->runs().size()) {
         return nullptr;
     }
-    return &fMaster->run(fRunIndex);
+    return &fOwner->run(fRunIndex);
 }
 
 SkFont Cluster::font() const {
-    return fMaster->run(fRunIndex).font();
+    return fOwner->run(fRunIndex).font();
 }
 
 bool Cluster::isHardBreak() const {
-    return fMaster->codeUnitHasProperty(fTextRange.end,CodeUnitFlags::kHardLineBreakBefore);
+    return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kHardLineBreakBefore);
 }
 
 bool Cluster::isSoftBreak() const {
-    return fMaster->codeUnitHasProperty(fTextRange.end,CodeUnitFlags::kSoftLineBreakBefore);
+    return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kSoftLineBreakBefore);
 }
 
 bool Cluster::isGraphemeBreak() const {
-    return fMaster->codeUnitHasProperty(fTextRange.end,CodeUnitFlags::kGraphemeStart);
+    return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kGraphemeStart);
 }
 
-Cluster::Cluster(ParagraphImpl* master,
+Cluster::Cluster(ParagraphImpl* owner,
         RunIndex runIndex,
         size_t start,
         size_t end,
         SkSpan<const char> text,
         SkScalar width,
         SkScalar height)
-        : fMaster(master)
+        : fOwner(owner)
         , fRunIndex(runIndex)
-        , fTextRange(text.begin() - fMaster->text().begin(), text.end() - fMaster->text().begin())
+        , fTextRange(text.begin() - fOwner->text().begin(), text.end() - fOwner->text().begin())
         , fGraphemeRange(EMPTY_RANGE)
         , fStart(start)
         , fEnd(end)
@@ -373,7 +373,7 @@ Cluster::Cluster(ParagraphImpl* master,
         , fSpacing(0)
         , fHeight(height)
         , fHalfLetterSpacing(0.0) {
-    size_t len = fMaster->getWhitespacesLength(fTextRange);
+    size_t len = fOwner->getWhitespacesLength(fTextRange);
     fIsWhiteSpaces = (len == this->fTextRange.width());
 }
 

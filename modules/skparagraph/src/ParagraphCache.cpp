@@ -212,7 +212,7 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     paragraph->fUTF8IndexForUTF16Index = entry->fValue->fUTF8IndexForUTF16Index;
     paragraph->fUTF16IndexForUTF8Index = entry->fValue->fUTF16IndexForUTF8Index;
     for (auto& run : paragraph->fRuns) {
-        run.setMaster(paragraph);
+      run.setOwner(paragraph);
     }
 }
 
