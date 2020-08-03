@@ -226,7 +226,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto maxLines = parent->paragraphStyle().getMaxLines();
     auto& ellipsisStr = parent->paragraphStyle().getEllipsis();
     auto align = parent->paragraphStyle().effective_align();
-    auto unlimitedLines = maxLines == std::numeric_limits<size_t>::max();
+    auto unlimitedLines = maxLines == std::numeric_limits<size_t>::max() && !parent->paragraphStyle().hasDesiredHeight();
     auto endlessLine = !SkScalarIsFinite(maxWidth);
     auto hasEllipsis = !ellipsisStr.isEmpty();
 
@@ -289,6 +289,13 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         if (parent->strutEnabled()) {
             // Make sure font metrics are not less than the strut
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
+        }
+
+        if (parent->paragraphStyle().hasDesiredHeight() &&
+              fHeight + fEndLine.metrics().height() > parent->paragraphStyle().getDesiredHeight()) {
+            // This line does not fit the desired height
+            fHardLineBreak = false;
+            break;
         }
 
         // TODO: keep start/end/break info for text and runs but in a better way that below

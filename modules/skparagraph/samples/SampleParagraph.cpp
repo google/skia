@@ -13,6 +13,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
+#include "modules/skparagraph/api/Format.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
@@ -27,7 +28,6 @@
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
-
 
 static DEFINE_bool(verboseParagraph, false, "paragraph samples very verbose.");
 
@@ -2898,6 +2898,50 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView46 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph46"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+      canvas->drawColor(SK_ColorWHITE);
+
+      auto fontCollection = sk_make_sp<FontCollection>();
+      fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+      fontCollection->enableFontFallback();
+
+      // World domination is such an ugly phrase - I prefer to call it world optimisation
+
+      SkPaint blackText; blackText.setColor(SK_ColorBLACK);
+      SkPaint redText; redText.setColor(SK_ColorRED);
+      SkPaint greenText; greenText.setColor(SK_ColorGREEN);
+      SkPaint blueText; blueText.setColor(SK_ColorBLUE);
+      SkPaint yellowBrush; yellowBrush.setColor(SK_ColorYELLOW);
+      SkPaint grayBrush; grayBrush.setColor(SK_ColorGRAY);
+      SkPaint ltgrayBrush; ltgrayBrush.setColor(SK_ColorLTGRAY);
+      FormatStyle style;
+      Format format(fontCollection);
+      format.foregroundPaint(blackText)
+            .fontSize(16)
+            .addText("World ").backgroundPaint(grayBrush)
+            .addText("domination ").font("Roboto").fontSize(8)
+            .addText("is such an ugly phrase - I ").backgroundPaint(yellowBrush)
+            .addText("prefer to call it ").italic()
+            .addText("world ").font("Assyrian").fontSize(32)
+            .addText("opti").foregroundPaint(redText)
+            .addText("miza").foregroundPaint(greenText)
+            .addText("tion").foregroundPaint(blueText);
+
+        auto size = format.measure(SkSize::Make(width()/10, height()/10));
+        canvas->drawRect(SkRect::MakeWH(size.width(), size.height()), ltgrayBrush);
+        format.format(SkSize::Make(width()/10, height()/10));
+        format.paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2944,3 +2988,4 @@ DEF_SAMPLE(return new ParagraphView42();)
 DEF_SAMPLE(return new ParagraphView43();)
 DEF_SAMPLE(return new ParagraphView44();)
 DEF_SAMPLE(return new ParagraphView45();)
+DEF_SAMPLE(return new ParagraphView46();)

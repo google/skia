@@ -17,7 +17,8 @@ StrutStyle::StrutStyle() {
     fEnabled = false;
 }
 
-ParagraphStyle::ParagraphStyle() {
+ParagraphStyle::ParagraphStyle(const TextStyle& defaultTextStyle)
+    : fDefaultTextStyle(defaultTextStyle) {
     fTextAlign = TextAlign::kStart;
     fTextDirection = TextDirection::kLtr;
     fLinesLimit = std::numeric_limits<size_t>::max();
@@ -25,6 +26,9 @@ ParagraphStyle::ParagraphStyle() {
     fTextHeightBehavior = TextHeightBehavior::kAll;
     fHintingIsOn = true;
 }
+
+ParagraphStyle::ParagraphStyle()
+    : ParagraphStyle(TextStyle()) { }
 
 TextAlign ParagraphStyle::effective_align() const {
     if (fTextAlign == TextAlign::kStart) {
