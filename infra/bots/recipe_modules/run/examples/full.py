@@ -47,16 +47,23 @@ def RunSteps(api):
             cmd=['echo', 'between_attempt'])
 
   # Retries.
+  raised = False
   try:
     api.run.with_retry(api.step, 'retry fail', 5, cmd=['false'],
                        between_attempts_fn=between_attempts_fn)
   except api.step.StepFailure:
-    pass
+    raised = True
   assert len(api.run.failed_steps) == 7
+  assert raised == True
+
+  api.run.with_retry(api.step, 'retry fail, no exception', 5, cmd=['false'],
+                     abort_on_failure=False,
+                     between_attempts_fn=between_attempts_fn)
+  assert len(api.run.failed_steps) == 12
 
   api.run.with_retry(api.step, 'retry success', 3, cmd=['false'],
                      between_attempts_fn=between_attempts_fn)
-  assert len(api.run.failed_steps) == 7
+  assert len(api.run.failed_steps) == 12
 
   # Check failure.
   api.run.check_failure()
@@ -79,6 +86,11 @@ def GenTests(api):
       api.step_data('retry fail (attempt 3)', retcode=1) +
       api.step_data('retry fail (attempt 4)', retcode=1) +
       api.step_data('retry fail (attempt 5)', retcode=1) +
+      api.step_data('retry fail, no exception', retcode=1) +
+      api.step_data('retry fail, no exception (attempt 2)', retcode=1) +
+      api.step_data('retry fail, no exception (attempt 3)', retcode=1) +
+      api.step_data('retry fail, no exception (attempt 4)', retcode=1) +
+      api.step_data('retry fail, no exception (attempt 5)', retcode=1) +
       api.step_data('retry success', retcode=1) +
       api.step_data('retry success (attempt 2)', retcode=1)
     )

@@ -4,6 +4,7 @@
 
 
 from recipe_engine import recipe_api
+from recipe_engine import recipe_test_api
 
 from . import default
 import subprocess  # TODO(borenet): No! Remove this.
@@ -83,7 +84,7 @@ class AndroidFlavor(default.DefaultFlavor):
 
     self._ever_ran_adb = True
     # ADB seems to be occasionally flaky on every device, so always retry.
-    attempts = 3
+    attempts = kwargs.pop('attempts', 3)
 
     def wait_for_device(attempt):
       self.m.run(self.m.step,
@@ -582,9 +583,29 @@ time.sleep(60)
                    **kwargs)
     return rv.stdout.rstrip() if rv and rv.stdout else None
 
+  def _ensure_not_exists(self, path):
+    result = self._adb(
+        'stat %s' % path,
+        'shell', 'stat', path,
+        stdout=self.m.raw_io.output(),
+        step_test_data=lambda: self.m.raw_io.test_api.stream_output(
+            'Stat: No such file or directory', stream='stdout', retcode=1),
+        attempts=1,
+        abort_on_failure=False,
+        fail_build_on_failure=False,
+        infra_step=True)
+    if result.stdout and 'No such file or directory' in result.stdout:
+      return
+    raise recipe_api.InfraFailure(
+        '%s exists despite being deleted: %s' % (path, result.stdout)
+        ) # pragma: nocover
+
+
   def remove_file_on_device(self, path):
     self._adb('rm %s' % path, 'shell', 'rm', '-f', path)
+    self._ensure_not_exists(path)
 
   def create_clean_device_dir(self, path):
     self._adb('rm %s' % path, 'shell', 'rm', '-rf', path)
+    self._ensure_not_exists(path)
     self._adb('mkdir %s' % path, 'shell', 'mkdir', '-p', path)

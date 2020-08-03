@@ -250,7 +250,7 @@ Wrapper around api.file.rmtree.
 
 &mdash; **def [run\_once](/infra/bots/recipe_modules/run/api.py#35)(self, fn, \*args, \*\*kwargs):**
 
-&mdash; **def [with\_retry](/infra/bots/recipe_modules/run/api.py#81)(self, steptype, name, attempts, between_attempts_fn=None, abort_on_failure=True, fail_build_on_failure=True, \*\*kwargs):**
+&mdash; **def [with\_retry](/infra/bots/recipe_modules/run/api.py#84)(self, steptype, name, attempts, between_attempts_fn=None, abort_on_failure=True, fail_build_on_failure=True, \*\*kwargs):**
 
 &mdash; **def [writefile](/infra/bots/recipe_modules/run/api.py#45)(self, filename, contents):**
 

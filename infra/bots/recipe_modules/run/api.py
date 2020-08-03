@@ -77,6 +77,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
         self._failed.append(e)
       if abort_on_failure:
         raise
+      return e.result
 
   def with_retry(self, steptype, name, attempts, between_attempts_fn=None,
                  abort_on_failure=True, fail_build_on_failure=True, **kwargs):
@@ -90,9 +91,10 @@ class SkiaStepApi(recipe_api.RecipeApi):
         if attempt > 0 and fail_build_on_failure:
           del self._failed[-attempt:]
         return res
-      except self.m.step.StepFailure:
+      except self.m.step.StepFailure as e:
         if attempt == attempts - 1:
           if abort_on_failure:
             raise
+          return e.result
         elif between_attempts_fn:
           between_attempts_fn(attempt+1)

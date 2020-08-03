@@ -240,7 +240,7 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
-    "name": "retry success",
+    "name": "retry fail, no exception",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
     ]
@@ -264,7 +264,7 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
-    "name": "retry success (attempt 2)",
+    "name": "retry fail, no exception (attempt 2)",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
     ]
@@ -288,12 +288,121 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
+    "name": "retry fail, no exception (attempt 3)",
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "between_attempts #3 (2)"
+  },
+  {
+    "cmd": [
+      "false"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "retry fail, no exception (attempt 4)",
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "between_attempts #4 (2)"
+  },
+  {
+    "cmd": [
+      "false"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "retry fail, no exception (attempt 5)",
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "false"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "retry success",
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "between_attempts #1 (3)"
+  },
+  {
+    "cmd": [
+      "false"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "retry success (attempt 2)",
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "between_attempts #2 (3)"
+  },
+  {
+    "cmd": [
+      "false"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
     "name": "retry success (attempt 3)"
   },
   {
     "failure": {
       "failure": {},
-      "humanReason": "Failed build steps: fail, fail again, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5)"
+      "humanReason": "Failed build steps: fail, fail again, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5), retry fail, no exception, retry fail, no exception (attempt 2), retry fail, no exception (attempt 3), retry fail, no exception (attempt 4), retry fail, no exception (attempt 5)"
     },
     "name": "$result"
   }
