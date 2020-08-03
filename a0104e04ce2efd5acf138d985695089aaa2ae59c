@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22cfa6db_e53d7323",
+        "filename": "bench/RectanizerBench.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T13:23:40Z",
+      "side": 1,
+      "message": "Please make unrelated changes in separate CLs, or at least mention them in the description.  This sort of thing only strengthens my paranoia when reviewing your work.",
+      "range": {
+        "startLine": 30,
+        "startChar": 16,
+        "endLine": 30,
+        "endChar": 20
+      },
+      "revId": "a0104e04ce2efd5acf138d985695089aaa2ae59c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35eb9b45_822e8e98",
+        "filename": "src/codec/SkBmpCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T13:23:40Z",
+      "side": 1,
+      "message": "I don\u0027t mind this sort of change, but why did you do it?  It seems like this was fine where it was?   (several across the CL)",
+      "revId": "a0104e04ce2efd5acf138d985695089aaa2ae59c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38658c35_41eff582",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T13:23:40Z",
+      "side": 1,
+      "message": "I think you mean to rebase this on top of that other CL?",
+      "range": {
+        "startLine": 1972,
+        "startChar": 0,
+        "endLine": 1985,
+        "endChar": 5
+      },
+      "revId": "a0104e04ce2efd5acf138d985695089aaa2ae59c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
