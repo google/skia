@@ -1416,7 +1416,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                     }
                     break;
             }
-            this->error(offset, String("unreachable"));
+//          this->error(offset, String("unreachable"));  // TODO restore me
         }
     }
     if (fErrorCount) {

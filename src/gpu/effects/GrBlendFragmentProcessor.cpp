@@ -313,6 +313,8 @@ void GLBlendFragmentProcessor::emitCode(EmitArgs& args) {
     if (behavior == BlendBehavior::kComposeTwoBehavior) {
         fragBuilder->codeAppendf("%s *= %s.a;\n", args.fOutputColor, args.fInputColor);
     }
+
+    fragBuilder->codeAppendf("return %s;\n", args.fOutputColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////

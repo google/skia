@@ -60,8 +60,9 @@ public:
     SimpleRT() : RuntimeShaderGM("runtime_shader", {512, 256}, R"(
         uniform half4 gColor;
 
-        void main(float2 p, inout half4 color) {
+        half4 main(float2 p, inout half4 color) {
             color = half4(half2(p)*(1.0/255), gColor.b, 1);
+            return color;
         }
     )", kBench_RTFlag) {}
 

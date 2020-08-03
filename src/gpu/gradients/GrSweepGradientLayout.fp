@@ -8,7 +8,7 @@
 layout(tracked) in uniform half bias;
 layout(tracked) in uniform half scale;
 
-void main(float2 coord) {
+half4 main(float2 coord) {
     // On some devices they incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
     // atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). So to work around this we pass in (sqrt(x^2
     // + y^2) + x) as the second parameter to atan2 in these cases. We let the device handle the
@@ -24,6 +24,7 @@ void main(float2 coord) {
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     half t = (angle * 0.1591549430918 + 0.5 + bias) * scale;
     sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
+    return sk_OutColor;
 }
 
 //////////////////////////////////////////////////////////////////////////////

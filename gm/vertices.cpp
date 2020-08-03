@@ -377,10 +377,11 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
         in shader c0;
         in shader c1;
         varying float vtx_lerp;
-        void main(float2 p, inout half4 color) {
+        half4 main(float2 p, inout half4 color) {
             half4 col0 = sample(c0, p);
             half4 col1 = sample(c1, p);
             color = mix(col0, col1, half(vtx_lerp));
+            return color;
         }
     )";
     auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
@@ -458,8 +459,9 @@ DEF_SIMPLE_GM(vertices_custom_colors, canvas, 400, 200) {
 
     const char* gProg = R"(
         varying half4 vtx_color;
-        void main(float2 p, inout half4 color) {
+        half4 main(float2 p, inout half4 color) {
             color = vtx_color;
+            return color;
         }
     )";
     SkPaint skslPaint;
@@ -580,8 +582,9 @@ DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 400) {
 
     const char* vectorProg = R"(
         varying float3 vtx_vec;
-        void main(float2 p, inout half4 color) {
+        half4 main(float2 p, inout half4 color) {
             color.rgb = half3(vtx_vec) * 0.5 + 0.5;
+            return color;
         })";
 
     // raw, local vectors, normals, and positions should all look the same (no real transform)
@@ -610,16 +613,18 @@ DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 400) {
 
     const char* ctmPositionProg250 = R"(
         varying float3 vtx_pos;
-        void main(float2 p, inout half4 color) {
+        half4 main(float2 p, inout half4 color) {
             color.rgb = (half3(vtx_pos) - half3(250, 350, 0)) / 50 + 0.5;
+            return color;
         }
     )";
     draw(250, 350, make_cone(Attr::Usage::kPosition, nullptr), ctmPositionProg250, 0.5f);
 
     const char* ctmPositionProg350 = R"(
         varying float3 vtx_pos;
-        void main(float2 p, inout half4 color) {
+        half4 main(float2 p, inout half4 color) {
             color.rgb = (half3(vtx_pos) - half3(350, 350, 0)) / 50 + 0.5;
+            return color;
         }
     )";
     canvas->saveLayer({ 300, 300, 400, 400 }, nullptr);
