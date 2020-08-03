@@ -399,6 +399,30 @@
       "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21995664_1523ef40",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2576,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T18:49:44Z",
+      "side": 1,
+      "message": "Didn\u0027t C++17 add in some left-to-right ordering guarantees for comma lists?\n(Not that I know what Metal actually promises)",
+      "parentUuid": "69fb34a4_18e90506",
+      "range": {
+        "startLine": 2576,
+        "startChar": 14,
+        "endLine": 2576,
+        "endChar": 83
+      },
+      "revId": "f5460b21ad158f9c07b175e2f9e7b34d3607f563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
