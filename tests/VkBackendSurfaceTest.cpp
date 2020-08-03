@@ -32,11 +32,12 @@
 #include "src/image/SkSurface_Gpu.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     GrBackendTexture backendTex;
-    CreateBackendTexture(context, &backendTex, 1, 1, kRGBA_8888_SkColorType, SkColors::kTransparent,
-                         GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+    CreateBackendTexture(dContext, &backendTex, 1, 1, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipmapped::kNo,
+                         GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrVkImageInfo info;
@@ -60,13 +61,13 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     // Setting back the layout since we didn't actually change it
     backendTex.setVkImageLayout(initLayout);
 
-    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(context, backendTex,
+    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(dContext, backendTex,
                                                            kTopLeft_GrSurfaceOrigin,
                                                            kRGBA_8888_SkColorType,
                                                            kPremul_SkAlphaType, nullptr);
     REPORTER_ASSERT(reporter, wrappedImage.get());
 
-    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(context);
+    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(dContext);
     REPORTER_ASSERT(reporter, view);
     REPORTER_ASSERT(reporter, view->proxy()->isInstantiated());
     GrTexture* texture = view->proxy()->peekTexture();
@@ -120,7 +121,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, invalidTexture.isValid());
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, invalidTexture));
 
-    context->deleteBackendTexture(backendTex);
+    dContext->deleteBackendTexture(backendTex);
 }
 
 // This test is disabled because it executes illegal vulkan calls which cause the validations layers
