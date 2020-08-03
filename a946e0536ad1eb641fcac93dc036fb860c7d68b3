@@ -59,6 +59,29 @@
     },
     {
       "key": {
+        "uuid": "d7c0fe03_82ebea77",
+        "filename": "gn/skia.gni",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "maybe make this \n\n   is_android \u0026\u0026 defined(ndk_api) \u0026\u0026 ndk_api \u003e\u003d 30\n\nleaving the other one\n\n   enabled \u003d skia_use_ndk_decode\n\n?",
+      "range": {
+        "startLine": 67,
+        "startChar": 24,
+        "endLine": 67,
+        "endChar": 28
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f3ecd8ed_a04d27ca",
         "filename": "include/ports/SkImageGeneratorNDK.h",
         "patchSetId": 4
@@ -82,6 +105,300 @@
     },
     {
       "key": {
+        "uuid": "460e4afa_ae26d91e",
+        "filename": "include/ports/SkImageGeneratorNDK.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "These courses all sound great to me.",
+      "parentUuid": "f3ecd8ed_a04d27ca",
+      "range": {
+        "startLine": 16,
+        "startChar": 10,
+        "endLine": 16,
+        "endChar": 29
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42e5f11e_f45fa8bd",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "Is there some NDK decode/Vulkan combo we want to test?",
+      "range": {
+        "startLine": 24,
+        "startChar": 44,
+        "endLine": 24,
+        "endChar": 56
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a22d57fb_fde2802b",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "If you invert this to something like\n\n   static bool ok(int result) { return result \u003d\u003d ANDROID_IMAGE_DECODER_SUCCESS; }\n\nthe \u0027!\u0027 would stand out in the failure check places, and you could use ok() in a handful more places.",
+      "range": {
+        "startLine": 69,
+        "startChar": 12,
+        "endLine": 70,
+        "endChar": 51
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daf2a8e6_435991b6",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "Is this correct?  Maybe worth leaving a note explaining A8/G8?",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 5
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a89d42c_29e3618a",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "This one might be worth a comment reaffirming AImageDecoder_decodeImage() really does give us premul, not unpremul like you might expect?",
+      "range": {
+        "startLine": 100,
+        "startChar": 73,
+        "endLine": 100,
+        "endChar": 92
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cb449db_8b95de2d",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "Since these are all just functions it might be easier to keep track that we\u0027re still making file-local symbols by marking them all as static.  At that point you can drop the namespace{} too... kind of suggests there\u0027d be a file-local type in there?",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 4
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f40b3066_5c7dfad8",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "Might be easier to read if you name these parameters something far away, like x\u0026y?",
+      "range": {
+        "startLine": 125,
+        "startChar": 46,
+        "endLine": 125,
+        "endChar": 47
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce7a3362_73eb1228",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "Might make sense to call each of these nearly_equal() also, since they\u0027re not testing equality.",
+      "range": {
+        "startLine": 125,
+        "startChar": 4,
+        "endLine": 125,
+        "endChar": 15
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8f7277c_5e2f88d8",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "Let\u0027s leave a note about the weird mapping between G8 and A8, pointing back to colorType()?\n\nBetter yet, let\u0027s make one table that we can use to answer both directions?  It feels error prone to have these two so far apart in the file, and even more so for the two way mappings between ADataSpace and SkColorSpace.  If everything\u0027s mapped 1:1 in a table we can\u0027t fall out of sync.",
+      "range": {
+        "startLine": 158,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 47
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f999ee7a_f5274a52",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "For this sort of c-string API I always find it easier to read as\n\n  if (0 \u003d\u003d strcmp(...))\n\nwith the condition we\u0027re testing first.  It\u0027s so tempting to read\n\n  if (strcmp(...) \u003d\u003d 0)\n\nas\n  if (strcmp(...))\n\nparticularly when ... gets long.",
+      "range": {
+        "startLine": 174,
+        "startChar": 12,
+        "endLine": 174,
+        "endChar": 18
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82d70ebf_cc33d991",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand this feature.  What do we mean by no color correction?  If we create an image that\u0027s not tagged with a color space, Skia will assume it\u0027s sRGB.",
+      "range": {
+        "startLine": 234,
+        "startChar": 49,
+        "endLine": 234,
+        "endChar": 68
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8e982a6_1944069b",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "Don\u0027t you want to fPreviousSetADataSpace \u003d false here?",
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c385d402_9e7adcaf",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "Does this else {} clause do anything?  It boils down to\n\n    setDataSpace(decoder, getDataSpace(getHeaderInfo(decoder)));\n\nIf that\u0027s not a no-op, it\u0027s worth a big note?",
+      "range": {
+        "startLine": 248,
+        "startChar": 13,
+        "endLine": 252,
+        "endChar": 13
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9412c713_36ea3075",
         "filename": "src/ports/SkImageGeneratorNDK.cpp",
         "patchSetId": 4
@@ -98,6 +415,29 @@
         "startChar": 0,
         "endLine": 254,
         "endChar": 5
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13a07576_e20eb764",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T21:55:45Z",
+      "side": 1,
+      "message": "A note to explain why incomplete and error seem to be ok?",
+      "range": {
+        "startLine": 284,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 41
       },
       "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
