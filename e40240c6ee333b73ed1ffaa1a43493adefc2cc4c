@@ -34,6 +34,24 @@
       "revId": "e40240c6ee333b73ed1ffaa1a43493adefc2cc4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d162314a_07339918",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T13:24:35Z",
+      "side": 1,
+      "message": "Ignoring that, we don\u0027t require a C++17 standard library from our clients.",
+      "parentUuid": "3c3de99a_1c92bb39",
+      "revId": "e40240c6ee333b73ed1ffaa1a43493adefc2cc4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
