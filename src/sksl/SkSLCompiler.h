@@ -178,7 +178,12 @@ public:
 
     static bool IsAssignment(Token::Kind token);
 
-    void processIncludeFile(Program::Kind kind, const char* src, size_t length,
+    void processIncludeFile(Program::Kind kind, const char* path,
+                            std::shared_ptr<SymbolTable> base,
+                            std::vector<std::unique_ptr<ProgramElement>>* outElements,
+                            std::shared_ptr<SymbolTable>* outSymbolTable);
+
+    void processIncludeFile(Program::Kind kind, const char* src, size_t srcLength,
                             std::shared_ptr<SymbolTable> base,
                             std::vector<std::unique_ptr<ProgramElement>>* outElements,
                             std::shared_ptr<SymbolTable>* outSymbolTable);
