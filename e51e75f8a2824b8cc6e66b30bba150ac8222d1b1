@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0b4de99_5f165fb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-03T19:12:53Z",
+      "side": 1,
+      "message": "Needs to be public?\nContains is always tricky (I think) for a point... i.e. what happens on the edges? Containment for an area (e.g. contains(rect)) is a lot easier",
+      "revId": "e51e75f8a2824b8cc6e66b30bba150ac8222d1b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
