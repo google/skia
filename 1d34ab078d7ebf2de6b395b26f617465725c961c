@@ -39,6 +39,30 @@
       "revId": "1d34ab078d7ebf2de6b395b26f617465725c961c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "467ca47c_cb902178",
+        "filename": "site/dev/sheriffing/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-03T17:41:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b7330f5_99c5537d",
+      "range": {
+        "startLine": 44,
+        "startChar": 11,
+        "endLine": 44,
+        "endChar": 152
+      },
+      "revId": "1d34ab078d7ebf2de6b395b26f617465725c961c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
