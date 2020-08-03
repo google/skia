@@ -73,7 +73,7 @@ GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDitherEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(*this));
+    return std::make_unique<GrDitherEffect>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDitherEffect);
 #if GR_TEST_UTILS
