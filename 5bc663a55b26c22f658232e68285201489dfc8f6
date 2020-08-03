@@ -46,6 +46,30 @@
       "revId": "5bc663a55b26c22f658232e68285201489dfc8f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ca9f7c0_f766c9c0",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-03T15:46:48Z",
+      "side": 0,
+      "message": "I\u0027m curious to see the sort of changes we\u0027d make... is one of these ported over in this CL a good example to convert from WithReset to without?  I guess the idea is that if you\u0027re calling reset() it\u0027s a sign that the alloc is scoped too high up the call stack, and that if you push it down further the constructors and destructors will handle things naturally?",
+      "parentUuid": "7d4a8df2_41aa786a",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 44
+      },
+      "revId": "5bc663a55b26c22f658232e68285201489dfc8f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
