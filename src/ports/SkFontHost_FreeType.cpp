@@ -1970,17 +1970,17 @@ bool SkTypeface_FreeType::Scanner::scanFont(
         }
     }
 
-    if (name) {
+    if (name != nullptr) {
         name->set(face->family_name);
     }
-    if (style) {
+    if (style != nullptr) {
         *style = SkFontStyle(weight, width, slant);
     }
-    if (isFixedPitch) {
+    if (isFixedPitch != nullptr) {
         *isFixedPitch = FT_IS_FIXED_WIDTH(face);
     }
 
-    if (axes && !GetAxes(face.get(), axes)) {
+    if (axes != nullptr && !GetAxes(face.get(), axes)) {
         return false;
     }
     return true;
