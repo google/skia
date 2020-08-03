@@ -33,6 +33,29 @@
       "revId": "f4f96a93590a9d91cb479c698166c050427b7f6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b958446_6c5ae8a8",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-03T16:57:30Z",
+      "side": 1,
+      "message": "This indent seems weird to me",
+      "range": {
+        "startLine": 941,
+        "startChar": 0,
+        "endLine": 945,
+        "endChar": 10
+      },
+      "revId": "f4f96a93590a9d91cb479c698166c050427b7f6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
