@@ -148,7 +148,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
      }
 }
 
-void main() {
+half4 main() {
     half xCoverage, yCoverage;
     @if (isFast) {
         // Get the smaller of the signed distance from the frag coord to the left and right
@@ -197,6 +197,7 @@ void main() {
     }
     half4 inputColor = sample(inputFP);
     sk_OutColor = inputColor * xCoverage * yCoverage;
+    return sk_OutColor;
 }
 
 @setData(pdman) {

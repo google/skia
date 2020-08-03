@@ -27,7 +27,7 @@ public:
         (void)_outer;
         auto mode = _outer.mode;
         (void)mode;
-        SkString _sample308 = this->invokeChild(0, args);
+        SkString _sample309 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half inputAlpha = %s.w;
 half factor = 1.0 - inputAlpha;
@@ -40,8 +40,9 @@ half factor = 1.0 - inputAlpha;
         break;
 }
 %s = half4(factor);
+return %s;
 )SkSL",
-                _sample308.c_str(), (int)_outer.mode, args.fOutputColor);
+                _sample309.c_str(), (int)_outer.mode, args.fOutputColor, args.fOutputColor);
     }
 
 private:

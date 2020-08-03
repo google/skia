@@ -7,6 +7,8 @@
 
 // This is a GPU-backend specific test. It relies on static intializers to work
 
+#include <memory>
+
 #include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
