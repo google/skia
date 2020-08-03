@@ -176,6 +176,14 @@ def compile_fn(api, checkout_root, out_dir):
     # Swap in clang-tidy.sh for clang++, but update PATH so it can find clang++.
     cxx = skia_dir.join("tools/clang-tidy.sh")
     env['PATH'] = '%s:%%(PATH)s' % (clang_linux + '/bin')
+    # Increase ClangTidy code coverage by enabling features.
+    args.update({
+      'skia_enable_fontmgr_empty':     'true',
+      'skia_enable_pdf':               'true',
+      'skia_use_expat':                'true',
+      'skia_use_freetype':             'true',
+      'skia_use_vulkan':               'true',
+    })
 
   if 'Coverage' in extra_tokens:
     # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
