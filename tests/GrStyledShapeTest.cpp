@@ -1886,19 +1886,11 @@ DEF_TEST(GrStyledShape_lines, r) {
     static constexpr SkPoint kB { 5, -9};
     static constexpr SkPoint kC {-3, 17};
 
-    SkPath lineAB;
-    lineAB.moveTo(kA);
-    lineAB.lineTo(kB);
-
-    SkPath lineBA;
-    lineBA.moveTo(kB);
-    lineBA.lineTo(kA);
-
-    SkPath lineAC;
-    lineAC.moveTo(kB);
-    lineAC.lineTo(kC);
-
+    SkPath lineAB = SkPath::Line(kA, kB);
+    SkPath lineBA = SkPath::Line(kB, kA);
+    SkPath lineAC = SkPath::Line(kB, kC);
     SkPath invLineAB = lineAB;
+
     invLineAB.setFillType(SkPathFillType::kInverseEvenOdd);
 
     SkPaint fill;

@@ -19,12 +19,7 @@ static void make_bm(SkBitmap* bm) {
 
     SkCanvas canvas(*bm);
     SkPaint paint;
-
-    SkPath path;
-    path.moveTo(6, 6);
-    path.lineTo(6, 54);
-    path.lineTo(30, 54);
-    canvas.drawPath(path, paint);
+    canvas.drawPath(SkPath::Polygon({{6,6}, {6,54}, {30,54}}, false), paint);
 
     paint.setStyle(SkPaint::kStroke_Style);
     canvas.drawRect(SkRect::MakeLTRB(0.5f, 0.5f, 59.5f, 59.5f), paint);
