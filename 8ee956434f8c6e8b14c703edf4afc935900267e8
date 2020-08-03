@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80422fc9_4fdd26d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2020-08-03T15:07:58Z",
+      "side": 1,
+      "message": "Thanks but I\u0027m surprised at the quick CQ, did you just run into the same issue?",
+      "revId": "8ee956434f8c6e8b14c703edf4afc935900267e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
