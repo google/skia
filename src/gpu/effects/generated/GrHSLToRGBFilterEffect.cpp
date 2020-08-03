@@ -57,5 +57,5 @@ GrHSLToRGBFilterEffect::GrHSLToRGBFilterEffect(const GrHSLToRGBFilterEffect& src
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrHSLToRGBFilterEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrHSLToRGBFilterEffect(*this));
+    return std::make_unique<GrHSLToRGBFilterEffect>(*this);
 }

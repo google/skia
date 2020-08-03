@@ -119,7 +119,7 @@ GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(*this));
+    return std::make_unique<GrCircleEffect>(*this);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleEffect);
 #if GR_TEST_UTILS

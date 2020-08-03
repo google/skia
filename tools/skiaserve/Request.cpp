@@ -7,6 +7,8 @@
 
 #include "tools/skiaserve/Request.h"
 
+#include <memory>
+
 #include "include/core/SkPictureRecorder.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/utils/SkJSONWriter.h"
@@ -209,7 +211,7 @@ bool Request::initPictureFromStream(SkStream* stream) {
 
     // pour picture into debug canvas
     SkIRect bounds = this->getBounds();
-    fDebugCanvas.reset(new DebugCanvas(bounds.width(), bounds.height()));
+    fDebugCanvas = std::make_unique<DebugCanvas>(bounds.width(), bounds.height());
     fDebugCanvas->drawPicture(fPicture);
 
     // for some reason we need to 'flush' the debug canvas by drawing all of the ops
