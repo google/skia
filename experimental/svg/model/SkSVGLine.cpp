@@ -75,9 +75,7 @@ SkPath SkSVGLine::onAsPath(const SkSVGRenderContext& ctx) const {
     SkPoint p0, p1;
     std::tie(p0, p1) = this->resolve(ctx.lengthContext());
 
-    SkPath path;
-    path.moveTo(p0);
-    path.lineTo(p1);
+    SkPath path = SkPath::Line(p0, p1);
     this->mapToParent(&path);
 
     return path;

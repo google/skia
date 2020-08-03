@@ -21,8 +21,8 @@ public:
     SkPath snapshot();  // the builder is unchanged after returning this path
     SkPath detach();    // the builder is reset to empty after returning this path
 
-    void setFillType(SkPathFillType ft) { fFillType = ft; }
-    void setIsVolatile(bool isVolatile) { fIsVolatile = isVolatile; }
+    SkPathBuilder& setFillType(SkPathFillType ft) { fFillType = ft; return *this; }
+    SkPathBuilder& setIsVolatile(bool isVolatile) { fIsVolatile = isVolatile; return *this; }
 
     SkPathBuilder& reset();
 
@@ -181,7 +181,11 @@ public:
 
     SkPathBuilder& addCircle(SkScalar center_x, SkScalar center_y, SkScalar radius,
                              SkPathDirection dir = SkPathDirection::kCW);
+
     SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool isClosed);
+    SkPathBuilder& addPolygon(const std::initializer_list<SkPoint>& list, bool isClosed) {
+        return this->addPolygon(list.begin(), SkToInt(list.size()), isClosed);
+    }
 
     // Performance hint, to reserve extra storage for subsequent calls to lineTo, quadTo, etc.
 

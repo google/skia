@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPathBuilder.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
@@ -115,7 +116,7 @@ static bool parse_encoding_data(const skjson::Value& jv, size_t data_len, float 
 ShapeValue::operator SkPath() const {
     const auto vertex_count = this->size() / kFloatsPerVertex;
 
-    SkPath path;
+    SkPathBuilder path;
 
     if (vertex_count) {
         // conservatively assume all cubics
@@ -158,9 +159,7 @@ ShapeValue::operator SkPath() const {
         path.close();
     }
 
-    path.shrinkToFit();
-
-    return path;
+    return path.detach();
 }
 
 namespace internal {
