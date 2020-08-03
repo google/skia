@@ -277,6 +277,19 @@ size_t SkCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
     return totalSize;
 }
 
+size_t SkCompressedBlockSize(SkImage::CompressionType type) {
+    switch (type) {
+        case SkImage::CompressionType::kNone:
+            return 0;
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
+            return sizeof(ETC1Block);
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:
+            return sizeof(BC1Block);
+    }
+    SkUNREACHABLE;
+}
+
 size_t SkCompressedFormatDataSize(SkImage::CompressionType compressionType,
                                   SkISize dimensions, bool mipMapped) {
     return SkCompressedDataSize(compressionType, dimensions, nullptr, mipMapped);
