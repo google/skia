@@ -128,6 +128,30 @@
       "revId": "a0104e04ce2efd5acf138d985695089aaa2ae59c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e21fcbd8_f5da4a17",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-03T13:47:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9833a325_ab6f71b8",
+      "range": {
+        "startLine": 1972,
+        "startChar": 0,
+        "endLine": 1985,
+        "endChar": 5
+      },
+      "revId": "a0104e04ce2efd5acf138d985695089aaa2ae59c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
