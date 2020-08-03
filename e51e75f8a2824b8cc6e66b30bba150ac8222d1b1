@@ -16,6 +16,24 @@
       "revId": "e51e75f8a2824b8cc6e66b30bba150ac8222d1b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af0982d0_5ae5b9e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-03T19:22:56Z",
+      "side": 1,
+      "message": "Nope, doesn\u0027t have to be public, I was just having it match SkRect::contains(x, y). But SkRRectPriv is fine, the new GrClipStack will use this, but it already uses several other rrect-priv functions so I\u0027ve updated the CL.",
+      "parentUuid": "d0b4de99_5f165fb5",
+      "revId": "e51e75f8a2824b8cc6e66b30bba150ac8222d1b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
