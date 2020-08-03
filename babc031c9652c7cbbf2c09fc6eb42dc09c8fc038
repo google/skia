@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ecd68f5_b69523bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-03T18:37:39Z",
+      "side": 1,
+      "message": "I keep finding myself referring back to this table for deciding what blend mode I need, this helps since I can\u0027t seem to memorize it.",
+      "revId": "babc031c9652c7cbbf2c09fc6eb42dc09c8fc038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
