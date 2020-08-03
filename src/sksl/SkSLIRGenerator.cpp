@@ -2883,7 +2883,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                                                                            base->fType,
                                                                            Variable::kLocal_Storage,
                                                                            base.get())));
-                    expr.reset(new VariableReference(offset, *var));
+                    expr = std::make_unique<VariableReference>(offset, *var);
                     std::vector<std::unique_ptr<VarDeclaration>> variables;
                     variables.emplace_back(new VarDeclaration(var, {}, std::move(base)));
                     fExtraStatements.emplace_back(new VarDeclarationsStatement(
