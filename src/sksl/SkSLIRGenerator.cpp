@@ -2775,10 +2775,26 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
     return nullptr;
 }
 
+// counts the number of chunks of contiguous 'x's in a swizzle, e.g. xxx1 has one and x0xx has two
+int count_contiguous_swizzle_chunks(const std::vector<int>& components) {
+    int chunkCount = 0;
+    for (size_t i = 0; i < components.size(); ++i) {
+        SkASSERT(components[i] <= 0);
+        if (components[i] == 0) {
+            ++chunkCount;
+            while (i + 1 < components.size() && components[i + 1] == 0) {
+                ++i;
+            }
+        }
+    }
+    return chunkCount;
+}
+
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
                                                         StringFragment fields) {
-    if (base->fType.kind() != Type::kVector_Kind) {
-        fErrors.error(base->fOffset, "cannot swizzle type '" + base->fType.displayName() + "'");
+    if (base->fType.kind() != Type::kVector_Kind && !base->fType.isNumber()) {
+        fErrors.error(base->fOffset, "cannot swizzle value of type '" + base->fType.displayName() +
+                                     "'");
         return nullptr;
     }
     std::vector<int> swizzleComponents;
@@ -2833,6 +2849,83 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     if (swizzleComponents.size() > 4) {
         fErrors.error(base->fOffset, "too many components in swizzle mask '" + fields + "'");
         return nullptr;
+    }
+    if (base->fType.isNumber()) {
+        // Swizzling a single scalar. Something like foo.x0x1 is equivalent to float4(foo, 0, foo,
+        // 1)
+        int offset = base->fOffset;
+        std::unique_ptr<Expression> expr;
+        switch (base->fKind) {
+            case Expression::kVariableReference_Kind:
+            case Expression::kFloatLiteral_Kind:
+            case Expression::kIntLiteral_Kind:
+                // the value being swizzled is just a constant or variable reference, so we can
+                // safely re-use copies of it without reevaluation concerns
+                expr = std::move(base);
+                break;
+            default:
+                // It's a value we can't safely re-use multiple times. If it's all in one contiguous
+                // chunk it's easy (e.g. foo.xxx0 can be turned into half4(half3(x), 0)), but
+                // for multiple discontiguous chunks we'll need to copy it into a temporary value.
+                int chunkCount = count_contiguous_swizzle_chunks(swizzleComponents);
+                if (chunkCount <= 1) {
+                    // no copying needed, so we can just use the value directly
+                    expr = std::move(base);
+                } else {
+                    // store the value in a temporary variable so we can re-use it
+                    int varIndex = fInlineVarCounter++;
+                    auto name = std::make_unique<String>();
+                    name->appendf("_tmpSwizzle%d", varIndex);
+                    String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
+                    Variable* var = (Variable*) fSymbolTable->takeOwnership(
+                                std::unique_ptr<const Symbol>(new Variable(offset, Modifiers(),
+                                                                           namePtr->c_str(),
+                                                                           base->fType,
+                                                                           Variable::kLocal_Storage,
+                                                                           base.get())));
+                    expr.reset(new VariableReference(offset, *var));
+                    std::vector<std::unique_ptr<VarDeclaration>> variables;
+                    variables.emplace_back(new VarDeclaration(var, {}, std::move(base)));
+                    fExtraStatements.emplace_back(new VarDeclarationsStatement(
+                            std::make_unique<VarDeclarations>(offset, &expr->fType,
+                                                              std::move(variables))));
+                }
+        }
+        std::vector<std::unique_ptr<Expression>> args;
+        for (size_t i = 0; i < swizzleComponents.size(); ++i) {
+            switch (swizzleComponents[i]) {
+                case 0: {
+                    args.push_back(expr->clone());
+                    int count = 1;
+                    while (i + 1 < swizzleComponents.size() && swizzleComponents[i + 1] == 0) {
+                        ++i;
+                        ++count;
+                    }
+                    if (count > 1) {
+                        std::vector<std::unique_ptr<Expression>> constructorArgs;
+                        constructorArgs.push_back(std::move(args.back()));
+                        args.pop_back();
+                        args.emplace_back(new Constructor(offset, expr->fType.toCompound(fContext,
+                                                                                         count,
+                                                                                         1),
+                                                          std::move(constructorArgs)));
+                    }
+                    break;
+                }
+                case SKSL_SWIZZLE_0:
+                    args.emplace_back(new IntLiteral(fContext, offset, 0));
+                    break;
+                case SKSL_SWIZZLE_1:
+                    args.emplace_back(new IntLiteral(fContext, offset, 1));
+                    break;
+            }
+        }
+        return std::unique_ptr<Expression>(new Constructor(offset,
+                                                           expr->fType.toCompound(
+                                                                           fContext,
+                                                                           swizzleComponents.size(),
+                                                                           1),
+                                                           std::move(args)));
     }
     return std::unique_ptr<Expression>(new Swizzle(fContext, std::move(base), swizzleComponents));
 }
@@ -2967,15 +3060,11 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
         return this->convertField(std::move(base), field);
     }
     switch (base->fType.kind()) {
-        case Type::kVector_Kind:
-            return this->convertSwizzle(std::move(base), field);
         case Type::kOther_Kind:
         case Type::kStruct_Kind:
             return this->convertField(std::move(base), field);
         default:
-            fErrors.error(base->fOffset, "cannot swizzle value of type '" +
-                                         base->fType.displayName() + "'");
-            return nullptr;
+            return this->convertSwizzle(std::move(base), field);
     }
 }
 
