@@ -909,6 +909,16 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
     const MTLPixelFormat mtlFormat = mtlTexture.pixelFormat;
 
+    // Create the transfer buffer
+    NSUInteger options = 0;  // TODO: consider other options here
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+#ifdef SK_BUILD_FOR_MAC
+        options |= MTLResourceStorageModeManaged;
+#else
+        options |= MTLResourceStorageModeShared;
+#endif
+    }
+
     int numMipLevels = mtlTexture.mipmapLevelCount;
     GrMipmapped mipMapped = numMipLevels > 1 ? GrMipmapped::kYes : GrMipmapped::kNo;
 
@@ -916,52 +926,48 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
             backendTexture.getBackendFormat());
 
     // Create a transfer buffer and fill with data.
-    size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlFormat);
     SkSTArray<16, size_t> individualMipOffsets;
-    size_t combinedBufferSize;
+    id<MTLBuffer> transferBuffer;
+    size_t transferBufferSize;
 
-    if (data->type() == BackendTextureData::Type::kColor &&
-        compression == SkImage::CompressionType::kNone) {
-        combinedBufferSize = bytesPerPixel*backendTexture.width()*backendTexture.height();
-        // Reuse the same buffer for all levels. Should be ok since we made the row bytes tight.
-        individualMipOffsets.push_back_n(numMipLevels, (size_t)0);
-    } else if (compression == SkImage::CompressionType::kNone) {
-        combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel,
-                                                              backendTexture.dimensions(),
-                                                              &individualMipOffsets,
-                                                              numMipLevels);
-    } else {
-        combinedBufferSize = SkCompressedDataSize(compression, backendTexture.dimensions(),
-                                                  &individualMipOffsets,
-                                                  mipMapped == GrMipmapped::kYes);
-    }
-    SkASSERT(individualMipOffsets.count() == numMipLevels);
+    if (data->type() == BackendTextureData::Type::kCompressed ||
+        data->type() == BackendTextureData::Type::kPixmaps) {
 
-#ifdef SK_BUILD_FOR_MAC
-    static const size_t kMinAlignment = 4;
-#else
-    static const size_t kMinAlignment = 1;
-#endif
-    size_t alignment;
-    if (data->type() == BackendTextureData::Type::kCompressed) {
-        alignment = std::max(SkCompressedBlockSize(compression), kMinAlignment);
-    } else {
-        alignment = std::max(bytesPerPixel, kMinAlignment);
-    }
-    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
-            combinedBufferSize, alignment);
-    if (!slice.fBuffer) {
-        return false;
-    }
-    char* buffer = (char*)slice.fOffsetMapPtr;
+        if (compression == SkImage::CompressionType::kNone) {
+            size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlFormat);
 
-    if (data->type() == BackendTextureData::Type::kPixmaps) {
-        copy_src_data(buffer, bytesPerPixel, individualMipOffsets, data->pixmaps(),
-                      numMipLevels, combinedBufferSize);
-    } else if (data->type() == BackendTextureData::Type::kCompressed) {
-        memcpy(buffer, data->compressedData(), data->compressedSize());
+            transferBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel,
+                                                                  backendTexture.dimensions(),
+                                                                  &individualMipOffsets,
+                                                                  numMipLevels);
+
+        } else {
+            transferBufferSize = SkCompressedDataSize(compression, backendTexture.dimensions(),
+                                                      &individualMipOffsets,
+                                                      mipMapped == GrMipmapped::kYes);
+        }
+        SkASSERT(individualMipOffsets.count() == numMipLevels);
+
+        transferBuffer = [fDevice newBufferWithLength: transferBufferSize
+                                              options: options];
+        if (nil == transferBuffer) {
+            return false;
+        }
+        char* buffer = (char*)transferBuffer.contents;
+
+        if (data->type() == BackendTextureData::Type::kPixmaps) {
+            size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlFormat);
+
+            copy_src_data(buffer, bytesPerPixel, individualMipOffsets, data->pixmaps(),
+                          numMipLevels, transferBufferSize);
+        } else {
+            SkASSERT(data->type() == BackendTextureData::Type::kCompressed);
+
+            memcpy(buffer, data->compressedData(), data->compressedSize());
+        }
     } else {
         SkASSERT(data->type() == BackendTextureData::Type::kColor);
+
         if (compression == SkImage::CompressionType::kNone) {
             auto colorType = mtl_format_to_backend_tex_clear_colortype(mtlFormat);
             if (colorType == GrColorType::kUnknown) {
@@ -969,11 +975,30 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
             }
             GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, backendTexture.dimensions());
             auto rb = ii.minRowBytes();
-            SkASSERT(rb == bytesPerPixel*backendTexture.width());
-            if (!GrClearImage(ii, buffer, rb, data->color())) {
+            transferBufferSize = rb*backendTexture.height();
+            transferBuffer = [fDevice newBufferWithLength: transferBufferSize
+                                                  options: options];
+            if (nil == transferBuffer) {
                 return false;
             }
+            if (!GrClearImage(ii, transferBuffer.contents, rb, data->color())) {
+                return false;
+            }
+            // Reuse the same buffer for all levels. Should be ok since we made the row bytes tight.
+            individualMipOffsets.push_back_n(numMipLevels, (size_t)0);
         } else {
+            transferBufferSize = SkCompressedDataSize(compression, backendTexture.dimensions(),
+                                                      &individualMipOffsets,
+                                                      mipMapped == GrMipmapped::kYes);
+            SkASSERT(individualMipOffsets.count() == numMipLevels);
+
+            transferBuffer = [fDevice newBufferWithLength: transferBufferSize
+                                                  options: options];
+            if (nil == transferBuffer) {
+                return false;
+            }
+
+            char* buffer = (char*)transferBuffer.contents;
             GrFillInCompressedData(compression, backendTexture.dimensions(), mipMapped, buffer,
                                    data->color());
         }
@@ -982,9 +1007,8 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     // Transfer buffer contents to texture
     MTLOrigin origin = MTLOriginMake(0, 0, 0);
 
-    GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
-    id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
-    GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
+    id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
 
     SkISize levelDimensions(backendTexture.dimensions());
     for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
@@ -992,16 +1016,19 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         size_t levelSize;
 
         if (compression == SkImage::CompressionType::kNone) {
+            size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlFormat);
+
             levelRowBytes = levelDimensions.width() * bytesPerPixel;
             levelSize = levelRowBytes * levelDimensions.height();
         } else {
             levelRowBytes = GrCompressedRowBytes(compression, levelDimensions.width());
-            levelSize = SkCompressedDataSize(compression, levelDimensions, nullptr, false);
+            levelSize = SkCompressedDataSize(compression, levelDimensions, nullptr,
+                                             false);
         }
 
         // TODO: can this all be done in one go?
-        [blitCmdEncoder copyFromBuffer: mtlBuffer->mtlBuffer()
-                          sourceOffset: slice.fOffset + individualMipOffsets[currentMipLevel]
+        [blitCmdEncoder copyFromBuffer: transferBuffer
+                          sourceOffset: individualMipOffsets[currentMipLevel]
                      sourceBytesPerRow: levelRowBytes
                    sourceBytesPerImage: levelSize
                             sourceSize: MTLSizeMake(levelDimensions.width(),
@@ -1015,12 +1042,17 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                             std::max(1, levelDimensions.height() / 2) };
     }
 #ifdef SK_BUILD_FOR_MAC
-    [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
+    [transferBuffer didModifyRange: NSMakeRange(0, transferBufferSize)];
 #endif
 
-    if (finishedCallback) {
-        this->addFinishedCallback(std::move(finishedCallback));
-    }
+    // TODO: Add this when we switch over to using the main cmdbuffer
+//    if (finishedCallback) {
+//        this->addFinishedCallback(std::move(finishedCallback));
+//    }
+
+    [blitCmdEncoder endEncoding];
+    [cmdBuffer commit];
+    transferBuffer = nil;
 
     return true;
 }
