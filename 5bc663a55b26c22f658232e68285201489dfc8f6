@@ -22,6 +22,30 @@
       "revId": "5bc663a55b26c22f658232e68285201489dfc8f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d4a8df2_41aa786a",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-03T15:38:12Z",
+      "side": 0,
+      "message": "For that reason, and get people to think about using reset. Most uses of reset() are because the alloc is at the wrong scope.",
+      "parentUuid": "6fe9cf57_afc45e19",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 44
+      },
+      "revId": "5bc663a55b26c22f658232e68285201489dfc8f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
