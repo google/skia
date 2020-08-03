@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c49ad98_cad4224f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-03T21:35:38Z",
+      "side": 1,
+      "message": "I came across these issues when using GrShape in the new clip stack. The new unit tests failed without the fixes in GrShape and pass now.",
+      "revId": "9908f5e27d3c4be984d3a8c5ebd607645907c02e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
