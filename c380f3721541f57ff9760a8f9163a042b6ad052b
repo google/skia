@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7a2b502_c7944d8e",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-03T20:47:07Z",
+      "side": 1,
+      "message": "Is this related to this CL? Or did you already remove before uploading?",
+      "range": {
+        "startLine": 287,
+        "startChar": 0,
+        "endLine": 287,
+        "endChar": 38
+      },
+      "revId": "c380f3721541f57ff9760a8f9163a042b6ad052b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bbec448_04eedf83",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-03T20:47:07Z",
+      "side": 1,
+      "message": "nit: line is over 100 characters\n\n(A few more in this file.)",
+      "range": {
+        "startLine": 1107,
+        "startChar": 20,
+        "endLine": 1107,
+        "endChar": 109
+      },
+      "revId": "c380f3721541f57ff9760a8f9163a042b6ad052b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
