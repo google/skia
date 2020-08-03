@@ -141,17 +141,27 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
+    switch (fIsA) {
+        case kIsA_Oval:  pr->setIsOval( true, fIsACCW, fIsAStart); break;
+        case kIsA_RRect: pr->setIsRRect(true, fIsACCW, fIsAStart); break;
+        default: break;
+    }
+    return SkPath(std::move(pr), fFillType, fIsVolatile);
+}
+
 SkPath SkPathBuilder::snapshot() {
-    return SkPath(sk_sp<SkPathRef>(new SkPathRef(fPts, fVerbs, fConicWeights, fSegmentMask)),
-                  fFillType, fIsVolatile);
+    return this->make(sk_sp<SkPathRef>(new SkPathRef(fPts,
+                                                     fVerbs,
+                                                     fConicWeights,
+                                                     fSegmentMask)));
 }
 
 SkPath SkPathBuilder::detach() {
-    auto path = SkPath(sk_sp<SkPathRef>(new SkPathRef(std::move(fPts),
-                                                      std::move(fVerbs),
-                                                      std::move(fConicWeights),
-                                                      fSegmentMask)),
-                       fFillType, fIsVolatile);
+    auto path = this->make(sk_sp<SkPathRef>(new SkPathRef(std::move(fPts),
+                                                          std::move(fVerbs),
+                                                          std::move(fConicWeights),
+                                                          fSegmentMask)));
     this->reset();
     return path;
 }
@@ -250,6 +260,8 @@ SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, u
 }
 
 SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, unsigned index) {
+    const IsA prevIsA = fIsA;
+
     const int kPts   = 9;   // moveTo + 4 conics(2 pts each)
     const int kVerbs = 6;   // moveTo + 4 conics + close
     this->incReserve(kPts, kVerbs);
@@ -263,10 +275,18 @@ SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, u
     for (unsigned i = 0; i < 4; ++i) {
         this->conicTo(rectIter.next(), ovalIter.next(), SK_ScalarRoot2Over2);
     }
-    return this->close();
+    this->close();
+
+    if (prevIsA == kIsA_JustMoves) {
+        fIsA      = kIsA_Oval;
+        fIsACCW   = (dir == SkPathDirection::kCCW);
+        fIsAStart = index % 4;
+    }
+    return *this;
 }
 
 SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir, unsigned index) {
+    const IsA prevIsA = fIsA;
     const SkRect& bounds = rrect.getBounds();
 
     if (rrect.isRect() || rrect.isEmpty()) {
@@ -306,6 +326,12 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
             }
         }
         this->close();
+    }
+
+    if (prevIsA == kIsA_JustMoves) {
+        fIsA      = kIsA_RRect;
+        fIsACCW   = (dir == SkPathDirection::kCCW);
+        fIsAStart = index % 8;
     }
     return *this;
 }

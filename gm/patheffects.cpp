@@ -244,16 +244,15 @@ DEF_GM(return new ComboPathEfectsGM;)
 DEF_SIMPLE_GM(stroke_and_fill_patheffect, canvas, 900, 450) {
     const float kStrokeWidth = 20;
 
-    typedef void (*Maker)(SkPath*);
+    typedef SkPath (*Maker)();
     const Maker makers[] = {
-        [](SkPath* path) {
-            path->addOval({0, 0, 100, 100}, SkPathDirection::kCW);
-        },
-        [](SkPath* path) {
-            path->addOval({0, 0, 100, 100}, SkPathDirection::kCCW);
-        },
-        [](SkPath* path) {
-            path->moveTo(0, 0).lineTo(100, 100).lineTo(0, 100).lineTo(100, 0).close();
+        []() { return SkPath::Oval({0, 0, 100, 100}, SkPathDirection::kCW); },
+        []() { return SkPath::Oval({0, 0, 100, 100}, SkPathDirection::kCCW); },
+        []() {
+            const SkPoint pts[] = {
+                {0, 0}, {100, 100}, {0, 100}, {100, 0},
+            };
+            return SkPath::Polygon(pts, SK_ARRAY_COUNT(pts), true);
         },
     };
 
@@ -274,9 +273,7 @@ DEF_SIMPLE_GM(stroke_and_fill_patheffect, canvas, 900, 450) {
     SkPaint paint;
     canvas->translate(20, 20);
     for (auto maker : makers) {
-        SkPath path;
-        maker(&path);
-
+        const SkPath path = maker();
         canvas->save();
         for (const auto& r : rec) {
             paint.setStyle(r.fStyle);
