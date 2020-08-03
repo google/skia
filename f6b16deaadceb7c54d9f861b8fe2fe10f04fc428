@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "66f20e5c_61973066",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-03T19:43:40Z",
+      "side": 1,
+      "message": "No. In a couple of CLs I\u0027m going to want only the rectangle.",
+      "parentUuid": "f4703915_b170d834",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 40
+      },
+      "revId": "f6b16deaadceb7c54d9f861b8fe2fe10f04fc428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c287d113_26c09fd6",
         "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
         "patchSetId": 3
