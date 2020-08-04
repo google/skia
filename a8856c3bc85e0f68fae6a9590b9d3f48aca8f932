@@ -51,6 +51,24 @@
       "revId": "a8856c3bc85e0f68fae6a9590b9d3f48aca8f932",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cf98dbb_251789b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-04T18:35:23Z",
+      "side": 1,
+      "message": "I definitely remember this actually being necessary at some point; I used a Setting instead of a raw literal specifically to keep the values from getting baked in before we were ready to do so.\n\nBut after digging through things... I agree that it appears things have changed since I initially wrote this code and this now seems to be pointless.",
+      "parentUuid": "017c446a_de8ad725",
+      "revId": "a8856c3bc85e0f68fae6a9590b9d3f48aca8f932",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
