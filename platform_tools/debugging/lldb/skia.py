@@ -19,11 +19,11 @@ import lldb
 
 def SkString_SummaryProvider(valobj, dict):
     fRec = valobj.GetChildMemberWithName('fRec')
-    fPtr = fRec.GetChildMemberWithName('fPtr')
-    fLength = fPtr.GetChildMemberWithName('fLength')
+    # The fPtr inside fRec is automatically consumed by sk_sp_SynthProvider.
+    fLength = fRec.GetChildMemberWithName('fLength')
     if fLength.GetValueAsUnsigned(0) <= 0:
         return '""'
-    fBeginningOfData = fPtr.GetChildMemberWithName('fBeginningOfData')
+    fBeginningOfData = fRec.GetChildMemberWithName('fBeginningOfData')
 
     # Fetch string contents into an SBData.
     string = fBeginningOfData.AddressOf().GetPointeeData(0, fLength.GetValueAsUnsigned(0))
