@@ -398,7 +398,7 @@ class HalfPlaneView2 : public Sample {
         SkScalar r = 8;
         SkRect rect = SkRect::MakeXYWH(x - r, y - r, 2*r, 2*r);
         for (int i = 0; i < 4; ++i) {
-            if (rect.contains(fPts[i].fX, fPts[i].fY)) {
+            if (rect.containsx(fPts[i].fX, fPts[i].fY)) {
                 Click* c = new Click;
                 c->fMeta.setS32("index", i);
                 return c;

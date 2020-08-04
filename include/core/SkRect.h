@@ -1171,7 +1171,7 @@ public:
         @param y  test SkPoint y-coordinate
         @return   true if (x, y) is inside SkRect
     */
-    bool contains(SkScalar x, SkScalar y) const {
+    bool containsx(SkScalar x, SkScalar y) const {
         return x >= fLeft && x < fRight && y >= fTop && y < fBottom;
     }
 

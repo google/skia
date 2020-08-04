@@ -47,7 +47,7 @@ void RenderNode::render(SkCanvas* canvas, const RenderContext* ctx) const {
 }
 
 const RenderNode* RenderNode::nodeAt(const SkPoint& p) const {
-    return this->bounds().contains(p.x(), p.y()) ? this->onNodeAt(p) : nullptr;
+    return this->bounds().containsx(p.x(), p.y()) ? this->onNodeAt(p) : nullptr;
 }
 
 static SkAlpha ScaleAlpha(SkAlpha alpha, float opacity) {

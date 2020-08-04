@@ -122,7 +122,7 @@ SkRect ImageFilterEffect::onRevalidate(InvalidationController* ic, const SkMatri
 const RenderNode* ImageFilterEffect::onNodeAt(const SkPoint& p) const {
     // TODO: map p through the filter DAG and dispatch to descendants?
     // For now, image filters occlude hit-testing.
-    SkASSERT(this->bounds().contains(p.x(), p.y()));
+    SkASSERT(this->bounds().containsx(p.x(), p.y()));
     return this;
 }
 

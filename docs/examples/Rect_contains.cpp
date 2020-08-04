@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     for (auto contained : tests) {
         SkDebugf("rect: (%g, %g, %g, %g) %s (%g, %g)\n",
                  rect.left(), rect.top(), rect.right(), rect.bottom(),
-                 rect.contains(contained.x(), contained.y()) ? "contains" : "does not contain",
+                 rect.containsx(contained.x(), contained.y()) ? "contains" : "does not contain",
                  contained.x(), contained.y());
     }
 }

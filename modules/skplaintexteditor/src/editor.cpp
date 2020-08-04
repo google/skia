@@ -87,7 +87,7 @@ Editor::TextPosition Editor::getPosition(SkIPoint xy) {
         SkPoint pt = to_point(xy - line.fOrigin);
         const std::vector<SkRect>& pos = line.fCursorPos;
         for (size_t i = 0; i < pos.size(); ++i) {
-            if (pos[i] != kUnsetRect && pos[i].contains(pt.x(), pt.y())) {
+            if (pos[i] != kUnsetRect && pos[i].containsx(pt.x(), pt.y())) {
                 return Editor::TextPosition{i, j};
             }
         }

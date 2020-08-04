@@ -127,7 +127,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachExternalPrecompLayer(
         }
 
         const RenderNode* onNodeAt(const SkPoint& pt) const override {
-            SkASSERT(this->bounds().contains(pt.fX, pt.fY));
+            SkASSERT(this->bounds().containsx(pt.fX, pt.fY));
             return this;
         }
 

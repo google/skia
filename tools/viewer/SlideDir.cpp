@@ -173,7 +173,7 @@ public:
     bool onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey modifiers) {
         SkASSERT(fTarget);
 
-        if (!fRect.contains(x, y)) {
+        if (!fRect.containsx(x, y)) {
             this->startUnfocus();
             return true;
         }

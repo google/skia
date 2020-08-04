@@ -296,7 +296,7 @@ static ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* or
         // contained in dst, otherwise cannot optimize the sample area and must use a decal instead
         if (dstClip) {
             for (int i = 0; i < 4; ++i) {
-                if (!dst.contains(dstClip[i].fX, dstClip[i].fY)) {
+                if (!dst.containsx(dstClip[i].fX, dstClip[i].fY)) {
                     // Must resort to using a decal mode restricted to the clipped 'src', and
                     // use the original dst rect (filling in src bounds as needed)
                     *outSrcRect = src;

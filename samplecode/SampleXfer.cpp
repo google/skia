@@ -289,7 +289,7 @@ protected:
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
-        if (fDomain.contains(x, y)) {
+        if (fDomain.containsx(x, y)) {
             return new Click([this](Click* click) {
                 auto [B, C] = pin_unitize(fDomain, click->fCurr);
                 fCubic = {B, C};

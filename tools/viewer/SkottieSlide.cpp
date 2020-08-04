@@ -247,7 +247,7 @@ bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui:
         break;
     }
 
-    fShowUI = this->UIArea().contains(x, y);
+    fShowUI = this->UIArea().containsx(x, y);
 
     return false;
 }

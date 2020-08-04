@@ -24,7 +24,7 @@ void Rect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
 }
 
 bool Rect::onContains(const SkPoint& p) const {
-    return fRect.contains(p.x(), p.y());
+    return fRect.containsx(p.x(), p.y());
 }
 
 SkRect Rect::onRevalidate(InvalidationController*, const SkMatrix&) {
@@ -50,7 +50,7 @@ void RRect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
 }
 
 bool RRect::onContains(const SkPoint& p) const {
-    if (!fRRect.rect().contains(p.x(), p.y())) {
+    if (!fRRect.rect().containsx(p.x(), p.y())) {
         return false;
     }
 

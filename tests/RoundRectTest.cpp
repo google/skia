@@ -1095,10 +1095,10 @@ static void test_inner_bounds(skiatest::Reporter* reporter) {
             // Flipped from the inset, just test two points of inner
             float midX = maxLeft + 0.5f * innerWidth;
             float midY = maxTop + 0.5f * innerHeight;
-            REPORTER_ASSERT(reporter, maxInner.contains(midX, maxTop));
-            REPORTER_ASSERT(reporter, maxInner.contains(midX, maxTop + innerHeight));
-            REPORTER_ASSERT(reporter, maxInner.contains(maxLeft, midY));
-            REPORTER_ASSERT(reporter, maxInner.contains(maxLeft + innerWidth, midY));
+            REPORTER_ASSERT(reporter, maxInner.containsx(midX, maxTop));
+            REPORTER_ASSERT(reporter, maxInner.containsx(midX, maxTop + innerHeight));
+            REPORTER_ASSERT(reporter, maxInner.containsx(maxLeft, midY));
+            REPORTER_ASSERT(reporter, maxInner.containsx(maxLeft + innerWidth, midY));
         }
     }
 }

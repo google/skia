@@ -37,7 +37,7 @@ void Image::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
 }
 
 const RenderNode* Image::onNodeAt(const SkPoint& p) const {
-    SkASSERT(this->bounds().contains(p.x(), p.y()));
+    SkASSERT(this->bounds().containsx(p.x(), p.y()));
     return this;
 }
 
