@@ -33,6 +33,24 @@
       "revId": "9908f5e27d3c4be984d3a8c5ebd607645907c02e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84d466bc_98addd8f",
+        "filename": "tests/GrStyledShapeTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2364,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-04T14:44:09Z",
+      "side": 1,
+      "message": "Yep!",
+      "parentUuid": "43739cf9_99a01924",
+      "revId": "9908f5e27d3c4be984d3a8c5ebd607645907c02e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
