@@ -52,6 +52,24 @@
       "revId": "be0d16720e47925ec18a50354dfb9821c3629a91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "597ba36d_e7c475c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-04T14:44:46Z",
+      "side": 1,
+      "message": "Ah, ok - I had missed that particular change, but it makes more sense now. And I see that coupling together the change to .fp files and emitCode simplifies things quite a bit as far as not having to transform the code.\n\nI think that for GrSkSLFP, you could actually just inject the return in emitCode (after it calls fragBuilder-\u003ecodeAppend, which will have appeneded all of the code up to the final sk_OutColor \u003d ...;), rather than adding the virtual bool and extra logic.\n\nHowever, I just created https://skia-review.googlesource.com/c/skia/+/307782 to revert the top-level FP functions, and I think that\u0027s going to throw a wrench in things.\n\nIn fact, with top-level FPs not living in helper functions, we may have to hold off on this for now - unless someone has a very clever idea, I don\u0027t really see how we can proceed. It\u0027s not clear if we need to inline more aggressively, simplify the scaffolding we generate, or something else.",
+      "parentUuid": "c6dc115b_016d94fe",
+      "revId": "be0d16720e47925ec18a50354dfb9821c3629a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
