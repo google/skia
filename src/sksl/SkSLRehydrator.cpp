@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLRehydrator.h"
 
 #include <memory>
+#include "include/private/SkPtrUtil.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
@@ -132,7 +133,7 @@ const Symbol* Rehydrator::symbol() {
             uint8_t count = this->readU8();
             Type* result = new Type(componentType->name() + "[" + to_string(count) + "]",
                                     Type::kArray_Kind, *componentType, count);
-            fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(result));
+            fSymbolTable->takeOwnershipOfSymbol(SkWrapUnique(result));
             this->addSymbol(id, result);
             return result;
         }
@@ -140,7 +141,7 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
             Type* result = new Type(name, Type::kEnum_Kind);
-            fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(result));
+            fSymbolTable->takeOwnershipOfSymbol(SkWrapUnique(result));
             this->addSymbol(id, result);
             return result;
         }
@@ -158,7 +159,7 @@ const Symbol* Rehydrator::symbol() {
             FunctionDeclaration* result =  new FunctionDeclaration(-1, modifiers, name,
                                                                    std::move(parameters),
                                                                    *returnType, true);
-            fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(result));
+            fSymbolTable->takeOwnershipOfSymbol(SkWrapUnique(result));
             this->addSymbol(id, result);
             return result;
         }
@@ -166,14 +167,14 @@ const Symbol* Rehydrator::symbol() {
             const Variable* owner = this->symbolRef<Variable>(Symbol::kVariable_Kind);
             uint8_t index = this->readU8();
             Field* result = new Field(-1, *owner, index);
-            fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(result));
+            fSymbolTable->takeOwnershipOfSymbol(SkWrapUnique(result));
             return result;
         }
         case kNullableType_Command: {
             uint16_t id = this->readU16();
             const Type* base = this->type();
             Type* result = new Type(base->name() + "?", Type::kNullable_Kind, *base);
-            fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(result));
+            fSymbolTable->takeOwnershipOfSymbol(SkWrapUnique(result));
             this->addSymbol(id, result);
             return result;
         }
@@ -190,7 +191,7 @@ const Symbol* Rehydrator::symbol() {
                 fields.emplace_back(m, name, type);
             }
             Type* result = new Type(-1, name, std::move(fields));
-            fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(result));
+            fSymbolTable->takeOwnershipOfSymbol(SkWrapUnique(result));
             this->addSymbol(id, result);
             return result;
         }
@@ -218,7 +219,7 @@ const Symbol* Rehydrator::symbol() {
                 functions.push_back((const FunctionDeclaration*) f);
             }
             UnresolvedFunction* result = new UnresolvedFunction(std::move(functions));
-            fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(result));
+            fSymbolTable->takeOwnershipOfSymbol(SkWrapUnique(result));
             this->addSymbol(id, result);
             return result;
         }
@@ -229,7 +230,7 @@ const Symbol* Rehydrator::symbol() {
             const Type* type = this->type();
             Variable::Storage storage = (Variable::Storage) this->readU8();
             Variable* result = new Variable(-1, m, name, *type, storage);
-            fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(result));
+            fSymbolTable->takeOwnershipOfSymbol(SkWrapUnique(result));
             this->addSymbol(id, result);
             return result;
         }
@@ -268,8 +269,8 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 SkASSERT(s->fKind == Symbol::kVariable_Kind);
                 Variable& v = (Variable&) *s;
                 int value = this->readS32();
-                v.fInitialValue = (Expression*) symbols->takeOwnership(std::unique_ptr<IRNode>(
-                                                    new IntLiteral(fContext, -1, value)));
+                v.fInitialValue = symbols->takeOwnershipOfIRNode(
+                        std::make_unique<IntLiteral>(fContext, -1, value));
                 v.fWriteCount = 1;
             }
             return std::unique_ptr<ProgramElement>(new Enum(-1, typeName, std::move(symbols)));
