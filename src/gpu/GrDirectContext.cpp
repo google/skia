@@ -11,6 +11,7 @@
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
 
 #include "src/gpu/effects/GrSkSLFP.h"
@@ -114,6 +115,28 @@ bool GrDirectContext::init() {
     this->priv().addOnFlushCallbackObject(fAtlasManager);
 
     return true;
+}
+
+GrDrawOpAtlas* GrDirectContext::onGetDoobieDoo() {
+    if (!fAtlas) {
+        static constexpr size_t kMaxAtlasTextureBytes = 2048 * 2048;
+        static constexpr size_t kPlotWidth = 512;
+        static constexpr size_t kPlotHeight = 256;
+
+        const GrCaps* caps = this->caps();
+
+        const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
+                                                                     GrRenderable::kNo);
+
+        GrDrawOpAtlasConfig atlasConfig(caps->maxTextureSize(), kMaxAtlasTextureBytes);
+        SkISize size = atlasConfig.atlasDimensions(kA8_GrMaskFormat);
+        fAtlas = GrDrawOpAtlas::Make1(this->proxyProvider(), format,
+                                     GrColorType::kAlpha_8, size.width(), size.height(),
+                                     kPlotWidth, kPlotHeight, this,
+                                     GrDrawOpAtlas::AllowMultitexturing::kYes, this);
+    }
+
+    return fAtlas.get();
 }
 
 #ifdef SK_GL

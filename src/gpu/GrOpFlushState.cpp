@@ -202,8 +202,13 @@ GrStrikeCache* GrOpFlushState::strikeCache() const {
     return fGpu->getContext()->priv().getGrStrikeCache();
 }
 
-GrAtlasManager* GrOpFlushState::atlasManager() const {
+GrAtlasManager* GrOpFlushState::atlasManager11() const {
+    //$$
     return fGpu->getContext()->priv().getAtlasManager();
+}
+
+GrDrawOpAtlas* GrOpFlushState::doobieDoo() const {
+    return fGpu->getContext()->priv().getDoobieDoo();
 }
 
 void GrOpFlushState::drawMesh(const GrSimpleMesh& mesh) {

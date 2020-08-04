@@ -17,6 +17,7 @@
 
 class GrAtlasManager;
 class GrCaps;
+class GrDrawOpAtlas;
 class GrStrikeCache;
 class GrOpFlushState;
 
@@ -221,7 +222,8 @@ public:
     uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
 
     virtual GrStrikeCache* strikeCache() const = 0;
-    virtual GrAtlasManager* atlasManager() const = 0;
+    virtual GrAtlasManager* atlasManager11() const = 0;
+    virtual GrDrawOpAtlas* doobieDoo() const = 0;
 
     // This should be called during onPrepare of a GrOp. The caller should add any proxies to the
     // array it will use that it did not access during a call to visitProxies. This is usually the

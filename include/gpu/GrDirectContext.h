@@ -11,6 +11,7 @@
 #include "include/gpu/GrContext.h"
 
 class GrAtlasManager;
+class GrDrawOpAtlas;
 
 class SK_API GrDirectContext : public GrContext {
 public:
@@ -80,11 +81,13 @@ protected:
     bool init() override;
 
     GrAtlasManager* onGetAtlasManager() override { return fAtlasManager; }
+    GrDrawOpAtlas* onGetDoobieDoo() override;
 
     GrDirectContext* asDirectContext() override { return this; }
 
 private:
-    GrAtlasManager* fAtlasManager;
+    GrAtlasManager* fAtlasManager; // why not unique?
+    std::unique_ptr<GrDrawOpAtlas> fAtlas;
 
     typedef GrContext INHERITED;
 };

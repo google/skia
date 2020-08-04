@@ -24,6 +24,7 @@ class GrCaps;
 class GrClientMappedBufferManager;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
+class GrDrawOpAtlas;
 struct GrD3DBackendContext;
 class GrFragmentProcessor;
 struct GrGLInterface;
@@ -755,6 +756,7 @@ protected:
     bool init() override;
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
+    virtual GrDrawOpAtlas* onGetDoobieDoo() = 0;
 
 private:
     friend class GrDirectContext; // for access to fGpu

@@ -297,7 +297,7 @@ void GrAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     new (&fAtlasConfig) GrDrawOpAtlasConfig{};
 }
 
-bool GrAtlasManager::initAtlas(GrMaskFormat format) {
+bool GrAtlasManager::initAtlas1(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
         GrColorType grColorType = GrMaskFormatToColorType(format);
@@ -307,7 +307,7 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
         const GrBackendFormat format = fCaps->getDefaultBackendFormat(grColorType,
                                                                       GrRenderable::kNo);
 
-        fAtlases[index] = GrDrawOpAtlas::Make(
+        fAtlases[index] = GrDrawOpAtlas::Make1(
                 fProxyProvider, format, grColorType,
                 atlasDimensions.width(), atlasDimensions.height(),
                 plotDimensions.width(), plotDimensions.height(),

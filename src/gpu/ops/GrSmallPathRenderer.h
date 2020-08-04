@@ -39,16 +39,20 @@ public:
     // default retainOnFreeGpuResources implementation).
 
     void preFlush(GrOnFlushResourceProvider* onFlushRP, const uint32_t*, int) override {
-        if (fAtlas) {
-            fAtlas->instantiate(onFlushRP);
+#if 0
+        if (fAtlas7) {
+            fAtlas7->instantiate(onFlushRP);
         }
+#endif
     }
 
     void postFlush(GrDeferredUploadToken startTokenForNextFlush,
                    const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
-        if (fAtlas) {
-            fAtlas->compact(startTokenForNextFlush);
+#if 0
+        if (fAtlas7) {
+            fAtlas7->compact(startTokenForNextFlush);
         }
+#endif
     }
 
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
@@ -58,7 +62,6 @@ public:
                                                           GrPaint&&,
                                                           const GrStyledShape&,
                                                           const SkMatrix& viewMatrix,
-                                                          GrDrawOpAtlas* atlas,
                                                           ShapeCache*,
                                                           ShapeDataList*,
                                                           bool gammaCorrect,
@@ -78,7 +81,7 @@ private:
 
     void evict(GrDrawOpAtlas::PlotLocator) override;
 
-    std::unique_ptr<GrDrawOpAtlas> fAtlas;
+//    std::unique_ptr<GrDrawOpAtlas> fAtlas7;
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 
