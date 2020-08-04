@@ -25,6 +25,7 @@ class GrClientMappedBufferManager;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
 struct GrD3DBackendContext;
+class GrFooBerry;
 class GrFragmentProcessor;
 struct GrGLInterface;
 class GrGpu;
@@ -755,6 +756,7 @@ protected:
     bool init() override;
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
+    virtual GrFooBerry* onGetDoobieDoo() = 0;
 
 private:
     friend class GrDirectContext; // for access to fGpu

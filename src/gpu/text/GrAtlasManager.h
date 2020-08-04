@@ -16,6 +16,42 @@
 class GrGlyph;
 class GrTextStrike;
 
+class GrFooBerry : public GrOnFlushCallbackObject,
+                   public GrDrawOpAtlas::EvictionCallback,
+                   public GrDrawOpAtlas::GenerationCounter {
+public:
+    GrFooBerry();
+
+    bool initAtlas(GrProxyProvider*, const GrCaps*);
+
+    GrDrawOpAtlas* atlas() { return fAtlas.get(); }
+
+    // GrOnFlushCallbackObject overrides
+    //
+    // Note: because this class is associated with a path renderer we want it to be removed from
+    // the list of active OnFlushCallbackObjects in an freeGpuResources call (i.e., we accept the
+    // default retainOnFreeGpuResources implementation).
+    void preFlush(GrOnFlushResourceProvider* onFlushRP, const uint32_t*, int) override {
+        if (fAtlas) {
+            fAtlas->instantiate(onFlushRP);
+        }
+    }
+
+    void postFlush(GrDeferredUploadToken startTokenForNextFlush,
+                   const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
+        if (fAtlas) {
+            fAtlas->compact(startTokenForNextFlush);
+        }
+    }
+
+protected:
+
+private:
+    void evict(GrDrawOpAtlas::PlotLocator) override;
+
+    std::unique_ptr<GrDrawOpAtlas> fAtlas;
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /** The GrAtlasManager manages the lifetime of and access to GrDrawOpAtlases.
  *  It is only available at flush and only via the GrOpFlushState.
@@ -32,9 +68,9 @@ public:
     // GrStrikeCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas. Note that we can have proxies available but none active
     // (i.e., none instantiated).
-    const GrSurfaceProxyView* getViews(GrMaskFormat format, unsigned int* numActiveProxies) {
+    const GrSurfaceProxyView* getViews1(GrMaskFormat format, unsigned int* numActiveProxies) {
         format = this->resolveMaskFormat(format);
-        if (this->initAtlas(format)) {
+        if (this->initAtlas1(format)) {
             *numActiveProxies = this->getAtlas(format)->numActivePages();
             return this->getAtlas(format)->getViews();
         }
@@ -114,7 +150,7 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    bool initAtlas(GrMaskFormat);
+    bool initAtlas1(GrMaskFormat);
     // Change an expected 565 mask format to 8888 if 565 is not supported (will happen when using
     // Metal on macOS). The actual conversion of the data is handled in get_packed_glyph_image() in
     // GrStrikeCache.cpp
