@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "e6696cbb_c02e381d",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-04T20:24:32Z",
+      "side": 1,
+      "message": "So this is currently not thread safe as SkPathRef::Editor exists and allows direct access (which is used in at least SkPath::transform). The idea is that in the future the Editor will be removed when everyone uses the Builder instead? Builder only allows appending, so a \u0027peek\u0027 on Builder might be ok?",
+      "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa34e701_fba7331e",
+        "filename": "src/core/SkSPath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-04T20:24:32Z",
+      "side": 1,
+      "message": "Are we ok with \u0027pragma once\u0027 shenanigans? You young kids trying to sneak that new fangled stuff in here.",
+      "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a940dcb_6e1c383f",
         "filename": "src/core/SkSPath.h",
         "patchSetId": 4
@@ -13,6 +47,23 @@
       "writtenOn": "2020-08-04T18:59:38Z",
       "side": 1,
       "message": "Another way to express all this might be\n\n    struct SkSPath {\n        SkSpan\u003cconst SkPoint\u003e points;\n        SkSpan\u003cconst uint8_t\u003e verbs;\n        SkSpan\u003cconst float\u003e   weights;\n        SkRect                bounds;\n        SkPathFillType        fillType;\n        uint8_t               segmentMask;\n    };\n\n    SkSPath MakeSkSPath(SkSpan\u003cconst SkPoint\u003e points,\n                        SkSpan\u003cconst uint8_t\u003e verbs,\n                        SkSpan\u003cconst float\u003e   weights,\n                        SkPathFillType        fillType);",
+      "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "300f33fe_f1bc2652",
+        "filename": "src/core/SkSPath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-04T20:24:32Z",
+      "side": 1,
+      "message": "I see this is being used in SkPathRef::peek (and it isn\u0027t easy to spot that skimming this CL, since the name SkSPath isn\u0027t directly used where it is created). It seems a bit strange to pass in a segment mask since it needs to be consistent with the verbs. In other words, it seems difficult to reason about fSegmentMask if this is public, maybe better to be a bit more careful and make SkPathRef a friend? Or maybe just assert fSegmentMask is consistent in debug?",
       "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
