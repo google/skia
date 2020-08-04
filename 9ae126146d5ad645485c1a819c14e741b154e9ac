@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00295dc2_6308fc69",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-08-04T14:51:05Z",
+      "side": 1,
+      "message": "I guess no easy way to get \"attempts \u003d kwargs.pop(\u0027attempts\u0027, 3)\" over here.",
+      "range": {
+        "startLine": 587,
+        "startChar": 64,
+        "endLine": 587,
+        "endChar": 65
+      },
+      "revId": "9ae126146d5ad645485c1a819c14e741b154e9ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
