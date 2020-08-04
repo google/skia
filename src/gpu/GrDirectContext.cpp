@@ -11,6 +11,7 @@
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
 
 #include "src/gpu/effects/GrSkSLFP.h"
@@ -114,6 +115,21 @@ bool GrDirectContext::init() {
     this->priv().addOnFlushCallbackObject(fAtlasManager);
 
     return true;
+}
+
+GrFooBerry* GrDirectContext::onGetDoobieDoo() {
+    if (!fFooBerry) {
+        fFooBerry.reset(new GrFooBerry());
+
+        if (!fFooBerry->initAtlas(this->proxyProvider(), this->caps())) {
+            fFooBerry.reset();
+            return nullptr;
+        }
+
+        this->priv().addOnFlushCallbackObject(fFooBerry.get()); // why doesn't the other atlas need a get in its aOFCbO call?
+    }
+
+    return fFooBerry.get();
 }
 
 #ifdef SK_GL
