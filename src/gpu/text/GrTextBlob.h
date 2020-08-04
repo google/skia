@@ -314,10 +314,7 @@ private:
 // -- GrDirectMaskSubRun ---------------------------------------------------------------------------
 class GrDirectMaskSubRun final : public GrAtlasSubRun {
 public:
-    using VertexData = std::tuple<
-            SkPoint,   // glyph position.
-            GrIRect16  // glyph bounding rectangle.
-    >;
+    using VertexData =  SkPoint;  // The left top corner of the glyph bounding box.
 
     GrDirectMaskSubRun(GrMaskFormat format,
                        GrTextBlob* blob,

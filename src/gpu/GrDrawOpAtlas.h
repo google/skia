@@ -124,6 +124,8 @@ public:
             fRect.fBottom -= padding;
         }
 
+        GrIRect16 rect() const { return fRect; }
+
     private:
         friend class GrDrawOpAtlas;
 

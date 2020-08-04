@@ -254,7 +254,7 @@ GrSubRun* GrDirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawabl
                 rb = SkPoint::Make(r, b) + pos;
 
         bounds.joinPossiblyEmptyRect(SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
-        return VertexData{pos, {l, t, r, b}};
+        return lt;
     };
 
     SkSpan<const VertexData> vertexData{
@@ -387,23 +387,22 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
     auto direct2D = [&](auto dst, SkIRect* clip) {
         // Rectangles in device space
         SkPoint originInDeviceSpace = matrix.mapXY(0, 0);
-        for (auto[quad, glyph, vertexData] : vertices(dst)) {
-            auto[pos, rect] = vertexData;
-            auto[l, t, r, b] = rect;
-            auto[fx, fy] = pos + originInDeviceSpace;
+        for (auto[quad, glyph, leftTop] : vertices(dst)) {
+            GrIRect16 rect = glyph->fAtlasLocator.rect();
+            int16_t w = rect.width(),
+                    h = rect.height();
             auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+            auto[fl, ft] = leftTop + originInDeviceSpace;
+            int l = SkScalarRoundToInt(fl),
+                t = SkScalarRoundToInt(ft);
             if (clip == nullptr) {
-                SkScalar dx = SkScalarRoundToScalar(fx),
-                         dy = SkScalarRoundToScalar(fy);
-                auto[dl, dt, dr, db] = SkRect::MakeLTRB(l + dx, t + dy, r + dx, b + dy);
+                auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
                 quad[0] = {{dl, dt}, color, {al, at}};  // L,T
                 quad[1] = {{dl, db}, color, {al, ab}};  // L,B
                 quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
                 quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
             } else {
-                int dx = SkScalarRoundToInt(fx),
-                    dy = SkScalarRoundToInt(fy);
-                SkIRect devIRect = SkIRect::MakeLTRB(l + dx, t + dy, r + dx, b + dy);
+                SkIRect devIRect = SkIRect::MakeLTRB(l, t, l + w, t + h);
                 SkScalar dl, dt, dr, db;
                 uint16_t tl, tt, tr, tb;
                 if (!clip->containsNoEmptyCheck(devIRect)) {
