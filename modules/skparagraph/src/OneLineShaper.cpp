@@ -284,60 +284,6 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
     fUnresolvedBlocks.emplace_back(unresolved);
 }
 
-#ifdef SK_PARAGRAPH_OLD_SPACE_RESOLUTION
-void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
-
-    auto text = fCurrentRun->fOwner->text();
-    size_t unresolvedGlyphs = 0;
-
-    GlyphRange block = EMPTY_RANGE;
-    for (size_t i = 0; i < fCurrentRun->size(); ++i) {
-
-        // Inspect the glyph
-        auto glyph = fCurrentRun->fGlyphs[i];
-        if (glyph != 0) {
-            if (block.start == EMPTY_INDEX) {
-                // Keep skipping resolved code points
-                continue;
-            }
-            // This is the end of unresolved block
-            block.end = i;
-        } else {
-            const char* cluster = text.begin() + clusterIndex(i);
-            SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
-            if (isControl(codepoint)) {
-                // This codepoint does not have to be resolved; let's pretend it's resolved
-                if (block.start == EMPTY_INDEX) {
-                    // Keep skipping resolved code points
-                    continue;
-                }
-                // This is the end of unresolved block
-                block.end = i;
-            } else {
-                ++unresolvedGlyphs;
-                if (block.start == EMPTY_INDEX) {
-                    // Start new unresolved block
-                    block.start = i;
-                    block.end = EMPTY_INDEX;
-                } else {
-                    // Keep skipping unresolved block
-                }
-                continue;
-            }
-        }
-
-        // Found an unresolved block
-        sortOutUnresolvedBLock(block);
-        block = EMPTY_RANGE;
-    }
-
-    // One last block could have been left
-    if (block.start != EMPTY_INDEX) {
-        block.end = fCurrentRun->size();
-        sortOutUnresolvedBLock(block);
-    }
-}
-#else
 // Glue whitespaces to the next/prev unresolved blocks
 // (so we don't have chinese text with english whitespaces broken into millions of tiny runs)
 void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
@@ -397,7 +343,6 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         sortOutUnresolvedBLock(block);
     }
 }
-#endif
 
 void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
                                              SkSpan<Block> styleSpan,
