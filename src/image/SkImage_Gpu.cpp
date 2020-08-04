@@ -251,16 +251,16 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                       kBorrow_GrWrapOwnership, std::move(releaseHelper));
 }
 
-sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrDirectContext* dContext,
+sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrRecordingContext* rContext,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkColorType ct, SkAlphaType at,
                                                sk_sp<SkColorSpace> cs) {
-    if (!dContext || !dContext->priv().resourceProvider()) {
+    if (!rContext || !rContext->priv().resourceProvider()) {
         // We have a DDL context and we don't support adopted textures for them.
         return nullptr;
     }
 
-    const GrCaps* caps = dContext->priv().caps();
+    const GrCaps* caps = rContext->priv().caps();
 
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, ct, tex.getBackendFormat());
     if (GrColorType::kUnknown == grColorType) {
@@ -271,7 +271,7 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrDirectContext* dContext,
         return nullptr;
     }
 
-    return new_wrapped_texture_common(dContext, tex, grColorType, origin, at, std::move(cs),
+    return new_wrapped_texture_common(rContext, tex, grColorType, origin, at, std::move(cs),
                                       kAdopt_GrWrapOwnership, nullptr);
 }
 
