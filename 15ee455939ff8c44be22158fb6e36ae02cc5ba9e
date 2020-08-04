@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d73a0803_43becc5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-04T17:55:05Z",
+      "side": 1,
+      "message": "When building for iOS this is generating a lot of link errors like:\n\u0027ld: warning: pointer not aligned at address 0xNNNNNNNNN (__ZL12gNamedColor + XX from libskia.a(libskia.SkParseColor.0))\u0027\n\nIs it possible to address the alignment issue or disable the warning?\n",
+      "revId": "15ee455939ff8c44be22158fb6e36ae02cc5ba9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
