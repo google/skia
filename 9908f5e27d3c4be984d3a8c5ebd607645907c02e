@@ -16,6 +16,23 @@
       "revId": "9908f5e27d3c4be984d3a8c5ebd607645907c02e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43739cf9_99a01924",
+        "filename": "tests/GrStyledShapeTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2364,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-04T14:31:21Z",
+      "side": 1,
+      "message": "If you just write this as GrShape rrect(inverseRRect);, can you put the explicit back on the copy constructor?",
+      "revId": "9908f5e27d3c4be984d3a8c5ebd607645907c02e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
