@@ -16,6 +16,24 @@
       "revId": "1553fe2cf0c5626c0de00b15d72b88e7218f935d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dbce1b50_8cd0eb46",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-04T14:43:30Z",
+      "side": 1,
+      "message": "I had never noticed it was \u003c\u003d and then \u003c. I had always assumed \u003c\u003d for both min and max so that it represented a closed shape checking an infinitely small point. I agree that this should be private given the different ways to think about this.\n\nSkIRect contains seems reasonable to keep, as I also tend to think of it as indexing specific pixels, so each query also has an area.",
+      "parentUuid": "b1305023_34fcbbe5",
+      "revId": "1553fe2cf0c5626c0de00b15d72b88e7218f935d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
