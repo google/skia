@@ -88,8 +88,8 @@ DEF_TEST(SkSLFPHelloWorld, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              /* HELLO WORLD */
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -151,9 +151,9 @@ public:
         const GrTest& _outer = args.fFp.cast<GrTest>();
         (void) _outer;
         fragBuilder->codeAppendf(
-R"SkSL(%s = half4(1.0);
+R"SkSL(return half4(1.0);
 )SkSL"
-, args.fOutputColor);
+);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -185,8 +185,8 @@ DEF_TEST(SkSLFPInputHalf2, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in uniform half2 point;
-             void main() {
-                 sk_OutColor = half4(point, point);
+             half4 main() {
+                 return half4(point, point);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -210,8 +210,8 @@ DEF_TEST(SkSLFPInputHalf1, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              layout(key) in half value;
-             void main() {
-                 sk_OutColor = half4(value);
+             half4 main() {
+                 return half4(value);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -225,9 +225,9 @@ R"__Cpp__(void GrTest::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcess
     b->add32(sk_bit_cast<uint32_t>(value));
 })__Cpp__",
 R"__Cpp__(fragBuilder->codeAppendf(
-R"SkSL(%s = half4(%f);
+R"SkSL(return half4(%f);
 )SkSL"
-, args.fOutputColor, _outer.value);
+, _outer.value);
 )__Cpp__",
              "if (value != that.value) return false;"
          });
@@ -238,8 +238,8 @@ DEF_TEST(SkSLFPUniform, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              uniform half4 color;
-             void main() {
-                 sk_OutColor = color;
+             half4 main() {
+                 return color;
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -259,8 +259,8 @@ DEF_TEST(SkSLFPInUniform, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in uniform half4 color;
-             void main() {
-                 sk_OutColor = color;
+             half4 main() {
+                 return color;
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -279,8 +279,8 @@ DEF_TEST(SkSLFPInUniformCType, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              layout(ctype=SkPMColor4f) in uniform half4 color;
-             void main() {
-                 sk_OutColor = color;
+             half4 main() {
+                 return color;
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -301,8 +301,8 @@ DEF_TEST(SkSLFPTrackedInUniform, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              layout(tracked) in uniform half4 color;
-             void main() {
-                 sk_OutColor = color;
+             half4 main() {
+                 return color;
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -326,8 +326,8 @@ DEF_TEST(SkSLFPNonInlinedInUniform, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in uniform half2 point;
-             void main() {
-                 sk_OutColor = half4(point, point);
+             half4 main() {
+                 return half4(point, point);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -349,11 +349,11 @@ DEF_TEST(SkSLFPConditionalInUniform, r) {
          R"__SkSL__(
              layout(key) in bool test;
              layout(ctype=SkPMColor4f, tracked, when=test) in uniform half4 color;
-             void main() {
+             half4 main() {
                if (test) {
-                 sk_OutColor = color;
+                 return color;
                } else {
-                 sk_OutColor = half4(1);
+                 return half4(1);
                }
              }
          )__SkSL__",
@@ -379,8 +379,8 @@ DEF_TEST(SkSLFPSections, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              @header { header section }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -391,8 +391,8 @@ DEF_TEST(SkSLFPSections, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              @class { class section }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -405,8 +405,8 @@ DEF_TEST(SkSLFPSections, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              @cpp { cpp section }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{},
@@ -418,8 +418,8 @@ DEF_TEST(SkSLFPSections, r) {
          R"__SkSL__(
              @constructorParams { int x, float y, std::vector<float> z }
              in float w;
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -433,8 +433,8 @@ DEF_TEST(SkSLFPSections, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              @constructor { constructor section }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -445,8 +445,8 @@ DEF_TEST(SkSLFPSections, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              @initializers { initializers section }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -458,8 +458,8 @@ DEF_TEST(SkSLFPSections, r) {
          R"__SkSL__(
              half x = 10;
              @emitCode { fragBuilder->codeAppendf("half y = %d\n", x * 2); }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{},
@@ -472,8 +472,8 @@ DEF_TEST(SkSLFPSections, r) {
          R"__SkSL__(
              @fields { fields section }
              @clone { }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -485,8 +485,8 @@ DEF_TEST(SkSLFPSections, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              @make { make section }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -500,8 +500,8 @@ DEF_TEST(SkSLFPSections, r) {
              uniform half calculated;
              layout(key) in half provided;
              @setData(varName) { varName.set1f(calculated, provided * 2); }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{},
@@ -516,8 +516,8 @@ DEF_TEST(SkSLFPSections, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              @test(testDataName) { testDataName section }
-             void main() {
-                 sk_OutColor = half4(1);
+             half4 main() {
+                 return half4(1);
              }
          )__SkSL__",
          /*expectedH=*/{},
@@ -533,8 +533,8 @@ DEF_TEST(SkSLFPMainCoords, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main(float2 coord) {
-                 sk_OutColor = half4(coord, coord);
+             half4 main(float2 coord) {
+                 return half4(coord, coord);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -553,7 +553,8 @@ DEF_TEST(SkSLFPLayoutWhen, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
             layout(when=someExpression(someOtherExpression())) uniform half sometimes;
-            void main() {
+            half4 main() {
+                return half4(1);
             }
          )__SkSL__",
          /*expectedH=*/{},
@@ -569,8 +570,8 @@ DEF_TEST(SkSLFPChildProcessors, r) {
          R"__SkSL__(
              in fragmentProcessor child1;
              in fragmentProcessor child2;
-             void main() {
-                 sk_OutColor = sample(child1) * sample(child2);
+             half4 main() {
+                 return sample(child1) * sample(child2);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -594,11 +595,11 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
          R"__SkSL__(
              in fragmentProcessor child1;
              in fragmentProcessor child2;
-             void main() {
+             half4 main() {
                  half4 childIn = sk_InColor;
                  half4 childOut1 = sample(child1, childIn);
                  half4 childOut2 = sample(child2, childOut1);
-                 sk_OutColor = childOut2;
+                 return childOut2;
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -606,14 +607,15 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
             "this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "SkString _input198(\"childIn\");",
-            "SkString _sample198 = this->invokeChild(0, _input198.c_str(), args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(\n"
-            "half4 childOut1 = %s;)SkSL\"\n"
-            ", _sample198.c_str());",
-            "SkString _input258(\"childOut1\");",
-            "SkString _sample258 = this->invokeChild(1, _input258.c_str(), args);",
+R"__Cpp__(SkString _input199("childIn");
+        SkString _sample199 = this->invokeChild(0, _input199.c_str(), args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+half4 childOut1 = %s;)SkSL"
+, _sample199.c_str());
+        SkString _input259("childOut1");
+        SkString _sample259 = this->invokeChild(1, _input259.c_str(), args);
+)__Cpp__",
             "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
@@ -623,8 +625,8 @@ DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor child;
-             void main() {
-                 sk_OutColor = sample(child, sk_InColor * half4(0.5));
+             half4 main() {
+                 return sample(child, sk_InColor * half4(0.5));
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -647,8 +649,8 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
          R"__SkSL__(
              in fragmentProcessor child1;
              in fragmentProcessor child2;
-             void main() {
-                 sk_OutColor = sample(child2, sk_InColor * sample(child1, sk_InColor * half4(0.5)));
+             half4 main() {
+                 return sample(child2, sk_InColor * sample(child1, sk_InColor * half4(0.5)));
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -674,11 +676,11 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
          R"__SkSL__(
              in fragmentProcessor child;
              bool hasCap = sk_Caps.externalTextureSupport;
-             void main() {
+             half4 main() {
                  if (hasCap) {
-                     sk_OutColor = sample(child, sk_InColor);
+                     return sample(child, sk_InColor);
                  } else {
-                     sk_OutColor = half4(1);
+                     return half4(1);
                  }
              }
          )__SkSL__",
@@ -711,11 +713,11 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor child;
-             void main() {
+             half4 main() {
                  if (child.preservesOpaqueInput) {
-                     sk_OutColor = sample(child, sk_InColor);
+                     return sample(child, sk_InColor);
                  } else {
-                     sk_OutColor = half4(1);
+                     return half4(1);
                  }
              }
          )__SkSL__",
@@ -723,19 +725,20 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
             "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(if (%s) {)SkSL\"\n"
-            ", (_outer.childProcessor(0)->preservesOpaqueInput() ? \"true\" : \"false\"));",
-            "SkString _input161(args.fInputColor);",
-            "SkString _sample161 = this->invokeChild(0, _input161.c_str(), args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(\n"
-            "    %s = %s;\n"
-            "} else {\n"
-            "    %s = half4(1.0);\n"
-            "}\n"
-            ")SkSL\"\n"
-            ", args.fOutputColor, _sample161.c_str(), args.fOutputColor);",
+R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(if (%s) {)SkSL"
+, (_outer.childProcessor(0)->preservesOpaqueInput() ? "true" : "false"));
+        SkString _input155(args.fInputColor);
+        SkString _sample155 = this->invokeChild(0, _input155.c_str(), args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+    return %s;
+} else {
+    return half4(1.0);
+}
+)SkSL"
+, _sample155.c_str());
+)__Cpp__",
             "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
@@ -746,11 +749,11 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
          R"__SkSL__(
              in fragmentProcessor child;
              bool opaque = child.preservesOpaqueInput;
-             void main() {
+             half4 main() {
                  if (opaque) {
-                     sk_OutColor = sample(child);
+                     return sample(child);
                  } else {
-                     sk_OutColor = half4(0.5);
+                     return half4(0.5);
                  }
          }
          )__SkSL__",
@@ -758,20 +761,21 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
             "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "opaque = _outer.childProcessor(0)->preservesOpaqueInput();",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(bool opaque = %s;\n"
-            "if (opaque) {)SkSL\"\n"
-            ", (opaque ? \"true\" : \"false\"));",
-            "SkString _sample196 = this->invokeChild(0, args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(\n"
-            "    %s = %s;\n"
-            "} else {\n"
-            "    %s = half4(0.5);\n"
-            "}\n"
-            ")SkSL\"\n"
-            ", args.fOutputColor, _sample196.c_str(), args.fOutputColor);",
+R"__Cpp__(opaque = _outer.childProcessor(0)->preservesOpaqueInput();
+        fragBuilder->codeAppendf(
+R"SkSL(bool opaque = %s;
+if (opaque) {)SkSL"
+, (opaque ? "true" : "false"));
+        SkString _sample190 = this->invokeChild(0, args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+    return %s;
+} else {
+    return half4(0.5);
+}
+)SkSL"
+, _sample190.c_str());
+)__Cpp__",
             "this->cloneAndRegisterAllChildProcessors(src);",
          });
 }
@@ -781,28 +785,29 @@ DEF_TEST(SkSLFPNullableChildProcessor, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor? child;
-             void main() {
+             half4 main() {
                  if (child != null) {
-                     sk_OutColor = sample(child);
+                     return sample(child);
                  } else {
-                     sk_OutColor = half4(0.5);
+                     return half4(0.5);
                  }
              }
          )__SkSL__",
          /*expectedH=*/{},
          /*expectedCPP=*/{
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(if (%s) {)SkSL\"\n"
-            ", _outer.childProcessor(0) ? \"true\" : \"false\");",
-            "SkString _sample149 = this->invokeChild(0, args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(\n"
-            "    %s = %s;\n"
-            "} else {\n"
-            "    %s = half4(0.5);\n"
-            "}\n"
-            ")SkSL\"\n"
-            ", args.fOutputColor, _sample149.c_str(), args.fOutputColor);",
+R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(if (%s) {)SkSL"
+, _outer.childProcessor(0) ? "true" : "false");
+        SkString _sample143 = this->invokeChild(0, args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+    return %s;
+} else {
+    return half4(0.5);
+}
+)SkSL"
+, _sample143.c_str());
+)__Cpp__"
          });
 }
 
@@ -810,8 +815,8 @@ DEF_TEST(SkSLFPBadIn, r) {
     test_failure(r,
          R"__SkSL__(
              in half4 c;
-             void main() {
-                 sk_OutColor = c;
+             half4 main() {
+                 return c;
              }
          )__SkSL__",
          "error: 4: 'in' variable must be either 'uniform' or 'layout(key)', or there must be a "
@@ -821,8 +826,9 @@ DEF_TEST(SkSLFPBadIn, r) {
 DEF_TEST(SkSLFPNoFPLocals, r) {
     test_failure(r,
     R"__SkSL__(
-        void main() {
+        half4 main() {
             fragmentProcessor child;
+            return half4(1);
         }
     )__SkSL__",
     "error: 1: variables of type 'fragmentProcessor' must be global\n"
@@ -834,8 +840,8 @@ DEF_TEST(SkSLFPNoFPParams, r) {
     R"__SkSL__(
         in fragmentProcessor child;
         half4 helper(fragmentProcessor fp) { return sample(fp); }
-        void main() {
-            sk_OutColor = helper(child);
+        half4 main() {
+            return helper(child);
         }
     )__SkSL__",
     "error: 3: parameters of type 'fragmentProcessor' not allowed\n"
@@ -848,8 +854,8 @@ DEF_TEST(SkSLFPNoFPReturns, r) {
     R"__SkSL__(
         in fragmentProcessor child;
         fragmentProcessor get_child() { return child; }
-        void main() {
-            sk_OutColor = sample(get_child());
+        half4 main() {
+            return sample(get_child());
         }
     )__SkSL__",
     "error: 3: functions may not return type 'fragmentProcessor'\n"
@@ -861,8 +867,8 @@ DEF_TEST(SkSLFPNoFPConstructors, r) {
     test_failure(r,
     R"__SkSL__(
         in fragmentProcessor child;
-        void main() {
-            sk_OutColor = sample(fragmentProcessor(child));
+        half4 main() {
+            return sample(fragmentProcessor(child));
         }
     )__SkSL__",
     "error: 4: cannot construct 'fragmentProcessor'\n"
@@ -874,8 +880,8 @@ DEF_TEST(SkSLFPNoFPExpressions, r) {
     R"__SkSL__(
         in fragmentProcessor child1;
         in fragmentProcessor child2;
-        void main(float2 coord) {
-            sk_OutColor = sample(coord.x > 10 ? child1 : child2);
+        half4 main(float2 coord) {
+            return sample(coord.x > 10 ? child1 : child2);
         }
     )__SkSL__",
     "error: 5: ternary expression of type 'fragmentProcessor' not allowed\n"
@@ -887,8 +893,8 @@ DEF_TEST(SkSLFPSampleCoords, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor child;
-             void main(float2 coord) {
-                 sk_OutColor = sample(child) + sample(child, coord / 2);
+             half4 main(float2 coord) {
+                 return sample(child) + sample(child, coord / 2);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -896,13 +902,14 @@ DEF_TEST(SkSLFPSampleCoords, r) {
              "this->setUsesSampleCoordsDirectly();"
          },
          /*expectedCPP=*/{
-            "SkString _sample118 = this->invokeChild(0, args);\n",
-            "SkString _coords134 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);\n",
-            "SkString _sample134 = this->invokeChild(0, args, _coords134.c_str());\n",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(%s = %s + %s;\n"
-            ")SkSL\"\n"
-            ", args.fOutputColor, _sample118.c_str(), _sample134.c_str());"
+R"__Cpp__(SkString _sample112 = this->invokeChild(0, args);
+        SkString _coords128 = SkStringPrintf("%s / 2.0", args.fSampleCoord);
+        SkString _sample128 = this->invokeChild(0, args, _coords128.c_str());
+        fragBuilder->codeAppendf(
+R"SkSL(return %s + %s;
+)SkSL"
+, _sample112.c_str(), _sample128.c_str());
+)__Cpp__"
         });
 }
 
@@ -912,27 +919,29 @@ DEF_TEST(SkSLFPFunction, r) {
          R"__SkSL__(
              in fragmentProcessor? child;
              half4 flip(half4 c) { return c.abgr; }
-             void main() {
-                 sk_OutColor = flip(sk_InColor);
+             half4 main() {
+                 return flip(sk_InColor);
              }
          )__SkSL__",
          /*expectedH=*/{},
          /*expectedCPP=*/{
-            "SkString flip_name;",
-            "const GrShaderVar flip_args[] = { GrShaderVar(\"c\", kHalf4_GrSLType)};",
-            "fragBuilder->emitFunction(kHalf4_GrSLType, \"flip\", 1, flip_args,\n"
-            "R\"SkSL(return c.wzyx;\n"
-            ")SkSL\", &flip_name);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(half4 _inlineResulthalf4fliphalf40;\n"
-            "half4 _inlineArghalf4fliphalf41_0 = %s;\n"
-            "{\n"
-            "    _inlineResulthalf4fliphalf40 = _inlineArghalf4fliphalf41_0.wzyx;\n"
-            "}\n"
-            "%s = _inlineResulthalf4fliphalf40;\n"
-            "\n"
-            ")SkSL\"\n"
-            ", args.fInputColor, args.fOutputColor);"
+R"__Cpp__(SkString flip_name;
+        const GrShaderVar flip_args[] = { GrShaderVar("c", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "flip", 1, flip_args,
+R"SkSL(return c.wzyx;
+)SkSL", &flip_name);
+        fragBuilder->codeAppendf(
+R"SkSL(half4 _inlineResulthalf4fliphalf40;
+half4 _inlineArghalf4fliphalf41_0 = %s;
+{
+    _inlineResulthalf4fliphalf40 = _inlineArghalf4fliphalf41_0.wzyx;
+}
+return _inlineResulthalf4fliphalf40;
+
+)SkSL"
+, args.fInputColor);
+    }
+)__Cpp__"
          });
 }
 
@@ -941,8 +950,8 @@ DEF_TEST(SkSLFPMatrixSampleConstant, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor? child;
-             void main() {
-                 sk_OutColor = sample(child, float3x3(2));
+             half4 main() {
+                 return sample(child, float3x3(2));
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -960,8 +969,8 @@ DEF_TEST(SkSLFPMatrixSampleUniform, r) {
          R"__SkSL__(
              in fragmentProcessor? child;
              uniform float3x3 matrix;
-             void main() {
-                 sk_OutColor = sample(child, matrix);
+             half4 main() {
+                 return sample(child, matrix);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -980,8 +989,8 @@ DEF_TEST(SkSLFPMatrixSampleInUniform, r) {
          R"__SkSL__(
              in fragmentProcessor? child;
              in uniform float3x3 matrix;
-             void main() {
-                 sk_OutColor = sample(child, matrix);
+             half4 main() {
+                 return sample(child, matrix);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -1001,9 +1010,10 @@ DEF_TEST(SkSLFPMatrixSampleMultipleInUniforms, r) {
              in fragmentProcessor? child;
              in uniform float3x3 matrixA;
              in uniform float3x3 matrixB;
-             void main() {
+             half4 main() {
                  sk_OutColor = sample(child, matrixA);
                  sk_OutColor += sample(child, matrixB);
+                 return sk_OutColor;
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -1013,10 +1023,10 @@ DEF_TEST(SkSLFPMatrixSampleMultipleInUniforms, r) {
                     "SkSL::SampleUsage::VariableMatrix(true));"
          },
          /*expectedCPP=*/{
-             "SkString _matrix191(args.fUniformHandler->getUniformCStr(matrixAVar));",
-             "this->invokeChildWithMatrix(0, args, _matrix191.c_str());",
-             "SkString _matrix247(args.fUniformHandler->getUniformCStr(matrixBVar));",
-             "this->invokeChildWithMatrix(0, args, _matrix247.c_str());"
+             "SkString _matrix192(args.fUniformHandler->getUniformCStr(matrixAVar));",
+             "this->invokeChildWithMatrix(0, args, _matrix192.c_str());",
+             "SkString _matrix248(args.fUniformHandler->getUniformCStr(matrixBVar));",
+             "this->invokeChildWithMatrix(0, args, _matrix248.c_str());"
          });
 }
 
@@ -1026,8 +1036,8 @@ DEF_TEST(SkSLFPMatrixSampleConstUniformExpression, r) {
          R"__SkSL__(
              in fragmentProcessor? child;
              uniform float3x3 matrix;
-             void main() {
-                 sk_OutColor = sample(child, 0.5 * matrix);
+             half4 main() {
+                 return sample(child, 0.5 * matrix);
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -1037,9 +1047,9 @@ DEF_TEST(SkSLFPMatrixSampleConstUniformExpression, r) {
                     "SkSL::SampleUsage::VariableMatrix(true));"
          },
          /*expectedCPP=*/{
-            "SkString _matrix145 = SkStringPrintf(\"0.5 * %s\", "
+            "SkString _matrix139 = SkStringPrintf(\"0.5 * %s\", "
                     "args.fUniformHandler->getUniformCStr(matrixVar));",
-             "this->invokeChildWithMatrix(0, args, _matrix145.c_str());"
+             "this->invokeChildWithMatrix(0, args, _matrix139.c_str());"
          });
 }
 
@@ -1048,9 +1058,10 @@ DEF_TEST(SkSLFPMatrixSampleConstantAndExplicitly, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor? child;
-             void main(float2 coord) {
+             half4 main(float2 coord) {
                  sk_OutColor = sample(child, float3x3(0.5));
                  sk_OutColor = sample(child, coord / 2);
+                 return sk_OutColor;
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -1059,8 +1070,8 @@ DEF_TEST(SkSLFPMatrixSampleConstantAndExplicitly, r) {
          },
          /*expectedCPP=*/{
              "this->invokeChildWithMatrix(0, args)",
-             "SkString _coords180 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
-             "this->invokeChild(0, args, _coords180.c_str())",
+             "SkString _coords181 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
+             "this->invokeChild(0, args, _coords181.c_str())",
          });
 }
 
@@ -1069,10 +1080,11 @@ DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              in fragmentProcessor? child;
-             void main(float2 coord) {
+             half4 main(float2 coord) {
                  float3x3 matrix = float3x3(sk_InColor.a);
                  sk_OutColor = sample(child, matrix);
                  sk_OutColor = sample(child, coord / 2);
+                 return sk_OutColor;
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -1080,9 +1092,9 @@ DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
                     "SkSL::SampleUsage(SkSL::SampleUsage::Kind::kVariable, \"\", true, true, false));"
          },
          /*expectedCPP=*/{
-             "SkString _matrix178(\"matrix\");",
-             "this->invokeChildWithMatrix(0, args, _matrix178.c_str())",
-             "SkString _coords232 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
-             "this->invokeChild(0, args, _coords232.c_str()",
+             "SkString _matrix179(\"matrix\");",
+             "this->invokeChildWithMatrix(0, args, _matrix179.c_str())",
+             "SkString _coords233 = SkStringPrintf(\"%s / 2.0\", args.fSampleCoord);",
+             "this->invokeChild(0, args, _coords233.c_str()",
          });
 }
