@@ -13,6 +13,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkBuffer.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkSPath.h"
 #include "src/core/SkSafeMath.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -683,6 +684,19 @@ bool SkPathRef::isValid() const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "src/core/SkSPath.h"
+
+SkSPath SkPathRef::peek(SkPathFillType ft) const {
+    return {
+        { fPoints.begin(),       fPoints.size()       },
+        { fVerbs.begin(),        fVerbs.size()        },
+        { fConicWeights.begin(), fConicWeights.size() },
+        ft,
+        this->getBounds(),  // in case our bounds are dirty
+        fSegmentMask
+    };
+}
+
 SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {
     fMoveToPtr = fPts = path.fPathRef->points();
     fVerbs = path.fPathRef->verbsBegin();
@@ -695,4 +709,42 @@ SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {
     fNeedsCloseLine = false;
     fNextIsNewContour = false;
     SkDEBUGCODE(fIsConic = false;)
+}
+
+SkPathEdgeIter::SkPathEdgeIter(const SkSPath& path) {
+    fMoveToPtr = fPts = path.fPoints.cbegin();
+    fVerbs = path.fVerbs.cbegin();
+    fVerbsStop = path.fVerbs.cend();
+    fConicWeights = path.fWeights.cbegin();
+    if (fConicWeights) {
+        fConicWeights -= 1;  // begin one behind
+    }
+
+    fNeedsCloseLine = false;
+    fNextIsNewContour = false;
+    SkDEBUGCODE(fIsConic = false;)
+}
+
+SkSPath::SkSPath(SkSpan<const SkPoint> points,
+                 SkSpan<const uint8_t> verbs,
+                 SkSpan<const float> weights,
+                 SkPathFillType ft)
+    : fPoints(points)
+    , fVerbs(verbs)
+    , fWeights(weights)
+    , fFillType(ft)
+{
+    fBounds.setBounds(points.cbegin(), points.count());
+
+    unsigned mask = 0;
+    for (auto v : verbs) {
+        switch (static_cast<SkPathVerb>(v)) {
+            default: break;
+            case SkPathVerb::kLine:  mask |= kLine_SkPathSegmentMask; break;
+            case SkPathVerb::kQuad:  mask |= kQuad_SkPathSegmentMask; break;
+            case SkPathVerb::kConic: mask |= kConic_SkPathSegmentMask; break;
+            case SkPathVerb::kCubic: mask |= kCubic_SkPathSegmentMask; break;
+        }
+    }
+    fSegmentMask = SkToU8(mask);
 }
