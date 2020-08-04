@@ -243,15 +243,15 @@ GrSubRun* GrDirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawabl
                                    SkArenaAlloc* alloc) {
     size_t vertexCount = drawables.size();
     SkRect bounds = SkRectPriv::MakeLargestInverted();
-    auto initializer = [&, strikeToSource=strikeSpec.strikeToSourceRatio()](size_t i) {
+    auto initializer = [&](size_t i) {
         auto [variant, pos] = drawables[i];
         SkGlyph* skGlyph = variant;
         int16_t l = skGlyph->left();
         int16_t t = skGlyph->top();
         int16_t r = l + skGlyph->width();
         int16_t b = t + skGlyph->height();
-        SkPoint lt = SkPoint::Make(l, t) * strikeToSource + pos,
-                rb = SkPoint::Make(r, b) * strikeToSource + pos;
+        SkPoint lt = SkPoint::Make(l, t) + pos,
+                rb = SkPoint::Make(r, b) + pos;
 
         bounds.joinPossiblyEmptyRect(SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
         return VertexData{pos, {l, t, r, b}};
