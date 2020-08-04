@@ -495,7 +495,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     // but no means to indicate that such a typeface is a variation.
     AutoTDWriteTable<SkOTTableFontVariations> fvarTable(fDWriteFontFace.get());
     if (fvarTable.fExists) {
-        info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
+        info->fFlags |= SkAdvancedTypefaceMetrics::kVariable_FontFlag;
     }
 
     //There exist CJK fonts which set the IsFixedPitch and Monospace bits,
