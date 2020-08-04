@@ -16,6 +16,24 @@
       "revId": "be0d16720e47925ec18a50354dfb9821c3629a91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0f06a0b_8291dadf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-04T14:09:50Z",
+      "side": 1,
+      "message": "And to add some motivation to splitting this out: I only had that particular CL top-of-mind because I just found out (this AM) that it was responsible for a perf regression in Flutter, so it may be getting reverted. At that point, I think the returns added in emitCode could cause compile errors from the GLSL (etc...) compilers.",
+      "parentUuid": "582c1fbf_edf8eed4",
+      "revId": "be0d16720e47925ec18a50354dfb9821c3629a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
