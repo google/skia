@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ebb3aa3_21359411",
+        "filename": "src/core/SkEdgeBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-04T21:11:32Z",
+      "side": 1,
+      "message": "Should really use SkSpan::size() here since you\u0027re assigning to a size_t anyway.",
+      "range": {
+        "startLine": 223,
+        "startChar": 39,
+        "endLine": 223,
+        "endChar": 44
+      },
+      "revId": "9e179dd1c48dcd8b15ba20e0ac3bf82aa50e1aa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
