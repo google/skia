@@ -123,7 +123,6 @@
       textStyle['_colorPtr'] = copyColorToWasm(textStyle['color']);
       textStyle['_foregroundColorPtr'] = nullptr; // nullptr is 0, from helper.js
       textStyle['_backgroundColorPtr'] = nullptr;
-
       if (textStyle['foregroundColor']) {
         textStyle['_foregroundColorPtr'] = copyColorToWasm(textStyle['foregroundColor'], scratchForegroundColorPtr);
       }
@@ -158,6 +157,12 @@
     CanvasKit.ParagraphBuilder.prototype.pushStyle = function(textStyle) {
       copyArrays(textStyle);
       this._pushStyle(textStyle);
+      freeArrays(textStyle);
+    }
+
+    CanvasKit.ParagraphBuilder.prototype.pushPaintStyle = function(textStyle, fg, bg) {
+      copyArrays(textStyle);
+      this._pushPaintStyle(textStyle, fg, bg);
       freeArrays(textStyle);
     }
 });
