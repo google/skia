@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1305023_34fcbbe5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-04T14:34:08Z",
+      "side": 1,
+      "message": "Won\u0027t land this as is, but I wanted to find out who used contains(x,y) for floats.\n\nIt has its own idea of inside... min \u003c\u003d value \u003c max for both X and Y\n\nIRect also has this, but (to me) this is more understandable, since we can think of the x,y as \"indexing\" a pixel, so this asymmetric predicate makes (more) sense.\n\n1. Do we really want this specific predicate at each of these call-sites?\n2. OK if I try to make this (or variants of it) private?\n",
+      "revId": "1553fe2cf0c5626c0de00b15d72b88e7218f935d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
