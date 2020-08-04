@@ -195,6 +195,19 @@ describe('Font Behavior', () => {
         fontMgr.delete();
     });
 
+    it('can make a font provider with passed in fonts and aliases', () => {
+        const fontProvider = CanvasKit.TypefaceFontProvider.Make();
+        fontProvider.registerFont(bungeeFontBuffer, "My Bungee Alias");
+        fontProvider.registerFont(notoSerifFontBuffer, "My Noto Serif Alias");
+        expect(fontProvider).toBeTruthy();
+        expect(fontProvider.countFamilies()).toBe(2);
+        // in debug mode, let's list them.
+        if (fontProvider.dumpFamilies) {
+            fontProvider.dumpFamilies();
+        }
+        fontProvider.delete();
+    });
+
     gm('various_font_formats', (canvas, fetchedByteBuffers) => {
         const fontMgr = CanvasKit.SkFontMgr.RefDefault();
         const fontPaint = new CanvasKit.SkPaint();

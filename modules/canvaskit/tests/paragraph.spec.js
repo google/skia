@@ -420,6 +420,64 @@ describe('Paragraph Behavior', function() {
         paragraph.layout(wrapTo);
 
         canvas.clear(CanvasKit.Color(250, 250, 250));
+
+        canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        paint.delete();
+        paragraph.delete();
+        builder.delete();
+        fontMgr.delete();
+    });
+
+    gm('paragraph_font_provider', (canvas) => {
+        const paint = new CanvasKit.SkPaint();
+
+        paint.setColor(CanvasKit.RED);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+        // Register Noto Serif as 'sans-serif'.
+        const fontMgr = CanvasKit.TypefaceFontProvider.Make();
+        fontMgr.registerFont(notoSerifFontBuffer, 'sans-serif');
+        fontMgr.registerFont(notoSerifBoldItalicFontBuffer, 'sans-serif');
+
+        const wrapTo = 250;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontFamilies: ['sans-serif'],
+                fontSize: 20,
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Light,
+                }
+            },
+            textDirection: CanvasKit.TextDirection.RTL,
+            disableHinting: true,
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, fontMgr);
+        builder.addText('Default text\n');
+
+        const boldItalic = new CanvasKit.TextStyle({
+            color: CanvasKit.RED,
+            fontFamilies: ['sans-serif'],
+            fontSize: 20,
+            fontStyle: {
+                weight: CanvasKit.FontWeight.Bold,
+                width: CanvasKit.FontWidth.Expanded,
+                slant: CanvasKit.FontSlant.Italic,
+            }
+        });
+        builder.pushStyle(boldItalic);
+        builder.addText(`Bold, Expanded, Italic\n`);
+        builder.pop();
+        builder.addText(`back to normal`);
+        const paragraph = builder.build();
+
+        paragraph.layout(wrapTo);
+
+        canvas.clear(CanvasKit.Color(250, 250, 250));
+
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 

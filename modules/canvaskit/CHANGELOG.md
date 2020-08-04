@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Added `CanvasKit.TypefaceFontProvider`, which can be used to register fonts
+   with a font family alias. For example, "Roboto Light" may be registered with
+   the alias "Roboto", and it will be used when "Roboto" is used with a light
+   font weight.
+ - Added `CanvasKit.ParagraphBuilder.MakeFromFontProvider` to make a
+   `ParagraphBuilder` from a `TypefaceFontProvider`.
+
 ## [0.17.2] - 2020-07-22
 
 ### Fixed

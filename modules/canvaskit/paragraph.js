@@ -26,6 +26,19 @@
       return ret;
     }
 
+    // Registers the font (provided as an arrayBuffer) with the alias `family`.
+    CanvasKit.TypefaceFontProvider.prototype.registerFont = function(font, family) {
+      var typeface = CanvasKit.SkFontMgr.RefDefault().MakeTypefaceFromData(font);
+      if (!typeface) {
+          SkDebug('Could not decode font data');
+          // We do not need to free the data since the C++ will do that for us
+          // when the font is deleted (or fails to decode);
+          return null;
+      }
+      var familyPtr = cacheOrCopyString(family);
+      this._registerFont(typeface, familyPtr);
+    }
+
     // These helpers fill out all fields, because emscripten complains if we
     // have undefined and it expects, for example, a float.
     CanvasKit.ParagraphStyle = function(s) {
@@ -152,6 +165,14 @@
       var result =  CanvasKit.ParagraphBuilder._Make(paragraphStyle, fontManager);
       freeArrays(paragraphStyle['textStyle']);
       return result;
+    };
+
+    CanvasKit.ParagraphBuilder.MakeFromFontProvider = function(paragraphStyle, fontProvider) {
+        copyArrays(paragraphStyle['textStyle']);
+
+        var result =  CanvasKit.ParagraphBuilder._MakeFromFontProvider(paragraphStyle, fontProvider);
+        freeArrays(paragraphStyle['textStyle']);
+        return result;
     };
 
     CanvasKit.ParagraphBuilder.prototype.pushStyle = function(textStyle) {
