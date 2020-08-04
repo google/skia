@@ -7,34 +7,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h" // required to make sure SK_SUPPORT_GPU is defined
-
-#define SK_SKIP_ARG__(keep, skip, ...) skip
-#define SK_SKIP_ARG_(args) SK_SKIP_ARG__ args
-#define SK_SKIP_ARG(...) SK_SKIP_ARG_((__VA_ARGS__, ))
-
-#define SK_FIRST_ARG__(keep, skip, ...) keep
-#define SK_FIRST_ARG_(args) SK_FIRST_ARG__ args
-#define SK_FIRST_ARG(...) SK_FIRST_ARG_((__VA_ARGS__, ))
-
-#if SK_SUPPORT_GPU
-#    include "include/gpu/GrContext.h"
-#    include "include/gpu/GrBackendSurface.h"
-#    include "include/gpu/gl/GrGLInterface.h"
-#    include "include/gpu/gl/GrGLAssembleInterface.h"
-#    define SK_ONLY_GPU(...) SK_FIRST_ARG(__VA_ARGS__)
-#    if SK_VULKAN
-#        include "include/gpu/vk/GrVkBackendContext.h"
-#        include "include/gpu/vk/GrVkExtensions.h"
-#        define SK_ONLY_VULKAN(...) SK_FIRST_ARG(__VA_ARGS__)
-#    else
-#        define SK_ONLY_VULKAN(...) SK_SKIP_ARG(__VA_ARGS__)
-#    endif
-#else // !SK_SUPPORT_GPU
-#    define SK_ONLY_GPU(...) SK_SKIP_ARG(__VA_ARGS__)
-#    define SK_ONLY_VULKAN(...) SK_SKIP_ARG(__VA_ARGS__)
-#endif // SK_SUPPORT_GPU
-
 #include "include/c/gr_context.h"
 
 #include "src/c/sk_types_priv.h"
