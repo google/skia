@@ -33,6 +33,24 @@
       "revId": "a8856c3bc85e0f68fae6a9590b9d3f48aca8f932",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cba79188_3d3d9f17",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-04T18:17:24Z",
+      "side": 1,
+      "message": "Not really - those values were in the shader to begin with. (The code path that still calls getArg is basically doing value substitution for things declared as \u0027in bool\u0027 or \u0027in int\u0027). The SkSL frontend has already made sure that everything makes sense - they\u0027re functionally like uniforms as far as the compiler is concerned. However, we require them to be given concrete values before we go all the way to the backend, via a \"specialize\" API. That API takes a map of \"name -\u003e value\", and that map is what\u0027s used in getArg to look up the values.\n\nThe extra \u0027sk_Args\u0027 we were putting on the names was just because we had to name them *something* (when we were creating a Setting \"variable\" to hold the concrete value). Now, I\u0027m not bothering to wrap them in a Setting, just returning the raw literal directly. The Setting was going to be stripped off almost immediately, because constant propagation of Setting values just returns the underlying (literal) value.",
+      "parentUuid": "1c8a7bb3_6a35bd71",
+      "revId": "a8856c3bc85e0f68fae6a9590b9d3f48aca8f932",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
