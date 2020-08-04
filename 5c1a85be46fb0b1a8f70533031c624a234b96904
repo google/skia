@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3603fc9a_284fe6c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-04T14:47:03Z",
+      "side": 1,
+      "message": "PTAL. The issue was that deleting an outstanding command buffer causes its finishedProc to execute, \nwhich might try to do another submit, which will check the outstanding list again. We were in a\nhalf-deleted state at that point which was bad.",
+      "revId": "5c1a85be46fb0b1a8f70533031c624a234b96904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
