@@ -531,14 +531,6 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
     return nullptr;
 }
 
-#ifdef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context,
-                                         GrMipmapped mipMapped,
-                                         SkBudgeted budgeted) const {
-    return SkImage::makeTextureImage(GrAsDirectContext(context), mipMapped, budgeted);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,

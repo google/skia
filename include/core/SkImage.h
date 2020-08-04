@@ -865,12 +865,6 @@ public:
     */
     void flushAndSubmit(GrDirectContext*);
 
-#ifdef SK_IMAGE_FLUSH_LEGACY_API
-    GrSemaphoresSubmitted flush(GrContext* context, const GrFlushInfo& flushInfo);
-    void flush(GrContext* context) { this->flush(context, {}); }
-    void flushAndSubmit(GrContext*);
-#endif
-
     /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
         is valid.
@@ -1204,12 +1198,6 @@ public:
     sk_sp<SkImage> makeTextureImage(GrDirectContext*,
                                     GrMipmapped = GrMipmapped::kNo,
                                     SkBudgeted = SkBudgeted::kYes) const;
-
-#ifdef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
-    sk_sp<SkImage> makeTextureImage(GrContext*,
-                                    GrMipmapped = GrMipmapped::kNo,
-                                    SkBudgeted = SkBudgeted::kYes) const;
-#endif
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
         CPU memory if needed. Returns original SkImage if decoded in raster bitmap,

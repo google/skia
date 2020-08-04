@@ -228,16 +228,6 @@ void SkImage::flushAndSubmit(GrDirectContext* dContext) {
     dContext->submit();
 }
 
-#ifdef SK_IMAGE_FLUSH_LEGACY_API
-GrSemaphoresSubmitted SkImage::flush(GrContext* context, const GrFlushInfo& flushInfo) {
-    return this->flush(GrAsDirectContext(context), flushInfo);
-}
-
-void SkImage::flushAndSubmit(GrContext* context) {
-    this->flushAndSubmit(GrAsDirectContext(context));
-}
-#endif
-
 #else
 
 bool SkImage::isTextureBacked() const { return false; }
@@ -259,14 +249,6 @@ GrSemaphoresSubmitted SkImage::flush(GrDirectContext*, const GrFlushInfo&) {
 }
 
 void SkImage::flushAndSubmit(GrDirectContext*) {}
-
-#ifdef SK_IMAGE_FLUSH_LEGACY_API
-GrSemaphoresSubmitted SkImage::flush(GrContext*, const GrFlushInfo&) {
-    return GrSemaphoresSubmitted::kNo;
-}
-
-void SkImage::flushAndSubmit(GrContext*) {}
-#endif
 
 #endif
 
@@ -617,12 +599,6 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
 sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipmapped, SkBudgeted) const {
     return nullptr;
 }
-
-#ifdef SK_IMAGE_MAKE_TEXTURE_IMAGE_ALLOW_GR_CONTEXT
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, GrMipmapped, SkBudgeted) const {
-    return nullptr;
-}
-#endif
 
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
                                                            GrContext* context,
