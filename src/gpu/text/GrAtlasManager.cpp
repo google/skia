@@ -297,7 +297,7 @@ void GrAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     new (&fAtlasConfig) GrDrawOpAtlasConfig{};
 }
 
-bool GrAtlasManager::initAtlas(GrMaskFormat format) {
+bool GrAtlasManager::initAtlas1(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
         GrColorType grColorType = GrMaskFormatToColorType(format);
@@ -307,14 +307,111 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
         const GrBackendFormat format = fCaps->getDefaultBackendFormat(grColorType,
                                                                       GrRenderable::kNo);
 
-        fAtlases[index] = GrDrawOpAtlas::Make(
-                fProxyProvider, format, grColorType,
-                atlasDimensions.width(), atlasDimensions.height(),
-                plotDimensions.width(), plotDimensions.height(),
-                this, fAllowMultitexturing, nullptr);
+        fAtlases[index] = GrDrawOpAtlas::Make1(fProxyProvider, format, grColorType,
+                                               atlasDimensions.width(), atlasDimensions.height(),
+                                               plotDimensions.width(), plotDimensions.height(),
+                                               this, fAllowMultitexturing, nullptr);
         if (!fAtlases[index]) {
             return false;
         }
     }
     return true;
 }
+
+/*************************************************************************************************/
+#include "src/core/SkOpts.h"
+#include "src/gpu/geometry/GrStyledShape.h"
+
+#ifdef DF_PATH_TRACKING
+static int g_NumCachedShapes = 0;
+static int g_NumFreedShapes = 0;
+#endif
+
+GrFooBerry::GrFooBerry() {}
+
+GrFooBerry::~GrFooBerry() {
+    ShapeDataList::Iter iter;
+    iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
+    ShapeData* shapeData;
+    while ((shapeData = iter.get())) {
+        iter.next();
+        delete shapeData;
+    }
+
+#ifdef DF_PATH_TRACKING
+    SkDebugf("Cached shapes: %d, freed shapes: %d\n", g_NumCachedShapes, g_NumFreedShapes);
+#endif
+}
+
+bool GrFooBerry::initAtlas(GrProxyProvider* proxyProvider, const GrCaps* caps) {
+    if (fAtlas) {
+        return true;
+    }
+
+    static constexpr size_t kMaxAtlasTextureBytes = 2048 * 2048;
+    static constexpr size_t kPlotWidth = 512;
+    static constexpr size_t kPlotHeight = 256;
+
+    const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
+                                                                 GrRenderable::kNo);
+
+    GrDrawOpAtlasConfig atlasConfig(caps->maxTextureSize(), kMaxAtlasTextureBytes);
+    SkISize size = atlasConfig.atlasDimensions(kA8_GrMaskFormat);
+    fAtlas = GrDrawOpAtlas::Make1(proxyProvider, format,
+                                  GrColorType::kAlpha_8, size.width(), size.height(),
+                                  kPlotWidth, kPlotHeight, this,
+                                  GrDrawOpAtlas::AllowMultitexturing::kYes, this);
+
+    return SkToBool(fAtlas);
+}
+
+ShapeData* GrFooBerry::findO(const GrStyledShape& shape, int desiredDimension) {
+    ShapeDataKey key(shape, desiredDimension);
+    auto shapeData = fShapeCache.find(key);
+    return shapeData;
+}
+
+ShapeData* GrFooBerry::findO(const GrStyledShape& shape, const SkMatrix& ctm) {
+    ShapeDataKey key(shape, ctm);
+    auto shapeData = fShapeCache.find(key);
+    return shapeData;
+}
+
+ShapeData* GrFooBerry::addToCache(const GrStyledShape& shape,
+                                  const SkMatrix& ctm,
+                                  GrDrawOpAtlas::AtlasLocator& atlasLocator,
+                                  const SkRect& bounds) {
+    ShapeData* shapeData = new ShapeData;
+
+    shapeData->fKey.set(shape, ctm);
+    shapeData->fBounds = bounds;
+
+    fShapeCache.add(shapeData);
+    fShapeList.addToTail(shapeData);
+#ifdef DF_PATH_TRACKING
+    ++g_NumCachedPaths;
+#endif
+
+    return shapeData;
+}
+
+// Callback to clear out internal path cache when eviction occurs
+void GrFooBerry::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+    // remove any paths that use this plot
+    ShapeDataList::Iter iter;
+    iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
+    ShapeData* shapeData;
+    while ((shapeData = iter.get())) {
+        iter.next();
+        if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
+            fShapeCache.remove(shapeData->fKey);
+            fShapeList.remove(shapeData);
+            delete shapeData;
+#ifdef DF_PATH_TRACKING
+            ++g_NumFreedPaths;
+#endif
+        }
+    }
+}
+
+
