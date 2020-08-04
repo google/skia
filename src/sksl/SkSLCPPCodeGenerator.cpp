@@ -527,6 +527,11 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     StringStream buffer;
     fOut = &buffer;
     if (decl.fName == "main") {
+        if (decl.fReturnType != *fContext.fHalf4_Type) {
+            fErrors.error(decl.fOffset, "'main' must return a half4");
+            return;
+        }
+
         fInMain = true;
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
