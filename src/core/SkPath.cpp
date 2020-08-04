@@ -230,6 +230,12 @@ void SkPath::swap(SkPath& that) {
     }
 }
 
+SkSPath SkPath::peek() const {
+    return fPathRef->peek(this->getFillType(), this->getConvexityType());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool SkPath::isInterpolatable(const SkPath& compare) const {
     // need the same structure (verbs, conicweights) and same point-count
     return fPathRef->fPoints.count() == compare.fPathRef->fPoints.count() &&
@@ -3706,7 +3712,7 @@ static void clip(const SkPath& path, const SkHalfPlane& plane, SkPath* clippedPa
         SkPoint fPrev;
     } rec = { clippedPath, {0, 0} };
 
-    SkEdgeClipper::ClipPath(rotated, clip, false,
+    SkEdgeClipper::ClipPath(rotated.peek(), clip, false,
                             [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
         Rec* rec = (Rec*)ctx;
 

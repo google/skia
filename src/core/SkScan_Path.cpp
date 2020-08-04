@@ -391,6 +391,8 @@ static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
     return list[0];
 }
 
+#include "src/core/SkSPath.h"
+
 // clipRect has not been shifted up
 void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitter,
                   int start_y, int stop_y, int shiftEdgesUp, bool pathContainedInClip) {
@@ -403,7 +405,7 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     shiftedClip.fBottom = SkLeftShift(shiftedClip.fBottom, shiftEdgesUp);
 
     SkBasicEdgeBuilder builder(shiftEdgesUp);
-    int count = builder.buildEdges(path, pathContainedInClip ? nullptr : &shiftedClip);
+    int count = builder.buildEdges(path.peek(), pathContainedInClip ? nullptr : &shiftedClip);
     SkEdge** list = builder.edgeList();
 
     if (0 == count) {

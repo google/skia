@@ -1837,6 +1837,8 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
     }
 }
 
+#include "src/core/SkSPath.h"
+
 static SK_ALWAYS_INLINE void aaa_fill_path(
         const SkPath&    path,
         const SkIRect&   clipRect,
@@ -1849,7 +1851,7 @@ static SK_ALWAYS_INLINE void aaa_fill_path(
     SkASSERT(blitter);
 
     SkAnalyticEdgeBuilder builder;
-    int              count = builder.buildEdges(path, pathContainedInClip ? nullptr : &clipRect);
+    int              count = builder.buildEdges(path.peek(), pathContainedInClip ? nullptr : &clipRect);
     SkAnalyticEdge** list  = builder.analyticEdgeList();
 
     SkIRect rect = clipRect;
