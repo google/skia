@@ -247,11 +247,6 @@ Compiler::Compiler(Flags flags)
                                     *fContext->fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
 
-    StringFragment skArgsName("sk_Args");
-    Variable* skArgs = new Variable(-1, Modifiers(), skArgsName,
-                                    *fContext->fSkArgs_Type, Variable::kGlobal_Storage);
-    fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
-
     fIRGenerator->fIntrinsics = &fGPUIntrinsics;
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
     std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;

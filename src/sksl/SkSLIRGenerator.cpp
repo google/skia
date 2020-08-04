@@ -2958,10 +2958,7 @@ std::unique_ptr<Expression> IRGenerator::getArg(int offset, String name) const {
     if (found == fSettings->fArgs.end()) {
         return nullptr;
     }
-    String fullName = "sk_Args." + name;
-    return std::unique_ptr<Expression>(new Setting(offset,
-                                                   fullName,
-                                                   found->second.literal(fContext, offset)));
+    return found->second.literal(fContext, offset);
 }
 
 std::unique_ptr<Expression> IRGenerator::findEnumRef(
@@ -3060,9 +3057,6 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     StringFragment field = fieldNode.getString();
     if (base->fType == *fContext.fSkCaps_Type) {
         return this->getCap(fieldNode.fOffset, field);
-    }
-    if (base->fType == *fContext.fSkArgs_Type) {
-        return this->getArg(fieldNode.fOffset, field);
     }
     if (base->fKind == Expression::kTypeReference_Kind) {
         return this->convertTypeField(base->fOffset, ((TypeReference&) *base).fValue,
