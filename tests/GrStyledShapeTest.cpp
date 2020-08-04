@@ -2346,3 +2346,31 @@ DEF_TEST(GrStyledShape_arcs, reporter) {
         ovalArcWithCenter.compare(reporter, oval, ovalExpectations);
     }
 }
+
+DEF_TEST(GrShapeInversion, r) {
+    SkPath path;
+    SkScalar radii[] = {10.f, 10.f, 10.f, 10.f};
+    path.addRoundRect(SkRect::MakeWH(50, 50), radii);
+    path.toggleInverseFillType();
+
+    GrShape inverseRRect(path);
+    GrShape rrect(inverseRRect);
+    rrect.setInverted(false);
+
+    REPORTER_ASSERT(r, inverseRRect.inverted() && inverseRRect.isPath());
+    REPORTER_ASSERT(r, !rrect.inverted() && rrect.isPath());
+
+    // Invertedness should be preserved after simplification
+    inverseRRect.simplify();
+    rrect.simplify();
+
+    REPORTER_ASSERT(r, inverseRRect.inverted() && inverseRRect.isRRect());
+    REPORTER_ASSERT(r, !rrect.inverted() && rrect.isRRect());
+
+    // Invertedness should be reset when calling reset().
+    inverseRRect.reset();
+    REPORTER_ASSERT(r, !inverseRRect.inverted() && inverseRRect.isEmpty());
+    inverseRRect.setPath(path);
+    inverseRRect.reset();
+    REPORTER_ASSERT(r, !inverseRRect.inverted() && inverseRRect.isEmpty());
+}

@@ -121,7 +121,7 @@ public:
                 fPath.toggleInverseFillType();
             }
         } else {
-            fInverted = static_cast<uint16_t>(inverted);
+            fInverted = inverted;
         }
     }
 
@@ -185,7 +185,7 @@ public:
         fInverted = path.isInverseFillType();
     }
     void reset() {
-        this->setType(Type::kEmpty);
+        this->reset(Type::kEmpty);
     }
 
     // Flags that enable more aggressive, "destructive" simplifications to the geometry
@@ -232,6 +232,7 @@ private:
 
     void setType(Type type) {
         if (this->isPath() && type != Type::kPath) {
+            fInverted = fPath.isInverseFillType();
             fPath.~SkPath();
         }
         fType = type;
