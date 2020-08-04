@@ -176,7 +176,7 @@ public:
      *
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
+    static std::unique_ptr<GrDrawOpAtlas> Make1(GrProxyProvider*,
                                                const GrBackendFormat& format,
                                                GrColorType,
                                                int width, int height,

@@ -297,7 +297,7 @@ void GrAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     new (&fAtlasConfig) GrDrawOpAtlasConfig{};
 }
 
-bool GrAtlasManager::initAtlas(GrMaskFormat format) {
+bool GrAtlasManager::initAtlas1(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
         GrColorType grColorType = GrMaskFormatToColorType(format);
@@ -307,14 +307,179 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
         const GrBackendFormat format = fCaps->getDefaultBackendFormat(grColorType,
                                                                       GrRenderable::kNo);
 
-        fAtlases[index] = GrDrawOpAtlas::Make(
-                fProxyProvider, format, grColorType,
-                atlasDimensions.width(), atlasDimensions.height(),
-                plotDimensions.width(), plotDimensions.height(),
-                this, fAllowMultitexturing, nullptr);
+        fAtlases[index] = GrDrawOpAtlas::Make1(fProxyProvider, format, grColorType,
+                                               atlasDimensions.width(), atlasDimensions.height(),
+                                               plotDimensions.width(), plotDimensions.height(),
+                                               this, fAllowMultitexturing, nullptr);
         if (!fAtlases[index]) {
             return false;
         }
     }
     return true;
 }
+
+/*************************************************************************************************/
+#include "src/core/SkOpts.h"
+#include "src/gpu/geometry/GrStyledShape.h"
+
+#ifdef DF_PATH_TRACKING
+static int g_NumCachedShapes = 0;
+static int g_NumFreedShapes = 0;
+#endif
+
+class ShapeDataKey {
+public:
+    ShapeDataKey() {}
+    ShapeDataKey(const ShapeDataKey& that) { *this = that; }
+    ShapeDataKey(const GrStyledShape& shape, uint32_t dim) { this->set(shape, dim); }
+    ShapeDataKey(const GrStyledShape& shape, const SkMatrix& ctm) { this->set(shape, ctm); }
+
+    ShapeDataKey& operator=(const ShapeDataKey& that) {
+        fKey.reset(that.fKey.count());
+        memcpy(fKey.get(), that.fKey.get(), fKey.count() * sizeof(uint32_t));
+        return *this;
+    }
+
+    // for SDF paths
+    void set(const GrStyledShape& shape, uint32_t dim) {
+        // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
+        // relevant styling information.
+        SkASSERT(shape.style().isSimpleFill());
+        SkASSERT(shape.hasUnstyledKey());
+        int shapeKeySize = shape.unstyledKeySize();
+        fKey.reset(1 + shapeKeySize);
+        fKey[0] = dim;
+        shape.writeUnstyledKey(&fKey[1]);
+    }
+
+    // for bitmap paths
+    void set(const GrStyledShape& shape, const SkMatrix& ctm) {
+        // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
+        // relevant styling information.
+        SkASSERT(shape.style().isSimpleFill());
+        SkASSERT(shape.hasUnstyledKey());
+        // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
+        SkScalar sx = ctm.get(SkMatrix::kMScaleX);
+        SkScalar sy = ctm.get(SkMatrix::kMScaleY);
+        SkScalar kx = ctm.get(SkMatrix::kMSkewX);
+        SkScalar ky = ctm.get(SkMatrix::kMSkewY);
+        SkScalar tx = ctm.get(SkMatrix::kMTransX);
+        SkScalar ty = ctm.get(SkMatrix::kMTransY);
+        // Allow 8 bits each in x and y of subpixel positioning.
+        tx -= SkScalarFloorToScalar(tx);
+        ty -= SkScalarFloorToScalar(ty);
+        SkFixed fracX = SkScalarToFixed(tx) & 0x0000FF00;
+        SkFixed fracY = SkScalarToFixed(ty) & 0x0000FF00;
+        int shapeKeySize = shape.unstyledKeySize();
+        fKey.reset(5 + shapeKeySize);
+        fKey[0] = SkFloat2Bits(sx);
+        fKey[1] = SkFloat2Bits(sy);
+        fKey[2] = SkFloat2Bits(kx);
+        fKey[3] = SkFloat2Bits(ky);
+        fKey[4] = fracX | (fracY >> 8);
+        shape.writeUnstyledKey(&fKey[5]);
+    }
+
+    bool operator==(const ShapeDataKey& that) const {
+        return fKey.count() == that.fKey.count() &&
+                0 == memcmp(fKey.get(), that.fKey.get(), sizeof(uint32_t) * fKey.count());
+    }
+
+    int count32() const { return fKey.count(); }
+    const uint32_t* data() const { return fKey.get(); }
+
+private:
+    // The key is composed of the GrStyledShape's key, and either the dimensions of the DF
+    // generated for the path (32x32 max, 64x64 max, 128x128 max) if an SDF image or
+    // the matrix for the path with only fractional translation.
+    SkAutoSTArray<24, uint32_t> fKey;
+};
+
+class ShapeData {
+public:
+    ShapeDataKey                fKey;
+    SkRect                      fBounds;
+    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
+
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
+
+    static inline const ShapeDataKey& GetKey(const ShapeData& data) {
+        return data.fKey;
+    }
+
+    static inline uint32_t Hash(const ShapeDataKey& key) {
+        return SkOpts::hash(key.data(), sizeof(uint32_t) * key.count32());
+    }
+};
+
+
+GrFooBerry::GrFooBerry() {}
+
+GrFooBerry::~GrFooBerry() {
+    ShapeDataList::Iter iter;
+    iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
+    ShapeData* shapeData;
+    while ((shapeData = iter.get())) {
+        iter.next();
+        delete shapeData;
+    }
+
+#ifdef DF_PATH_TRACKING
+    SkDebugf("Cached shapes: %d, freed shapes: %d\n", g_NumCachedShapes, g_NumFreedShapes);
+#endif
+}
+
+bool GrFooBerry::initAtlas(GrProxyProvider* proxyProvider, const GrCaps* caps) {
+    if (fAtlas) {
+        return true;
+    }
+
+    static constexpr size_t kMaxAtlasTextureBytes = 2048 * 2048;
+    static constexpr size_t kPlotWidth = 512;
+    static constexpr size_t kPlotHeight = 256;
+
+    const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
+                                                                 GrRenderable::kNo);
+
+    GrDrawOpAtlasConfig atlasConfig(caps->maxTextureSize(), kMaxAtlasTextureBytes);
+    SkISize size = atlasConfig.atlasDimensions(kA8_GrMaskFormat);
+    fAtlas = GrDrawOpAtlas::Make1(proxyProvider, format,
+                                  GrColorType::kAlpha_8, size.width(), size.height(),
+                                  kPlotWidth, kPlotHeight, this,
+                                  GrDrawOpAtlas::AllowMultitexturing::kYes, this);
+
+    return SkToBool(fAtlas);
+}
+
+void* GrFooBerry::findO(const GrStyledShape& shape, int desiredDimension) {
+    ShapeDataKey key(shape, desiredDimension);
+    auto shapeData = fShapeCache->find(key);
+    return shapeData;
+}
+
+void* GrFooBerry::findO(const GrStyledShape& shape, const SkMatrix& ctm) {
+    ShapeDataKey key(shape, ctm);
+    auto shapeData = fShapeCache->find(key);
+    return shapeData;
+}
+
+// Callback to clear out internal path cache when eviction occurs
+void GrFooBerry::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+    // remove any paths that use this plot
+    ShapeDataList::Iter iter;
+    iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
+    ShapeData* shapeData;
+    while ((shapeData = iter.get())) {
+        iter.next();
+        if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
+            fShapeCache.remove(shapeData->fKey);
+            fShapeList.remove(shapeData);
+            delete shapeData;
+#ifdef DF_PATH_TRACKING
+            ++g_NumFreedPaths;
+#endif
+        }
+    }
+}
+
+
