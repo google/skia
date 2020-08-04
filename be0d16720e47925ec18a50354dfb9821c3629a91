@@ -70,6 +70,24 @@
       "revId": "be0d16720e47925ec18a50354dfb9821c3629a91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "19d9b81b_70706c1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T14:59:19Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s a tough one. In particular it\u0027s tough given that our metric is \"worst hiccup\" and not steady-state performance. I wonder if that revert will actually fix it TBH. Can we get traces for where the time is going during that hiccup? If the cost is in the inlining step, I\u0027m concerned because:\n- the inliner is still active AFAICS\n- our FPs nest much more deeply now since everything is done in child FPs instead of serially, so the inliner will still have plenty of things to chew on\n\nIf the revert solves it, I guess we\u0027re good, but I\u0027d be a lot more comfortable if we had more concrete info about the regression.\n\nAnd of course this will prevent landing CLs that rely on FPs being in separate functions, so I\u0027ll need to find something else to focus on :|",
+      "parentUuid": "597ba36d_e7c475c8",
+      "revId": "be0d16720e47925ec18a50354dfb9821c3629a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
