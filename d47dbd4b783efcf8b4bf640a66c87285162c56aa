@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a940dcb_6e1c383f",
+        "filename": "src/core/SkSPath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-04T18:59:38Z",
+      "side": 1,
+      "message": "Another way to express all this might be\n\n    struct SkSPath {\n        SkSpan\u003cconst SkPoint\u003e points;\n        SkSpan\u003cconst uint8_t\u003e verbs;\n        SkSpan\u003cconst float\u003e   weights;\n        SkRect                bounds;\n        SkPathFillType        fillType;\n        uint8_t               segmentMask;\n    };\n\n    SkSPath MakeSkSPath(SkSpan\u003cconst SkPoint\u003e points,\n                        SkSpan\u003cconst uint8_t\u003e verbs,\n                        SkSpan\u003cconst float\u003e   weights,\n                        SkPathFillType        fillType);",
+      "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
