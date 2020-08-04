@@ -322,7 +322,15 @@ static void stencil_path(GrRecordingContext* context, GrRenderTargetContext* rtc
 
 static GrAA supported_aa(GrRenderTargetContext* rtc, GrAA aa) {
     // MIXED SAMPLES TODO: We can use stencil with mixed samples as well.
-    return rtc->numSamples() > 1 ? aa : GrAA::kNo;
+    if (rtc->numSamples() > 1) {
+        if (rtc->caps()->multisampleDisableSupport()) {
+            return aa;
+        } else {
+            return GrAA::kYes;
+        }
+    } else {
+        return GrAA::kNo;
+    }
 }
 
 } // anonymous
