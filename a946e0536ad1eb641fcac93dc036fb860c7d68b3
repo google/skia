@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8cec31c3_4601f8ba",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Patch set 5 uses gn/BUILD.gn",
+      "parentUuid": "fe95dcf4_436c7535",
+      "range": {
+        "startLine": 25,
+        "startChar": 11,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "abc093b9_ab7ee0ff",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "6dc58b66_53e079dc",
+        "filename": "gn/skia.gni",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7c0fe03_82ebea77",
+      "range": {
+        "startLine": 67,
+        "startChar": 24,
+        "endLine": 67,
+        "endChar": 28
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f3ecd8ed_a04d27ca",
         "filename": "include/ports/SkImageGeneratorNDK.h",
         "patchSetId": 4
@@ -129,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "0eaf5c8e_ee8809f0",
+        "filename": "include/ports/SkImageGeneratorNDK.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "460e4afa_ae26d91e",
+      "range": {
+        "startLine": 16,
+        "startChar": 10,
+        "endLine": 16,
+        "endChar": 29
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42e5f11e_f45fa8bd",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 4
@@ -149,6 +221,30 @@
       "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75ef0f05_04be43b1",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "No. Removed.",
+      "parentUuid": "42e5f11e_f45fa8bd",
+      "range": {
+        "startLine": 24,
+        "startChar": 44,
+        "endLine": 24,
+        "endChar": 56
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -175,6 +271,30 @@
     },
     {
       "key": {
+        "uuid": "8331cd97_e8363d4a",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Good suggestion, thanks!",
+      "parentUuid": "a22d57fb_fde2802b",
+      "range": {
+        "startLine": 69,
+        "startChar": 12,
+        "endLine": 70,
+        "endChar": 51
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "daf2a8e6_435991b6",
         "filename": "src/ports/SkImageGeneratorNDK.cpp",
         "patchSetId": 4
@@ -195,6 +315,30 @@
       "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8febb5bc_502467ec",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "daf2a8e6_435991b6",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 5
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -221,6 +365,30 @@
     },
     {
       "key": {
+        "uuid": "21af6db8_76ad9853",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a89d42c_29e3618a",
+      "range": {
+        "startLine": 100,
+        "startChar": 73,
+        "endLine": 100,
+        "endChar": 92
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4cb449db_8b95de2d",
         "filename": "src/ports/SkImageGeneratorNDK.cpp",
         "patchSetId": 4
@@ -241,6 +409,30 @@
       "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31e2f1b6_0a696f36",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cb449db_8b95de2d",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 4
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -290,6 +482,54 @@
     },
     {
       "key": {
+        "uuid": "3ffb6869_45fddde9",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f40b3066_5c7dfad8",
+      "range": {
+        "startLine": 125,
+        "startChar": 46,
+        "endLine": 125,
+        "endChar": 47
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1826404c_519b29a1",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce7a3362_73eb1228",
+      "range": {
+        "startLine": 125,
+        "startChar": 4,
+        "endLine": 125,
+        "endChar": 15
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8f7277c_5e2f88d8",
         "filename": "src/ports/SkImageGeneratorNDK.cpp",
         "patchSetId": 4
@@ -310,6 +550,30 @@
       "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9f2d389_635d99e9",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done. Patch set 6 adds the mappings for ADataSpace \u003c-\u003e SkColorSpace",
+      "parentUuid": "f8f7277c_5e2f88d8",
+      "range": {
+        "startLine": 158,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 47
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -336,6 +600,30 @@
     },
     {
       "key": {
+        "uuid": "bbc07d33_ce04a537",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f999ee7a_f5274a52",
+      "range": {
+        "startLine": 174,
+        "startChar": 12,
+        "endLine": 174,
+        "endChar": 18
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82d70ebf_cc33d991",
         "filename": "src/ports/SkImageGeneratorNDK.cpp",
         "patchSetId": 4
@@ -347,6 +635,30 @@
       "writtenOn": "2020-08-03T21:55:45Z",
       "side": 1,
       "message": "I don\u0027t think I understand this feature.  What do we mean by no color correction?  If we create an image that\u0027s not tagged with a color space, Skia will assume it\u0027s sRGB.",
+      "range": {
+        "startLine": 234,
+        "startChar": 49,
+        "endLine": 234,
+        "endChar": 68
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbbe3444_b7067bc7",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "\u003e I don\u0027t think I understand this feature.  What do we mean by no color correction? \n\nNot doing any color space transformations. This relates to https://skia-review.googlesource.com/c/skia/+/268157. As I recall, we wanted a way to allow clients to see the \"raw\" colors. In particular, if an image had a profile that couldn\u0027t be mapped to an SkColorSpace (or, therefore, an ADataSpace, which is Android\u0027s limited enumeration of essentially SkColorSpaces), getting the raw colors allows a power user to use independent knowledge of the icc profile (maybe by parsing themselves) to do their own conversion.\n\n\u003e If we create an image that\u0027s not tagged with a color space, Skia will assume it\u0027s sRGB.\n\nIndeed - I wouldn\u0027t recommend a client pass no color space in order to draw the unmodified result with Skia, if they wanted to draw the image as intended.",
+      "parentUuid": "82d70ebf_cc33d991",
       "range": {
         "startLine": 234,
         "startChar": 49,
@@ -376,6 +688,24 @@
     },
     {
       "key": {
+        "uuid": "f694fefe_5b575069",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Yes. Actually, we want it for the else case, too, since in both cases we\u0027ve set it back to the default.",
+      "parentUuid": "d8e982a6_1944069b",
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c385d402_9e7adcaf",
         "filename": "src/ports/SkImageGeneratorNDK.cpp",
         "patchSetId": 4
@@ -387,6 +717,30 @@
       "writtenOn": "2020-08-03T21:55:45Z",
       "side": 1,
       "message": "Does this else {} clause do anything?  It boils down to\n\n    setDataSpace(decoder, getDataSpace(getHeaderInfo(decoder)));\n\nIf that\u0027s not a no-op, it\u0027s worth a big note?",
+      "range": {
+        "startLine": 248,
+        "startChar": 13,
+        "endLine": 252,
+        "endChar": 13
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b2902e2_ab451c2a",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Maybe what\u0027s unclear here is that the AImageDecoder is stateful? It starts off by using its default, but if you call\n\n  AImageDecoder_setDataSpace()\n\n(and it succeeds), that applies to all future calls to AImageDecoder_decodeImage() (at least - until you call AImageDecoder_setDataSpace() again).\n\nThe comment above\n\n   if (fPreviouslySetADataSpace) {\n\nis supposed to apply here - we need to set it back to its default. I\u0027ve rewritten that comment in an effort to be more clear. Let me know if this still needs a comment here.",
+      "parentUuid": "c385d402_9e7adcaf",
       "range": {
         "startLine": 248,
         "startChar": 13,
@@ -445,6 +799,30 @@
     },
     {
       "key": {
+        "uuid": "6080369b_1d8604be",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13a07576_e20eb764",
+      "range": {
+        "startLine": 284,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 41
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c331e8dd_4e46bdb2",
         "filename": "tests/NdkDecodeTest.cpp",
         "patchSetId": 4
@@ -465,6 +843,30 @@
       "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b3eb26f_87dab4d8",
+        "filename": "tests/NdkDecodeTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-04T16:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c331e8dd_4e46bdb2",
+      "range": {
+        "startLine": 8,
+        "startChar": 7,
+        "endLine": 8,
+        "endChar": 29
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
