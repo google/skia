@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8175557_63d83d2d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-04T00:36:15Z",
+      "side": 1,
+      "message": "On Patch Set 5 the Flutter-Canary build actually looks pretty good.",
+      "revId": "c262ccafee735d7b271b014e213d5ad8cc605d61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
