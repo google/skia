@@ -100,7 +100,6 @@ SkUniqueCFRef<CTFontRef> SkCTFontCreateExactCopy(CTFontRef baseFont, CGFloat tex
 
     if (opsz.isSet) {
         add_opsz_attr(attr.get(), opsz.value);
-#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
     } else {
         // On (at least) 10.10 though 10.14 the default system font was SFNSText/SFNSDisplay.
         // The CTFont is backed by both; optical size < 20 means SFNSText else SFNSDisplay.
@@ -122,21 +121,13 @@ SkUniqueCFRef<CTFontRef> SkCTFontCreateExactCopy(CTFontRef baseFont, CGFloat tex
             opsz_val = CTFontGetSize(baseFont);
         }
         add_opsz_attr(attr.get(), opsz_val);
-#endif
     }
     add_notrak_attr(attr.get());
 
     SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontDescriptorCreateWithAttributes(attr.get()));
 
-#if !defined(SK_IGNORE_MAC_OPSZ_FORCE)
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateCopyWithAttributes(baseFont, textSize, nullptr, desc.get()));
-#else
-    SkUniqueCFRef<CGFontRef> baseCGFont(CTFontCopyGraphicsFont(baseFont, nullptr));
-    return SkUniqueCFRef<CTFontRef>(
-            CTFontCreateWithGraphicsFont(baseCGFont.get(), textSize, nullptr, desc.get()));
-
-#endif
 }
 
 CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
