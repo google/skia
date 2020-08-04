@@ -87,11 +87,15 @@ public:
                                      dawn_native::BackendType type) {
         DawnProcTable backendProcs = dawn_native::GetProcs();
         dawnProcSetProcs(&backendProcs);
+        dawn_native::DeviceDescriptor deviceDesc;
+        deviceDesc.forceEnabledToggles.push_back("skip_validation");
+        deviceDesc.forceEnabledToggles.push_back("disable_robustness");
+        deviceDesc.forceDisabledToggles.push_back("lazy_clear_resource_on_first_use");
 
         std::vector<dawn_native::Adapter> adapters = instance.GetAdapters();
         for (dawn_native::Adapter adapter : adapters) {
             if (adapter.GetBackendType() == type) {
-                return wgpu::Device::Acquire(adapter.CreateDevice());
+                return wgpu::Device::Acquire(adapter.CreateDevice(&deviceDesc));
             }
         }
         return nullptr;
