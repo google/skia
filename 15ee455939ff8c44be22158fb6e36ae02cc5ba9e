@@ -16,6 +16,24 @@
       "revId": "15ee455939ff8c44be22158fb6e36ae02cc5ba9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81324113_a1350846",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-04T18:04:00Z",
+      "side": 1,
+      "message": "That misalignment is definitely intentional.  Try -w or -Wl,-w in extra_ldflags?  Maybe ld --help to see if there\u0027s a way to disable individual warnings?",
+      "parentUuid": "d73a0803_43becc5c",
+      "revId": "15ee455939ff8c44be22158fb6e36ae02cc5ba9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
