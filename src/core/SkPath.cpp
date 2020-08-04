@@ -230,6 +230,12 @@ void SkPath::swap(SkPath& that) {
     }
 }
 
+SkSPath SkPath::peek() const {
+    return fPathRef->peek(this->getFillType());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool SkPath::isInterpolatable(const SkPath& compare) const {
     // need the same structure (verbs, conicweights) and same point-count
     return fPathRef->fPoints.count() == compare.fPathRef->fPoints.count() &&
