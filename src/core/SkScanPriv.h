@@ -33,7 +33,7 @@ private:
     const SkIRect*      fClipRect;
 };
 
-void sk_fill_path(const SkPath& path, const SkIRect& clipRect,
+void sk_fill_path(const SkSPath&, const SkIRect& clipRect,
                   SkBlitter* blitter, int start_y, int stop_y, int shiftEdgesUp,
                   bool pathContainedInClip);
 

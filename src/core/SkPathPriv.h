@@ -10,6 +10,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/private/SkIDChangeListener.h"
+#include "src/core/SkSPath.h"
 
 static_assert(0 == static_cast<int>(SkPathFillType::kWinding), "fill_type_mismatch");
 static_assert(1 == static_cast<int>(SkPathFillType::kEvenOdd), "fill_type_mismatch");
@@ -402,7 +403,8 @@ class SkPathEdgeIter {
     };
 
 public:
-    SkPathEdgeIter(const SkPath& path);
+    SkPathEdgeIter(const SkPath&);
+    SkPathEdgeIter(const SkSPath&);
 
     SkScalar conicWeight() const {
         SkASSERT(fIsConic);
