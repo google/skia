@@ -34,6 +34,24 @@
       "revId": "1553fe2cf0c5626c0de00b15d72b88e7218f935d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b50b4e89_bd8be467",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-04T14:47:32Z",
+      "side": 1,
+      "message": "Same - I never noticed the discrepancy.  Speaking for Skottie, I think an inclusive check for both min/max makes more sense so I\u0027m fine with either updating or making private.",
+      "parentUuid": "dbce1b50_8cd0eb46",
+      "revId": "1553fe2cf0c5626c0de00b15d72b88e7218f935d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
