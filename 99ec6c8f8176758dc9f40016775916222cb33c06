@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60add2ce_b5c442bd",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T13:41:19Z",
+      "side": 1,
+      "message": "optional: Consider\n\n    static const char kSkSLXyzInclude[] \u003d \"......\";\n\nThis is a stronger const; it makes it impossible to reassign kSkSLXyzInclude to point at a different string.",
+      "range": {
+        "startLine": 67,
+        "startChar": 7,
+        "endLine": 67,
+        "endChar": 35
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe19f9cf_8b6dc4b8",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T13:41:19Z",
+      "side": 1,
+      "message": "optional: Now that we\u0027re on C++17 I think you can use { } instead of (( )) here?",
+      "range": {
+        "startLine": 348,
+        "startChar": 23,
+        "endLine": 348,
+        "endChar": 25
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29b1f2a1_5c6a6c76",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T13:41:19Z",
+      "side": 1,
+      "message": "I\u0027d prefer to avoid using SkASSERT to catch I/O errors. If an I/O error happened in release we would get an inexplicable, difficult-to-reproduce error with corrupt/truncated shader text.",
+      "range": {
+        "startLine": 350,
+        "startChar": 4,
+        "endLine": 350,
+        "endChar": 28
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edaaab25_0ef1e495",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T13:41:19Z",
+      "side": 1,
+      "message": "noticed in passing, not necessary for this CL: Ideally these would have `/*arg_comment\u003d*/nullptr`",
+      "range": {
+        "startLine": 1576,
+        "startChar": 43,
+        "endLine": 1576,
+        "endChar": 56
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aab45615_52638fa2",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1579,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T13:41:19Z",
+      "side": 1,
+      "message": "optional: Now that we\u0027re on C++17 I think you can use { } instead of (( )) here?",
+      "range": {
+        "startLine": 1579,
+        "startChar": 31,
+        "endLine": 1579,
+        "endChar": 33
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05b5057c_c6f20f20",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1581,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T13:41:19Z",
+      "side": 1,
+      "message": "Same nit about SkASSERT on I/O errors",
+      "range": {
+        "startLine": 1581,
+        "startChar": 12,
+        "endLine": 1581,
+        "endChar": 20
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a76a0f1e_68f62b62",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1583,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T13:41:19Z",
+      "side": 1,
+      "message": "make_unique\u003cString\u003e",
+      "range": {
+        "startLine": 1582,
+        "startChar": 60,
+        "endLine": 1583,
+        "endChar": 79
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
