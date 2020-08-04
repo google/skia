@@ -63,6 +63,40 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\nprint('Checking for existence of %s' % path)\ncmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "file.txt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted file.txt",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -105,6 +139,40 @@
     },
     "infra_step": true,
     "name": "rm device_results_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\nprint('Checking for existence of %s' % path)\ncmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "device_results_dir"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted device_results_dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
@@ -688,6 +756,40 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\nprint('Checking for existence of %s' % path)\ncmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
       "rm",
@@ -702,6 +804,40 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/skps"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\nprint('Checking for existence of %s' % path)\ncmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/skps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/skps",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
@@ -939,6 +1075,40 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\nprint('Checking for existence of %s' % path)\ncmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
       "rm",
@@ -953,6 +1123,40 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/images"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\nprint('Checking for existence of %s' % path)\ncmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/images"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/images",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
@@ -1141,6 +1345,40 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\nprint('Checking for existence of %s' % path)\ncmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
       "rm",
@@ -1155,6 +1393,40 @@
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/svgs"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npath = sys.argv[1]\nprint('Checking for existence of %s' % path)\ncmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/sdcard/revenge_of_the_skiabot/svgs"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "ensure deleted /sdcard/revenge_of_the_skiabot/svgs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = ['/opt/infra-android/tools/adb', 'shell', 'stat', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
