@@ -70,6 +70,23 @@
       "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c853c4d_17cc7ef2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-04T18:54:23Z",
+      "side": 1,
+      "message": "I\u0027ve been unable to replicate these results on a 1065G7, neither for the focused nanobench benchmarks mentioned here nor for any macro-level content in viewer.  Both the hsw and skx bitmap_BGRA_8888_scale_bilerp benchmarks run in about 20us for me when built our usual way for performance testing, with is_debug \u003d false.",
+      "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
