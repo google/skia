@@ -16,6 +16,24 @@
       "revId": "b06d8696e56a262978d13b489c7d12ba04741fb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bd4c378_9023afd9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-04T14:48:22Z",
+      "side": 1,
+      "message": "No, this never came up with how GrShape is used in GrStyledShape. I ran into it with new clip stack work when simplifying inverse paths and difference vs. intersect ops at the same time. I didn\u0027t want to sneak these fixes into that CL though",
+      "parentUuid": "2ec17781_68f66a1f",
+      "revId": "b06d8696e56a262978d13b489c7d12ba04741fb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
