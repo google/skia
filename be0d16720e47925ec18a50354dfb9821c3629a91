@@ -88,6 +88,24 @@
       "revId": "be0d16720e47925ec18a50354dfb9821c3629a91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e164b36_d2894f77",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-04T15:05:26Z",
+      "side": 1,
+      "message": "I wonder if we could introduce a new keyword like `@return` or something, that could compile to a return in a leaf function, but be converted to `sk_OutColor \u003d` in the main function. Not fully thought through as an idea but I can\u0027t immediately see anything that would prevent it from working...",
+      "parentUuid": "19d9b81b_70706c1e",
+      "revId": "be0d16720e47925ec18a50354dfb9821c3629a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
