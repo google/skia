@@ -52,6 +52,24 @@
       "revId": "1553fe2cf0c5626c0de00b15d72b88e7218f935d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "697e8638_13cb9763",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-04T14:54:24Z",
+      "side": 1,
+      "message": "I\u0027ve been thinking about rect-contains-point in terms of the limits of rect-contains-rect, assuming we\u0027re happy with that logic.  (Big assumption?)\n\nIf your space is continuous reals it\u0027s easy to construct two families of non-empty rectangles, one always on the inside of the edge and one always on the outside of the edge, but that when taken to their limit converge on the same point (on the edge).  Think, one family is edge-delta, the other edge+delta, let delta -\u003e 0.  That leaves the edge point ambiguous... should we think of it as belonging to the inside or outside family?  The two limits aren\u0027t the same.\n\nFor integer rects I guess all that same logic applies but the limit stops at delta\u003d1.  In integer coordinate space each rectangle reaches its tiniest non-empty size at a 1x1 square, and that\u0027s always on one side or the other of any given edge.\n\nI think you could follow that thought to its logical extreme and say that very integer logic applies to SkRect, since we\u0027re working with floats and not reals, and the smallest non-empty rect we can express is a finite 1 x-ulp x 1 y-ulp rectangle.\n\nNot sure how I feel yet, but avoiding the issue by ditching contains() on SkRect makes total sense to me, as does keeping contains() on SkIRect.",
+      "parentUuid": "dbce1b50_8cd0eb46",
+      "revId": "1553fe2cf0c5626c0de00b15d72b88e7218f935d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
