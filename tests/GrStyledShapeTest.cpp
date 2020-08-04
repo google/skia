@@ -2349,7 +2349,8 @@ DEF_TEST(GrStyledShape_arcs, reporter) {
 
 DEF_TEST(GrShapeInversion, r) {
     SkPath path;
-    SkScalar radii[] = {10.f, 10.f, 10.f, 10.f};
+    SkScalar radii[] = {10.f, 10.f, 10.f, 10.f,
+                        10.f, 10.f, 10.f, 10.f};
     path.addRoundRect(SkRect::MakeWH(50, 50), radii);
     path.toggleInverseFillType();
 
