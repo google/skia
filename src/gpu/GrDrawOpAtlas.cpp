@@ -60,7 +60,7 @@ void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvid
     }
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvider,
+std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make1(GrProxyProvider* proxyProvider,
                                                    const GrBackendFormat& format,
                                                    GrColorType colorType, int width,
                                                    int height, int plotWidth, int plotHeight,
@@ -74,7 +74,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
     std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, colorType,
                                                            width, height, plotWidth, plotHeight,
                                                            generationCounter,
-                                                           allowMultitexturing));
+                                                           allowMultitexturing, true));
     if (!atlas->getViews()[0].proxy()) {
         return nullptr;
     }
@@ -234,7 +234,7 @@ void GrDrawOpAtlas::Plot::resetRects() {
 GrDrawOpAtlas::GrDrawOpAtlas(
         GrProxyProvider* proxyProvider, const GrBackendFormat& format,
         GrColorType colorType, int width, int height, int plotWidth, int plotHeight,
-        GenerationCounter* generationCounter, AllowMultitexturing allowMultitexturing)
+        GenerationCounter* generationCounter, AllowMultitexturing allowMultitexturing, bool foo)
         : fFormat(format)
         , fColorType(colorType)
         , fTextureWidth(width)

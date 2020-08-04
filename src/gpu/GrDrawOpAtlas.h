@@ -176,7 +176,7 @@ public:
      *
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
+    static std::unique_ptr<GrDrawOpAtlas> Make1(GrProxyProvider*,
                                                const GrBackendFormat& format,
                                                GrColorType,
                                                int width, int height,
@@ -342,7 +342,7 @@ public:
 private:
     GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrColorType, int width,
                   int height, int plotWidth, int plotHeight, GenerationCounter* generationCounter,
-                  AllowMultitexturing allowMultitexturing);
+                  AllowMultitexturing allowMultitexturing, bool foo);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots

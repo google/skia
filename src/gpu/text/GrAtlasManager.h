@@ -32,9 +32,9 @@ public:
     // GrStrikeCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas. Note that we can have proxies available but none active
     // (i.e., none instantiated).
-    const GrSurfaceProxyView* getViews(GrMaskFormat format, unsigned int* numActiveProxies) {
+    const GrSurfaceProxyView* getViews1(GrMaskFormat format, unsigned int* numActiveProxies) {
         format = this->resolveMaskFormat(format);
-        if (this->initAtlas(format)) {
+        if (this->initAtlas1(format)) {
             *numActiveProxies = this->getAtlas(format)->numActivePages();
             return this->getAtlas(format)->getViews();
         }
@@ -114,7 +114,7 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    bool initAtlas(GrMaskFormat);
+    bool initAtlas1(GrMaskFormat);
     // Change an expected 565 mask format to 8888 if 565 is not supported (will happen when using
     // Metal on macOS). The actual conversion of the data is handled in get_packed_glyph_image() in
     // GrStrikeCache.cpp
