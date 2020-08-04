@@ -199,6 +199,15 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                                                      SimpleTextStyle textStyle) {
             auto ts = toTextStyle(textStyle);
             self.pushStyle(ts);
+        }))
+        // A method of pushing a textStyle with paints instead of colors for foreground and
+        // background. Since SimpleTextStyle is a value object, it cannot contain paints, which are not primitives. This binding is here to accept them. Any color that is specified in the textStyle is overridden.
+        .function("_pushPaintStyle",  optional_override([](para::ParagraphBuilderImpl& self,
+                SimpleTextStyle textStyle, SkPaint foreground, SkPaint background) {
+            auto ts = toTextStyle(textStyle);
+            ts.setForegroundColor(foreground);
+            ts.setBackgroundColor(background);
+            self.pushStyle(ts);
         }));
 
 
