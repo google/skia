@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6e2b0691_d1ca248d",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-04T20:37:29Z",
+      "side": 1,
+      "message": "Agreed, the current thread/client has to know that this is a \"peek\", and that if the client changes the pathref, that\u0027s their problem.\n\nThe pixmap we return for images and surfaces have the same constraints -- use only in the current thread, and knowing that they share the underlying storage (borrowed).",
+      "parentUuid": "e6696cbb_c02e381d",
+      "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fa34e701_fba7331e",
         "filename": "src/core/SkSPath.h",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2020-08-04T20:24:32Z",
       "side": 1,
       "message": "Are we ok with \u0027pragma once\u0027 shenanigans? You young kids trying to sneak that new fangled stuff in here.",
+      "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce550e3c_375a1f7a",
+        "filename": "src/core/SkSPath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-04T20:37:29Z",
+      "side": 1,
+      "message": "You caught me -- thought I\u0027d take it for a spin",
+      "parentUuid": "fa34e701_fba7331e",
       "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -64,6 +100,24 @@
       "writtenOn": "2020-08-04T20:24:32Z",
       "side": 1,
       "message": "I see this is being used in SkPathRef::peek (and it isn\u0027t easy to spot that skimming this CL, since the name SkSPath isn\u0027t directly used where it is created). It seems a bit strange to pass in a segment mask since it needs to be consistent with the verbs. In other words, it seems difficult to reason about fSegmentMask if this is public, maybe better to be a bit more careful and make SkPathRef a friend? Or maybe just assert fSegmentMask is consistent in debug?",
+      "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2f378f3_d17b1314",
+        "filename": "src/core/SkSPath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-04T20:37:29Z",
+      "side": 1,
+      "message": "Hmmm, I don\u0027t disagree about validating things in debug mode. But note we also take bounds (and in the next upload, convexity). Since these things are not free to re-compute, I thought we could take them from \"trusted\" clients.",
+      "parentUuid": "300f33fe_f1bc2652",
       "revId": "d47dbd4b783efcf8b4bf640a66c87285162c56aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
