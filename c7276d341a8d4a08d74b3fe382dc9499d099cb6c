@@ -33,6 +33,23 @@
       "revId": "c7276d341a8d4a08d74b3fe382dc9499d099cb6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee385377_572a6fe3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-05T18:29:36Z",
+      "side": 1,
+      "message": "Just on a high level theoretical basis for why this CL exists and is so big (trying to convince myself). So if we didn\u0027t have any existing names to deal with...\n\nThis new SkSPath would be named something more like SkPath, it\u0027s just a generic base class (really and interface of sorts) with read-only data that describes a path and doesn\u0027t itself care about the storage of the path data. It would have a virtual destructor (maybe?).\n\nOn top of that would be SkPathPoly\u003cN\u003e (some number of lines passed in and would subsume the \u0027triangle\u0027 and \u0027quad\u0027 classes here), SkPathQuads\u003cN\u003e, maybe something fancier at the limits of inline storage, and a SkPathBuilder which would be used to create paths backed by dynamic storage and would return a subclass of the new SkPath (here called SkSPath) which is basically the SkPath we currently know which is more or less an sk_sp\u003cSkPathRef\u003e except in this hypothetical world SkPathRef isn\u0027t editable.\n\nSo this CL is basically trying to replace all mention of the current SkPath with SkSPath since it\u0027s really the new path interface, but since the current SkPath is editable still we can\u0027t really make it a subclass and also there\u0027s the desire to try to avoid the virtual destructor, so this \u0027peek\u0027 mechanism which is awkward because it\u0027s kind of a stand in for the lack of that virtual destructor on the other end of use (it essentially creates a snap-off of the current SkPath/SkPathRef which is a subclass since the SkPath can\u0027t really itself be a subclass). (The \u0027Triangle\u0027 and \u0027Quad\u0027 subclasses are trying to get away with the lack of virtual destructor by avoiding needing a non-trivial destructor and by trying to keep themselves stack only (which they should probably try harder at).\n\nI was thinking about this mostly because the whole \u0027peek\u0027 bit is rather awkward. It seems what we really want is for the current SkPath \u0027to be a\u0027 SkSPath, but instead \u0027peek\u0027 is more of an explicit version of SkPath \u0027is convertable to\u0027 SkSPath. Maybe all of this is just a comment that \u0027peek\u0027 should be called \u0027asSkSPath\u0027 or something like that.",
+      "revId": "c7276d341a8d4a08d74b3fe382dc9499d099cb6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
