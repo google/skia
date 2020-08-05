@@ -151,7 +151,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
     return make_textured_colorizer(colors + offset, positions + offset, count, premul, args);
 }
 
-// Combines the colorizer and layout with an appropriately configured master effect based on the
+// Combines the colorizer and layout with an appropriately configured top-level effect based on the
 // gradient's tile mode
 static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShaderBase& shader,
         const GrFPArgs& args, std::unique_ptr<GrFragmentProcessor> layout) {
@@ -200,49 +200,52 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
         return nullptr;
     }
 
-    // The master effect has to export premul colors, but under certain conditions it doesn't need
-    // to do anything to achieve that: i.e. its interpolating already premul colors (inputPremul)
-    // or all the colors have a = 1, in which case premul is a no op. Note that this allOpaque
-    // check is more permissive than SkGradientShaderBase's isOpaque(), since we can optimize away
-    // the make-premul op for two point conical gradients (which report false for isOpaque).
+    // The top-level effect has to export premul colors, but under certain conditions it doesn't
+    // need to do anything to achieve that: i.e. its interpolating already premul colors
+    // (inputPremul) or all the colors have a = 1, in which case premul is a no op. Note that this
+    // allOpaque check is more permissive than SkGradientShaderBase's isOpaque(), since we can
+    // optimize away the make-premul op for two point conical gradients (which report false for
+    // isOpaque).
     bool makePremul = !inputPremul && !allOpaque;
 
     // All tile modes are supported (unless something was added to SkShader)
-    std::unique_ptr<GrFragmentProcessor> master;
+    std::unique_ptr<GrFragmentProcessor> gradient;
     switch(shader.getTileMode()) {
         case SkTileMode::kRepeat:
-            master = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                 /* mirror */ false, makePremul, allOpaque);
+            gradient = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
+                                                   /* mirror */ false, makePremul, allOpaque);
             break;
         case SkTileMode::kMirror:
-            master = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                 /* mirror */ true, makePremul, allOpaque);
+            gradient = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
+                                                   /* mirror */ true, makePremul, allOpaque);
             break;
         case SkTileMode::kClamp:
             // For the clamped mode, the border colors are the first and last colors, corresponding
             // to t=0 and t=1, because SkGradientShaderBase enforces that by adding color stops as
             // appropriate. If there is a hard stop, this grabs the expected outer colors for the
             // border.
-            master = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
-                    colors[0], colors[shader.fColorCount - 1], makePremul, allOpaque);
+            gradient = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
+                                                     colors[0], colors[shader.fColorCount - 1],
+                                                     makePremul, allOpaque);
             break;
         case SkTileMode::kDecal:
             // Even if the gradient colors are opaque, the decal borders are transparent so
             // disable that optimization
-            master = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
-                    SK_PMColor4fTRANSPARENT, SK_PMColor4fTRANSPARENT,
-                    makePremul, /* colorsAreOpaque */ false);
+            gradient = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
+                                                     SK_PMColor4fTRANSPARENT,
+                                                     SK_PMColor4fTRANSPARENT,
+                                                     makePremul, /* colorsAreOpaque */ false);
             break;
     }
 
-    if (master == nullptr) {
+    if (gradient == nullptr) {
         // Unexpected tile mode
         return nullptr;
     }
     if (args.fInputColorIsOpaque) {
-        return GrFragmentProcessor::OverrideInput(std::move(master), SK_PMColor4fWHITE, false);
+        return GrFragmentProcessor::OverrideInput(std::move(gradient), SK_PMColor4fWHITE, false);
     }
-    return GrFragmentProcessor::MulChildByInputAlpha(std::move(master));
+    return GrFragmentProcessor::MulChildByInputAlpha(std::move(gradient));
 }
 
 namespace GrGradientShader {

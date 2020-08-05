@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-// This master effect implements clamping on the layout coordinate and requires specifying the
+// This top-level effect implements clamping on the layout coordinate and requires specifying the
 // border colors that are used when outside the clamped boundary. Gradients with the
 // SkShader::kClamp_TileMode should use the colors at their first and last stop (after adding dummy
 // stops for t=0,t=1) as the border color. This will automatically replicate the edge color, even if

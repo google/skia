@@ -36,7 +36,7 @@ public:
                                                               kHalf4_GrSLType, "leftBorderColor");
         rightBorderColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "rightBorderColor");
-        SkString _sample1099 = this->invokeChild(1, args);
+        SkString _sample1102 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 t = %s;
 if (!%s && t.y < 0.0) {
@@ -46,13 +46,13 @@ if (!%s && t.y < 0.0) {
 } else if (t.x > 1.0) {
     %s = %s;
 } else {)SkSL",
-                _sample1099.c_str(),
+                _sample1102.c_str(),
                 (_outer.childProcessor(1)->preservesOpaqueInput() ? "true" : "false"),
                 args.fOutputColor, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(leftBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
-        SkString _coords1868("float2(half2(t.x, 0))");
-        SkString _sample1868 = this->invokeChild(0, args, _coords1868.c_str());
+        SkString _coords1871("float2(half2(t.x, 0))");
+        SkString _sample1871 = this->invokeChild(0, args, _coords1871.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     %s = %s;
@@ -61,7 +61,7 @@ if (!%s && t.y < 0.0) {
     %s.xyz *= %s.w;
 }
 )SkSL",
-                args.fOutputColor, _sample1868.c_str(), (_outer.makePremul ? "true" : "false"),
+                args.fOutputColor, _sample1871.c_str(), (_outer.makePremul ? "true" : "false"),
                 args.fOutputColor, args.fOutputColor);
     }
 
