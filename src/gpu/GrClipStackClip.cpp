@@ -35,7 +35,7 @@ typedef GrReducedClip::ElementList ElementList;
 
 const char GrClipStackClip::kMaskTestTag[] = "clip_mask";
 
-GrClip::PreClipResult GrClipStackClip::preApply(const SkRect& drawBounds) const {
+GrClip::PreClipResult GrClipStackClip::preApply(const SkRect& drawBounds, GrAA aa) const {
     SkIRect deviceRect = SkIRect::MakeSize(fDeviceSize);
     SkRect rect = SkRect::Make(deviceRect);
     if (!rect.intersect(drawBounds) || (fStack && fStack->isEmpty(deviceRect))) {
@@ -191,7 +191,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
 // scissor, or entirely software
 GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
                                           GrRenderTargetContext* renderTargetContext,
-                                          bool useHWAA, bool hasUserStencilSettings,
+                                          GrAAType aa, bool hasUserStencilSettings,
                                           GrAppliedClip* out, SkRect* bounds) const {
     SkASSERT(renderTargetContext->width() == fDeviceSize.fWidth &&
              renderTargetContext->height() == fDeviceSize.fHeight);
@@ -214,7 +214,7 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
 
     int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
     int maxAnalyticElements = kMaxAnalyticElements;
-    if (renderTargetContext->numSamples() > 1 || useHWAA || hasUserStencilSettings) {
+    if (renderTargetContext->numSamples() > 1 || aa == GrAAType::kMSAA || hasUserStencilSettings) {
         // Disable analytic clips when we have MSAA. In MSAA we never conflate coverage and opacity.
         maxAnalyticElements = 0;
         // We disable MSAA when avoiding stencil.

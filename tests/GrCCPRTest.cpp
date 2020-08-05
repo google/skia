@@ -41,7 +41,7 @@ public:
 
 private:
     SkIRect getConservativeBounds() const final { return fPath.getBounds().roundOut(); }
-    Effect apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
+    Effect apply(GrRecordingContext* context, GrRenderTargetContext* rtc, GrAAType,
                  bool hasUserStencilSettings, GrAppliedClip* out,
                  SkRect* bounds) const override {
         out->addCoverageFP(fCCPR->makeClipProcessor(/*inputFP=*/nullptr,

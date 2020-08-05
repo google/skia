@@ -178,7 +178,7 @@ public:
         SkIRect getConservativeBounds() const final {
             return SkIRect::MakeSize(fAtlas->dimensions());
         }
-        Effect apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
+        Effect apply(GrRecordingContext* context, GrRenderTargetContext*, GrAAType,
                          bool hasUserStencilSettings, GrAppliedClip* out,
                          SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();

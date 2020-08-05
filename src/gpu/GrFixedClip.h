@@ -47,8 +47,8 @@ public:
     }
 
     SkIRect getConservativeBounds() const final;
-    Effect apply(GrAppliedHardClip*, SkRect*) const final;
-    PreClipResult preApply(const SkRect& drawBounds) const final;
+    Effect apply(GrAppliedHardClip*, SkIRect*) const final;
+    PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const final;
 
 private:
     GrScissorState       fScissorState;
