@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c626deec_a8809eac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-05T18:07:22Z",
+      "side": 1,
+      "message": "Per conversation in Flutter/Skia chat. SkPictureData is still going to include an empty SK_PICT_FACTORY_TAG chunk (because nothing will be added to the factory set), but it still seemed simplest to guard this in this one spot, rather than there?",
+      "revId": "26465d3a6c68be92fb31291053ec727209b65e6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
