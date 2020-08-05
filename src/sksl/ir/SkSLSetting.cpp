@@ -19,4 +19,4 @@ std::unique_ptr<Expression> Setting::constantPropagate(const IRGenerator& irGene
     return nullptr;
 }
 
-} // namespace
+}  // namespace SkSL

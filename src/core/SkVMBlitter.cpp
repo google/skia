@@ -767,7 +767,7 @@ SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,
                                SkArenaAlloc* alloc,
                                sk_sp<SkShader> clip) {
     bool ok = true;
-    auto blitter = alloc->make<Blitter>(device, paint, /*sprite=*/nullptr, SkIPoint{0,0},
+    auto blitter = alloc->make<Blitter>(device, paint, /*sprite=*/nullptr, SkIPoint{0, 0},
                                         matrices, std::move(clip), &ok);
     return ok ? blitter : nullptr;
 }

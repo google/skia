@@ -19,7 +19,7 @@ namespace skjson {
 
 class ObjectValue;
 
-} // namespace skjson
+}  // namespace skjson
 
 namespace skottie {
 namespace internal {
@@ -99,7 +99,7 @@ private:
     using INHERITED = DiscardableAdapterBase<TransformAdapter3D, sksg::Matrix<SkM44>>;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieTransform_DEFINED

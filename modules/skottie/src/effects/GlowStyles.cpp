@@ -147,7 +147,7 @@ static sk_sp<sksg::RenderNode> make_glow_effect(const skjson::ObjectValue& jstyl
     return sksg::ImageFilterEffect::Make(std::move(layer), std::move(filter_node));
 }
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachOuterGlowStyle(const skjson::ObjectValue& jstyle,
                                                             sk_sp<sksg::RenderNode> layer) const {
@@ -159,4 +159,4 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachInnerGlowStyle(const skjson::Object
     return make_glow_effect(jstyle, *fBuilder, std::move(layer), GlowAdapter::Type::kInnerGlow);
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

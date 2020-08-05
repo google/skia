@@ -26,7 +26,7 @@ size_t parse_node<Ellipse>(StreamReader* sr, Ellipse* node) {
     return parent_id;
 }
 
-} // namespace internal
+}  // namespace internal
 
 void Ellipse::onRevalidate() {
     SkASSERT(this->hasInval());
@@ -42,4 +42,4 @@ void Ellipse::onDraw(SkCanvas* canvas, const SkPaint& paint, SkPathFillType) con
     }
 }
 
-} // namespace skrive
+}  // namespace skrive

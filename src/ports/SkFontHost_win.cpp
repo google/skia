@@ -1500,7 +1500,7 @@ bool SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size,
     }
     return true;
 }
-} // namespace
+}  // namespace
 
 DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
                                            SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)

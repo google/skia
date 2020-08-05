@@ -46,6 +46,6 @@ private:
     typedef RenderNode INHERITED;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGImage_DEFINED

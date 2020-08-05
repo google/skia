@@ -538,7 +538,7 @@ static const TagHandler familySetHandler = {
     /*chars*/nullptr,
 };
 
-} // namespace jbParser
+}  // namespace jbParser
 
 static const TagHandler topLevelHandler = {
     /*start*/nullptr,

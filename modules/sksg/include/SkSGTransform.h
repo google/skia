@@ -112,6 +112,6 @@ private:
     typedef EffectNode INHERITED;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGTransform_DEFINED

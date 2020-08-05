@@ -18,7 +18,7 @@ namespace skjson {
 
 class ObjectValue;
 
-} // namespace skjson
+}  // namespace skjson
 
 namespace skottie {
 namespace internal {
@@ -78,7 +78,7 @@ private:
     bool                         fHasSynced = false;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieAnimator_DEFINED

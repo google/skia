@@ -144,7 +144,7 @@ private:
     std::vector<BlockRec> fBlockStack;
 };
 
-} // namespace
+}  // namespace
 
 std::unique_ptr<StreamReader> MakeBinaryStreamReader(std::unique_ptr<SkStreamAsset> stream) {
     return std::make_unique<BinaryReader>(std::move(stream));

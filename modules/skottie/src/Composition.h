@@ -43,7 +43,7 @@ private:
                                 fMotionBlurPhase   = 0;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieComposition_DEFINED

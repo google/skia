@@ -25,7 +25,7 @@ size_t parse_node<Shape>(StreamReader* sr, Shape* node) {
     return parent_id;
 }
 
-} // namespace internal
+}  // namespace internal
 
 void Shape::onRevalidate() {
     this->INHERITED::onRevalidate();
@@ -70,4 +70,4 @@ void Shape::onRender(SkCanvas* canvas) const {
     }
 }
 
-} // namespace skrive
+}  // namespace skrive

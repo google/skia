@@ -158,7 +158,7 @@ bool parse_glyph_path(const skjson::ObjectValue* jdata,
     return true;
 }
 
-} // namespace
+}  // namespace
 
 bool AnimationBuilder::FontInfo::matches(const char family[], const char style[]) const {
     return 0 == strcmp(fFamily.c_str(), family)
@@ -405,5 +405,5 @@ const AnimationBuilder::FontInfo* AnimationBuilder::findFont(const SkString& fon
     return fFonts.find(font_name);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

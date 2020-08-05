@@ -233,5 +233,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachMotionTileEffect(const skjson::Arra
                                                                  fLayerSize);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

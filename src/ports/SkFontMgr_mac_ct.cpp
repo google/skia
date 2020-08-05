@@ -406,7 +406,7 @@ private:
     }
 };
 
-} // namespace
+}  // namespace
 
 class SkFontMgr_Mac : public SkFontMgr {
     SkUniqueCFRef<CFArrayRef> fNames;

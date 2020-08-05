@@ -48,6 +48,6 @@ private:
     typedef Node INHERITED;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGGeometryNode_DEFINED
