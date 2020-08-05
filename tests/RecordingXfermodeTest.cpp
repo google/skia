@@ -130,8 +130,7 @@ class PictureStrategy : public RecordingStrategy {
     int fHeight;
 };
 
-} // namespace
-
+}  // namespace
 
 DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
 #define FINEGRAIN 0

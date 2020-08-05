@@ -99,7 +99,7 @@ public:
     ) }
 };
 
-} // namespace
+}  // namespace
 
 template<typename T, void (*D)(T*)> void FcTDestroy(T* t) {
     FCLocker::AssertHeld();

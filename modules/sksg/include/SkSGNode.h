@@ -121,6 +121,6 @@ private:
         this->invalidate();                                                      \
     }
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGNode_DEFINED

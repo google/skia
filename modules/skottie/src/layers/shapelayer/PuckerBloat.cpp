@@ -152,7 +152,7 @@ private:
     using INHERITED = DiscardableAdapterBase<PuckerBloatAdapter, PuckerBloatEffect>;
 };
 
-} // namespace
+}  // namespace
 
 std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachPuckerBloatGeometryEffect(
         const skjson::ObjectValue& jround, const AnimationBuilder* abuilder,
@@ -168,4 +168,4 @@ std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachPuckerBloatGeometryEf
     return bloated;
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

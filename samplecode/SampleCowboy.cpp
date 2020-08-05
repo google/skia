@@ -121,7 +121,7 @@ private:
         return true;
     }
 };
-} // namespace
+}  // namespace
 
 DEF_SAMPLE( return new AnimatedSVGSample("Cowboy.svg", "SampleCowboy"); )
 

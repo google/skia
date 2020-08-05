@@ -120,7 +120,7 @@ sk_sp<Artboard> parse_artboard(StreamReader* sr) {
     return ab;
 }
 
-} // namespace internal
+}  // namespace internal
 
 void Artboard::render(SkCanvas* canvas) const {
     SkAutoCanvasRestore acr(canvas, true);
@@ -137,4 +137,4 @@ void Artboard::render(SkCanvas* canvas) const {
     }
 }
 
-} // namespace skrive
+}  // namespace skrive

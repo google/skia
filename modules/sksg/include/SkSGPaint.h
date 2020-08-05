@@ -96,6 +96,6 @@ private:
     using INHERITED = PaintNode;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGPaint_DEFINED

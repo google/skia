@@ -126,6 +126,6 @@ SK_ALWAYS_INLINE static int worst_case_cubic_log2(float intolerance, float devWi
     return ceil_log2_sqrt_sqrt(4*k*k * (devWidth * devWidth + devHeight * devHeight));
 }
 
-}  // namespace
+}  // namespace GrWangsFormula
 
 #endif

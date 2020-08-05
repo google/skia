@@ -42,4 +42,4 @@ SkPath Path::onAsPath() const {
     return fPath;
 }
 
-} // namespace sksg
+}  // namespace sksg

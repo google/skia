@@ -242,5 +242,5 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
     INHERITED::writeProgramElement(p);
 }
 
-} // namespace
+}  // namespace SkSL
 #endif

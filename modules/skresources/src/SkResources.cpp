@@ -85,7 +85,7 @@ private:
 
 #endif // defined(HAVE_VIDEO_DECODER)
 
-} // namespace
+}  // namespace
 
 sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, bool predecode) {
     if (auto codec = SkCodec::MakeFromData(std::move(data))) {
@@ -292,4 +292,4 @@ sk_sp<SkTypeface> DataURIResourceProviderProxy::loadTypeface(const char name[],
     return this->INHERITED::loadTypeface(name, url);
 }
 
-} // namespace skresources
+}  // namespace skresources

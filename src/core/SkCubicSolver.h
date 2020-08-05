@@ -67,5 +67,5 @@ namespace SK_OPTS_NS {
         return t;
     }
 
-}  // namespace SK_OPTS_NS
+    }  // namespace SK_OPTS_NS
 #endif

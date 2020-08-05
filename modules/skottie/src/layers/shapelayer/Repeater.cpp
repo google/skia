@@ -89,7 +89,7 @@ private:
                 fEndOpacity   = 100;
 };
 
-} // namespace
+}  // namespace
 
 std::vector<sk_sp<sksg::RenderNode>> ShapeBuilder::AttachRepeaterDrawEffect(
         const skjson::ObjectValue& jrepeater,
@@ -116,5 +116,5 @@ std::vector<sk_sp<sksg::RenderNode>> ShapeBuilder::AttachRepeaterDrawEffect(
     return repeater_draws;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

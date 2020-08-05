@@ -361,7 +361,7 @@ inline Value::Type Value::getType() const {
     return Type::kNull;
 }
 
-} // namespace skjson
+}  // namespace skjson
 
 #endif // SkJSON_DEFINED
 

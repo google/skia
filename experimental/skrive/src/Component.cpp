@@ -39,7 +39,7 @@ size_t parse_node<TransformableComponent>(StreamReader* sr, TransformableCompone
     return parent_index;
 }
 
-} // namespace internal
+}  // namespace internal
 
 void Component::invalidate() {
     auto* node = this;
@@ -81,4 +81,4 @@ TransformableComponent::ScopedTransformContext::~ScopedTransformContext() {
     fCanvas->restoreToCount(this->fRestoreCount);
 }
 
-} // namespace skrive
+}  // namespace skrive

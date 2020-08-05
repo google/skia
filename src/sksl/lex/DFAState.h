@@ -70,6 +70,6 @@ namespace std {
             return result;
         }
     };
-} // namespace
+    }  // namespace std
 
 #endif
