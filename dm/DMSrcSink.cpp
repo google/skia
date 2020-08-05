@@ -924,7 +924,7 @@ Result ImageGenSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
             gen = SkImageGeneratorCG::MakeFromEncodedCG(encoded);
 #elif defined(SK_BUILD_FOR_WIN)
             gen = SkImageGeneratorWIC::MakeFromEncodedWIC(encoded);
-#elif defined(SK_ENABLE_NDK_DECODING)
+#elif defined(SK_ENABLE_NDK_IMAGES)
             gen = SkImageGeneratorNDK::MakeFromEncodedNDK(encoded);
 #endif
             if (!gen) {
