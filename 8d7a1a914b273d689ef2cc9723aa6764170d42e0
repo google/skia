@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "cfe2eac7_f7e1136c",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T18:55:40Z",
+      "side": 1,
+      "message": "Noted. I\u0027ll switch these around. I still think SkWrapUnique has value; it would already be more-used than several of our existing utility primitives just from the usage in this CL and fixing up our existing Make primitives, and it\u0027s a little premature to predict that our teammates won\u0027t adopt it. But it\u0027s not that big of a deal.",
+      "parentUuid": "84d811d9_24258cf1",
+      "revId": "8d7a1a914b273d689ef2cc9723aa6764170d42e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3592f066_323dc6a3",
         "filename": "src/sksl/ir/SkSLSymbolTable.h",
         "patchSetId": 5
