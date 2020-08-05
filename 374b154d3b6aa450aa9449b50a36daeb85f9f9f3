@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "137f9cbb_0045b42a",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-05T17:55:21Z",
+      "side": 0,
+      "message": "So removing this func call won\u0027t affect anything?",
+      "range": {
+        "startLine": 280,
+        "startChar": 12,
+        "endLine": 280,
+        "endChar": 16
+      },
+      "revId": "374b154d3b6aa450aa9449b50a36daeb85f9f9f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
