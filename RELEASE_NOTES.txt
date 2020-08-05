@@ -11,8 +11,10 @@ Milestone 86
     as 'uniforms'.
     https://review.skia.org/309050
 
-  * Add SkImageGeneratorNDK for using Android's NDK APIs to decode.
-    https://review.skia.org/305689
+  * Add SkImageGeneratorNDK and SkEncodeImageWithNDK for using Android's NDK APIs to decode and
+    encode.
+    https://review.skia.org/308185
+    https://review.skia.org/308800
 
   * SkImage:remove DecodeToRaster, DecodeToTexture
     https://review.skia.org/306331

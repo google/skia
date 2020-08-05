@@ -35,6 +35,8 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
         return SkEncodeImageWithCG(dst, src, format);
     #elif SK_USE_WIC_ENCODER
         return SkEncodeImageWithWIC(dst, src, format, quality);
+    #elif SK_ENABLE_NDK_IMAGES
+        return SkEncodeImageWithNDK(dst, src, format, quality);
     #else
         switch(format) {
             case SkEncodedImageFormat::kJPEG: {

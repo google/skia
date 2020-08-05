@@ -6,10 +6,11 @@
  */
 
 #include "include/core/SkTypes.h"
-#ifdef SK_ENABLE_NDK_DECODING
+#ifdef SK_ENABLE_NDK_IMAGES
 #include "include/ports/SkImageGeneratorNDK.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #include <vector>
 
@@ -211,29 +212,13 @@ DEF_TEST(NdkDecode_reuseNoColorSpace, r) {
         corrected.allocPixels(noColorCorrection.makeColorSpace(rec.fCorrectedColorSpace));
         REPORTER_ASSERT(r, gen->getPixels(corrected.pixmap()));
 
-        bool same = true;
-        for (int y = 0; y < gen->getInfo().height(); y++) {
-            auto* origLine      =      orig.getAddr(0, y);
-            auto* correctedLine = corrected.getAddr(0, y);
-            if (memcmp(origLine, correctedLine, orig.rowBytes()) != 0) {
-                same = false;
-                break;
-            }
-        }
-        REPORTER_ASSERT(r, !same);
+        REPORTER_ASSERT(r, !ToolUtils::equal_pixels(orig, corrected));
 
         SkBitmap reuse;
         reuse.allocPixels(noColorCorrection);
         REPORTER_ASSERT(r, gen->getPixels(reuse.pixmap()));
 
-        for (int y = 0; y < gen->getInfo().height(); y++) {
-            auto* origLine  =  orig.getAddr(0, y);
-            auto* reuseLine = reuse.getAddr(0, y);
-            if (memcmp(origLine, reuseLine, orig.rowBytes()) != 0) {
-                ERRORF(r, "Bitmaps do not match!\n");
-                break;
-            }
-        }
+        REPORTER_ASSERT(r, ToolUtils::equal_pixels(orig, reuse));
     }
 }
 
@@ -354,14 +339,7 @@ DEF_TEST(NdkDecode_reuseJpeg, r) {
     reuse.allocPixels(gen->getInfo());
     REPORTER_ASSERT(r, gen->getPixels(reuse.pixmap()));
 
-    for (int y = 0; y < gen->getInfo().height(); y++) {
-        auto* origLine  =  orig.getAddr32(0, y);
-        auto* reuseLine = reuse.getAddr32(0, y);
-        if (memcmp(origLine, reuseLine, orig.rowBytes()) != 0) {
-            ERRORF(r, "Bitmaps do not match!\n");
-            break;
-        }
-    }
+    REPORTER_ASSERT(r, ToolUtils::equal_pixels(orig, reuse));
 }
 
 // The NDK supports scaling down to arbitrary dimensions. Skia forces clients to do this in a
@@ -562,4 +540,4 @@ DEF_TEST(NdkDecode_UnsupportedColorTypes, r) {
         }
     }
 }
-#endif // SK_ENABLE_NDK_DECODING
+#endif // SK_ENABLE_NDK_IMAGES

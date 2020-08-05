@@ -848,10 +848,14 @@ optional("jpeg_encode") {
   ]
 }
 
-optional("ndk_decode") {
-  enabled = skia_use_ndk_decode
-  public_defines = [ "SK_ENABLE_NDK_DECODING" ]
-  sources = [ "src/ports/SkImageGeneratorNDK.cpp" ]
+optional("ndk_images") {
+  enabled = skia_use_ndk_images
+  public_defines = [ "SK_ENABLE_NDK_IMAGES" ]
+  sources = [
+    "src/ports/SkImageEncoder_NDK.cpp",
+    "src/ports/SkImageGeneratorNDK.cpp",
+    "src/ports/SkNDKConversions.cpp",
+  ]
   libs = [ "jnigraphics" ]
 }
 
@@ -1079,7 +1083,7 @@ component("skia") {
     ":hsw",
     ":jpeg_decode",
     ":jpeg_encode",
-    ":ndk_decode",
+    ":ndk_images",
     ":none",
     ":png_decode",
     ":png_encode",
