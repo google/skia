@@ -71,7 +71,7 @@ public:
 #endif
 };
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // ParagraphCache_DEFINED

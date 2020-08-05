@@ -45,6 +45,6 @@ std::unique_ptr<GrDrawOp> MakeRect(GrRecordingContext*,
  */
 std::unique_ptr<GrDrawOp> MakeRect(GrRecordingContext*, GrPaint&&, const SkRect& rect);
 
-}  // namespace sk_gpu_test::test_ops
+} // namespace sk_gpu_test::test_ops
 
 #endif

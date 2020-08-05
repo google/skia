@@ -40,6 +40,6 @@ std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
                                      const SkMatrix& viewMatrix,
                                      const SkRect rects[2]);
 
-}  // namespace GrStrokeRectOp
+} // namespace GrStrokeRectOp
 
 #endif // GrStrokeRectOp_DEFINED

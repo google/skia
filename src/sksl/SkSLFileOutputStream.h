@@ -71,6 +71,6 @@ private:
     typedef OutputStream INHERITED;
 };
 
-} // namespace
+} // namespace SkSL
 
 #endif

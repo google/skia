@@ -126,4 +126,3 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachLinearWipeEffect(const skjson::Arra
 
 } // namespace internal
 } // namespace skottie
-

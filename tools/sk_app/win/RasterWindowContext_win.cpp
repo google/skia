@@ -95,5 +95,5 @@ std::unique_ptr<WindowContext> MakeRasterForWin(HWND wnd, const DisplayParams& p
     return ctx;
 }
 
-}  // namespace window_context_factory
-}  // namespace sk_app
+} // namespace window_context_factory
+} // namespace sk_app

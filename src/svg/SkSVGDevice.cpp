@@ -198,7 +198,7 @@ void AddPath(const SkGlyphRun& glyphRun, const SkPoint& offset, SkPath* path) {
             }, &rec);
 }
 
-}  // namespace
+} // namespace
 
 // For now all this does is serve unique serial IDs, but it will eventually evolve to track
 // and deduplicate resources.

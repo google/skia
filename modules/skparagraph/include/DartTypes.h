@@ -144,7 +144,7 @@ enum class LineMetricStyle : uint8_t {
     CSS
 };
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // DartTypes_DEFINED

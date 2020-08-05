@@ -121,7 +121,7 @@ private:
     size_t fLockStride = 0;
 };
 
-}  // namespace
+} // namespace
 
 GrTriangulatingPathRenderer::GrTriangulatingPathRenderer()
   : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {

@@ -46,8 +46,8 @@ std::unique_ptr<WindowContext> MakeDawnVulkanForXlib(const XlibWindowInfo&, cons
 
 std::unique_ptr<WindowContext> MakeRasterForXlib(const XlibWindowInfo&, const DisplayParams&);
 
-}  // namespace window_context_factory
+} // namespace window_context_factory
 
-}  // namespace sk_app
+} // namespace sk_app
 
 #endif

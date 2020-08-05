@@ -396,5 +396,5 @@ int CommandBufferGLTestContext::getSampleCount() {
     return result;
 }
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 #endif // SK_NO_COMMAND_BUFFER

@@ -52,5 +52,5 @@ bool TestFontCollection::addFontFromFile(const std::string& path, const std::str
 
     return true;
 }
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

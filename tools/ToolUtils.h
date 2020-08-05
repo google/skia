@@ -274,6 +274,6 @@ private:
     SkIPoint fLoc;
 };
 
-}  // namespace ToolUtils
+} // namespace ToolUtils
 
 #endif  // ToolUtils_DEFINED

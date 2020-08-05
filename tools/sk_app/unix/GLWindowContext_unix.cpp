@@ -191,6 +191,6 @@ std::unique_ptr<WindowContext> MakeGLForXlib(const XlibWindowInfo& winInfo,
     return ctx;
 }
 
-}  // namespace window_context_factory
+} // namespace window_context_factory
 
-}  // namespace sk_app
+} // namespace sk_app

@@ -16,7 +16,7 @@ template <typename E>
 std::enable_if_t<sknonstd::is_bitmask_enum<E>::value, bool> constexpr Any(E e) {
     return static_cast<std::underlying_type_t<E>>(e) != 0;
 }
-}  // namespace sknonstd
+} // namespace sknonstd
 
 template <typename E>
 std::enable_if_t<sknonstd::is_bitmask_enum<E>::value, E> constexpr operator|(E l, E r) {

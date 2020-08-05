@@ -70,6 +70,6 @@ SK_SPI size_t ToUTF16(SkUnichar uni, uint16_t utf16[2] = nullptr);
  */
 SK_SPI int UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t srcByteLength);
 
-}  // namespace SkUTF
+} // namespace SkUTF
 
 #endif  // SkUTF_DEFINED

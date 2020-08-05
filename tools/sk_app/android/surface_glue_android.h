@@ -74,6 +74,6 @@ private:
     static void* pthread_main(void*);
 };
 
-}  // namespace sk_app
+} // namespace sk_app
 
 #endif

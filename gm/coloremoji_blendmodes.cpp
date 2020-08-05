@@ -169,6 +169,6 @@ private:
 
     typedef GM INHERITED;
 };
-}  // namespace
+} // namespace
 
 DEF_GM( return new ColorEmojiBlendModesGM; )

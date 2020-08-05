@@ -926,5 +926,5 @@ void ParagraphImpl::ensureUTF16Mapping() {
     fUTF8IndexForUTF16Index.emplace_back(fText.size());
 }
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

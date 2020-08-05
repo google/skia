@@ -91,7 +91,7 @@ private:
     SkScalar                fIntervalLength;
 };
 
-}  // namespace GrTest
+} // namespace GrTest
 
 static inline GrColor GrRandomColor(SkRandom* random) {
     // There are only a few cases of random colors which interest us

@@ -237,7 +237,7 @@ private:
 static_assert(sizeof(Sk4px) == sizeof(Sk16b));
 static_assert(sizeof(Sk4px) == 16);
 
-}  // namespace
+} // namespace
 
 #ifdef SKNX_NO_SIMD
     #include "src/opts/Sk4px_none.h"

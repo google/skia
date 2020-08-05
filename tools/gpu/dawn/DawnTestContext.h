@@ -38,7 +38,7 @@ private:
  */
 DawnTestContext* CreatePlatformDawnTestContext(DawnTestContext*);
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif
 

@@ -131,5 +131,5 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
             fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection);
 }
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

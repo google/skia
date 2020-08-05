@@ -55,6 +55,5 @@ public:
     static bool ReadJson(const char* path, void(*callback)(BitmapResult));
 };
 
-
 } // namespace DM
 #endif // DMJsonWriter_DEFINED

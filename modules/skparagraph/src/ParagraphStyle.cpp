@@ -39,5 +39,5 @@ TextAlign ParagraphStyle::effective_align() const {
 void ParagraphStyle::setEllipsis(const std::u16string& ellipsis) {
     fEllipsis = SkStringFromU16String(ellipsis);
 }
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

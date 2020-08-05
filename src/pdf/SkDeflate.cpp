@@ -26,7 +26,7 @@ template <typename T> void* skia_alloc_func(void*, T items, T size) {
 
 void skia_free_func(void*, void* address) { sk_free(address); }
 
-}  // namespace
+} // namespace
 
 #define SKDEFLATEWSTREAM_INPUT_BUFFER_SIZE 4096
 #define SKDEFLATEWSTREAM_OUTPUT_BUFFER_SIZE 4224  // 4096 + 128, usually big

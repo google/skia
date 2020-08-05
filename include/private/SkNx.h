@@ -384,7 +384,7 @@ AI static SkNx<N,T> SkNx_fma(const SkNx<N,T>& f, const SkNx<N,T>& m, const SkNx<
     return f*m+a;
 }
 
-}  // namespace
+} // namespace
 
 typedef SkNx<2,     float> Sk2f;
 typedef SkNx<4,     float> Sk4f;

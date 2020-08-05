@@ -40,6 +40,6 @@ int getMaxResidentSetSizeMB();
  */
 int getCurrResidentSetSizeMB();
 
-}  // namespace sk_tools
+} // namespace sk_tools
 
 #endif  // ProcStats_DEFINED

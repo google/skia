@@ -163,7 +163,7 @@ private:
 
     typedef GrOp INHERITED;
 };
-}  // namespace
+} // namespace
 
 /**
  * Tests adding kNumOps to an op list with all possible allowed chaining configurations. Tests

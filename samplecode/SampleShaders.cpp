@@ -78,5 +78,5 @@ struct ShaderView : public Sample {
         canvas->drawRect(SkRect{0, 0, 120, 80}, paint);
     }
 };
-}  // namespace
+} // namespace
 DEF_SAMPLE( return new ShaderView(); )

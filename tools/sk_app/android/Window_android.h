@@ -38,6 +38,6 @@ private:
     BackendType fBackendType;
 };
 
-}   // namespace sk_app
+} // namespace sk_app
 
 #endif

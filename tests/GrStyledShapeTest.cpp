@@ -755,7 +755,7 @@ void TestCase::compare(skiatest::Reporter* r, const TestCase& that,
             break;
     }
 }
-}  // namespace
+} // namespace
 
 static sk_sp<SkPathEffect> make_dash() {
     static const SkScalar kIntervals[] = { 0.25, 3.f, 0.5, 2.f };

@@ -18,5 +18,5 @@ namespace sk_gpu_test {
  */
 TestContext* CreateMockTestContext(TestContext* shareContext = nullptr);
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 #endif

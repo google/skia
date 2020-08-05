@@ -68,6 +68,6 @@ private:
     Sk4f fSkewXYXY;
 };
 
-}  // namespace
+} // namespace
 
 #endif

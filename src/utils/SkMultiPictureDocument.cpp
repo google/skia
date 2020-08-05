@@ -174,7 +174,7 @@ struct PagerCanvas : public SkNWayCanvas {
         }
     }
 };
-}  // namespace
+} // namespace
 
 bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                                 SkDocumentPage* dstArray,

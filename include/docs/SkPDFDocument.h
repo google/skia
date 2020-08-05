@@ -246,7 +246,7 @@ static inline sk_sp<SkDocument> MakeDocument(SkWStream* stream) {
     return MakeDocument(stream, Metadata());
 }
 
-}  // namespace SkPDF
+} // namespace SkPDF
 
 #undef SKPDF_STRING
 #undef SKPDF_STRING_IMPL

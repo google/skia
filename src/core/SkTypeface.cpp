@@ -82,7 +82,7 @@ protected:
     }
 };
 
-}  // namespace
+} // namespace
 
 SkFontStyle SkTypeface::FromOldStyle(Style oldStyle) {
     return SkFontStyle((oldStyle & SkTypeface::kBold) ? SkFontStyle::kBold_Weight

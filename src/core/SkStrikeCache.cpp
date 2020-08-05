@@ -76,47 +76,46 @@ void SkStrikeCache::Dump() {
 
 namespace {
     const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
-}  // namespace
+    } // namespace
 
-void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
-    dump->dumpNumericValue(gGlyphCacheDumpName, "size", "bytes", SkGraphics::GetFontCacheUsed());
-    dump->dumpNumericValue(gGlyphCacheDumpName, "budget_size", "bytes",
-                           SkGraphics::GetFontCacheLimit());
-    dump->dumpNumericValue(gGlyphCacheDumpName, "glyph_count", "objects",
-                           SkGraphics::GetFontCacheCountUsed());
-    dump->dumpNumericValue(gGlyphCacheDumpName, "budget_glyph_count", "objects",
-                           SkGraphics::GetFontCacheCountLimit());
+    void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
+        dump->dumpNumericValue(gGlyphCacheDumpName, "size", "bytes",
+                               SkGraphics::GetFontCacheUsed());
+        dump->dumpNumericValue(gGlyphCacheDumpName, "budget_size", "bytes",
+                               SkGraphics::GetFontCacheLimit());
+        dump->dumpNumericValue(gGlyphCacheDumpName, "glyph_count", "objects",
+                               SkGraphics::GetFontCacheCountUsed());
+        dump->dumpNumericValue(gGlyphCacheDumpName, "budget_glyph_count", "objects",
+                               SkGraphics::GetFontCacheCountLimit());
 
-    if (dump->getRequestedDetails() == SkTraceMemoryDump::kLight_LevelOfDetail) {
-        dump->setMemoryBacking(gGlyphCacheDumpName, "malloc", nullptr);
-        return;
-    }
-
-    auto visitor = [&dump](const Strike& strike) {
-        const SkTypeface* face = strike.fScalerCache.getScalerContext()->getTypeface();
-        const SkScalerContextRec& rec = strike.fScalerCache.getScalerContext()->getRec();
-
-        SkString fontName;
-        face->getFamilyName(&fontName);
-        // Replace all special characters with '_'.
-        for (size_t index = 0; index < fontName.size(); ++index) {
-            if (!std::isalnum(fontName[index])) {
-                fontName[index] = '_';
-            }
+        if (dump->getRequestedDetails() == SkTraceMemoryDump::kLight_LevelOfDetail) {
+            dump->setMemoryBacking(gGlyphCacheDumpName, "malloc", nullptr);
+            return;
         }
 
-        SkString dumpName = SkStringPrintf(
-                "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, &strike);
+        auto visitor = [&dump](const Strike& strike) {
+            const SkTypeface* face = strike.fScalerCache.getScalerContext()->getTypeface();
+            const SkScalerContextRec& rec = strike.fScalerCache.getScalerContext()->getRec();
 
-        dump->dumpNumericValue(dumpName.c_str(),
-                               "size", "bytes", strike.fMemoryUsed);
-        dump->dumpNumericValue(dumpName.c_str(),
-                               "glyph_count", "objects",
-                               strike.fScalerCache.countCachedGlyphs());
-        dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
-    };
+            SkString fontName;
+            face->getFamilyName(&fontName);
+            // Replace all special characters with '_'.
+            for (size_t index = 0; index < fontName.size(); ++index) {
+                if (!std::isalnum(fontName[index])) {
+                    fontName[index] = '_';
+                }
+            }
 
-    GlobalStrikeCache()->forEachStrike(visitor);
+            SkString dumpName = SkStringPrintf("%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(),
+                                               rec.fFontID, &strike);
+
+            dump->dumpNumericValue(dumpName.c_str(), "size", "bytes", strike.fMemoryUsed);
+            dump->dumpNumericValue(dumpName.c_str(), "glyph_count", "objects",
+                                   strike.fScalerCache.countCachedGlyphs());
+            dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
+        };
+
+        GlobalStrikeCache()->forEachStrike(visitor);
 }
 
 sk_sp<SkStrike> SkStrikeCache::findStrike(const SkDescriptor& desc) {

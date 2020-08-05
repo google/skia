@@ -118,7 +118,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
-}  // namespace
+} // namespace
 
 DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kRepeat); )
 DEF_GM( return new ClippedBitmapShadersGM(SkTileMode::kMirror); )

@@ -120,7 +120,6 @@ private:
 
 } // namespace
 
-
 sk_sp<sksg::RenderNode> EffectBuilder::attachShiftChannelsEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
     return fBuilder->attachDiscardableAdapter<ShiftChannelsEffectAdapter>(jprops,

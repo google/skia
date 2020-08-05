@@ -62,7 +62,7 @@ private:
  */
 VkTestContext* CreatePlatformVkTestContext(VkTestContext*);
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif
 

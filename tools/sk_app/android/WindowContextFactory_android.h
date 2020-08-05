@@ -26,8 +26,8 @@ std::unique_ptr<WindowContext> MakeGLForAndroid(ANativeWindow*, const DisplayPar
 
 std::unique_ptr<WindowContext> MakeRasterForAndroid(ANativeWindow*, const DisplayParams&);
 
-}  // namespace window_context_factory
+} // namespace window_context_factory
 
-}  // namespace sk_app
+} // namespace sk_app
 
 #endif

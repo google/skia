@@ -44,5 +44,5 @@ namespace sk_gpu_test {
 
 TestContext* CreateMockTestContext(TestContext*) { return new MockTestContext(); }
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 #endif

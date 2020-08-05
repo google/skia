@@ -1229,5 +1229,5 @@ void TextLine::getRectsForPlaceholders(std::vector<TextBox>& boxes) {
             return true;
         });
 }
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

@@ -158,4 +158,4 @@ void Window::markInvalProcessed() {
     fIsContentInvalidated = false;
 }
 
-}   // namespace sk_app
+} // namespace sk_app

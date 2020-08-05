@@ -211,7 +211,7 @@ struct CompareFlagsByName {
         return strcmp(a->name().c_str(), b->name().c_str()) < 0;
     }
 };
-}  // namespace
+} // namespace
 
 void CommandLineFlags::Parse(int argc, const char* const* argv) {
     // Only allow calling this function once.
@@ -390,7 +390,7 @@ template <typename Strings> bool ShouldSkipImpl(const Strings& strings, const ch
     return !anyExclude;
 }
 
-}  // namespace
+} // namespace
 
 bool CommandLineFlags::ShouldSkip(const SkTDArray<const char*>& strings, const char* name) {
     return ShouldSkipImpl(strings, name);

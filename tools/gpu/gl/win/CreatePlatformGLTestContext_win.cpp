@@ -14,7 +14,7 @@ namespace sk_gpu_test {
 
 GLTestContext* CreatePlatformGLTestContext(GrGLStandard, GLTestContext*) { return nullptr; }
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #else
 
@@ -228,6 +228,6 @@ GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
     }
     return ctx;
 }
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif

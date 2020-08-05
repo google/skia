@@ -62,5 +62,5 @@ inline bool operator==(const Key& u, const Key& v) {
 }
 inline bool operator!=(const Key& u, const Key& v) { return !(u == v); }
 
-}  // namespace SkPDFGradientShader
+} // namespace SkPDFGradientShader
 #endif  // SkPDFGradientShader_DEFINED

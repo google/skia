@@ -108,4 +108,4 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
     }
 }
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test

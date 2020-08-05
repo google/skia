@@ -35,7 +35,7 @@ struct ShaperBench : public Benchmark {
         }
     }
 };
-}  // namespace
+} // namespace
 
 #define SHAPER_BENCH(X) DEF_BENCH(return new ShaperBench("text/" #X ".txt", "shaper_" #X);)
 SHAPER_BENCH(arabic)

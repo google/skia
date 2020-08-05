@@ -345,6 +345,6 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
 
 TestAsFPArgs::~TestAsFPArgs() {}
 
-}  // namespace GrTest
+} // namespace GrTest
 
 #endif

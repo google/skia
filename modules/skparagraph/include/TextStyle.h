@@ -320,7 +320,7 @@ struct Placeholder {
     TextRange fTextBefore;
 };
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // TextStyle_DEFINED

@@ -72,7 +72,7 @@ struct EntryComparator {
 int gCount = 0;
 Entry gEntries[128];
 
-}  // namespace
+} // namespace
 
 void SkFlattenable::Finalize() {
     std::sort(gEntries, gEntries + gCount, EntryComparator());

@@ -2898,7 +2898,7 @@ private:
     typedef Sample INHERITED;
 };
 
-}  // namespace
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////////
 DEF_SAMPLE(return new ParagraphView1();)

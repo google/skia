@@ -49,7 +49,7 @@ private:
     Block* fCurrentStyle;
     SkString fCurrentLocale;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // FontIterator_DEFINED

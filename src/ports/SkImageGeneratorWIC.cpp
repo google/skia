@@ -44,7 +44,7 @@ private:
 
     typedef SkImageGenerator INHERITED;
 };
-}  // namespace
+} // namespace
 
 std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<SkData> data) {
     // Create Windows Imaging Component ImagingFactory.

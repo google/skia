@@ -18,5 +18,5 @@ private:
     sk_sp<TypefaceFontProvider> fFontProvider;
     std::string fDirs;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

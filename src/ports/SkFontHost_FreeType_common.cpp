@@ -367,7 +367,7 @@ inline SkColorType SkColorType_for_SkMaskFormat(SkMask::Format format) {
     }
 }
 
-}  // namespace
+} // namespace
 
 void SkScalerContext_FreeType_Base::generateGlyphImage(
     FT_Face face,
@@ -760,7 +760,7 @@ public:
     };
 };
 
-}  // namespace
+} // namespace
 
 bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path) {
     SkFTGeometrySink sink{path};

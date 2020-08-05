@@ -616,41 +616,43 @@ namespace {
         }
     }
 #endif
-}  // namespace
+    } // namespace
 
-sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& ctx,
-                                                                 SkIPoint* offset) const {
-    SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
-    if (!input) {
-        return nullptr;
-    }
+    sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& ctx,
+                                                                     SkIPoint* offset) const {
+        SkIPoint inputOffset = SkIPoint::Make(0, 0);
+        sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
+        if (!input) {
+            return nullptr;
+        }
 
-    SkIRect bounds;
-    input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset, &bounds);
-    if (!input) {
-        return nullptr;
-    }
+        SkIRect bounds;
+        input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset,
+                                          &bounds);
+        if (!input) {
+            return nullptr;
+        }
 
-    SkSize radius = mappedRadius(ctx.ctm());
-    int width = SkScalarRoundToInt(radius.width());
-    int height = SkScalarRoundToInt(radius.height());
+        SkSize radius = mappedRadius(ctx.ctm());
+        int width = SkScalarRoundToInt(radius.width());
+        int height = SkScalarRoundToInt(radius.height());
 
-    // Width (or height) must fit in a signed 32-bit int to avoid UBSAN issues (crbug.com/1018190)
-    constexpr int kMaxRadius = (std::numeric_limits<int>::max() - 1) / 2;
+        // Width (or height) must fit in a signed 32-bit int to avoid UBSAN issues
+        // (crbug.com/1018190)
+        constexpr int kMaxRadius = (std::numeric_limits<int>::max() - 1) / 2;
 
-    if (width < 0 || height < 0 || width > kMaxRadius || height > kMaxRadius) {
-        return nullptr;
-    }
+        if (width < 0 || height < 0 || width > kMaxRadius || height > kMaxRadius) {
+            return nullptr;
+        }
 
-    SkIRect srcBounds = bounds;
-    srcBounds.offset(-inputOffset);
+        SkIRect srcBounds = bounds;
+        srcBounds.offset(-inputOffset);
 
-    if (0 == width && 0 == height) {
-        offset->fX = bounds.left();
-        offset->fY = bounds.top();
-        return input->makeSubset(srcBounds);
-    }
+        if (0 == width && 0 == height) {
+            offset->fX = bounds.left();
+            offset->fY = bounds.top();
+            return input->makeSubset(srcBounds);
+        }
 
 #if SK_SUPPORT_GPU
     if (ctx.gpuBacked()) {

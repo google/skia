@@ -78,6 +78,6 @@ private:
     int fDrawableCount;
 };
 
-}  // namespace SkRecords
+} // namespace SkRecords
 
 #endif//SkRecordDraw_DEFINED

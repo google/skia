@@ -230,4 +230,4 @@ sk_sp<GrDirectContext> GLTestContext::makeContext(const GrContextOptions& option
 #endif
 }
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test

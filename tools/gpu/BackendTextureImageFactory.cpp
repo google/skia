@@ -46,7 +46,7 @@ private:
     GrDirectContext* fDContext = nullptr;
     GrBackendTexture fTexture;
 };
-}  // namespace
+} // namespace
 
 namespace sk_gpu_test {
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
@@ -74,4 +74,4 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
                                     ManagedBackendTexture::Release,
                                     mbet->refAndPassAsContext());
 }
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test

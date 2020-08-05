@@ -915,7 +915,7 @@ int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
     }
     return *intervalCount;
 }
-}  // namespace
+} // namespace
 
 int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
                               const SkPaint* paint) const {

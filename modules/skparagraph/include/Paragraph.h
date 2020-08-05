@@ -87,7 +87,7 @@ protected:
     SkScalar fLongestLine;
     bool fExceededMaxLines;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // Paragraph_DEFINED

@@ -19,6 +19,6 @@ public:
     virtual void onIdle() = 0;
 };
 
-}   // namespace sk_app
+} // namespace sk_app
 
 #endif

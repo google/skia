@@ -70,6 +70,6 @@ namespace sk_gpu_test {
 D3DTestContext* CreatePlatformD3DTestContext(D3DTestContext* sharedContext) {
     return D3DTestContextImpl::Create(sharedContext);
 }
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif

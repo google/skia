@@ -66,7 +66,7 @@ private:
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // ParagraphBuilderImpl_DEFINED

@@ -104,4 +104,4 @@ std::unique_ptr<WindowContext> MakeDawnVulkanForXlib(const XlibWindowInfo& winIn
 
 }
 
-}  // namespace sk_app
+} // namespace sk_app

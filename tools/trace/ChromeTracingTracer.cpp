@@ -48,7 +48,7 @@ struct TraceEvent {
     char*          stringTable() { return reinterpret_cast<char*>(this->args() + fNumArgs); }
 };
 
-}  // namespace
+} // namespace
 
 ChromeTracingTracer::ChromeTracingTracer(const char* filename) : fFilename(filename) {
     this->createBlock();
@@ -190,7 +190,7 @@ struct TraceEventSerializationState {
     SkTHashMap<SkThreadID, int>       fShortThreadIDMap;
 };
 
-}  // namespace
+} // namespace
 
 static void trace_event_to_json(SkJSONWriter*                 writer,
                                 TraceEvent*                   traceEvent,

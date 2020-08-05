@@ -334,6 +334,6 @@ RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
        SkCanvas::SrcRectConstraint constraint);
 #undef RECORD
 
-}  // namespace SkRecords
+} // namespace SkRecords
 
 #endif//SkRecords_DEFINED

@@ -41,7 +41,7 @@ class CopyTo4444GM : public skiagm::GM {
         return DrawResult::kOk;
     }
 };
-}  // namespace
+} // namespace
 
 DEF_GM( return new CopyTo4444GM; )
 

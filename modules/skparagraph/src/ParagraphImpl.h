@@ -273,8 +273,7 @@ private:
 
     std::unique_ptr<SkUnicode> fICU;
 };
-}  // namespace textlayout
-}  // namespace skia
-
+} // namespace textlayout
+} // namespace skia
 
 #endif  // ParagraphImpl_DEFINED

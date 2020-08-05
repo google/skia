@@ -82,7 +82,7 @@ void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
     content->writeDecAsText(box.fBottom);
     content->writeText(" d1\n");
 }
-}  // namespace
+} // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 // class SkPDFFont
