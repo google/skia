@@ -51,6 +51,24 @@
       "revId": "8d7a1a914b273d689ef2cc9723aa6764170d42e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cc4ddef_69a84b04",
+        "filename": "src/sksl/ir/SkSLSymbolTable.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T13:53:51Z",
+      "side": 1,
+      "message": "Good catch. Fixed.",
+      "parentUuid": "3592f066_323dc6a3",
+      "revId": "8d7a1a914b273d689ef2cc9723aa6764170d42e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
