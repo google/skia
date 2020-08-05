@@ -22,6 +22,30 @@
       "revId": "374b154d3b6aa450aa9449b50a36daeb85f9f9f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18561585_c773bd9e",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-05T18:07:36Z",
+      "side": 0,
+      "message": "tl;dr - It shouldn\u0027t.\n\nIn more detail:\nvisitProxies is used to determine if a proxy is being using in the DAG (via GrOpsTask::isUsed), to allocate the backing store for it (via GrOpsTask::gatherProxyIntervals and the resource allocator) and to organize the DAG (via addDependency). The proxies held in the atlas don\u0027t need to participate in any of those systems. The are explicitly allocated and deallocated by the GrDrawOpAtlas and have an implicit order wrt the DAG.\n\nFWIW this is also how the GrAtlasTextOp handles its atlas proxies. I don\u0027t know why this code was ever here.",
+      "parentUuid": "137f9cbb_0045b42a",
+      "range": {
+        "startLine": 280,
+        "startChar": 12,
+        "endLine": 280,
+        "endChar": 16
+      },
+      "revId": "374b154d3b6aa450aa9449b50a36daeb85f9f9f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
