@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "e438d7a4_4d750168",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T14:05:27Z",
+      "side": 1,
+      "message": "I think I don\u0027t see a big win.  This is the alternative right?\n\n    static std::unique_ptr\u003cGrFragmentProcessor\u003e Make(SkPMColor4f color) {\n        return std::unique_ptr\u003cGrFragmentProcessor\u003e{\n            new GrConstColorProcessor(color)\n        };\n    }\n\nIf it\u0027s a simple little inline factory in the header, we could also use this style to avoid typing type names redundantly,\n\n    static auto Make(SkPMColor4f color) {\n        return std::unique_ptr\u003cGrFragmentProcessor\u003e{\n            new GrConstColorProcessor(color)\n        };\n    }\n\nthough if the factory really is that simple, it might make sense to just make the constructor public and use std::make_unique.",
+      "parentUuid": "c88f6c6e_3dc14c47",
+      "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e7dcfad_9c18b8f1",
         "filename": "include/private/SkPtrUtil.h",
         "patchSetId": 8
