@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "2c8a94d0_ec4c3924",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T19:50:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13fc7a6b_f63a421e",
+      "range": {
+        "startLine": 104,
+        "startChar": 60,
+        "endLine": 104,
+        "endChar": 65
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4fdd287_e39d89bb",
         "filename": "src/gpu/GrClip.h",
         "patchSetId": 3
@@ -119,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "89231920_fdfaae99",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T19:50:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2219230_d8bbd23a",
+      "range": {
+        "startLine": 159,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 24
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5d7574c_c5c84470",
         "filename": "src/gpu/GrClip.h",
         "patchSetId": 3
@@ -130,6 +178,30 @@
       "writtenOn": "2020-08-05T15:50:48Z",
       "side": 1,
       "message": "Which ops do this?",
+      "range": {
+        "startLine": 176,
+        "startChar": 44,
+        "endLine": 176,
+        "endChar": 76
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd02861a_5ed91f03",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T19:50:17Z",
+      "side": 1,
+      "message": "I am pretty sure every vertex-based \"picture frame\" op will do this. The 0 coverage vertex is outset half a pixel and the 1.0 coverage vertex is inset half a pixel. If the original vertex was aligned to an integer coordinate, the outside frame touches the adjacent pixel\u0027s center but has 0 coverage, and the inner frame touches the pixel corresponding to that integer coordinate and evaluates to 1.0 coverage. \n\nWe don\u0027t see any update because of our blending based on coverage. And the GPU should only be having a 0.5 fractional coordinate rasterized to the left or the right, so it may not actually trigger a fragment evaluation.\n\nFor a filled AA rect, this makes it match the non-AA rect appearance when aligned to an integer. I would bet something similar happens for round rects.",
+      "parentUuid": "c5d7574c_c5c84470",
       "range": {
         "startLine": 176,
         "startChar": 44,
@@ -156,6 +228,24 @@
       "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58dffd52_9878f7ee",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T19:50:17Z",
+      "side": 1,
+      "message": "That is a lot simpler, thanks 😊\n\nFrom my tests initially, there is some content in our skps/svgs that are detected as unclipped with the bounds tolerance and as requiring a mask otherwise. I don\u0027t love it either, but in those situations it\u0027s definitely better for performance to leave it in. Down the road, maybe we can revisit the strictness but I don\u0027t want to change too much at once.",
+      "parentUuid": "25449a66_2fd53c06",
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
