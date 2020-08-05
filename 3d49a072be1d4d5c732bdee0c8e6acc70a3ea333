@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fafc3e9_01d5854d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T21:30:59Z",
+      "side": 1,
+      "message": "The GrClampedGradientEffect generated file gets new variable names because they are based on offset into the .fp sksl, which is changed by the comment character count.",
+      "revId": "3d49a072be1d4d5c732bdee0c8e6acc70a3ea333",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
