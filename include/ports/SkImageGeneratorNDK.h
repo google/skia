@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkImageGeneratorNDK_DEFINED
+#define SkImageGeneratorNDK_DEFINED
+
 #include "include/core/SkTypes.h"
-#ifdef SK_ENABLE_NDK_DECODING
+#ifdef SK_ENABLE_NDK_IMAGES
 
 #include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
@@ -33,4 +36,5 @@ namespace SkImageGeneratorNDK {
 SK_API std::unique_ptr<SkImageGenerator> MakeFromEncodedNDK(sk_sp<SkData>);
 }
 
-#endif
+#endif // SK_ENABLE_NDK_IMAGES
+#endif // SkImageGeneratorNDK_DEFINED

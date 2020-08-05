@@ -439,8 +439,6 @@ bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
         if (memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
             return false;
         }
-        aptr += a.rowBytes();
-        bptr += b.rowBytes();
     }
     return true;
 }
