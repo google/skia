@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f751375c_13483dae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-05T18:58:20Z",
+      "side": 1,
+      "message": "I defer to Ethan; the code generator is out of my area of expertise.",
+      "revId": "9cccdad5cfe9daff3aad528c75a7c5104166a9d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
