@@ -39,6 +39,29 @@
       "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "525a5ba2_c5992a4b",
+        "filename": "include/private/SkPtrUtil.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T13:34:10Z",
+      "side": 1,
+      "message": "Yeah... I tend to agree.  This line of code is not good marketing for SkWrapUnique at all:\nthe type name isn\u0027t visible anywhere, so we feel compelled to add a comment, and the comment is wrong.  Let\u0027s please just write\n\n   std::unique_ptr\u003cFoo\u003e x{MakeFoo(123)};",
+      "range": {
+        "startLine": 21,
+        "startChar": 5,
+        "endLine": 21,
+        "endChar": 41
+      },
+      "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
