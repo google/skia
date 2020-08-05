@@ -16,6 +16,23 @@
       "revId": "7435eab9093125d83b38bee20d46ea5f84da094e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68172701_ff168007",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-05T19:29:26Z",
+      "side": 1,
+      "message": "fuzzer changes lgtm",
+      "revId": "7435eab9093125d83b38bee20d46ea5f84da094e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
