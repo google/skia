@@ -41,6 +41,6 @@ public:
     operator SkPath() const;
 };
 
-} // namespace skottie
+}  // namespace skottie
 
 #endif // SkottieValue_DEFINED

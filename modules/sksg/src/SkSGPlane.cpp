@@ -35,4 +35,4 @@ SkPath Plane::onAsPath() const {
     return path;
 }
 
-} // namespace sksg
+}  // namespace sksg

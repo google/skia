@@ -219,4 +219,4 @@ uint32_t KeyframeAnimatorBuilder::parseMapping(const skjson::ObjectValue& jkf) {
     return SkToU32(fCMs.size()) - 1 + Keyframe::kCubicIndexOffset;
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

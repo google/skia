@@ -29,7 +29,7 @@ size_t parse_node<ColorPaint>(StreamReader* sr, ColorPaint* node) {
     return parent_id;
 }
 
-} // namespace internal
+}  // namespace internal
 
 void ColorPaint::onRevalidate() {}
 
@@ -38,4 +38,4 @@ void ColorPaint::onApply(SkPaint* paint) const {
     paint->setColor4f(fColor);
 }
 
-} // namespace skrive
+}  // namespace skrive

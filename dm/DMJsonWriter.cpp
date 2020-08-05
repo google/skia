@@ -142,4 +142,4 @@ bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
     return true;
 }
 
-} // namespace DM
+}  // namespace DM

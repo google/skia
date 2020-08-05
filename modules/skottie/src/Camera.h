@@ -42,7 +42,7 @@ private:
     using INHERITED = TransformAdapter3D;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieCamera_DEFINED

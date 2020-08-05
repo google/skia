@@ -134,4 +134,4 @@ private:
 
 DEF_GM( return new ContourStartGM(); )
 
-} // namespace skiagm
+}  // namespace skiagm

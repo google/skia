@@ -120,5 +120,5 @@ private:
     using INHERITED = skiagm::GM;
 };
 
-} // namespace
+}  // namespace
 DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5); )

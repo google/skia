@@ -38,7 +38,7 @@ private:
     using INHERITED = skresources::ResourceProvider;
 };
 
-} // namespace
+}  // namespace
 
 class SkottieWebFontGM : public skiagm::GM {
 public:

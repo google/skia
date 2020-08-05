@@ -121,7 +121,7 @@ static sk_sp<sksg::RenderNode> make_shadow_effect(const skjson::ObjectValue& jst
     return sksg::ImageFilterEffect::Make(std::move(layer), std::move(filter_node));
 }
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachDropShadowStyle(const skjson::ObjectValue& jstyle,
                                                              sk_sp<sksg::RenderNode> layer) const {

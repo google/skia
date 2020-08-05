@@ -41,11 +41,11 @@ private:
     using INHERITED = DiscardableAdapterBase<PathAdapter, sksg::Path>;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath) const {
     return this->attachDiscardableAdapter<PathAdapter>(jpath, *this);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

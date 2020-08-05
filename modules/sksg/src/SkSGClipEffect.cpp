@@ -48,4 +48,4 @@ SkRect ClipEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
     return childBounds.intersect(clipBounds) ? childBounds : SkRect::MakeEmpty();
 }
 
-} // namespace sksg
+}  // namespace sksg

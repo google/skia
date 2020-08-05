@@ -68,7 +68,7 @@ void parse_fill_stroke(StreamReader* sr, Paint* node) {
     }
 }
 
-} // namespace internal
+}  // namespace internal
 
 void Paint::onApply(SkPaint* paint) const {
     paint->setAntiAlias(true);
@@ -79,4 +79,4 @@ void Paint::onApply(SkPaint* paint) const {
     paint->setStrokeJoin (fStrokeJoin );
 }
 
-} // namespace skrive
+}  // namespace skrive

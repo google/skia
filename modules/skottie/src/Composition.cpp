@@ -141,5 +141,5 @@ sk_sp<sksg::RenderNode> CompositionBuilder::build(const AnimationBuilder& abuild
     return sksg::Group::Make(std::move(layers));
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

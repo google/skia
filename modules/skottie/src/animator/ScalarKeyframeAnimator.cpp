@@ -68,7 +68,7 @@ private:
     using INHERITED = KeyframeAnimator;
 };
 
-} // namespace
+}  // namespace
 
 template <>
 bool AnimatablePropertyContainer::bind<ScalarValue>(const AnimationBuilder& abuilder,
@@ -79,4 +79,4 @@ bool AnimatablePropertyContainer::bind<ScalarValue>(const AnimationBuilder& abui
     return this->bindImpl(abuilder, jprop, builder);
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

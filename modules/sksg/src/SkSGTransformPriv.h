@@ -36,6 +36,6 @@ inline SkM44 TransformPriv::As<SkM44>(const sk_sp<Transform>& t) {
     return t->asM44();
 }
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGTransformPriv_DEFINED

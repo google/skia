@@ -306,5 +306,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachProLevelsEffect(const skjson::Array
                                                                       fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

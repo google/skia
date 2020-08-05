@@ -48,7 +48,7 @@ private:
     using INHERITED = DiscardableAdapterBase<OffsetPathsAdapter, sksg::OffsetEffect>;
 };
 
-} // namespace
+}  // namespace
 
 std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachOffsetGeometryEffect(
         const skjson::ObjectValue& jround, const AnimationBuilder* abuilder,
@@ -64,4 +64,4 @@ std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachOffsetGeometryEffect(
     return offsetted;
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

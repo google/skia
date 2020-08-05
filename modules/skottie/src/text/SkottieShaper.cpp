@@ -432,7 +432,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
     return best_result;
 }
 
-} // namespace
+}  // namespace
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point,
                              const sk_sp<SkFontMgr>& fontmgr) {
@@ -473,4 +473,4 @@ SkRect Shaper::Result::computeVisualBounds() const {
     return bounds;
 }
 
-} // namespace skottie
+}  // namespace skottie

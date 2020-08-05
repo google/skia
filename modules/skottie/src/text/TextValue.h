@@ -20,7 +20,7 @@ namespace internal {
 // Unlike other types, TextValue parsing requires access to an AnimationBuilder.
 bool Parse(const skjson::Value&, const AnimationBuilder&, TextValue*);
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieTextValue_DEFINED

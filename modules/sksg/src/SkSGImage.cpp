@@ -45,4 +45,4 @@ SkRect Image::onRevalidate(InvalidationController*, const SkMatrix& ctm) {
     return fImage ? SkRect::Make(fImage->bounds()) : SkRect::MakeEmpty();
 }
 
-} // namespace sksg
+}  // namespace sksg

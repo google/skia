@@ -107,5 +107,4 @@ std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
     return fSymbols.end();
 }
 
-
-} // namespace
+}  // namespace SkSL
