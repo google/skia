@@ -2390,7 +2390,8 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                              VariableReference::kPointer_RefKind);
         }
     }
-    if (fCanInline && function.fDefinition && function.fDefinition->canBeInlined() &&
+    if (fCanInline && function.fDefinition &&
+        function.fDefinition->canBeInlined(fSettings->fInlineThreshold) &&
         ((fSettings->fCaps && fSettings->fCaps->canUseDoLoops()) ||
          !has_early_return(*function.fDefinition))) {
         return this->inlineCall(offset, *function.fDefinition, std::move(arguments));
