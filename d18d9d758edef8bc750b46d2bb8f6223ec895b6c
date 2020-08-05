@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ec12a303_e88b7c03",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-05T13:18:05Z",
+      "side": 1,
+      "message": "Sgtm, thanks!",
+      "parentUuid": "2f17e3a0_a6419acd",
+      "revId": "d18d9d758edef8bc750b46d2bb8f6223ec895b6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8601b189_8c36b78b",
         "filename": "src/ports/SkImageGeneratorNDK.cpp",
         "patchSetId": 5
@@ -39,6 +57,30 @@
       "revId": "d18d9d758edef8bc750b46d2bb8f6223ec895b6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adf3a078_15179607",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-05T13:18:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8601b189_8c36b78b",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 32
+      },
+      "revId": "d18d9d758edef8bc750b46d2bb8f6223ec895b6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

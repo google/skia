@@ -777,6 +777,30 @@
     },
     {
       "key": {
+        "uuid": "2c733055_9120b5aa",
+        "filename": "src/ports/SkImageGeneratorNDK.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-05T13:18:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "767af57b_e99846d1",
+      "range": {
+        "startLine": 248,
+        "startChar": 13,
+        "endLine": 252,
+        "endChar": 13
+      },
+      "revId": "a946e0536ad1eb641fcac93dc036fb860c7d68b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9412c713_36ea3075",
         "filename": "src/ports/SkImageGeneratorNDK.cpp",
         "patchSetId": 4
