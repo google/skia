@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "433e823e_f7780fef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T16:27:26Z",
+      "side": 1,
+      "message": "Have you ever thought of adding a kNonFinite_SkPathSegmentMask?  Seems like segment masks and isFinite() should always be handled roughly the same way, either passed in and trusted, or computed from scratch, whatever.",
+      "revId": "c7276d341a8d4a08d74b3fe382dc9499d099cb6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8247732e_019c932c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T16:27:26Z",
+      "side": 1,
+      "message": "This sounds like the right approach to me, assuming we\u0027d that anyone who wanted to detect a more constrained path type has already done so and that any code that\u0027s using an SPath can assume it\u0027s either not a rect, not an rrect, not an oval, etc, or we don\u0027t care.",
+      "revId": "c7276d341a8d4a08d74b3fe382dc9499d099cb6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
