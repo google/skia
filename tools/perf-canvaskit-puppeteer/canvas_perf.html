@@ -32,13 +32,38 @@
     // each for this many frames, which could add up to a long time.
     const MAX_FRAMES = 51;
 
+    // Any external files needed by tests in canvas_perf.js must be listed here.
+    // And checked in under canvas_perf_assets/
+    // tests may then fetch them from ctx.files['filename']
+    const testDataFiles = [
+      'test_64x64.png',
+      'test_512x512.png',
+      'test_1500x959.jpg',
+    ];
+
     (function() {
+      const filePromises = [];
+      for (const filename of testDataFiles) {
+        filePromises.push(fetch('/static/assets/'+filename).then((resp) => {
+          return resp.arrayBuffer(); // this is also a promise.
+        }));
+      }
+      const externals = Promise.all(filePromises).then((results) => {
+        const files = {};
+        let i=0;
+        for (const bytes of results) {
+          // store them by name
+          files[testDataFiles[i]] = bytes;
+          i++;
+        }
+        return files;
+      });
 
       const loadCanvasKit = CanvasKitInit({
         locateFile: (file) => '/static/' + file,
       });
 
-      loadCanvasKit.then((CanvasKit) => {
+      Promise.all([loadCanvasKit, externals]).then(([CanvasKit, externalFiles]) => {
         const urlSearchParams = new URLSearchParams(window.location.search);
         let glversion = 2;
         if (urlSearchParams.has('webgl1')) {
@@ -64,6 +89,7 @@
           for (const t of tests) {
             let ctx = {
               'surface': surface,
+              'files': externalFiles,
             };
             console.log('Benchmarking "' + t.description + '"');
             t.setup(CanvasKit, ctx);
