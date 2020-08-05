@@ -133,7 +133,18 @@ public:
     }
 };
 
+namespace AtlasMgr {
 
+static const GrSurfaceProxyView* GetViews(GrDrawOpAtlas* atlas, unsigned int* numActiveProxies) {
+    *numActiveProxies = atlas->numActivePages();
+    return atlas->getViews();
+}
+
+static void SetUseToken(GrDrawOpAtlas* atlas, ShapeData* shapeData, GrDeferredUploadToken token) {
+     atlas->setLastUseToken(shapeData->fAtlasLocator, token);
+}
+
+}
 
 // Callback to clear out internal path cache when eviction occurs
 void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
@@ -335,9 +346,10 @@ private:
 
         FlushInfo flushInfo;
         flushInfo.fPrimProcProxies = target->allocPrimProcProxyPtrs(kMaxTextures);
-        int numActiveProxies = fAtlas->numActivePages();
-        const auto views = fAtlas->getViews();
-        for (int i = 0; i < numActiveProxies; ++i) {
+
+        unsigned int numActiveProxies;
+        const GrSurfaceProxyView* views = AtlasMgr::GetViews(fAtlas, &numActiveProxies);
+        for (unsigned int i = 0; i < numActiveProxies; ++i) {
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
             flushInfo.fPrimProcProxies[i] = views[i].proxy();
@@ -367,7 +379,7 @@ private:
             }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
                     target->allocator(), *target->caps().shaderCaps(), *matrix, fWideColor,
-                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::Filter::kLinear,
+                    views, numActiveProxies, GrSamplerState::Filter::kLinear,
                     flags);
         } else {
             SkMatrix invert;
@@ -379,7 +391,7 @@ private:
 
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                     target->allocator(), *target->caps().shaderCaps(), this->color(), fWideColor,
-                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::Filter::kNearest,
+                    views, numActiveProxies, GrSamplerState::Filter::kNearest,
                     kA8_GrMaskFormat, invert, false);
         }
 
@@ -501,10 +513,9 @@ private:
             }
 
             auto uploadTarget = target->deferredUploadTarget();
-            fAtlas->setLastUseToken(
-                    shapeData->fAtlasLocator, uploadTarget->tokenTracker()->nextDrawToken());
+            AtlasMgr::SetUseToken(fAtlas, shapeData, uploadTarget->tokenTracker()->nextDrawToken());
 
-            this->writePathVertices(fAtlas, vertices, GrVertexColor(args.fColor, fWideColor),
+            this->writePathVertices(vertices, GrVertexColor(args.fColor, fWideColor),
                                     args.fViewMatrix, shapeData);
             flushInfo.fInstancesToFlush++;
         }
@@ -723,8 +734,7 @@ private:
         return true;
     }
 
-    void writePathVertices(GrDrawOpAtlas* atlas,
-                           GrVertexWriter& vertices,
+    void writePathVertices(GrVertexWriter& vertices,
                            const GrVertexColor& color,
                            const SkMatrix& ctm,
                            const ShapeData* shapeData) const {
@@ -749,11 +759,14 @@ private:
     }
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+
+        unsigned int numActiveProxies;
+        const GrSurfaceProxyView* views = AtlasMgr::GetViews(fAtlas, &numActiveProxies);
+
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
-        int numAtlasTextures = SkToInt(fAtlas->numActivePages());
-        const auto views = fAtlas->getViews();
-        if (gp->numTextureSamplers() != numAtlasTextures) {
-            for (int i = gp->numTextureSamplers(); i < numAtlasTextures; ++i) {
+
+        if (gp->numTextureSamplers() != numActiveProxies) {
+            for (int i = gp->numTextureSamplers(); i < (int) numActiveProxies; ++i) {
                 flushInfo->fPrimProcProxies[i] = views[i].proxy();
                 // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
                 // proxies don't get added during the visitProxies call. Thus we add them here.
@@ -763,12 +776,10 @@ private:
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {
                 reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewViews(
-                        fAtlas->getViews(), fAtlas->numActivePages(),
-                        GrSamplerState::Filter::kLinear);
+                        views, numActiveProxies, GrSamplerState::Filter::kLinear);
             } else {
                 reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(
-                        fAtlas->getViews(), fAtlas->numActivePages(),
-                        GrSamplerState::Filter::kNearest);
+                        views, numActiveProxies, GrSamplerState::Filter::kNearest);
             }
         }
 
