@@ -161,7 +161,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     GrMaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveViews;
-    const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);
+    const GrSurfaceProxyView* views = atlasManager->getViews1(maskFormat, &numActiveViews);
     if (!views) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
@@ -287,7 +287,7 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
     GrMaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveViews;
-    const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);
+    const GrSurfaceProxyView* views = atlasManager->getViews1(maskFormat, &numActiveViews);
     SkASSERT(views);
     // Something has gone terribly wrong, bail
     if (!views || 0 == numActiveViews) {
