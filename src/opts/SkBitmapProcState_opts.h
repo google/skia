@@ -533,6 +533,6 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
                                                        const uint32_t*, int, SkPMColor*) = nullptr;
 #endif
 
-}  // namespace SK_OPTS_NS
+    }  // namespace SK_OPTS_NS
 
 #endif

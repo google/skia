@@ -158,7 +158,7 @@ static constexpr float gColorMatrix[] = {
     0.3f, 0.0f, 0.3f, 0.3f, 0.0f,
 };
 
-} // namespace
+}  // namespace
 
 DEF_BENCH( return new ColorFilterBench("none",
     []() { return sk_sp<SkColorFilter>(nullptr); }); )

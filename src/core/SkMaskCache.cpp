@@ -70,7 +70,7 @@ struct RRectBlurRec : public SkResourceCache::Rec {
         return true;
     }
 };
-} // namespace
+}  // namespace
 
 SkCachedData* SkMaskCache::FindAndRef(SkScalar sigma, SkBlurStyle style,
                                   const SkRRect& rrect, SkMask* mask, SkResourceCache* localCache) {
@@ -161,7 +161,7 @@ struct RectsBlurRec : public SkResourceCache::Rec {
         return true;
     }
 };
-} // namespace
+}  // namespace
 
 SkCachedData* SkMaskCache::FindAndRef(SkScalar sigma, SkBlurStyle style,
                                       const SkRect rects[], int count, SkMask* mask,

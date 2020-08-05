@@ -441,6 +441,6 @@ private:
     const Type* fTextureType = nullptr;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

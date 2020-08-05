@@ -182,7 +182,7 @@ private:
     }
 };
 
-} // namespace
+}  // namespace
 
 StringValue::StringValue(const char* src, size_t size, SkArenaAlloc& alloc) {
     new (this) FastString(src, size, src, alloc);
@@ -899,7 +899,7 @@ void Write(const Value& v, SkWStream* stream) {
     }
 }
 
-} // namespace
+}  // namespace
 
 SkString Value::toString() const {
     SkDynamicMemoryWStream wstream;
@@ -922,4 +922,4 @@ void DOM::write(SkWStream* stream) const {
     Write(fRoot, stream);
 }
 
-} // namespace skjson
+}  // namespace skjson

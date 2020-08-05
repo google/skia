@@ -47,7 +47,7 @@ private:
         return "Unknown T";
     }
 };
-} // namespace
+}  // namespace
 
 // Compare record tested with record expected. Assert op sequence is the same (comparing types)
 // frame_num is only used for error message.

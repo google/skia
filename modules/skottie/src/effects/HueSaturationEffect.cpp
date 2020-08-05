@@ -109,7 +109,7 @@ private:
           fMasterLight = 0.0f;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachHueSaturationEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
@@ -118,5 +118,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachHueSaturationEffect(
                                                                           fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

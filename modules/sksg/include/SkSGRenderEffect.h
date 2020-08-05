@@ -267,6 +267,6 @@ private:
     using INHERITED = EffectNode;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGRenderEffect_DEFINED

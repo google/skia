@@ -44,7 +44,7 @@ public:
 private:
     SkStream* fStream; // Unowned.
 };
-} // namespace
+}  // namespace
 
 // Test that some SkCodecs do not attempt to read input beyond the logical
 // end of the data. Some other SkCodecs do, but some Android apps rely on not

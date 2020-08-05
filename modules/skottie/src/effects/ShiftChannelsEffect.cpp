@@ -118,8 +118,7 @@ private:
                 fA = static_cast<float>(Source::kAlpha);
 };
 
-} // namespace
-
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachShiftChannelsEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
@@ -129,4 +128,4 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachShiftChannelsEffect(
 }
 
 } // namespace internal
-} // namespace skottie
+}  // namespace skottie

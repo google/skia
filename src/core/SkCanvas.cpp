@@ -2053,7 +2053,7 @@ public:
 private:
     SkTCopyOnFirstWrite<SkPaint> fPaint;
 };
-} // namespace
+}  // namespace
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {

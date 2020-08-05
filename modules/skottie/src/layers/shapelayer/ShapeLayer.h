@@ -18,7 +18,7 @@ namespace skjson {
 
 class ObjectValue;
 
-} // namespace skjson
+}  // namespace skjson
 
 namespace sksg {
 
@@ -26,7 +26,7 @@ class GeometryNode;
 class PaintNode;
 class RenderNode;
 
-} // namespace sksg
+}  // namespace sksg
 
 namespace skottie {
 namespace internal {
@@ -93,7 +93,7 @@ private:
                                                sk_sp<AnimatablePropertyContainer> = nullptr);
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieShapeLayer_DEFINED

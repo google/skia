@@ -141,7 +141,7 @@ struct GeometryEffectRec {
     GeometryEffectAttacherT    fAttach;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::GeometryNode> ShapeBuilder::AttachPathGeometry(const skjson::ObjectValue& jpath,
                                                            const AnimationBuilder* abuilder) {
@@ -375,5 +375,5 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShapeLayer(const skjson::ObjectV
     return shapeNode;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

@@ -104,7 +104,7 @@ private:
                   fRequiresAnchorPoint : 1; // animator sensitive to transform origin?
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieTextAnimator_DEFINED

@@ -205,6 +205,6 @@ namespace SK_OPTS_NS {
     }
 #endif
 
-}  // namespace SK_OPTS_NS
+    }  // namespace SK_OPTS_NS
 
 #endif//SkChecksum_opts_DEFINED

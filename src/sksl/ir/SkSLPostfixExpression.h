@@ -48,6 +48,6 @@ struct PostfixExpression : public Expression {
     typedef Expression INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif
