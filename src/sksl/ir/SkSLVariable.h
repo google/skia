@@ -67,7 +67,7 @@ struct Variable : public Symbol {
     const Type& fType;
     const Storage fStorage;
 
-    Expression* fInitialValue = nullptr;
+    const Expression* fInitialValue = nullptr;
 
     // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
     // becomes zero during optimization), the variable is dead and may be eliminated.
