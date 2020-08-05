@@ -105,6 +105,24 @@
       "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c11baab4_cb94ca15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T03:32:57Z",
+      "side": 1,
+      "message": "I used Clang 10 on Windows, but I wouldn\u0027t expect the OS to have any significant interaction.  I don\u0027t know what frequency or wattage things ran at, but I can\u0027t see that mattering when the only variable being changed is hsw/skx routines.",
+      "parentUuid": "f70af577_2a3ff09e",
+      "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
