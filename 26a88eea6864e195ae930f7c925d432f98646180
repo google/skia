@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf1c0fdd_eebbd0b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T19:16:17Z",
+      "side": 1,
+      "message": "OK, please don\u0027t land this.  I don\u0027t agree there\u0027s any benefit to\n\n    static std::unique_ptr\u003cGrFragmentProcessor\u003e Make(SkPMColor4f color) {\n        return SkWrapUnique(new GrConstColorProcessor(color));\n    }\n\nover\n\n    static std::unique_ptr\u003cGrFragmentProcessor\u003e Make(SkPMColor4f color) {\n        return std::unique_ptr\u003cGrFragmentProcessor\u003e{\n            new GrConstColorProcessor(color)\n        };\n    }\n\nand I think there\u0027s some pretty serious pitfalls and caveats involved using SkWrapUnique.",
+      "revId": "26a88eea6864e195ae930f7c925d432f98646180",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
