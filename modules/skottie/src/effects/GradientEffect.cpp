@@ -133,5 +133,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachGradientEffect(const skjson::ArrayV
                                                                          fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

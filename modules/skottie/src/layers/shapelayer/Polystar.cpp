@@ -78,7 +78,7 @@ private:
                 fOuterRoundness = 0;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::GeometryNode> ShapeBuilder::AttachPolystarGeometry(const skjson::ObjectValue& jstar,
                                                                const AnimationBuilder* abuilder) {
@@ -97,5 +97,5 @@ sk_sp<sksg::GeometryNode> ShapeBuilder::AttachPolystarGeometry(const skjson::Obj
                 (jstar, abuilder, gTypes[type]);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

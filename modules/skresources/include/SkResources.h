@@ -195,6 +195,6 @@ private:
     using INHERITED = ResourceProviderProxyBase;
 };
 
-} // namespace skresources
+}  // namespace skresources
 
 #endif // SkResources_DEFINED

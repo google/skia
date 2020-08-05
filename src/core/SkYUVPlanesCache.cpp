@@ -68,7 +68,7 @@ struct YUVPlanesRec : public SkResourceCache::Rec {
         return true;
     }
 };
-} // namespace
+}  // namespace
 
 SkCachedData* SkYUVPlanesCache::FindAndRef(uint32_t genID, Info* info,
                                            SkResourceCache* localCache) {

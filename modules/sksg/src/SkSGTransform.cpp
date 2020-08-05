@@ -126,7 +126,7 @@ private:
     using INHERITED = Transform;
 };
 
-} // namespace
+}  // namespace
 
 template <>
 SkMatrix Matrix<SkMatrix>::asMatrix() const { return fMatrix; }
@@ -204,4 +204,4 @@ SkRect TransformEffect::onRevalidate(InvalidationController* ic, const SkMatrix&
     return bounds;
 }
 
-} // namespace sksg
+}  // namespace sksg

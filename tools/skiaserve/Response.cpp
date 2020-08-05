@@ -98,4 +98,4 @@ int SendTemplate(MHD_Connection* connection, bool redirect, const char* redirect
     return ret;
 }
 
-} // namespace Response
+}  // namespace Response

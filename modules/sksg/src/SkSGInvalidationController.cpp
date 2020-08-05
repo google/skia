@@ -34,4 +34,4 @@ void InvalidationController::reset() {
     fBounds.setEmpty();
 }
 
-} // namespace sksg
+}  // namespace sksg

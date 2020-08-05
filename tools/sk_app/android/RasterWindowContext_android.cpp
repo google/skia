@@ -105,4 +105,4 @@ std::unique_ptr<WindowContext> MakeRasterForAndroid(ANativeWindow* window,
 }
 
 }
-}   // namespace sk_app
+}  // namespace sk_app

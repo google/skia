@@ -111,6 +111,6 @@ private:
     const Type& fType;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

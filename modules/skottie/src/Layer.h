@@ -75,7 +75,7 @@ private:
     uint32_t                   fFlags                  = 0;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieLayer_DEFINED

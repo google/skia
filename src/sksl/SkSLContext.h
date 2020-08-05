@@ -405,6 +405,6 @@ private:
     }
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

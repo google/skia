@@ -75,11 +75,12 @@ void SkStrikeCache::Dump() {
 }
 
 namespace {
-    const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
+const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
 }  // namespace
 
 void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
-    dump->dumpNumericValue(gGlyphCacheDumpName, "size", "bytes", SkGraphics::GetFontCacheUsed());
+    dump->dumpNumericValue(gGlyphCacheDumpName, "size", "bytes",
+                           SkGraphics::GetFontCacheUsed());
     dump->dumpNumericValue(gGlyphCacheDumpName, "budget_size", "bytes",
                            SkGraphics::GetFontCacheLimit());
     dump->dumpNumericValue(gGlyphCacheDumpName, "glyph_count", "objects",
@@ -105,13 +106,11 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
             }
         }
 
-        SkString dumpName = SkStringPrintf(
-                "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, &strike);
+        SkString dumpName = SkStringPrintf("%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(),
+                                           rec.fFontID, &strike);
 
-        dump->dumpNumericValue(dumpName.c_str(),
-                               "size", "bytes", strike.fMemoryUsed);
-        dump->dumpNumericValue(dumpName.c_str(),
-                               "glyph_count", "objects",
+        dump->dumpNumericValue(dumpName.c_str(), "size", "bytes", strike.fMemoryUsed);
+        dump->dumpNumericValue(dumpName.c_str(), "glyph_count", "objects",
                                strike.fScalerCache.countCachedGlyphs());
         dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
     };

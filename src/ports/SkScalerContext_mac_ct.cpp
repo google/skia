@@ -607,7 +607,7 @@ public:
             }
     }
 };
-} // namespace
+}  // namespace
 
 /*
  *  Our subpixel resolution is only 2 bits in each direction, so a scale of 4

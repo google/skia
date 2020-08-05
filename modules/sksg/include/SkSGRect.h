@@ -108,6 +108,6 @@ private:
     using INHERITED = GeometryNode;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGRect_DEFINED

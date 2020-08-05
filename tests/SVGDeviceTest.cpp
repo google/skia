@@ -154,7 +154,7 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
     check_text_node(reporter, dom, dom.finishParsing(), offset, 2, txt, expected);
 }
 
-} // namespace
+}  // namespace
 
 DEF_TEST(SVGDevice_whitespace_pos, reporter) {
     static const struct {

@@ -38,6 +38,6 @@ public:
     static std::unique_ptr<SkStreamRewindable> Make(std::unique_ptr<SkStream> stream,
                                                     size_t minBufferSize);
 };
-} // namespace skia
-} // namespace android
+}  // namespace skia
+}  // namespace android
 #endif  // FrontBufferedStream_DEFINED

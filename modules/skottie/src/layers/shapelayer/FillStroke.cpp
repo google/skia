@@ -123,7 +123,7 @@ private:
     using INHERITED = DiscardableAdapterBase<DashAdapter, sksg::DashEffect>;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::PaintNode> ShapeBuilder::AttachFill(const skjson::ObjectValue& jpaint,
                                                 const AnimationBuilder* abuilder,
@@ -181,5 +181,5 @@ std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AdjustStrokeGeometry(
     return std::move(geos);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

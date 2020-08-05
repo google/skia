@@ -73,4 +73,4 @@ SkRect Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     return paint.computeFastBounds(bounds, &bounds);
 }
 
-} // namespace sksg
+}  // namespace sksg

@@ -28,14 +28,14 @@ namespace skjson {
 class ArrayValue;
 class ObjectValue;
 class Value;
-} // namespace skjson
+}  // namespace skjson
 
 namespace sksg {
 class Color;
 class Path;
 class RenderNode;
 class Transform;
-} // namespace sksg
+}  // namespace sksg
 
 namespace skottie {
 namespace internal {
@@ -285,7 +285,7 @@ private:
     using INHERITED = SkNoncopyable;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottiePriv_DEFINED

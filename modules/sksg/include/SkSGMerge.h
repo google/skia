@@ -64,6 +64,6 @@ private:
     using INHERITED = GeometryNode;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGMerge_DEFINED

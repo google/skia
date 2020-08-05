@@ -49,6 +49,6 @@ private:
     typedef EffectNode INHERITED;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGMaskEffect_DEFINED

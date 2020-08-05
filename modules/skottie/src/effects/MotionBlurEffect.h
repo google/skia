@@ -53,7 +53,7 @@ private:
     using INHERITED = sksg::CustomRenderNode;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieMotionBlurEffect_DEFINED

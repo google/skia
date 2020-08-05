@@ -15,7 +15,7 @@ class SkMaskFilter;
 
 namespace sksg {
 class MaskShaderEffect;
-} // namespace sksg
+}  // namespace sksg
 
 namespace skottie {
 namespace internal {
@@ -136,7 +136,7 @@ private:
     const SkSize                        fLayerSize;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieEffects_DEFINED

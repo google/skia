@@ -147,5 +147,5 @@ bool BitmapRegionDecoder::decodeRegion(SkBitmap* bitmap, BRDAllocator* allocator
     }
 }
 
-} // namespace skia
-} // namespace android
+}  // namespace skia
+}  // namespace android
