@@ -30,6 +30,7 @@
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
+#include "src/gpu/ops/GrSmallPathShapeData.h"
 
 static constexpr size_t kMaxAtlasTextureBytes = 2048 * 2048;
 static constexpr size_t kPlotWidth = 512;
@@ -48,99 +49,13 @@ static constexpr SkScalar kMaxDim = 73;
 static constexpr SkScalar kMinSize = SK_ScalarHalf;
 static constexpr SkScalar kMaxSize = 2*kMaxMIP;
 
-class ShapeDataKey {
-public:
-    ShapeDataKey() {}
-    ShapeDataKey(const ShapeDataKey& that) { *this = that; }
-    ShapeDataKey(const GrStyledShape& shape, uint32_t dim) { this->set(shape, dim); }
-    ShapeDataKey(const GrStyledShape& shape, const SkMatrix& ctm) { this->set(shape, ctm); }
-
-    ShapeDataKey& operator=(const ShapeDataKey& that) {
-        fKey.reset(that.fKey.count());
-        memcpy(fKey.get(), that.fKey.get(), fKey.count() * sizeof(uint32_t));
-        return *this;
-    }
-
-    // for SDF paths
-    void set(const GrStyledShape& shape, uint32_t dim) {
-        // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
-        // relevant styling information.
-        SkASSERT(shape.style().isSimpleFill());
-        SkASSERT(shape.hasUnstyledKey());
-        int shapeKeySize = shape.unstyledKeySize();
-        fKey.reset(1 + shapeKeySize);
-        fKey[0] = dim;
-        shape.writeUnstyledKey(&fKey[1]);
-    }
-
-    // for bitmap paths
-    void set(const GrStyledShape& shape, const SkMatrix& ctm) {
-        // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
-        // relevant styling information.
-        SkASSERT(shape.style().isSimpleFill());
-        SkASSERT(shape.hasUnstyledKey());
-        // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
-        SkScalar sx = ctm.get(SkMatrix::kMScaleX);
-        SkScalar sy = ctm.get(SkMatrix::kMScaleY);
-        SkScalar kx = ctm.get(SkMatrix::kMSkewX);
-        SkScalar ky = ctm.get(SkMatrix::kMSkewY);
-        SkScalar tx = ctm.get(SkMatrix::kMTransX);
-        SkScalar ty = ctm.get(SkMatrix::kMTransY);
-        // Allow 8 bits each in x and y of subpixel positioning.
-        tx -= SkScalarFloorToScalar(tx);
-        ty -= SkScalarFloorToScalar(ty);
-        SkFixed fracX = SkScalarToFixed(tx) & 0x0000FF00;
-        SkFixed fracY = SkScalarToFixed(ty) & 0x0000FF00;
-        int shapeKeySize = shape.unstyledKeySize();
-        fKey.reset(5 + shapeKeySize);
-        fKey[0] = SkFloat2Bits(sx);
-        fKey[1] = SkFloat2Bits(sy);
-        fKey[2] = SkFloat2Bits(kx);
-        fKey[3] = SkFloat2Bits(ky);
-        fKey[4] = fracX | (fracY >> 8);
-        shape.writeUnstyledKey(&fKey[5]);
-    }
-
-    bool operator==(const ShapeDataKey& that) const {
-        return fKey.count() == that.fKey.count() &&
-                0 == memcmp(fKey.get(), that.fKey.get(), sizeof(uint32_t) * fKey.count());
-    }
-
-    int count32() const { return fKey.count(); }
-    const uint32_t* data() const { return fKey.get(); }
-
-private:
-    // The key is composed of the GrStyledShape's key, and either the dimensions of the DF
-    // generated for the path (32x32 max, 64x64 max, 128x128 max) if an SDF image or
-    // the matrix for the path with only fractional translation.
-    SkAutoSTArray<24, uint32_t> fKey;
-};
-
-class ShapeData {
-public:
-    ShapeDataKey                fKey;
-    SkRect                      fBounds;
-    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
-
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
-
-    static inline const ShapeDataKey& GetKey(const ShapeData& data) {
-        return data.fKey;
-    }
-
-    static inline uint32_t Hash(const ShapeDataKey& key) {
-        return SkOpts::hash(key.data(), sizeof(uint32_t) * key.count32());
-    }
-};
-
-
 
 // Callback to clear out internal path cache when eviction occurs
 void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-    ShapeData* shapeData;
+    GrSmallPathShapeData* shapeData;
     while ((shapeData = iter.get())) {
         iter.next();
         if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
@@ -160,7 +75,7 @@ GrSmallPathRenderer::GrSmallPathRenderer() : fAtlas(nullptr) {}
 GrSmallPathRenderer::~GrSmallPathRenderer() {
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-    ShapeData* shapeData;
+    GrSmallPathShapeData* shapeData;
     while ((shapeData = iter.get())) {
         iter.next();
         delete shapeData;
@@ -225,7 +140,7 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
+    using ShapeCache = SkTDynamicHash<GrSmallPathShapeData, GrSmallPathShapeDataKey>;
     using ShapeDataList = GrSmallPathRenderer::ShapeDataList;
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
@@ -405,7 +320,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Entry& args = fShapes[i];
 
-            ShapeData* shapeData;
+            GrSmallPathShapeData* shapeData;
             if (fUsesDistanceField) {
                 // get mip level
                 SkScalar maxScale;
@@ -452,7 +367,7 @@ private:
                 SkScalar desiredDimension = std::min(mipSize, kMaxMIP);
 
                 // check to see if df path is cached
-                ShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
+                GrSmallPathShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
                 shapeData = fShapeCache->find(key);
                 if (!shapeData || !fAtlas->hasID(shapeData->fAtlasLocator.plotLocator())) {
                     // Remove the stale cache entry
@@ -463,7 +378,7 @@ private:
                     }
                     SkScalar scale = desiredDimension / maxDim;
 
-                    shapeData = new ShapeData;
+                    shapeData = new GrSmallPathShapeData;
                     if (!this->addDFPathToAtlas(target,
                                                 &flushInfo,
                                                 fAtlas,
@@ -477,7 +392,7 @@ private:
                 }
             } else {
                 // check to see if bitmap path is cached
-                ShapeDataKey key(args.fShape, args.fViewMatrix);
+                GrSmallPathShapeDataKey key(args.fShape, args.fViewMatrix);
                 shapeData = fShapeCache->find(key);
                 if (!shapeData || !fAtlas->hasID(shapeData->fAtlasLocator.plotLocator())) {
                     // Remove the stale cache entry
@@ -487,7 +402,7 @@ private:
                         delete shapeData;
                     }
 
-                    shapeData = new ShapeData;
+                    shapeData = new GrSmallPathShapeData;
                     if (!this->addBMPathToAtlas(target,
                                                 &flushInfo,
                                                 fAtlas,
@@ -535,8 +450,8 @@ private:
     }
 
     bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrStyledShape& shape,
-                          uint32_t dimension, SkScalar scale) const {
+                          GrDrawOpAtlas* atlas, GrSmallPathShapeData* shapeData,
+                          const GrStyledShape& shape, uint32_t dimension, SkScalar scale) const {
 
         const SkRect& bounds = shape.bounds();
 
@@ -643,8 +558,8 @@ private:
     }
 
     bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrStyledShape& shape,
-                          const SkMatrix& ctm) const {
+                          GrDrawOpAtlas* atlas, GrSmallPathShapeData* shapeData,
+                          const GrStyledShape& shape, const SkMatrix& ctm) const {
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
             return false;
@@ -727,7 +642,7 @@ private:
                            GrVertexWriter& vertices,
                            const GrVertexColor& color,
                            const SkMatrix& ctm,
-                           const ShapeData* shapeData) const {
+                           const GrSmallPathShapeData* shapeData) const {
         SkRect translatedBounds(shapeData->fBounds);
         if (!fUsesDistanceField) {
             translatedBounds.offset(SkScalarFloorToScalar(ctm.get(SkMatrix::kMTransX)),
@@ -898,7 +813,7 @@ struct GrSmallPathRenderer::PathTestStruct : public GrDrawOpAtlas::EvictionCallb
     void reset() {
         ShapeDataList::Iter iter;
         iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-        ShapeData* shapeData;
+        GrSmallPathShapeData* shapeData;
         while ((shapeData = iter.get())) {
             iter.next();
             fShapeList.remove(shapeData);
@@ -912,7 +827,7 @@ struct GrSmallPathRenderer::PathTestStruct : public GrDrawOpAtlas::EvictionCallb
         // remove any paths that use this plot
         ShapeDataList::Iter iter;
         iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-        ShapeData* shapeData;
+        GrSmallPathShapeData* shapeData;
         while ((shapeData = iter.get())) {
             iter.next();
             if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
