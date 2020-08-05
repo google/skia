@@ -101,7 +101,7 @@ public:
     }
 };
 
-} // namespace
+}  // namespace
 
 namespace SK_OPTS_NS {
 
@@ -131,7 +131,7 @@ namespace SK_OPTS_NS {
     return nullptr;
 }
 
-} // namespace SK_OPTS_NS
+}  // namespace SK_OPTS_NS
 
 #endif // #ifdef SK_FORCE_RASTER_PIPELINE_BLITTER
 

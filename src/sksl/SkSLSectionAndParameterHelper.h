@@ -108,6 +108,6 @@ private:
     std::unordered_map<String, std::vector<const Section*>> fSections;
 };
 
-} // namespace SkSL
+}  // namespace SkSL
 
 #endif

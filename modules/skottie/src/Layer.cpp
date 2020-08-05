@@ -302,7 +302,7 @@ private:
     const sk_sp<MotionBlurEffect> fMotionBlurEffect;
 };
 
-} // namespace
+}  // namespace
 
 LayerBuilder::LayerBuilder(const skjson::ObjectValue& jlayer)
     : fJlayer(jlayer)
@@ -576,5 +576,5 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
     return abuilder.attachBlendMode(fJlayer, std::move(layer));
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

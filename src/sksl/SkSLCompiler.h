@@ -261,6 +261,6 @@ struct PipelineStageArgs {
 };
 #endif
 
-} // namespace
+}  // namespace SkSL
 
 #endif

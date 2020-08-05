@@ -79,4 +79,4 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         }
     }
 }
-} // namespace skiatest
+}  // namespace skiatest

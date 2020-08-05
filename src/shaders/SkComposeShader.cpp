@@ -38,7 +38,7 @@ private:
     using INHERITED = SkStageRec;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
     switch (mode) {

@@ -100,6 +100,6 @@ private:
     using INHERITED = Gradient;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGGradient_DEFINED

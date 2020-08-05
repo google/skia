@@ -123,7 +123,7 @@ static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
     return kBlendModeMap[bm_index];
 }
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jobject,
                                                         sk_sp<sksg::RenderNode> child_node) const {
@@ -296,7 +296,7 @@ void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* obse
     fBuilder->fPropertyObserverContext = name ? name->begin() : nullptr;
 }
 
-} // namespace internal
+}  // namespace internal
 
 void Logger::log(Level, const char[], const char*) {}
 
@@ -521,4 +521,4 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[]) {
     return Builder().makeFromFile(path);
 }
 
-} // namespace skottie
+}  // namespace skottie

@@ -139,6 +139,6 @@ public:
     const Standard fStd;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

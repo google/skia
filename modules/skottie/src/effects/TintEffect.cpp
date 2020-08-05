@@ -66,12 +66,12 @@ private:
     ScalarValue fAmount = 0;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachTintEffect(const skjson::ArrayValue& jprops,
                                                         sk_sp<sksg::RenderNode> layer) const {
     return fBuilder->attachDiscardableAdapter<TintAdapter>(jprops, std::move(layer), *fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

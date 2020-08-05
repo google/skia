@@ -44,6 +44,6 @@ private:
     , fValue(value) {}
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

@@ -35,6 +35,6 @@ struct IRNode {
     int fOffset;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

@@ -159,4 +159,4 @@ const SkRect& Node::revalidate(InvalidationController* ic, const SkMatrix& ctm) 
     return fBounds;
 }
 
-} // namespace sksg
+}  // namespace sksg

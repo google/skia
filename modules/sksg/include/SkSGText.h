@@ -97,6 +97,6 @@ private:
 
     using INHERITED = GeometryNode;
 };
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGText_DEFINED

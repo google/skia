@@ -149,7 +149,7 @@ private:
     mutable SkMutex                                       fMutex;
 };
 
-} // namespace
+}  // namespace
 
 SkImageFilterCache* SkImageFilterCache::Create(size_t maxBytes) {
     return new CacheImpl(maxBytes);

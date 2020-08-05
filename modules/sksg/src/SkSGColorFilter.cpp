@@ -202,7 +202,7 @@ sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors)
             ->makeComposed(SkColorFilters::Matrix(luminance_matrix));
 }
 
-} // namespace
+}  // namespace
 
 sk_sp<SkColorFilter> GradientColorFilter::onRevalidateFilter() {
     for (const auto& color : fColors) {
@@ -220,4 +220,4 @@ sk_sp<SkColorFilter> GradientColorFilter::onRevalidateFilter() {
     return SkColorFilters::Lerp(fWeight, nullptr, std::move(gradientCF));
 }
 
-} // namespace sksg
+}  // namespace sksg

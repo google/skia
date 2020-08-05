@@ -79,6 +79,6 @@ struct Variable : public Symbol {
     typedef Symbol INHERITED;
 };
 
-} // namespace SkSL
+}  // namespace SkSL
 
 #endif

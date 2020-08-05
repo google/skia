@@ -22,7 +22,7 @@ class BlurImageFilter;
 class Group;
 template <typename T>
 class Matrix;
-} // namespace sksg
+}  // namespace sksg
 
 namespace skottie {
 namespace internal {
@@ -114,7 +114,7 @@ private:
                      fRequiresAnchorPoint : 1;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieTextAdapter_DEFINED

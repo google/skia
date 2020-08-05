@@ -276,5 +276,4 @@ private:
 }  // namespace textlayout
 }  // namespace skia
 
-
 #endif  // ParagraphImpl_DEFINED

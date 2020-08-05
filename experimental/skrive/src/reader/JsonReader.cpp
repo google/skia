@@ -247,7 +247,7 @@ private:
     std::vector<ContextRec>            fContextStack;
 };
 
-} // namespace
+}  // namespace
 
 std::unique_ptr<StreamReader> MakeJsonStreamReader(const char json[], size_t len) {
     auto dom = std::make_unique<skjson::DOM>(json, len);
@@ -256,4 +256,4 @@ std::unique_ptr<StreamReader> MakeJsonStreamReader(const char json[], size_t len
                                                  : nullptr;
 }
 
-} // namespace skrive::internal
+}  // namespace skrive::internal

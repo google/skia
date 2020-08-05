@@ -28,11 +28,11 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL "auditTrail"
 
 namespace {
-    // Constants used in Annotations by Android for keeping track of layers
-    static constexpr char kOffscreenLayerDraw[] = "OffscreenLayerDraw";
-    static constexpr char kSurfaceID[] = "SurfaceID";
-    static constexpr char kAndroidClip[] = "AndroidDeviceClipRestriction";
-} // namespace
+// Constants used in Annotations by Android for keeping track of layers
+static constexpr char kOffscreenLayerDraw[] = "OffscreenLayerDraw";
+static constexpr char kSurfaceID[] = "SurfaceID";
+static constexpr char kAndroidClip[] = "AndroidDeviceClipRestriction";
+}  // namespace
 
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
 public:
@@ -47,14 +47,14 @@ protected:
     }
 
     void onDrawPicture(const SkPicture* picture,
-                       const SkMatrix*  matrix,
-                       const SkPaint*   paint) override {
-        // We need to replay the picture onto this canvas in order to filter its internal paints.
+                       const SkMatrix* matrix,
+                       const SkPaint* paint) override {
+        // We need to replay the picture onto this canvas in order to filter its internal
+        // paints.
         this->SkCanvas::onDrawPicture(picture, matrix, paint);
     }
 
 private:
-
     typedef SkPaintFilterCanvas INHERITED;
 };
 

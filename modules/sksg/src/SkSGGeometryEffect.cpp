@@ -112,7 +112,7 @@ sk_sp<SkPathEffect> make_dash(const std::vector<float> intervals, float phase) {
     return SkDashPathEffect::Make(intervals_ptr, SkToInt(intervals_count), phase);
 }
 
-} // namespace
+}  // namespace
 
 SkPath DashEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
     SkPath path = child->asPath();

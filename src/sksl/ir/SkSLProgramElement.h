@@ -39,6 +39,6 @@ struct ProgramElement : public IRNode {
     typedef IRNode INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

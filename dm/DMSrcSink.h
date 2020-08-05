@@ -327,7 +327,7 @@ private:
 #endif
 
 #if defined(SK_XML)
-} // namespace DM
+}  // namespace DM
 
 class SkSVGDOM;
 
