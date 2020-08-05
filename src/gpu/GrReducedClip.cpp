@@ -930,4 +930,3 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticEleme
     // Compose the clip and shader FPs.
     return GrFragmentProcessor::Compose(std::move(clipFP), std::move(shaderFP));
 }
-

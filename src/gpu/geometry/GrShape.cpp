@@ -8,6 +8,7 @@
 #include "src/gpu/geometry/GrShape.h"
 
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkRRectPriv.h"
 
 GrShape& GrShape::operator=(const GrShape& shape) {
     switch(shape.type()) {
@@ -295,13 +296,31 @@ bool GrShape::contains(const SkRect& rect) const {
         case Type::kPath:
             return fPath.conservativelyContainsRect(rect);
         case Type::kArc:
-            if (fArc.fUseCenter) {
+            if (fArc.fUseCenter && SkScalarAbs(fArc.fSweepAngle) <= 180.f) {
                 SkPath arc;
                 this->asPath(&arc);
                 return arc.conservativelyContainsRect(rect);
             } else {
                 return false;
             }
+        default:
+            SkUNREACHABLE;
+    }
+}
+
+bool GrShape::contains(const SkPoint& point) const {
+    switch(this->type()) {
+        case Type::kEmpty:
+        case Type::kPoint: // fall through, currently choosing not to test if shape == point
+        case Type::kLine:  // fall through, ""
+        case Type::kArc:
+            return false;
+        case Type::kRect:
+            return fRect.contains(point.fX, point.fY);
+        case Type::kRRect:
+            return SkRRectPriv::ContainsPoint(fRRect, point);
+        case Type::kPath:
+            return fPath.contains(point.fX, point.fY);
         default:
             SkUNREACHABLE;
     }
