@@ -717,6 +717,7 @@ public:
     }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+        return false;
         auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
         // don't need to set ctx->paintColor
         ctx->inputs = fInputs;
@@ -918,6 +919,7 @@ public:
     }
 
     bool onAppendStages(const SkStageRec& rec) const override {
+        return false;
         SkMatrix inverse;
         if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM,
                                        &inverse)) {
