@@ -1,0 +1,85 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004227880",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/287096?revision\u003d10",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "3f0d9a0f_f36332ef",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 13155
+      },
+      "writtenOn": "2020-08-05T17:43:18Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 551,
+        "startChar": 7,
+        "endLine": 551,
+        "endChar": 13
+      },
+      "revId": "747c9f959eb029cfb5b3aa63835a824b1e5bfb7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004227880",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/287096?revision\u003d10",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "75c50de5_f0e7ebed",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 886,
+      "author": {
+        "id": 13155
+      },
+      "writtenOn": "2020-08-05T17:43:18Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 886,
+        "startChar": 7,
+        "endLine": 886,
+        "endChar": 13
+      },
+      "revId": "747c9f959eb029cfb5b3aa63835a824b1e5bfb7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004227880",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/287096?revision\u003d10",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "2635a48a_c2def9a8",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 13155
+      },
+      "writtenOn": "2020-08-05T17:43:18Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 1034,
+        "startChar": 7,
+        "endLine": 1034,
+        "endChar": 13
+      },
+      "revId": "747c9f959eb029cfb5b3aa63835a824b1e5bfb7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
