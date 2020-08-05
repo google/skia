@@ -26,8 +26,7 @@ public:
     GrDawnProgramDataManager(const UniformInfoArray&, uint32_t uniformBufferSize);
 
     uint32_t uniformBufferSize() const { return fUniformSize; }
-
-    void uploadUniformBuffers(void* dest) const;
+    const void* uniformData() const { return fUniformData.get(); }
 };
 
 #endif
