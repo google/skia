@@ -326,14 +326,20 @@ public:
 
         p->append(SkRasterPipeline::store_src, state->orig_rgba);
         if (!fCF1) {
-            fCF0->appendStages(rec, shaderIsOpaque);
+            if (!fCF0->appendStages(rec, shaderIsOpaque)) {
+                return false;
+            }
             p->append(SkRasterPipeline::move_src_dst);
             p->append(SkRasterPipeline::load_src, state->orig_rgba);
         } else {
-            fCF0->appendStages(rec, shaderIsOpaque);
+            if (!fCF0->appendStages(rec, shaderIsOpaque)) {
+                return false;
+            }
             p->append(SkRasterPipeline::store_src, state->filtered_rgba);
             p->append(SkRasterPipeline::load_src, state->orig_rgba);
-            fCF1->appendStages(rec, shaderIsOpaque);
+            if (!fCF1->appendStages(rec, shaderIsOpaque)) {
+                return false;
+            }
             p->append(SkRasterPipeline::load_dst, state->filtered_rgba);
         }
         float* storage = rec.fAlloc->make<float>(fWeight);

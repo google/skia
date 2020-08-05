@@ -56,7 +56,9 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
     if (fAlpha != 1.0f) {
         rec.fPipeline->append(SkRasterPipeline::scale_1_float, rec.fAlloc->make<float>(fAlpha));
     }
-    fFilter->appendStages(rec, fShader->isOpaque());
+    if (!fFilter->appendStages(rec, fShader->isOpaque())) {
+        return false;
+    }
     return true;
 }
 
