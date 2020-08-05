@@ -36,6 +36,7 @@
     #endif
 #endif
 
+bool gSkVMAllowJIT{false};
 bool gSkVMJITViaDylib{false};
 
 #if defined(SKVM_JIT)
@@ -2472,23 +2473,29 @@ namespace skvm {
     #endif
 
     #if !defined(SKVM_JIT_BUT_IGNORE_IT)
-        // This may fail either simply because we can't JIT, or when using LLVM,
-        // because the work represented by fImpl->llvm_compiling hasn't finished yet.
-        if (const void* b = fImpl->jit_entry.load()) {
+        const void* jit_entry = fImpl->jit_entry.load();
+        // jit_entry may be null either simply because we can't JIT, or when using LLVM
+        // if the work represented by fImpl->llvm_compiling hasn't finished yet.
+        //
+        // Ordinarily we'd never find ourselves with non-null jit_entry and !gSkVMAllowJIT, but it
+        // can happen during interactive programs like Viewer that toggle gSkVMAllowJIT on and off,
+        // due to timing or program caching.
+        if (jit_entry != nullptr && gSkVMAllowJIT) {
         #if SKVM_JIT_STATS
             jits++;
             fast += n;
         #endif
             void** a = args;
             switch (fImpl->strides.size()) {
-                case 0: return ((void(*)(int                        ))b)(n                    );
-                case 1: return ((void(*)(int,void*                  ))b)(n,a[0]               );
-                case 2: return ((void(*)(int,void*,void*            ))b)(n,a[0],a[1]          );
-                case 3: return ((void(*)(int,void*,void*,void*      ))b)(n,a[0],a[1],a[2]     );
-                case 4: return ((void(*)(int,void*,void*,void*,void*))b)(n,a[0],a[1],a[2],a[3]);
-                case 5: return ((void(*)(int,void*,void*,void*,void*,void*))b)
+                case 0: return ((void(*)(int                        ))jit_entry)(n               );
+                case 1: return ((void(*)(int,void*                  ))jit_entry)(n,a[0]          );
+                case 2: return ((void(*)(int,void*,void*            ))jit_entry)(n,a[0],a[1]     );
+                case 3: return ((void(*)(int,void*,void*,void*      ))jit_entry)(n,a[0],a[1],a[2]);
+                case 4: return ((void(*)(int,void*,void*,void*,void*))jit_entry)
+                                (n,a[0],a[1],a[2],a[3]);
+                case 5: return ((void(*)(int,void*,void*,void*,void*,void*))jit_entry)
                                 (n,a[0],a[1],a[2],a[3],a[4]);
-                case 6: return ((void(*)(int,void*,void*,void*,void*,void*,void*))b)
+                case 6: return ((void(*)(int,void*,void*,void*,void*,void*,void*))jit_entry)
                                 (n,a[0],a[1],a[2],a[3],a[4],a[5]);
                 default: SkASSERT(false);  // TODO: >6 args?
             }
@@ -2955,11 +2962,13 @@ namespace skvm {
                      const std::vector<int>& strides,
                      const char* debug_name) : Program() {
         fImpl->strides = strides;
-    #if 1 && defined(SKVM_LLVM)
-        this->setupLLVM(instructions, debug_name);
-    #elif 1 && defined(SKVM_JIT)
-        this->setupJIT(instructions, debug_name);
-    #endif
+        if (gSkVMAllowJIT) {
+        #if 1 && defined(SKVM_LLVM)
+            this->setupLLVM(instructions, debug_name);
+        #elif 1 && defined(SKVM_JIT)
+            this->setupJIT(instructions, debug_name);
+        #endif
+        }
 
         // Might as well do this after setupLLVM() to get a little more time to compile.
         this->setupInterpreter(instructions);

@@ -163,7 +163,8 @@ static DEFINE_int_2(threads, j, -1,
 static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 
 static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
-static DEFINE_bool(skvm, false, "Try to use skvm blitters for raster.");
+static DEFINE_bool(skvm, false, "Force skvm blitters for raster.");
+static DEFINE_bool(jit, true, "JIT SkVM?");
 static DEFINE_bool(dylib, false, "JIT via dylib (much slower compile but easier to debug/profile)");
 static DEFINE_bool(stats, false, "Display stats overlay on startup.");
 
@@ -295,6 +296,7 @@ static const char kON[] = "ON";
 static const char kRefreshStateName[] = "Refresh";
 
 extern bool gUseSkVMBlitter;
+extern bool gSkVMAllowJIT;
 extern bool gSkVMJITViaDylib;
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
@@ -346,6 +348,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
 
     gUseSkVMBlitter = FLAGS_skvm;
+    gSkVMAllowJIT = FLAGS_jit;
     gSkVMJITViaDylib = FLAGS_dylib;
 
     ToolUtils::SetDefaultFontMgr();
@@ -656,8 +659,13 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
-    fCommands.addCommand('!', "SkVM", "Toggle SkVM", [this]() {
+    fCommands.addCommand('!', "SkVM", "Toggle SkVM blitter", [this]() {
         gUseSkVMBlitter = !gUseSkVMBlitter;
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('@', "SkVM", "Toggle SkVM JIT", [this]() {
+        gSkVMAllowJIT = !gSkVMAllowJIT;
         this->updateTitle();
         fWindow->inval();
     });
@@ -899,7 +907,10 @@ void Viewer::updateTitle() {
         title.append(" <serialize>");
     }
     if (gUseSkVMBlitter) {
-        title.append(" <skvm>");
+        title.append(" <SkVMBlitter>");
+    }
+    if (!gSkVMAllowJIT) {
+        title.append(" <SkVM interpreter>");
     }
 
     SkPaintTitleUpdater paintTitle(&title);
