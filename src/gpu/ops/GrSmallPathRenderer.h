@@ -14,13 +14,11 @@
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 
-#include "src/core/SkOpts.h"
 #include "src/core/SkTDynamicHash.h"
 
 class GrRecordingContext;
-
-class ShapeData;
-class ShapeDataKey;
+class GrSmallPathShapeData;
+class GrSmallPathShapeDataKey;
 
 class GrSmallPathRenderer : public GrPathRenderer,
                             public GrOnFlushCallbackObject,
@@ -51,8 +49,8 @@ public:
         }
     }
 
-    using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
-    typedef SkTInternalLList<ShapeData> ShapeDataList;
+    using ShapeCache = SkTDynamicHash<GrSmallPathShapeData, GrSmallPathShapeDataKey>;
+    typedef SkTInternalLList<GrSmallPathShapeData> ShapeDataList;
 
     static std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrRecordingContext*,
                                                           GrPaint&&,

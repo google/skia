@@ -411,6 +411,7 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h",
   "$_src/gpu/ops/GrSmallPathRenderer.cpp",
   "$_src/gpu/ops/GrSmallPathRenderer.h",
+  "$_src/gpu/ops/GrSmallPathShapeData.h",
   "$_src/gpu/ops/GrStrokeRectOp.cpp",
   "$_src/gpu/ops/GrStrokeRectOp.h",
   "$_src/gpu/ops/GrTextureOp.cpp",
