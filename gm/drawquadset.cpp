@@ -244,4 +244,4 @@ private:
 
 DEF_GM(return new DrawQuadSetGM();)
 
-} // namespace skiagm
+}  // namespace skiagm

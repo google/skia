@@ -175,7 +175,7 @@ union PositioningAndExtended {
 
 static_assert(sizeof(PositioningAndExtended) == sizeof(int32_t), "");
 
-} // namespace
+}  // namespace
 
 enum SkTextBlob::GlyphPositioning : uint8_t {
     kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.

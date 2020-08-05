@@ -126,7 +126,7 @@ SKSL_FLOAT stod(const String& s);
 
 long stol(const String& s);
 
-} // namespace  SkSL
+}  // namespace  SkSL
 
 namespace std {
     template<> struct hash<SkSL::StringFragment> {
@@ -144,6 +144,6 @@ namespace std {
             return hash<std::string>{}(s);
         }
     };
-} // namespace std
+}  // namespace std
 
 #endif

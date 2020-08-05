@@ -36,6 +36,6 @@ private:
     typedef RenderNode INHERITED;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGEffectNode_DEFINED

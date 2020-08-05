@@ -34,4 +34,4 @@ SkPath GeometryNode::asPath() const {
     return this->onAsPath();
 }
 
-} // namespace sksg
+}  // namespace sksg

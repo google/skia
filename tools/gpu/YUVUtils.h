@@ -109,7 +109,6 @@ private:
     bool             fCreationComplete[4] = { false };
 };
 
-
-} // namespace sk_gpu_test
+}  // namespace sk_gpu_test
 
 #endif // YUVUtils_DEFINED

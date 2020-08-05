@@ -542,5 +542,5 @@ void TextAdapter::adjustLineProps(const TextAnimator::ModulatorBuffer& buf,
     }
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

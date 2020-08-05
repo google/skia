@@ -165,6 +165,6 @@ private:
     using INHERITED = GeometryEffect;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGGeometryEffect_DEFINED

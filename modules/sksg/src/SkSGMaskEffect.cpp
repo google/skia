@@ -94,4 +94,4 @@ SkRect MaskEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
         : SkRect::MakeEmpty();
 }
 
-} // namespace sksg
+}  // namespace sksg

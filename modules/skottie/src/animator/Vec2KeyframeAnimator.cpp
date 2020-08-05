@@ -206,7 +206,7 @@ private:
     using INHERITED = KeyframeAnimator;
 };
 
-} // namespace
+}  // namespace
 
 bool AnimatablePropertyContainer::bindAutoOrientable(const AnimationBuilder& abuilder,
                                                      const skjson::ObjectValue* jprop,
@@ -233,4 +233,4 @@ bool AnimatablePropertyContainer::bind<Vec2Value>(const AnimationBuilder& abuild
     return this->bindAutoOrientable(abuilder, jprop, v, nullptr);
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

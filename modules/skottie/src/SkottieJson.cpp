@@ -122,4 +122,4 @@ bool Parse<VectorValue>(const Value& v, VectorValue* vec) {
     return true;
 }
 
-} // namespace skottie
+}  // namespace skottie

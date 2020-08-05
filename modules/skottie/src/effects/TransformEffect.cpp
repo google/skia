@@ -103,5 +103,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTransformEffect(const skjson::Array
              );
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

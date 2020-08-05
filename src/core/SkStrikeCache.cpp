@@ -75,7 +75,7 @@ void SkStrikeCache::Dump() {
 }
 
 namespace {
-    const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
+const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
 }  // namespace
 
 void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
@@ -105,8 +105,8 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
             }
         }
 
-        SkString dumpName = SkStringPrintf(
-                "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, &strike);
+        SkString dumpName = SkStringPrintf("%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(),
+                                           rec.fFontID, &strike);
 
         dump->dumpNumericValue(dumpName.c_str(),
                                "size", "bytes", strike.fMemoryUsed);

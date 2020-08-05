@@ -37,6 +37,6 @@ protected:
     OutputStream* fOut;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

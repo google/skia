@@ -42,6 +42,6 @@ private:
     SkRect              fBounds;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGInvalidationController_DEFINED

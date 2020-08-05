@@ -47,5 +47,5 @@ std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachMergeGeometryEffect(
     return merged;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

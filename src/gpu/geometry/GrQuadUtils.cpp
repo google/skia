@@ -1163,4 +1163,4 @@ int TessellationHelper::adjustDegenerateVertices(const skvx::Vec<4, float>& sign
     }
 }
 
-}; // namespace GrQuadUtils
+};  // namespace GrQuadUtils

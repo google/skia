@@ -76,7 +76,7 @@ private:
                  fSmoothness = 100;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieRangeSelector_DEFINED

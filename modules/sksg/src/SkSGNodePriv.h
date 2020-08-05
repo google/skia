@@ -22,6 +22,6 @@ private:
     NodePriv() = delete;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGNodePriv_DEFINED

@@ -191,6 +191,6 @@ namespace GrQuadUtils {
         friend int ClipToW0(DrawQuad*, DrawQuad*); // To reuse Vertices struct
     };
 
-}; // namespace GrQuadUtils
+};  // namespace GrQuadUtils
 
 #endif
