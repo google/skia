@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.3] - 2020-08-05
+
 ### Added
  - Added `CanvasKit.TypefaceFontProvider`, which can be used to register fonts
    with a font family alias. For example, "Roboto Light" may be registered with
@@ -13,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    font weight.
  - Added `CanvasKit.ParagraphBuilder.MakeFromFontProvider` to make a
    `ParagraphBuilder` from a `TypefaceFontProvider`.
+ - Added `CanvasKit.ParagraphBuilder.pushPaintStyle` which can be used to stroke or fill
+   text with paints instead of simple colors.
 
 ## [0.17.2] - 2020-07-22
 
@@ -23,7 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - Compile option to deserialize effects in skps `include_effects_deserialization`.
- - ParagraphBuilder.pushPaintStyle which allows Paints to be used to color text.
 
 ### Changed
 - Pathops and SKP deserialization/serialization enabled on the npm build.
