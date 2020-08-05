@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "13fc7a6b_f63a421e",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-05T15:50:48Z",
+      "side": 1,
+      "message": "It couldn\u0027t hurt to add this CL comment to the code comment",
+      "parentUuid": "8bdb3657_5427bdc7",
+      "range": {
+        "startLine": 104,
+        "startChar": 60,
+        "endLine": 104,
+        "endChar": 65
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4fdd287_e39d89bb",
         "filename": "src/gpu/GrClip.h",
         "patchSetId": 3
@@ -65,6 +89,70 @@
         "endLine": 159,
         "endChar": 24
       },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2219230_d8bbd23a",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-05T15:50:48Z",
+      "side": 1,
+      "message": "I think we tend to use \"enum class\" for new enums and this old style of ending in \"_EnumName\" is deprecated.",
+      "parentUuid": "a4fdd287_e39d89bb",
+      "range": {
+        "startLine": 159,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 24
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5d7574c_c5c84470",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-05T15:50:48Z",
+      "side": 1,
+      "message": "Which ops do this?",
+      "range": {
+        "startLine": 176,
+        "startChar": 44,
+        "endLine": 176,
+        "endChar": 76
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25449a66_2fd53c06",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-05T15:50:48Z",
+      "side": 1,
+      "message": "I\u0027m a little confused by this complexity. Could it not be simpler?\n\n return (aa \u003d\u003d GrAA::kNo) ? SkScalarRoundToInt(v - kHalfPixelRoundingTolerance)\n                          : SkScalarFloorToInt(v + kBoundsTolerance);\n\nAlso, I\u0027m not a huge fan of kBoundsIntolerance (even though I think I added it several years ago). Why not just always round down?\n\n return (aa \u003d\u003d GrAA::kNo) ? SkScalarRoundToInt(v - kHalfPixelRoundingTolerance)\n                          : SkScalarFloorToInt(v);",
       "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -91,6 +179,30 @@
       "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecb9c780_afe35a45",
+        "filename": "src/gpu/GrStencilMaskHelper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-05T15:50:48Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8411f8f8_8c89ebed",
+      "range": {
+        "startLine": 325,
+        "startChar": 4,
+        "endLine": 333,
+        "endChar": 5
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
