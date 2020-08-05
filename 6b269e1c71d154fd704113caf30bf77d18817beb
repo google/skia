@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e42428c9_e0a13589",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-05T13:24:05Z",
+      "side": 1,
+      "message": "I\u0027m not totally opposed to this, but I\u0027m also not sure I see much value. Even after re-reading the linked tips, the argument about safety during reading falls flat - as long as make_unique is being used when possible, the remaining cases are either going to be explicit unique_ptr constructors, or calls to WrapUnique. The idea that WrapUnique is then a signal to the reader that we need to carefully inspect the code for correctness doesn\u0027t resonate - I could just as easily say that calls to unique_ptr\u0027s constructors are the same signal - we\u0027d be using them in the same places that would otherwise be substituted with WrapUnique, right?\n\nSo it seems like the big win is avoiding repetition of the type name, but that only applies in the factory-implementation context, where you have to have stated the type name at least once to construct the instance. For other uses, you\u0027ve elided *all* copies of the type name.",
+      "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e7dcfad_9c18b8f1",
+        "filename": "include/private/SkPtrUtil.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-05T13:24:05Z",
+      "side": 1,
+      "message": "Foo, right?",
+      "range": {
+        "startLine": 21,
+        "startChar": 69,
+        "endLine": 21,
+        "endChar": 70
+      },
+      "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
