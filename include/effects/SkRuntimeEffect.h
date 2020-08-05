@@ -128,7 +128,7 @@ public:
     // Returns index of the named child, or -1 if not found
     int findChild(const char* name) const;
 
-    bool usesSampleCoords() const { return fMainFunctionHasSampleCoords; }
+    bool usesSampleCoords() const { return fUsesSampleCoords; }
 
     static void RegisterFlattenables();
     ~SkRuntimeEffect() override;
@@ -141,7 +141,8 @@ private:
                     std::vector<SkSL::SampleUsage>&& sampleUsages,
                     std::vector<Varying>&& varyings,
                     size_t uniformSize,
-                    bool mainHasSampleCoords);
+                    bool usesSampleCoords,
+                    bool allowColorFilter);
 
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
     SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs,
@@ -180,7 +181,8 @@ private:
     std::vector<Varying>  fVaryings;
 
     size_t fUniformSize;
-    bool   fMainFunctionHasSampleCoords;
+    bool   fUsesSampleCoords;
+    bool   fAllowColorFilter;
 };
 
 /**
