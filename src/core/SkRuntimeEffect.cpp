@@ -47,6 +47,10 @@ public:
 
     SkSL::Compiler* operator->() const { return gCompiler; }
 
+    const SkSL::Program::Settings& settings() const { return gSettings; }
+
+    void setInlineThreshold(int threshold) { gSettings.fInlineThreshold = threshold; }
+
 private:
     SkAutoMutexExclusive fLock;
 
@@ -55,10 +59,17 @@ private:
         return mutex;
     }
 
-    static SkSL::Compiler* gCompiler;
+    static SkSL::Compiler*         gCompiler;
+    static SkSL::Program::Settings gSettings;
 };
-SkSL::Compiler* SharedCompiler::gCompiler = nullptr;
+SkSL::Compiler*         SharedCompiler::gCompiler = nullptr;
+SkSL::Program::Settings SharedCompiler::gSettings = {};
 }  // namespace SkSL
+
+void SkRuntimeEffect_SetInlineThreshold(int threshold) {
+    SkSL::SharedCompiler compiler;
+    compiler.setInlineThreshold(threshold);
+}
 
 // Accepts a valid marker, or "normals(<marker>)"
 static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint32_t* flags) {
@@ -110,7 +121,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     SkSL::SharedCompiler compiler;
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                             SkSL::String(sksl.c_str(), sksl.size()),
-                                            SkSL::Program::Settings());
+                                            compiler.settings());
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
     #define RETURN_FAILURE(...) return std::make_tuple(nullptr, SkStringPrintf(__VA_ARGS__))
@@ -393,6 +404,7 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
     // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
     SkSL::Program::Settings settings;
     settings.fCaps = shaderCaps;
+    settings.fInlineThreshold = compiler.settings().fInlineThreshold;
 
     auto baseProgram = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                                 SkSL::String(fSkSL.c_str(), fSkSL.size()),
