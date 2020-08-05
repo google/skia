@@ -21,7 +21,7 @@ class SkSpriteBlitter : public SkBlitter {
 public:
     SkSpriteBlitter(const SkPixmap& source);
 
-    virtual void setup(const SkPixmap& dst, int left, int top, const SkPaint&);
+    virtual bool setup(const SkPixmap& dst, int left, int top, const SkPaint&);
 
     // blitH, blitAntiH, blitV and blitMask should not be called on an SkSpriteBlitter.
     void blitH(int x, int y, int width) override;
