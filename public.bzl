@@ -324,6 +324,7 @@ PORTS_SRCS_ANDROID = struct(
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
+        "src/ports/*NDK*", # TODO (scroggo): enable NDK decoding/encoding in Google3
         "src/ports/SkDebug_stdio.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
@@ -441,6 +442,7 @@ PORTS_SRCS_FUCHSIA = struct(
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
+        "src/ports/*NDK*",
         #"src/ports/SkDebug_stdio.cpp",
         #"src/ports/SkFontMgr_custom.cpp",
         "src/ports/SkFontMgr_custom_directory.cpp",
