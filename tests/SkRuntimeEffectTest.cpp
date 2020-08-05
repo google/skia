@@ -7,6 +7,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
@@ -78,6 +79,20 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("in shader child1; in shader child2;",
          "color = sample(p.x > 10 ? child1 : child2);",
          "expression");
+}
+
+DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
+    auto test = [r](const char* sksl) {
+        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(sksl));
+        REPORTER_ASSERT(r, effect);
+        REPORTER_ASSERT(r, effect->makeShader(nullptr, nullptr, 0, nullptr, false));
+        REPORTER_ASSERT(r, !effect->makeColorFilter(nullptr));
+    };
+
+    // Runtime effects that use sample coords or sk_FragCoord are valid shaders,
+    // but not valid color filters
+    test("void main(float2 p, inout half4 color) { color.rg = half2(p); }");
+    test("void main(float2 p, inout half4 color) { color.rg = half2(sk_FragCoord.xy); }");
 }
 
 class TestEffect {
