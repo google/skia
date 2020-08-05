@@ -37,7 +37,7 @@ class SkData;
  */
 
 #define SK_RASTER_PIPELINE_STAGES(M)                               \
-    M(callback) M(interpreter)                                     \
+    M(callback)                                                    \
     M(move_src_dst) M(move_dst_src)                                \
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_gamut)                \
     M(unpremul) M(premul) M(premul_dst)                            \
@@ -165,16 +165,6 @@ namespace SkSL {
 class ByteCode;
 class ByteCodeFunction;
 }
-
-struct SkRasterPipeline_InterpreterCtx {
-    const SkSL::ByteCode*         byteCode;
-    const SkSL::ByteCodeFunction* fn;
-
-    SkColor4f     paintColor;
-    sk_sp<SkData> inputs;
-    int           ninputs;
-    bool          shaderConvention;  // if false, we're a colorfilter
-};
 
 struct SkRasterPipeline_GradientCtx {
     size_t stopCount;
