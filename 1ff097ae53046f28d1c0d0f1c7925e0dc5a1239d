@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4591fc84_17c87ea3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-08-05T14:30:50Z",
+      "side": 1,
+      "message": "Awaiting provisioning profile updates before I can test this on the new ipads, and upgrade the old ones.",
+      "revId": "1ff097ae53046f28d1c0d0f1c7925e0dc5a1239d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
