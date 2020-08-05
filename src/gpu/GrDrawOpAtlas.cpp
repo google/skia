@@ -60,7 +60,7 @@ void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvid
     }
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvider,
+std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make1(GrProxyProvider* proxyProvider,
                                                    const GrBackendFormat& format,
                                                    GrColorType colorType, int width,
                                                    int height, int plotWidth, int plotHeight,
@@ -231,10 +231,10 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::GrDrawOpAtlas(
-        GrProxyProvider* proxyProvider, const GrBackendFormat& format,
-        GrColorType colorType, int width, int height, int plotWidth, int plotHeight,
-        GenerationCounter* generationCounter, AllowMultitexturing allowMultitexturing)
+GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendFormat& format,
+                             GrColorType colorType, int width, int height,
+                             int plotWidth, int plotHeight, GenerationCounter* generationCounter,
+                             AllowMultitexturing allowMultitexturing)
         : fFormat(format)
         , fColorType(colorType)
         , fTextureWidth(width)

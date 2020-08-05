@@ -147,7 +147,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     DummyEvict evictor;
     GrDrawOpAtlas::GenerationCounter counter;
 
-    std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
+    std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make1(
                                                 proxyProvider,
                                                 format,
                                                 GrColorType::kAlpha_8,
@@ -234,7 +234,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     // in the preparation of the text op
     auto atlasManager = context->priv().getAtlasManager();
     unsigned int numProxies;
-    atlasManager->getViews(kA8_GrMaskFormat, &numProxies);
+    atlasManager->getViews1(kA8_GrMaskFormat, &numProxies);
     atlasManager->setMaxPages_TestingOnly(0);
 
     flushState.setOpArgs(&opArgs);

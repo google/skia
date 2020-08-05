@@ -87,6 +87,12 @@ public:
             return fGenID != 0 || fPlotIndex != 0 || fPageIndex != 0;
         }
 
+        void makeInvald() {
+            fGenID = 0;
+            fPlotIndex = 0;
+            fPageIndex = 0;
+        }
+
         bool operator==(const PlotLocator& other) const {
             return fGenID == other.fGenID &&
                    fPlotIndex == other.fPlotIndex &&
@@ -107,6 +113,8 @@ public:
     class AtlasLocator {
     public:
         std::array<uint16_t, 4> getUVs() const;
+
+        void makeInvalid() { fPlotLocator.makeInvald(); }
 
         // TODO: Remove the small path renderer's use of this for eviction
         PlotLocator plotLocator() const { return fPlotLocator; }
@@ -176,7 +184,7 @@ public:
      *
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
+    static std::unique_ptr<GrDrawOpAtlas> Make1(GrProxyProvider*,
                                                const GrBackendFormat& format,
                                                GrColorType,
                                                int width, int height,
