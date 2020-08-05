@@ -145,6 +145,24 @@
     },
     {
       "key": {
+        "uuid": "08b855db_2b86ad5b",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T19:13:41Z",
+      "side": 1,
+      "message": "I\u0027m sorry, I think I misunderstood. Your last comment didn\u0027t seem to pose a direct question other than \"This is the alternative right? [code]\"\n\nThe naive answer is \"yes\" but I assume this was meant as a rhetorical question. :| The gencode can be seen here.\n\nhttp://google3/third_party/skia/HEAD/src/gpu/effects/generated/GrConstColorProcessor.h?l\u003d24\u0026rcl\u003d320961663\n\nThe only other question I can see inferred is, \"is using the `auto` return type a good substitute for SkWrapUnique?\" I didn\u0027t understand that you were waiting for a response to this. I guess my answer is, no, it\u0027s not really a good substitute in the general case. For instance, it wouldn\u0027t have been helpful in the places where I used SkWrapUnique in this CL. I suppose it\u0027s fair to say that some usages of SkWrapUnique could be rewritten in a different way, but I think that\u0027s true of almost all code :)",
+      "parentUuid": "94ff7162_93311601",
+      "revId": "8d7a1a914b273d689ef2cc9723aa6764170d42e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3592f066_323dc6a3",
         "filename": "src/sksl/ir/SkSLSymbolTable.h",
         "patchSetId": 5
