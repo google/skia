@@ -129,33 +129,20 @@ protected:
     typedef ProgramVisitor INHERITED;
 };
 
-// Visitor that searches through a main function of the program for reference to the
-// sample coordinates provided by the parent FP or main program.
-class SampleCoordsVisitor : public ProgramVisitor {
-protected:
-    // Only bother recursing through the main function for the sample coord builtin
-    bool visitProgramElement(const ProgramElement& pe) override {
-        if (pe.fKind == ProgramElement::kFunction_Kind) {
-            // Both kFragmentProcessor and kPipelineStage types use the first argument for
-            // the main coords builtin. If that isn't in the signature, there's no need to
-            // recurse deeper.
-            const FunctionDeclaration& func = ((const FunctionDefinition&) pe).fDeclaration;
-            if (func.fName == "main" && func.fParameters.size() >= 1 &&
-                func.fParameters.front()->fType == *this->program().fContext->fFloat2_Type) {
-                return this->INHERITED::visitProgramElement(pe);
-            }
-        }
-        // No recursion, but returning false will allow visitor to continue to siblings
-        return false;
-    }
+// Visitor that searches through the program for references to a particular builtin variable
+class BuiltinVariableVisitor : public ProgramVisitor {
+public:
+    BuiltinVariableVisitor(int builtin) : fBuiltin(builtin) {}
 
     bool visitExpression(const Expression& e) override {
         if (e.fKind == Expression::kVariableReference_Kind) {
             const VariableReference& var = (const VariableReference&) e;
-            return var.fVariable.fModifiers.fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
+            return var.fVariable.fModifiers.fLayout.fBuiltin == fBuiltin;
         }
         return this->INHERITED::visitExpression(e);
     }
+
+    int fBuiltin;
 
     typedef ProgramVisitor INHERITED;
 };
@@ -170,9 +157,17 @@ SampleUsage Analysis::GetSampleUsage(const Program& program, const Variable& fp)
     return visitor.visit(program);
 }
 
-bool Analysis::ReferencesSampleCoords(const Program& program) {
-    SampleCoordsVisitor visitor;
+bool Analysis::ReferencesBuiltin(const Program& program, int builtin) {
+    BuiltinVariableVisitor visitor(builtin);
     return visitor.visit(program);
+}
+
+bool Analysis::ReferencesSampleCoords(const Program& program) {
+    return Analysis::ReferencesBuiltin(program, SK_MAIN_COORDS_BUILTIN);
+}
+
+bool Analysis::ReferencesFragCoords(const Program& program) {
+    return Analysis::ReferencesBuiltin(program, SK_FRAGCOORD_BUILTIN);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

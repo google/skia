@@ -7,6 +7,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
@@ -78,6 +79,34 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("in shader child1; in shader child2;",
          "color = sample(p.x > 10 ? child1 : child2);",
          "expression");
+}
+
+DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
+    auto test = [r](const char* sksl) {
+        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(sksl));
+        REPORTER_ASSERT(r, effect);
+        const size_t numChildren = effect->children().count();
+
+        std::vector<sk_sp<SkShader>> shaderChildren(numChildren, nullptr);
+        REPORTER_ASSERT(
+                r, effect->makeShader(nullptr, shaderChildren.data(), numChildren, nullptr, false));
+
+        // TODO: When color filters support children (again), pass in an same-sized arrray here
+        REPORTER_ASSERT(r, !effect->makeColorFilter(nullptr));
+    };
+
+    // Various runtime effects that are valid shaders, but not valid color filters:
+
+    // Using sample coords or sk_FragCoord:
+    test("void main(float2 p, inout half4 color) { color.rg = half2(p); }");
+    test("void main(float2 p, inout half4 color) { color.rg = half2(sk_FragCoord.xy); }");
+
+    // Sampling children at explicit coordinates:
+    test("in shader child;"
+         "void main(float2 p, inout half4 color) { color = sample(child, color.rg); }");
+    // Sampling children with a matrix (implicitly uses sample coords):
+    test("in shader child;"
+         "void main(float2 p, inout half4 color) { color = sample(child, float3x3(1)); }");
 }
 
 class TestEffect {

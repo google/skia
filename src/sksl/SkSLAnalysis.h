@@ -25,7 +25,10 @@ struct Variable;
 struct Analysis {
     static SampleUsage GetSampleUsage(const Program& program, const Variable& fp);
 
+    static bool ReferencesBuiltin(const Program& program, int builtin);
+
     static bool ReferencesSampleCoords(const Program& program);
+    static bool ReferencesFragCoords(const Program& program);
 };
 
 /**

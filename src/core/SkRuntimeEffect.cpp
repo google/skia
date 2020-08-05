@@ -120,8 +120,15 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
+    const bool usesSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
+    const bool usesFragCoords   = SkSL::Analysis::ReferencesFragCoords(*program);
     bool hasMain = false;
-    bool mainHasSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
+
+    // We also limit color filters to only use PassThrough sampling (this is checked below, while
+    // we're gathering the SampleUsages for each child). Technically, a color filter should be
+    // allowed to sample an unrelated texture with explicit coords (e.g., lookup table). We don't
+    // support sampling anything but another color filter, though, so this restriction is fine.
+    bool allowColorFilter = !usesSampleCoords && !usesFragCoords;
 
     std::vector<const SkSL::Variable*> inVars;
     std::vector<const SkSL::Variable*> uniformVars;
@@ -149,6 +156,9 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                 else if (&var.fType == ctx.fFragmentProcessor_Type.get()) {
                     children.push_back(var.fName);
                     sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
+                    if (sampleUsages.back().hasMatrix() || sampleUsages.back().fExplicitCoords) {
+                        allowColorFilter = false;
+                    }
                 }
                 // 'in' variables (other than fragment processors)
                 else if (var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
@@ -262,7 +272,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(sampleUsages),
                                                       std::move(varyings),
                                                       uniformSize,
-                                                      mainHasSampleCoords));
+                                                      usesSampleCoords,
+                                                      allowColorFilter));
     return std::make_tuple(std::move(effect), SkString());
 }
 
@@ -292,7 +303,8 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::vector<SkSL::SampleUsage>&& sampleUsages,
                                  std::vector<Varying>&& varyings,
                                  size_t uniformSize,
-                                 bool mainHasSampleCoords)
+                                 bool usesSampleCoords,
+                                 bool allowColorFilter)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fBaseProgram(std::move(baseProgram))
@@ -301,7 +313,8 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
         , fSampleUsages(std::move(sampleUsages))
         , fVaryings(std::move(varyings))
         , fUniformSize(uniformSize)
-        , fMainFunctionHasSampleCoords(mainHasSampleCoords) {
+        , fUsesSampleCoords(usesSampleCoords)
+        , fAllowColorFilter(allowColorFilter) {
     SkASSERT(fBaseProgram);
     SkASSERT(SkIsAlign4(fUniformSize));
     SkASSERT(fUniformSize <= this->inputSize());
@@ -1088,6 +1101,9 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> inputs) {
     if (!fChildren.empty()) {
+        return nullptr;
+    }
+    if (!fAllowColorFilter) {
         return nullptr;
     }
     if (!inputs) {
