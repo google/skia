@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6557c630_7f498f3a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-05T23:42:14Z",
+      "side": 1,
+      "message": "This CL breaks the gn to cmake conversion, which I thought there was a bot for. But we need to teach gn/gn_to_cmake.py about the frameworks variable.\n\nOut of curiosity, why is the gn team doing this?",
+      "revId": "c5f8e7df8154b7239cb3309b8563ef04504ba76a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
