@@ -324,7 +324,7 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
         // If the SubRun is completely outside, don't add an op for it.
         return {nullptr, nullptr};
     } else if (clip != nullptr) {
-        const GrClip::PreClipResult result = clip->preApply(subRunBounds);
+        const GrClip::PreClipResult result = clip->preApply(subRunBounds, GrAA::kNo);
         if (result.fEffect == GrClip::Effect::kClipped) {
             if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
                 // Clip geometrically during onPrepare using clipRect.
