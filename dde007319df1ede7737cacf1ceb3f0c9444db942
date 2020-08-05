@@ -127,6 +127,24 @@
     },
     {
       "key": {
+        "uuid": "9d0ecf5d_27d8285f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T23:01:50Z",
+      "side": 1,
+      "message": "Re llvm-namespace-comment opinionated: 2 spaces before a comment is the norm here (across LLVM/Google/Chromium) so that\u0027s definitely going to be well supported. I\u0027ll try it out tomorrow.\n\nRe weird formatting: yes, this CL had those same errors and I fixed them up (modulo a few tiny ones that you noticed; I\u0027ll fix these tomorrow). Yes, there is a reason for the weirdness:\n\n  - We tell ClangFormat that our namespaces aren\u0027t indented via `NamespaceIndentation: None`. It believes us.\n  - My script above instructs ClangFormat to only look at one line of code (via -lines\u003d123:123)\n\nClangFormat combines these facts and decides that whatever indentation level the namespace-close line is at, neighboring lines also ought to be at that same level as well (since namespace indentation is \"none\"). In places where we format our code the way we say we do in .clang-format, this trick works. For code where we don\u0027t do what we say we do in .clang-format, ClangTidy whiffs it.\n\nThis is basically because we are formatting little subranges instead of formatting the whole file. If we did a whole-file format, it\u0027d work, but it would remove the indentation on the namespace contents (and reformat everything else as well!)\n\nUnfortunately ClangFormat doesn\u0027t know how to apply a single rule; ideally we could say \"only do FixNamespaces and don\u0027t adjust indentation levels\" but that\u0027s not an option.",
+      "parentUuid": "cfda9ae9_653dd411",
+      "revId": "dde007319df1ede7737cacf1ceb3f0c9444db942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4090fe1a_c20ae13e",
         "filename": "modules/skottie/src/effects/ShiftChannelsEffect.cpp",
         "patchSetId": 11
