@@ -26,9 +26,3 @@ GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& unifo
         ++i;
     }
 }
-
-void GrDawnProgramDataManager::uploadUniformBuffers(void* dest) const {
-    if (fUniformsDirty) {
-        memcpy(dest, fUniformData.get(), fUniformSize);
-    }
-}

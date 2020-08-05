@@ -514,15 +514,6 @@ static void set_texture(GrDawnGpu* gpu, GrSamplerState state, GrTexture* texture
 
 wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarget* renderTarget,
                                               const GrProgramInfo& programInfo) {
-    std::vector<wgpu::BindGroupEntry> bindings;
-    GrDawnRingBuffer::Slice slice;
-    uint32_t uniformBufferSize = fDataManager.uniformBufferSize();
-    if (0 != uniformBufferSize) {
-        slice = gpu->allocateUniformRingBufferSlice(uniformBufferSize);
-        bindings.push_back(make_bind_group_entry(GrSPIRVUniformHandler::kUniformBinding,
-                                                   slice.fBuffer, slice.fOffset,
-                                                   uniformBufferSize));
-    }
     this->setRenderTargetState(renderTarget, programInfo.origin());
     const GrPipeline& pipeline = programInfo.pipeline();
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
@@ -539,14 +530,32 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
-    if (0 != uniformBufferSize) {
-        fDataManager.uploadUniformBuffers(slice.fData);
+    UniformBindGroupKey key;
+    key.append(fDataManager.uniformBufferSize(), fDataManager.uniformData());
+    if (UniformBindGroupValue* value = fUniformBindGroupCache.find(key)) {
+        return value->fBindGroup;
     }
+    std::vector<wgpu::BindGroupEntry> bindings;
+    uint32_t uniformBufferSize = fDataManager.uniformBufferSize();
+    GrDawnRingBuffer::Slice slice;
+    if (0 != uniformBufferSize) {
+        slice = gpu->allocateUniformRingBufferSlice(uniformBufferSize);
+        memcpy(slice.fData, fDataManager.uniformData(), uniformBufferSize);
+        bindings.push_back(make_bind_group_entry(GrSPIRVUniformHandler::kUniformBinding,
+                                                 slice.fBuffer, slice.fOffset,
+                                                 uniformBufferSize));
+    }
+    wgpu::BindGroup bindGroup;
     wgpu::BindGroupDescriptor descriptor;
     descriptor.layout = fBindGroupLayouts[0];
     descriptor.entryCount = bindings.size();
     descriptor.entries = bindings.data();
-    return gpu->device().CreateBindGroup(&descriptor);
+    bindGroup = gpu->device().CreateBindGroup(&descriptor);
+    UniformBindGroupValue newValue;
+    newValue.fBindGroup = bindGroup;
+    newValue.fOffset = slice.fOffset;
+    fUniformBindGroupCache.insert(key, newValue);
+    return bindGroup;
 }
 
 wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
