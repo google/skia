@@ -1766,8 +1766,21 @@ void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,
     VkImageLayout newLayout = newInfo.getImageLayout();
     VkPipelineStageFlags dstStage = GrVkImage::LayoutToPipelineSrcStageFlags(newLayout);
     VkAccessFlags dstAccess = GrVkImage::LayoutToSrcAccessMask(newLayout);
+
+    uint32_t currentQueueFamilyIndex = image->currentQueueFamilyIndex();
+    uint32_t newQueueFamilyIndex = newInfo.getQueueFamilyIndex();
+    auto isSpecialQueue = [](uint32_t queueFamilyIndex) {
+        return queueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+               queueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT;
+    };
+    if (isSpecialQueue(currentQueueFamilyIndex) && isSpecialQueue(newQueueFamilyIndex)) {
+        // It is illegal to have both the new and old queue be special queue families (i.e. external
+        // or foreign).
+        return;
+    }
+
     image->setImageLayoutAndQueueIndex(gpu, newLayout, dstAccess, dstStage, false,
-                                         newInfo.getQueueFamilyIndex());
+                                       newQueueFamilyIndex);
 }
 
 bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
