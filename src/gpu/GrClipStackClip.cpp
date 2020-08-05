@@ -224,6 +224,7 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
 
     GrReducedClip reducedClip(*fStack, devBounds, context->priv().caps(), maxWindowRectangles,
                               maxAnalyticElements, ccpr ? maxAnalyticElements : 0);
+
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return Effect::kClippedOut;

@@ -9,6 +9,30 @@
 
 #include "src/core/SkPathPriv.h"
 
+static bool arc_contains(const GrArc& arc, const SkPoint& p) {
+    if (!arc.fUseCenter) {
+        return false;
+    }
+
+    SkScalar rx = arc.fOval.width() / 2.f;
+    SkScalar ry = arc.fOval.height() / 2.f;
+
+    SkPoint center{arc.fOval.centerX(), arc.fOval.centerY()};
+    SkVector d = p - center;
+    SkScalar dist = d.fX * d.fX / (rx * rx) + d.fY * d.fY / (ry * ry);
+    if (dist > 1.f) {
+        return false;
+    }
+
+    // Inside the oval, check if within the swept angle
+    SkScalar angle = SkRadiansToDegrees(SkScalarATan2(d.fY, d.fX));
+    if (arc.fSweepAngle >= 0.f) {
+        return arc.fStartAngle <= angle && angle <= (arc.fStartAngle + arc.fSweepAngle);
+    } else {
+        return (arc.fStartAngle + arc.fSweepAngle) <= angle && angle <= arc.fStartAngle;
+    }
+}
+
 GrShape& GrShape::operator=(const GrShape& shape) {
     switch(shape.type()) {
         case Type::kEmpty:
@@ -295,13 +319,33 @@ bool GrShape::contains(const SkRect& rect) const {
         case Type::kPath:
             return fPath.conservativelyContainsRect(rect);
         case Type::kArc:
-            if (fArc.fUseCenter) {
-                SkPath arc;
-                this->asPath(&arc);
-                return arc.conservativelyContainsRect(rect);
+            if (fArc.fUseCenter && SkScalarAbs(fArc.fSweepAngle) <= 180.f) {
+                return arc_contains(fArc, {rect.fLeft, rect.fTop}) &&
+                       arc_contains(fArc, {rect.fRight, rect.fTop}) &&
+                       arc_contains(fArc, {rect.fLeft, rect.fBottom}) &&
+                       arc_contains(fArc, {rect.fRight, rect.fBottom});
             } else {
                 return false;
             }
+        default:
+            SkUNREACHABLE;
+    }
+}
+
+bool GrShape::contains(const SkPoint& point) const {
+    switch(this->type()) {
+        case Type::kEmpty:
+        case Type::kPoint: // fall through, currently choosing not to test if shape == point
+        case Type::kLine:  // fall through, ""
+            return false;
+        case Type::kRect:
+            return fRect.contains(point.fX, point.fY);
+        case Type::kRRect:
+            return fRRect.contains(point);
+        case Type::kPath:
+            return fPath.contains(point.fX, point.fY);
+        case Type::kArc:
+            return arc_contains(fArc, point);
         default:
             SkUNREACHABLE;
     }
