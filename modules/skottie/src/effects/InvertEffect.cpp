@@ -103,7 +103,7 @@ private:
     float fChannel = 0;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachInvertEffect(const skjson::ArrayValue& jprops,
                                                           sk_sp<sksg::RenderNode> layer) const {
@@ -112,5 +112,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachInvertEffect(const skjson::ArrayVal
                                                                    fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

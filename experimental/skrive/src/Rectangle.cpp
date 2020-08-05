@@ -27,7 +27,7 @@ size_t parse_node<Rectangle>(StreamReader* sr, Rectangle* node) {
     return parent_id;
 }
 
-} // namespace internal
+}  // namespace internal
 
 void Rectangle::onRevalidate() {
     SkASSERT(this->hasInval());
@@ -41,4 +41,4 @@ void Rectangle::onDraw(SkCanvas* canvas, const SkPaint& paint, SkPathFillType) c
     canvas->drawRect(rect, paint);
 }
 
-} // namespace skrive
+}  // namespace skrive

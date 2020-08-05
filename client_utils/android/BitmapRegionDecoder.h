@@ -45,6 +45,6 @@ private:
     std::unique_ptr<SkAndroidCodec> fCodec;
 };
 
-} // namespace skia
-} // namespace android
+}  // namespace skia
+}  // namespace android
 #endif  // BitmapRegionDecoder_DEFINED

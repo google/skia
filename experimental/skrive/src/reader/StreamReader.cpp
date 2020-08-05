@@ -69,4 +69,4 @@ SkColor4f StreamReader::readColor(const char label[]) {
     return color;
 }
 
-} // namespace skrive::internal
+}  // namespace skrive::internal

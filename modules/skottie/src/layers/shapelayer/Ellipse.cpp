@@ -44,12 +44,12 @@ private:
               fPosition = {0,0}; // center
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::GeometryNode> ShapeBuilder::AttachEllipseGeometry(const skjson::ObjectValue& jellipse,
                                                               const AnimationBuilder* abuilder) {
     return abuilder->attachDiscardableAdapter<EllipseGeometryAdapter>(jellipse, abuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

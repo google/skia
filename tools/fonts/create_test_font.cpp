@@ -44,7 +44,7 @@ struct FontFamilyDesc {
     SkSpan<const FontDesc> const fFonts;
 };
 
-} // namespace
+}  // namespace
 
 static FILE* font_header(const char* family) {
     SkString outPath(SkOSPath::Join(".", "tools"));

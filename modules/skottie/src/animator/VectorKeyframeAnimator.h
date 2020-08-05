@@ -41,6 +41,6 @@ private:
     std::vector<float>*    fTarget;
 };
 
-} // namespace skottie::internal
+}  // namespace skottie::internal
 
 #endif // SkottieVectorKeyframeAnimator_DEFINED

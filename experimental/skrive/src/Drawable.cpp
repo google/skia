@@ -29,4 +29,4 @@ size_t parse_node<Drawable>(StreamReader* sr, Drawable* node) {
     return parent_id;
 }
 
-} // namespace skrive::internal
+}  // namespace skrive::internal

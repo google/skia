@@ -201,7 +201,7 @@ private:
                  fEndPoint   = {0,0};
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradientFill(const skjson::ObjectValue& jgrad,
                                                         const AnimationBuilder* abuilder) {
@@ -221,5 +221,5 @@ sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradientStroke(const skjson::ObjectVa
             : nullptr;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

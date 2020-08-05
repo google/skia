@@ -37,7 +37,7 @@ private:
     using INHERITED = DiscardableAdapterBase<RoundCornersAdapter, sksg::RoundEffect>;
 };
 
-} // namespace
+}  // namespace
 
 std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachRoundGeometryEffect(
         const skjson::ObjectValue& jround, const AnimationBuilder* abuilder,
@@ -54,5 +54,5 @@ std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachRoundGeometryEffect(
     return rounded;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

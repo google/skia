@@ -67,12 +67,12 @@ private:
     ScalarValue fOpacity = 1;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachFillEffect(const skjson::ArrayValue& jprops,
                                                         sk_sp<sksg::RenderNode> layer) const {
     return fBuilder->attachDiscardableAdapter<FillAdapter>(jprops, std::move(layer), *fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

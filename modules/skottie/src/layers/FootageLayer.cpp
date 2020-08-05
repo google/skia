@@ -65,7 +65,7 @@ private:
     const bool                          fIsMultiframe;
 };
 
-} // namespace
+}  // namespace
 
 const AnimationBuilder::FootageAssetInfo*
 AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& jimage) const {
@@ -154,5 +154,5 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachFootageLayer(const skjson::Objec
         : nullptr;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

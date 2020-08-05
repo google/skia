@@ -77,4 +77,4 @@ SkPath RRect::onAsPath() const {
     return path;
 }
 
-} // namespace sksg
+}  // namespace sksg

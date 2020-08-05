@@ -1302,4 +1302,4 @@ bool CPPCodeGenerator::generateCode() {
     return result;
 }
 
-} // namespace
+}  // namespace SkSL

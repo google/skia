@@ -99,4 +99,4 @@ bool AnimatablePropertyContainer::bindImpl(const AnimationBuilder& abuilder,
     return true;
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

@@ -115,6 +115,6 @@ struct Modifiers {
     int fFlags;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

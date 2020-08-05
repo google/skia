@@ -144,6 +144,6 @@ private:
     using INHERITED = RenderNode;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGRenderNode_DEFINED

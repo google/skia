@@ -178,5 +178,5 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
     fHasBlur        = acontainer->bind(*abuilder, jprops["bl"], fTextProps.blur        );
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

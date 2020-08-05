@@ -122,7 +122,7 @@ private:
     friend class AutoDehydratorSymbolTable;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif
 

@@ -45,5 +45,5 @@ private:
     Capture& operator=(const Capture&) = delete;
 };
 
-}  // namespace
+}  // namespace SkTextBlobTrace
 #endif  // SkTextBlobTrace_DEFINED
