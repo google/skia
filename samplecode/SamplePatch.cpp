@@ -316,7 +316,7 @@ struct PatchView : public Sample {
 private:
     typedef Sample INHERITED;
 };
-}  // namespace
+} // namespace
 DEF_SAMPLE( return new PatchView(); )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -417,7 +417,7 @@ protected:
 private:
     typedef Sample INHERITED;
 };
-}  // namespace
+} // namespace
 DEF_SAMPLE( return new PseudoInkView(); )
 
 namespace {
@@ -504,5 +504,5 @@ protected:
 private:
     typedef Sample INHERITED;
 };
-}  // namespace
+} // namespace
 DEF_SAMPLE( return new ManyStrokesView(); )

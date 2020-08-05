@@ -54,4 +54,4 @@ void AppendMode(GrGLSLShaderBuilder* fsBuilder,
     fsBuilder->codeAppendf("%s = %s(%s, %s);", outColor, BlendFuncName(mode), srcColor, dstColor);
 }
 
-}  // namespace GrGLSLBlend
+} // namespace GrGLSLBlend

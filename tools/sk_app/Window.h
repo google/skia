@@ -156,5 +156,5 @@ protected:
     bool signalLayers(std::function<bool(Layer*)> visitor);
 };
 
-}   // namespace sk_app
+} // namespace sk_app
 #endif

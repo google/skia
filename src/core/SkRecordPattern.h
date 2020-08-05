@@ -172,6 +172,6 @@ private:
     Pattern<Rest...> fRest;
 };
 
-}  // namespace SkRecords
+} // namespace SkRecords
 
 #endif//SkRecordPattern_DEFINED

@@ -22,4 +22,4 @@ namespace sk_gpu_test {
  */
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*, const SkPixmap&,
                                        GrRenderable, GrSurfaceOrigin);
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test

@@ -152,7 +152,7 @@ private:
     LineMetricStyle fAscentStyle;
     LineMetricStyle fDescentStyle;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // TextLine_DEFINED

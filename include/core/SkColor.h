@@ -428,5 +428,5 @@ constexpr SkColor4f kBlue        = {0, 0, 1, 1};
 constexpr SkColor4f kYellow      = {1, 1, 0, 1};
 constexpr SkColor4f kCyan        = {0, 1, 1, 1};
 constexpr SkColor4f kMagenta     = {1, 0, 1, 1};
-}  // namespace SkColors
+} // namespace SkColors
 #endif

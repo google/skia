@@ -39,8 +39,8 @@ std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo&, const DisplayP
 
 std::unique_ptr<WindowContext> MakeRasterForIOS(const IOSWindowInfo&, const DisplayParams&);
 
-}  // namespace window_context_factory
+} // namespace window_context_factory
 
-}  // namespace sk_app
+} // namespace sk_app
 
 #endif

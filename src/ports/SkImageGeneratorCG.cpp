@@ -51,7 +51,7 @@ static SkUniqueCFRef<CGImageSourceRef> data_to_CGImageSrc(SkData* data) {
             CGImageSourceCreateWithDataProvider(cgData.get(), nullptr));
 }
 
-}  // namespace
+} // namespace
 
 std::unique_ptr<SkImageGenerator> SkImageGeneratorCG::MakeFromEncodedCG(sk_sp<SkData> data) {
     SkUniqueCFRef<CGImageSourceRef> imageSrc = data_to_CGImageSrc(data.get());

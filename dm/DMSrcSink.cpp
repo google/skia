@@ -2395,4 +2395,4 @@ Result ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 }
 #endif
 
-}  // namespace DM
+} // namespace DM

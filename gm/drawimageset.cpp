@@ -353,4 +353,4 @@ DEF_GM(return new DrawImageSetGM();)
 DEF_GM(return new DrawImageSetRectToRectGM();)
 DEF_GM(return new DrawImageSetAlphaOnlyGM();)
 
-}  // namespace skiagm
+} // namespace skiagm

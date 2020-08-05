@@ -343,7 +343,7 @@ float SkPathStroker2::squaredLineLength(const PathSegment& lineSeg) {
     return diff.dot(diff);
 }
 
-}  // namespace
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -27,7 +27,7 @@ template<typename T> struct conjunction<T> : T { };
 template<typename T, typename... Ts>
 struct conjunction<T, Ts...> : std::conditional<bool(T::value), conjunction<Ts...>, T>::type { };
 
-}  // namespace skstd
+} // namespace skstd
 
 // The sknonstd namespace contains things we would like to be proposed and feel std-ish.
 namespace sknonstd {
@@ -61,6 +61,6 @@ template <typename D, typename S> using same_volatile_t = typename same_volatile
 template <typename D, typename S> using same_cv = copy_cv<std::remove_cv_t<D>, S>;
 template <typename D, typename S> using same_cv_t = typename same_cv<D, S>::type;
 
-}  // namespace sknonstd
+} // namespace sknonstd
 
 #endif

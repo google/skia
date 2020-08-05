@@ -53,7 +53,7 @@ struct ParagraphBench : public Benchmark {
         }
     }
 };
-}  // namespace
+} // namespace
 
 #define PARAGRAPH_BENCH(X) DEF_BENCH(return new ParagraphBench(50000, "text/" #X ".txt", "paragraph_" #X);)
 //PARAGRAPH_BENCH(arabic)

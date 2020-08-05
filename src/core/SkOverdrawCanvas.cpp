@@ -70,7 +70,7 @@ private:
     SkCanvas* const fOverdrawCanvas;
     SkGlyphRunListPainter fPainter;
 };
-}  // namespace
+} // namespace
 
 void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                       const SkPaint& paint) {

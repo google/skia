@@ -128,4 +128,4 @@ void PropertyObserver::onEnterNode(const char node_name[]) {}
 
 void PropertyObserver::onLeavingNode(const char node_name[]) {}
 
-}  // namespace skottie
+} // namespace skottie

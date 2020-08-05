@@ -69,4 +69,4 @@ static sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
 sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style) {
     return create_font(name, style);
 }
-}  // namespace ToolUtils
+} // namespace ToolUtils

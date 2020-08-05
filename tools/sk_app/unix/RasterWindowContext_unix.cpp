@@ -100,5 +100,5 @@ std::unique_ptr<WindowContext> MakeRasterForXlib(const XlibWindowInfo& info,
     return ctx;
 }
 
-}  // namespace window_context_factory
-}  // namespace sk_app
+} // namespace window_context_factory
+} // namespace sk_app

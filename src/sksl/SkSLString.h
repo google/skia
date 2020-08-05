@@ -144,6 +144,6 @@ namespace std {
             return hash<std::string>{}(s);
         }
     };
-} // namespace std
+    } // namespace std
 
 #endif

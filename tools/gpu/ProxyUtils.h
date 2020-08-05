@@ -38,7 +38,6 @@ GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                  const GrUserStencilSettings* stencil =
                                                                 &GrUserStencilSettings::kUnused);
 
-
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif

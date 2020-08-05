@@ -1434,7 +1434,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     return run;
 }
 
-}  // namespace
+} // namespace
 
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {

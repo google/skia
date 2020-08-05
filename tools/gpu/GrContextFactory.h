@@ -200,7 +200,7 @@ private:
     friend class GrContextFactory;
 };
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 GR_MAKE_BITFIELD_CLASS_OPS(sk_gpu_test::GrContextFactory::ContextOverrides);
 

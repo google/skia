@@ -88,6 +88,6 @@ private:
     std::unordered_map<Key, Value, Hash> fMap;
 };
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif

@@ -501,7 +501,7 @@ constexpr float BlurRectCompareGM::kSigmas[];
 constexpr size_t BlurRectCompareGM::kNumSizes;
 constexpr size_t BlurRectCompareGM::kNumSigmas;
 
-}  // namespace skiagm
+} // namespace skiagm
 
 //////////////////////////////////////////////////////////////////////////////
 

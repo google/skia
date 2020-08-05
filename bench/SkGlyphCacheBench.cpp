@@ -243,7 +243,7 @@ public:
     DiffCanvasBench(SkString n, std::function<std::unique_ptr<SkStreamAsset>()> f)
         : fBenchName(std::move(n)), fDataProvider(std::move(f)) {}
 };
-}  // namespace
+} // namespace
 
 Benchmark* CreateDiffCanvasBench(
         SkString name, std::function<std::unique_ptr<SkStreamAsset>()> dataSrc) {

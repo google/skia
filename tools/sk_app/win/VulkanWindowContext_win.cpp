@@ -77,5 +77,5 @@ std::unique_ptr<WindowContext> MakeVulkanForWin(HWND hwnd, const DisplayParams& 
     return ctx;
 }
 
-}  // namespace window_context_factory
-}  // namespace sk_app
+} // namespace window_context_factory
+} // namespace sk_app

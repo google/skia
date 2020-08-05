@@ -202,7 +202,7 @@ private:
     std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // TextWrapper_DEFINED

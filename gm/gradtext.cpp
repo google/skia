@@ -97,7 +97,7 @@ class ChromeGradTextGM2 : public skiagm::GM {
         canvas->drawString("Gradient Stroke Text", 0, 200, font, paint);
     }
 };
-}  // namespace
+} // namespace
 
 DEF_GM( return new ChromeGradTextGM1; )
 DEF_GM( return new ChromeGradTextGM2; )

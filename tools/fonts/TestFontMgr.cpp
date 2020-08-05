@@ -196,8 +196,8 @@ private:
     sk_sp<FontStyleSet>              fDefaultFamily;
     sk_sp<SkTypeface>                fDefaultTypeface;
 };
-}  // namespace
+} // namespace
 
 namespace ToolUtils {
 sk_sp<SkFontMgr> MakePortableFontMgr() { return sk_make_sp<FontMgr>(); }
-}  // namespace ToolUtils
+} // namespace ToolUtils

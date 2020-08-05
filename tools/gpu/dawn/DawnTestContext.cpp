@@ -170,6 +170,6 @@ namespace sk_gpu_test {
 DawnTestContext* CreatePlatformDawnTestContext(DawnTestContext* sharedContext) {
     return DawnTestContextImpl::Create(sharedContext);
 }
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif

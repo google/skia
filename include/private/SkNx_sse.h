@@ -815,6 +815,6 @@ AI static Sk4i Sk4f_round(const Sk4f& x) {
     return _mm_cvtps_epi32(x.fVec);
 }
 
-}  // namespace
+} // namespace
 
 #endif//SkNx_sse_DEFINED

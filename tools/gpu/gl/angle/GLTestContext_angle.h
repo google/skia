@@ -34,5 +34,5 @@ std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend, ANGLEContextVe
                                                     GLTestContext* shareContext = nullptr,
                                                     void* display = nullptr);
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 #endif

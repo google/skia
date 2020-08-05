@@ -13,5 +13,4 @@ GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
                                            GLTestContext *shareContext) {
     return nullptr;
 }
-}  // namespace sk_gpu_test
-
+} // namespace sk_gpu_test

@@ -20,6 +20,6 @@ protected:
     bool isGpuContext() override { return false; }
 };
 
-}   // namespace sk_app
+} // namespace sk_app
 
 #endif

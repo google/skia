@@ -153,5 +153,5 @@ std::unique_ptr<WindowContext> MakeGLForAndroid(ANativeWindow* window,
     return ctx;
 }
 
-}  // namespace window_context_factory
-}  // namespace sk_app
+} // namespace window_context_factory
+} // namespace sk_app

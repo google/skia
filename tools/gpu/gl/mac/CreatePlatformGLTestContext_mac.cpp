@@ -165,4 +165,4 @@ GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
     }
     return ctx;
 }
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test

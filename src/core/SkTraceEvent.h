@@ -360,7 +360,7 @@ class TRACE_EVENT_API_CLASS_EXPORT ScopedTracer {
   Data data_;
 };
 
-}  // namespace tracing_internals
-}  // namespace skia
+} // namespace tracing_internals
+} // namespace skia
 
 #endif

@@ -76,7 +76,7 @@ private:
                marker == 0xFFD9 || marker == 0xFF01;
     }
 };
-}  // namespace
+} // namespace
 
 bool SkGetJpegInfo(const void* data, size_t len,
                    SkISize* size,

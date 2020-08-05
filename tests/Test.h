@@ -146,7 +146,7 @@ private:
     double fStartNanos;
 };
 
-}  // namespace skiatest
+} // namespace skiatest
 
 static inline SkString reporter_string() { return {}; }
 /// Prevent security warnings when using a non-literal string i.e. not a format string.

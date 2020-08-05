@@ -175,5 +175,5 @@ std::unique_ptr<WindowContext> MakeANGLEForWin(HWND wnd, const DisplayParams& pa
     return ctx;
 }
 
-}  // namespace window_context_factory
-}  // namespace sk_app
+} // namespace window_context_factory
+} // namespace sk_app

@@ -36,7 +36,7 @@ struct WStreamWriteTextBenchmark : public Benchmark {
         }
     }
 };
-}  // namespace
+} // namespace
 
 DEF_BENCH(return new WStreamWriteTextBenchmark;)
 
@@ -301,7 +301,7 @@ struct PDFClipPathBenchmark : public Benchmark {
     }
 };
 
-}  // namespace
+} // namespace
 DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
 DEF_BENCH(return new PDFCompressionBench;)
@@ -438,7 +438,7 @@ struct PDFBigDocBench : public Benchmark {
         }
     }
 };
-}  // namespace
+} // namespace
 DEF_BENCH(return new PDFBigDocBench(false);)
 DEF_BENCH(return new PDFBigDocBench(true);)
 #endif

@@ -72,5 +72,5 @@ class CameraView : public Sample {
         return true;
     }
 };
-}  // namespace
+} // namespace
 DEF_SAMPLE( return new CameraView(); )

@@ -402,7 +402,7 @@ struct EditorApplication : public sk_app::Application {
         }
     }
 };
-}  // namespace
+} // namespace
 
 sk_app::Application* sk_app::Application::Create(int argc, char** argv, void* dat) {
     if (!SkLoadICU()) {

@@ -48,6 +48,6 @@ protected:
     sk_sp<SkSurface>           fSurface;
 };
 
-}   // namespace sk_app
+} // namespace sk_app
 
 #endif

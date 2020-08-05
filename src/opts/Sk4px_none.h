@@ -56,4 +56,4 @@ inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
                  0,0,0,0);
 }
 
-}  // namespace
+} // namespace

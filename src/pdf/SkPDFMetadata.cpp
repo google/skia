@@ -115,7 +115,7 @@ static const struct {
         {"Creator", &SkPDF::Metadata::fCreator},
         {"Producer", &SkPDF::Metadata::fProducer},
 };
-}  // namespace
+} // namespace
 
 std::unique_ptr<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
         const SkPDF::Metadata& metadata) {
@@ -232,7 +232,7 @@ public:
 private:
     const SkString fXML;
 };
-}  // namespace
+} // namespace
 
 static int count_xml_escape_size(const SkString& input) {
     int extra = 0;

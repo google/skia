@@ -91,7 +91,7 @@ void cluster_test(skiatest::Reporter* reporter, const char* resource) {
     shaper_test(reporter, resource, data.get());
 }
 
-}  // namespace
+} // namespace
 
 DEF_TEST(Shaper_cluster_empty, r) { shaper_test(r, "empty", SkData::MakeEmpty().get()); }
 

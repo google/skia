@@ -103,7 +103,7 @@ std::unique_ptr<SkStreamAsset> stream_inflate(skiatest::Reporter* reporter, SkSt
     }
     return decompressedDynamicMemoryWStream.detachAsStream();
 }
-}  // namespace
+} // namespace
 
 DEF_TEST(SkPDF_DeflateWStream, r) {
     SkRandom random(123456);

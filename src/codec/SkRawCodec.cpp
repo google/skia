@@ -167,7 +167,7 @@ bool is_asset_stream(const SkStream& stream) {
     return stream.hasLength() && stream.hasPosition();
 }
 
-}  // namespace
+} // namespace
 
 class SkRawStream {
 public:

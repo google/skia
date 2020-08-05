@@ -26,5 +26,5 @@ bool TextShadow::hasShadow() const {
     return false;
 }
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

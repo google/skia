@@ -49,6 +49,6 @@ protected:
     std::unique_ptr<dawn_native::Instance> fInstance;
 };
 
-}   // namespace sk_app
+} // namespace sk_app
 
 #endif

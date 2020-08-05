@@ -642,6 +642,6 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
-}  // namespace DM
+} // namespace DM
 
 #endif//DMSrcSink_DEFINED

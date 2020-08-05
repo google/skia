@@ -74,7 +74,7 @@ SkPath (*paths[])(SkScalar, SkScalar, SkScalar) = {
 const SkScalar slideWidth = 90, slideHeight = 90;
 const SkScalar slideBoundary = 5;
 
-}  // namespace
+} // namespace
 
 DEF_SIMPLE_GM(inverse_paths, canvas, 800, 1200) {
     SkScalar cx = slideWidth / 2 + slideBoundary;

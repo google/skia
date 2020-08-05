@@ -488,4 +488,4 @@ void SetDefaultFontMgr() {
 #endif
 }
 
-}  // namespace ToolUtils
+} // namespace ToolUtils

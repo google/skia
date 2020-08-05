@@ -730,6 +730,6 @@ AI static Sk4i Sk4f_round(const Sk4f& x) {
     return vcvtq_s32_f32((x + 0.5f).fVec);
 }
 
-}  // namespace
+} // namespace
 
 #endif//SkNx_neon_DEFINED

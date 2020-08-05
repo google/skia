@@ -88,7 +88,7 @@ private:
     SkPoint fCurrentPosition = {0, 0};
     SkPoint fOffset = {0, 0};
 };
-}  // namespace
+} // namespace
 
 void RunHandler::beginLine() {
     fCurrentPosition = fOffset;

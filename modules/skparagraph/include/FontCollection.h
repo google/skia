@@ -71,7 +71,7 @@ private:
     SkString fDefaultFamilyName;
     ParagraphCache fParagraphCache;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // FontCollection_DEFINED

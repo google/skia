@@ -165,4 +165,4 @@ std::vector<SkString> CommandSet::getCommandsAsSoftkeys() const {
     return result;
 }
 
-}   // namespace sk_app
+} // namespace sk_app

@@ -14,6 +14,6 @@
 
 namespace ToolUtils {
 sk_sp<SkFontMgr> MakePortableFontMgr();
-}  // namespace ToolUtils
+} // namespace ToolUtils
 
 #endif  // TestFontMgr_DEFINED

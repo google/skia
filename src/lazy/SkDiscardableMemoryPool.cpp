@@ -226,7 +226,7 @@ void DiscardableMemoryPool::dumpPool() {
     this->dumpDownTo(0);
 }
 
-}  // namespace
+} // namespace
 
 sk_sp<SkDiscardableMemoryPool> SkDiscardableMemoryPool::Make(size_t size) {
     return sk_make_sp<DiscardableMemoryPool>(size);

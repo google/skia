@@ -69,7 +69,7 @@ struct BFRange {
     SkGlyphID fEnd;
     SkUnichar fUnicode;
 };
-}  // namespace
+} // namespace
 
 static void write_glyph(SkDynamicMemoryWStream* cmap,
                         bool multiByte,

@@ -395,5 +395,5 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     }
 }
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

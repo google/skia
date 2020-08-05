@@ -130,4 +130,4 @@ private:
 
 DEF_GM(return new PerspImages();)
 
-}  // namespace skiagm
+} // namespace skiagm

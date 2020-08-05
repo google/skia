@@ -300,6 +300,6 @@ class ConvexPathsGM : public skiagm::GM {
 
     SkTArray<SkPath> fPaths;
 };
-}  // namespace
+} // namespace
 
 DEF_GM( return new ConvexPathsGM; )

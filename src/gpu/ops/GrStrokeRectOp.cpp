@@ -868,7 +868,7 @@ std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
                                 devInside, devHalfStrokeSize);
 }
 
-}  // namespace GrStrokeRectOp
+} // namespace GrStrokeRectOp
 
 #if GR_TEST_UTILS
 

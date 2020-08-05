@@ -58,5 +58,5 @@ namespace TimeUtils {
         float halfAmplitude = (max - min) / 2.f;
         return halfAmplitude * std::sin(t) + halfAmplitude + min;
     }
-}  // namespace TimeUtils
+    } // namespace TimeUtils
 #endif

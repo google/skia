@@ -86,4 +86,4 @@ void Window_android::paintIfNeeded() {
     }
 }
 
-}   // namespace sk_app
+} // namespace sk_app

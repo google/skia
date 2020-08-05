@@ -520,4 +520,4 @@ std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLECont
     }
     return ctx;
 }
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test

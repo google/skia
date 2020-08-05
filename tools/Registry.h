@@ -63,6 +63,6 @@ private:
 // The caller still needs to declare an instance of this somewhere
 template <typename T> Registry<T>* Registry<T>::gHead;
 
-}  // namespace sk_tools
+} // namespace sk_tools
 
 #endif

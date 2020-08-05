@@ -52,6 +52,6 @@ private:
     void *fSurface;
     void *fConfig;
 };
-}   // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif

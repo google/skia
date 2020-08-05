@@ -132,6 +132,6 @@ namespace sk_gpu_test {
 VkTestContext* CreatePlatformVkTestContext(VkTestContext* sharedContext) {
     return VkTestContextImpl::Create(sharedContext);
 }
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif

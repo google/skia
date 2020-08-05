@@ -346,4 +346,4 @@ ContextInfo GrContextFactory::getSharedContextInfo(GrDirectContext* shareContext
     return ContextInfo();
 }
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test

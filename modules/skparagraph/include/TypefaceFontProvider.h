@@ -79,7 +79,7 @@ private:
     SkTArray<SkString> fFamilyNames;
 };
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // TypefaceFontProvider_DEFINED

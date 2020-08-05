@@ -746,7 +746,7 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
 
 #endif // !defined(SKNX_NO_SIMD)
 
-}  // namespace skvx
+        } // namespace skvx
 
 #undef SINTU
 #undef SINT

@@ -181,7 +181,7 @@ private:
     const char* name;
 };
 
-}  // namespace
+} // namespace
 
 DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();

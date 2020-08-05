@@ -377,5 +377,5 @@ Cluster::Cluster(ParagraphImpl* owner,
     fIsWhiteSpaces = (len == this->fTextRange.width());
 }
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

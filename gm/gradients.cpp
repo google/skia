@@ -758,7 +758,7 @@ class LinearGradientTinyGM : public skiagm::GM {
 };
 
 DEF_GM( return new LinearGradientTinyGM; )
-}  // namespace
+} // namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

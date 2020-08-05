@@ -24,7 +24,7 @@ public:
 
     bool hasShadow() const;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // TextShadow_DEFINED

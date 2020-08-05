@@ -45,8 +45,8 @@ std::unique_ptr<WindowContext> MakeRasterForMac(const MacWindowInfo&, const Disp
 std::unique_ptr<WindowContext> MakeMetalForMac(const MacWindowInfo&, const DisplayParams&);
 #endif
 
-}  // namespace window_context_factory
+} // namespace window_context_factory
 
-}  // namespace sk_app
+} // namespace sk_app
 
 #endif

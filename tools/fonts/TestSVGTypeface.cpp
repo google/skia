@@ -1347,7 +1347,7 @@ private:
     int                        fLayerId;
 };
 
-}  // namespace
+} // namespace
 
 void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");

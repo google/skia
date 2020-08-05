@@ -166,5 +166,5 @@ bool PlaceholderStyle::equals(const PlaceholderStyle& other) const {
             nearlyEqual(fBaselineOffset, other.fBaselineOffset));
 }
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

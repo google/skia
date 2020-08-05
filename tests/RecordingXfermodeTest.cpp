@@ -132,7 +132,6 @@ class PictureStrategy : public RecordingStrategy {
 
 } // namespace
 
-
 DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
 #define FINEGRAIN 0
     const Drawer drawer;

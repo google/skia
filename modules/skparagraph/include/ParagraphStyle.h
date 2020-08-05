@@ -122,7 +122,7 @@ private:
     TextHeightBehavior fTextHeightBehavior;
     bool fHintingIsOn;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // ParagraphStyle_DEFINED

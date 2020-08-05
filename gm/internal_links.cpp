@@ -67,6 +67,6 @@ class InternalLinksGM : public skiagm::GM {
         canvas->drawString(text, x, y, font, paint);
     }
 };
-}  // namespace
+} // namespace
 
 DEF_GM( return new InternalLinksGM; )

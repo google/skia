@@ -110,7 +110,7 @@ GrGLSLPrimitiveProcessor* DrawAtlasPathShader::createGLSLInstance(const GrShader
     return new Impl();
 }
 
-}  // namespace
+} // namespace
 
 GrProcessorSet::Analysis GrDrawAtlasPathOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                                      bool hasMixedSampledCoverage,

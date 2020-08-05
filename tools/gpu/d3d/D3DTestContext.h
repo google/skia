@@ -40,7 +40,7 @@ private:
  */
 D3DTestContext* CreatePlatformD3DTestContext(D3DTestContext*);
 
-}  // namespace sk_gpu_test
+} // namespace sk_gpu_test
 
 #endif
 

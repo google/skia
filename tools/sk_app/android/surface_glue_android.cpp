@@ -305,4 +305,4 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onUIStateC
     env->ReleaseStringUTFChars(stateValue, valueChars);
 }
 
-}  // namespace sk_app
+} // namespace sk_app

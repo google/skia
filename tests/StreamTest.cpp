@@ -425,7 +425,7 @@ public:
     const uint8_t* fData;
     size_t fCount, fIdx;
 };
-}  // namespace
+} // namespace
 
 static void stream_copy_test(skiatest::Reporter* reporter,
                              const void* srcData,

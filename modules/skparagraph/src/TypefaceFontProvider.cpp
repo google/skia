@@ -85,5 +85,5 @@ void TypefaceFontStyleSet::appendTypeface(sk_sp<SkTypeface> typeface) {
     }
 }
 
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia

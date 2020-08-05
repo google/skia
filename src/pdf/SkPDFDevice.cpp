@@ -724,7 +724,7 @@ private:
     bool fInText = false;
     bool fInitialized = false;
 };
-}  // namespace
+} // namespace
 
 static SkUnichar map_glyph(const std::vector<SkUnichar>& glyphToUnicode, SkGlyphID glyph) {
     return glyph < glyphToUnicode.size() ? glyphToUnicode[SkToInt(glyph)] : -1;

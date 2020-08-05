@@ -132,7 +132,7 @@ private:
     const bool fTimeWithCommand;
 };
 
-}  // namespace
+} // namespace
 
 void DumpRecord(const SkRecord& record,
                   SkCanvas* canvas,

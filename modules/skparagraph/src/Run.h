@@ -392,7 +392,7 @@ private:
     SkScalar fLeading;
     bool fForceStrut;
 };
-}  // namespace textlayout
-}  // namespace skia
+} // namespace textlayout
+} // namespace skia
 
 #endif  // Run_DEFINED

@@ -24,8 +24,8 @@ namespace window_context_factory {
 
 std::unique_ptr<WindowContext> MakeGLForWin(HWND, const DisplayParams&) { return nullptr; }
 
-}  // namespace window_context_factory
-}  // namespace sk_app
+} // namespace window_context_factory
+} // namespace sk_app
 
 #else
 
@@ -154,7 +154,7 @@ std::unique_ptr<WindowContext> MakeGLForWin(HWND wnd, const DisplayParams& param
     return ctx;
 }
 
-}  // namespace window_context_factory
-}  // namespace sk_app
+} // namespace window_context_factory
+} // namespace sk_app
 
 #endif

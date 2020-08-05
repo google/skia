@@ -123,7 +123,7 @@ private:
     void markDirty(TextLine*);
     void reshapeAll();
 };
-}  // namespace SkPlainTextEditor
+} // namespace SkPlainTextEditor
 
 static inline bool operator==(const SkPlainTextEditor::Editor::TextPosition& u,
                               const SkPlainTextEditor::Editor::TextPosition& v) {

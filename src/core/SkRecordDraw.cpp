@@ -535,7 +535,7 @@ private:
     SkTDArray<int>   fControlIndices;
 };
 
-}  // namespace SkRecords
+} // namespace SkRecords
 
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record,
                         SkRect bounds[], SkBBoxHierarchy::Metadata meta[]) {

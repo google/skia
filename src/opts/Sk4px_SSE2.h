@@ -73,4 +73,4 @@ inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
     return Load4Alphas((const SkAlpha*)&alphas_and_two_zeros);
 }
 
-}  // namespace
+} // namespace

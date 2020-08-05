@@ -240,4 +240,4 @@ std::unique_ptr<GrDrawOp> MakeRect(GrRecordingContext* context,
     return TestRectOp::Make(context, std::move(paint), rect, rect, SkMatrix::I());
 }
 
-}  // namespace sk_gpu_test::test_ops
+} // namespace sk_gpu_test::test_ops
