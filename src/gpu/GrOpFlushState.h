@@ -159,7 +159,8 @@ public:
 
     // At this point we know we're flushing so full access to the GrAtlasManager is required (and
     // permissible).
-    GrAtlasManager* atlasManager() const final;
+    GrAtlasManager* atlasManager11() const final;
+    GrSmallPathAtlasMgr* smallPathAtlasManager() const final;
 
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* allocator() override { return &fArena; }

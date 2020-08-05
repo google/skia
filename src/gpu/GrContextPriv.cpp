@@ -156,7 +156,7 @@ sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
     }
 
     unsigned int numActiveProxies;
-    const GrSurfaceProxyView* views = atlasManager->getViews(format, &numActiveProxies);
+    const GrSurfaceProxyView* views = atlasManager->getViews1(format, &numActiveProxies);
     if (index >= numActiveProxies || !views || !views[index].proxy()) {
         return nullptr;
     }
