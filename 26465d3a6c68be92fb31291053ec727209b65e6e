@@ -39,6 +39,30 @@
       "revId": "26465d3a6c68be92fb31291053ec727209b65e6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cec73d33_4f2f6755",
+        "filename": "src/core/SkWriteBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-05T18:55:31Z",
+      "side": 1,
+      "message": "Ah, that\u0027s much cleaner.",
+      "parentUuid": "a5b4b7dd_b81f050f",
+      "range": {
+        "startLine": 236,
+        "startChar": 8,
+        "endLine": 236,
+        "endChar": 26
+      },
+      "revId": "26465d3a6c68be92fb31291053ec727209b65e6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
