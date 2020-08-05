@@ -42,7 +42,7 @@ static size_t add_segments(const SkPath& src, SkScalar start, SkScalar stop, SkP
     return contour_count;
 }
 
-} // namespace
+}  // namespace
 
 SkTrimPE::SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode mode)
     : fStartT(startT), fStopT(stopT), fMode(mode) {}

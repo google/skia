@@ -85,5 +85,4 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                                        primitiveType, flags, stencilSettings);
 }
 
-
 }  // namespace sk_gpu_test

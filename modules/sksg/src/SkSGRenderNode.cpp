@@ -20,7 +20,7 @@ enum Flags : uint8_t {
     kInvisible_Flag = 1 << 0,
 };
 
-} // namespace
+}  // namespace
 
 RenderNode::RenderNode(uint32_t inval_traits) : INHERITED(inval_traits) {}
 
@@ -243,4 +243,4 @@ bool CustomRenderNode::hasChildrenInval() const {
     return false;
 }
 
-} // namespace sksg
+}  // namespace sksg

@@ -68,7 +68,7 @@ private:
     using INHERITED = DiscardableAdapterBase<TrimEffectAdapter, sksg::TrimEffect>;
 };
 
-} // namespace
+}  // namespace
 
 std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachTrimGeometryEffect(
         const skjson::ObjectValue& jtrim,
@@ -101,5 +101,5 @@ std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachTrimGeometryEffect(
     return trimmed;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

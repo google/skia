@@ -49,7 +49,7 @@ SkM44 ComputeCameraMatrix(const SkV3& position,
            * persp_t * cam_t;
 }
 
-} // namespace
+}  // namespace
 
 CameraAdaper::CameraAdaper(const skjson::ObjectValue& jlayer,
                            const skjson::ObjectValue& jtransform,
@@ -130,5 +130,5 @@ sk_sp<sksg::Transform> AnimationBuilder::attachCamera(const skjson::ObjectValue&
     return sksg::Transform::MakeConcat(adapter->node(), std::move(parent));
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

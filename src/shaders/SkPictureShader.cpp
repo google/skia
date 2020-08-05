@@ -119,7 +119,7 @@ uint32_t next_id() {
     return id;
 }
 
-} // namespace
+}  // namespace
 
 SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
                                  const SkMatrix* localMatrix, const SkRect* tile)

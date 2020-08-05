@@ -627,7 +627,8 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& 
     }
 
     SkIRect bounds;
-    input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset, &bounds);
+    input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset,
+                                      &bounds);
     if (!input) {
         return nullptr;
     }
@@ -636,7 +637,8 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& 
     int width = SkScalarRoundToInt(radius.width());
     int height = SkScalarRoundToInt(radius.height());
 
-    // Width (or height) must fit in a signed 32-bit int to avoid UBSAN issues (crbug.com/1018190)
+    // Width (or height) must fit in a signed 32-bit int to avoid UBSAN issues
+    // (crbug.com/1018190)
     constexpr int kMaxRadius = (std::numeric_limits<int>::max() - 1) / 2;
 
     if (width < 0 || height < 0 || width > kMaxRadius || height > kMaxRadius) {

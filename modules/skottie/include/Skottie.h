@@ -31,7 +31,7 @@ namespace sksg {
 class InvalidationController;
 class Scene;
 
-} // namespace sksg
+}  // namespace sksg
 
 namespace skottie {
 
@@ -247,6 +247,6 @@ private:
     typedef SkNVRefCnt<Animation> INHERITED;
 };
 
-} // namespace skottie
+}  // namespace skottie
 
 #endif // Skottie_DEFINED

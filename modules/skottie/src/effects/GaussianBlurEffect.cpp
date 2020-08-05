@@ -89,5 +89,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachGaussianBlurEffect(
                                                                          fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

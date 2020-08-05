@@ -113,6 +113,6 @@ private:
     Shaper() = delete;
 };
 
-} // namespace skottie
+}  // namespace skottie
 
 #endif // SkottieShaper_DEFINED

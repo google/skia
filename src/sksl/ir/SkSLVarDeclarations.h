@@ -146,6 +146,6 @@ struct VarDeclarations : public ProgramElement {
     typedef ProgramElement INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

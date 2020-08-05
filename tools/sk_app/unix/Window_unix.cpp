@@ -418,4 +418,4 @@ void Window_unix::setRequestedDisplayParams(const DisplayParams& params, bool al
     INHERITED::setRequestedDisplayParams(params, allowReattach);
 }
 
-}   // namespace sk_app
+}  // namespace sk_app

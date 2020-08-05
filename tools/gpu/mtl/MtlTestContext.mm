@@ -93,5 +93,4 @@ MtlTestContext* CreatePlatformMtlTestContext(MtlTestContext* sharedContext) {
 
 }  // namespace sk_gpu_test
 
-
 #endif

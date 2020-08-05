@@ -30,6 +30,6 @@ struct DisplayParams {
     bool                fDisableVsync;
 };
 
-}   // namespace sk_app
+}  // namespace sk_app
 
 #endif

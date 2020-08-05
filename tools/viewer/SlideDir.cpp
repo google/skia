@@ -112,7 +112,7 @@ SkMatrix SlideMatrix(const sk_sp<Slide>& slide, const SkRect& dst) {
                                     SkMatrix::kCenter_ScaleToFit);
 }
 
-} // namespace
+}  // namespace
 
 struct SlideDir::Rec {
     sk_sp<Slide>                  fSlide;

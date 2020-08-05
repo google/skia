@@ -2452,7 +2452,7 @@ void* outer_mesh_to_triangles(const VertexList& outerMesh, bool emitCoverage, vo
     return data;
 }
 
-} // namespace
+}  // namespace
 
 namespace GrTriangulator {
 
@@ -2540,4 +2540,4 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     return actualCount;
 }
 
-} // namespace
+}  // namespace GrTriangulator

@@ -166,7 +166,7 @@ private:
     using INHERITED = DiscardableAdapterBase<RadialWipeAdapter, RWipeRenderNode>;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachRadialWipeEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {
@@ -175,5 +175,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachRadialWipeEffect(const skjson::Arra
                                                                  *fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

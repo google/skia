@@ -4299,8 +4299,8 @@ STAGE_PP(swizzle, void* ctx) {
 #undef NOT_IMPLEMENTED
 
 #endif//defined(JUMPER_IS_SCALAR) controlling whether we build lowp stages
-}  // namespace lowp
+    }  // namespace lowp
 
-}  // namespace SK_OPTS_NS
+    }  // namespace SK_OPTS_NS
 
 #endif//SkRasterPipeline_opts_DEFINED

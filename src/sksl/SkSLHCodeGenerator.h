@@ -81,6 +81,6 @@ private:
     typedef CodeGenerator INHERITED;
 };
 
-} // namespace SkSL
+}  // namespace SkSL
 
 #endif

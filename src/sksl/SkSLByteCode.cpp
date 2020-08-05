@@ -1047,6 +1047,6 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
 #endif
 }
 
-} // namespace SkSL
+}  // namespace SkSL
 
 #endif

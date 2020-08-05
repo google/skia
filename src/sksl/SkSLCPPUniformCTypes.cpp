@@ -231,4 +231,4 @@ const UniformCTypeMapper* UniformCTypeMapper::Get(const Context& context, const 
     return nullptr;
 }
 
-} // namespace
+}  // namespace SkSL

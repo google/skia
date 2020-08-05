@@ -90,7 +90,7 @@ private:
     using INHERITED = KeyframeAnimator;
 };
 
-} // namespace
+}  // namespace
 
 template <>
 bool AnimatablePropertyContainer::bind<TextValue>(const AnimationBuilder& abuilder,
@@ -100,4 +100,4 @@ bool AnimatablePropertyContainer::bind<TextValue>(const AnimationBuilder& abuild
     return this->bindImpl(abuilder, jprop, builder);
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

@@ -109,4 +109,4 @@ SkRect Group::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     return bounds;
 }
 
-} // namespace sksg
+}  // namespace sksg

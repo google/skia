@@ -57,7 +57,7 @@ struct FCLocker {
 
 using UniqueFCConfig = std::unique_ptr<FcConfig, SkFunctionWrapper<decltype(FcConfigDestroy), FcConfigDestroy>>;
 
-} // namespace
+}  // namespace
 
 size_t SkFontConfigInterface::FontIdentity::writeToMemory(void* addr) const {
     size_t size = sizeof(fID) + sizeof(fTTCIndex);

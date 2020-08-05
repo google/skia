@@ -75,4 +75,4 @@ void ShaderPaint::onApplyToPaint(SkPaint* paint) const {
     paint->setShader(fShader->getShader());
 }
 
-} // namespace sksg
+}  // namespace sksg

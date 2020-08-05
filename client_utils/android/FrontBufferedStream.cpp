@@ -86,8 +86,8 @@ std::unique_ptr<SkStreamRewindable> FrontBufferedStream::Make(std::unique_ptr<Sk
     // Work around a warning regarding a copy on older compilers.
     return std::move(frontBufferedStream);
 }
-} // namespace skia
-} // namespace android
+}  // namespace skia
+}  // namespace android
 
 namespace {
 FrontBufferedStream::FrontBufferedStream(std::unique_ptr<SkStream> stream, size_t bufferSize)

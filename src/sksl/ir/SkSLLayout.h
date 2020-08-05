@@ -418,6 +418,6 @@ struct Layout {
     CType fCType;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif
