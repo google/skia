@@ -147,7 +147,7 @@ std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
                                                      int srcPadding,
                                                      GrMeshDrawOp::Target* target,
                                                      bool bilerpPadding) {
-    GrAtlasManager* atlasManager = target->atlasManager();
+    GrAtlasManager* atlasManager = target->atlasManager11();
     GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
 
     uint64_t currentAtlasGen = atlasManager->atlasGeneration(maskFormat);
