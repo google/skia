@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b371561_98cfca7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T17:20:12Z",
+      "side": 1,
+      "message": "Shame we didn\u0027t call it SkImageGenerator_android, huh?",
+      "revId": "d636695cd71aaea2a6aaeaae97d43e9873baeca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
