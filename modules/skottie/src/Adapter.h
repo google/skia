@@ -36,7 +36,7 @@ private:
     const sk_sp<T> fNode;
 };
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
 
 #endif // SkottieAdapter_DEFINED

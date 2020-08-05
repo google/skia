@@ -181,5 +181,5 @@ void MaskShaderEffectBase::onSync() {
     fMaskEffectNode->setShader(std::move(minfo.fMaskShader));
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

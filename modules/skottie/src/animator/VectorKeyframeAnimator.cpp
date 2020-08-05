@@ -139,7 +139,7 @@ private:
     using INHERITED = KeyframeAnimator;
 };
 
-} // namespace
+}  // namespace
 
 VectorKeyframeAnimatorBuilder::VectorKeyframeAnimatorBuilder(std::vector<float>* target,
                                                              VectorLenParser  parse_len,
@@ -260,5 +260,5 @@ bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abui
          | this->bind(abuilder, (*jprop)["z"], v->data() + 2);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

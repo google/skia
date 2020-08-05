@@ -43,6 +43,6 @@ private:
     const sk_sp<RenderNode> fRoot;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGScene_DEFINED

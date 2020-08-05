@@ -114,7 +114,7 @@ private:
     uint32_t               fCurrentBackbufferIndex;
 };
 
-}   // namespace sk_app
+}  // namespace sk_app
 
 #endif // SK_VULKAN
 

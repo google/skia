@@ -46,12 +46,12 @@ private:
     ScalarValue fRoundness = 0;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::GeometryNode> ShapeBuilder::AttachRRectGeometry(const skjson::ObjectValue& jrect,
                                                             const AnimationBuilder* abuilder) {
     return abuilder->attachDiscardableAdapter<RectangleGeometryAdapter>(jrect, abuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

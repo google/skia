@@ -231,7 +231,7 @@ private:
     using INHERITED = DiscardableAdapterBase<BrightnessContrastAdapter, sksg::ExternalColorFilter>;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachBrightnessContrastEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
@@ -240,4 +240,4 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachBrightnessContrastEffect(
                                                                          std::move(layer));
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

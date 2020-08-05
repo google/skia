@@ -116,8 +116,8 @@ Writing a Benchmark Test
                 }
             }
         };
-        }  // namespace
-        DEF_BENCH(return new FooBench;)
+}  // namespace
+DEF_BENCH(return new FooBench;)
 
 2.  Add `FooBench.cpp` to `gn/bench.gni`.
 

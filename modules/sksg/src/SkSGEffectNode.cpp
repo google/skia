@@ -33,4 +33,4 @@ SkRect EffectNode::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
     return fChild->revalidate(ic, ctm);
 }
 
-} // namespace sksg
+}  // namespace sksg

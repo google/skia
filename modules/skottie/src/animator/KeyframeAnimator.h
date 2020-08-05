@@ -19,7 +19,7 @@ namespace skjson {
 class ArrayValue;
 class ObjectValue;
 class Value;
-} // namespace skjson
+}  // namespace skjson
 
 namespace skottie::internal {
 
@@ -134,6 +134,6 @@ private:
 template <typename T>
 T Lerp(const T& a, const T& b, float t) { return a + (b - a) * t; }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal
 
 #endif // SkottieKeyframeAnimator_DEFINED

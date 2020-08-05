@@ -243,7 +243,7 @@ std::unique_ptr<Sink> MakeSink(const char* fmt, const SkMatrix& scale_matrix) {
     return nullptr;
 }
 
-} // namespace
+}  // namespace
 
 extern bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental;
 

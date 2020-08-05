@@ -255,4 +255,4 @@ void LayerEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     this->INHERITED::onRender(canvas, nullptr);
 }
 
-} // namespace sksg
+}  // namespace sksg

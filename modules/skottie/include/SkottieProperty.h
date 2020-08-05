@@ -24,7 +24,7 @@ namespace sksg {
 class Color;
 class OpacityEffect;
 
-} // namespace sksg
+}  // namespace sksg
 
 namespace skottie {
 
@@ -93,7 +93,7 @@ namespace internal {
 class TextAdapter;
 class TransformAdapter2D;
 
-} // namespace internal
+}  // namespace internal
 
 using ColorPropertyHandle     = PropertyHandle<ColorPropertyValue,
                                                sksg::Color>;
@@ -129,6 +129,6 @@ public:
     virtual void onLeavingNode(const char node_name[]);
 };
 
-} // namespace skottie
+}  // namespace skottie
 
 #endif // SkottieProperty_DEFINED

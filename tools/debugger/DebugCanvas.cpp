@@ -32,30 +32,30 @@ namespace {
     static constexpr char kOffscreenLayerDraw[] = "OffscreenLayerDraw";
     static constexpr char kSurfaceID[] = "SurfaceID";
     static constexpr char kAndroidClip[] = "AndroidDeviceClipRestriction";
-} // namespace
+    }  // namespace
 
-class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
-public:
-    DebugPaintFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) {}
+    class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
+    public:
+        DebugPaintFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) {}
 
-protected:
-    bool onFilter(SkPaint& paint) const override {
-        paint.setColor(SK_ColorRED);
-        paint.setAlpha(0x08);
-        paint.setBlendMode(SkBlendMode::kSrcOver);
-        return true;
-    }
+    protected:
+        bool onFilter(SkPaint& paint) const override {
+            paint.setColor(SK_ColorRED);
+            paint.setAlpha(0x08);
+            paint.setBlendMode(SkBlendMode::kSrcOver);
+            return true;
+        }
 
-    void onDrawPicture(const SkPicture* picture,
-                       const SkMatrix*  matrix,
-                       const SkPaint*   paint) override {
-        // We need to replay the picture onto this canvas in order to filter its internal paints.
-        this->SkCanvas::onDrawPicture(picture, matrix, paint);
-    }
+        void onDrawPicture(const SkPicture* picture,
+                           const SkMatrix* matrix,
+                           const SkPaint* paint) override {
+            // We need to replay the picture onto this canvas in order to filter its internal
+            // paints.
+            this->SkCanvas::onDrawPicture(picture, matrix, paint);
+        }
 
-private:
-
-    typedef SkPaintFilterCanvas INHERITED;
+    private:
+        typedef SkPaintFilterCanvas INHERITED;
 };
 
 DebugCanvas::DebugCanvas(int width, int height)

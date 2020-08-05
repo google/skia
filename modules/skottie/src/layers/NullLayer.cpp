@@ -19,5 +19,5 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNullLayer(const skjson::ObjectVa
     return nullptr;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

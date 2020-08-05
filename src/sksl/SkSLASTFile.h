@@ -29,6 +29,6 @@ private:
     friend class Parser;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

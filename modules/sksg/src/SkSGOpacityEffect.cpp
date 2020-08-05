@@ -34,4 +34,4 @@ SkRect OpacityEffect::onRevalidate(InvalidationController* ic, const SkMatrix& c
     return fOpacity > 0 ? this->INHERITED::onRevalidate(ic, ctm) : SkRect::MakeEmpty();
 }
 
-} // namespace sksg
+}  // namespace sksg

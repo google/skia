@@ -573,6 +573,6 @@ void Dehydrator::finish(OutputStream& out) {
     out.writeString(fBody.str());
 }
 
-} // namespace
+}  // namespace SkSL
 
 #endif

@@ -193,5 +193,5 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValu
     return sksg::Transform::MakeConcat(std::move(parent), adapter->node());
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

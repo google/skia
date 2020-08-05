@@ -88,5 +88,5 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachDropShadowEffect(const skjson::Arra
                                                                  *fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
