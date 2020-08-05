@@ -717,23 +717,7 @@ public:
     }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
-        auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
-        // don't need to set ctx->paintColor
-        ctx->inputs = fInputs;
-        ctx->ninputs = fEffect->uniformSize() / 4;
-        ctx->shaderConvention = false;
-
-        ctx->byteCode = this->byteCode();
-        if (!ctx->byteCode || !ctx->byteCode->canRun()) {
-            return false;
-        }
-
-        ctx->fn = ctx->byteCode->getFunction("main");
-        if (!ctx->fn) {
-            return false;
-        }
-        rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
-        return true;
+        return false;
     }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
@@ -918,33 +902,7 @@ public:
     }
 
     bool onAppendStages(const SkStageRec& rec) const override {
-        SkMatrix inverse;
-        if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM,
-                                       &inverse)) {
-            return false;
-        }
-
-        auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
-        ctx->paintColor = rec.fPaint.getColor4f();
-        ctx->inputs = this->getUniforms(rec.fMatrixProvider, rec.fDstCS);
-        if (!ctx->inputs) {
-            return false;
-        }
-        ctx->ninputs = fEffect->uniformSize() / 4;
-        ctx->shaderConvention = true;
-
-        ctx->byteCode = this->byteCode();
-        if (!ctx->byteCode || !ctx->byteCode->canRun()) {
-            return false;
-        }
-        ctx->fn = ctx->byteCode->getFunction("main");
-        if (!ctx->fn) {
-            return false;
-        }
-        rec.fPipeline->append(SkRasterPipeline::seed_shader);
-        rec.fPipeline->append_matrix(rec.fAlloc, inverse);
-        rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
-        return true;
+        return false;
     }
 
     skvm::Color onProgram(skvm::Builder* p,
