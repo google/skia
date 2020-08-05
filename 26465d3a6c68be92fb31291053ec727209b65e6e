@@ -16,6 +16,29 @@
       "revId": "26465d3a6c68be92fb31291053ec727209b65e6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5b4b7dd_b81f050f",
+        "filename": "src/core/SkWriteBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T18:48:16Z",
+      "side": 1,
+      "message": "What do you think of doing it type-by-type, e.g.\n\nif (SkFlattenable::Factory factory \u003d flattenable-\u003egetFactory(); factory \u0026\u0026 fFactorySet) {\n    this-\u003ewrite32(fFactorySet-\u003eadd(factory));\n} else {\n    ... use type names instead ...\n}",
+      "range": {
+        "startLine": 236,
+        "startChar": 8,
+        "endLine": 236,
+        "endChar": 26
+      },
+      "revId": "26465d3a6c68be92fb31291053ec727209b65e6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
