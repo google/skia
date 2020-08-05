@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bca0945_1dfc0277",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T21:59:17Z",
+      "side": 1,
+      "message": "Kind of feels like we all prefer once space.  What does this look like if we set things that way?\n\nDo you have something to keep this consistent as we go on?",
+      "revId": "dde007319df1ede7737cacf1ceb3f0c9444db942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4090fe1a_c20ae13e",
+        "filename": "modules/skottie/src/effects/ShiftChannelsEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T21:59:17Z",
+      "side": 1,
+      "message": "Missed?",
+      "revId": "dde007319df1ede7737cacf1ceb3f0c9444db942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac38df26_7705135d",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T21:59:17Z",
+      "side": 1,
+      "message": "Unrelated changes in this file?",
+      "revId": "dde007319df1ede7737cacf1ceb3f0c9444db942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86a17d92_4ce14fa1",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T21:59:17Z",
+      "side": 1,
+      "message": "Unrelated?",
+      "revId": "dde007319df1ede7737cacf1ceb3f0c9444db942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22c4efff_8cc3edab",
+        "filename": "tools/debugger/DebugCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T21:59:17Z",
+      "side": 1,
+      "message": "unrelated?",
+      "range": {
+        "startLine": 49,
+        "startChar": 1,
+        "endLine": 60,
+        "endChar": 0
+      },
+      "revId": "dde007319df1ede7737cacf1ceb3f0c9444db942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
