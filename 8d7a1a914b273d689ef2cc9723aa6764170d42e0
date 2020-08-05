@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7106e123_633bd3f8",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T13:51:47Z",
+      "side": 1,
+      "message": "I suppose that\u0027s true, if you restructured the code like this:\n\n            const Type* result \u003d fSymbolTable-\u003etakeOwnershipOfSymbol(\n                     std::make_unique\u003cType\u003e(\n                          componentType-\u003ename() + \"[\" + to_string(count) + \"]\",\n                          Type::kArray_Kind, *componentType, count));\n            this-\u003eaddSymbol(id, result);\n            return result;",
+      "parentUuid": "86d664e7_9e8ccc84",
+      "revId": "8d7a1a914b273d689ef2cc9723aa6764170d42e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3592f066_323dc6a3",
         "filename": "src/sksl/ir/SkSLSymbolTable.h",
         "patchSetId": 5
