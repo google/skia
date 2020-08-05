@@ -273,12 +273,6 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
-
-        const GrSurfaceProxyView* views = fAtlas->getViews();
-        for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
-            SkASSERT(views[i].proxy());
-            func(views[i].proxy(), GrMipmapped::kNo);
-        }
     }
 
 #ifdef SK_DEBUG
