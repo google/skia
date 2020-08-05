@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c88f6c6e_3dc14c47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T13:46:48Z",
+      "side": 1,
+      "message": "You\u0027re right. In my experience, the big win is when you have private constructors and public Make functions that return unique_ptrs. e.g.:\n\n    static std::unique_ptr\u003cGrFragmentProcessor\u003e Make(SkPMColor4f color) {\n        return SkWrapUnique(new GrConstColorProcessor(color));\n    }\n\n(Replacing std::unique_ptr\u003cGrFragmentProcessor\u003e)\n\nI googled this for examples and actually realized there\u0027s a TOTW about it that I hadn\u0027t seen before: https://abseil.io/tips/134",
+      "parentUuid": "e42428c9_e0a13589",
+      "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e7dcfad_9c18b8f1",
         "filename": "include/private/SkPtrUtil.h",
         "patchSetId": 8
@@ -62,6 +80,54 @@
       "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba7977d9_7ca144da",
+        "filename": "include/private/SkPtrUtil.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T13:46:48Z",
+      "side": 1,
+      "message": "Right, I agree. That\u0027s probably the better choice here, to expose the typename. If you continue reading the comments below that line, they even back up this position as well: \n\n\"The purpose of SkWrapUnique is to automatically deduce the pointer type. If you wish to make the type explicit, just use `std::unique_ptr` directly.\"",
+      "parentUuid": "525a5ba2_c5992a4b",
+      "range": {
+        "startLine": 21,
+        "startChar": 5,
+        "endLine": 21,
+        "endChar": 41
+      },
+      "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80a42b81_b01156f9",
+        "filename": "include/private/SkPtrUtil.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T13:46:48Z",
+      "side": 1,
+      "message": "Good catch. Fixed.",
+      "parentUuid": "7e7dcfad_9c18b8f1",
+      "range": {
+        "startLine": 21,
+        "startChar": 69,
+        "endLine": 21,
+        "endChar": 70
+      },
+      "revId": "6b269e1c71d154fd704113caf30bf77d18817beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
