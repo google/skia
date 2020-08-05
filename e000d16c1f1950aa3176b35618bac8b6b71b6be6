@@ -141,6 +141,24 @@
       "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c709312_ccfcf45c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T13:25:33Z",
+      "side": 1,
+      "message": "For now I think I\u0027d just pause this project.  I\u0027ve certainly seen AVX-512 code run faster than its AVX2 equivalent, but until yesterday all that timing was done on Skylake Xeon and not consumer Icelake.  I don\u0027t want to ship a bunch of AVX-512 code to Skia\u0027s users when AVX2 works just as well (or AVX, or SSE4.1, or SSE2, etc.), particularly with AVX-512\u0027s extreme throttling.",
+      "parentUuid": "81972a8f_27e2e66c",
+      "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
