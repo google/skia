@@ -87,6 +87,24 @@
       "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f70af577_2a3ff09e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12064
+      },
+      "writtenOn": "2020-08-05T02:39:03Z",
+      "side": 1,
+      "message": "Thanks Mike, I\u0027ve retested on our icelake laptop, gaps still exist as I listed above(still before:about 40us and after: about 33us). \nThe build flags I use are \u0027is_debug\u003dfalse cc\u003d\"clang\" cxx\u003d\"clang++\"\u0027. The cpu of our icelake device is also 1065G7, memory is 15.4 Gib, and the OS is Ubuntu 19.10. Compared with your 20us results, is it possible that the difference of os type,the hardware or build flags cause such regression?",
+      "parentUuid": "8c853c4d_17cc7ef2",
+      "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
