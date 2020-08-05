@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4455fec9_9e4467bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-05T15:13:07Z",
+      "side": 1,
+      "message": "To anyone looking at this from the future, the oss-fuzz Skia builders tried \u00270\u0027 (cpu count) first and that didn\u0027t help much, so then tried \u00271\u0027 (just one link command at a time) and all oss-fuzz builders started to complete successfully (it seems the bots were quite memory bound).\n\nLocal testing seems to indicate no current need or desire for limiting the linker pool on development machines (SSD and lots of RAM) as limiting to the number of CPUs does not seem to reduce contention time more than the latency time is increased. If there are more interesting scheduling issues in the future it is likely that an estimate of available memory and the expected memory of a linker step should be taken into account.",
+      "revId": "57d859edd3c49bbea01ba8df8fde2b90de160702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
