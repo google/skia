@@ -105,6 +105,24 @@
       "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1986e073_53e95231",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-05T17:48:37Z",
+      "side": 1,
+      "message": "FYI: I\u0027m going to switch gears and try to re-enforce spatial-invariance of color filters. For now, that means no reference to coords, no reference to sk_FragCoords. I\u0027m going to add back the ability to sample children (other color filters, in this case), and also enforce that they\u0027re only sampled in pass-through mode (sample(child) or sample(child, color)).\n\nThat will give us the tools to migrate Chrome\u0027s color filters to child-sampling for inputs, and that unblocks us to change the signature on all runtime effects, to return half4 and take either float2 (for shaders), or nothing (for color filters).",
+      "parentUuid": "dd39d212_e37a6cee",
+      "revId": "85175aba12df4252449e2812ee11bd99a0fd0479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
