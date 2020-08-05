@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc2db6fa_a8bcd4ef",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T12:35:48Z",
+      "side": 1,
+      "message": "preApply (and the later GetPixelIBounds functions) only take GrAA and not GrAAType because it\u0027s whether or not something is anti-aliased that affects the bounds. apply() takes a GrAAType because it also needs to know how the anti-aliasing will be applied so that it can modify its clip application.",
+      "range": {
+        "startLine": 84,
+        "startChar": 61,
+        "endLine": 84,
+        "endChar": 68
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bdb3657_5427bdc7",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T12:35:48Z",
+      "side": 1,
+      "message": "This means for non-AA, a floating point bounds edge between 0.45 and 0.55 will round in or round out depending on which side it\u0027s on. Less than .45 and greater than .55 will behave like a simple round()",
+      "range": {
+        "startLine": 104,
+        "startChar": 60,
+        "endLine": 104,
+        "endChar": 65
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4fdd287_e39d89bb",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T12:35:48Z",
+      "side": 1,
+      "message": "This isn\u0027t used yet, but is used in the new GrClipStack type.",
+      "range": {
+        "startLine": 159,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 24
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8411f8f8_8c89ebed",
+        "filename": "src/gpu/GrStencilMaskHelper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T12:35:48Z",
+      "side": 1,
+      "message": "This addresses the pixel diffs that came up in an earlier patch set. Basically, on platforms where we couldn\u0027t disable MSAA, the GrStencilMaskHelper would add ops marked as non-aa even though they\u0027d end up being MSAA\u0027ed anyways. This would confuse the pixel bounds calculations and change how the scissor was applied. Regardless of the rest of the CL, this helps keep the op state consistent with what will actually happen on the hardware.",
+      "range": {
+        "startLine": 325,
+        "startChar": 4,
+        "endLine": 333,
+        "endChar": 5
+      },
+      "revId": "95925fa513a5c679a8a81d9e823358f6cb7cbc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
