@@ -219,23 +219,26 @@ void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
 
     /*
      *  We can write 1 of 2 versions of the flattenable:
-     *  1.  index into fFactorySet : This assumes the writer will later
-     *      resolve the function-ptrs into strings for its reader. SkPicture
-     *      does exactly this, by writing a table of names (matching the indices)
-     *      up front in its serialized form.
-     *  2.  string name of the flattenable or index into fFlattenableDict:  We
-     *      store the string to allow the reader to specify its own factories
-     *      after write time.  In order to improve compression, if we have
-     *      already written the string, we write its index instead.
+     *
+     *  1. index into fFactorySet: This assumes the writer will later resolve the function-ptrs
+     *     into strings for its reader. SkPicture does exactly this, by writing a table of names
+     *     (matching the indices) up front in its serialized form.
+     *
+     *  2. string name of the flattenable or index into fFlattenableDict:  We store the string to
+     *     allow the reader to specify its own factories after write time. In order to improve
+     *     compression, if we have already written the string, we write its index instead.
      */
 
-
+    // If the factory methods are stripped out, we can't use them as our type identifiers
+#if !defined(SK_DISABLE_EFFECT_SERIALIZATION)
     if (fFactorySet) {
         SkFlattenable::Factory factory = flattenable->getFactory();
         SkASSERT(factory);
 
         this->write32(fFactorySet->add(factory));
-    } else {
+    } else
+#endif
+    {
         const char* name = flattenable->getTypeName();
         SkASSERT(name);
         SkASSERT(0 != strcmp("", name));
