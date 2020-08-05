@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee15cba2_63c5d1c6",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-05T20:46:40Z",
+      "side": 1,
+      "message": "This mimics GrAtlasManager::getViews",
+      "revId": "e44c72119357b65c981f12dddd5c55a2a6457b50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96971ac9_6e6abb0c",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-05T20:46:40Z",
+      "side": 1,
+      "message": "This mimics GrAtlasManager::addGlyphToBulkAndSetUseToken",
+      "revId": "e44c72119357b65c981f12dddd5c55a2a6457b50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
