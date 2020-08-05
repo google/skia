@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5118ca6e_abc25d30",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T20:43:23Z",
+      "side": 1,
+      "message": "\u003e Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.\n\nPlease fix.",
+      "parentUuid": "49df5d20_fb6435e7",
+      "range": {
+        "startLine": 551,
+        "startChar": 7,
+        "endLine": 551,
+        "endChar": 13
+      },
+      "revId": "3c1993c1c010bdf3814c0a573622714a500719f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ec54b98_6092a2e5",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 886,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T20:43:23Z",
+      "side": 1,
+      "message": "\u003e Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.\n\nPlease fix.",
+      "parentUuid": "549d2715_9ad53dfa",
+      "range": {
+        "startLine": 886,
+        "startChar": 7,
+        "endLine": 886,
+        "endChar": 13
+      },
+      "revId": "3c1993c1c010bdf3814c0a573622714a500719f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c729f484_0c1ba902",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-05T20:43:23Z",
+      "side": 1,
+      "message": "\u003e Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.\n\nPlease fix.",
+      "parentUuid": "73f1e8ae_6af1b23a",
+      "range": {
+        "startLine": 1034,
+        "startChar": 7,
+        "endLine": 1034,
+        "endChar": 13
+      },
+      "revId": "3c1993c1c010bdf3814c0a573622714a500719f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
