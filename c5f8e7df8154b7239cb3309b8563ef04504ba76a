@@ -34,6 +34,24 @@
       "revId": "c5f8e7df8154b7239cb3309b8563ef04504ba76a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2658f6c0_c75310b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-05T23:47:53Z",
+      "side": 1,
+      "message": "The bot runs on Linux of course. :)",
+      "parentUuid": "59a2a91c_387157e4",
+      "revId": "c5f8e7df8154b7239cb3309b8563ef04504ba76a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
