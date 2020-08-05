@@ -390,18 +390,12 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                     fErrors.error(size->fOffset, "array size must be specified");
                     return nullptr;
                 }
-                type = (const Type*) fSymbolTable->takeOwnership(
-                                           std::unique_ptr<const Symbol>(new Type(name,
-                                                                                  Type::kArray_Kind,
-                                                                                  *type,
-                                                                                  (int) count)));
+                type = fSymbolTable->takeOwnershipOfSymbol(
+                        std::make_unique<Type>(name, Type::kArray_Kind, *type, (int)count));
                 sizes.push_back(std::move(size));
             } else {
-                type = (const Type*) fSymbolTable->takeOwnership(
-                                         std::unique_ptr<const Symbol>(new Type(type->name() + "[]",
-                                                                                Type::kArray_Kind,
-                                                                                *type,
-                                                                                -1)));
+                type = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+                        type->name() + "[]", Type::kArray_Kind, *type, /*columns=*/-1));
                 sizes.push_back(nullptr);
             }
         }
@@ -862,11 +856,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         for (int j = (int) pd.fSizeCount; j >= 1; j--) {
             int size = (param.begin() + j)->getInt();
             String name = type->name() + "[" + to_string(size) + "]";
-            type = (const Type*) fSymbolTable->takeOwnership(
-                                           std::unique_ptr<const Symbol>(new Type(std::move(name),
-                                                                                  Type::kArray_Kind,
-                                                                                  *type,
-                                                                                  size)));
+            type = fSymbolTable->takeOwnershipOfSymbol(
+                    std::make_unique<Type>(std::move(name), Type::kArray_Kind, *type, size));
         }
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters
         if ((type->nonnullable() == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
@@ -876,12 +867,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             return;
         }
         StringFragment name = pd.fName;
-        const Variable* var = (const Variable*) fSymbolTable->takeOwnership(
-                         std::unique_ptr<const Symbol>(new Variable(param.fOffset,
-                                                                    pd.fModifiers,
-                                                                    name,
-                                                                    *type,
-                                                                    Variable::kParameter_Storage)));
+        const Variable* var = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
+                param.fOffset, pd.fModifiers, name, *type, Variable::kParameter_Storage));
         parameters.push_back(var);
     }
 
@@ -1098,10 +1085,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
         }
     }
     this->popSymbolTable();
-    const Type* type = (Type*) old->takeOwnership(std::unique_ptr<const Symbol>(
-                                                                              new Type(intf.fOffset,
-                                                                                       id.fTypeName,
-                                                                                       fields)));
+    const Type* type =
+            old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName, fields));
     std::vector<std::unique_ptr<Expression>> sizes;
     for (size_t i = 0; i < id.fSizeCount; ++i) {
         const ASTNode& size = *(iter++);
@@ -1123,23 +1108,20 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                 fErrors.error(intf.fOffset, "array size must be specified");
                 return nullptr;
             }
-            type = (const Type*) symbols->takeOwnership(std::unique_ptr<const Symbol>(
-                                                                         new Type(name,
-                                                                                  Type::kArray_Kind,
-                                                                                  *type,
-                                                                                  (int) count)));
+            type = symbols->takeOwnershipOfSymbol(
+                    std::make_unique<Type>(name, Type::kArray_Kind, *type, (int)count));
             sizes.push_back(std::move(converted));
         } else {
             fErrors.error(intf.fOffset, "array size must be specified");
             return nullptr;
         }
     }
-    const Variable* var = (const Variable*) old->takeOwnership(std::unique_ptr<const Symbol>(
-                      new Variable(intf.fOffset,
-                                   id.fModifiers,
-                                   id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
-                                   *type,
-                                   Variable::kGlobal_Storage)));
+    const Variable* var = old->takeOwnershipOfSymbol(
+            std::make_unique<Variable>(intf.fOffset,
+                                       id.fModifiers,
+                                       id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
+                                       *type,
+                                       Variable::kGlobal_Storage));
     if (foundRTAdjust) {
         fRTAdjustInterfaceBlock = var;
     }
@@ -1205,7 +1187,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                                               Variable::kGlobal_Storage, value.get());
         variables.push_back(var.get());
         symbols->add(child.getString(), std::move(var));
-        symbols->takeOwnership(std::move(value));
+        symbols->takeOwnershipOfIRNode(std::move(value));
     }
     fProgramElements->push_back(std::unique_ptr<ProgramElement>(new Enum(e.fOffset, e.getString(),
                                                                          symbols, fIsBuiltinCode)));
@@ -1222,10 +1204,8 @@ const Type* IRGenerator::convertType(const ASTNode& type) {
                     fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in "
                                                 "an array");
                 }
-                result = fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(
-                                                               new Type(String(result->fName) + "?",
-                                                                        Type::kNullable_Kind,
-                                                                        (const Type&) *result)));
+                result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+                        String(result->fName) + "?", Type::kNullable_Kind, (const Type&)*result));
             } else {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
             }
@@ -1237,12 +1217,8 @@ const Type* IRGenerator::convertType(const ASTNode& type) {
                 name += to_string(size.getInt());
             }
             name += "]";
-            result = (Type*) fSymbolTable->takeOwnership(std::unique_ptr<const Symbol>(
-                                                                     new Type(name,
-                                                                              Type::kArray_Kind,
-                                                                              (const Type&) *result,
-                                                                              size ? size.getInt()
-                                                                                   : 0)));
+            result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+                    name, Type::kArray_Kind, (const Type&)*result, size ? size.getInt() : 0));
         }
         return (const Type*) result;
     }
@@ -2023,8 +1999,7 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(int offset,
 
 const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
     if (src->kind() == Type::kArray_Kind) {
-        std::unique_ptr<const Symbol> copy(new Type(*src));
-        return (const Type*) symbolTable.takeOwnership(std::move(copy));
+        return symbolTable.takeOwnershipOfSymbol(std::make_unique<Type>(*src));
     }
     return src;
 }
@@ -2136,13 +2111,15 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(int offset,
             // need to copy the var name in case the originating function is discarded and we lose
             // its symbols
             std::unique_ptr<String> name(new String(old->fName));
-            String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
+            const String* namePtr = fSymbolTable->takeOwnershipOfString(std::move(name));
             const Type* typePtr = copy_if_needed(&old->fType, *fSymbolTable);
-            const Variable* clone = (const Variable*) fSymbolTable->takeOwnership(
-                     std::unique_ptr<const Symbol>(new Variable(offset, old->fModifiers,
-                                                                namePtr->c_str(), *typePtr,
-                                                                old->fStorage,
-                                                                initialValue.get())));
+            const Variable* clone = fSymbolTable->takeOwnershipOfSymbol(
+                    std::make_unique<Variable>(offset,
+                                               old->fModifiers,
+                                               namePtr->c_str(),
+                                               *typePtr,
+                                               old->fStorage,
+                                               initialValue.get()));
             (*varMap)[old] = clone;
             return std::make_unique<VarDeclaration>(clone, std::move(sizes),
                                                     std::move(initialValue));
@@ -2267,8 +2244,8 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
         std::unique_ptr<String> name(new String());
         int varIndex = fInlineVarCounter++;
         name->appendf("_inlineResult%s%d", inlineSalt.c_str(), varIndex);
-        String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
-        resultVar = new Variable(-1, Modifiers(), namePtr->c_str(),
+        const String* namePtr = fSymbolTable->takeOwnershipOfString(std::move(name));
+        resultVar = new Variable(/*offset=*/-1, Modifiers(), namePtr->c_str(),
                                  function.fDeclaration.fReturnType,
                                  Variable::kLocal_Storage,
                                  nullptr);
@@ -2288,9 +2265,10 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     for (int i = 0; i < (int) arguments.size(); ++i) {
         std::unique_ptr<String> argName(new String());
         argName->appendf("_inlineArg%s%d_%d", inlineSalt.c_str(), argIndex, i);
-        String* argNamePtr = (String*) fSymbolTable->takeOwnership(std::move(argName));
-        Variable* argVar = new Variable(-1, Modifiers(), argNamePtr->c_str(), arguments[i]->fType,
-                                        Variable::kLocal_Storage, arguments[i].get());
+        const String* argNamePtr = fSymbolTable->takeOwnershipOfString(std::move(argName));
+        Variable* argVar =
+                new Variable(/*offset=*/-1, Modifiers(), argNamePtr->c_str(), arguments[i]->fType,
+                             Variable::kLocal_Storage, arguments[i].get());
         fSymbolTable->add(argVar->fName, std::unique_ptr<Symbol>(argVar));
         varMap[function.fDeclaration.fParameters[i]] = argVar;
         std::vector<std::unique_ptr<VarDeclaration>> vars;
@@ -2733,11 +2711,10 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
         if (index.fKind == ASTNode::Kind::kInt) {
             const Type& oldType = ((TypeReference&) *base).fValue;
             SKSL_INT size = index.getInt();
-            const Type* newType = (const Type*) fSymbolTable->takeOwnership(
-                std::unique_ptr<const Symbol>(new Type(oldType.name() + "[" + to_string(size) + "]",
-                                                       Type::kArray_Kind, oldType, size)));
-            return std::unique_ptr<Expression>(new TypeReference(fContext, base->fOffset,
-                                                                 *newType));
+            const Type* newType = fSymbolTable->takeOwnershipOfSymbol(
+                    std::make_unique<Type>(oldType.name() + "[" + to_string(size) + "]",
+                                           Type::kArray_Kind, oldType, size));
+            return std::make_unique<TypeReference>(fContext, base->fOffset, *newType);
 
         } else {
             fErrors.error(base->fOffset, "array size must be a constant");
@@ -2888,13 +2865,14 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     int varIndex = fInlineVarCounter++;
                     auto name = std::make_unique<String>();
                     name->appendf("_tmpSwizzle%d", varIndex);
-                    String* namePtr = (String*) fSymbolTable->takeOwnership(std::move(name));
-                    Variable* var = (Variable*) fSymbolTable->takeOwnership(
-                                std::unique_ptr<const Symbol>(new Variable(offset, Modifiers(),
-                                                                           namePtr->c_str(),
-                                                                           base->fType,
-                                                                           Variable::kLocal_Storage,
-                                                                           base.get())));
+                    const String* namePtr = fSymbolTable->takeOwnershipOfString(std::move(name));
+                    const Variable* var = fSymbolTable->takeOwnershipOfSymbol(
+                            std::make_unique<Variable>(offset,
+                                                       Modifiers(),
+                                                       namePtr->c_str(),
+                                                       base->fType,
+                                                       Variable::kLocal_Storage,
+                                                       base.get()));
                     expr = std::make_unique<VariableReference>(offset, *var);
                     std::vector<std::unique_ptr<VarDeclaration>> variables;
                     variables.emplace_back(new VarDeclaration(var, {}, std::move(base)));
@@ -3019,11 +2997,8 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
         return this->convertIndex(std::move(base), *(iter++));
     } else if (base->fKind == Expression::kTypeReference_Kind) {
         const Type& oldType = ((TypeReference&) *base).fValue;
-        const Type* newType = (const Type*) fSymbolTable->takeOwnership(
-                                       std::unique_ptr<const Symbol>(new Type(oldType.name() + "[]",
-                                                                              Type::kArray_Kind,
-                                                                              oldType,
-                                                                              -1)));
+        const Type* newType = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+                oldType.name() + "[]", Type::kArray_Kind, oldType, /*columns=*/-1));
         return std::unique_ptr<Expression>(new TypeReference(fContext, base->fOffset,
                                                              *newType));
     }

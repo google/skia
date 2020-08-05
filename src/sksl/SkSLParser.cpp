@@ -512,11 +512,8 @@ ASTNode::ID Parser::structDeclaration() {
                 }
                 uint64_t columns = size.getInt();
                 String name = type->name() + "[" + to_string(columns) + "]";
-                type = (Type*) fSymbols.takeOwnership(std::unique_ptr<const Symbol>(
-                                                                         new Type(name,
-                                                                                  Type::kArray_Kind,
-                                                                                  *type,
-                                                                                  (int) columns)));
+                type = fSymbols.takeOwnershipOfSymbol(
+                        std::make_unique<Type>(name, Type::kArray_Kind, *type, (int)columns));
             }
             fields.push_back(Type::Field(declsNode.begin()->getModifiers(), vd.fName, type));
             if (vd.fSizeCount ? (var.begin() + (vd.fSizeCount - 1))->fNext : var.fFirstChild) {

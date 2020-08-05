@@ -1529,7 +1529,7 @@ void Compiler::registerExternalValue(ExternalValue* value) {
 }
 
 const Symbol* Compiler::takeOwnership(std::unique_ptr<const Symbol> symbol) {
-    return fIRGenerator->fRootSymbolTable->takeOwnership(std::move(symbol));
+    return fIRGenerator->fRootSymbolTable->takeOwnershipOfSymbol(std::move(symbol));
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
