@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "0745fba4_8cb94afa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-05T22:11:09Z",
+      "side": 1,
+      "message": "Excellent questions! \n\n- Re comment depth: this can be specified in the .clang-format file. It\u0027s currently set to `SpacesBeforeTrailingComments: 2`\n\nWe could set this to 1 and re-run the script and see if it makes fewer diffs or \nnot (hypothetically it could actually generate more diffs). \nDo you think Skia should just set this to 1 permanently, or just as a one-off for this change?\n\n- Re preventing backslides over time: I did some googling and it looks like Clang-Tidy has an option for this. I haven\u0027t tried it yet, but the docs seem like it\u0027s exactly what we\u0027re looking for. https://releases.llvm.org/8.0.0/tools/clang/tools/extra/docs/clang-tidy/checks/google-readability-namespace-comments.html",
+      "parentUuid": "174cdb54_fc07c05a",
+      "revId": "dde007319df1ede7737cacf1ceb3f0c9444db942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4090fe1a_c20ae13e",
         "filename": "modules/skottie/src/effects/ShiftChannelsEffect.cpp",
         "patchSetId": 11
