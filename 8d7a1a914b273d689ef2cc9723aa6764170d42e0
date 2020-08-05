@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "84d811d9_24258cf1",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-05T18:27:39Z",
+      "side": 1,
+      "message": "I\u0027m pretty hesitant to add WrapUnique, because the value seems small, and although it\u0027s a Chrome/Google standard - it\u0027s not a C++ standard (unlike make_unique). I imagine that most of the team is going to ignore it, so we\u0027re going to end up with a mix of that and explicit construction of unique_ptrs, which is worse than not having it at all.",
+      "parentUuid": "631ced21_5e4bb6db",
+      "revId": "8d7a1a914b273d689ef2cc9723aa6764170d42e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3592f066_323dc6a3",
         "filename": "src/sksl/ir/SkSLSymbolTable.h",
         "patchSetId": 5
