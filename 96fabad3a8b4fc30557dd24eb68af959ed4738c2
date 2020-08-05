@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9919746_2b189abc",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1772,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-05T15:16:59Z",
+      "side": 1,
+      "message": "Nit: I don\u0027t think we should be capitalizing \u0027Is\u0027 in this case -- it\u0027s not an external method.",
+      "range": {
+        "startLine": 1772,
+        "startChar": 9,
+        "endLine": 1772,
+        "endChar": 23
+      },
+      "revId": "96fabad3a8b4fc30557dd24eb68af959ed4738c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
