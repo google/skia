@@ -214,7 +214,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
     }
 }
 
-} // namespace
+}  // namespace
 
 static DEFINE_bool(verboseFontNames, false, "verbose FontNames test.");
 

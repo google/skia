@@ -117,4 +117,4 @@ void TextBlob::onClip(SkCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(this->asPath(), antiAlias);
 }
 
-} // namespace sksg
+}  // namespace sksg

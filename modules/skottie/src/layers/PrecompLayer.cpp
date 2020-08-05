@@ -78,7 +78,7 @@ private:
                               fTimeScale;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachExternalPrecompLayer(
         const skjson::ObjectValue& jlayer,
@@ -207,5 +207,5 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
     return precomp_layer;
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

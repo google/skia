@@ -201,7 +201,7 @@ static GrPathRendering::FillType convert_skpath_filltype(SkPathFillType fill) {
     }
 }
 
-} // namespace
+}  // namespace
 
 bool GrGLPath::InitPathObjectPathDataCheckingDegenerates(GrGLGpu* gpu, GrGLuint pathID,
                                                          const SkPath& skPath) {

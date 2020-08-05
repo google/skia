@@ -266,4 +266,4 @@ long stol(const String& s) {
     return result;
 }
 
-} // namespace
+}  // namespace SkSL

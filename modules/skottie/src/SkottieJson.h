@@ -29,6 +29,6 @@ T ParseDefault(const skjson::Value& v, const T& defaultValue) {
     return res;
 }
 
-} // namespace skottie
+}  // namespace skottie
 
 #endif // SkottieJson_DEFINED

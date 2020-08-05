@@ -46,6 +46,6 @@ private:
     typedef EffectNode INHERITED;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGClipEffect_DEFINED

@@ -72,7 +72,7 @@ private:
               fLR;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachCornerPinEffect(const skjson::ArrayValue& jprops,
                                                              sk_sp<sksg::RenderNode> layer) const {
@@ -82,4 +82,4 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachCornerPinEffect(const skjson::Array
     return sksg::TransformEffect::Make(std::move(layer), std::move(matrix_node));
 }
 
-} // namespace skottie::internal
+}  // namespace skottie::internal

@@ -147,4 +147,4 @@ GrGpuFinishedProc YUVABackendReleaseContext::CreationCompleteProc(int index) {
     return nullptr;
 }
 
-} // namespace sk_gpu_test
+}  // namespace sk_gpu_test

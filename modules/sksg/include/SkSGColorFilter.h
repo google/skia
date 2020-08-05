@@ -116,6 +116,6 @@ private:
     using INHERITED = ColorFilter;
 };
 
-} // namespace sksg
+}  // namespace sksg
 
 #endif // SkSGColorFilter_DEFINED

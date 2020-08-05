@@ -227,7 +227,7 @@ static constexpr ShapeInfo gShapeInfo[] = {
     { {.5f,0  }, {.5f,1}, 0                       , 1               , 0.5f }, // Shape::kSmooth
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
                                          const AnimationBuilder* abuilder,
@@ -389,5 +389,5 @@ void RangeSelector::modulateCoverage(const TextAnimator::DomainMaps& maps,
     }
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie

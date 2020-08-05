@@ -63,7 +63,7 @@ static sk_sp<SkRive> parse_skrive(std::unique_ptr<StreamReader> sr) {
     return skrive;
 }
 
-} // namespace internal
+}  // namespace internal
 
 sk_sp<SkRive> SkRive::Builder::make(std::unique_ptr<SkStreamAsset> stream) {
     auto   reader = internal::StreamReader::Make(std::move(stream));
@@ -72,4 +72,4 @@ sk_sp<SkRive> SkRive::Builder::make(std::unique_ptr<SkStreamAsset> stream) {
                   : nullptr;
 }
 
-} // namespace skrive
+}  // namespace skrive

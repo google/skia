@@ -234,7 +234,7 @@ public:
     int      fPass2Size;
 };
 
-} // namespace
+}  // namespace
 
 // NB 135 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
 // using the Gauss filter. It also limits the size of buffers used hold intermediate values. The

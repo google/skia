@@ -824,4 +824,4 @@ GrGeometryProcessor* MakeTexturedProcessor(SkArenaAlloc* arena,
                                                 saturate);
 }
 
-} // namespace GrQuadPerEdgeAA
+}  // namespace GrQuadPerEdgeAA

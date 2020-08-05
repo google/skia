@@ -173,6 +173,6 @@ bool AnimatablePropertyContainer::bind<ShapeValue>(const AnimationBuilder& abuil
     return this->bindImpl(abuilder, jprop, builder);
 }
 
-} // namespace internal
+}  // namespace internal
 
-} // namespace skottie
+}  // namespace skottie

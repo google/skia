@@ -65,7 +65,7 @@ int16_t findMode(SkSpan<const int16_t> advances) {
     return currentCount > currentModeCount ? previousAdvance : currentModeAdvance;
 }
 #endif
-} // namespace
+}  // namespace
 
 /** Retrieve advance data for glyphs. Used by the PDF backend. */
 // TODO(halcanary): this function is complex enough to need its logic

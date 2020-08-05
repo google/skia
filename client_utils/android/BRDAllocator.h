@@ -29,7 +29,7 @@ public:
     virtual SkCodec::ZeroInitialized zeroInit() const = 0;
 };
 
-} // namespace skia
-} // namespace android
+}  // namespace skia
+}  // namespace android
 
 #endif // BRDAllocator_DEFINED

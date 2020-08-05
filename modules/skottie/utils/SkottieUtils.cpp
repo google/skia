@@ -199,7 +199,7 @@ private:
     const SkSize                    fSize;
 };
 
-} // namespace
+}  // namespace
 
 ExternalAnimationPrecompInterceptor::ExternalAnimationPrecompInterceptor(
         sk_sp<skresources::ResourceProvider> rprovider,
@@ -228,4 +228,4 @@ sk_sp<skottie::ExternalLayer> ExternalAnimationPrecompInterceptor::onLoadPrecomp
                 : nullptr;
 }
 
-} // namespace skottie_utils
+}  // namespace skottie_utils

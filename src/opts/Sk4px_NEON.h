@@ -52,5 +52,4 @@ inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
     return Sk16b((uint8x16_t)vmulq_n_u32(a32, 0x01010101));  // ____ ____ 1111 0000
 }
 
-} // namespace
-
+}  // namespace

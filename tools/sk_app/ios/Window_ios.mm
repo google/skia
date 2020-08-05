@@ -110,7 +110,7 @@ void Window_ios::onInval() {
     // TODO: send expose event
 }
 
-}   // namespace sk_app
+}  // namespace sk_app
 
 ///////////////////////////////////////////////////////////////////////////////
 

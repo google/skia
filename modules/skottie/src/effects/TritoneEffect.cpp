@@ -71,12 +71,12 @@ private:
     ScalarValue fWeight = 0;
 };
 
-} // namespace
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachTritoneEffect(const skjson::ArrayValue& jprops,
                                                            sk_sp<sksg::RenderNode> layer) const {
     return fBuilder->attachDiscardableAdapter<TritoneAdapter>(jprops, std::move(layer), *fBuilder);
 }
 
-} // namespace internal
-} // namespace skottie
+}  // namespace internal
+}  // namespace skottie
