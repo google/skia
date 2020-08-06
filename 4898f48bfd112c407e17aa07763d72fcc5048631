@@ -19,6 +19,52 @@
     },
     {
       "key": {
+        "uuid": "35da9c8b_7420cd0d",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-06T14:29:03Z",
+      "side": 1,
+      "message": "\"allow\" feels a little weird here. Maybe \"canBeColorFilter\" or \"colorfilterCompatible\"?",
+      "range": {
+        "startLine": 185,
+        "startChar": 11,
+        "endLine": 185,
+        "endChar": 28
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17cc3ded_5f755c57",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-06T14:29:03Z",
+      "side": 1,
+      "message": "Your comment above for \u0027allowColorFilter\u0027 makes it sound like explicit coords should allowed on children with color filters. Since they don\u0027t have sample or frag coords referenced, any explicit coord would be a constant float2 or an expression based on uniforms or derived from the input color.\n\nOr did I not follow it properly?",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
@@ -36,6 +82,24 @@
     },
     {
       "key": {
+        "uuid": "fffed093_c7a5de53",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-06T14:29:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "aff9084a_ef22de5d",
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d241737_627d7759",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 2
@@ -47,6 +111,29 @@
       "writtenOn": "2020-08-06T13:50:42Z",
       "side": 1,
       "message": "Just to be clear: Today, these two unit tests pass because we don\u0027t allow making a color filter from a runtime effect that needs children. When we do add children, these should continue to pass because they\u0027re sampling those children in ways we don\u0027t allow.",
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc35ef86_bf8c249d",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-06T14:29:03Z",
+      "side": 1,
+      "message": "I feel like this ought to be allowed for color filters. Are their implications that make this break the non-spatially-varying invariant?",
+      "range": {
+        "startLine": 106,
+        "startChar": 59,
+        "endLine": 106,
+        "endChar": 82
+      },
       "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
