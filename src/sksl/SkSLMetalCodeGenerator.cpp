@@ -15,6 +15,8 @@
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
+#include <algorithm>
+
 namespace SkSL {
 
 class MetalCodeGenerator::GlobalStructVisitor {
