@@ -20,9 +20,9 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
-#include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/text/GrStrikeCache.h"
+//#include "src/gpu/GrDrawOpAtlas.h"
 
 class GrAtlasManager;
 class GrAtlasTextOp;

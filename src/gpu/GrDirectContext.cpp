@@ -11,11 +11,13 @@
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
 
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/mock/GrMockGpu.h"
+#include "src/gpu/ops/GrSmallPathAtlasMgr.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #ifdef SK_METAL
@@ -114,6 +116,22 @@ bool GrDirectContext::init() {
     this->priv().addOnFlushCallbackObject(fAtlasManager);
 
     return true;
+}
+
+GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
+    if (!fSmallPathAtlasMgr) {
+        fSmallPathAtlasMgr.reset(new GrSmallPathAtlasMgr());
+
+        if (!fSmallPathAtlasMgr->initAtlas(this->proxyProvider(), this->caps())) {
+            fSmallPathAtlasMgr.reset();
+            return nullptr;
+        }
+
+        // why doesn't the other atlas need a get in its aOFCbO call?
+        this->priv().addOnFlushCallbackObject(fSmallPathAtlasMgr.get());
+    }
+
+    return fSmallPathAtlasMgr.get();
 }
 
 #ifdef SK_GL

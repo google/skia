@@ -13,10 +13,16 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProxyProvider.h"
 
-class GrGlyph;
-class GrTextStrike;
+#include "src/core/SkTDynamicHash.h"
+#include "src/core/SkTInternalLList.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+class GrGlyph;
+class GrSmallPathShapeData;
+class GrSmallPathShapeDataKey;
+class GrStyledShape;
+class GrTextStrike;
+class ShapeDataKey;
+
 /** The GrAtlasManager manages the lifetime of and access to GrDrawOpAtlases.
  *  It is only available at flush and only via the GrOpFlushState.
  *
