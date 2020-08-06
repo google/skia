@@ -257,6 +257,30 @@
     },
     {
       "key": {
+        "uuid": "b7fb5c10_69e6c3b6",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T15:10:27Z",
+      "side": 1,
+      "message": "Yeah, I think I\u0027m on board.  We need to avoid any dependency on data derived from the destination coordinate where the color filtering is happening, but given that, anything goes.\n\nDoes this work?\n   - change main() for color filter effects to not receive a local coordinate\n   - disallow access to sk_FragCoord from color filter effects\n   - allow color filters to sample either kind of child effect",
+      "parentUuid": "908ea335_dcb28233",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
