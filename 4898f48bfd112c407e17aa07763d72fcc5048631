@@ -305,6 +305,30 @@
     },
     {
       "key": {
+        "uuid": "e12802c0_aa8e763d",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T15:15:03Z",
+      "side": 1,
+      "message": "I think for now, I\u0027m going to err on the side of caution, and only allow color filters to sample other color filters. I agree it would be neat to have shaders-as-children, if we can enforce the rules that make it safe, but (at least on the GPU backend), there\u0027s enough implicit injection of coords that I\u0027d be wary. If we do add that capability, I want to do it as a separate CL.",
+      "parentUuid": "df8bbd10_0b95985b",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
