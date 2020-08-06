@@ -20,10 +20,10 @@
 #include "src/gpu/vk/GrVkTexture.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxInfo) {
-    auto dContext = ctxInfo.directContext();
+    auto context = ctxInfo.directContext();
 
     GrBackendFormat format = GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
-    GrBackendTexture backendTex = dContext->createBackendTexture(
+    GrBackendTexture backendTex = context->createBackendTexture(
             32, 32, format, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
 
     REPORTER_ASSERT(reporter, backendTex.isValid());
@@ -56,12 +56,12 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
     // Setting back to the init state since we didn't actually change it
     backendTex.setMutableState(initState);
 
-    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(dContext, backendTex,
+    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(context, backendTex,
                                                            kTopLeft_GrSurfaceOrigin,
                                                            kRGBA_8888_SkColorType,
                                                            kPremul_SkAlphaType, nullptr);
 
-    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(dContext);
+    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(context);
     REPORTER_ASSERT(reporter, view);
     REPORTER_ASSERT(reporter, view->proxy()->isInstantiated());
     GrTexture* texture = view->proxy()->peekTexture();
@@ -105,9 +105,9 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
 
     // Test using the setBackendTextureStateAPI. Unlike the previous test this will actually add
     // real transitions to the image so we need to be careful about doing actual valid transitions.
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
 
-    dContext->setBackendTextureState(backendTex, newState);
+    context->setBackendTextureState(backendTex, newState);
 
     REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == info.fImageLayout);
@@ -119,16 +119,16 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
         GrBackendSurfaceMutableState externalState(VK_IMAGE_LAYOUT_GENERAL,
                                                    VK_QUEUE_FAMILY_EXTERNAL);
 
-        dContext->setBackendTextureState(backendTex, externalState);
+        context->setBackendTextureState(backendTex, externalState);
 
         REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
         REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
         REPORTER_ASSERT(reporter, VK_QUEUE_FAMILY_EXTERNAL == info.fCurrentQueueFamily);
 
-        dContext->submit();
+        context->submit();
 
         GrBackendSurfaceMutableState externalState2(VK_IMAGE_LAYOUT_GENERAL, initQueue);
-        dContext->setBackendTextureState(backendTex, externalState2);
+        context->setBackendTextureState(backendTex, externalState2);
 
         REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
         REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
@@ -136,9 +136,9 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
     }
 
     // We must submit this work before we try to delete the backend texture.
-    dContext->submit(true);
+    context->submit(true);
 
-    dContext->deleteBackendTexture(backendTex);
+    context->deleteBackendTexture(backendTex);
 }
 
 #endif

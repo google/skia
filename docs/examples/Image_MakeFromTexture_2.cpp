@@ -4,8 +4,8 @@
 // HASH=2b1e46354d823dbb53fa6af570135329
 REG_FIDDLE(Image_MakeFromTexture_2, 256, 256, false, 4) {
 void draw(SkCanvas* canvas) {
-    auto dContext = GrAsDirectContext(canvas->recordingContext());
-    if (!dContext) {
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
        return;
     }
     auto debugster = [](SkImage::ReleaseContext releaseContext) -> void {
@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     };
     int x = 0, y = 0;
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
-        sk_sp<SkImage> image = SkImage::MakeFromTexture(dContext, backEndTexture,
+        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,
                origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);
         canvas->drawImage(image, x, y);
         y += 128;

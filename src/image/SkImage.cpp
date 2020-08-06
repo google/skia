@@ -505,20 +505,20 @@ sk_sp<SkImage> SkImage::makeRasterImage(CachingHint chint) const {
 
 #if !SK_SUPPORT_GPU
 
-sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext*,
-                                        const GrBackendTexture&, GrSurfaceOrigin,
-                                        SkColorType, SkAlphaType, sk_sp<SkColorSpace>,
-                                        TextureReleaseProc, ReleaseContext) {
+sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
+                                        const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                        SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext*,
-                                                  const GrBackendTexture&,
-                                                  GrSurfaceOrigin,
-                                                  SkAlphaType,
-                                                  sk_sp<SkColorSpace>,
-                                                  TextureReleaseProc,
-                                                  ReleaseContext) {
+sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
+                                                  const GrBackendTexture& tex,
+                                                  GrSurfaceOrigin origin,
+                                                  SkAlphaType at,
+                                                  sk_sp<SkColorSpace> cs,
+                                                  TextureReleaseProc releaseP,
+                                                  ReleaseContext releaseC) {
     return nullptr;
 }
 
@@ -561,14 +561,16 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
-        GrContext*, SkYUVColorSpace, const GrBackendTexture[3], GrSurfaceOrigin,
-        const GrBackendTexture&, sk_sp<SkColorSpace>) {
+        GrContext* context, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvTextures[3],
+        GrSurfaceOrigin surfaceOrigin, const GrBackendTexture& backendTexture,
+        sk_sp<SkColorSpace> colorSpace) {
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext*, SkYUVColorSpace,
-                                                 const GrBackendTexture[2],
-                                                 GrSurfaceOrigin, sk_sp<SkColorSpace>) {
+sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace space,
+                                                const GrBackendTexture[2],
+                                                GrSurfaceOrigin origin,
+                                                sk_sp<SkColorSpace> imageColorSpace) {
     return nullptr;
 }
 
@@ -578,8 +580,14 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipmapped, SkBudget
 }
 
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
-       GrContext*, SkYUVColorSpace, const GrBackendTexture[2], GrSurfaceOrigin,
-       const GrBackendTexture&, sk_sp<SkColorSpace>, TextureReleaseProc, ReleaseContext) {
+                                                           GrContext* context,
+                                                           SkYUVColorSpace yuvColorSpace,
+                                                           const GrBackendTexture nv12Textures[2],
+                                                           GrSurfaceOrigin imageOrigin,
+                                                           const GrBackendTexture& backendTexture,
+                                                           sk_sp<SkColorSpace> imageColorSpace,
+                                                           TextureReleaseProc textureReleaseProc,
+                                                           ReleaseContext releaseContext) {
     return nullptr;
 }
 
