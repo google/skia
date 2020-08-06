@@ -401,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "3f087baa_bc7a1754",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-06T15:18:51Z",
+      "side": 1,
+      "message": "Mike\u0027s first plan regarding changing main() and checking for sk_Fragcoord.\n\nWe could also jam (0,0) in as the initial coordinate and override how sk_FragCoord is evaluated, but that would take extra work on the GPU backend at least, since once we convert to GrFragmentProcs we don\u0027t distinguish between shader and color filter really.",
+      "parentUuid": "c71e37d3_cea56493",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
