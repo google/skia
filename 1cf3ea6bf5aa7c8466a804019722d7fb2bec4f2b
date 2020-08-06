@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad0a9a34_588db505",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-06T12:00:14Z",
+      "side": 1,
+      "message": "PTAL. It appears to work, but it\u0027s been a while since I\u0027ve used CMake.",
+      "revId": "1cf3ea6bf5aa7c8466a804019722d7fb2bec4f2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
