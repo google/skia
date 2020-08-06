@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0e27627_5814f476",
+        "filename": "src/core/SkGlyphBuffer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "Missing a \u0027)\u0027",
+      "range": {
+        "startLine": 101,
+        "startChar": 43,
+        "endLine": 101,
+        "endChar": 44
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dc8150f_1e117495",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "This name feels off a bit. It\u0027s really a \"biased source to device transform\". Calling it an \u0027origin\u0027 makes me think \u0027vector\u0027 not \u0027matrix\u0027. [Q](0,0,1) is the \u0027device origin\u0027 of the blob.",
+      "range": {
+        "startLine": 174,
+        "startChar": 52,
+        "endLine": 174,
+        "endChar": 67
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67738b4a_80035171",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "\u0027transform\u0027 here confused me into thinking that [V] here was a different [V] than the one above, like it was [V] with the transform parts set to 0, instead of just the 0 in the vector doing that explicitly. Maybe I just have \u0027transform\u0027 stick with \u0027matrix\u0027 in my head. I suppose I would have thought of this as  \"[V](px,py,0) is a vector without the translation portion of V. ...\", since that\u0027s what\u0027s being brought to attention here. If it were being typeset I would bold the \u00270\u0027.\n\nI know it\u0027s implicit, but this works because \u0027O\u0027 is translation only. Intuitively it checks out though.",
+      "range": {
+        "startLine": 176,
+        "startChar": 42,
+        "endLine": 176,
+        "endChar": 51
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d732e994_d9ae7877",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "This is even more position-y when it\u0027s actually a matrix. Maybe something like \"... from Q(0,0,1) to Q\u0027(0,0,1), we ...\".",
+      "range": {
+        "startLine": 179,
+        "startChar": 79,
+        "endLine": 179,
+        "endChar": 87
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a10d7e2b_724ddb7a",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "s/g/b",
+      "range": {
+        "startLine": 179,
+        "startChar": 38,
+        "endLine": 179,
+        "endChar": 39
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf83328e_f4ca337e",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "Non-rotational / non-mirror? I haven\u0027t actually thought about it too hard, but if V and V\u0027 were 90 degrees different (or mirrored) one could technically pass the integer translation precondition and still run into issues.",
+      "range": {
+        "startLine": 183,
+        "startChar": 55,
+        "endLine": 183,
+        "endChar": 56
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea80ee65_f12c0a6e",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "s/t/y",
+      "range": {
+        "startLine": 187,
+        "startChar": 55,
+        "endLine": 187,
+        "endChar": 56
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78e8b671_bee36109",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "prob want to line up",
+      "range": {
+        "startLine": 217,
+        "startChar": 20,
+        "endLine": 217,
+        "endChar": 22
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f89ca69_0e4d1416",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "This could use more support. In the code you\u0027re just calling Round(Q\u0027(0,0,1) + S) because it was already supposed to be an integer, adding R seems to undo that?",
+      "range": {
+        "startLine": 221,
+        "startChar": 65,
+        "endLine": 221,
+        "endChar": 76
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bef352a6_631219b8",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "This leaves 1 - (1 - 1) which isn\u0027t 0?",
+      "range": {
+        "startLine": 223,
+        "startChar": 29,
+        "endLine": 223,
+        "endChar": 30
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac3ad519_677fd416",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T03:14:44Z",
+      "side": 1,
+      "message": "Missing a \u0027)\u0027",
+      "range": {
+        "startLine": 224,
+        "startChar": 38,
+        "endLine": 224,
+        "endChar": 39
+      },
+      "revId": "ffbc335a46ead66724ec545793da85c0eb05a09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
