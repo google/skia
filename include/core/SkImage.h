@@ -370,8 +370,7 @@ public:
         @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
         @return                       created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeCrossContextFromPixmap(GrDirectContext* context,
-                                                     const SkPixmap& pixmap,
+    static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
                                                      bool buildMips,
                                                      bool limitToMaxTextureSize = false);
 
