@@ -77,7 +77,7 @@ void SkImageSource::RegisterFlattenables() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkImageSourceImpl::CreateProc(SkReadBuffer& buffer) {
-    SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
+    SkFilterQuality filterQuality = buffer.checkFilterQuality();
 
     SkRect src, dst;
     buffer.readRect(&src);
