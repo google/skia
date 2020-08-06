@@ -39,9 +39,6 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     // Runtime SkSL supports a limited set of uniform types. No samplers, for example:
     test("uniform sampler2D s;", "", "sampler2D");
 
-    // 'in' variables can't be arrays
-    test("in int Input[2];", "", "array");
-
     // Type specific restrictions:
 
     // 'bool', 'int' can't be 'uniform'
