@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b44c7ef_d06fe813",
+        "filename": "src/utils/SkParseColor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T17:56:54Z",
+      "side": 1,
+      "message": "don\u0027t need this anymore",
+      "range": {
+        "startLine": 154,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 20
+      },
+      "revId": "323eb15257ef096e63d6e427c30d37c9675e97de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
