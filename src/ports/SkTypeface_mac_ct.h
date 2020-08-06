@@ -65,6 +65,7 @@ CGFloat SkCTFontCTWeightForCSSWeight(int fontstyleWeight);
 CGFloat SkCTFontCTWidthForCSSWidth(int fontstyleWidth);
 
 void SkStringFromCFString(CFStringRef src, SkString* dst);
+SkString SkCFTypeIDDescription(CFTypeRef cf);
 
 class SkTypeface_Mac : public SkTypeface {
 private:

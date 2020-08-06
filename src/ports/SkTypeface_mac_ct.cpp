@@ -389,7 +389,12 @@ static int ct_width_to_fontstyle(CGFloat cgWidth) {
 
 SkFontStyle SkCTFontDescriptorGetSkFontStyle(CTFontDescriptorRef desc, bool fromDataProvider) {
     SkUniqueCFRef<CFTypeRef> traits(CTFontDescriptorCopyAttribute(desc, kCTFontTraitsAttribute));
-    if (!traits || CFDictionaryGetTypeID() != CFGetTypeID(traits.get())) {
+    if (!traits) {
+        return SkFontStyle();
+    }
+    if (CFDictionaryGetTypeID() != CFGetTypeID(traits.get())) {
+        SkDEBUGF("Font traits not a Dictionary but a %s",
+                 SkCFTypeIDDescription(traits.get()).c_str());
         return SkFontStyle();
     }
     SkUniqueCFRef<CFDictionaryRef> fontTraitsDict(static_cast<CFDictionaryRef>(traits.release()));
@@ -529,6 +534,13 @@ void SkStringFromCFString(CFStringRef src, SkString* dst) {
     CFStringGetCString(src, dst->writable_str(), length, kCFStringEncodingUTF8);
     // Resize to the actual UTF-8 length used, stripping the null character.
     dst->resize(strlen(dst->c_str()));
+}
+
+SkString SkCFTypeIDDescription(CFTypeRef cf) {
+    SkUniqueCFRef<CFStringRef> typeDescription(CFCopyTypeIDDescription(CFGetTypeID(cf)));
+    SkString skTypeDescription;
+    SkStringFromCFString(typeDescription.get(), &skTypeDescription);
+    return skTypeDescription;
 }
 
 void SkTypeface_Mac::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
@@ -783,17 +795,24 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
     for (int i = 0; i < axisCount; ++i) {
         CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), i);
         if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
+            SkDEBUGF("Axis not a Dictionary but a %s", SkCFTypeIDDescription(axisInfo).c_str());
             return -1;
         }
         CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
 
         CFTypeRef tag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
-        if (!tag || CFGetTypeID(tag) != CFNumberGetTypeID()) {
+        if (!tag) {
+            SkDEBUGF("Axis tag not present");
+            return -1;
+        }
+        if (CFGetTypeID(tag) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis tag not a Number but a %s", SkCFTypeIDDescription(tag).c_str());
             return -1;
         }
         CFNumberRef tagNumber = static_cast<CFNumberRef>(tag);
         int64_t tagLong;
         if (!CFNumberGetValue(tagNumber, kCFNumberSInt64Type, &tagLong)) {
+            SkDEBUGF("Axis tag Number not extractable");
             return -1;
         }
         coordinates[i].axis = tagLong;
@@ -802,19 +821,29 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
         CFTypeRef variationValue = CFDictionaryGetValue(ctVariation.get(), tagNumber);
         if (variationValue) {
             if (CFGetTypeID(variationValue) != CFNumberGetTypeID()) {
+                SkDEBUGF("Variation value not a Number but a %s",
+                         SkCFTypeIDDescription(variationValue).c_str());
                 return -1;
             }
             CFNumberRef variationNumber = static_cast<CFNumberRef>(variationValue);
             if (!CFNumberGetValue(variationNumber, kCFNumberCGFloatType, &variationCGFloat)) {
+                SkDEBUGF("Variation value Number not extractable");
                 return -1;
             }
         } else {
             CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisDefaultValueKey);
-            if (!def || CFGetTypeID(def) != CFNumberGetTypeID()) {
+            if (!def) {
+                SkDEBUGF("Axis default value not present");
+                return -1;
+            }
+            if (CFGetTypeID(def) != CFNumberGetTypeID()) {
+                SkDEBUGF("Axis default value not a Number but a %s",
+                         SkCFTypeIDDescription(def).c_str());
                 return -1;
             }
             CFNumberRef defNumber = static_cast<CFNumberRef>(def);
             if (!CFNumberGetValue(defNumber, kCFNumberCGFloatType, &variationCGFloat)) {
+                SkDEBUGF("Axis default value Number not extractable");
                 return -1;
             }
         }
@@ -1113,41 +1142,74 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, const SkFontArgum
     for (int i = 0; i < axisCount; ++i) {
         CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), i);
         if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
+            SkDEBUGF("Axis not a Dictionary but a %s", SkCFTypeIDDescription(axisInfo).c_str());
             return CTFontVariation();
         }
         CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
 
         CFTypeRef tag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
-        if (!tag || CFGetTypeID(tag) != CFNumberGetTypeID()) {
+        if (!tag) {
+            SkDEBUGF("Axis tag not present");
+            return CTFontVariation();
+        }
+        if (CFGetTypeID(tag) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis tag not a Number but a %s", SkCFTypeIDDescription(tag).c_str());
             return CTFontVariation();
         }
         CFNumberRef tagNumber = static_cast<CFNumberRef>(tag);
         int64_t tagLong;
         if (!CFNumberGetValue(tagNumber, kCFNumberSInt64Type, &tagLong)) {
+            SkDEBUGF("Axis tag Number not extractable");
             return CTFontVariation();
         }
 
         // The variation axes can be set to any value, but cg will effectively pin them.
         // Pin them here to normalize.
         CFTypeRef min = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMinimumValueKey);
-        CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMaximumValueKey);
-        CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisDefaultValueKey);
-        if (!min || CFGetTypeID(min) != CFNumberGetTypeID() ||
-            !max || CFGetTypeID(max) != CFNumberGetTypeID() ||
-            !def || CFGetTypeID(def) != CFNumberGetTypeID())
-        {
+        if (!min) {
+            SkDEBUGF("Axis min not present");
+            return CTFontVariation();
+        }
+        if (CFGetTypeID(min) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis min not a Number but a %s", SkCFTypeIDDescription(min).c_str());
             return CTFontVariation();
         }
         CFNumberRef minNumber = static_cast<CFNumberRef>(min);
-        CFNumberRef maxNumber = static_cast<CFNumberRef>(max);
-        CFNumberRef defNumber = static_cast<CFNumberRef>(def);
         double minDouble;
+        if (!CFNumberGetValue(minNumber, kCFNumberDoubleType, &minDouble)) {
+            SkDEBUGF("Axis min Number not extractable");
+            return CTFontVariation();
+        }
+
+        CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMaximumValueKey);
+        if (!max) {
+            SkDEBUGF("Axis max not present");
+            return CTFontVariation();
+        }
+        if (CFGetTypeID(max) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis max not a Number but a %s", SkCFTypeIDDescription(max).c_str());
+            return CTFontVariation();
+        }
+        CFNumberRef maxNumber = static_cast<CFNumberRef>(max);
         double maxDouble;
+        if (!CFNumberGetValue(maxNumber, kCFNumberDoubleType, &maxDouble)) {
+            SkDEBUGF("Axis max Number not extractable");
+            return CTFontVariation();
+        }
+
+        CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisDefaultValueKey);
+        if (!def) {
+            SkDEBUGF("Axis def not present");
+            return CTFontVariation();
+        }
+        if (CFGetTypeID(def) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis def not a Number but a %s", SkCFTypeIDDescription(def).c_str());
+            return CTFontVariation();
+        }
+        CFNumberRef defNumber = static_cast<CFNumberRef>(def);
         double defDouble;
-        if (!CFNumberGetValue(minNumber, kCFNumberDoubleType, &minDouble) ||
-            !CFNumberGetValue(maxNumber, kCFNumberDoubleType, &maxDouble) ||
-            !CFNumberGetValue(defNumber, kCFNumberDoubleType, &defDouble))
-        {
+        if (!CFNumberGetValue(defNumber, kCFNumberDoubleType, &defDouble)) {
+            SkDEBUGF("Axis def Number not extractable");
             return CTFontVariation();
         }
 
@@ -1219,39 +1281,72 @@ int SkTypeface_Mac::onGetVariationDesignParameters(SkFontParameters::Variation::
     for (int i = 0; i < axisCount; ++i) {
         CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), i);
         if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
+            SkDEBUGF("Axis not a Dictionary but a %", SkCFTypeIDDescription(axisInfo).c_str());
             return -1;
         }
         CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
 
         CFTypeRef tag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
-        if (!tag || CFGetTypeID(tag) != CFNumberGetTypeID()) {
+        if (!tag) {
+            SkDEBUGF("Axis tag not present");
+            return -1;
+        }
+        if (CFGetTypeID(tag) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis tag not a Number but a %s", SkCFTypeIDDescription(tag).c_str());
             return -1;
         }
         CFNumberRef tagNumber = static_cast<CFNumberRef>(tag);
         int64_t tagLong;
         if (!CFNumberGetValue(tagNumber, kCFNumberSInt64Type, &tagLong)) {
+            SkDEBUGF("Axis tag Number not extractable");
             return -1;
         }
 
         CFTypeRef min = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMinimumValueKey);
-        CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMaximumValueKey);
-        CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisDefaultValueKey);
-        if (!min || CFGetTypeID(min) != CFNumberGetTypeID() ||
-            !max || CFGetTypeID(max) != CFNumberGetTypeID() ||
-            !def || CFGetTypeID(def) != CFNumberGetTypeID())
-        {
+        if (!min) {
+            SkDEBUGF("Axis min not present");
+            return -1;
+        }
+        if (CFGetTypeID(min) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis min not a Number but a %s", SkCFTypeIDDescription(min).c_str());
             return -1;
         }
         CFNumberRef minNumber = static_cast<CFNumberRef>(min);
-        CFNumberRef maxNumber = static_cast<CFNumberRef>(max);
-        CFNumberRef defNumber = static_cast<CFNumberRef>(def);
         double minDouble;
+        if (!CFNumberGetValue(minNumber, kCFNumberDoubleType, &minDouble)) {
+            SkDEBUGF("Axis min Number not extractable");
+            return -1;
+        }
+
+        CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMaximumValueKey);
+        if (!max) {
+            SkDEBUGF("Axis max not present");
+            return -1;
+        }
+        if (CFGetTypeID(max) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis max not a Number but a %s", SkCFTypeIDDescription(max).c_str());
+            return -1;
+        }
+        CFNumberRef maxNumber = static_cast<CFNumberRef>(max);
         double maxDouble;
+        if (!CFNumberGetValue(maxNumber, kCFNumberDoubleType, &maxDouble)) {
+            SkDEBUGF("Axis max Number not extractable");
+            return -1;
+        }
+
+        CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisDefaultValueKey);
+        if (!def) {
+            SkDEBUGF("Axis def not present");
+            return -1;
+        }
+        if (CFGetTypeID(def) != CFNumberGetTypeID()) {
+            SkDEBUGF("Axis def not a Number but a %s", SkCFTypeIDDescription(def).c_str());
+            return -1;
+        }
+        CFNumberRef defNumber = static_cast<CFNumberRef>(def);
         double defDouble;
-        if (!CFNumberGetValue(minNumber, kCFNumberDoubleType, &minDouble) ||
-            !CFNumberGetValue(maxNumber, kCFNumberDoubleType, &maxDouble) ||
-            !CFNumberGetValue(defNumber, kCFNumberDoubleType, &defDouble))
-        {
+        if (!CFNumberGetValue(defNumber, kCFNumberDoubleType, &defDouble)) {
+            SkDEBUGF("Axis def Number not extractable");
             return -1;
         }
 
@@ -1265,6 +1360,8 @@ int SkTypeface_Mac::onGetVariationDesignParameters(SkFontParameters::Variation::
             CFTypeRef hidden = CFDictionaryGetValue(axisInfoDict,*kCTFontVariationAxisHiddenKeyPtr);
             if (hidden) {
                 if (CFGetTypeID(hidden) != CFBooleanGetTypeID()) {
+                    SkDEBUGF("Variation hidden not a Boolean but a %s",
+                             SkCFTypeIDDescription(hidden).c_str());
                     return -1;
                 }
                 CFBooleanRef hiddenBoolean = static_cast<CFBooleanRef>(hidden);
