@@ -16,6 +16,29 @@
       "revId": "6f6fdd0fd9174630fe957f36e99ed0daa88f382a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31a8f74a_28a2aa81",
+        "filename": "gm/mixercolorfilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T21:29:05Z",
+      "side": 1,
+      "message": "out of curiosity why is half4() needed here?  doesn\u0027t mix return half4 when the first two params are half4?",
+      "range": {
+        "startLine": 117,
+        "startChar": 28,
+        "endLine": 117,
+        "endChar": 33
+      },
+      "revId": "6f6fdd0fd9174630fe957f36e99ed0daa88f382a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
