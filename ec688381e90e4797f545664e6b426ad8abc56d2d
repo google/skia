@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "0d062c57_608d38bd",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-06T14:42:49Z",
+      "side": 1,
+      "message": "I prefer being able to see that the test is running, (as long as doing so has no other impact)",
+      "parentUuid": "26888f2d_bf404fa5",
+      "range": {
+        "startLine": 173,
+        "startChar": 42,
+        "endLine": 173,
+        "endChar": 47
+      },
+      "revId": "ec688381e90e4797f545664e6b426ad8abc56d2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5b515dad_2787f3cc",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 1
@@ -62,6 +86,30 @@
       "revId": "ec688381e90e4797f545664e6b426ad8abc56d2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1720400_33d805ad",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-06T14:42:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b515dad_2787f3cc",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 104
+      },
+      "revId": "ec688381e90e4797f545664e6b426ad8abc56d2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
