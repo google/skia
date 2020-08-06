@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba62e64a_0a2f3344",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-06T17:04:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60add2ce_b5c442bd",
+      "range": {
+        "startLine": 67,
+        "startChar": 7,
+        "endLine": 67,
+        "endChar": 35
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe19f9cf_8b6dc4b8",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45f5199f_2e888fb7",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-06T17:04:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe19f9cf_8b6dc4b8",
+      "range": {
+        "startLine": 348,
+        "startChar": 23,
+        "endLine": 348,
+        "endChar": 25
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b0c5541b_d97b655d",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-06T17:04:19Z",
+      "side": 1,
+      "message": "I can\u0027t imagine why this would ever be used in release mode, but I agree there\u0027s no sense in painting a target on my foot.",
+      "parentUuid": "29b1f2a1_5c6a6c76",
+      "range": {
+        "startLine": 350,
+        "startChar": 4,
+        "endLine": 350,
+        "endChar": 28
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edaaab25_0ef1e495",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72643316_9f26259c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-06T17:04:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edaaab25_0ef1e495",
+      "range": {
+        "startLine": 1576,
+        "startChar": 43,
+        "endLine": 1576,
+        "endChar": 56
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "18d26ef3_425e323a",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1579,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-06T17:04:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aab45615_52638fa2",
+      "range": {
+        "startLine": 1579,
+        "startChar": 31,
+        "endLine": 1579,
+        "endChar": 33
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "05b5057c_c6f20f20",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 2
@@ -137,6 +257,30 @@
       "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d1ecd06_d8c3d879",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1581,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-06T17:04:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05b5057c_c6f20f20",
+      "range": {
+        "startLine": 1581,
+        "startChar": 12,
+        "endLine": 1581,
+        "endChar": 20
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "c5979330_f61691fc",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1583,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-06T17:04:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a76a0f1e_68f62b62",
+      "range": {
+        "startLine": 1582,
+        "startChar": 60,
+        "endLine": 1583,
+        "endChar": 79
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5c55a79_e0b19dfc",
         "filename": "src/sksl/SkSLCompiler.h",
         "patchSetId": 2
@@ -183,6 +351,30 @@
       "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d08dc56_d466f5ba",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-06T17:04:19Z",
+      "side": 1,
+      "message": "Oops, good catch.",
+      "parentUuid": "b5c55a79_e0b19dfc",
+      "range": {
+        "startLine": 186,
+        "startChar": 4,
+        "endLine": 189,
+        "endChar": 74
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
