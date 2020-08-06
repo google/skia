@@ -73,6 +73,7 @@ func TestBenchCanvas_CPUHasNoUseGPUFlag(t *testing.T) {
 			"--bench_html", "canvas_perf.html",
 			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--assets", "canvas_perf_assets",
 			"--output", "/fake/path/to/perf-puppeteer/out/perf.json",
 			"--timeout", "240",
 		}, cmd.Args)
@@ -108,6 +109,7 @@ func TestBenchCanvas_GPUHasFlag(t *testing.T) {
 			"--bench_html", "canvas_perf.html",
 			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--assets", "canvas_perf_assets",
 			"--output", "/fake/path/to/perf-puppeteer/out/perf.json",
 			"--timeout", "240",
 			"--use_gpu"}, cmd.Args)

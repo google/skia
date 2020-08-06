@@ -150,6 +150,7 @@ func benchCanvas(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvas
 			"--bench_html", "canvas_perf.html",
 			"--canvaskit_js", filepath.Join(canvaskitBinPath, "canvaskit.js"),
 			"--canvaskit_wasm", filepath.Join(canvaskitBinPath, "canvaskit.wasm"),
+			"--assets", "canvas_perf_assets", // relative path
 			"--output", filepath.Join(benchmarkPath, "out", "perf.json"),
 			"--timeout", "240",
 		}

@@ -29,6 +29,7 @@ skp_with_local:
 perf_js:
 	node perf-canvaskit-with-puppeteer.js --canvaskit_js ../../out/canvaskit_wasm/canvaskit.js \
 	--canvaskit_wasm ../../out/canvaskit_wasm/canvaskit.wasm --use_gpu \
+	--assets canvas_perf_assets \
 	--bench_html canvas_perf.html
 
 skps_release_and_simd:

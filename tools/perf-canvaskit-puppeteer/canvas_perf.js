@@ -1,4 +1,5 @@
 const tests = [];
+// In all tests, the canvas is 600 by 600 px.
 
 function randomColor(CanvasKit) {
     return CanvasKit.Color4f(Math.random(), Math.random(), Math.random(), Math.random());
@@ -159,7 +160,85 @@ tests.push({
     perfKey: 'canvas_drawHugeGradient',
 });
 
-// TODO(nifong): handle tests that have data dependencies such as test images.
+tests.push({
+    description: 'Draw a png image',
+    setup: async function(CanvasKit, ctx) {
+        ctx.canvas = ctx.surface.getCanvas();
+        ctx.paint = new CanvasKit.SkPaint();
+        ctx.img = CanvasKit.MakeImageFromEncoded(ctx.files['test_512x512.png']);
+        ctx.frame = 0;
+    },
+    test: function(CanvasKit, ctx) {
+        ctx.canvas.clear(CanvasKit.WHITE);
+        // Make the image to move so you can see visually that the test is running.
+        ctx.canvas.drawImage(ctx.img, ctx.frame, ctx.frame, ctx.paint);
+        ctx.surface.flush();
+        ctx.frame++;
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.img.delete();
+        ctx.paint.delete();
+    },
+    perfKey: 'canvas_drawPngImage',
+});
+
+
+function htmlImageElementToDataURL(htmlImageElement) {
+    const canvas = document.createElement('canvas');
+    canvas.height = htmlImageElement.height;
+    canvas.width = htmlImageElement.width;
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(htmlImageElement, 0, 0);
+    return canvas.toDataURL();
+}
+
+// This for loop generates two perf cases for each test image. One uses browser APIs
+// to decode an image, and the other uses codecs included in the CanvasKit wasm to decode an
+// image. wasm codec Image decoding is faster (50 microseconds vs 20000 microseconds), but
+// including codecs in wasm increases the size of the CanvasKit wasm binary.
+for (const testImageFilename of ['test_64x64.png', 'test_512x512.png', 'test_1500x959.jpg']) {
+    const htmlImageElement = new Image();
+    htmlImageElementLoadPromise = new Promise((resolve) =>
+        htmlImageElement.addEventListener('load', resolve));
+    // Create a data url of the image so that load and decode time can be measured
+    // while ignoring the time of getting the image from disk / the network.
+    imageDataURLPromise = htmlImageElementLoadPromise.then(() =>
+        htmlImageElementToDataURL(htmlImageElement));
+    htmlImageElement.src = `/static/assets/${testImageFilename}`;
+
+    tests.push({
+        description: 'Decode an image using HTMLImageElement and Canvas2D',
+        setup: async function(CanvasKit, ctx) {
+            ctx.imageDataURL = await imageDataURLPromise;
+        },
+        test: async function(CanvasKit, ctx) {
+            const image = new Image();
+            // Testing showed that waiting for the load event is faster than waiting for
+            // image.decode().
+            // Despite the name, both of them would decode the image, it was loaded in setup.
+            // HTMLImageElement.decode() reference:
+            // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode
+            const promise = new Promise((resolve) => image.addEventListener('load', resolve));
+            image.src = ctx.imageDataURL;
+            await promise;
+            const img = await CanvasKit.MakeImageFromCanvasImageSource(image);
+            img.delete();
+        },
+        teardown: function(CanvasKit, ctx) {},
+        perfKey: `canvas_${testImageFilename}_HTMLImageElementDecoding`,
+    });
+
+    tests.push({
+        description: 'Decode an image using codecs in wasm',
+        setup: function(CanvasKit, ctx) {},
+        test: function(CanvasKit, ctx) {
+            const img = CanvasKit.MakeImageFromEncoded(ctx.files[testImageFilename]);
+            img.delete();
+        },
+        teardown: function(CanvasKit, ctx) {},
+        perfKey: '`canvas_${testImageFilename}_wasmImageDecoding`',
+    });
+}
 
 // 3x3 matrix ops
 tests.push({
