@@ -137,6 +137,30 @@
     },
     {
       "key": {
+        "uuid": "dc047e72_aea425f7",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T14:43:37Z",
+      "side": 1,
+      "message": "Hmm, yeah - you may be right. I kept struggling to figure out what would happen in these cases, because I kept imagining that the child would let us back to sampling something about the input in some other way, but by the time the color filter is being invoked ... there\u0027s just no other information that can be sampled (in any way) if we don\u0027t allow access to coords.",
+      "parentUuid": "8346db3b_2f8f5a62",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
