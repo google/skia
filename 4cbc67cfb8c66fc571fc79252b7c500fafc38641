@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eafbbaa6_5ae2dffe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-06T16:07:30Z",
+      "side": 1,
+      "message": "PTAL. I rewrote many paragraphs based on your input.",
+      "revId": "4cbc67cfb8c66fc571fc79252b7c500fafc38641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
