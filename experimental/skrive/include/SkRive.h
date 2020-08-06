@@ -315,6 +315,6 @@ private:
     std::vector<sk_sp<Artboard>> fArtboards;
 };
 
-} // skrive
+}  // namespace skrive
 
 #endif // SkRive_DEFINED

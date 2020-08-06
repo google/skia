@@ -211,4 +211,4 @@ private:
 
 DEF_GM( return new CircleGM; )
 
-}
+}  // namespace skiagm

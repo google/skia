@@ -70,7 +70,7 @@ struct TracingRect : public TracingShape {
     SkRect fRect;
 };
 
-}
+}  // namespace
 
 static SkScalar gTracingTestWorkSink = 1.0f;
 

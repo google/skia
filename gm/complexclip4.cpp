@@ -134,4 +134,4 @@ private:
 
 DEF_GM(return new ComplexClip4GM(false);)
 DEF_GM(return new ComplexClip4GM(true);)
-}
+}  // namespace skiagm

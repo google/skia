@@ -45,7 +45,7 @@ SkScalar littleRound(SkScalar a) {
         return SkScalarFloorToScalar(a);
     }
 }
-}
+}  // namespace
 
 TextRange operator*(const TextRange& a, const TextRange& b) {
     if (a.start == b.start && a.end == b.end) return a;

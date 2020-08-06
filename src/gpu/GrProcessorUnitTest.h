@@ -40,7 +40,7 @@ enum {
 creating an unbounded FP tree which may overflow various shader limits. */
 std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 
-}
+}  // namespace GrProcessorUnitTest
 
 /*
  * GrProcessorTestData is an argument struct to TestCreate functions

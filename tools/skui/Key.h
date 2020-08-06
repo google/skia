@@ -56,5 +56,5 @@ enum class Key {
     kPower,   //!< power button - same
     kCamera,  //!< camera       - same
 };
-}
+}  // namespace skui
 #endif  // skui_key_DEFINED

@@ -16,7 +16,7 @@
 namespace {
 constexpr char kTestString[] = "HELLO, WORLD!";
 constexpr size_t kTestStringLength = sizeof(kTestString);
-}
+}  // namespace
 
 static void test_dm(skiatest::Reporter* reporter,
                     SkDiscardableMemory* dm,

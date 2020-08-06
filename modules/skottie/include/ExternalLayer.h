@@ -51,6 +51,6 @@ public:
                                                const SkSize& size) = 0;
 };
 
-} // namespace
+}  // namespace skottie
 
 #endif // SkottieExternalLayer_DEFINED

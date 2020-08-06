@@ -111,7 +111,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
 
     return surface;
 }
-}
+}  // namespace
 
 // Tests blending to a surface with no texture available.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) {

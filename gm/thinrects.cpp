@@ -126,4 +126,4 @@ private:
 
 DEF_GM( return new ThinRectsGM; )
 
-}
+}  // namespace skiagm

@@ -147,4 +147,4 @@ DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ false); )
 DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ true); )
 DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ true); )
 
-}
+}  // namespace skiagm

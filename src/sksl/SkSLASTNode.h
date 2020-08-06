@@ -632,6 +632,6 @@ struct ASTNode {
     ID fNext;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

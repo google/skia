@@ -224,4 +224,4 @@ DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kRect_Clip, true); )
 DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kRRect_Clip, true); )
 DEF_GM( return new ComplexClip2GM(ComplexClip2GM::kPath_Clip, true); )
 
-}
+}  // namespace skiagm

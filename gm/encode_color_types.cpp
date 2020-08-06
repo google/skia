@@ -167,4 +167,4 @@ private:
 
 DEF_VARIANTS(SkEncodedImageFormat::kWEBP, 100, "webp-lossless")
 DEF_VARIANTS(SkEncodedImageFormat::kWEBP,  80, "webp-lossy")
-}
+}  // namespace skiagm

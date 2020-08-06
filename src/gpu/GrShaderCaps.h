@@ -15,7 +15,7 @@
 
 namespace SkSL {
 class ShaderCapsFactory;
-}
+}  // namespace SkSL
 
 struct GrContextOptions;
 class SkJSONWriter;

@@ -100,4 +100,4 @@ private:
 
 DEF_GM(return new MorphologyGM;)
 
-}
+}  // namespace skiagm

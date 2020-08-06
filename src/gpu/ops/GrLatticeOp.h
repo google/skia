@@ -31,6 +31,6 @@ std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext*,
                                     GrSamplerState::Filter,
                                     std::unique_ptr<SkLatticeIter>,
                                     const SkRect& dst);
-};
+}  // namespace GrLatticeOp
 
 #endif

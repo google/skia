@@ -10,5 +10,5 @@ enum class InputState {
     kRight,  // only valid for fling
     kLeft,   // only valid for fling
 };
-}
+}  // namespace skui
 #endif  // skui_inputstate_DEFINED

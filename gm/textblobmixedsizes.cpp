@@ -192,4 +192,4 @@ private:
 
 DEF_GM( return new TextBlobMixedSizes(false); )
 DEF_GM( return new TextBlobMixedSizes(true); )
-}
+}  // namespace skiagm

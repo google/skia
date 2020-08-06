@@ -265,7 +265,7 @@ private:
 
     typedef SkImageFilter_Base INHERITED;
 };
-}
+}  // namespace
 
 sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkDEBUGFAIL("Should never get here");

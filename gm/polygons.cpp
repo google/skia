@@ -172,4 +172,4 @@ private:
 
 DEF_GM(return new PolygonsGM;)
 
-}
+}  // namespace skiagm

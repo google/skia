@@ -188,5 +188,5 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
 }
 
 
-}
+}  // namespace SkDrawShadowMetrics
 

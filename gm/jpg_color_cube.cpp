@@ -69,4 +69,4 @@ private:
 };
 
 DEF_GM( return new ColorCubeGM; )
-}
+}  // namespace skiagm
