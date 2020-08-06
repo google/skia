@@ -113,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "8346db3b_2f8f5a62",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T14:40:26Z",
+      "side": 1,
+      "message": "Wait, actually...\n\nIf we don\u0027t let color filters read any position information, and only allow color filters to have other color filters as children, then all the sample()-where variants do the same thing.  The explicit position or matrix will have no effect.\n\nI don\u0027t mind banning them still in that it\u0027s probably deserving a warning if you write that sort of thing in a color filter in the first place, but I\u0027m not longer convinced it\u0027s necessary.",
+      "parentUuid": "ba7b4426_212f2330",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
