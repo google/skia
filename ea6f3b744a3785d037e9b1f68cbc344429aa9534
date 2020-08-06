@@ -22,6 +22,30 @@
       "revId": "ea6f3b744a3785d037e9b1f68cbc344429aa9534",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08cebd29_fcb3e3e1",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-06T14:36:18Z",
+      "side": 1,
+      "message": "rect() will be used in a later CL.",
+      "parentUuid": "2d491df4_44fc3567",
+      "range": {
+        "startLine": 391,
+        "startChar": 12,
+        "endLine": 391,
+        "endChar": 56
+      },
+      "revId": "ea6f3b744a3785d037e9b1f68cbc344429aa9534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
