@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fdb758d_3a463461",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T15:18:02Z",
+      "side": 1,
+      "message": "PS4 removes the sampling restrictions, and updates the comment to explain the rationale. After this I\u0027ve noticed some other things that need to be addressed (we\u0027re not respecting layout tags on uniforms in color filters, so we don\u0027t get the automatic color conversion, eg). I also think that when I *add* color filter children, the necessary changes are going to make onProgram simpler (and remove many of the arguments).",
+      "revId": "7eca1526ec6739e386e3684b0b08b691e300f08d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
