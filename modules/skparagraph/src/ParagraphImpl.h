@@ -43,12 +43,12 @@ enum CodeUnitFlags {
     kSoftLineBreakBefore = 0x4,
     kHardLineBreakBefore = 0x8,
 };
-}
-}
+}  // namespace textlayout
+}  // namespace skia
 
 namespace sknonstd {
 template <> struct is_bitmask_enum<skia::textlayout::CodeUnitFlags> : std::true_type {};
-}
+}  // namespace sknonstd
 
 namespace skia {
 namespace textlayout {

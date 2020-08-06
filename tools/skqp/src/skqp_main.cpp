@@ -36,7 +36,7 @@ struct Args {
   char *renderTests;
   char *outputDir;
 };
-}
+}  // namespace
 
 static constexpr char kSkipUsage[] =
     " TEST_MATCH_RULES:"

@@ -111,4 +111,4 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
     return nullptr;
 }
 
-} // namespace
+}  // namespace SkSL

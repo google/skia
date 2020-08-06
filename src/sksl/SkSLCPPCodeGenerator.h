@@ -139,6 +139,6 @@ private:
     typedef GLSLCodeGenerator INHERITED;
 };
 
-}
+}  // namespace SkSL
 
 #endif

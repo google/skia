@@ -150,4 +150,4 @@ private:
 DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kPNG); )
 DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kWEBP); )
 DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kJPEG); )
-}
+}  // namespace skiagm

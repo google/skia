@@ -20,4 +20,4 @@ namespace SkOpts {
         rect_memset32 = SK_OPTS_NS::rect_memset32;
         rect_memset64 = SK_OPTS_NS::rect_memset64;
     }
-}
+}  // namespace SkOpts

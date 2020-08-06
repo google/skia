@@ -68,7 +68,7 @@ static inline SkUnichar SkUTFN_Next(SkTextEncoding enc, const void** ptr, const 
 namespace SkHexadecimalDigits {
     extern const char gUpper[16];  // 0-9A-F
     extern const char gLower[16];  // 0-9a-f
-}
+}  // namespace SkHexadecimalDigits
 
 ///////////////////////////////////////////////////////////////////////////////
 

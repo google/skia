@@ -149,7 +149,7 @@ struct HashCopyCounter {
     }
 };
 
-}
+}  // namespace
 
 DEF_TEST(HashSetCopyCounter, r) {
     SkTHashSet<CopyCounter, HashCopyCounter> set;

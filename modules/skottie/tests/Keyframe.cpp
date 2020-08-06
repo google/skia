@@ -41,7 +41,7 @@ private:
     bool  fDidBind;
 };
 
-}
+}  // namespace
 
 DEF_TEST(Skottie_Keyframe, reporter) {
     {

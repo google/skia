@@ -302,4 +302,4 @@ private:
 
 DEF_GM( return new RectsGM; )
 
-}
+}  // namespace skiagm

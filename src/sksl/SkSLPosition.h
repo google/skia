@@ -34,6 +34,6 @@ struct Position {
     int fColumn;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

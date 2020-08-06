@@ -17,7 +17,7 @@ namespace { // This cannot be static because it is used as a template parameter.
 inline bool extension_compare(const SkString& a, const SkString& b) {
     return strcmp(a.c_str(), b.c_str()) < 0;
 }
-}
+}  // namespace
 
 // finds the index of ext in strings or a negative result if ext is not found.
 static int find_string(const SkTArray<SkString>& strings, const char ext[]) {

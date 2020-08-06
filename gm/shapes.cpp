@@ -171,4 +171,4 @@ DEF_GM( return new SimpleShapesGM(false); )
 DEF_GM( return new InnerShapesGM(true); )
 DEF_GM( return new InnerShapesGM(false); )
 
-}
+}  // namespace skiagm

@@ -115,4 +115,4 @@ private:
 
 DEF_GM( return new CroppedRectsGM(); )
 
-}
+}  // namespace skiagm

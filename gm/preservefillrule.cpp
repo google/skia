@@ -151,4 +151,4 @@ private:
 DEF_GM( return new PreserveFillRuleGM(true); )
 DEF_GM( return new PreserveFillRuleGM(false); )
 
-}
+}  // namespace skiagm

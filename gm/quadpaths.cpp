@@ -288,4 +288,4 @@ DEF_GM( return new QuadPathGM; )
 
 DEF_GM( return new QuadClosePathGM; )
 
-}
+}  // namespace skiagm

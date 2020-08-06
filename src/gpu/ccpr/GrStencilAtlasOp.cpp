@@ -65,7 +65,7 @@ GrGLSLPrimitiveProcessor* StencilResolveProcessor::createGLSLInstance(const GrSh
     return new Impl();
 }
 
-}
+}  // namespace
 
 std::unique_ptr<GrDrawOp> GrStencilAtlasOp::Make(
         GrRecordingContext* context, sk_sp<const GrCCPerFlushResources> resources,

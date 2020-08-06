@@ -2540,4 +2540,4 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     return actualCount;
 }
 
-} // namespace
+}  // namespace GrTriangulator

@@ -84,6 +84,6 @@ private:
     typedef Expression INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

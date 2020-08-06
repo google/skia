@@ -435,7 +435,7 @@ private:
     const SkGlyphID fFirst;
     const SkGlyphID fLast;
 };
-}
+}  // namespace
 
 struct ImageAndOffset {
     sk_sp<SkImage> fImage;

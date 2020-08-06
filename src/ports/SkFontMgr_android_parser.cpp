@@ -397,7 +397,7 @@ static const TagHandler familySetHandler = {
     /*chars*/nullptr,
 };
 
-} // lmpParser
+}  // namespace lmpParser
 
 namespace jbParser {
 

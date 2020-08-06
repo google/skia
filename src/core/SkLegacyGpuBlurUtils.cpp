@@ -480,6 +480,6 @@ std::unique_ptr<GrRenderTargetContext> LegacyGaussianBlur(GrRecordingContext* co
                     dstBounds.size(), std::move(colorSpace), fit);
 }
 
-}
+}  // namespace SkGpuBlurUtils
 
 #endif

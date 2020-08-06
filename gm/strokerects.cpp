@@ -83,4 +83,4 @@ private:
 
 DEF_GM( return new StrokeRectsGM; )
 
-}
+}  // namespace skiagm

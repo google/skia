@@ -63,7 +63,7 @@
 
 namespace sknonstd {
 template <> struct is_bitmask_enum<hb_buffer_flags_t> : std::true_type {};
-}
+}  // namespace sknonstd
 
 namespace {
 template <typename T,typename P,P* p> using resource = std::unique_ptr<T, SkFunctionWrapper<P, p>>;

@@ -138,7 +138,7 @@ ColorAndProfile ColorModes[] = {
     { kRGBA_F16_SkColorType,  true },
 };
 
-}
+}  // namespace
 
 SkSurface* Request::createCPUSurface() {
     SkIRect bounds = this->getBounds();

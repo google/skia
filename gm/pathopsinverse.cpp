@@ -117,7 +117,7 @@ private:
 
 DEF_GM( return new PathOpsInverseGM; )
 
-}
+}  // namespace skiagm
 
 #include "include/pathops/SkPathOps.h"
 #include "include/utils/SkParsePath.h"
