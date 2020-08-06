@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "187bbb46_afb48513",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-06T17:57:38Z",
+      "side": 1,
+      "message": "ptal\n\nHappy to rename to something else if people care (e.g. SkPathView? SkPathSlice?)",
+      "revId": "3df84397f6e77ba05ccaa8a56a0557bc9e081498",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
