@@ -337,8 +337,9 @@ class TestFPGenerator {
             // This will generate the exact same randomized FP (of each requested type) each time
             // it's called. Call `reroll` to get a different FP.
             SkRandom random{fRandomSeed};
-            GrProcessorTestData testData{&random, fContext, SK_ARRAY_COUNT(fTestViews), fTestViews,
-                                         std::move(inputFP)};
+            GrProcessorTestData testData{
+                    &random, fContext, /*maxTreeDepth=*/1,
+                    SK_ARRAY_COUNT(fTestViews), fTestViews, std::move(inputFP)};
             return GrFragmentProcessorTestFactory::MakeIdx(type, &testData);
         }
 
