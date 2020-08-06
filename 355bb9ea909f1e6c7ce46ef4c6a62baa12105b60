@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19386da9_4c14070f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-06T14:27:58Z",
+      "side": 1,
+      "message": "While this is a fine CL, we\u0027re not counting on sources_assignment_filters to be set here (and the //skia:skia target uses skia_utils_sources) and the Skia build explicitly sets sources_assignment_filters to empty anyway.\n\nWhat\u0027s really going on is that all of the files here are always in the build, but internally each .cpp file listed (and many of the .h files) has a big \u0027#ifdef SK_BUILD_FOR_XXX\u0027 block around most of the contents. So the files can always \u0027build\u0027 on all platforms. (And this is how the Chromium build is currently working with the sources_assignment_filter set to nothing in the Chromium //skia target.)\n\nSo in a CL like this we would also want to remove all of those \u0027#ifdef SK_BUILD_FOR_XXX\u0027 blocks at the same time to make sure we\u0027re always using one mechanism or the other. There\u0027s been some debate about which way to go on this. On the one hand it\u0027s clean to have the build state which files get built and avoid building files which won\u0027t contribute symbols to the build. On the other hand, having all the files listed means that they will end up in generated project files so they can always be found and considered part of the project (even if they don\u0027t actually contribute to the current target platform, we really want to be able to flag particular sources as part of a project but not part of the build).  Maybe there\u0027s some clever way to do that...",
+      "revId": "355bb9ea909f1e6c7ce46ef4c6a62baa12105b60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
