@@ -24,8 +24,8 @@ private:
     }
 
     explicit CacheAccess(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
-    CacheAccess(const CacheAccess&) {} // unimpl
-    CacheAccess& operator=(const CacheAccess&); // unimpl
+    CacheAccess(const CacheAccess&) = delete;
+    CacheAccess& operator=(const CacheAccess&) = delete;
 
     // No taking addresses of this type.
     const CacheAccess* operator&() const;

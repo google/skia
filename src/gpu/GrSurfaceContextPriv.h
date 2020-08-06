@@ -22,8 +22,8 @@ private:
         : fSurfaceContext(surfaceContext) {
     }
 
-    GrSurfaceContextPriv(const GrSurfaceContextPriv&) {} // unimpl
-    GrSurfaceContextPriv& operator=(const GrSurfaceContextPriv&); // unimpl
+    GrSurfaceContextPriv(const GrSurfaceContextPriv&) = delete;
+    GrSurfaceContextPriv& operator=(const GrSurfaceContextPriv&) = delete;
 
     // No taking addresses of this type.
     const GrSurfaceContextPriv* operator&() const;

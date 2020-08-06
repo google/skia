@@ -115,8 +115,8 @@ public:
 
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}
-    GrRecordingContextPriv(const GrRecordingContextPriv&); // unimpl
-    GrRecordingContextPriv& operator=(const GrRecordingContextPriv&); // unimpl
+    GrRecordingContextPriv(const GrRecordingContextPriv&) = delete;
+    GrRecordingContextPriv& operator=(const GrRecordingContextPriv&) = delete;
 
     // No taking addresses of this type.
     const GrRecordingContextPriv* operator&() const;

@@ -29,8 +29,8 @@ public:
 private:
     explicit GrRenderTargetProxyPriv(GrRenderTargetProxy* renderTargetProxy)
             : fRenderTargetProxy(renderTargetProxy) {}
-    GrRenderTargetProxyPriv(const GrRenderTargetProxyPriv&) {} // unimpl
-    GrRenderTargetProxyPriv& operator=(const GrRenderTargetProxyPriv&); // unimpl
+    GrRenderTargetProxyPriv(const GrRenderTargetProxyPriv&) = delete;
+    GrRenderTargetProxyPriv& operator=(const GrRenderTargetProxyPriv&) = delete;
 
     // No taking addresses of this type.
     const GrRenderTargetProxyPriv* operator&() const;

@@ -75,7 +75,7 @@ public:
 protected:
     ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }
     ResourcePriv(const ResourcePriv& that) : fResource(that.fResource) {}
-    ResourcePriv& operator=(const CacheAccess&); // unimpl
+    ResourcePriv& operator=(const CacheAccess&) = delete;
 
     // No taking addresses of this type.
     const ResourcePriv* operator&() const;

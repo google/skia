@@ -373,7 +373,7 @@ class GrResourceCache::ResourceAccess {
 private:
     ResourceAccess(GrResourceCache* cache) : fCache(cache) { }
     ResourceAccess(const ResourceAccess& that) : fCache(that.fCache) { }
-    ResourceAccess& operator=(const ResourceAccess&); // unimpl
+    ResourceAccess& operator=(const ResourceAccess&) = delete;
 
     /**
      * Insert a resource into the cache.
