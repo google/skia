@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bca46e2c_40da4bc6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T20:28:39Z",
+      "side": 1,
+      "message": "The (necessary) refactor to abstract sampling had the nice side-effect of removing a bunch of parameters from program_fn. I think this CL has motivated me to add the sample(child, color) variants to runtime SkSL. Without those, we can do a few neat things (SkColorFilters::Lerp is easy). With it, we can write many more of our our utility color filters, trivially (compose, etc...).",
+      "revId": "92f8203064486e11219644c769f3fc576b63d238",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
