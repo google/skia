@@ -12,6 +12,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -86,3 +87,52 @@ private:
 };
 
 DEF_GM(return new ClipErrorGM;)
+
+// Reproduces the canvas-clip-rule.html layout test in Blink's web tests
+DEF_SIMPLE_GM(canvas_clip_rule, canvas, 200, 200) {
+    SkPaint p;
+    p.setStyle(SkPaint::kFill_Style);
+    p.setAntiAlias(true);
+
+    // Default fill type (winding)
+    p.setColor(SK_ColorRED);
+    canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), p);
+
+    p.setColor(SK_ColorGREEN);
+    SkPath path;
+    path.addRect(SkRect::MakeXYWH(0, 0, 100, 100));
+    path.addRect(SkRect::MakeXYWH(25, 25, 50, 50));
+    path.setFillType(SkPathFillType::kWinding);
+
+    canvas->clipPath(path, true);
+    path.reset();
+    canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), p);
+
+    // Explicit 'nonzero' fill type (winding)
+    p.setColor(SK_ColorRED);
+    canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), p);
+
+    p.setColor(SK_ColorGREEN);
+    path.reset();
+    path.addRect(SkRect::MakeXYWH(0, 0, 100, 100));
+    path.addRect(SkRect::MakeXYWH(25, 25, 50, 50));
+    path.setFillType(SkPathFillType::kWinding);
+
+    canvas->clipPath(path, true);
+    path.reset();
+    canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), p);
+
+    // Even-odd fill type
+    p.setColor(SK_ColorRED);
+    canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), p);
+
+    p.setColor(SK_ColorGREEN);
+    path.reset();
+    path.addRect(SkRect::MakeXYWH(0, 0, 100, 100));
+    path.addRect(SkRect::MakeXYWH(25, 25, 50, 50));
+    path.setFillType(SkPathFillType::kEvenOdd);
+
+    canvas->clipPath(path, true);
+    path.reset();
+    canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), p);
+}
