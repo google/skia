@@ -86,4 +86,4 @@ private:
 
 DEF_GM( return new BitmapImageGM; )
 
-}
+}  // namespace skiagm

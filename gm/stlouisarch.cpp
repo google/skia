@@ -98,4 +98,4 @@ private:
 
 DEF_GM( return new StLouisArchGM; )
 
-}
+}  // namespace skiagm

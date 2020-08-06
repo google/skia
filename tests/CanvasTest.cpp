@@ -487,7 +487,7 @@ public:
     }
 };
 
-}
+}  // namespace
 
 // Check that NWayCanvas does NOT try to manage the lifetime of its sub-canvases
 DEF_TEST(NWayCanvas, r) {

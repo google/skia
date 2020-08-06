@@ -200,4 +200,4 @@ private:
 
 DEF_GM( return new DstReadShuffle; )
 
-}
+}  // namespace skiagm

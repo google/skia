@@ -36,4 +36,4 @@ void OutputStream::appendVAList(const char format[], va_list args) {
     }
 }
 
-}
+}  // namespace SkSL

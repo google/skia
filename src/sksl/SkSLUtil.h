@@ -419,6 +419,6 @@ Token::Kind remove_assignment(Token::Kind op);
 
 NORETURN void sksl_abort();
 
-} // namespace
+}  // namespace SkSL
 
 #endif

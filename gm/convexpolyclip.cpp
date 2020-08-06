@@ -313,4 +313,4 @@ private:
 };
 
 DEF_GM(return new ConvexPolyClip;)
-}
+}  // namespace skiagm

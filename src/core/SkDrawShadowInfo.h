@@ -72,6 +72,6 @@ bool GetSpotShadowTransform(const SkPoint3& lightPos, SkScalar lightRadius,
 // get bounds prior to the ctm being applied
 void GetLocalBounds(const SkPath&, const SkDrawShadowRec&, const SkMatrix& ctm, SkRect* bounds);
 
-}
+}  // namespace SkDrawShadowMetrics
 
 #endif

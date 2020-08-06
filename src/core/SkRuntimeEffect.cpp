@@ -58,7 +58,7 @@ private:
     static SkSL::Compiler* gCompiler;
 };
 SkSL::Compiler* SharedCompiler::gCompiler = nullptr;
-}
+}  // namespace SkSL
 
 // Accepts a valid marker, or "normals(<marker>)"
 static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint32_t* flags) {

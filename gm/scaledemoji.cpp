@@ -150,4 +150,4 @@ private:
 DEF_GM(return new ScaledEmojiGM;)
 DEF_GM(return new ScaledEmojiPosGM;)
 
-}
+}  // namespace skiagm

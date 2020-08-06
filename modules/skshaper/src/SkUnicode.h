@@ -96,6 +96,6 @@ class SKUNICODE_API SkUnicode {
         static std::unique_ptr<SkUnicode> Make();
 };
 
-}
+}  // namespace skia
 
 #endif // SkUnicode_DEFINED

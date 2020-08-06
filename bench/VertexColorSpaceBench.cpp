@@ -275,7 +275,7 @@ private:
 
     typedef GrMeshDrawOp INHERITED;
 };
-}
+}  // namespace
 
 class VertexColorSpaceBench : public Benchmark {
 public:

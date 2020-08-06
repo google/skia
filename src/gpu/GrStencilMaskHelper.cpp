@@ -333,7 +333,7 @@ static GrAA supported_aa(GrRenderTargetContext* rtc, GrAA aa) {
     }
 }
 
-} // anonymous
+}  // namespace
 
 bool GrStencilMaskHelper::init(const SkIRect& bounds, uint32_t genID,
                                const GrWindowRectangles& windowRects, int numFPs) {

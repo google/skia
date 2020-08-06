@@ -198,7 +198,7 @@ uint32_t get_ubo_offset(uint32_t* currentOffset, GrSLType type, int arrayCount) 
     return uniformOffset;
 }
 
-}
+}  // namespace
 
 GrGLSLUniformHandler::UniformHandle GrSPIRVUniformHandler::internalAddUniformArray(
         const GrFragmentProcessor* owner,

@@ -62,7 +62,7 @@ static void SetUseToken(GrDrawOpAtlas* atlas,
      atlas->setLastUseToken(shapeData->fAtlasLocator, token);
 }
 
-} // GrSmallPathAtlasMgr
+}  // namespace GrSmallPathAtlasMgr
 
 // Callback to clear out internal path cache when eviction occurs
 void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {

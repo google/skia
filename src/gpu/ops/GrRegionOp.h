@@ -25,6 +25,6 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                const SkRegion&,
                                GrAAType,
                                const GrUserStencilSettings* stencilSettings = nullptr);
-}
+}  // namespace GrRegionOp
 
 #endif

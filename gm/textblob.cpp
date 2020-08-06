@@ -76,7 +76,7 @@ const struct BlobCfg {
 };
 
 const SkScalar kFontSize = 16;
-}
+}  // namespace
 
 class TextBlobGM : public skiagm::GM {
 public:

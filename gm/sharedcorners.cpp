@@ -163,4 +163,4 @@ protected:
 
 DEF_GM(return new SharedCornersGM;)
 
-}
+}  // namespace skiagm

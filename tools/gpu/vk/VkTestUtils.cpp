@@ -792,6 +792,6 @@ void FreeVulkanFeaturesStructs(const VkPhysicalDeviceFeatures2* features) {
     }
 }
 
-}
+}  // namespace sk_gpu_test
 
 #endif

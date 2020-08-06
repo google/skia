@@ -32,7 +32,7 @@ static_assert(GrAlignTo(sizeof(Unaligned), GrMemoryPool::kAlignment) == sizeof(A
 // of operations, the size of the objects being allocated, and the size of the pool.
 typedef void (*RunBenchProc)(GrMemoryPool*, int);
 
-}
+}  // namespace
 
 // N objects are created, and then destroyed in reverse order (fully unwinding the cursor within
 // each block of the memory pool).

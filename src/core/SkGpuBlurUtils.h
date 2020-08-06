@@ -49,7 +49,7 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                                     float sigmaY,
                                                     SkTileMode mode,
                                                     SkBackingFit fit = SkBackingFit::kApprox);
-};
+}  // namespace SkGpuBlurUtils
 
 #endif
 #endif

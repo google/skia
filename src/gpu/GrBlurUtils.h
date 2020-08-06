@@ -51,6 +51,6 @@ namespace GrBlurUtils {
                                  GrPaint&&,
                                  const SkMatrix& viewMatrix,
                                  const SkMaskFilter*);
-};
+}  // namespace GrBlurUtils
 
 #endif

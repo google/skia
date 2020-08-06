@@ -261,5 +261,5 @@ private:
 };
 
 DEF_GM(return new RectangleTexture;)
-}
+}  // namespace skiagm
 #endif

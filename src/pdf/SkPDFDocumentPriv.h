@@ -31,7 +31,7 @@ struct SkPDFStrokeGraphicState;
 namespace SkPDFGradientShader {
 struct Key;
 struct KeyHash;
-}
+}  // namespace SkPDFGradientShader
 
 const char* SkPDFGetNodeIdKey();
 

@@ -25,6 +25,6 @@ namespace GrDrawAtlasOp {
                                    const SkRSXform* xforms,
                                    const SkRect* rects,
                                    const SkColor* colors);
-};
+}  // namespace GrDrawAtlasOp
 
 #endif

@@ -48,6 +48,6 @@ struct ReturnStatement : public Statement {
     typedef Statement INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

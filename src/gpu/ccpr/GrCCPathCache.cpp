@@ -158,7 +158,7 @@ private:
     int fShapeUnstyledKeyCount;
 };
 
-}
+}  // namespace
 
 GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
         GrOnFlushResourceProvider* onFlushRP, const GrStyledShape& shape,

@@ -14,6 +14,6 @@ namespace SkSL {
 
 bool SPIRVtoHLSL(const String& spirv, String* hlsl);
 
-}
+}  // namespace SkSL
 
 #endif

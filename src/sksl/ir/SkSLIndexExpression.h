@@ -80,6 +80,6 @@ private:
     , fIndex(std::move(index)) {}
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

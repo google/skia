@@ -695,5 +695,5 @@ size_t OneLineShaper::FontKey::Hasher::operator()(const OneLineShaper::FontKey& 
            SkGoodHash()(key.fLocale.c_str());
 }
 
-}
-}
+}  // namespace textlayout
+}  // namespace skia

@@ -409,7 +409,7 @@ private:
     ElementList fElements;
 };
 
-}
+}  // namespace
 
 static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const ElementList& elements,
                                               const SkIRect& scissor, InitialState initialState) {

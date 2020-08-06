@@ -141,7 +141,7 @@ void test_collapse10(SkCanvas* canvas, const SkPaint& paint) {
     canvas->drawPath(path.detach(), paint);
 }
 
-};
+}  // namespace
 
 DEF_SIMPLE_GM(collapsepaths, canvas, 500, 600) {
     SkPaint paint;

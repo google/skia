@@ -198,4 +198,4 @@ protected:
 
 DEF_GM(return new SliverPathsGM;)
 
-}
+}  // namespace skiagm

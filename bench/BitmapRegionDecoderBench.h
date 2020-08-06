@@ -18,8 +18,8 @@
 namespace android {
 namespace skia {
 class BitmapRegionDecoder;
-}
-}
+}  // namespace skia
+}  // namespace android
 
 /**
  *  Benchmark Android's BitmapRegionDecoder for a particular colorType, sampleSize, and subset.

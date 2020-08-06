@@ -95,4 +95,4 @@ bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outTyp
 }
 #endif
 
-} // namespace
+}  // namespace SkSL

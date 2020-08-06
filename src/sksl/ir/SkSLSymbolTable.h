@@ -75,6 +75,6 @@ private:
     friend class Dehydrator;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

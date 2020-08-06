@@ -78,4 +78,4 @@ private:
 
 DEF_GM(return new  ImageBlurTiledGM(3.0f, 3.0f);)
 
-}
+}  // namespace skiagm

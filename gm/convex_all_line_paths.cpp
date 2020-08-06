@@ -161,7 +161,7 @@ const size_t gSizes[] = {
     SK_ARRAY_COUNT(gPoints10),
 };
 static_assert(SK_ARRAY_COUNT(gSizes) == SK_ARRAY_COUNT(gPoints), "array_mismatch");
-}
+}  // namespace ConvexLineOnlyData
 
 namespace skiagm {
 
@@ -412,4 +412,4 @@ private:
 
 DEF_GM(return new ConvexLineOnlyPathsGM(false);)
 DEF_GM(return new ConvexLineOnlyPathsGM(true);)
-}
+}  // namespace skiagm

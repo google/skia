@@ -96,7 +96,7 @@ private:
     int fMarkId;
 };
 
-}
+}  // namespace
 
 // Utility functions
 
@@ -735,7 +735,7 @@ struct PositionedGlyph {
     SkPoint fPos;
     SkGlyphID fGlyph;
 };
-}
+}  // namespace
 
 static SkRect get_glyph_bounds_device_space(const SkGlyph* glyph,
                                             SkScalar xScale, SkScalar yScale,

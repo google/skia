@@ -680,4 +680,4 @@ CFG CFGGenerator::getCFG(FunctionDefinition& f) {
     return result;
 }
 
-} // namespace
+}  // namespace SkSL

@@ -26,11 +26,11 @@ class SkParticleExternalValue;
 
 namespace skresources {
     class ResourceProvider;
-}
+}  // namespace skresources
 
 namespace SkSL {
     class ByteCode;
-}
+}  // namespace SkSL
 
 class SkParticleEffectParams : public SkRefCnt {
 public:

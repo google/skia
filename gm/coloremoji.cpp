@@ -198,4 +198,4 @@ protected:
 
 DEF_GM(return new ColorEmojiGM;)
 
-}
+}  // namespace skiagm

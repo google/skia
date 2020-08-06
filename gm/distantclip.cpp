@@ -65,4 +65,4 @@ class DistantClipGM : public GM {
 
 DEF_GM( return new DistantClipGM; )
 
-}
+}  // namespace skiagm

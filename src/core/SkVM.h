@@ -1099,6 +1099,6 @@ namespace skvm {
             return poly(x, x*a+b, rest...);
         }
     }
-}
+}  // namespace skvm
 
 #endif//SkVM_DEFINED

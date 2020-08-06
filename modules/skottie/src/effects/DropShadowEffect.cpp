@@ -79,7 +79,7 @@ private:
                 fShdwOnly  = 0;
 };
 
-} // anonymous ns
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachDropShadowEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {

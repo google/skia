@@ -135,4 +135,4 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachInnerShadowStyle(const skjson::Obje
                               ShadowAdapter::Type::kInnerShadow);
 }
 
-} // namespece skottie::internal
+}  // namespace skottie::internal

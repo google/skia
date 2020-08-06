@@ -389,4 +389,4 @@ DEF_GM( return new SampleLocationsGM(GradType::kHW, kBottomLeft_GrSurfaceOrigin)
 DEF_GM( return new SampleLocationsGM(GradType::kSW, kTopLeft_GrSurfaceOrigin); )
 DEF_GM( return new SampleLocationsGM(GradType::kSW, kBottomLeft_GrSurfaceOrigin); )
 
-}
+}  // namespace skiagm

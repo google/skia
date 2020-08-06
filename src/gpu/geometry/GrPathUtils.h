@@ -213,5 +213,5 @@ namespace GrPathUtils {
 
     // We guarantee that no quad or cubic will ever produce more than this many points
     static const int kMaxPointsPerCurve = 1 << 10;
-};
+}  // namespace GrPathUtils
 #endif

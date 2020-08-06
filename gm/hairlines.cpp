@@ -299,4 +299,4 @@ DEF_SIMPLE_GM(hairline_subdiv, canvas, 512, 256) {
 
 DEF_GM( return new HairlinesGM; )
 
-}
+}  // namespace skiagm

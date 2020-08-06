@@ -92,7 +92,7 @@ public:
     std::map<size_t, StyleMetrics> fLineMetrics;
 };
 
-}  // namespace skia
+}  // namespace textlayout
 }  // namespace skia
 
 #endif  // Metrics_DEFINED

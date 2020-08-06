@@ -70,7 +70,7 @@ const MakerT makers[] = {
     },
 };
 
-} // anonymous ns
+}  // namespace
 
 // Checks whether subset SkImages preserve the original color type (A8 in this case).
 DEF_SIMPLE_GM(imagemasksubset, canvas, 480, 480) {

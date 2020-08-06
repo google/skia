@@ -206,4 +206,4 @@ private:
 };
 
 DEF_GM(return new ConvexPolyEffect;)
-}
+}  // namespace skiagm

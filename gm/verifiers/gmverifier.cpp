@@ -127,5 +127,5 @@ VerifierResult VerifierList::verifyAll(const SkColorInfo& colorInfo, const SkBit
     return VerifierResult::Ok();
 }
 
-}
-}
+}  // namespace verifiers
+}  // namespace skiagm

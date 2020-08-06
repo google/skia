@@ -109,4 +109,4 @@ private:
 
 DEF_GM(return new ImageFiltersStrokedGM;)
 
-}
+}  // namespace skiagm

@@ -377,7 +377,7 @@ std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext* context,
     return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view), alphaType,
                                 std::move(colorSpaceXform), filter, std::move(iter), dst);
 }
-};
+}  // namespace GrLatticeOp
 
 #if GR_TEST_UTILS
 #include "src/gpu/GrProxyProvider.h"

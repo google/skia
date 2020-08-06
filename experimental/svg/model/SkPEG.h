@@ -239,6 +239,6 @@ struct LIT<C, Cs...> {
     }
 };
 
-} // skpeg ns
+}  // namespace skpeg
 
 #endif // SkPEG_DEFINED

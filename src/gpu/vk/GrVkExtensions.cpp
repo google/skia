@@ -30,7 +30,7 @@ namespace { // This cannot be static because it is used as a template parameter.
 inline bool extension_compare(const GrVkExtensions::Info& a, const GrVkExtensions::Info& b) {
     return strcmp(a.fName.c_str(), b.fName.c_str()) < 0;
 }
-}
+}  // namespace
 
 void GrVkExtensions::init(GrVkGetProc getProc,
                           VkInstance instance,

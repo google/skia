@@ -22,7 +22,7 @@ namespace sksg {
 class Group;
 class Scene;
 
-}
+}  // namespace sksg
 
 class SlideDir final : public Slide {
 public:

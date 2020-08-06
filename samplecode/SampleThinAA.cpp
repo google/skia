@@ -542,4 +542,4 @@ private:
 
 DEF_SAMPLE( return new ThinAASample; )
 
-}
+}  // namespace skiagm

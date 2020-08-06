@@ -492,7 +492,7 @@ bool draw_shadow(const FACTORY& factory,
 
     return true;
 }
-}
+}  // namespace
 
 static bool tilted(const SkPoint3& zPlaneParams) {
     return !SkScalarNearlyZero(zPlaneParams.fX) || !SkScalarNearlyZero(zPlaneParams.fY);

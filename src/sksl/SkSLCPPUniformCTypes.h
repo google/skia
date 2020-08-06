@@ -128,6 +128,6 @@ private:
     String fSaveStateTemplate;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif // SkSLUniformCTypes_DEFINED

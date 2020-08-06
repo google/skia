@@ -79,4 +79,4 @@ private:
 
 DEF_GM( return new PointsGM; )
 
-}
+}  // namespace skiagm

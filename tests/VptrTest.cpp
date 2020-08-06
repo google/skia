@@ -29,7 +29,7 @@ namespace {
         size_t val() const override { return 42; }
     };
 
-}
+}  // namespace
 
 DEF_TEST(Vptr, r) {
     std::unique_ptr<Base> a = std::make_unique<SubclassA>(21),

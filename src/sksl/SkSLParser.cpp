@@ -2179,4 +2179,4 @@ bool Parser::identifier(StringFragment* dest) {
     return false;
 }
 
-} // namespace
+}  // namespace SkSL

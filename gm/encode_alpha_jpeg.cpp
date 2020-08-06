@@ -108,4 +108,4 @@ private:
 
 DEF_GM( return new EncodeJpegAlphaOptsGM; )
 
-};
+}  // namespace skiagm

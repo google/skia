@@ -361,7 +361,7 @@ void test_coincident_edges_4(SkCanvas* canvas, const SkPaint& paint) {
     canvas->restore();
 }
 
-};
+}  // namespace
 
 DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     SkPaint paint;

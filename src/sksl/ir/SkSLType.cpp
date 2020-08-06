@@ -200,4 +200,4 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
     return *context.fVoid_Type;
 }
 
-} // namespace
+}  // namespace SkSL

@@ -124,7 +124,7 @@ private:
                 fShape   = 0; // 1 -> linear, 7 -> radial (?!)
 };
 
-} // anonymous ns
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachGradientEffect(const skjson::ArrayValue& jprops,
                                                             sk_sp<sksg::RenderNode> layer) const {

@@ -286,6 +286,6 @@ private:
     friend class HCodeGenerator;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

@@ -142,4 +142,4 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
     return true;
 }
 
-} // namespace skottie
+}  // namespace skottie::internal

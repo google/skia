@@ -234,6 +234,6 @@ private:
     friend class AutoRehydratorSymbolTable;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

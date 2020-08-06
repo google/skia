@@ -19,11 +19,11 @@ class SkParticleEffectParams;
 
 namespace skresources {
     class ResourceProvider;
-}
+}  // namespace skresources
 
 namespace SkSL {
     class Compiler;
-}
+}  // namespace SkSL
 
 class SkParticleExternalValue : public SkSL::ExternalValue {
 public:

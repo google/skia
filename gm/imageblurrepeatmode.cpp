@@ -125,7 +125,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new ImageBlurRepeatModeGM;)
-}
+}  // namespace skiagm
 
 // See skbug.com/10145 for more context, but if the blur doesn't have its own crop rect and
 // the canvas is not clipped, repeat can behave strangely (before fixes, this meant:

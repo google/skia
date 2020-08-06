@@ -290,7 +290,7 @@ private:
     using INHERITED = DiscardableAdapterBase<ProLevelsEffectAdapter, sksg::ExternalColorFilter>;
 };
 
-} // anonymous ns
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachEasyLevelsEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {

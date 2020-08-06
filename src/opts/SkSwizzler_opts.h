@@ -1384,6 +1384,6 @@ static void RGB_to_BGR1_portable(uint32_t dst[], const uint8_t* src, int count) 
     }
 #endif
 
-}
+}  // namespace SK_OPTS_NS
 
 #endif // SkSwizzler_opts_DEFINED

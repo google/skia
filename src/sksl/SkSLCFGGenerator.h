@@ -167,6 +167,6 @@ private:
     std::stack<BlockId> fLoopExits;
 };
 
-}
+}  // namespace SkSL
 
 #endif

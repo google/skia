@@ -214,4 +214,4 @@ GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler() {
     return &gHandler;
 }
 
-}  // namespace
+}  // namespace GrShaderUtils

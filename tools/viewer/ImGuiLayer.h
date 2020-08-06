@@ -110,7 +110,7 @@ struct DragCanvas {
     bool fDragging;
 };
 
-}
+}  // namespace ImGui
 
 class ImGuiLayer : public sk_app::Window::Layer {
 public:

@@ -1089,7 +1089,7 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
 
 namespace {
 const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
-}
+}  // namespace
 
 void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
 

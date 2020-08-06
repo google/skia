@@ -291,6 +291,6 @@ private:
     std::vector<ExternalValue*> fExternalValues;
 };
 
-}
+}  // namespace SkSL
 
 #endif

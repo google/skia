@@ -239,5 +239,5 @@ public:
 
 std::unique_ptr<SkUnicode> SkUnicode::Make() { return std::make_unique<SkUnicode_icu>(); }
 
-}
+}  // namespace skia
 

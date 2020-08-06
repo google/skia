@@ -70,4 +70,4 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
     }
 }
 
-}
+}  // namespace SkSL

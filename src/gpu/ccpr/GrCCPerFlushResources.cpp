@@ -161,7 +161,7 @@ private:
     const SkIRect fDrawBounds;
 };
 
-}
+}  // namespace
 
 static int inst_buffer_count(const GrCCPerFlushResourceSpecs& specs) {
     return specs.fNumCachedPaths +

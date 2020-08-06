@@ -23,6 +23,6 @@ namespace GrOvalEffect {
  */
 GrFPResult Make(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType, const SkRect&,
                 const GrShaderCaps&);
-};
+}  // namespace GrOvalEffect
 
 #endif

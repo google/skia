@@ -38,5 +38,5 @@ namespace SkMallocPixelRef {
      *  Returns NULL on failure.
      */
     SK_API sk_sp<SkPixelRef> MakeWithData(const SkImageInfo&, size_t rowBytes, sk_sp<SkData> data);
-}
+}  // namespace SkMallocPixelRef
 #endif

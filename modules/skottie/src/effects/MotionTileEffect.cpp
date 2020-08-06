@@ -223,7 +223,7 @@ private:
     using INHERITED = DiscardableAdapterBase<MotionTileAdapter, TileRenderNode>;
 };
 
-} // anonymous ns
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachMotionTileEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {

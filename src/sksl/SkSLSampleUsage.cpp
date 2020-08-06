@@ -101,4 +101,4 @@ std::string SampleUsage::constructor(std::string perspectiveExpression) const {
     return result;
 }
 
-} // namespace
+}  // namespace SkSL

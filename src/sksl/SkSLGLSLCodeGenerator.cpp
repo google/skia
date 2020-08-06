@@ -1797,4 +1797,4 @@ bool GLSLCodeGenerator::generateCode() {
     return 0 == fErrors.errorCount();
 }
 
-}
+}  // namespace SkSL

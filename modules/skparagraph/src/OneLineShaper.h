@@ -130,6 +130,6 @@ private:
     SkTHashMap<FontKey, sk_sp<SkTypeface>, FontKey::Hasher> fFallbackFonts;
 };
 
-}
-}
+}  // namespace textlayout
+}  // namespace skia
 #endif

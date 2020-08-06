@@ -284,7 +284,7 @@ sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
     return DummyImageFilter::Make(visited);
 }
 
-};
+}  // namespace
 
 // Check that PDF rendering of image filters successfully falls back to
 // CPU rasterization.

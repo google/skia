@@ -104,7 +104,7 @@ sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const SkFont& font, const 
     return blobBuilder.make();
 }
 
-} // anonymous ns
+}  // namespace
 
 DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
     SkPaint paint;

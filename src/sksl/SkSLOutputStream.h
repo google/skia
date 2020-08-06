@@ -49,6 +49,6 @@ private:
     static const int kBufferSize = 1024;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

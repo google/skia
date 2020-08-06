@@ -13,7 +13,7 @@
 
 namespace skiatest {
     class Reporter;
-}
+}  // namespace skiatest
 
 /**
  * This class allows GrResourceCache increased privileged access to GrGpuResource objects.

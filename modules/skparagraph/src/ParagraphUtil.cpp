@@ -45,5 +45,5 @@ bool isWhitespace(SkUnichar utf8) {
     return u_isWhitespace(utf8);
 }
 
-}
-}
+}  // namespace textlayout
+}  // namespace skia

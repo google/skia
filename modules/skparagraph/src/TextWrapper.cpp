@@ -17,7 +17,7 @@ SkScalar littleRound(SkScalar a) {
         return SkScalarFloorToScalar(a);
     }
 }
-}
+}  // namespace
 
 // Since we allow cluster clipping when they don't fit
 // we have to work with stretches - parts of clusters

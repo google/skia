@@ -288,7 +288,7 @@ void test_Complex(skiatest::Reporter* r) {
     REPORTER_ASSERT(r,  P1::Match(" FooBarbarbarBaz "));
 }
 
-} // anonymous ns
+}  // namespace
 
 DEF_TEST(SkPEG, r) {
     test_EOS(r);

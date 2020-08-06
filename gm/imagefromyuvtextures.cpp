@@ -335,4 +335,4 @@ private:
 };
 
 DEF_GM(return new ImageFromYUVTextures;)
-}
+}  // namespace skiagm

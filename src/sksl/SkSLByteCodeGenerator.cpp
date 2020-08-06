@@ -1822,4 +1822,4 @@ ByteCodeFunction::ByteCodeFunction(const FunctionDeclaration* declaration)
     }
 }
 
-}
+}  // namespace SkSL

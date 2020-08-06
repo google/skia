@@ -25,8 +25,8 @@
 namespace skiagm {
 namespace verifiers {
 class VerifierList;
-}
-}
+}  // namespace verifiers
+}  // namespace skiagm
 
 namespace DM {
 

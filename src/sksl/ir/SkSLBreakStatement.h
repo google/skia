@@ -35,6 +35,6 @@ struct BreakStatement : public Statement {
     typedef Statement INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

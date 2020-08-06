@@ -30,7 +30,7 @@ enum ParaFlags {
     kTimeLayout     = 1 << 0,
     kUseUnderline   = 1 << 1,
 };
-}
+}  // namespace
 
 class ParagraphGM : public skiagm::GM {
     std::unique_ptr<skia::textlayout::Paragraph> fPara;

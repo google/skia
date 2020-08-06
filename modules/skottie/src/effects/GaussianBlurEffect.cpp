@@ -79,7 +79,7 @@ private:
                 fRepeatEdge = 0; // 0 -> clamp, 1 -> repeat
 };
 
-} // anonymous ns
+}  // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachGaussianBlurEffect(
         const skjson::ArrayValue& jprops,

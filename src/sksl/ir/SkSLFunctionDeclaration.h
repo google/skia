@@ -118,6 +118,6 @@ struct FunctionDeclaration : public Symbol {
     typedef Symbol INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

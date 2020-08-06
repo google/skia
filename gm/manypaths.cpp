@@ -125,4 +125,4 @@ private:
 DEF_GM( return new ManyCirclesGM; )
 DEF_GM( return new ManyRRectsGM; )
 
-}
+}  // namespace skiagm

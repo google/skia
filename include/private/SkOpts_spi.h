@@ -16,6 +16,6 @@
 namespace SkOpts {
     // The fastest high quality 32-bit hash we can provide on this platform.
     extern uint32_t SK_SPI (*hash_fn)(const void* data, size_t bytes, uint32_t seed);
-}
+} // namespace SkOpts
 
 #endif

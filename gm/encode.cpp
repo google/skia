@@ -55,7 +55,7 @@ private:
 };
 
 DEF_GM( return new EncodeGM; )
-}
+}  // namespace skiagm
 
 ///////////
 

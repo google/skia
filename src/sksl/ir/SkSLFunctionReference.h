@@ -46,6 +46,6 @@ private:
     : INHERITED(offset, kFunctionReference_Kind, *type)
     , fFunctions(function) {}};
 
-} // namespace
+}  // namespace SkSL
 
 #endif

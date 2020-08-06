@@ -242,4 +242,4 @@ String ASTNode::description() const {
 }
 #endif
 
-} // namespace
+}  // namespace SkSL

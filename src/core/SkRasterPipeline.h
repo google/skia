@@ -164,7 +164,7 @@ struct SkRasterPipeline_CallbackCtx {
 namespace SkSL {
 class ByteCode;
 class ByteCodeFunction;
-}
+} // namespace SkSL
 
 struct SkRasterPipeline_GradientCtx {
     size_t stopCount;

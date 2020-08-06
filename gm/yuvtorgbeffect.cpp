@@ -384,4 +384,4 @@ private:
 };
 
 DEF_GM(return new YUVtoRGBSubsetEffect;)
-}
+}  // namespace skiagm

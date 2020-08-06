@@ -154,4 +154,4 @@ private:
 
 DEF_GM( return new Xfermodes2GM; )
 
-}
+}  // namespace skiagm

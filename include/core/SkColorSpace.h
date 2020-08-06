@@ -57,7 +57,7 @@ static constexpr skcms_TransferFunction kPQ =
 static constexpr skcms_TransferFunction kHLG =
     {-3.0f, 2.0f, 2.0f, 1/0.17883277f, 0.28466892f, 0.55991073f, 0.0f };
 
-}
+}  // namespace SkNamedTransferFn
 
 namespace SkNamedGamut {
 
@@ -99,7 +99,7 @@ static constexpr skcms_Matrix3x3 kXYZ = {{
     { 0.0f, 0.0f, 1.0f },
 }};
 
-}
+}  // namespace SkNamedGamut
 
 class SK_API SkColorSpace : public SkNVRefCnt<SkColorSpace> {
 public:

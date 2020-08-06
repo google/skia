@@ -44,7 +44,7 @@ size_t parse_node<Node>(StreamReader* sr, Node* node) {
     return parent_id;
 }
 
-} // namespace skrive
+}  // namespace internal
 
 void Node::addChild(sk_sp<Component> child) {
     child->fParent = this;
@@ -74,4 +74,4 @@ void Node::onRender(SkCanvas* canvas) const {
 }
 
 
-} // namespace internal
+}  // namespace skrive

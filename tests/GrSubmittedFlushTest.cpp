@@ -18,7 +18,7 @@ struct SubmittedInfo {
     int* fCount;
     bool* fSuccess;
 };
-};
+}  // namespace
 
 static void testing_submitted_proc(void* ctx, bool success) {
     SubmittedInfo* info = (SubmittedInfo*)ctx;

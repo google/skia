@@ -263,4 +263,4 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(fwidth_squircle, ctx, rtc, canvas, errorMsg, 200, 200
     return skiagm::DrawResult::kOk;
 }
 
-}
+}  // namespace skiagm

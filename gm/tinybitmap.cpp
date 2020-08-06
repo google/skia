@@ -33,6 +33,6 @@ class TinyBitmapGM : public skiagm::GM {
         canvas->drawPaint(paint);
     }
 };
-}
+}  // namespace
 
 DEF_GM( return new TinyBitmapGM; )

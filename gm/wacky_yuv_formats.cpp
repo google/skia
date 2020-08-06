@@ -1677,7 +1677,7 @@ private:
 
 DEF_GM(return new YUVMakeColorSpaceGM();)
 
-}
+}  // namespace skiagm
 
 ///////////////
 

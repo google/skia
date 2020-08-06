@@ -502,4 +502,4 @@ private:
 
 DEF_GM(return new BezierConicEffects;)
 DEF_GM(return new BezierQuadEffects;)
-}
+}  // namespace skiagm

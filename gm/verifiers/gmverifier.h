@@ -188,7 +188,7 @@ private:
     bool needsGoldImage() const;
 };
 
-}
-}
+}  // namespace verifiers
+}  // namespace skiagm
 
 #endif

@@ -14,5 +14,5 @@ namespace SkOpts {
     void Init_sse42() {
         hash_fn = sse42::hash_fn;
     }
-}
+}  // namespace SkOpts
 

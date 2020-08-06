@@ -1164,7 +1164,7 @@ namespace {
         REPORTER_ASSERT(reporter, intersection.isEmpty());
         REPORTER_ASSERT(reporter, SkRRectPriv::ConservativeIntersect(b, a).isEmpty());
     }
-} // anonymous
+}  // namespace
 
 static void test_conservative_intersection(skiatest::Reporter* reporter) {
     // Helper to inline making an inset round rect

@@ -235,4 +235,4 @@ DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kNearest, false);)
 DEF_GM(return new TexelSubset(Filter::kNearest, MipmapMode::kLinear , false);)
 DEF_GM(return new TexelSubset(Filter::kLinear , MipmapMode::kLinear , false);)
 
-}
+}  // namespace skiagm

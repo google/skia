@@ -30,7 +30,7 @@ class ByteCode;
 struct PipelineStageArgs;
 struct Program;
 class SharedCompiler;
-}
+}  // namespace SkSL
 
 /*
  * SkRuntimeEffect supports creating custom SkShader and SkColorFilter objects using Skia's SkSL

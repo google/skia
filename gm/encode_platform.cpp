@@ -131,4 +131,4 @@ private:
 };
 
 DEF_GM( return new EncodePlatformGM; )
-}
+}  // namespace skiagm

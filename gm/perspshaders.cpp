@@ -181,7 +181,7 @@ private:
 };
 DEF_GM(return new PerspShadersGM(true);)
 DEF_GM(return new PerspShadersGM(false);)
-}
+}  // namespace skiagm
 
 //////////////////////////////////////////////////////////////////////////////
 

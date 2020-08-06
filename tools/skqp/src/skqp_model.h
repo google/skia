@@ -54,5 +54,5 @@ SkQP::RenderOutcome Check(const SkPixmap& minImg,
 
 ModelResult CheckAgainstModel(const char* name, const SkPixmap& image,
                               SkQPAssetManager* assetManager);
-}
+}  // namespace skqp
 #endif  // skqp_model_DEFINED

@@ -80,6 +80,6 @@ namespace SkOpts {
     extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
                                   int nregs, int loop, const int strides[], int nargs,
                                   int n, void* args[]);
-}
+}  // namespace SkOpts
 
 #endif//SkOpts_DEFINED

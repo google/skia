@@ -200,6 +200,6 @@ private:
     friend class Compiler;
 };
 
-}
+}  // namespace SkSL
 
 #endif

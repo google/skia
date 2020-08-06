@@ -73,6 +73,6 @@ struct ExternalFunctionCall : public Expression {
     typedef Expression INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

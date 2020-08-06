@@ -99,4 +99,4 @@ private:
 
 DEF_GM(return new DiscardGM;)
 
-} // end namespace
+}  // namespace skiagm

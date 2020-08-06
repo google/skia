@@ -584,4 +584,4 @@ std::shared_ptr<SymbolTable> Rehydrator::symbolTable() {
     return result;
 }
 
-} // namespace
+}  // namespace SkSL

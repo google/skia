@@ -15,7 +15,7 @@ namespace {
 template <typename T,typename P,P* p> using resource = std::unique_ptr<T, SkFunctionWrapper<P, p>>;
 using ICUBrk   = resource<UBreakIterator, decltype(ubrk_close)       , ubrk_close       >;
 using ICUUText = resource<UText         , decltype(utext_close)      , utext_close      >;
-}
+}  // namespace
 
 std::vector<bool> GetUtf8WordBoundaries(const char* begin, size_t byteCount, const char* locale) {
     std::vector<bool> result;

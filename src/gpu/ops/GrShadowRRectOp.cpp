@@ -738,7 +738,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                                  scaledInsetWidth,
                                                  std::move(falloffView));
 }
-}
+}  // namespace GrShadowRRectOp
 
 ///////////////////////////////////////////////////////////////////////////////
 

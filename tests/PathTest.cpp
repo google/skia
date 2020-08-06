@@ -4371,7 +4371,7 @@ private:
     bool* fChanged;
 };
 
-}
+}  // namespace
 
 class PathTest_Private {
 public:

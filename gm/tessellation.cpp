@@ -413,4 +413,4 @@ DrawResult TessellationGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext
 
 DEF_GM( return new TessellationGM(); )
 
-}
+}  // namespace skiagm

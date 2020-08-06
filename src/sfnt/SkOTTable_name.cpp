@@ -453,7 +453,7 @@ namespace {
 bool BCP47FromLanguageIdLess(const BCP47FromLanguageId& a, const BCP47FromLanguageId& b) {
     return a.languageID < b.languageID;
 }
-}
+}  // namespace
 
 bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
     SkOTTableName nameTable;

@@ -401,7 +401,7 @@ struct SkCubicCoeff {
     Sk2s fD;
 };
 
-}
+}  // namespace
 
 #include "include/private/SkTemplates.h"
 

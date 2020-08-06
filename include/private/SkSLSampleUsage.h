@@ -87,6 +87,6 @@ struct SampleUsage {
     std::string constructor(std::string perspectiveExpression) const;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif
