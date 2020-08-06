@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "76425f12_6bdb33da",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-06T17:44:42Z",
+      "side": 1,
+      "message": "I\u0027ve been burned too many times (I wrote on the WOW Installer). I/O checks are never optional :)",
+      "parentUuid": "b0c5541b_d97b655d",
+      "range": {
+        "startLine": 350,
+        "startChar": 4,
+        "endLine": 350,
+        "endChar": 28
+      },
+      "revId": "99ec6c8f8176758dc9f40016775916222cb33c06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edaaab25_0ef1e495",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 2
