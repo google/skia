@@ -83,7 +83,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fOldWidth(0)
         , fOldHeight(0)
         , fOrigin(SkRect::MakeEmpty()) {
-    fICU = ::skia::SkUnicode::Make();
+    fICU = ::SkUnicode::Make();
 }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
