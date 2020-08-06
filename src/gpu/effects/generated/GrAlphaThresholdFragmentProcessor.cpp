@@ -103,13 +103,8 @@ std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCrea
     // Make the inner and outer thresholds be in [0, 1].
     float outerThresh = testData->fRandom->nextUScalar1();
     float innerThresh = testData->fRandom->nextUScalar1();
-    std::unique_ptr<GrFragmentProcessor> inputChild, maskChild;
-    if (testData->fRandom->nextBool()) {
-        inputChild = GrProcessorUnitTest::MakeChildFP(testData);
-    }
-    maskChild = GrProcessorUnitTest::MakeChildFP(testData);
-
-    return GrAlphaThresholdFragmentProcessor::Make(std::move(inputChild), std::move(maskChild),
+    return GrAlphaThresholdFragmentProcessor::Make(GrProcessorUnitTest::MakeInputFP(testData),
+                                                   GrProcessorUnitTest::MakeChildFP(testData),
                                                    innerThresh, outerThresh);
 }
 #endif

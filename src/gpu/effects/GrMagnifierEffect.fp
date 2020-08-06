@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in fragmentProcessor src;
+in fragmentProcessor? src;
 layout(ctype=SkIRect) in int4 bounds;
 uniform float4 boundsUniform;
 layout(ctype=SkRect) in float4 srcRect;
@@ -52,8 +52,7 @@ void main(float2 coord) {
     SkIRect bounds = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
     SkRect srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    auto src = GrProcessorUnitTest::MakeChildFP(d);
-    auto effect = GrMagnifierEffect::Make(std::move(src),
+    auto effect = GrMagnifierEffect::Make(GrProcessorUnitTest::MakeInputFP(d),
                                           bounds,
                                           srcRect,
                                           srcRect.width() / bounds.width(),

@@ -43,7 +43,7 @@ void main() {
 
 @test(d) {
     return GrArithmeticProcessor::Make(
-            GrProcessorUnitTest::MakeChildFP(d), GrProcessorUnitTest::MakeChildFP(d),
+            GrProcessorUnitTest::MakeInputFP(d), GrProcessorUnitTest::MakeChildFP(d),
             ArithmeticFPInputs{d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(),
                                d->fRandom->nextF(), d->fRandom->nextBool()});
 }

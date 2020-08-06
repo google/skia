@@ -37,5 +37,6 @@ void main() {
 }
 
 @test(d) {
-    return GrClampFragmentProcessor::Make(d->inputFP(), d->fRandom->nextBool());
+    return GrClampFragmentProcessor::Make(GrProcessorUnitTest::MakeInputFP(d),
+                                          /*clampToPremul=*/d->fRandom->nextBool());
 }

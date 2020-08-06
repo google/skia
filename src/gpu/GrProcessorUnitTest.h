@@ -37,8 +37,16 @@ enum {
 };
 
 /** This allows parent FPs to implement a test create with known leaf children in order to avoid
-creating an unbounded FP tree which may overflow various shader limits. */
+ *  creating an unbounded FP tree which may overflow various shader limits. The Optional version
+ *  returns null half of the time.
+ */
 std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
+std::unique_ptr<GrFragmentProcessor> MakeOptionalChildFP(GrProcessorTestData*);
+
+/** This returns the input FP at the top level of the FP tree, or synthesizes a random FP at deeper
+ *  levels.
+ */
+std::unique_ptr<GrFragmentProcessor> MakeInputFP(GrProcessorTestData*);
 
 }  // namespace GrProcessorUnitTest
 
@@ -53,9 +61,9 @@ class GrProcessorTestData {
 public:
     using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
 
-    GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+    GrProcessorTestData(SkRandom* random, GrRecordingContext* context, int maxTreeDepth,
                         int numViews, const ViewInfo views[]);
-    GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+    GrProcessorTestData(SkRandom* random, GrRecordingContext* context, int maxTreeDepth,
                         int numViews, const ViewInfo views[],
                         std::unique_ptr<GrFragmentProcessor> inputFP);
     GrProcessorTestData(const GrProcessorTestData&) = delete;
@@ -70,7 +78,9 @@ public:
     ViewInfo randomView();
     ViewInfo randomAlphaOnlyView();
 
-    SkRandom* fRandom;
+    SkRandom* fRandom = nullptr;
+    int fCurrentTreeDepth = 0;
+    int fMaxTreeDepth = 2;
 
 private:
     GrRecordingContext* fContext;

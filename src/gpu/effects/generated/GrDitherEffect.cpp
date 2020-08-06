@@ -28,7 +28,7 @@ public:
         (void)range;
         rangeVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "range");
-        SkString _sample302 = this->invokeChild(0, args);
+        SkString _sample303 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 color = %s;
 half value;
@@ -45,7 +45,7 @@ half value;
 }
 %s = half4(clamp(color.xyz + value * %s, 0.0, color.w), color.w);
 )SkSL",
-                _sample302.c_str(), args.fOutputColor,
+                _sample303.c_str(), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(rangeVar));
     }
 
@@ -78,7 +78,7 @@ std::unique_ptr<GrFragmentProcessor> GrDitherEffect::clone() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDitherEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* d) {
-    float range = d->fRandom->nextRangeF(0.0, 1.0);
-    return GrDitherEffect::Make(GrProcessorUnitTest::MakeChildFP(d), range);
+    float range = 1.0f - d->fRandom->nextRangeF(0.0, 1.0);
+    return GrDitherEffect::Make(GrProcessorUnitTest::MakeInputFP(d), range);
 }
 #endif

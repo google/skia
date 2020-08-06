@@ -337,8 +337,9 @@ class TestFPGenerator {
             // This will generate the exact same randomized FP (of each requested type) each time
             // it's called. Call `reroll` to get a different FP.
             SkRandom random{fRandomSeed};
-            GrProcessorTestData testData{&random, fContext, SK_ARRAY_COUNT(fTestViews), fTestViews,
-                                         std::move(inputFP)};
+            GrProcessorTestData testData(&random, fContext, /*maxTreeDepth=*/3,
+                                         SK_ARRAY_COUNT(fTestViews), fTestViews,
+                                         std::move(inputFP));
             return GrFragmentProcessorTestFactory::MakeIdx(type, &testData);
         }
 
@@ -526,6 +527,25 @@ bool legal_modulation(const GrColor in[3], const GrColor out[3]) {
     return isLegalColorModulation || isLegalAlphaModulation;
 }
 
+static void describe_fp_children(const GrFragmentProcessor& fp,
+                                 std::string indent,
+                                 SkString* text) {
+    for (int index = 0; index < fp.numChildProcessors(); ++index) {
+        const GrFragmentProcessor* childFP = fp.childProcessor(index);
+        text->appendf("\n%s(#%d) -> %s", indent.c_str(), index, childFP ? childFP->name() : "null");
+        if (childFP) {
+            describe_fp_children(*childFP, indent + "\t", text);
+        }
+    }
+}
+
+static SkString describe_fp(const GrFragmentProcessor& fp) {
+    SkString text;
+    text.printf("\n%s", fp.name());
+    describe_fp_children(fp, "\t", &text);
+    return text;
+}
+
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
     GrDirectContext* context = ctxInfo.directContext();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
@@ -591,6 +611,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             // Create a randomly-configured FP.
             fpGenerator.reroll();
             std::unique_ptr<GrFragmentProcessor> fp = fpGenerator.make(i, inputTexture1);
+
+            SkDebugf("%s\n", describe_fp(*fp).c_str());
 
             // If we have iterated enough times and seen a sufficient number of successes on each
             // optimization bit that can be returned, stop running trials.
@@ -785,25 +807,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     }
 }
 
-static void describe_fp_children(const GrFragmentProcessor& fp,
-                                 std::string indent,
-                                 SkString* text) {
-    for (int index = 0; index < fp.numChildProcessors(); ++index) {
-        const GrFragmentProcessor* childFP = fp.childProcessor(index);
-        text->appendf("\n%s(#%d) -> %s", indent.c_str(), index, childFP ? childFP->name() : "null");
-        if (childFP) {
-            describe_fp_children(*childFP, indent + "\t", text);
-        }
-    }
-}
-
-static SkString describe_fp(const GrFragmentProcessor& fp) {
-    SkString text;
-    text.printf("\n%s", fp.name());
-    describe_fp_children(fp, "\t", &text);
-    return text;
-}
-
 // Tests that a fragment processor returned by GrFragmentProcessor::clone() is equivalent to its
 // progenitor.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
@@ -848,6 +851,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             fpGenerator.reroll();
             std::unique_ptr<GrFragmentProcessor> fp = fpGenerator.make(i, /*inputFP=*/nullptr);
+
+            SkDebugf("%s\n", describe_fp(*fp).c_str());
+
             std::unique_ptr<GrFragmentProcessor> clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());

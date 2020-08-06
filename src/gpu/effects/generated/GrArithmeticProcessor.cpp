@@ -85,7 +85,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrArithmeticProcessor::TestCreate(GrProcessorTestData* d) {
     return GrArithmeticProcessor::Make(
-            GrProcessorUnitTest::MakeChildFP(d), GrProcessorUnitTest::MakeChildFP(d),
+            GrProcessorUnitTest::MakeInputFP(d), GrProcessorUnitTest::MakeChildFP(d),
             ArithmeticFPInputs{d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(),
                                d->fRandom->nextF(), d->fRandom->nextBool()});
 }

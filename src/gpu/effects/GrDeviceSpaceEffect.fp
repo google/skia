@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-in fragmentProcessor fp;
+in fragmentProcessor? fp;
 
 void main() {
     sk_OutColor = sample(fp, sk_FragCoord.xy);
@@ -28,5 +28,5 @@ void main() {
 }
 
 @test(d) {
-    return GrDeviceSpaceEffect::Make(GrProcessorUnitTest::MakeChildFP(d));
+    return GrDeviceSpaceEffect::Make(GrProcessorUnitTest::MakeInputFP(d));
 }

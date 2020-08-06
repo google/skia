@@ -240,8 +240,11 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BlendFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     // Create two random frag procs.
-    std::unique_ptr<GrFragmentProcessor> fpA(GrProcessorUnitTest::MakeChildFP(d));
-    std::unique_ptr<GrFragmentProcessor> fpB(GrProcessorUnitTest::MakeChildFP(d));
+    std::unique_ptr<GrFragmentProcessor> src(GrProcessorUnitTest::MakeOptionalChildFP(d));
+    std::unique_ptr<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeInputFP(d));
+    if (d->fRandom->nextBool()) {
+        std::swap(src, dst);
+    }
 
     SkBlendMode mode;
     BlendBehavior behavior;
@@ -251,7 +254,7 @@ std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::TestCreate(GrProces
                        d->fRandom->nextRangeU(0, (int)BlendBehavior::kLastBlendBehavior));
     } while (SkBlendMode::kClear == mode || SkBlendMode::kSrc == mode || SkBlendMode::kDst == mode);
     return std::unique_ptr<GrFragmentProcessor>(
-            new BlendFragmentProcessor(std::move(fpA), std::move(fpB), mode, behavior));
+            new BlendFragmentProcessor(std::move(src), std::move(dst), mode, behavior));
 }
 #endif
 

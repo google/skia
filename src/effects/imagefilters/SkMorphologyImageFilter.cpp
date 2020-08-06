@@ -358,7 +358,8 @@ std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorT
     static const int kMaxRadius = 10;
     int radius = d->fRandom->nextRangeU(1, kMaxRadius);
     MorphType type = d->fRandom->nextBool() ? MorphType::kErode : MorphType::kDilate;
-    return GrMorphologyEffect::Make(d->inputFP(), std::move(view), at, dir, radius, type);
+    return GrMorphologyEffect::Make(GrProcessorUnitTest::MakeInputFP(d), std::move(view),
+                                    at, dir, radius, type);
 }
 #endif
 

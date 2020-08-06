@@ -24,12 +24,12 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDeviceSpaceEffect& _outer = args.fFp.cast<GrDeviceSpaceEffect>();
         (void)_outer;
-        SkString _coords203("sk_FragCoord.xy");
-        SkString _sample203 = this->invokeChild(0, args, _coords203.c_str());
+        SkString _coords204("sk_FragCoord.xy");
+        SkString _sample204 = this->invokeChild(0, args, _coords204.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(%s = %s;
 )SkSL",
-                args.fOutputColor, _sample203.c_str());
+                args.fOutputColor, _sample204.c_str());
     }
 
 private:
@@ -56,6 +56,6 @@ std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::clone() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDeviceSpaceEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::TestCreate(GrProcessorTestData* d) {
-    return GrDeviceSpaceEffect::Make(GrProcessorUnitTest::MakeChildFP(d));
+    return GrDeviceSpaceEffect::Make(GrProcessorUnitTest::MakeInputFP(d));
 }
 #endif
