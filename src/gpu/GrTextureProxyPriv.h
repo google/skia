@@ -44,7 +44,7 @@ private:
 
 inline GrTextureProxyPriv GrTextureProxy::texPriv() { return GrTextureProxyPriv(this); }
 
-inline const GrTextureProxyPriv GrTextureProxy::texPriv() const {
+inline GrTextureProxyPriv GrTextureProxy::texPriv() const {
     return GrTextureProxyPriv(const_cast<GrTextureProxy*>(this));
 }
 

@@ -68,7 +68,7 @@ public:
 
     // Provides access to functions that aren't part of the public API.
     GrRecordingContextPriv priv();
-    const GrRecordingContextPriv priv() const;
+    GrRecordingContextPriv priv() const;
 
     // The collection of specialized memory arenas for different types of data recorded by a
     // GrRecordingContext. Arenas does not maintain ownership of the pools it groups together.

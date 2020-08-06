@@ -45,7 +45,7 @@ DDLPromiseImageHelper::PromiseImageInfo::PromiseImageInfo(PromiseImageInfo&& oth
 
 DDLPromiseImageHelper::PromiseImageInfo::~PromiseImageInfo() {}
 
-const std::unique_ptr<SkPixmap[]> DDLPromiseImageHelper::PromiseImageInfo::normalMipLevels() const {
+std::unique_ptr<SkPixmap[]> DDLPromiseImageHelper::PromiseImageInfo::normalMipLevels() const {
     SkASSERT(!this->isYUV());
     std::unique_ptr<SkPixmap[]> pixmaps(new SkPixmap[this->numMipLevels()]);
     pixmaps[0] = fBaseLevel.pixmap();

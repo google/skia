@@ -325,7 +325,7 @@ public:
 
     // Provides access to functions that aren't part of the public API.
     inline GrSurfaceProxyPriv priv();
-    inline const GrSurfaceProxyPriv priv() const;
+    inline GrSurfaceProxyPriv priv() const;
 
     GrProtected isProtected() const { return fIsProtected; }
 

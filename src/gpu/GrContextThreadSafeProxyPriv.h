@@ -63,7 +63,7 @@ inline GrContextThreadSafeProxyPriv GrContextThreadSafeProxy::priv() {
     return GrContextThreadSafeProxyPriv(this);
 }
 
-inline const GrContextThreadSafeProxyPriv GrContextThreadSafeProxy::priv() const {
+inline GrContextThreadSafeProxyPriv GrContextThreadSafeProxy::priv() const {
     return GrContextThreadSafeProxyPriv(const_cast<GrContextThreadSafeProxy*>(this));
 }
 

@@ -176,7 +176,7 @@ private:
 
 inline GrContextPriv GrContext::priv() { return GrContextPriv(this); }
 
-inline const GrContextPriv GrContext::priv() const {
+inline GrContextPriv GrContext::priv() const {
     return GrContextPriv(const_cast<GrContext*>(this));
 }
 

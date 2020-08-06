@@ -53,7 +53,7 @@ private:
 
 inline GrImageContextPriv GrImageContext::priv() { return GrImageContextPriv(this); }
 
-inline const GrImageContextPriv GrImageContext::priv () const {
+inline GrImageContextPriv GrImageContext::priv () const {
     return GrImageContextPriv(const_cast<GrImageContext*>(this));
 }
 

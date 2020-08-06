@@ -95,7 +95,7 @@ public:
 
     // Provides access to functions that aren't part of the public API.
     GrContextThreadSafeProxyPriv priv();
-    const GrContextThreadSafeProxyPriv priv() const;
+    GrContextThreadSafeProxyPriv priv() const;
 
 private:
     friend class GrContextThreadSafeProxyPriv; // for ctor and hidden methods

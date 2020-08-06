@@ -38,7 +38,7 @@ inline GrSurfaceContextPriv GrSurfaceContext::surfPriv() {
     return GrSurfaceContextPriv(this);
 }
 
-inline const GrSurfaceContextPriv GrSurfaceContext::surfPriv() const {
+inline GrSurfaceContextPriv GrSurfaceContext::surfPriv() const {
     return GrSurfaceContextPriv(const_cast<GrSurfaceContext*>(this));
 }
 

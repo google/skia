@@ -96,7 +96,7 @@ private:
 
 inline GrGpuResource::CacheAccess GrGpuResource::cacheAccess() { return CacheAccess(this); }
 
-inline const GrGpuResource::CacheAccess GrGpuResource::cacheAccess() const {
+inline GrGpuResource::CacheAccess GrGpuResource::cacheAccess() const {
     return CacheAccess(const_cast<GrGpuResource*>(this));
 }
 
