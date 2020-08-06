@@ -178,7 +178,7 @@ namespace {
         // Uses saveLayer after clipRect() to filter on the restore (i.e. reference image)
         kSaveLayer
     };
-};
+}  // namespace
 
 // In this GM, we're going to feed the inner portion of a 100x100 mandrill (i.e., strip off a
 // 25-wide border) through the makeWithFilter method. We'll then draw the appropriate subset of the

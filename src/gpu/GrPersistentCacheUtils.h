@@ -122,6 +122,6 @@ static inline bool UnpackCachedShaders(SkReadBuffer* reader,
     return reader->isValid();
 }
 
-}
+}  // namespace GrPersistentCacheUtils
 
 #endif

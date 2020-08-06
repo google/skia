@@ -133,7 +133,7 @@ void draw_small_i(SkCanvas* canvas, const SkPaint& paint, SkScalar width) {
 
 
 
-};
+}  // namespace
 
 DEF_SIMPLE_GM(thinconcavepaths, canvas, 550, 400) {
     SkPaint paint;

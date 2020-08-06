@@ -169,4 +169,4 @@ private:
 
 DEF_GM( return new ModeColorFilterGM; )
 
-}
+}  // namespace skiagm

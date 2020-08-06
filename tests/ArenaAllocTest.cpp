@@ -61,7 +61,7 @@ namespace {
         float y;
     };
 
-}
+}  // namespace
 
 struct WithDtor {
     ~WithDtor() { }

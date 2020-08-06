@@ -115,6 +115,6 @@ private:
 
 DEF_GM(return new YCbCrImageGM;)
 
-} // skiagm
+}  // namespace skiagm
 
 #endif // SK_VULKAN

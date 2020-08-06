@@ -348,7 +348,7 @@ public:
         return fU;
     }
 };
-}
+}  // namespace
 
 DEF_TEST(chartoglyph_cache, reporter) {
     SkCharToGlyphCache cache;

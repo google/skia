@@ -24,4 +24,4 @@ namespace SkOpts {
         inverted_CMYK_to_RGB1 = SK_OPTS_NS::inverted_CMYK_to_RGB1;
         inverted_CMYK_to_BGR1 = SK_OPTS_NS::inverted_CMYK_to_BGR1;
     }
-}
+}  // namespace SkOpts

@@ -253,7 +253,7 @@ const YUVCoeff gCoeff[] = {
     { 0.2627f, 0.0593f, 12, kFull    }, // kBT2020_12bit_Full_SkYUVColorSpace
     { 0.2627f, 0.0593f, 12, kLimited }, // kBT2020_12bit_Limited_SkYUVColorSpace
 };
-}
+}  // namespace
 
 static void make_rgb_to_yuv_matrix(float mx[20], const YUVCoeff& c) {
     SkASSERT(c.bits >= 8);

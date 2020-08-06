@@ -29,6 +29,6 @@ class Decorations {
     SkPaint fPaint;
     SkPath fPath;
 };
-}
-}
+}  // namespace textlayout
+}  // namespace skia
 #endif

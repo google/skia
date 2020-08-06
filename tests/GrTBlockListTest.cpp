@@ -35,7 +35,7 @@ struct D {
     int fID;
 };
 
-}
+}  // namespace
 
 // Checks that the allocator has the correct count, etc and that the element IDs are correct.
 // Then pops popCnt items and checks again.

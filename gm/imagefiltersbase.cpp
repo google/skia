@@ -85,7 +85,7 @@ namespace {
             SK_REGISTER_FLATTENABLE(FailImageFilter);
         }
     } initializer;
-}
+}  // namespace
 
 sk_sp<SkFlattenable> IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);

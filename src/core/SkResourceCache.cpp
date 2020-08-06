@@ -70,7 +70,7 @@ namespace {
             return rec->getKey();
         }
     };
-}
+}  // namespace
 
 class SkResourceCache::Hash :
     public SkTHashTable<SkResourceCache::Rec*, SkResourceCache::Key, HashTraits> {};

@@ -3209,4 +3209,4 @@ void IRGenerator::convertProgram(Program::Kind kind,
 }
 
 
-}
+}  // namespace SkSL

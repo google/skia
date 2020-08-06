@@ -33,7 +33,7 @@ class SkSampler;
 namespace DM {
 class CodecSrc;
 class ColorCodecSrc;
-}
+} // namespace DM
 
 /**
  *  Abstraction layer directly on top of an image codec.

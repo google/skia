@@ -1823,4 +1823,4 @@ bool MetalCodeGenerator::generateCode() {
     return true;
 }
 
-}
+}  // namespace SkSL
