@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7f1d269_8ee32784",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T13:50:42Z",
+      "side": 1,
+      "message": "I renamed this variable to better reflect what it\u0027s tracking (if main is declared with float2 coords, but never references them, this will be false).",
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aff9084a_ef22de5d",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T13:50:42Z",
+      "side": 1,
+      "message": "When searching for uses of MAIN_COORDS, this removes the optimization of not recursing into functions other than main (or checking the main signature), but that seemed like a pretty minor win, compared to the simplicity advantages of having one very simple visitor for both builtin searches.",
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d241737_627d7759",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T13:50:42Z",
+      "side": 1,
+      "message": "Just to be clear: Today, these two unit tests pass because we don\u0027t allow making a color filter from a runtime effect that needs children. When we do add children, these should continue to pass because they\u0027re sampling those children in ways we don\u0027t allow.",
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
