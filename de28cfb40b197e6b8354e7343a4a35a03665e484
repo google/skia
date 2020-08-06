@@ -26,6 +26,33 @@
       "revId": "de28cfb40b197e6b8354e7343a4a35a03665e484",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004253406",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/308513?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "16c858e1_f3915e1a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 13155
+      },
+      "writtenOn": "2020-08-06T19:41:48Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 7,
+        "startChar": 22,
+        "endLine": 7,
+        "endChar": 28
+      },
+      "revId": "de28cfb40b197e6b8354e7343a4a35a03665e484",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
