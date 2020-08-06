@@ -233,6 +233,30 @@
     },
     {
       "key": {
+        "uuid": "908ea335_dcb28233",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-06T15:03:24Z",
+      "side": 1,
+      "message": "I am fine with only allowing children of runtime color filters to be color filters, but I disagree with Mike\u0027s statement that \"a color filter sampling from different spots in a shader depending on the color filter\u0027s input color is not [okay]\".\n\nThis disagreement is from a theory perspective, so I\u0027m not necessarily arguing we try to allow it now. But so long as the child doesn\u0027t reference sk_FragCoord, it cannot introduce spatial variance that is tied to the local coords. If the color filter passes in sample coords that are based on color, the child (shader or otherwise) will be color-varying but invariant to the local coord.",
+      "parentUuid": "a8e91dc8_5b7ff88b",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
