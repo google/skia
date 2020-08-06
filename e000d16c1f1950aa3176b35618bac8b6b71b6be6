@@ -159,6 +159,24 @@
       "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44f1752b_f2309a2d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12064
+      },
+      "writtenOn": "2020-08-06T01:32:11Z",
+      "side": 1,
+      "message": "Yeah,you are right. In other benchmarks we also met some performance issues like throttling with AVX-512. For later analysis,if we find that some benchmarks can benefit from AVX-512, we\u0027ll still get you involved. \nThanks for all the reply, Mike!",
+      "parentUuid": "5c709312_ccfcf45c",
+      "revId": "e000d16c1f1950aa3176b35618bac8b6b71b6be6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
