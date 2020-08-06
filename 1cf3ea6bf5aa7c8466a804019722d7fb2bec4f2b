@@ -16,6 +16,23 @@
       "revId": "1cf3ea6bf5aa7c8466a804019722d7fb2bec4f2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3200723_83ce4575",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T12:35:38Z",
+      "side": 1,
+      "message": "I think if you flatten here you can keep the rest as it was?  I think something like,\n\n    external_libraries \u003d [lib for lib in target.properties.get(key, [])\n                              for key in [\u0027libs\u0027, \u0027frameworks\u0027]]",
+      "revId": "1cf3ea6bf5aa7c8466a804019722d7fb2bec4f2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
