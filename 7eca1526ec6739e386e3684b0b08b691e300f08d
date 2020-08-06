@@ -16,6 +16,46 @@
       "revId": "7eca1526ec6739e386e3684b0b08b691e300f08d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cb3bb82_7431b54c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T15:23:52Z",
+      "side": 1,
+      "message": "lgtm",
+      "revId": "7eca1526ec6739e386e3684b0b08b691e300f08d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e86d293a_b640e646",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T15:23:52Z",
+      "side": 1,
+      "message": "This might read more clearly as \"But they\"?",
+      "range": {
+        "startLine": 127,
+        "startChar": 89,
+        "endLine": 127,
+        "endChar": 93
+      },
+      "revId": "7eca1526ec6739e386e3684b0b08b691e300f08d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
