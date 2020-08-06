@@ -103,8 +103,8 @@ void DDLPromiseImageHelper::PromiseImageInfo::setYUVPlanes(
         }
         auto info = SkImageInfo::Make(yuvaSizeInfo.fSizes[i], colorTypes[i], kPremul_SkAlphaType);
         auto release = [](void* addr, void*) { std::unique_ptr<char[]>(static_cast<char*>(addr)); };
-        fYUVPlanes[i].installPixels(info, planes[i].get(), yuvaSizeInfo.fWidthBytes[i], release,
-                                    planes[i].release());
+        char* pixels = planes[i].release();
+        fYUVPlanes[i].installPixels(info, pixels, yuvaSizeInfo.fWidthBytes[i], release, pixels);
     }
 }
 
