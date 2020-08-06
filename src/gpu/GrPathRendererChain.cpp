@@ -16,6 +16,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAAConvexPathRenderer.h"
 #include "src/gpu/ops/GrAAHairLinePathRenderer.h"
 #include "src/gpu/ops/GrAALinearizingConvexPathRenderer.h"
@@ -58,9 +59,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
-        auto spr = sk_make_sp<GrSmallPathRenderer>();
-        context->priv().addOnFlushCallbackObject(spr.get());
-        fChain.push_back(std::move(spr));
+        fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
         auto direct = context->asDirectContext();
