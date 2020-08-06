@@ -161,6 +161,30 @@
     },
     {
       "key": {
+        "uuid": "21635828_de82b0f6",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T14:50:33Z",
+      "side": 1,
+      "message": "OK: So sample-with-matrix implicitly uses the input position, which shouldn\u0027t be allowed, but it also doesn\u0027t do any harm right? Because the children (which are also color filters) can\u0027t do anything with that information. So maybe I remove the guards on sampling behavior. Ultimately, the other kinds of sample aren\u0027t real useful in this context, because we don\u0027t allow anything but color filters as children - but it limits the scope of the rule.\n\nIf people want to start writing more complex effects that do use sampling of images as tables, etc..., they can make shaders.",
+      "parentUuid": "dc047e72_aea425f7",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
