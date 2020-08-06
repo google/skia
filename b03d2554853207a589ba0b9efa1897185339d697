@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f89f1c4a_b4965daa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-06T18:32:27Z",
+      "side": 1,
+      "message": "I wanted to send this out for review now since it\u0027s a big dense block of code that can\u0027t really be broken up any more at this point.\n\nWhile I don\u0027t plan on having it enabled at the start, I do want unit tests to be running for GrClipStack. I will be working on adding these to the CL, but plan on doing that in parallel with your review of the primary source code. I expect the main code won\u0027t need to change too much given that most tests and layout tests pass with only minor image diffs (due to changing from mask to CCPR, or mask to analytic since elements are more aggressively combined so we fall under the FP threshold).\n\nAt the moment, the only significant issues I need to address is the rrect inner bounds assert when running as vkddl, and the video composition layout tests that appear to be masking incorrect content. The former is simpler a numerical precision issue and I may just remove that assert, and I haven\u0027t yet been able to investigate the latter.",
+      "revId": "b03d2554853207a589ba0b9efa1897185339d697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47a1c506_3f644738",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-06T18:32:27Z",
+      "side": 1,
+      "message": "This will be updated to\n\n   #ifndef SK_USE_NEW_GR_CLIP_STACK\n   #define SK_USE_NEW_GR_CLIP_STACK 0\n   #endif\n\nso that it\u0027s disabled by default and build configs don\u0027t need to be updated. At the moment this lets me test the new stack on the current bots to make sure those all pass.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 34
+      },
+      "revId": "b03d2554853207a589ba0b9efa1897185339d697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
