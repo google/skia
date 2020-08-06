@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d409cd46_95bef093",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T21:22:13Z",
+      "side": 1,
+      "message": "Right, this doesn\u0027t really change anything about how the higher level code stitches together the parts of the skia pipeline, so we should be getting alpha-modulated shader output (or just premul paint color).",
+      "parentUuid": "11161eba_ec9e1bc2",
+      "range": {
+        "startLine": 10,
+        "startChar": 11,
+        "endLine": 10,
+        "endChar": 46
+      },
+      "revId": "92f8203064486e11219644c769f3fc576b63d238",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bca46e2c_40da4bc6",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "15f1332b_1dd7b43f",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T21:22:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf6bc170_3f7465dd",
+      "range": {
+        "startLine": 492,
+        "startChar": 12,
+        "endLine": 499,
+        "endChar": 40
+      },
+      "revId": "92f8203064486e11219644c769f3fc576b63d238",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c30244b_be95cf76",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 2
@@ -93,6 +141,30 @@
       "writtenOn": "2020-08-06T20:46:37Z",
       "side": 1,
       "message": "I\u0027m curious to see what happens if we write an effect that notionally tries to use these, like sample(..., matrix).  The {} F32 values held by {} Coords are kind of like null, and risk something blowing up in the SkVM builder before we get a chance to notice that everything that uses them is dead code.  Might be safer with arbitrary known values, like {c.r,c.r} or {p-\u003esplat(0), p-\u003esplat(0)}.",
+      "range": {
+        "startLine": 848,
+        "startChar": 27,
+        "endLine": 848,
+        "endChar": 56
+      },
+      "revId": "92f8203064486e11219644c769f3fc576b63d238",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f5102f9_5880d1bd",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 848,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T21:22:13Z",
+      "side": 1,
+      "message": "Ah, right. I remember wondering that when I wrote this, then got side-tracked and forgot to check it. I just tested it locally. It does work, though I may add the zero coords just to be safe. (I got tricked by several other things that were preventing my test case from drawing, so I initially assumed the workaround was required...)",
+      "parentUuid": "6c30244b_be95cf76",
       "range": {
         "startLine": 848,
         "startChar": 27,
