@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43828cff_3443e458",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-06T16:08:21Z",
+      "side": 1,
+      "message": "Jim, thanks for making the change to gn_to_cmake. This is a huge help to me.",
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
