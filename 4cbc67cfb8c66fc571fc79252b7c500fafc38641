@@ -16,6 +16,80 @@
       "revId": "4cbc67cfb8c66fc571fc79252b7c500fafc38641",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9b10893_47605b28",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-06T18:13:39Z",
+      "side": 1,
+      "message": "Here and everywhere, is there a more descriptive name?",
+      "range": {
+        "startLine": 193,
+        "startChar": 20,
+        "endLine": 193,
+        "endChar": 26
+      },
+      "revId": "4cbc67cfb8c66fc571fc79252b7c500fafc38641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6ffb056_679fc8bd",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-06T18:13:39Z",
+      "side": 1,
+      "message": "add param name ?",
+      "revId": "4cbc67cfb8c66fc571fc79252b7c500fafc38641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28189cd2_c1a7e3bf",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1140,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-06T18:13:39Z",
+      "side": 1,
+      "message": "// In this case the XXX is all zeros bc ...\n\n?",
+      "revId": "4cbc67cfb8c66fc571fc79252b7c500fafc38641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e8bbc16_d5b76af0",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-06T18:13:39Z",
+      "side": 1,
+      "message": "Add param name ?",
+      "revId": "4cbc67cfb8c66fc571fc79252b7c500fafc38641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
