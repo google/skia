@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0741b961_8aacf1a2",
+        "filename": "tests/SkSLMetalTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T18:20:13Z",
+      "side": 1,
+      "message": "I believe it works (from looking at the code), but can you include a test that also reduces the number of rows (to test the swizzling truncation)?",
+      "revId": "32ac5c77672091d648e0fe63225531fc7fd95e54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
