@@ -334,6 +334,7 @@ private:
     GrVkResourceProvider                                  fResourceProvider;
     GrStagingBufferManager                                fStagingBufferManager;
 
+    sk_sp<GrVkGpu> fFlushGpu;
     GrVkCommandPool*                                      fMainCmdPool;
     // just a raw pointer; object's lifespan is managed by fCmdPool
     GrVkPrimaryCommandBuffer*                             fMainCmdBuffer;
