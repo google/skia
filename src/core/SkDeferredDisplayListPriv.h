@@ -37,8 +37,8 @@ public:
 
 private:
     explicit SkDeferredDisplayListPriv(SkDeferredDisplayList* ddl) : fDDL(ddl) {}
-    SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&);            // unimpl
-    SkDeferredDisplayListPriv& operator=(const SkDeferredDisplayListPriv&); // unimpl
+    SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&) = delete;
+    SkDeferredDisplayListPriv& operator=(const SkDeferredDisplayListPriv&) = delete;
 
     // No taking addresses of this type.
     const SkDeferredDisplayListPriv* operator&() const;

@@ -19,8 +19,8 @@ public:
 
 private:
     explicit GrResourceProviderPriv(GrResourceProvider* provider) : fResourceProvider(provider) {}
-    GrResourceProviderPriv(const GrResourceProviderPriv&); // unimpl
-    GrResourceProviderPriv& operator=(const GrResourceProviderPriv&); // unimpl
+    GrResourceProviderPriv(const GrResourceProviderPriv&) = delete;
+    GrResourceProviderPriv& operator=(const GrResourceProviderPriv&) = delete;
 
     // No taking addresses of this type.
     const GrResourceProviderPriv* operator&() const;

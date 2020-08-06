@@ -116,8 +116,8 @@ public:
 private:
     explicit GrRenderTargetContextPriv(GrRenderTargetContext* renderTargetContext)
         : fRenderTargetContext(renderTargetContext) {}
-    GrRenderTargetContextPriv(const GrRenderTargetContextPriv&) {}           // unimpl
-    GrRenderTargetContextPriv& operator=(const GrRenderTargetContextPriv&);  // unimpl
+    GrRenderTargetContextPriv(const GrRenderTargetContextPriv&) = delete;
+    GrRenderTargetContextPriv& operator=(const GrRenderTargetContextPriv&) = delete;
 
     // No taking addresses of this type.
     const GrRenderTargetContextPriv* operator&() const;

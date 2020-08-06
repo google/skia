@@ -81,7 +81,7 @@ private:
 
     CacheAccess(GrGpuResource* resource) : fResource(resource) {}
     CacheAccess(const CacheAccess& that) : fResource(that.fResource) {}
-    CacheAccess& operator=(const CacheAccess&); // unimpl
+    CacheAccess& operator=(const CacheAccess&) = delete;
 
     // No taking addresses of this type.
     const CacheAccess* operator&() const = delete;

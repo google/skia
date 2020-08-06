@@ -33,8 +33,8 @@ public:
 
 private:
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}
-    GrBaseContextPriv(const GrBaseContextPriv&); // unimpl
-    GrBaseContextPriv& operator=(const GrBaseContextPriv&); // unimpl
+    GrBaseContextPriv(const GrBaseContextPriv&) = delete;
+    GrBaseContextPriv& operator=(const GrBaseContextPriv&) = delete;
 
     // No taking addresses of this type.
     const GrBaseContextPriv* operator&() const;

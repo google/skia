@@ -39,8 +39,8 @@ public:
 
 private:
     explicit GrImageContextPriv(GrImageContext* context) : fContext(context) {}
-    GrImageContextPriv(const GrImageContextPriv&); // unimpl
-    GrImageContextPriv& operator=(const GrImageContextPriv&); // unimpl
+    GrImageContextPriv(const GrImageContextPriv&) = delete;
+    GrImageContextPriv& operator=(const GrImageContextPriv&) = delete;
 
     // No taking addresses of this type.
     const GrImageContextPriv* operator&() const;
