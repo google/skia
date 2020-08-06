@@ -16,6 +16,24 @@
       "revId": "355bb9ea909f1e6c7ce46ef4c6a62baa12105b60",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "986d0977_bb0af5c1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6605
+      },
+      "writtenOn": "2020-08-06T19:21:15Z",
+      "side": 1,
+      "message": "I just saw \"Win\" files building on Linux and thought that was weird. I wasn\u0027t aware of the SK_BUILD_FOR_XXX guards. So it sounds like this is something Skia folks should decide. Do you want to continue using SK_BUILD_FOR_XXX?",
+      "parentUuid": "19386da9_4c14070f",
+      "revId": "355bb9ea909f1e6c7ce46ef4c6a62baa12105b60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
