@@ -128,6 +128,6 @@ void main() {
     SkHighContrastConfig config{/*grayscale=*/d->fRandom->nextBool(),
                                 InvertStyle(d->fRandom->nextRangeU(0, int(InvertStyle::kLast))),
                                 /*contrast=*/d->fRandom->nextF()};
-    return GrHighContrastFilterEffect::Make(d->inputFP(), config,
+    return GrHighContrastFilterEffect::Make(GrProcessorUnitTest::MakeInputFP(d), config,
                                             /*linearize=*/d->fRandom->nextBool());
 }

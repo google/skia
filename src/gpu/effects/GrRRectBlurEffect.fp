@@ -176,7 +176,8 @@ uniform half blurRadius;
     SkScalar sigma = d->fRandom->nextRangeF(1.f,10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Make(d->inputFP(), d->context(), sigma, sigma, rrect, rrect);
+    return GrRRectBlurEffect::Make(GrProcessorUnitTest::MakeInputFP(d), d->context(),
+                                   sigma, sigma, rrect, rrect);
 }
 
 void main() {

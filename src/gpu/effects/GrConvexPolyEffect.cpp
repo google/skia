@@ -227,7 +227,7 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorT
     }
 
     bool success;
-    std::unique_ptr<GrFragmentProcessor> fp = d->inputFP();
+    std::unique_ptr<GrFragmentProcessor> fp = GrProcessorUnitTest::MakeInputFP(d);
     do {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));

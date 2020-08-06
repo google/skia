@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in fragmentProcessor inputFP;
+in fragmentProcessor? inputFP;
 
 @header {
     #include "include/gpu/GrDirectContext.h"
@@ -162,5 +162,5 @@ void main() {
     PMConversion pmConv = static_cast<PMConversion>(
             data->fRandom->nextULessThan((int)PMConversion::kPMConversionCnt));
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrConfigConversionEffect(GrProcessorUnitTest::MakeChildFP(data), pmConv));
+            new GrConfigConversionEffect(GrProcessorUnitTest::MakeInputFP(data), pmConv));
 }

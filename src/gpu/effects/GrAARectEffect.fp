@@ -59,8 +59,8 @@ void main() {
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1());
-    GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
-            d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
+    GrClipEdgeType edgeType =
+            static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
 
-    return GrAARectEffect::Make(d->inputFP(), edgeType, rect);
+    return GrAARectEffect::Make(GrProcessorUnitTest::MakeInputFP(d), edgeType, rect);
 }

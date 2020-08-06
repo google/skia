@@ -68,6 +68,7 @@ std::unique_ptr<GrFragmentProcessor> GrClampFragmentProcessor::clone() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrClampFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrClampFragmentProcessor::TestCreate(GrProcessorTestData* d) {
-    return GrClampFragmentProcessor::Make(d->inputFP(), d->fRandom->nextBool());
+    return GrClampFragmentProcessor::Make(GrProcessorUnitTest::MakeInputFP(d),
+                                          /*clampToPremul=*/d->fRandom->nextBool());
 }
 #endif

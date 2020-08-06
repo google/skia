@@ -326,7 +326,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
             do {
                 at = static_cast<SkAlphaType>(d->fRandom->nextULessThan(kLastEnum_SkAlphaType + 1));
             } while (at == kUnknown_SkAlphaType);
-            return Make(GrProcessorUnitTest::MakeChildFP(d), at, m, kernel, direction);
+            return Make(GrProcessorUnitTest::MakeInputFP(d), at, m, kernel, direction);
         }
     }
 }

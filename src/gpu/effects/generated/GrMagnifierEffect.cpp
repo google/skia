@@ -70,13 +70,13 @@ if (delta.x < 2.0 && delta.y < 2.0) {
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
-        SkString _coords1043 = SkStringPrintf("mix(%s, zoom_coord, weight)", args.fSampleCoord);
-        SkString _sample1043 = this->invokeChild(0, args, _coords1043.c_str());
+        SkString _coords1044 = SkStringPrintf("mix(%s, zoom_coord, weight)", args.fSampleCoord);
+        SkString _sample1044 = this->invokeChild(0, args, _coords1044.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = %s;
 )SkSL",
-                args.fOutputColor, _sample1043.c_str());
+                args.fOutputColor, _sample1044.c_str());
     }
 
 private:
@@ -160,8 +160,7 @@ std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTe
     SkIRect bounds = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
     SkRect srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    auto src = GrProcessorUnitTest::MakeChildFP(d);
-    auto effect = GrMagnifierEffect::Make(std::move(src),
+    auto effect = GrMagnifierEffect::Make(GrProcessorUnitTest::MakeInputFP(d),
                                           bounds,
                                           srcRect,
                                           srcRect.width() / bounds.width(),

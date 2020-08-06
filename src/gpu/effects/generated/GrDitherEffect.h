@@ -20,7 +20,7 @@ class GrDitherEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                      float range) {
-        if (range == 0.0 || inputFP == nullptr) {
+        if (range == 0.0) {
             return inputFP;
         }
         return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(std::move(inputFP), range));
@@ -37,7 +37,6 @@ private:
                                                     : kAll_OptimizationFlags) &
                                 kPreservesOpaqueInput_OptimizationFlag)
             , range(range) {
-        SkASSERT(inputFP);
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

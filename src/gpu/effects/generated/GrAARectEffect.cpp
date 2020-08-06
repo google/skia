@@ -120,6 +120,6 @@ std::unique_ptr<GrFragmentProcessor> GrAARectEffect::TestCreate(GrProcessorTestD
     GrClipEdgeType edgeType =
             static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
 
-    return GrAARectEffect::Make(d->inputFP(), edgeType, rect);
+    return GrAARectEffect::Make(GrProcessorUnitTest::MakeInputFP(d), edgeType, rect);
 }
 #endif
