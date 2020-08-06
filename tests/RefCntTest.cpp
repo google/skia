@@ -335,7 +335,7 @@ struct FooAbstract : public SkRefCnt {
 struct FooConcrete : public FooAbstract {
     void f() override {}
 };
-}
+}  // namespace
 static sk_sp<FooAbstract> make_foo() {
     // can not cast FooConcrete to FooAbstract.
     // can cast FooConcrete* to FooAbstract*.

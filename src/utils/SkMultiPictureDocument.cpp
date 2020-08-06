@@ -94,7 +94,7 @@ struct MultiPictureDocument final : public SkDocument {
         fSizes.reset();
     }
 };
-}
+}  // namespace
 
 sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
     return sk_make_sp<MultiPictureDocument>(wStream, procs);

@@ -308,4 +308,4 @@ private:
 
 DEF_GM( return new OvalGM; )
 
-}
+}  // namespace skiagm

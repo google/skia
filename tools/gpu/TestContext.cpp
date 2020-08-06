@@ -65,4 +65,4 @@ void TestContext::teardown() {
     fGpuTimer.reset();
 }
 
-}
+}  // namespace sk_gpu_test

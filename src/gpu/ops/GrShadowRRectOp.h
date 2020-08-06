@@ -25,6 +25,6 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                const SkRRect&,
                                SkScalar blurWidth,
                                SkScalar insetWidth);
-}
+}  // namespace GrShadowRRectOp
 
 #endif

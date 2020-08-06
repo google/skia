@@ -305,4 +305,4 @@ RandomParams::RandomParams(SkRandom* random) {
 }
 #endif
 
-}
+}  // namespace GrGradientShader

@@ -77,7 +77,7 @@ struct hash<std::pair<ConstantValue, ConstantType>> {
     }
 };
 
-}
+}  // namespace std
 
 namespace SkSL {
 
@@ -406,6 +406,6 @@ private:
     typedef CodeGenerator INHERITED;
 };
 
-}
+}  // namespace SkSL
 
 #endif

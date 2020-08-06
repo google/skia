@@ -76,7 +76,7 @@ int compareRound(SkScalar a, SkScalar b) {
     }
 }
 
-}
+}  // namespace
 
 TextLine::TextLine(ParagraphImpl* owner,
                    SkVector offset,

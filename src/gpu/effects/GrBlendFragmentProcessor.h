@@ -40,6 +40,6 @@ std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> s
                                           SkBlendMode mode,
                                           BlendBehavior behavior = BlendBehavior::kDefault);
 
-};
+}  // namespace GrBlendFragmentProcessor
 
 #endif

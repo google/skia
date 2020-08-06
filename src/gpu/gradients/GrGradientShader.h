@@ -60,6 +60,6 @@ namespace GrGradientShader {
     };
 #endif
 
-}
+}  // namespace GrGradientShader
 
 #endif // GrGradientShader_DEFINE

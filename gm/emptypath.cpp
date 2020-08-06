@@ -185,4 +185,4 @@ class EmptyStrokeGM : public GM {
 };
 DEF_GM( return new EmptyStrokeGM; )
 
-}
+}  // namespace skiagm

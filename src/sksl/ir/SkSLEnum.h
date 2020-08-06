@@ -63,6 +63,6 @@ struct Enum : public ProgramElement {
     typedef ProgramElement INHERITED;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

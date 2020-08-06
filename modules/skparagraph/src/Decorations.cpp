@@ -246,5 +246,5 @@ void Decorations::calculateWaves(const TextStyle& textStyle, SkRect clip) {
     }
 }
 
-}
-}
+}  // namespace textlayout
+}  // namespace skia

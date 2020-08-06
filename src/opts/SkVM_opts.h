@@ -266,6 +266,6 @@ namespace SK_OPTS_NS {
         }
     }
 
-}
+}  // namespace SK_OPTS_NS
 
 #endif//SkVM_opts_DEFINED

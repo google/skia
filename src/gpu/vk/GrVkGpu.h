@@ -36,7 +36,7 @@ struct GrVkInterface;
 
 namespace SkSL {
     class Compiler;
-}
+}  // namespace SkSL
 
 class GrVkGpu : public GrGpu {
 public:

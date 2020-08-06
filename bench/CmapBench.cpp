@@ -25,7 +25,7 @@ struct Rec {
     const SkUnichar*            fText;
     int                         fCount;
 };
-}
+}  // namespace
 
 typedef void (*TypefaceProc)(const Rec& r);
 

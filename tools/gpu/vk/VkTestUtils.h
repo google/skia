@@ -36,7 +36,7 @@ namespace sk_gpu_test {
                                 bool isProtected = false);
 
     void FreeVulkanFeaturesStructs(const VkPhysicalDeviceFeatures2*);
-}
+}  // namespace sk_gpu_test
 
 #endif
 #endif

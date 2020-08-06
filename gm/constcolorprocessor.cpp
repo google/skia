@@ -220,4 +220,4 @@ DEF_GM(return new ColorProcessor{ColorProcessor::TestMode::kConstColor};)
 DEF_GM(return new ColorProcessor{ColorProcessor::TestMode::kModulateRGBA};)
 DEF_GM(return new ColorProcessor{ColorProcessor::TestMode::kModulateAlpha};)
 
-}
+}  // namespace skiagm

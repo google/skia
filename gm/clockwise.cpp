@@ -299,4 +299,4 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
 
 DEF_GM( return new ClockwiseGM(); )
 
-}
+}  // namespace

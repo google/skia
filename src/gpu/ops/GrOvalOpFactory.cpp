@@ -39,7 +39,7 @@ static inline GrVertexWriter::TriStrip<float> origin_centered_tri_strip(float x,
     return GrVertexWriter::TriStrip<float>{ -x, -y, x, y };
 };
 
-}
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 

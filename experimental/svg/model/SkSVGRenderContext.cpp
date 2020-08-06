@@ -38,7 +38,7 @@ constexpr SkScalar kPCMultiplier = kPTMultiplier * 12;
 constexpr SkScalar kMMMultiplier = kINMultiplier / 25.4f;
 constexpr SkScalar kCMMultiplier = kMMMultiplier * 10;
 
-} // anonymous ns
+}  // namespace
 
 SkScalar SkSVGLengthContext::resolve(const SkSVGLength& l, LengthType t) const {
     switch (l.unit()) {
@@ -274,7 +274,7 @@ void commitToPaint<SkSVGAttribute::kColor>(const SkSVGPresentationAttributes&,
     // Not part of the SkPaint state; applied via 'currentColor' color value
 }
 
-} // anonymous ns
+}  // namespace
 
 SkSVGPresentationContext::SkSVGPresentationContext()
     : fInherited(SkSVGPresentationAttributes::MakeInitial()) {

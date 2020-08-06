@@ -36,6 +36,6 @@ namespace GrDrawVerticesOp {
                                    GrPrimitiveType* overridePrimType,
                                    const SkRuntimeEffect*);
 
-};
+}  // namespace GrDrawVerticesOp
 
 #endif

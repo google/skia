@@ -382,4 +382,4 @@ private:
 
 DEF_GM( return new RoundRectGM; )
 
-}
+}  // namespace skiagm

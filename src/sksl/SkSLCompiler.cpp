@@ -1944,4 +1944,4 @@ void Compiler::writeErrorCount() {
     }
 }
 
-} // namespace
+}  // namespace SkSL

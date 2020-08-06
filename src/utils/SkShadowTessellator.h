@@ -39,6 +39,6 @@ sk_sp<SkVertices> MakeSpot(const SkPath& path, const SkMatrix& ctm, const SkPoin
                            const SkPoint3& lightPos, SkScalar lightRadius, bool transparent);
 
 
-}
+}  // namespace SkShadowTessellator
 
 #endif

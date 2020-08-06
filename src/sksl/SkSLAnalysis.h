@@ -63,6 +63,6 @@ private:
     const Program* fProgram;
 };
 
-}
+}  // namespace SkSL
 
 #endif

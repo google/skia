@@ -24,7 +24,7 @@ namespace skvm {
     struct F32;
     struct Uniforms;
     struct Color;
-}
+}  // namespace skvm
 
 class SkColorFilterBase : public SkColorFilter {
 public:

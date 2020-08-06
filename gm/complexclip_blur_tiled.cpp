@@ -75,4 +75,4 @@ private:
 
 DEF_GM(return new ComplexClipBlurTiledGM;)
 
-}
+}  // namespace skiagm

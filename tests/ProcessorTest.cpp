@@ -141,7 +141,7 @@ private:
 
     typedef GrFragmentProcessor INHERITED;
 };
-}
+}  // namespace
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();

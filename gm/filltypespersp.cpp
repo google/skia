@@ -139,4 +139,4 @@ private:
 
 DEF_GM( return new FillTypePerspGM; )
 
-}
+}  // namespace skiagm

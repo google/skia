@@ -61,6 +61,6 @@ namespace SK_OPTS_NS {
         rect_memsetT(buffer, value, count, rowBytes, height);
     }
 
-}
+}  // namespace SK_OPTS_NS
 
 #endif//SkUtils_opts_DEFINED

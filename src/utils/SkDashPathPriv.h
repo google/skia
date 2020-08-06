@@ -47,6 +47,6 @@ namespace SkDashPath {
                         StrokeRecApplication = StrokeRecApplication::kAllow);
 
     bool ValidDashPath(SkScalar phase, const SkScalar intervals[], int32_t count);
-}
+}  // namespace SkDashPath
 
 #endif

@@ -66,7 +66,7 @@ namespace {
             SK_REGISTER_FLATTENABLE(Dot2DPathEffect);
         }
     } initializer;
-}
+}  // namespace
 
 
 sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {

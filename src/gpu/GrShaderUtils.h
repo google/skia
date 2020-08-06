@@ -28,6 +28,6 @@ inline void PrintLineByLine(const SkSL::String& text) {
 
 GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler();
 
-}
+}  // namespace GrShaderUtils
 
 #endif

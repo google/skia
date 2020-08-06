@@ -150,4 +150,4 @@ std::unique_ptr<StreamReader> MakeBinaryStreamReader(std::unique_ptr<SkStreamAss
     return std::make_unique<BinaryReader>(std::move(stream));
 }
 
-}
+}  // namespace skrive::internal
