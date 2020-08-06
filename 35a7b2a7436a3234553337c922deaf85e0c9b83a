@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43de1c1c_2258ea4b",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-06T17:33:27Z",
+      "side": 1,
+      "message": "I would prefer absolute paths if at all possible, since it makes things easier to reason about.",
+      "range": {
+        "startLine": 153,
+        "startChar": 40,
+        "endLine": 153,
+        "endChar": 53
+      },
+      "revId": "35a7b2a7436a3234553337c922deaf85e0c9b83a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "402e32be_ec2db28a",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas_test.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-06T17:33:27Z",
+      "side": 1,
+      "message": "remember to run gofmt -w -s [files] to get the correct formatting. Many editors can be configured to do this on save.",
+      "range": {
+        "startLine": 76,
+        "startChar": 6,
+        "endLine": 76,
+        "endChar": 11
+      },
+      "revId": "35a7b2a7436a3234553337c922deaf85e0c9b83a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
