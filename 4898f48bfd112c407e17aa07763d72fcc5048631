@@ -209,6 +209,30 @@
     },
     {
       "key": {
+        "uuid": "a01d426c_8eb59e0c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T15:01:40Z",
+      "side": 1,
+      "message": "Correct. It *is* legal for a color filter to sample an image, we just don\u0027t have a way to do that with runtime effects - we only allow sampling shaders or color filters (depending on the top-level type). I suppose if we had SkImage::makeColorFilter() that turned the image itself into a lut color filter. Today you could adopt an SkTableColorFilter as a child, if you wanted to sample it more than once (or with some pre-transform), but even in that case, the table color filter operates based on input color, so all the variants of sample() will ignore anything you do with coords.\n\nI think we\u0027re safe if I just remove the sample-based restriction.",
+      "parentUuid": "a8e91dc8_5b7ff88b",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
