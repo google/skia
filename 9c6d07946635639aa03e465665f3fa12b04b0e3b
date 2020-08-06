@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aef8bdf_c3be4ac9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-06T17:52:26Z",
+      "side": 1,
+      "message": "This gets rid of the warning and should pack to the same size. It might also be marginally faster since lower_bound doesn\u0027t have to load the color values into cache while searching. I verified that our standard SVG list generates the same images; I\u0027m not sure what else I need to test.",
+      "revId": "9c6d07946635639aa03e465665f3fa12b04b0e3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
