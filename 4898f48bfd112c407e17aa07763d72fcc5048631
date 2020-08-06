@@ -329,6 +329,30 @@
     },
     {
       "key": {
+        "uuid": "65221cba_38060da9",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T15:16:38Z",
+      "side": 1,
+      "message": "I\u0027m also still curious about a mechanical approach, where we just jam (0,0) into local and sk_FragCoord once we enter a color filter, for its whole effect tree.  Is that possible?",
+      "parentUuid": "e12802c0_aa8e763d",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
