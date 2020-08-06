@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "8640cdb1_309f3e46",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T14:35:56Z",
+      "side": 1,
+      "message": "I think this really is allow... there are features of SkRuntimeEffect that we don\u0027t want to let SkColorFilters have access to.",
+      "parentUuid": "35da9c8b_7420cd0d",
+      "range": {
+        "startLine": 185,
+        "startChar": 11,
+        "endLine": 185,
+        "endChar": 28
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17cc3ded_5f755c57",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 2
@@ -53,6 +77,30 @@
       "writtenOn": "2020-08-06T14:29:03Z",
       "side": 1,
       "message": "Your comment above for \u0027allowColorFilter\u0027 makes it sound like explicit coords should allowed on children with color filters. Since they don\u0027t have sample or frag coords referenced, any explicit coord would be a constant float2 or an expression based on uniforms or derived from the input color.\n\nOr did I not follow it properly?",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba7b4426_212f2330",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T14:35:56Z",
+      "side": 1,
+      "message": "That sounds right to me.  Sampling with constants or uniforms essentially makes the sampled child itself a uniform, and sampling with data derived from the input color should be fine as long as the child itself does not depend on position.  A compound color filter is ok, a color filter sampling from different spots in a shader depending on the color filter\u0027s input color is not.  That\u0027s covered by only allowing color filters to have other color filters as children.",
+      "parentUuid": "17cc3ded_5f755c57",
       "range": {
         "startLine": 159,
         "startChar": 59,
@@ -128,6 +176,30 @@
       "writtenOn": "2020-08-06T14:29:03Z",
       "side": 1,
       "message": "I feel like this ought to be allowed for color filters. Are their implications that make this break the non-spatially-varying invariant?",
+      "range": {
+        "startLine": 106,
+        "startChar": 59,
+        "endLine": 106,
+        "endChar": 82
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c5e4428_f3cb6cd4",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T14:35:56Z",
+      "side": 1,
+      "message": "(I think only if there\u0027s a shader somewhere in the `child` tree.)",
+      "parentUuid": "dc35ef86_bf8c249d",
       "range": {
         "startLine": 106,
         "startChar": 59,
