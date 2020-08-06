@@ -50,6 +50,24 @@
       "revId": "1cf3ea6bf5aa7c8466a804019722d7fb2bec4f2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb9a9b4f_88765d93",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-06T14:23:02Z",
+      "side": 1,
+      "message": "Done, using itertools instead.",
+      "parentUuid": "e3200723_83ce4575",
+      "revId": "1cf3ea6bf5aa7c8466a804019722d7fb2bec4f2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
