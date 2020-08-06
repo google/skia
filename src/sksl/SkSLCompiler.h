@@ -178,7 +178,7 @@ public:
 
     static bool IsAssignment(Token::Kind token);
 
-    void processIncludeFile(Program::Kind kind, const char* src, size_t length,
+    void processIncludeFile(Program::Kind kind, const char* path,
                             std::shared_ptr<SymbolTable> base,
                             std::vector<std::unique_ptr<ProgramElement>>* outElements,
                             std::shared_ptr<SymbolTable>* outSymbolTable);
@@ -243,7 +243,6 @@ private:
     std::vector<std::unique_ptr<ProgramElement>> fFPInclude;
     std::shared_ptr<SymbolTable> fFPSymbolTable;
 
-    std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
     int fFlags;
 
