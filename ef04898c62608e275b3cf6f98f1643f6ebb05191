@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62e20db4_9c03fd6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-06T20:04:41Z",
+      "side": 1,
+      "message": "lgtm - Ben, any last comments?",
+      "revId": "ef04898c62608e275b3cf6f98f1643f6ebb05191",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
