@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a9390f9c_e6ee025f",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-06T19:58:24Z",
+      "side": 1,
+      "message": "I think a relative path really does make sense here. Like canvas_perf.html, we\u0027re referring to checked in files in the same directory as perf-canvaskit-with-puppeteer.js.",
+      "parentUuid": "43de1c1c_2258ea4b",
+      "range": {
+        "startLine": 153,
+        "startChar": 40,
+        "endLine": 153,
+        "endChar": 53
+      },
+      "revId": "35a7b2a7436a3234553337c922deaf85e0c9b83a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "402e32be_ec2db28a",
         "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas_test.go",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "35a7b2a7436a3234553337c922deaf85e0c9b83a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f210fc0f_e60d41cc",
+        "filename": "infra/bots/task_drivers/perf_puppeteer_canvas/perf_puppeteer_canvas_test.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-06T19:58:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "402e32be_ec2db28a",
+      "range": {
+        "startLine": 76,
+        "startChar": 6,
+        "endLine": 76,
+        "endChar": 11
+      },
+      "revId": "35a7b2a7436a3234553337c922deaf85e0c9b83a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
