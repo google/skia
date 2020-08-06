@@ -145,6 +145,24 @@
     },
     {
       "key": {
+        "uuid": "f9fb7ab2_a10a3ad8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-06T14:12:40Z",
+      "side": 1,
+      "message": "It looks like ClangTidy can do this fixup via clang-tidy -fix and does a better job (no collateral damage, catches cases where // namespace was missing entirely). Running that now.",
+      "parentUuid": "9d0ecf5d_27d8285f",
+      "revId": "dde007319df1ede7737cacf1ceb3f0c9444db942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4090fe1a_c20ae13e",
         "filename": "modules/skottie/src/effects/ShiftChannelsEffect.cpp",
         "patchSetId": 11
