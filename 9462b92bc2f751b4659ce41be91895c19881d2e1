@@ -16,6 +16,29 @@
       "revId": "9462b92bc2f751b4659ce41be91895c19881d2e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd020896_1dd43478",
+        "filename": "src/ports/SkTypeface_mac_ct.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T20:23:05Z",
+      "side": 1,
+      "message": "Is there a particular reason we never add a \\n to these messages?",
+      "range": {
+        "startLine": 798,
+        "startChar": 50,
+        "endLine": 798,
+        "endChar": 52
+      },
+      "revId": "9462b92bc2f751b4659ce41be91895c19881d2e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

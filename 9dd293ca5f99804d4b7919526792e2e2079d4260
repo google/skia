@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c13403f6_f41127b9",
+        "filename": "src/ports/SkTypeface_mac_ct.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 791,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T20:23:05Z",
+      "side": 0,
+      "message": "Seems like there are one or two common patterns to extract out into functions, like\n\n  static bool is_a(value, type, name) {\n      if (!value) {\n          SkDEBUGF(\"%s not present\", name);\n          return false;\n      }\n      if (CFGetTypeID(value) !\u003d type) {\n          SkDEBUGF(\"%s is not an %s but an %s\\n\",\n                   name, desc(type), desc(CFGetTypeID(value)));\n          return false;\n      }\n      return true;\n  }",
+      "range": {
+        "startLine": 791,
+        "startChar": 12,
+        "endLine": 791,
+        "endChar": 59
+      },
+      "revId": "9dd293ca5f99804d4b7919526792e2e2079d4260",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
