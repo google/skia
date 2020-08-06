@@ -31,6 +31,10 @@ HCodeGenerator::HCodeGenerator(const Context* context, const Program* program,
 
 String HCodeGenerator::ParameterType(const Context& context, const Type& type,
                                      const Layout& layout) {
+    if (type.kind() == Type::kArray_Kind) {
+        return String::printf("std::vector<%s>", ParameterType(context, type.componentType(),
+                                                               layout).c_str());
+    }
     Layout::CType ctype = ParameterCType(context, type, layout);
     if (ctype != Layout::CType::kDefault) {
         return Layout::CTypeToStr(ctype);
@@ -40,6 +44,7 @@ String HCodeGenerator::ParameterType(const Context& context, const Type& type,
 
 Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type& type,
                                      const Layout& layout) {
+    SkASSERT(type.kind() != Type::kArray_Kind);
     if (layout.fCType != Layout::CType::kDefault) {
         return layout.fCType;
     }
@@ -260,7 +265,13 @@ void HCodeGenerator::writeConstructor() {
     }
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
-
+    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        if (param->fType.kind() == Type::kArray_Kind) {
+            this->writef("    SkASSERT(%s.size() == %d);\n",
+                         FieldName(String(param->fName).c_str()).c_str(),
+                         param->fType.columns());
+        }
+    }
     if (Analysis::ReferencesSampleCoords(fProgram)) {
         this->writef("        this->setUsesSampleCoordsDirectly();\n");
     }
@@ -306,9 +317,10 @@ void HCodeGenerator::writeFields() {
         if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
             // Don't need to write any fields, FPs are held as children
         } else {
-            this->writef("    %s %s;\n", FieldType(fContext, param->fType,
+            this->writef("    %s %s", FieldType(fContext, param->fType,
                                                    param->fModifiers.fLayout).c_str(),
                                          name.c_str());
+            this->writef(";\n");
         }
     }
 }
