@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "6fcaf7d2_999e725e",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T15:30:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e86d293a_b640e646",
+      "range": {
+        "startLine": 127,
+        "startChar": 89,
+        "endLine": 127,
+        "endChar": 93
+      },
+      "revId": "7eca1526ec6739e386e3684b0b08b691e300f08d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7794af84_bd4b79aa",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 4
@@ -79,6 +103,30 @@
       "revId": "7eca1526ec6739e386e3684b0b08b691e300f08d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10ac2671_44690b66",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-06T15:30:49Z",
+      "side": 1,
+      "message": "Yeah, I\u0027ve removed them and condensed the comment here, to reflect the new reality.",
+      "parentUuid": "7794af84_bd4b79aa",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 91
+      },
+      "revId": "7eca1526ec6739e386e3684b0b08b691e300f08d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
