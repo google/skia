@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d437914_cbc93908",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-06T16:19:20Z",
+      "side": 1,
+      "message": "Greg tried to warn me! The autoroll comment on the GitHub PR, and the canary-flutter are not sufficient to know you won\u0027t win the race to g3 (and therefore lose).",
+      "revId": "ae04cc9099b367c81a11a6e77162410e7941056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
