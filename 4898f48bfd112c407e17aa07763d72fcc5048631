@@ -185,6 +185,30 @@
     },
     {
       "key": {
+        "uuid": "a8e91dc8_5b7ff88b",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-06T14:57:07Z",
+      "side": 1,
+      "message": "Right.  It\u0027s okay to sample-with-matrix a color filter because we know inductively it won\u0027t be affected by that position data.\n\nI think it\u0027s legal for a color filter to sample a image, provided the color filter doesn\u0027t know where it is and is forced to work in the image\u0027s space, not connect back to the destination.  An image as a table is okay and doesn\u0027t turn the color filter into a shader.",
+      "parentUuid": "21635828_de82b0f6",
+      "range": {
+        "startLine": 159,
+        "startChar": 59,
+        "endLine": 159,
+        "endChar": 94
+      },
+      "revId": "4898f48bfd112c407e17aa07763d72fcc5048631",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aff9084a_ef22de5d",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
