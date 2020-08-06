@@ -186,9 +186,7 @@ public:
     /** Human-readable dump of all information */
 #ifdef SK_DEBUG
     virtual SkString dumpInfo() const {
-        SkString str;
-        str.appendf("Missing data");
-        return str;
+        return SkString(name());
     }
 #else
     SkString dumpInfo() const { return SkString("<Processor information unavailable>"); }

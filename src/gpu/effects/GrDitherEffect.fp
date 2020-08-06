@@ -52,7 +52,7 @@ void main() {
 }
 
 @test(d) {
-    float range = d->fRandom->nextRangeF(0.0, 1.0);
+    float range = 1.0f - d->fRandom->nextRangeF(0.0f, 1.0f);
     return GrDitherEffect::Make(GrProcessorUnitTest::MakeChildFP(d), range);
 }
 
