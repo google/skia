@@ -132,3 +132,9 @@ void SkGraphics::PurgeFontCache() {
     SkStrikeCache::GlobalStrikeCache()->purgeAll();
     SkTypefaceCache::PurgeAll();
 }
+
+extern bool gSkVMAllowJIT;
+
+void SkGraphics::AllowJIT() {
+    gSkVMAllowJIT = true;
+}
