@@ -23,10 +23,11 @@ skia_utils_public = [
   "$_include/utils/SkParsePath.h",
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
-
-  #mac
-  "$_include/utils/mac/SkCGUtils.h",
 ]
+
+if (is_mac) {
+  skia_utils_public += [ "$_include/utils/mac/SkCGUtils.h" ]
+}
 
 skia_utils_sources = [
   "$_src/utils/SkAnimCodecPlayer.cpp",
@@ -78,31 +79,37 @@ skia_utils_sources = [
   "$_src/utils/SkThreadUtils_win.cpp",
   "$_src/utils/SkUTF.cpp",
   "$_src/utils/SkUTF.h",
-
-  #mac
-  "$_src/utils/mac/SkCGBase.h",
-  "$_src/utils/mac/SkCGGeometry.h",
-  "$_src/utils/mac/SkCTFontSmoothBehavior.cpp",
-  "$_src/utils/mac/SkCTFontSmoothBehavior.h",
-  "$_src/utils/mac/SkCreateCGImageRef.cpp",
-  "$_src/utils/mac/SkUniqueCFRef.h",
-
-  #windows
-  "$_src/utils/win/SkAutoCoInitialize.cpp",
-  "$_src/utils/win/SkAutoCoInitialize.h",
-  "$_src/utils/win/SkDWrite.cpp",
-  "$_src/utils/win/SkDWrite.h",
-  "$_src/utils/win/SkDWriteFontFileStream.cpp",
-  "$_src/utils/win/SkDWriteFontFileStream.h",
-  "$_src/utils/win/SkDWriteGeometrySink.cpp",
-  "$_src/utils/win/SkDWriteGeometrySink.h",
-  "$_src/utils/win/SkDWriteNTDDI_VERSION.h",
-  "$_src/utils/win/SkHRESULT.cpp",
-  "$_src/utils/win/SkHRESULT.h",
-  "$_src/utils/win/SkIStream.cpp",
-  "$_src/utils/win/SkIStream.h",
-  "$_src/utils/win/SkObjBase.h",
-  "$_src/utils/win/SkTScopedComPtr.h",
-  "$_src/utils/win/SkWGL.h",
-  "$_src/utils/win/SkWGL_win.cpp",
 ]
+
+if (is_mac) {
+  skia_utils_sources += [
+    "$_src/utils/mac/SkCGBase.h",
+    "$_src/utils/mac/SkCGGeometry.h",
+    "$_src/utils/mac/SkCTFontSmoothBehavior.cpp",
+    "$_src/utils/mac/SkCTFontSmoothBehavior.h",
+    "$_src/utils/mac/SkCreateCGImageRef.cpp",
+    "$_src/utils/mac/SkUniqueCFRef.h",
+  ]
+}
+
+if (is_win) {
+  skia_utils_sources += [
+    "$_src/utils/win/SkAutoCoInitialize.cpp",
+    "$_src/utils/win/SkAutoCoInitialize.h",
+    "$_src/utils/win/SkDWrite.cpp",
+    "$_src/utils/win/SkDWrite.h",
+    "$_src/utils/win/SkDWriteFontFileStream.cpp",
+    "$_src/utils/win/SkDWriteFontFileStream.h",
+    "$_src/utils/win/SkDWriteGeometrySink.cpp",
+    "$_src/utils/win/SkDWriteGeometrySink.h",
+    "$_src/utils/win/SkDWriteNTDDI_VERSION.h",
+    "$_src/utils/win/SkHRESULT.cpp",
+    "$_src/utils/win/SkHRESULT.h",
+    "$_src/utils/win/SkIStream.cpp",
+    "$_src/utils/win/SkIStream.h",
+    "$_src/utils/win/SkObjBase.h",
+    "$_src/utils/win/SkTScopedComPtr.h",
+    "$_src/utils/win/SkWGL.h",
+    "$_src/utils/win/SkWGL_win.cpp",
+  ]
+}
