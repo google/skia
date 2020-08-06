@@ -95,6 +95,9 @@ public:
                                bool isOpaque);
 
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> inputs);
+    sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> inputs,
+                                         sk_sp<SkColorFilter> children[],
+                                         size_t childCount);
 
     const SkString& source() const { return fSkSL; }
     uint32_t hash() const { return fHash; }
