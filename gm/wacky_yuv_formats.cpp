@@ -1191,9 +1191,7 @@ protected:
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   ct,
                                                                   kPremul_SkAlphaType,
-                                                                  nullptr /* colorSpace */,
-                                                                  nullptr /* releaseProc */,
-                                                                  nullptr /* releaseContext */);
+                                                                  nullptr);
 
             GrBackendTexture tmp = dContext->createBackendTexture(shrunkPlaneSize.width(),
                                                                   shrunkPlaneSize.height(),

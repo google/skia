@@ -877,52 +877,57 @@ enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
 
 // This tests the ability to create and use wrapped textures in a DDL world
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
-    auto dContext = ctxInfo.directContext();
+    auto context = ctxInfo.directContext();
 
     GrBackendTexture backendTex;
-    CreateBackendTexture(dContext, &backendTex, kSize, kSize, kRGBA_8888_SkColorType,
+    CreateBackendTexture(context, &backendTex, kSize, kSize, kRGBA_8888_SkColorType,
             SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     if (!backendTex.isValid()) {
         return;
     }
 
-    SurfaceParameters params(dContext);
+    SurfaceParameters params(context);
     GrBackendTexture backend;
 
-    sk_sp<SkSurface> s = params.make(dContext, &backend);
+    sk_sp<SkSurface> s = params.make(context, &backend);
     if (!s) {
-        dContext->deleteBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
         return;
     }
 
     SkSurfaceCharacterization c;
     SkAssertResult(s->characterize(&c));
 
-    SkDeferredDisplayListRecorder recorder(c);
+    std::unique_ptr<SkDeferredDisplayListRecorder> recorder(new SkDeferredDisplayListRecorder(c));
 
-    SkCanvas* canvas = recorder.getCanvas();
-    SkASSERT(canvas);
-
-    auto rContext = canvas->recordingContext();
-    if (!rContext) {
+    SkCanvas* canvas = recorder->getCanvas();
+    if (!canvas) {
         s = nullptr;
-        params.cleanUpBackEnd(dContext, backend);
-        dContext->deleteBackendTexture(backendTex);
+        params.cleanUpBackEnd(context, backend);
+        context->deleteBackendTexture(backendTex);
+        return;
+    }
+
+    GrContext* deferredContext = canvas->getGrContext();
+    if (!deferredContext) {
+        s = nullptr;
+        params.cleanUpBackEnd(context, backend);
+        context->deleteBackendTexture(backendTex);
         return;
     }
 
     // Wrapped Backend Textures are not supported in DDL
     TextureReleaseChecker releaseChecker;
     sk_sp<SkImage> image =
-            SkImage::MakeFromTexture(rContext, backendTex, kTopLeft_GrSurfaceOrigin,
+            SkImage::MakeFromTexture(deferredContext, backendTex, kTopLeft_GrSurfaceOrigin,
                                      kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr,
                                      TextureReleaseChecker::Release, &releaseChecker);
     REPORTER_ASSERT(reporter, !image);
 
-    dContext->deleteBackendTexture(backendTex);
+    context->deleteBackendTexture(backendTex);
 
     s = nullptr;
-    params.cleanUpBackEnd(dContext, backend);
+    params.cleanUpBackEnd(context, backend);
 }
 
 static sk_sp<SkPromiseImageTexture> dummy_fulfill_proc(void*) {

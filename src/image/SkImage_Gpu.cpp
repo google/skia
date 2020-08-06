@@ -163,7 +163,7 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkImage> new_wrapped_texture_common(GrRecordingContext* rContext,
+static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
                                                  const GrBackendTexture& backendTex,
                                                  GrColorType colorType, GrSurfaceOrigin origin,
                                                  SkAlphaType at, sk_sp<SkColorSpace> colorSpace,
@@ -173,21 +173,20 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
             backendTex, ownership, GrWrapCacheable::kNo, kRead_GrIOType, std::move(releaseHelper));
     if (!proxy) {
         return nullptr;
     }
 
-    GrSwizzle swizzle = rContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), colorType);
+    GrSwizzle swizzle = ctx->priv().caps()->getReadSwizzle(proxy->backendFormat(), colorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-    auto grContext = rContext->priv().backdoor();
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(grContext), kNeedNewImageUniqueID, std::move(view),
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, std::move(view),
                                    GrColorTypeToSkColorType(colorType), at, std::move(colorSpace));
 }
 
-sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext* rContext,
+sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
                                                   const GrBackendTexture& tex,
                                                   GrSurfaceOrigin origin,
                                                   SkAlphaType at,
@@ -199,17 +198,17 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext* rContext,
         releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
     }
 
-    if (!rContext) {
+    if (!ctx) {
         return nullptr;
     }
 
-    const GrCaps* caps = rContext->priv().caps();
+    const GrCaps* caps = ctx->priv().caps();
 
     if (!SkImage_GpuBase::ValidateCompressedBackendTexture(caps, tex, at)) {
         return nullptr;
     }
 
-    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->wrapCompressedBackendTexture(
             tex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, std::move(releaseHelper));
     if (!proxy) {
@@ -220,12 +219,11 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext* rContext,
     SkColorType ct = GrCompressionTypeToSkColorType(type);
 
     GrSurfaceProxyView view(std::move(proxy), origin, GrSwizzle::RGBA());
-    auto grContext = rContext->priv().backdoor();
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(grContext), kNeedNewImageUniqueID,  std::move(view),
-                                   ct, at, std::move(cs));
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID,  std::move(view), ct, at,
+                                   std::move(cs));
 }
 
-sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
+sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
@@ -234,11 +232,11 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
         releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
     }
 
-    if (!rContext) {
+    if (!ctx) {
         return nullptr;
     }
 
-    const GrCaps* caps = rContext->priv().caps();
+    const GrCaps* caps = ctx->priv().caps();
 
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, ct, tex.getBackendFormat());
     if (GrColorType::kUnknown == grColorType) {
@@ -249,7 +247,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    return new_wrapped_texture_common(rContext, tex, grColorType, origin, at, std::move(cs),
+    return new_wrapped_texture_common(ctx, tex, grColorType, origin, at, std::move(cs),
                                       kBorrow_GrWrapOwnership, std::move(releaseHelper));
 }
 

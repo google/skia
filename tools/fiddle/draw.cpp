@@ -26,8 +26,9 @@ void draw(SkCanvas* canvas) {
     canvas->drawPaint(paint);
     SkDebugf("This is text output: %d", 2);
 
-    if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
-        sk_sp<SkImage> tmp = SkImage::MakeFromTexture(dContext,
+    GrContext* context = canvas->getGrContext();
+    if (context) {
+        sk_sp<SkImage> tmp = SkImage::MakeFromTexture(context,
                                                       backEndTexture,
                                                       kTopLeft_GrSurfaceOrigin,
                                                       kRGBA_8888_SkColorType,
@@ -35,14 +36,14 @@ void draw(SkCanvas* canvas) {
                                                       nullptr);
 
         // TODO: this sampleCnt parameter here should match that set in the options!
-        sk_sp<SkSurface> tmp2 = SkSurface::MakeFromBackendTexture(dContext,
+        sk_sp<SkSurface> tmp2 = SkSurface::MakeFromBackendTexture(context,
                                                                   backEndTextureRenderTarget,
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   0, kRGBA_8888_SkColorType,
                                                                   nullptr, nullptr);
 
         // Note: this surface should only be renderable (i.e., not textureable)
-        sk_sp<SkSurface> tmp3 = SkSurface::MakeFromBackendRenderTarget(dContext,
+        sk_sp<SkSurface> tmp3 = SkSurface::MakeFromBackendRenderTarget(context,
                                                                        backEndRenderTarget,
                                                                        kTopLeft_GrSurfaceOrigin,
                                                                        kRGBA_8888_SkColorType,
