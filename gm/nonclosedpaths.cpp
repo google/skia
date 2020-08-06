@@ -148,4 +148,4 @@ private:
 
 DEF_GM(return new NonClosedPathsGM;)
 
-}
+}  // namespace skiagm

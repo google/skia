@@ -379,4 +379,4 @@ bool HCodeGenerator::generateCode() {
     return 0 == fErrors.errorCount();
 }
 
-} // namespace
+}  // namespace SkSL

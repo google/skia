@@ -103,6 +103,6 @@ protected:
     virtual size_t readFloatArray(const char label[], float dst[], size_t count) = 0;
 };
 
-}
+}  // namespace skrive::internal
 
 #endif // SkRiveStreamreader_DEFINED

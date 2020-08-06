@@ -162,4 +162,4 @@ SkPath OffsetEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
     return path;
 }
 
-} // namesapce sksg
+}  // namespace sksg

@@ -45,7 +45,7 @@ namespace {
         kBottomRight_Corner,
         kBottomLeft_Corner
     };
-}
+}  // namespace
 
 /**
  * Evaluator to sample the values of a cubic bezier using forward differences.

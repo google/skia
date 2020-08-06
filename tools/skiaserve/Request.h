@@ -21,7 +21,7 @@
 
 namespace sk_gpu_test {
 class GrContextFactory;
-}
+}  // namespace sk_gpu_test
 struct MHD_Connection;
 struct MHD_PostProcessor;
 

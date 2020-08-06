@@ -463,7 +463,7 @@ bool is_png(const void* bytes, size_t length) {
     constexpr uint8_t kPngSig[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
     return length >= sizeof(kPngSig) && !memcmp(bytes, kPngSig, sizeof(kPngSig));
 }
-}
+}  // namespace
 
 // Returns data uri from bytes.
 // it will use any cached data if available, otherwise will

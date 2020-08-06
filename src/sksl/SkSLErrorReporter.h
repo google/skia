@@ -28,6 +28,6 @@ public:
     virtual int errorCount() = 0;
 };
 
-} // namespace
+}  // namespace SkSL
 
 #endif

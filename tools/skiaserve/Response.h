@@ -23,6 +23,6 @@ namespace Response {
 
     int SendTemplate(MHD_Connection* connection, bool redirect = false,
                      const char* redirectUrl = nullptr);
-}
+}  // namespace Response
 
 #endif

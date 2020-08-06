@@ -212,7 +212,7 @@ namespace skvm {
             write(o, " ");
             write(o, rest...);
         }
-    }
+    }  // namespace
 
     void Builder::dot(SkWStream* o) const {
         SkDebugfStream debug;

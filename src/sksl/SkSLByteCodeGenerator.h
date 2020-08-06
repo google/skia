@@ -356,6 +356,6 @@ private:
     typedef CodeGenerator INHERITED;
 };
 
-}
+}  // namespace SkSL
 
 #endif

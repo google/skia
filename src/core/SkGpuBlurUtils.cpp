@@ -551,6 +551,6 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     return reexpand(context, std::move(rtc), scaledDstBounds, dstBounds.size(),
                     std::move(colorSpace), fit);
 }
-}
+}  // namespace SkGpuBlurUtils
 
 #endif

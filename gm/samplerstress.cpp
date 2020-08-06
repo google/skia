@@ -149,4 +149,4 @@ private:
 
 DEF_GM( return new SamplerStressGM; )
 
-}
+}  // namespace skiagm

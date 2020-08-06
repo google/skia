@@ -33,6 +33,6 @@ std::unique_ptr<GrDrawOp> MakeDashLineOp(GrRecordingContext*,
                                          const GrStyle& style,
                                          const GrUserStencilSettings*);
 bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix& viewMatrix);
-}
+}  // namespace GrDashOp
 
 #endif

@@ -79,7 +79,7 @@ namespace {
         kBelowThreshold_TextSize = 255,
         kAboveThreshold_TextSize = 257
     };
-}
+}  // namespace
 
 DEF_SIMPLE_GM(stroketext, canvas, 1200, 480) {
     if (true) { test_nulldev(canvas); }

@@ -82,6 +82,6 @@ namespace GrDefaultGeoProcFactory {
                                             const Coverage&,
                                             const LocalCoords&,
                                             const SkMatrix& viewMatrix);
-};
+}  // namespace GrDefaultGeoProcFactory
 
 #endif

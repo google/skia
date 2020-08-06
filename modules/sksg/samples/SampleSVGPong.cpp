@@ -74,7 +74,7 @@ void update_pos(const sk_sp<sksg::RRect>& rr, const SkPoint& pos) {
     rr->setRRect(rr->getRRect().makeOffset(offsetX, offsetY));
 }
 
-} // anonymous ns
+}  // namespace
 
 class PongView final : public Sample {
 public:

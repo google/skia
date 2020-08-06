@@ -30,7 +30,7 @@ inline bool is_sep(char c) {
     return is_ws(c) || c == ',' || c == ';';
 }
 
-} // anonymous ns
+}  // namespace
 
 SkSVGAttributeParser::SkSVGAttributeParser(const char attributeString[])
     : fCurPos(attributeString) {}

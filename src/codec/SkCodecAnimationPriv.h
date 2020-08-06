@@ -28,5 +28,5 @@ namespace SkCodecAnimation {
         kBG,
     };
 
-}
+} // namespace SkCodecAnimation
 #endif // SkCodecAnimationPriv_DEFINED

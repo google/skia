@@ -21,4 +21,4 @@ namespace SkRecords {
     TypedMatrix::TypedMatrix(const SkMatrix& matrix) : SkMatrix(matrix) {
         (void)this->getType();
     }
-}
+}  // namespace SkRecords

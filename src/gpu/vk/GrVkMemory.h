@@ -51,6 +51,6 @@ namespace GrVkMemory {
     // memory.
     void GetNonCoherentMappedMemoryRange(const GrVkAlloc&, VkDeviceSize offset, VkDeviceSize size,
                                          VkDeviceSize alignment, VkMappedMemoryRange*);
-}
+}  // namespace GrVkMemory
 
 #endif

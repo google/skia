@@ -85,4 +85,4 @@ private:
 
 DEF_GM( return new FontScalerGM; )
 
-}
+}  // namespace skiagm

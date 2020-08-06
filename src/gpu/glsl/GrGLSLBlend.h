@@ -30,6 +30,6 @@ void AppendMode(GrGLSLShaderBuilder* fsBuilder,
                 const char* dstColor,
                 const char* outColor,
                 SkBlendMode mode);
-};
+}  // namespace GrGLSLBlend
 
 #endif

@@ -17,7 +17,7 @@ namespace {
           return a;
         }
     }
-}
+}  // namespace
 
 class ParagraphCacheKey {
 public:
@@ -288,5 +288,5 @@ bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
         return false;
     }
 }
-}
-}
+}  // namespace textlayout
+}  // namespace skia

@@ -165,7 +165,7 @@ private:
 
     typedef GrMeshDrawOp INHERITED;
 };
-}
+}  // namespace
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();

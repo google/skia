@@ -160,7 +160,7 @@ protected:
     typedef ProgramVisitor INHERITED;
 };
 
-}
+}  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 // Analysis
@@ -337,4 +337,4 @@ bool ProgramVisitor::visitProgramElement(const ProgramElement& pe) {
     }
 }
 
-}
+}  // namespace SkSL

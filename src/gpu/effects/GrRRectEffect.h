@@ -26,6 +26,6 @@ namespace GrRRectEffect {
 GrFPResult Make(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType, const SkRRect&,
                 const GrShaderCaps&);
 
-};
+}  // namespace GrRRectEffect
 
 #endif

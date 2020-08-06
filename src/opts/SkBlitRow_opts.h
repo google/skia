@@ -453,6 +453,6 @@ void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, U8CPU a
     }
 }
 
-}  // SK_OPTS_NS
+}  // namespace SK_OPTS_NS
 
 #endif//SkBlitRow_opts_DEFINED

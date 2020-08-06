@@ -34,7 +34,7 @@ struct RunFontStorageEquivalent {
     uint32_t fFlags;
 };
 static_assert(sizeof(SkFont) == sizeof(RunFontStorageEquivalent), "runfont_should_stay_packed");
-}
+}  // namespace
 
 size_t SkTextBlob::RunRecord::StorageSize(uint32_t glyphCount, uint32_t textSize,
                                           SkTextBlob::GlyphPositioning positioning,
@@ -76,7 +76,7 @@ struct RunRecordStorageEquivalent {
     uint32_t fFlags;
     SkDEBUGCODE(unsigned fMagic;)
 };
-}
+}  // namespace
 
 void SkTextBlob::RunRecord::validate(const uint8_t* storageTop) const {
     SkASSERT(kRunRecordMagic == fMagic);

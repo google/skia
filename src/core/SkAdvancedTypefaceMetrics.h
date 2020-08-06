@@ -68,6 +68,6 @@ struct SkAdvancedTypefaceMetrics {
 namespace sknonstd {
 template <> struct is_bitmask_enum<SkAdvancedTypefaceMetrics::FontFlags> : std::true_type {};
 template <> struct is_bitmask_enum<SkAdvancedTypefaceMetrics::StyleFlags> : std::true_type {};
-}
+}  // namespace sknonstd
 
 #endif

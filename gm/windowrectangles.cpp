@@ -304,4 +304,4 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
 
 DEF_GM( return new WindowRectanglesMaskGM(); )
 
-}
+}  // namespace skiagm

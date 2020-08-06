@@ -14,9 +14,9 @@ enum class ModifierKey {
     kCommand    = 1 << 3,
     kFirstPress = 1 << 4,
 };
-}
+}  // namespace skui
 
 namespace sknonstd {
 template <> struct is_bitmask_enum<skui::ModifierKey> : std::true_type {};
-}
+}  // namespace sknonstd
 #endif  // skui_modifierkey_defined

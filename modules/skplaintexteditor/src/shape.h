@@ -23,4 +23,4 @@ ShapeResult Shape(const char* ut8text,
                   const char* locale,
                   float width);
 
-}
+}  // namespace SkPlainTextEditor
