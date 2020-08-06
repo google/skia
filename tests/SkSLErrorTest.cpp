@@ -157,6 +157,31 @@ DEF_TEST(SkSLSwizzleMatrix, r) {
                  "error: 1: cannot swizzle value of type 'float2x2'\n1 error\n");
 }
 
+DEF_TEST(SkSLResizeMatrix, r) {
+    test_success(r,
+                 "void main() { float2x2 x = float2x2(float3x3(1)); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float2x2 x = float2x2(float4x4(1)); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float3x3 x = float3x3(float4x4(1)); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float3x3 x = float3x3(float2x2(1)); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float3x3 x = float3x3(float2x3(1)); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float3x3 x = float3x3(float3x2(1)); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float4x4 x = float4x4(float3x3(float2x2(1))); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float4x4 x = float4x4(float4x3(float4x2(1))); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float4x4 x = float4x4(float3x4(float2x4(1))); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float2x4 x = float2x4(float4x2(1)); float y = x[0][0]; }" );
+    test_success(r,
+                 "void main() { float4x2 x = float4x2(float2x4(1)); float y = x[0][0]; }" );
+}
+
 DEF_TEST(SkSLSwizzleOutOfBounds, r) {
     test_failure(r,
                  "void main() { float3 test = float2(1).xyz; }",
