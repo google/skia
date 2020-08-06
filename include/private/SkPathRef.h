@@ -21,6 +21,7 @@
 
 #include <atomic>
 #include <limits>
+#include <tuple>
 
 class SkRBuffer;
 class SkWBuffer;

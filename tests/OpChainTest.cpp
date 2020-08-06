@@ -14,6 +14,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/ops/GrOp.h"
 #include "tests/Test.h"
+#include <iterator>
 
 // We create Ops that write a value into a range of a buffer. We create ranges from
 // kNumOpPositions starting positions x kRanges canonical ranges. We repeat each range kNumRepeats
