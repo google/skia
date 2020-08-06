@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "92649183_16f477d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-06T17:59:09Z",
+      "side": 1,
+      "message": "Thanks for the review!",
+      "revId": "ea6f3b744a3785d037e9b1f68cbc344429aa9534",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d491df4_44fc3567",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 3
