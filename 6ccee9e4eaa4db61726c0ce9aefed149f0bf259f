@@ -22,6 +22,30 @@
       "revId": "6ccee9e4eaa4db61726c0ce9aefed149f0bf259f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e794ee12_dbe997da",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T18:15:40Z",
+      "side": 1,
+      "message": "(I agree that reset() seems like an anti-pattern, and I\u0027d be happy to pick up the cause if you\u0027re busy, or just do reviews if you\u0027d like to continue at it.)",
+      "parentUuid": "a20b4eb4_be215ebc",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 45
+      },
+      "revId": "6ccee9e4eaa4db61726c0ce9aefed149f0bf259f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
