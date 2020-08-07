@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fadc0620_b3bd7dd4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T19:49:28Z",
+      "side": 1,
+      "message": "Built Chromium Mac with and without this change and ran on macOS 11 Bug Sur Beta 4. Verified that that the DCHECK happens without this change and the DCHECK goes away after this change.",
+      "revId": "80c18462695d96a46b89b5c89656e80ea25ab845",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
