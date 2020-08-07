@@ -1298,11 +1298,17 @@ int SkTypeface_Mac::onGetVariationDesignParameters(SkFontParameters::Variation::
         if (kCTFontVariationAxisHiddenKeyPtr) {
             CFTypeRef hidden = CFDictionaryGetValue(axisInfoDict,*kCTFontVariationAxisHiddenKeyPtr);
             if (hidden) {
+                // At least macOS 11 Big Sur Beta 4 uses CFNumberRef instead of CFBooleanRef.
+                // https://crbug.com/1113444
                 CFBooleanRef hiddenBoolean;
-                if (!SkCFDynamicCast(hidden, &hiddenBoolean, "Variation hidden")) {
+                int hiddenInt;
+                if (SkCFDynamicCast(hidden, &hiddenBoolean, nullptr)) {
+                    skAxis.setHidden(CFBooleanGetValue(hiddenBoolean));
+                } else if (SkCFNumberDynamicCast(hidden, &hiddenInt, nullptr, "Axis hidden")) {
+                    skAxis.setHidden(hiddenInt);
+                } else {
                     return -1;
                 }
-                skAxis.setHidden(CFBooleanGetValue(hiddenBoolean));
             }
         }
     }
