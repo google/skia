@@ -56,6 +56,30 @@
       "revId": "80c18462695d96a46b89b5c89656e80ea25ab845",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d566dca4_32e4808a",
+        "filename": "src/ports/SkTypeface_mac_ct.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T20:28:29Z",
+      "side": 1,
+      "message": "I was thinking about the comment going with the \u0027int\u0027; but it\u0027s far from the code that implements the comment, and the comment doesn\u0027t just go with the \u0027int\u0027 case since it is also why we\u0027re passing nullptr for \u0027name\u0027 to the first cast (because we know it might fail and we don\u0027t want to report anything).\n\nI tried the c++17 scope thing but it either makes the lines long and once they\u0027re formatted they take up more space and are a bit more difficult to read or reason about. So I\u0027ve just swapped the declaration order so they\u0027re declared in the order used.",
+      "parentUuid": "768afeaa_4d4c7ce7",
+      "range": {
+        "startLine": 1303,
+        "startChar": 16,
+        "endLine": 1304,
+        "endChar": 43
+      },
+      "revId": "80c18462695d96a46b89b5c89656e80ea25ab845",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
