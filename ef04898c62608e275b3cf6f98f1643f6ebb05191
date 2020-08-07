@@ -16,6 +16,69 @@
       "revId": "ef04898c62608e275b3cf6f98f1643f6ebb05191",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89ba6a2b_4bb2039c",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T22:46:56Z",
+      "side": 1,
+      "message": "[V\u0027][O\u0027] here?",
+      "range": {
+        "startLine": 234,
+        "startChar": 46,
+        "endLine": 234,
+        "endChar": 47
+      },
+      "revId": "ef04898c62608e275b3cf6f98f1643f6ebb05191",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47f38404_6b0a26b0",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T22:46:56Z",
+      "side": 1,
+      "message": "Essentially this is a statement that in the expression (2)\n\n    (x\u0027,y\u0027,1) \u003d (ix,iy,0) + (q\u0027 + (sx,sy,0))\n\nwe can pull the R out of the q\u0027 and stick it in s. After doing this the Q\u0027 (now Q\u0027\u0027) which creates the q\u0027 (now q\u0027\u0027) it doesn\u0027t have the R in it (and that\u0027s the point of this exercise, since we don\u0027t have R as a practical matter). Also, this doesn\u0027t change any of our assumptions since the (q\u0027 + (sx,sy,0)) part needs to be an integer, but moving terms around inside there (to create (q\u0027\u0027 + (s\u0027,sy\u0027,0)) ) doesn\u0027t change that.\n\nMaybe it would make sense to restate the (x\u0027, y\u0027, 1) calculation below as\n\n    Q\u0027\u0027 \u003d [V\u0027][O\u0027](0,0,1)\n    q\u0027\u0027 \u003d Q\u0027\u0027(0, 0, 1)\n    (x\u0027,y\u0027,1) \u003d (ix,iy,0) + (q\u0027\u0027 + (sx\u0027,sy\u0027,0)).",
+      "range": {
+        "startLine": 235,
+        "startChar": 35,
+        "endLine": 235,
+        "endChar": 50
+      },
+      "revId": "ef04898c62608e275b3cf6f98f1643f6ebb05191",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04305b7a_be4b25a2",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T22:46:56Z",
+      "side": 1,
+      "message": "even though called out as redefinition, it might be nice to prime or something\n\n    (sx\u0027,sy\u0027,0)",
+      "revId": "ef04898c62608e275b3cf6f98f1643f6ebb05191",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
