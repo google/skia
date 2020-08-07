@@ -16,6 +16,24 @@
       "revId": "6e2c56fefc37cdcad6853debda9a263eb1d5b1d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a960ee6d_3ea82f49",
+        "filename": "src/core/SkEdgeClipper.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-07T20:00:35Z",
+      "side": 0,
+      "message": "in process, when I didn\u0027t have finite yet. restored.",
+      "parentUuid": "e1d788d0_c4ff9609",
+      "revId": "6e2c56fefc37cdcad6853debda9a263eb1d5b1d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
