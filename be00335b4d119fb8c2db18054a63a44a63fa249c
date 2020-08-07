@@ -16,6 +16,52 @@
       "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85de9d28_3fc5c855",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T17:36:58Z",
+      "side": 1,
+      "message": "I think it might actually be clearer to use two different arrays, even though one is a prefix of the other.",
+      "range": {
+        "startLine": 66,
+        "startChar": 32,
+        "endLine": 66,
+        "endChar": 43
+      },
+      "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b8df2ee_d2b0b422",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T17:36:58Z",
+      "side": 1,
+      "message": "Why are these subclasses?   Can\u0027t they just be functions?",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 2
+      },
+      "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
