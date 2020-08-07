@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fab3789f_807225fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:37:45Z",
+      "side": 1,
+      "message": "I think Ben and Herb were trying to keep SkSpan similar to std::span, but I don\u0027t see any problem adding another SkMakeSpan(std::initializer_list\u003cT\u003e).",
+      "parentUuid": "9905f8f6_a6885ae6",
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9b89545_61580387",
         "filename": "include/core/SkPath.h",
         "patchSetId": 25
