@@ -415,7 +415,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
-    SkPath path = GrTest::TestPathConvex(random);
+    const SkPath& path = GrTest::TestPathConvex(random);
 
     SkStrokeRec::Style styles[3] = { SkStrokeRec::kFill_Style,
                                      SkStrokeRec::kStroke_Style,
