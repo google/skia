@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ca910c2_2470a440",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T15:47:02Z",
+      "side": 1,
+      "message": "couple tweaks I think would make our static class methods stand out.  We usually use CamelCase for them.",
+      "revId": "71bb43fd79bb14a0270619d85c38b4455cf5e9b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "36d6807d_06ca0e27",
+        "filename": "gm/rects.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T15:47:02Z",
+      "side": 1,
+      "message": "let\u0027s rename this Position and call it as just as Position(canvas, testCount)?",
+      "range": {
+        "startLine": 250,
+        "startChar": 16,
+        "endLine": 250,
+        "endChar": 24
+      },
+      "revId": "71bb43fd79bb14a0270619d85c38b4455cf5e9b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bb30ec2_76af40b2",
+        "filename": "modules/skottie/utils/SkottieUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T15:47:02Z",
+      "side": 1,
+      "message": "let\u0027s rename this AcceptKey()?",
+      "range": {
+        "startLine": 18,
+        "startChar": 69,
+        "endLine": 18,
+        "endChar": 78
+      },
+      "revId": "71bb43fd79bb14a0270619d85c38b4455cf5e9b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
