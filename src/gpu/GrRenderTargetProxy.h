@@ -84,7 +84,7 @@ public:
 
     // Provides access to special purpose functions.
     GrRenderTargetProxyPriv rtPriv();
-    const GrRenderTargetProxyPriv rtPriv() const;
+    GrRenderTargetProxyPriv rtPriv() const;
 
 protected:
     friend class GrProxyProvider;  // for ctors

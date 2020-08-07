@@ -88,7 +88,7 @@ protected:
 
 inline GrGpuResource::ResourcePriv GrGpuResource::resourcePriv() { return ResourcePriv(this); }
 
-inline const GrGpuResource::ResourcePriv GrGpuResource::resourcePriv() const {
+inline GrGpuResource::ResourcePriv GrGpuResource::resourcePriv() const {
     return ResourcePriv(const_cast<GrGpuResource*>(this));
 }
 

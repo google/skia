@@ -92,11 +92,11 @@ public:
      */
     class CacheAccess;
     inline CacheAccess cacheAccess();
-    inline const CacheAccess cacheAccess() const;
+    inline CacheAccess cacheAccess() const;
 
     // Provides access to special purpose functions.
     GrTextureProxyPriv texPriv();
-    const GrTextureProxyPriv texPriv() const;
+    GrTextureProxyPriv texPriv() const;
 
     SkDEBUGCODE(GrDDLProvider creatingProvider() const { return fCreatingProvider; })
 
