@@ -38,7 +38,7 @@ inline GrSurfaceContextPriv GrSurfaceContext::surfPriv() {
     return GrSurfaceContextPriv(this);
 }
 
-inline const GrSurfaceContextPriv GrSurfaceContext::surfPriv() const {
+inline const GrSurfaceContextPriv GrSurfaceContext::surfPriv() const {  // NOLINT(readability-const-return-type)
     return GrSurfaceContextPriv(const_cast<GrSurfaceContext*>(this));
 }
 

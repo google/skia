@@ -156,7 +156,7 @@ public:
      */
     class CacheAccess;
     inline CacheAccess cacheAccess();
-    inline const CacheAccess cacheAccess() const;
+    inline const CacheAccess cacheAccess() const;  // NOLINT(readability-const-return-type)
 
     /**
      * Internal-only helper class used for manipulations of the resource by GrSurfaceProxy.
@@ -169,7 +169,7 @@ public:
      */
     class ResourcePriv;
     inline ResourcePriv resourcePriv();
-    inline const ResourcePriv resourcePriv() const;
+    inline const ResourcePriv resourcePriv() const;  // NOLINT(readability-const-return-type)
 
     /**
      * Dumps memory usage information for this GrGpuResource to traceMemoryDump.

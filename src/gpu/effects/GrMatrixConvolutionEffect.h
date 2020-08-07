@@ -46,7 +46,7 @@ public:
 
     const SkIRect& bounds() const { return fBounds; }
     SkISize kernelSize() const { return fKernel.size(); }
-    const SkVector kernelOffset() const { return fKernelOffset; }
+    SkVector kernelOffset() const { return fKernelOffset; }
     bool kernelIsSampled() const { return fKernel.isSampled(); }
     const float *kernel() const { return fKernel.array().data(); }
     float kernelSampleGain() const { return fKernel.biasAndGain().fGain; }
