@@ -993,7 +993,7 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                       const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        const auto* that = t->cast<TextureOp>();
+        auto* that = t->cast<TextureOp>();
 
         SkDEBUGCODE(this->validate();)
         SkDEBUGCODE(that->validate();)
@@ -1071,6 +1071,14 @@ private:
 
         if (upgradeToCoverageAAOnMerge) {
             this->propagateCoverageAAThroughoutChain();
+            // This merger may just be the start of a concatenation of two chains. When one
+            // of the chains mutates its AA the other must follow suit or else the above AA
+            // check may prevent later ops from chaining together. A specific example of this is:
+            //  this chain: opA (cov-AA/mergeable) opB (cov-AA/non-mergeable)
+            //  that chain: opC (non-AA/mergeable) opD (non-AA/non-mergeable)
+            // W/o this propagation, after opA & opC merge, opB and opD would say they couldn't
+            // combine - which would stop the concatenation process.
+            that->propagateCoverageAAThroughoutChain();
         }
 
         SkDEBUGCODE(this->validate();)
