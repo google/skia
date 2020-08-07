@@ -280,7 +280,7 @@ const SkMipmap* SkMipmapCache::FindAndRef(const SkBitmapCacheDesc& desc,
 }
 
 static SkResourceCache::DiscardableFactory get_fact(SkResourceCache* localCache) {
-    return localCache ? localCache->GetDiscardableFactory()
+    return localCache ? localCache->discardableFactory()
                       : SkResourceCache::GetDiscardableFactory();
 }
 
