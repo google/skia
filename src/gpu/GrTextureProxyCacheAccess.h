@@ -39,7 +39,7 @@ private:
 
 inline GrTextureProxy::CacheAccess GrTextureProxy::cacheAccess() { return CacheAccess(this); }
 
-inline const GrTextureProxy::CacheAccess GrTextureProxy::cacheAccess() const {
+inline GrTextureProxy::CacheAccess GrTextureProxy::cacheAccess() const {
     return CacheAccess(const_cast<GrTextureProxy*>(this));
 }
 
