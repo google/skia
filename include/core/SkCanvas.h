@@ -52,10 +52,15 @@ class SkPixmap;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
+class SkSpecialImage;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
+
+namespace skif {
+    class Mapping;
+}
 
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -2617,6 +2622,17 @@ private:
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                      SkBaseDevice* dst, const SkIPoint& dstOrigin,
                                      const SkMatrix& ctm);
+
+    // Filter 'src' and draw the result into 'dst' based on the coordinate space 'mapping'.
+    // 'src' corresponds to the "layer"-space of the mapping and 'dst' is corresponds to "device".
+    // The caller must configure 'mapping' as appropriate to match the actual geometric relationship
+    // between 'src' and 'dst'. The paint is used for the final draw and cannot have an image
+    // filter or mask filter.
+    static void DrawFilteredImage(SkBaseDevice* dst,
+                                  sk_sp<SkSpecialImage> src,
+                                  const skif::Mapping&,
+                                  const SkImageFilter* filter,
+                                  const SkPaint&);
 
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)

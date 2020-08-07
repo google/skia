@@ -126,10 +126,10 @@ public:
      */
     bool isPixelAlignedToGlobal() const;
     /**
-     *  Get the transformation from the input device's to this device's coordinate space. This
-     *  transform can be used to draw the input device into this device, such that once this device
-     *  is drawn to the root device, the net effect will have the input device's content drawn
-     *  transformed by the global CTM.
+     * Get the transformation from this's device coordinate system to the provided device space.
+     * This transform can be used to draw the this device into the provided device, such that once
+     * that device is drawn to the root device, the net effect will be that this device's contents
+     * have been transformed by the global CTM.
      */
     SkMatrix getRelativeTransform(const SkBaseDevice&) const;
 

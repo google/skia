@@ -86,10 +86,10 @@ SkIPoint SkBaseDevice::getOrigin() const {
                           SkScalarFloorToInt(fDeviceToGlobal.getTranslateY()));
 }
 
-SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) const {
-    // To get the transform from the input's space to this space, transform from the input space to
-    // the global space, and then from the global space back to this space.
-    return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
+SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& dstDevice) const {
+    // To get the transform from this space to the other device's, transform from our space to
+    // global and then from global to the other device.
+    return SkMatrix::Concat(dstDevice.fGlobalToDevice, fDeviceToGlobal);
 }
 
 bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
