@@ -70,6 +70,30 @@
       "revId": "5bc663a55b26c22f658232e68285201489dfc8f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cd16dab_dfa79e03",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-07T17:56:35Z",
+      "side": 0,
+      "message": "I have added an example in PathOpsAngleAfter in PathOpsAngleTest.cpp.",
+      "parentUuid": "8ca9f7c0_f766c9c0",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 44
+      },
+      "revId": "5bc663a55b26c22f658232e68285201489dfc8f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
