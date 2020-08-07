@@ -596,23 +596,20 @@ if (skia_compile_processors) {
     skslc_path += ".exe"
   }
 
-  dehydrate_sksl_outputs = []
-  foreach(src, skia_dehydrate_sksl_sources) {
-    name = get_path_info(src, "name")
-
-    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
-    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
-    dehydrate_sksl_outputs += [ "$target_out_dir/" + rebase_path(
-                                    "src/sksl/generated/$name.dehydrated.sksl",
-                                    target_out_dir) ]
-  }
-
   action("dehydrate_sksl") {
     script = "gn/dehydrate_sksl.py"
     deps = [ ":skslc(//gn/toolchain:$host_toolchain)" ]
     sources = skia_dehydrate_sksl_sources
-    outputs = dehydrate_sksl_outputs
-    args = [ rebase_path(skslc_path) ]
+
+    # we can't list the true outputs because it would cause a circular dependency, so we create a
+    # fake file just to satisfy gn
+    output = "$target_out_dir/" +
+             rebase_path("src/sksl/generated/fake.output", target_out_dir)
+    outputs = [ output ]
+    args = [
+      rebase_path(skslc_path),
+      rebase_path(output),
+    ]
     args += rebase_path(skia_dehydrate_sksl_sources)
   }
 

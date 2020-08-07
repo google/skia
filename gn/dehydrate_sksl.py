@@ -10,7 +10,8 @@ import subprocess
 import sys
 
 skslc = sys.argv[1]
-includes = sys.argv[2:]
+output = sys.argv[2]
+includes = sys.argv[3:]
 
 for inc in includes:
     print("Recompiling " + inc + "...")
@@ -29,3 +30,4 @@ for inc in includes:
         print("### Error compiling " + inc + ":")
         print(err.output)
         exit(1)
+open(output, 'w')
