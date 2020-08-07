@@ -49,56 +49,90 @@ static constexpr SkScalar kMaxDim = 73;
 static constexpr SkScalar kMinSize = SK_ScalarHalf;
 static constexpr SkScalar kMaxSize = 2*kMaxMIP;
 
-namespace GrSmallPathAtlasMgr {
-
-static const GrSurfaceProxyView* GetViews(GrDrawOpAtlas* atlas, int* numActiveProxies) {
-    *numActiveProxies = atlas->numActivePages();
-    return atlas->getViews();
-}
-
-static void SetUseToken(GrDrawOpAtlas* atlas,
-                        GrSmallPathShapeData* shapeData,
-                        GrDeferredUploadToken token) {
-     atlas->setLastUseToken(shapeData->fAtlasLocator, token);
-}
-
-}  // namespace GrSmallPathAtlasMgr
-
-// Callback to clear out internal path cache when eviction occurs
-void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
-    // remove any paths that use this plot
-    ShapeDataList::Iter iter;
-    iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-    GrSmallPathShapeData* shapeData;
-    while ((shapeData = iter.get())) {
-        iter.next();
-        if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
-            fShapeCache.remove(shapeData->fKey);
-            fShapeList.remove(shapeData);
+class GrSmallPathAtlasMgr {
+public:
+    ~GrSmallPathAtlasMgr() {
+        ShapeDataList::Iter iter;
+        iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
+        GrSmallPathShapeData* shapeData;
+        while ((shapeData = iter.get())) {
+            iter.next();
             delete shapeData;
+        }
+
 #ifdef DF_PATH_TRACKING
-            ++g_NumFreedPaths;
+        SkDebugf("Cached shapes: %d, freed shapes: %d\n", g_NumCachedShapes, g_NumFreedShapes);
 #endif
+    }
+
+    const GrSurfaceProxyView* getViews(int* numActiveProxies) {
+        *numActiveProxies = fAtlas->numActivePages();
+        return fAtlas->getViews();
+    }
+
+    void setUseToken(GrSmallPathShapeData* shapeData, GrDeferredUploadToken token) {
+         fAtlas->setLastUseToken(shapeData->fAtlasLocator, token);
+    }
+
+    void preFlush(GrOnFlushResourceProvider* onFlushRP,
+                  const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) {
+        if (fAtlas) {
+            fAtlas->instantiate(onFlushRP);
         }
     }
+
+    void postFlush(GrDeferredUploadToken startTokenForNextFlush,
+                   const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) {
+        if (fAtlas) {
+            fAtlas->compact(startTokenForNextFlush);
+        }
+    }
+
+    // Callback to clear out internal path cache when eviction occurs
+    void evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+        // remove any paths that use this plot
+        ShapeDataList::Iter iter;
+        iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
+        GrSmallPathShapeData* shapeData;
+        while ((shapeData = iter.get())) {
+            iter.next();
+            if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
+                fShapeCache.remove(shapeData->fKey);
+                fShapeList.remove(shapeData);
+                delete shapeData;
+#ifdef DF_PATH_TRACKING
+                ++g_NumFreedPaths;
+#endif
+            }
+        }
+    }
+private:
+    using ShapeCache = SkTDynamicHash<GrSmallPathShapeData, GrSmallPathShapeDataKey>;
+    typedef SkTInternalLList<GrSmallPathShapeData> ShapeDataList;
+
+    std::unique_ptr<GrDrawOpAtlas>     fAtlas;
+    GrSmallPathRenderer::ShapeCache    fShapeCache;
+    GrSmallPathRenderer::ShapeDataList fShapeList;
+};
+
+void GrSmallPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
+                                   const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
+    fAtlasMgr1->preFlush(onFlushRP, opsTaskIDs, numOpsTaskIDs);
+}
+
+void GrSmallPathRenderer::postFlush(GrDeferredUploadToken startTokenForNextFlush,
+                                    const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
+    fAtlasMgr1->postFlush(startTokenForNextFlush, opsTaskIDs, numOpsTaskIDs);
+}
+
+void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+    fAtlasMgr1->evict(plotLocator);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrSmallPathRenderer::GrSmallPathRenderer() : fAtlas(nullptr) {}
+GrSmallPathRenderer::GrSmallPathRenderer() : fAtlasMgr1(new GrSmallPathAtlasMgr) {}
 
-GrSmallPathRenderer::~GrSmallPathRenderer() {
-    ShapeDataList::Iter iter;
-    iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-    GrSmallPathShapeData* shapeData;
-    while ((shapeData = iter.get())) {
-        iter.next();
-        delete shapeData;
-    }
-
-#ifdef DF_PATH_TRACKING
-    SkDebugf("Cached shapes: %d, freed shapes: %d\n", g_NumCachedShapes, g_NumFreedShapes);
-#endif
-}
+GrSmallPathRenderer::~GrSmallPathRenderer() { }
 
 ////////////////////////////////////////////////////////////////////////////////
 GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
@@ -266,7 +300,7 @@ private:
         flushInfo.fPrimProcProxies = target->allocPrimProcProxyPtrs(kMaxTextures);
 
         int numActiveProxies;
-        const GrSurfaceProxyView* views = GrSmallPathAtlasMgr::GetViews(fAtlas, &numActiveProxies);
+        const GrSurfaceProxyView* views = fAtlasMgr1->getViews(&numActiveProxies);
         for (int i = 0; i < numActiveProxies; ++i) {
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
@@ -431,8 +465,7 @@ private:
             }
 
             auto uploadTarget = target->deferredUploadTarget();
-            GrSmallPathAtlasMgr::SetUseToken(fAtlas, shapeData,
-                                             uploadTarget->tokenTracker()->nextDrawToken());
+            fAtlasMgr->setUseToken(shapeData, uploadTarget->tokenTracker()->nextDrawToken());
 
             this->writePathVertices(vertices, GrVertexColor(args.fColor, fWideColor),
                                     args.fViewMatrix, shapeData);
@@ -680,7 +713,7 @@ private:
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
 
         int numActiveProxies;
-        const GrSurfaceProxyView* views = GrSmallPathAtlasMgr::GetViews(fAtlas, &numActiveProxies);
+        const GrSurfaceProxyView* views = fAtlasMgr->getViews(&numActiveProxies);
 
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
 
