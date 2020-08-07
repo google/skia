@@ -50,7 +50,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         {
             sk_sp<GrTextureProxy> proxy((*make)(dContext));
             if (proxy) {
-                sk_sp<GrTextureProxy> extraRef(proxy);
+                sk_sp<GrTextureProxy> extraRef(proxy);  // NOLINT(performance-unnecessary-copy-initialization)
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
@@ -88,7 +88,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         {
             sk_sp<GrTextureProxy> proxy((*make)(dContext));
             if (proxy) {
-                sk_sp<GrTextureProxy> firstExtraRef(proxy);
+                sk_sp<GrTextureProxy> firstExtraRef(proxy);  // NOLINT(performance-unnecessary-copy-initialization)
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
@@ -98,7 +98,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 CheckSingleThreadedProxyRefs(reporter, proxy.get(), 2, 1);
 
-                sk_sp<GrTextureProxy> secondExtraRef(proxy);
+                sk_sp<GrTextureProxy> secondExtraRef(proxy);  // NOLINT(performance-unnecessary-copy-initialization)
                 CheckSingleThreadedProxyRefs(reporter, proxy.get(), 3, 1);
             }
             CheckSingleThreadedProxyRefs(reporter, proxy.get(), 1, 1);
