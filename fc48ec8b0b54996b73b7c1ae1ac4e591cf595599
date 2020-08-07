@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7cc07e7c_8d2949f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-07T20:15:25Z",
+      "side": 1,
+      "message": "I believe I understand what\u0027s going on and understand how this fixes it, so LGTM. (but I also fell into that trap with the other CL, soo we can wait for Brian 😉)",
+      "revId": "fc48ec8b0b54996b73b7c1ae1ac4e591cf595599",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b6aa6093_4120fd78",
+        "filename": "tests/TextureOpTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-07T20:15:25Z",
+      "side": 1,
+      "message": "append \", but opD is mergeable with opA when A\u0027s anti-aliasing is upgraded to coverage\"?",
+      "range": {
+        "startLine": 112,
+        "startChar": 7,
+        "endLine": 112,
+        "endChar": 56
+      },
+      "revId": "fc48ec8b0b54996b73b7c1ae1ac4e591cf595599",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
