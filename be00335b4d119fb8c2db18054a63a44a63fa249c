@@ -134,6 +134,30 @@
       "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "facb220d_5fd992d9",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:00:02Z",
+      "side": 1,
+      "message": "Yeah, I just think functions would be clearer.  They don\u0027t use or need any of the extra power a class provides.",
+      "parentUuid": "8a6af26d_a08e50c6",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 2
+      },
+      "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
