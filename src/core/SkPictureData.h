@@ -116,13 +116,22 @@ public:
         return read_index_base_1_or_null(reader, fDrawables);
     }
 
-    const SkPaint* getPaint(SkReadBuffer* reader) const {
+    const SkPaint* optionalPaint(SkReadBuffer* reader) const {
         int index = reader->readInt();
         if (index == 0) {
             return nullptr; // recorder wrote a zero for no paint (likely drawimage)
         }
         return reader->validate(index > 0 && index <= fPaints.count()) ?
                 &fPaints[index - 1] : nullptr;
+    }
+
+    const SkPaint& requiredPaint(SkReadBuffer* reader) const {
+        int index = reader->readInt();
+        if (!reader->validate(index > 0 && index <= fPaints.count())) {
+            static const SkPaint& stub = *(new SkPaint);
+            return stub;
+        }
+        return fPaints[index-1];
     }
 
     const SkTextBlob* getTextBlob(SkReadBuffer* reader) const {
