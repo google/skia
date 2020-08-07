@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1142e6dd_70d78849",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T21:28:08Z",
+      "side": 1,
+      "message": "I\u0027m amazed this is all there was to find.",
+      "revId": "9b37a961bded3c8c20170843d3e9d7d0deff4383",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3298c0e9_07e31b1a",
+        "filename": "tests/GrStyledShapeTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1538,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T21:28:08Z",
+      "side": 1,
+      "message": "This might just be me, but I keep having trouble parsing\n\n    const T\u0026 name(val);\n\nI think I always expect\n\n    const T\u0026 name \u003d val;\n\nOddly both forms make total sense to me without the const\u0026.\nDo you think it hurts anything to swap these over to use \u003d ?",
+      "revId": "9b37a961bded3c8c20170843d3e9d7d0deff4383",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
