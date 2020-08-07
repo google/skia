@@ -169,7 +169,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPaint* paint = fPictureData->getPaint(reader);
             SkClipOp clipOp = reader->checkRange(SkClipOp::kDifference, SkClipOp::kIntersect);
             BREAK_ON_READ_ERROR(reader);
-            canvas->clipShader(paint->refShader(), clipOp);
+
+            if (paint) {
+                canvas->clipShader(paint->refShader(), clipOp);
+            }
         } break;
         case PUSH_CULL: break;  // Deprecated, safe to ignore both push and pop.
         case POP_CULL:  break;
