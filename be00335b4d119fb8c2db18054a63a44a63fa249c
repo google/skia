@@ -62,6 +62,30 @@
       "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "375a3f6f_c64d2d3a",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T18:49:14Z",
+      "side": 1,
+      "message": "Yeah, in earlier patch sets these classes had some storage in them, now they\u0027re just SkPathView?",
+      "parentUuid": "7b8df2ee_d2b0b422",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 2
+      },
+      "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
