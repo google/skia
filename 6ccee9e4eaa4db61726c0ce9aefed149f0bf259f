@@ -46,6 +46,30 @@
       "revId": "6ccee9e4eaa4db61726c0ce9aefed149f0bf259f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dda81bc7_eff654fc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-07T18:16:26Z",
+      "side": 1,
+      "message": "My aim is to remove all uses of reset.",
+      "parentUuid": "a20b4eb4_be215ebc",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 45
+      },
+      "revId": "6ccee9e4eaa4db61726c0ce9aefed149f0bf259f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
