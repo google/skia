@@ -560,10 +560,8 @@ void sk_assert_monotonic_x(const SkPoint pts[], int count) {
 
 #include "src/core/SkPathPriv.h"
 
-void SkEdgeClipper::ClipPath(const SkPath& path, const SkRect& clip, bool canCullToTheRight,
+void SkEdgeClipper::ClipPath(const SkPathView& path, const SkRect& clip, bool canCullToTheRight,
                              void (*consume)(SkEdgeClipper*, bool newCtr, void* ctx), void* ctx) {
-    SkASSERT(path.isFinite());
-
     SkAutoConicToQuads quadder;
     const SkScalar conicTol = SK_Scalar1 / 4;
 
