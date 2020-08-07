@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0b2243c_3fa39b60",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-07T15:36:12Z",
+      "side": 0,
+      "message": "I think we need to keep this restriction (at least for now), probably by changing the test above to be based on fKind. The runtime effect specialization pass doesn\u0027t know how to deal with \u0027in\u0027 arrays when it\u0027s populating the inputMap.",
+      "revId": "34949e35f0067039fe0fbdc0a70938b339c2f016",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
