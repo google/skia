@@ -64,7 +64,7 @@ void SkPictureRecord::recordSave() {
 }
 
 void SkPictureRecord::onMarkCTM(const char* name) {
-    size_t nameLen = fWriter.WriteStringSize(name);
+    size_t nameLen = SkWriter32::WriteStringSize(name);
     size_t size = sizeof(kUInt32Size) + nameLen; // op + name
     size_t initialOffset = this->addDraw(MARK_CTM, &size);
     fWriter.writeString(name);
@@ -761,8 +761,8 @@ void SkPictureRecord::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec&
 }
 
 void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-    size_t keyLen = fWriter.WriteStringSize(key);
-    size_t valueLen = fWriter.WriteDataSize(value);
+    size_t keyLen = SkWriter32::WriteStringSize(key);
+    size_t valueLen = SkWriter32::WriteDataSize(value);
     size_t size = 4 + sizeof(SkRect) + keyLen + valueLen;
 
     size_t initialOffset = this->addDraw(DRAW_ANNOTATION, &size);
