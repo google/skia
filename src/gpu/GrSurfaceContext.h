@@ -163,7 +163,7 @@ public:
 
     // Provides access to functions that aren't part of the public API.
     GrSurfaceContextPriv surfPriv();
-    const GrSurfaceContextPriv surfPriv() const;
+    const GrSurfaceContextPriv surfPriv() const;  // NOLINT(readability-const-return-type)
 
 #if GR_TEST_UTILS
     bool testCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {

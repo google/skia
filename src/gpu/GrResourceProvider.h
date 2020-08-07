@@ -303,7 +303,7 @@ public:
     static SkISize MakeApprox(SkISize);
 
     inline GrResourceProviderPriv priv();
-    inline const GrResourceProviderPriv priv() const;
+    inline const GrResourceProviderPriv priv() const;  // NOLINT(readability-const-return-type)
 
 private:
     sk_sp<GrGpuResource> findResourceByUniqueKey(const GrUniqueKey&);
