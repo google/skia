@@ -1306,7 +1306,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 GR_DRAW_OP_TEST_DEFINE(AAHairlineOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
-    SkPath path = GrTest::TestPath(random);
+    const SkPath& path = GrTest::TestPath(random);
     SkIRect devClipBounds;
     devClipBounds.setEmpty();
     return AAHairlineOp::Make(context, std::move(paint), viewMatrix, path,

@@ -274,7 +274,7 @@ DEF_TEST(String_Threaded, r) {
     std::thread threads[5];
     for (auto& thread : threads) {
         thread = std::thread([&] {
-            SkString copy = str;
+            SkString copy = str;  // NOLINT(performance-unnecessary-copy-initialization)
             (void)copy.equals("test");
         });
     }
