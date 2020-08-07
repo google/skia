@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cb0173f_d6bf8f76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T15:26:39Z",
+      "side": 1,
+      "message": "Most of Skia uses the global singleton, but some unit tests use a test-local cache.  I don\u0027t think there\u0027s any interaction between those tests and this use for caching mipmaps, so this is likely a no-op, a good fix nevertheless. ",
+      "revId": "3206f297750f2f19a768cc55c1033cc3325accce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
