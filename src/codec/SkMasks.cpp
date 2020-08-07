@@ -86,7 +86,7 @@ uint8_t SkMasks::getAlpha(uint32_t pixel) const {
  * Process an input mask to obtain the necessary information
  *
  */
-static const SkMasks::MaskInfo process_mask(uint32_t mask) {
+static SkMasks::MaskInfo process_mask(uint32_t mask) {
     // Determine properties of the mask
     uint32_t tempMask = mask;
     uint32_t shift = 0;
