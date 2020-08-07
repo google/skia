@@ -323,7 +323,7 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
     }
 
     if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds,
-                                   colorInfo, stencilInfo, sampledProxies)) {
+                                   colorInfo, stencilInfo, sampledProxies, false)) {
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
@@ -1892,9 +1892,11 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
     GrVkRenderTarget::ReconstructAttachmentsDescriptor(this->vkCaps(), programInfo,
                                                        &attachmentsDescriptor, &attachmentFlags);
 
+    bool willReadDst = false; // TODO: get this from GrProgramInfo
     sk_sp<const GrVkRenderPass> renderPass(this->resourceProvider().findCompatibleRenderPass(
                                                                          &attachmentsDescriptor,
-                                                                         attachmentFlags));
+                                                                         attachmentFlags,
+                                                                         willReadDst));
     if (!renderPass) {
         return false;
     }
