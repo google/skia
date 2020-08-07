@@ -1535,9 +1535,9 @@ DEF_TEST(GrStyledShape_empty_shape, reporter) {
     REPORTER_ASSERT(reporter, fillInvertedEmptyCase.appliedPathEffectShape().inverseFilled());
     REPORTER_ASSERT(reporter, fillInvertedEmptyCase.appliedFullStyleShape().inverseFilled());
 
-    Key emptyKey(fillEmptyCase.baseKey());
+    const Key& emptyKey = fillEmptyCase.baseKey();
     REPORTER_ASSERT(reporter, emptyKey.count());
-    Key inverseEmptyKey(fillInvertedEmptyCase.baseKey());
+    const Key& inverseEmptyKey = fillInvertedEmptyCase.baseKey();
     REPORTER_ASSERT(reporter, inverseEmptyKey.count());
     TestCase::SelfExpectations expectations;
     expectations.fStrokeApplies = false;

@@ -989,7 +989,7 @@ void TextLine::getRectsForRange(TextRange textRange0,
                     break;
                 }
                 case RectHeightStyle::kStrut: {
-                    auto strutStyle = paragraphStyle.getStrutStyle();
+                    const auto& strutStyle = paragraphStyle.getStrutStyle();
                     if (strutStyle.getStrutEnabled()
                         && strutStyle.getFontSize() > 0) {
                         auto strutMetrics = fOwner->strutMetrics();
