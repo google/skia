@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5af701e_de36cf28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-07T20:38:21Z",
+      "side": 1,
+      "message": "Please review a few new perf tests\n\ntests of drawing ovals and roundrects\ntests of paragraphs with changing properties.\ntest of blurred paths\n\nfixed:\n * surfaces are properly deleted between tests just in case that would allow cross talk\n * improved some documentation.",
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
