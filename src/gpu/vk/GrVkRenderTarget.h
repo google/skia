@@ -43,7 +43,7 @@ public:
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
-    const GrVkFramebuffer* getFramebuffer(bool withStencil);
+    const GrVkFramebuffer* getFramebuffer(bool withStencil, bool willReadDst);
     const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView; }
     const GrManagedResource* msaaImageResource() const {
         if (fMSAAImage) {
@@ -56,13 +56,14 @@ public:
     const GrManagedResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
 
-    const GrVkRenderPass* getSimpleRenderPass(bool withStencil);
-    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle(bool withStencil) {
+    const GrVkRenderPass* getSimpleRenderPass(bool withStencil, bool willReadDst);
+    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle(bool withStencil,
+                                                                        bool willReadDst) {
         SkASSERT(!this->wrapsSecondaryCommandBuffer());
 
         auto pRPHandle = withStencil ? &fCompatibleStencilRPHandle : &fCompatibleRPHandle;
         if (!pRPHandle->isValid()) {
-            this->createSimpleRenderPass(withStencil);
+            this->createSimpleRenderPass(withStencil, willReadDst);
         }
 
 #ifdef SK_DEBUG
@@ -108,7 +109,7 @@ public:
                                                  GrVkRenderPass::AttachmentsDescriptor* desc,
                                                  GrVkRenderPass::AttachmentFlags* flags);
 
-    void addResources(GrVkCommandBuffer& commandBuffer, bool withStencil);
+    void addResources(GrVkCommandBuffer& commandBuffer, bool withStencil, bool willReadDst);
 
     void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
         fGrSecondaryCommandBuffers.push_back(std::move(cmdBuffer));
@@ -174,8 +175,8 @@ private:
 
     GrVkGpu* getVkGpu() const;
 
-    const GrVkRenderPass* createSimpleRenderPass(bool withStencil);
-    const GrVkFramebuffer* createFramebuffer(bool withStencil);
+    const GrVkRenderPass* createSimpleRenderPass(bool withStencil, bool willReadDst);
+    const GrVkFramebuffer* createFramebuffer(bool withStencil, bool willReadDst);
 
     bool completeStencilAttachment() override;
 
@@ -192,19 +193,27 @@ private:
     std::unique_ptr<GrVkImage> fMSAAImage;
     const GrVkImageView*       fResolveAttachmentView;
 
-    const GrVkFramebuffer*     fCachedFramebuffer;
-    const GrVkFramebuffer*     fCachedStencilFramebuffer;
+    const GrVkFramebuffer*     fCachedFramebuffer = nullptr;
+    const GrVkFramebuffer*     fCachedStencilFramebuffer = nullptr;
+    const GrVkFramebuffer*     fCachedDstReadFramebuffer = nullptr;
+    const GrVkFramebuffer*     fCachedStencilDstReadFramebuffer = nullptr;
 
-    // Cached pointers to a simple and stencil render passes. The render target should unref them
-    // once it is done with them.
-    const GrVkRenderPass*      fCachedSimpleRenderPass;
-    const GrVkRenderPass*      fCachedStencilRenderPass;
+    // Cached pointers to a simple, stencil, and dst read render passes. The render target should
+    // unref them once it is done with them.
+    const GrVkRenderPass*      fCachedSimpleRenderPass = nullptr;
+    const GrVkRenderPass*      fCachedStencilRenderPass = nullptr;
+    const GrVkRenderPass*      fCachedDstReadRenderPass = nullptr;
+    const GrVkRenderPass*      fCachedStencilDstReadRenderPass = nullptr;
 
     // This is a handle to be used to quickly get a GrVkRenderPass that is compatible with
     // this render target if its stencil buffer is ignored.
     GrVkResourceProvider::CompatibleRPHandle fCompatibleRPHandle;
     // Same as above but taking the render target's stencil buffer into account
     GrVkResourceProvider::CompatibleRPHandle fCompatibleStencilRPHandle;
+    // RenderPass where the render target is also used as an input attachment
+    GrVkResourceProvider::CompatibleRPHandle fCompatibleInputRPHandle;
+    // Same as above but taking the render target's stencil buffer into account
+    GrVkResourceProvider::CompatibleRPHandle fCompatibleStencilInputRPHandle;
 
     // If this render target wraps an external VkCommandBuffer, then this handle will be that
     // VkCommandBuffer and not VK_NULL_HANDLE. In this case the render target will not be backed by

@@ -1717,8 +1717,9 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
 
         bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
+        bool willReadDst = false; // TODO: get this from GrProgramInfo
         // TODO: support failure in getSimpleRenderPass
-        const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsStencil);
+        const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsStencil, willReadDst);
         SkASSERT(rp);
         rp->genKey(&b);
 
