@@ -62,6 +62,33 @@ static void SetUseToken(GrDrawOpAtlas* atlas,
      atlas->setLastUseToken(shapeData->fAtlasLocator, token);
 }
 
+static GrSmallPathShapeData* FindOrCreate(GrDrawOpAtlas* atlas,
+                                          GrSmallPathRenderer::ShapeCache* shapeCache,
+                                          GrSmallPathRenderer::ShapeDataList* shapeList,
+                                          const GrSmallPathShapeDataKey& key) {
+    auto shapeData = shapeCache->find(key);
+    if (!shapeData) {
+        shapeData = new GrSmallPathShapeData(key);
+        shapeCache->add(shapeData);
+        shapeList->addToTail(shapeData);
+#ifdef DF_PATH_TRACKING
+        ++g_NumCachedPaths;
+#endif
+    } else if (!atlas->hasID(shapeData->fAtlasLocator.plotLocator())) {
+        shapeData->fAtlasLocator.invalidatePlotLocator();
+    }
+
+    return shapeData;
+}
+
+static void DeleteCacheEntry(GrSmallPathRenderer::ShapeCache* shapeCache,
+                             GrSmallPathRenderer::ShapeDataList* shapeList,
+                             GrSmallPathShapeData* shapeData) {
+    shapeCache->remove(shapeData->fKey);
+    shapeList->remove(shapeData);
+    delete shapeData;
+}
+
 }  // namespace GrSmallPathAtlasMgr
 
 // Callback to clear out internal path cache when eviction occurs
@@ -383,17 +410,10 @@ private:
 
                 // check to see if df path is cached
                 GrSmallPathShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
-                shapeData = fShapeCache->find(key);
-                if (!shapeData || !fAtlas->hasID(shapeData->fAtlasLocator.plotLocator())) {
-                    // Remove the stale cache entry
-                    if (shapeData) {
-                        fShapeCache->remove(shapeData->fKey);
-                        fShapeList->remove(shapeData);
-                        delete shapeData;
-                    }
+                shapeData = GrSmallPathAtlasMgr::FindOrCreate(fAtlas, fShapeCache, fShapeList, key);
+                if (!shapeData->fAtlasLocator.plotLocator().isValid()) {
                     SkScalar scale = desiredDimension / maxDim;
 
-                    shapeData = new GrSmallPathShapeData;
                     if (!this->addDFPathToAtlas(target,
                                                 &flushInfo,
                                                 fAtlas,
@@ -401,30 +421,22 @@ private:
                                                 args.fShape,
                                                 SkScalarCeilToInt(desiredDimension),
                                                 scale)) {
-                        delete shapeData;
+                        GrSmallPathAtlasMgr::DeleteCacheEntry(fShapeCache, fShapeList, shapeData);
                         continue;
                     }
                 }
             } else {
                 // check to see if bitmap path is cached
                 GrSmallPathShapeDataKey key(args.fShape, args.fViewMatrix);
-                shapeData = fShapeCache->find(key);
-                if (!shapeData || !fAtlas->hasID(shapeData->fAtlasLocator.plotLocator())) {
-                    // Remove the stale cache entry
-                    if (shapeData) {
-                        fShapeCache->remove(shapeData->fKey);
-                        fShapeList->remove(shapeData);
-                        delete shapeData;
-                    }
-
-                    shapeData = new GrSmallPathShapeData;
+                shapeData = GrSmallPathAtlasMgr::FindOrCreate(fAtlas, fShapeCache, fShapeList, key);
+                if (!shapeData->fAtlasLocator.plotLocator().isValid()) {
                     if (!this->addBMPathToAtlas(target,
                                                 &flushInfo,
                                                 fAtlas,
                                                 shapeData,
                                                 args.fShape,
                                                 args.fViewMatrix)) {
-                        delete shapeData;
+                        GrSmallPathAtlasMgr::DeleteCacheEntry(fShapeCache, fShapeList, shapeData);
                         continue;
                     }
                 }
@@ -554,21 +566,12 @@ private:
 
         shapeData->fAtlasLocator.insetSrc(SK_DistanceFieldPad);
 
-        // add to cache
-        shapeData->fKey.set(shape, dimension);
-
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
         shapeData->fBounds.fLeft /= scale;
         shapeData->fBounds.fTop /= scale;
         shapeData->fBounds.fRight /= scale;
         shapeData->fBounds.fBottom /= scale;
-
-        fShapeCache->add(shapeData);
-        fShapeList->addToTail(shapeData);
-#ifdef DF_PATH_TRACKING
-        ++g_NumCachedPaths;
-#endif
         return true;
     }
 
@@ -639,17 +642,8 @@ private:
             return false;
         }
 
-        // add to cache
-        shapeData->fKey.set(shape, ctm);
-
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
-
-        fShapeCache->add(shapeData);
-        fShapeList->addToTail(shapeData);
-#ifdef DF_PATH_TRACKING
-        ++g_NumCachedPaths;
-#endif
         return true;
     }
 
