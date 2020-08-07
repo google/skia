@@ -74,8 +74,13 @@ function startTimingFrames(drawFn, surface, warmupFrames, maxFrames, timeoutMill
       }
       if (idx >= withFlush.length) {
         resolve({
+          // The total time elapsed between the same point during the drawing of each frame.
+          // This is the most relevant measurement for normal drawing tests.
           'total_frame_ms': Array.from(totalFrame).slice(0, idx),
+          // The time taken to run the code under test and call surface.flush()
           'with_flush_ms': Array.from(withFlush).slice(0, idx),
+          // The time taken to run the code under test
+          // This is the most relevant measurement for non-drawing tests such as matrix inversion.
           'without_flush_ms': Array.from(withoutFlush).slice(0, idx),
         });
         return;
