@@ -1411,21 +1411,75 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint) {
         SkBaseDevice* dstDev = iter.fDevice;
         check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
                                      srcDev->imageInfo().colorSpace());
-        paint = &draw.paint();
+
+        SkTCopyOnFirstWrite<SkPaint> noFilterPaint(*paint);
         SkImageFilter* filter = paint->getImageFilter();
-        // TODO(michaelludwig) - Devices aren't created with complex coordinate systems yet,
-        // so it should always be possible to use the relative origin. Once drawDevice() and
-        // drawSpecial() take an SkMatrix, this can switch to getRelativeTransform() instead.
-        SkIPoint pos = srcDev->getOrigin() - dstDev->getOrigin();
         if (filter) {
-            sk_sp<SkSpecialImage> specialImage = srcDev->snapSpecial();
-            if (specialImage) {
-                check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
-                                             specialImage->getColorSpace());
-                dstDev->drawSpecial(specialImage.get(), pos.x(), pos.y(), *paint);
+            // Check if the image filter was just a color filter (this is the same optimization
+            // we apply in AutoLayerForImageFilter but handles explicitly saved layers).
+            sk_sp<SkColorFilter> cf = image_to_color_filter(*paint);
+            if (cf) {
+                noFilterPaint.writable()->setColorFilter(std::move(cf));
+                filter = nullptr;
             }
+
+            noFilterPaint.writable()->setImageFilter(nullptr);
+        }
+
+        SkASSERT(!noFilterPaint->getImageFilter());
+        if (!filter) {
+            // Can draw the src device's buffer w/o any extra image filter evaluation
+            // (although this draw may include color filter processing extracted from the IF DAG).
+            // TODO (michaelludwig) - Once drawSpecial can take a matrix, drawDevice should take
+            // no extra arguments and internally just use the relative transform from src to dst.
+            SkIPoint pos = srcDev->getOrigin() - dstDev->getOrigin();
+            dstDev->drawDevice(srcDev, pos.x(), pos.y(), *noFilterPaint);
         } else {
-            dstDev->drawDevice(srcDev, pos.x(), pos.y(), *paint);
+            // Evaluate the image filter DAG on the src device's buffer. The filter processes an
+            // image in the src's device space. However, the filter parameters need to respect the
+            // dst's local matrix (this reflects the CTM that was set when the layer was first
+            // saved). We can achieve this by concatenating the dst's local-to-device matrix with
+            // the relative transform from dst to src. Then the final result is drawn to dst using
+            // the relative transform from src to dst.
+            SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
+            SkMatrix srcToDst = srcDev->getRelativeTransform(*dstDev);
+            SkMatrix dstToSrc = dstDev->getRelativeTransform(*srcDev);
+            skif::Mapping mapping(srcToDst, SkMatrix::Concat(dstToSrc, dstDev->localToDevice()));
+
+            skif::LayerSpace<SkIRect> targetOutput = mapping.deviceToLayer(
+                        skif::DeviceSpace<SkIRect>(dstDev->devClipBounds()));
+
+            // We could map targetOutput back through the filter DAG to compute the required input
+            // bounds, but presumably that was already done when we created srcDev in the first
+            // place, so the total source buffer should be close to what we want.
+            sk_sp<SkSpecialImage> srcBuffer = srcDev->snapSpecial();
+            if (!srcBuffer) {
+                return;
+            }
+            SkColorType colorType = dstDev->imageInfo().colorType();
+            if (colorType == kUnknown_SkColorType) {
+                colorType = kRGBA_8888_SkColorType;
+            }
+            // FIXME If the layer (so src) was created to use F16, should we do all image filtering
+            // in F16 and then only flatten to the destination color encoding at the end?
+            skif::Context ctx(mapping,
+                              targetOutput,
+                              dstDev->getImageFilterCache(),
+                              colorType,
+                              dstDev->imageInfo().colorSpace(),
+                              skif::FilterResult<For::kInput>(std::move(srcBuffer)));
+
+            SkIPoint offset;
+            srcBuffer = as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset);
+            if (srcBuffer) {
+                // TODO(michaelludwig) - Eventually drawSpecial will take a matrix and we can just
+                // pass srcToDst into it directly.
+                SkASSERT(srcToDst.isTranslate());
+                offset.fX += SkScalarRoundToInt(srcToDst.getTranslateX());
+                offset.fY += SkScalarRoundToInt(srcToDst.getTranslateY());
+                dstDev->drawSpecial(srcBuffer.get(), offset.fX, offset.fY, *noFilterPaint);
+            }
         }
     }
 
@@ -2501,7 +2555,43 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
                                                     *paint);
     if (drawAsSprite && paint->getImageFilter()) {
         special = this->getDevice()->makeSpecial(image);
-        if (!special) {
+        if (special) {
+            SkColorType colorType = this->getDevice()->imageInfo().colorType();
+            if (colorType == kUnknown_SkColorType) {
+                colorType = kRGBA_8888_SkColorType;
+            }
+
+            // Based on canDrawBitmapAsSprite, we know the transform is translate-only and that
+            // the device clip bounds are contained in the bounds of the image at (x,y)
+            // TODO(michaelludwig) - Many filters could probably be evaluated like this even if the
+            // CTM is not translate-only; the post-transformation of the filtered image by the CTM
+            // will probably look just as good and not require an extra layer.
+            SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
+            // TODO: Once image filter implementations can support source images with non-(0,0)
+            // origins, we can just mark the origin as (x,y) instead of doing a pre-concat here.
+            SkMatrix layerToDevice = this->getDevice()->localToDevice();
+            layerToDevice.preTranslate(x, y);
+            skif::Mapping mapping(layerToDevice, SkMatrix::I());
+            skif::LayerSpace<SkIRect> targetOutput = mapping.deviceToLayer(
+                    skif::DeviceSpace<SkIRect>(this->getDevice()->devClipBounds()));
+            SkImageFilter_Base::Context ctx(mapping,
+                                            targetOutput,
+                                            this->getDevice()->getImageFilterCache(),
+                                            colorType,
+                                            this->getDevice()->imageInfo().colorSpace(),
+                                            skif::FilterResult<For::kInput>(std::move(special)));
+
+            SkIPoint offset;
+            special = as_IFB(paint->getImageFilter())->filterImage(ctx).imageAndOffset(&offset);
+            if (!special) {
+                return;
+            }
+
+            x += offset.fX;
+            y += offset.fY;
+            realPaint.setImageFilter(nullptr);
+        } else {
             drawAsSprite = false;
         }
     }
@@ -2511,6 +2601,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     while (iter.next()) {
         const SkPaint& pnt = draw.paint();
         if (special) {
+            SkASSERT(!paint->getImageFilter());
             SkPoint pt;
             iter.fDevice->localToDevice().mapXY(x, y, &pt);
             iter.fDevice->drawSpecial(special.get(),
