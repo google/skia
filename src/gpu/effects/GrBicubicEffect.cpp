@@ -237,9 +237,7 @@ GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp,
                                  Kernel kernel,
                                  Direction direction,
                                  Clamp clamp)
-        : INHERITED(kGrBicubicEffect_ClassID,
-                    ProcessorOptimizationFlags(fp.get()) &
-                            ~kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        : INHERITED(kGrBicubicEffect_ClassID, ProcessorOptimizationFlags(fp.get()))
         , fKernel(kernel)
         , fDirection(direction)
         , fClamp(clamp) {
