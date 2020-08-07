@@ -22,6 +22,30 @@
       "revId": "c149b5537f444d64f513779f6563de125a505681",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af427abf_c0bea8e0",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T18:41:52Z",
+      "side": 1,
+      "message": "Um, sure, we could.  We don\u0027t do that on any of the other analogous ops though.\n\nI guess we could make a needPaint() that does that?",
+      "parentUuid": "4f1d2938_0740b315",
+      "range": {
+        "startLine": 173,
+        "startChar": 16,
+        "endLine": 173,
+        "endChar": 21
+      },
+      "revId": "c149b5537f444d64f513779f6563de125a505681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
