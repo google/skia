@@ -282,7 +282,7 @@ static SkPDFIndirectReference type1_font_descriptor(SkPDFDocument* doc,
 
 void SkPDFEmitType1Font(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     SkTypeface* typeface = pdfFont.typeface();
-    const std::vector<SkString> glyphNames = type_1_glyphnames(doc, typeface);
+    const std::vector<SkString>& glyphNames = type_1_glyphnames(doc, typeface);
     SkGlyphID firstGlyphID = pdfFont.firstGlyphID();
     SkGlyphID lastGlyphID = pdfFont.lastGlyphID();
 

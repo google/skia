@@ -413,7 +413,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
         }
 #endif
     } else {
-        GrBackendFormat backendFormat = curImage.backendFormat(0);
+        const GrBackendFormat& backendFormat = curImage.backendFormat(0);
         SkASSERT(backendFormat.isValid());
 
         // Each DDL recorder gets its own ref on the promise callback context for the

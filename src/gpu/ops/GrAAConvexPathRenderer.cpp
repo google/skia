@@ -928,7 +928,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 GR_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
-    SkPath path = GrTest::TestPathConvex(random);
+    const SkPath& path = GrTest::TestPathConvex(random);
     const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
     return AAConvexPathOp::Make(context, std::move(paint), viewMatrix, path, stencilSettings);
 }

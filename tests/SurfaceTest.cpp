@@ -440,10 +440,10 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
 #define EXPECT_COPY_ON_WRITE(command)                               \
     {                                                               \
         sk_sp<SkImage> imageBefore = surface->makeImageSnapshot();  \
-        sk_sp<SkImage> aur_before(imageBefore);                     \
+        sk_sp<SkImage> aur_before(imageBefore);  /*NOLINT*/         \
         canvas-> command ;                                          \
         sk_sp<SkImage> imageAfter = surface->makeImageSnapshot();   \
-        sk_sp<SkImage> aur_after(imageAfter);                       \
+        sk_sp<SkImage> aur_after(imageAfter);  /*NOLINT*/           \
         REPORTER_ASSERT(reporter, imageBefore != imageAfter);       \
     }
 
@@ -608,10 +608,10 @@ static void test_no_canvas2(skiatest::Reporter* reporter,
     // Verifies the robustness of SkSurface for handling use cases where calls
     // are made before a canvas is created.
     sk_sp<SkImage> image1 = surface->makeImageSnapshot();
-    sk_sp<SkImage> aur_image1(image1);
+    sk_sp<SkImage> aur_image1(image1);  // NOLINT(performance-unnecessary-copy-initialization)
     surface->notifyContentWillChange(mode);
     sk_sp<SkImage> image2 = surface->makeImageSnapshot();
-    sk_sp<SkImage> aur_image2(image2);
+    sk_sp<SkImage> aur_image2(image2);  // NOLINT(performance-unnecessary-copy-initialization)
     REPORTER_ASSERT(reporter, image1 != image2);
 }
 DEF_TEST(SurfaceNoCanvas, reporter) {

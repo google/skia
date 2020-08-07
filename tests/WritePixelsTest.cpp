@@ -226,7 +226,7 @@ static bool check_write(skiatest::Reporter* reporter, SkSurface* surf, SkAlphaTy
         return false;
     }
 
-    const SkImageInfo bmInfo = bitmap.info();
+    const SkImageInfo& bmInfo = bitmap.info();
 
     SkIRect writeRect = SkIRect::MakeXYWH(writeX, writeY, bitmap.width(), bitmap.height());
     for (int cy = 0; cy < DEV_H; ++cy) {

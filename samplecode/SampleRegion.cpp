@@ -218,9 +218,7 @@ protected:
         this->build_rgn(&rgn, op);
 
         {
-            SkRegion tmp, tmp2(rgn);
-
-            tmp = tmp2;
+            SkRegion tmp = rgn;
             tmp.translate(5, -3);
 
             {

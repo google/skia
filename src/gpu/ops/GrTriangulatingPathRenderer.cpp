@@ -433,7 +433,7 @@ bool GrTriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
-    SkPath path = GrTest::TestPath(random);
+    const SkPath& path = GrTest::TestPath(random);
     SkIRect devClipBounds = SkIRect::MakeLTRB(
         random->nextU(), random->nextU(), random->nextU(), random->nextU());
     devClipBounds.sort();
