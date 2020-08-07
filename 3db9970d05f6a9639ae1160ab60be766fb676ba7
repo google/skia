@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dc97966_f82854fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T14:22:50Z",
+      "side": 1,
+      "message": "Thanks, once all those preliminary backflips are out of the way to define SkCFDynamicCast and SkCFNumberDynamicCast, I do think the code using them reads even more clearly than head.",
+      "revId": "3db9970d05f6a9639ae1160ab60be766fb676ba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
