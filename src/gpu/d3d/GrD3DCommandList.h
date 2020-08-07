@@ -157,6 +157,7 @@ public:
     void setPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
     void setScissorRects(unsigned int numRects, const D3D12_RECT* rects);
     void setViewports(unsigned int numViewports, const D3D12_VIEWPORT* viewports);
+    void setCenteredSamplePositions(bool enable, unsigned int numSamples);
     void setGraphicsRootSignature(const sk_sp<GrD3DRootSignature>& rootSignature);
     void setVertexBuffers(unsigned int startSlot,
                           sk_sp<const GrBuffer> vertexBuffer, size_t vertexStride,
@@ -204,6 +205,7 @@ private:
     const GrBuffer* fCurrentInstanceBuffer;
     size_t fCurrentInstanceStride;
     const GrBuffer* fCurrentIndexBuffer;
+    bool fEnableCenteredSamples;
 
     D3D12_GPU_VIRTUAL_ADDRESS fCurrentConstantBufferAddress;
     D3D12_GPU_DESCRIPTOR_HANDLE fCurrentRootDescriptorTable[GrD3DRootSignature::kParamIndexCount];

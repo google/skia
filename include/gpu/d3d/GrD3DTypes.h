@@ -167,7 +167,7 @@ struct GrD3DTextureResourceInfo {
             , fResourceState(D3D12_RESOURCE_STATE_COMMON)
             , fFormat(DXGI_FORMAT_UNKNOWN)
             , fLevelCount(0)
-            , fSampleQualityLevel(0)
+            , fSampleQualityLevel(D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE)
             , fProtected(GrProtected::kNo) {}
 
     GrD3DTextureResourceInfo(ID3D12Resource* resource,
