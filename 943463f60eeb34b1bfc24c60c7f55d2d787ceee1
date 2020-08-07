@@ -76,6 +76,30 @@
     },
     {
       "key": {
+        "uuid": "08701eb5_e4d0e2e6",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T15:09:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5cda4fc1_fde9bc2f",
+      "range": {
+        "startLine": 252,
+        "startChar": 29,
+        "endLine": 252,
+        "endChar": 32
+      },
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d5fec6f_a9aae88b",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -105,6 +129,24 @@
       "side": 1,
       "message": "This is the list of things _not to forward_ when the optional target is disabled.  But yeah, putting frameworks on this list is a good idea to prevent linking them when we don\u0027t need them.",
       "parentUuid": "8d5fec6f_a9aae88b",
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41f6d9d1_10fcda56",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T15:09:01Z",
+      "side": 1,
+      "message": "I\u0027m guessing that if we\u0027re not-mac then \u0027frameworks\u0027 is being ignored at some point because if we were propagating these frameworks all the time then they were also propagating on Linux and Windows where these frameworks don\u0027t exist. I would hope it would be more like linking against a lib that doesn\u0027t exist and tell you \u0027hey that\u0027s not here\u0027.\n\nIt seems our toolchain definitions always put {{frameworks}} on gcc like builders, so either gn is making this empty or the linker is ignoring them.",
+      "parentUuid": "d7282fcd_325548ab",
       "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
