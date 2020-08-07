@@ -62,10 +62,22 @@ static void SetUseToken(GrDrawOpAtlas* atlas,
      atlas->setLastUseToken(shapeData->fAtlasLocator, token);
 }
 
-} // GrSmallPathAtlasMgr
+static void PreFlush(GrDrawOpAtlas* atlas, GrOnFlushResourceProvider* onFlushRP,
+                     const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) {
+    if (atlas) {
+        atlas->instantiate(onFlushRP);
+    }
+}
+
+static void PostFlush(GrDrawOpAtlas* atlas, GrDeferredUploadToken startTokenForNextFlush,
+                      const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) {
+    if (atlas) {
+        atlas->compact(startTokenForNextFlush);
+    }
+}
 
 // Callback to clear out internal path cache when eviction occurs
-void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+static void Evict(GrDrawOpAtlas::PlotLocator plotLocator) {
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
@@ -81,6 +93,24 @@ void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
 #endif
         }
     }
+
+}
+
+} // GrSmallPathAtlasMgr
+
+void GrSmallPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
+                                   const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
+    GrSmallPathAtlasMgr::PreFlush(fAtlas1.get(), onFlushRP, opsTaskIDs, numOpsTaskIDs);
+}
+
+void GrSmallPathRenderer::postFlush(GrDeferredUploadToken startTokenForNextFlush,
+                                    const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
+    GrSmallPathAtlasMgr::PostFlush(fAtlas1.get(), startTokenForNextFlush,
+                                   opsTaskIDs, numOpsTaskIDs);
+}
+
+void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+    GrSmallPathAtlasMgr::Evict(plotLocator);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

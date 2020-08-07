@@ -36,18 +36,10 @@ public:
     // the list of active OnFlushBackkbackObjects in an freeGpuResources call (i.e., we accept the
     // default retainOnFreeGpuResources implementation).
 
-    void preFlush(GrOnFlushResourceProvider* onFlushRP, const uint32_t*, int) override {
-        if (fAtlas) {
-            fAtlas->instantiate(onFlushRP);
-        }
-    }
-
+    void preFlush(GrOnFlushResourceProvider* onFlushRP,
+                  const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override;
     void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                   const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
-        if (fAtlas) {
-            fAtlas->compact(startTokenForNextFlush);
-        }
-    }
+                   const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override;
 
     using ShapeCache = SkTDynamicHash<GrSmallPathShapeData, GrSmallPathShapeDataKey>;
     typedef SkTInternalLList<GrSmallPathShapeData> ShapeDataList;
@@ -76,9 +68,9 @@ private:
 
     void evict(GrDrawOpAtlas::PlotLocator) override;
 
-    std::unique_ptr<GrDrawOpAtlas> fAtlas;
-    ShapeCache fShapeCache;
-    ShapeDataList fShapeList;
+    std::unique_ptr<GrDrawOpAtlas> fAtlas1;
+    ShapeCache fShapeCache1;
+    ShapeDataList fShapeList1;
 
     typedef GrPathRenderer INHERITED;
 };
