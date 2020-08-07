@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "875537e3_28a11a51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-08-07T17:59:46Z",
+      "side": 1,
+      "message": "context: We\u0027re writing a file at the end of the PNG generation so we know when the correctness job is done. Note that for this to work, the file will need to be deleted by the script running the job.",
+      "revId": "e864bfad136ca779aac2da8cadeb419fc1c2c854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
