@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e787efbd_5dd3bfb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-07T15:11:55Z",
+      "side": 1,
+      "message": "Very exciting! Can we add a test case for a regular \u0027uniform half[4]\u0027 that doesn\u0027t have the \u0027in\u0027 qualifier, too?\n\nAlso, does SkSL let you declare an array like so:\n\n   in int arrayLen;\n   in uniform float beingDifficult[arrayLen];\n\nThis CL makes it seem like only constant literals are supported for in uniform array sizes, which is a reasonable limitation, but I\u0027m wondering if that\u0027s enforced fully throughout sksl already? Going forward, I don\u0027t think we\u0027d want to support this sort of flexibility since we\u0027d have to key on arrayLen and would end up with many different shaders. The better way to do it if we wanted to write a .fp file with a range of array lengths is to use something like:\n   \n   in int len;\n   layout(when\u003dlen \u003c 16) uniform float a1[16];\n   layout(when\u003dlen \u003c 32) uniform float a2[32];\n   // etc.\n\n(I\u0027m thinking about gradient color stops :) )",
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7b5f414_7eb96c11",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-07T15:11:55Z",
+      "side": 1,
+      "message": "nit: Maybe reads better if this is on it\u0027s own line?",
+      "range": {
+        "startLine": 617,
+        "startChar": 70,
+        "endLine": 617,
+        "endChar": 71
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe99b14e_30a1be59",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-07T15:11:55Z",
+      "side": 1,
+      "message": "should we add a note about thread safety here? The component type mappers are always just a constant vector, so that hasn\u0027t mattered. And realistically, this will just be single-threaded use since it\u0027s part of the build-time sksl compilation. Given that, maybe we shouldn\u0027t worry about caching the array-mapper types? arrayMapper() could just return a new value?",
+      "range": {
+        "startLine": 145,
+        "startChar": 4,
+        "endLine": 145,
+        "endChar": 93
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
