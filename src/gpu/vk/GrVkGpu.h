@@ -183,6 +183,10 @@ private:
         kSkip_SyncQueue
     };
 
+    static sk_sp<GrGpu> MakeForFlush(const GrVkBackendContext&,
+                                     const GrContextOptions&,
+                                     GrDirectContext*);
+
     GrVkGpu(GrDirectContext*, const GrContextOptions&, const GrVkBackendContext&,
             sk_sp<const GrVkInterface>, uint32_t instanceVersion, uint32_t physicalDeviceVersion,
             sk_sp<GrVkMemoryAllocator>);
@@ -334,6 +338,7 @@ private:
     GrVkResourceProvider                                  fResourceProvider;
     GrStagingBufferManager                                fStagingBufferManager;
 
+    sk_sp<GrVkGpu> fFlushGpu;
     GrVkCommandPool*                                      fMainCmdPool;
     // just a raw pointer; object's lifespan is managed by fCmdPool
     GrVkPrimaryCommandBuffer*                             fMainCmdBuffer;

@@ -14,6 +14,7 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceProxyView.h"
@@ -29,7 +30,9 @@ public:
     // vertexSpace and indexSpace may either be null or an alloation of size
     // GrBufferAllocPool::kDefaultBufferSize. If the latter, then CPU memory is only allocated for
     // vertices/indices when a buffer larger than kDefaultBufferSize is required.
-    GrOpFlushState(GrGpu*, GrResourceProvider*, GrTokenTracker*,
+    GrOpFlushState(sk_sp<GrGpu>,
+                   GrResourceProvider*,
+                   GrTokenTracker*,
                    sk_sp<GrBufferAllocPool::CpuBufferCache> = nullptr);
 
     ~GrOpFlushState() final { this->reset(); }
@@ -51,7 +54,7 @@ public:
     GrOpsRenderPass* opsRenderPass() { return fOpsRenderPass; }
     void setOpsRenderPass(GrOpsRenderPass* renderPass) { fOpsRenderPass = renderPass; }
 
-    GrGpu* gpu() { return fGpu; }
+    GrGpu* gpu() { return fGpu.get(); }
 
     void reset();
 
@@ -285,7 +288,7 @@ private:
     // array of proxies it uses before call onPrepare and onExecute.
     SkTArray<GrSurfaceProxy*, true>* fSampledProxies;
 
-    GrGpu* fGpu;
+    sk_sp<GrGpu> fGpu;
     GrResourceProvider* fResourceProvider;
     GrTokenTracker* fTokenTracker;
     GrOpsRenderPass* fOpsRenderPass = nullptr;
