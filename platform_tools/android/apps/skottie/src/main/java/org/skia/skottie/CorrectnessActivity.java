@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.widget.GridLayout;
 import android.widget.ImageView.ScaleType;
 import com.airbnb.lottie.LottieAnimationView;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -90,10 +91,23 @@ public class CorrectnessActivity extends Activity implements OnPixelCopyFinished
             Log.e("PNG conversion", e.getMessage());
             return;
         }
-        if (currAsset < (lottieViews.size() - 1)) {
+        if (currAsset < (rawAssets.size() - 1)) {
             currAsset++;
             setLotties(rawAssets.get(currAsset));
             runCorrectness(rawAssets.get(currAsset));
+        } else {
+            writeTerminatingFile();
+        }
+    }
+
+    private void writeTerminatingFile() {
+        String outDir = Environment.getExternalStorageDirectory().getPath() + "/Download/done.txt";
+        try {
+            FileOutputStream out = new FileOutputStream(outDir);
+            out.write("done".getBytes());
+            out.close();
+        } catch (Exception e) {
+            Log.e("Terminating file", e.getMessage());
         }
     }
 
