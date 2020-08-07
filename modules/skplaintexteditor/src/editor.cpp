@@ -39,7 +39,7 @@ static void readlines(const void* data, size_t size, F f) {
     }
 }
 
-static const StringSlice remove_newline(const char* str, size_t len) {
+static StringSlice remove_newline(const char* str, size_t len) {
     return SkASSERT((str != nullptr) || (len == 0)),
            StringSlice(str, (len > 0 && str[len - 1] == '\n') ? len - 1 : len);
 }
