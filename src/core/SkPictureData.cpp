@@ -531,3 +531,21 @@ bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
     }
     return true;
 }
+
+const SkPaint* SkPictureData::optionalPaint(SkReadBuffer* reader) const {
+    int index = reader->readInt();
+    if (index == 0) {
+        return nullptr; // recorder wrote a zero for no paint (likely drawimage)
+    }
+    return reader->validate(index > 0 && index <= fPaints.count()) ?
+        &fPaints[index - 1] : nullptr;
+}
+
+const SkPaint& SkPictureData::requiredPaint(SkReadBuffer* reader) const {
+    int index = reader->readInt();
+    if (!reader->validate(index > 0 && index <= fPaints.count())) {
+        static const SkPaint& stub = *(new SkPaint);
+        return stub;
+    }
+    return fPaints[index-1];
+}
