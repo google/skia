@@ -70,7 +70,7 @@ private:
     class PropertyInterceptor;
     class MarkerInterceptor;
 
-    static std::string acceptKey(const char* name) {
+    static std::string AcceptKey(const char* name) {
         static constexpr char kPrefix = '$';
 
         return (name[0] == kPrefix && name[1] != '\0')
