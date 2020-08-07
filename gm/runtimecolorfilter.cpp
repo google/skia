@@ -34,6 +34,7 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 512, 256) {
     canvas->drawImage(img, 0, 0, nullptr);
 
     sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_TEST_SRC)));
+    SkASSERT(effect);
 
     auto cf1 = effect->makeColorFilter(nullptr);
     SkPaint p;
