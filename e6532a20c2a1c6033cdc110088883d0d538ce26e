@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9905f8f6_a6885ae6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-07T19:29:41Z",
+      "side": 1,
+      "message": "might be fun if SkSpan could be constructed with an initializer_list\n\nSkSpan s \u003d { 1, 2, 3, 4, 5, 6 };",
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
