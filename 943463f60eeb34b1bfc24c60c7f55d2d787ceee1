@@ -150,6 +150,24 @@
       "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a37c3980_830748e5",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T15:19:12Z",
+      "side": 1,
+      "message": "Way simpler than that.  We\u0027ve never had a dependency on frameworks on a non-Mac/iOS build, whether using libs or frameworks.  Everything is already conditioned on frameworks existing for the current target.\n\n{{frameworks}} will be empty when there are no frameworks, of course.",
+      "parentUuid": "41f6d9d1_10fcda56",
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
