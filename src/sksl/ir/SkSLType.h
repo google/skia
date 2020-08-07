@@ -32,7 +32,7 @@ public:
         , fName(name)
         , fType(std::move(type)) {}
 
-        const String description() const {
+        String description() const {
             return fType->displayName() + " " + fName + ";";
         }
 
@@ -232,7 +232,7 @@ public:
         return fNameString;
     }
 
-    const String displayName() const {
+    String displayName() const {
         if (fNameString == "$floatLiteral") {
             return "float";
         }

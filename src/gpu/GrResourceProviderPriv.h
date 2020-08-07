@@ -32,7 +32,7 @@ private:
 
 inline GrResourceProviderPriv GrResourceProvider::priv() { return GrResourceProviderPriv(this); }
 
-inline const GrResourceProviderPriv GrResourceProvider::priv() const {
+inline const GrResourceProviderPriv GrResourceProvider::priv() const {  // NOLINT(readability-const-return-type)
     return GrResourceProviderPriv(const_cast<GrResourceProvider*>(this));
 }
 

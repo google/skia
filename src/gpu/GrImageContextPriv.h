@@ -53,7 +53,7 @@ private:
 
 inline GrImageContextPriv GrImageContext::priv() { return GrImageContextPriv(this); }
 
-inline const GrImageContextPriv GrImageContext::priv () const {
+inline const GrImageContextPriv GrImageContext::priv () const {  // NOLINT(readability-const-return-type)
     return GrImageContextPriv(const_cast<GrImageContext*>(this));
 }
 

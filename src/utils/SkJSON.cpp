@@ -299,7 +299,7 @@ public:
         fUnescapeBuffer.reserve(kUnescapeBufferReserve);
     }
 
-    const Value parse(const char* p, size_t size) {
+    Value parse(const char* p, size_t size) {
         if (!size) {
             return this->error(NullValue(), p, "invalid empty input");
         }

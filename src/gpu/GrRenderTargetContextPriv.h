@@ -132,7 +132,7 @@ inline GrRenderTargetContextPriv GrRenderTargetContext::priv() {
     return GrRenderTargetContextPriv(this);
 }
 
-inline const GrRenderTargetContextPriv GrRenderTargetContext::priv() const {
+inline const GrRenderTargetContextPriv GrRenderTargetContext::priv() const {  // NOLINT(readability-const-return-type)
     return GrRenderTargetContextPriv(const_cast<GrRenderTargetContext*>(this));
 }
 

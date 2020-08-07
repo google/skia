@@ -62,7 +62,7 @@ private:
 
 inline SkVerticesPriv SkVertices::priv() { return SkVerticesPriv(this); }
 
-inline const SkVerticesPriv SkVertices::priv() const {
+inline const SkVerticesPriv SkVertices::priv() const {  // NOLINT(readability-const-return-type)
     return SkVerticesPriv(const_cast<SkVertices*>(this));
 }
 

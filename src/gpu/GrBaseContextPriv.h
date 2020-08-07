@@ -47,7 +47,7 @@ private:
 
 inline GrBaseContextPriv GrContext_Base::priv() { return GrBaseContextPriv(this); }
 
-inline const GrBaseContextPriv GrContext_Base::priv () const {
+inline const GrBaseContextPriv GrContext_Base::priv () const {  // NOLINT(readability-const-return-type)
     return GrBaseContextPriv(const_cast<GrContext_Base*>(this));
 }
 

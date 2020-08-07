@@ -246,9 +246,9 @@ static int count_xml_escape_size(const SkString& input) {
     return extra;
 }
 
-const SkString escape_xml(const SkString& input,
-                          const char* before = nullptr,
-                          const char* after = nullptr) {
+SkString escape_xml(const SkString& input,
+                    const char* before = nullptr,
+                    const char* after = nullptr) {
     if (input.size() == 0) {
         return input;
     }

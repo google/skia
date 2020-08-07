@@ -584,7 +584,7 @@ public:
 
     // Provides access to functions that aren't part of the public API.
     GrRenderTargetContextPriv priv();
-    const GrRenderTargetContextPriv priv() const;
+    const GrRenderTargetContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
     void wasClosed(const GrOpsTask& task) override;
 

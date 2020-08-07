@@ -129,7 +129,7 @@ private:
 
 inline GrRecordingContextPriv GrRecordingContext::priv() { return GrRecordingContextPriv(this); }
 
-inline const GrRecordingContextPriv GrRecordingContext::priv () const {
+inline const GrRecordingContextPriv GrRecordingContext::priv () const {  // NOLINT(readability-const-return-type)
     return GrRecordingContextPriv(const_cast<GrRecordingContext*>(this));
 }
 

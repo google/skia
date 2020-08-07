@@ -50,7 +50,7 @@ public:
 
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
-    const GrBaseContextPriv priv() const;
+    const GrBaseContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
 protected:
     friend class GrBaseContextPriv; // for hidden functions

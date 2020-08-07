@@ -182,7 +182,7 @@ private:
         }
         // This returns an array of all the available mipLevels - suitable for passing into
         // createBackendTexture.
-        const std::unique_ptr<SkPixmap[]> normalMipLevels() const;
+        std::unique_ptr<SkPixmap[]> normalMipLevels() const;
         int numMipLevels() const;
 
         void setCallbackContext(int index, sk_sp<PromiseImageCallbackContext> callbackContext) {

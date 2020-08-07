@@ -164,7 +164,7 @@ sk_sp<SkSurface> MakeSurface(int width, int height, GrRecordingContext* rContext
     return SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info);
 }
 
-const SkSurfaceProps FindSurfaceProps(GrRecordingContext* rContext) {
+SkSurfaceProps FindSurfaceProps(GrRecordingContext* rContext) {
     auto surface = MakeSurface(1, 1, rContext);
     return surface->props();
 }
