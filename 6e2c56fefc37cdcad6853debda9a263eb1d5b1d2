@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1d788d0_c4ff9609",
+        "filename": "src/core/SkEdgeClipper.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:36:20Z",
+      "side": 0,
+      "message": "Why\u0027d we lose this?",
+      "revId": "6e2c56fefc37cdcad6853debda9a263eb1d5b1d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

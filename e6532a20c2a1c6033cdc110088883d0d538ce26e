@@ -16,6 +16,161 @@
       "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a297ef24_d364f7b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:36:20Z",
+      "side": 1,
+      "message": "basically lgtm",
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9b89545_61580387",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 1562,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:36:20Z",
+      "side": 1,
+      "message": "with these names you might consider renaming this to view().",
+      "range": {
+        "startLine": 1562,
+        "startChar": 15,
+        "endLine": 1562,
+        "endChar": 19
+      },
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5ed3bf8_5e423174",
+        "filename": "src/core/SkAAClip.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 1339,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:36:20Z",
+      "side": 1,
+      "message": "This is probably worth writing out as SkPathView",
+      "range": {
+        "startLine": 1339,
+        "startChar": 10,
+        "endLine": 1339,
+        "endChar": 15
+      },
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dd553f5_c1c56981",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:36:20Z",
+      "side": 1,
+      "message": "I don\u0027t think anyone would be confused if this comment weren\u0027t here?",
+      "range": {
+        "startLine": 696,
+        "startChar": 26,
+        "endLine": 696,
+        "endChar": 59
+      },
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "936d5731_2049bf8e",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:36:20Z",
+      "side": 1,
+      "message": "You can move these inside the functions if you keep them static, just\n\n    static constexpr uint8_t verbs[] \u003d { ... };",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 2
+      },
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c89ee05_36d105ea",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:36:20Z",
+      "side": 1,
+      "message": "Maybe just {}?",
+      "range": {
+        "startLine": 64,
+        "startChar": 76,
+        "endLine": 64,
+        "endChar": 88
+      },
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45ede035_707771aa",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T19:36:20Z",
+      "side": 1,
+      "message": "SkMakeSpan(gLineVerbs3) ought to work here.",
+      "range": {
+        "startLine": 64,
+        "startChar": 33,
+        "endLine": 64,
+        "endChar": 73
+      },
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
