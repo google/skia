@@ -247,13 +247,6 @@ void SkPDFTagTree::init(SkPDF::StructureElementNode* node) {
     }
 }
 
-void SkPDFTagTree::reset() {
-    fArena.reset();
-    fNodeMap.reset();
-    fMarksPerPage.reset();
-    fRoot = nullptr;
-}
-
 int SkPDFTagTree::createMarkIdForNodeId(int nodeId, unsigned pageIndex) {
     if (!fRoot) {
         return -1;
