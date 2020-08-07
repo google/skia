@@ -31,8 +31,9 @@ struct FunctionDefinition : public ProgramElement {
     , fBody(std::move(body))
     , fReferencedIntrinsics(referencedIntrinsics) {}
 
-    bool canBeInlined(int threshold) const {
-        return fBody->nodeCount() < threshold;
+    bool canBeInlined() const {
+        static const int INLINE_THRESHOLD = 50; // chosen arbitrarily, feel free to adjust
+        return fBody->nodeCount() < INLINE_THRESHOLD;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
