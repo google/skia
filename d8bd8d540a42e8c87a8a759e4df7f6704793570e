@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7ab8917_56776895",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T22:02:52Z",
+      "side": 1,
+      "message": "We\u0027re going to crash on the next line--maybe SK_ABORT is appropriate?",
+      "range": {
+        "startLine": 310,
+        "startChar": 12,
+        "endLine": 310,
+        "endChar": 20
+      },
+      "revId": "d8bd8d540a42e8c87a8a759e4df7f6704793570e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7608e6a6_d5affa8a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T22:02:52Z",
+      "side": 1,
+      "message": "Any reason not to use Modifiers::Flag ? \n(Here and in the IRGenerator::checkModifiers signature)",
+      "range": {
+        "startLine": 358,
+        "startChar": 4,
+        "endLine": 358,
+        "endChar": 7
+      },
+      "revId": "d8bd8d540a42e8c87a8a759e4df7f6704793570e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44e50119_e458177a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T22:02:52Z",
+      "side": 1,
+      "message": "Do we want\n\nCHECK(Modifiers::kIn_Flag | Modifiers::kOut_Flag, \"inout\");\n\n?\nIt looks like post-parse we can\u0027t distinguish \"in out float x\" from \"inout float x\" so I\u0027m not sure if we should have a separate line for this or not. Two individual errors about \"in\" and \"out\" might be sufficient. Either one is probably good enough?",
+      "range": {
+        "startLine": 845,
+        "startChar": 1,
+        "endLine": 845,
+        "endChar": 4
+      },
+      "revId": "d8bd8d540a42e8c87a8a759e4df7f6704793570e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
