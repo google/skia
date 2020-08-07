@@ -195,11 +195,11 @@ bool SkDCubic::hullIntersects(const SkDPoint* pts, int ptCount, bool* isLinear) 
 }
 
 bool SkDCubic::hullIntersects(const SkDCubic& c2, bool* isLinear) const {
-    return hullIntersects(c2.fPts, c2.kPointCount, isLinear);
+    return hullIntersects(c2.fPts, SkDCubic::kPointCount, isLinear);
 }
 
 bool SkDCubic::hullIntersects(const SkDQuad& quad, bool* isLinear) const {
-    return hullIntersects(quad.fPts, quad.kPointCount, isLinear);
+    return hullIntersects(quad.fPts, SkDQuad::kPointCount, isLinear);
 }
 
 bool SkDCubic::hullIntersects(const SkDConic& conic, bool* isLinear) const {
