@@ -51,6 +51,23 @@
       "revId": "3206f297750f2f19a768cc55c1033cc3325accce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4be629f_4d873afd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T15:58:11Z",
+      "side": 1,
+      "message": "I think we can add this as a regression test?\n\ndiff --git a/tests/SkResourceCacheTest.cpp b/tests/SkResourceCacheTest.cpp\nindex 1e9ac88c10..89339cd6be 100644\n--- a/tests/SkResourceCacheTest.cpp\n+++ b/tests/SkResourceCacheTest.cpp\n@@ -110,8 +110,11 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca\n #include \"src/lazy/SkDiscardableMemoryPool.h\"\n\n static SkDiscardableMemoryPool* gPool \u003d nullptr;\n+static int gFactoryCalls \u003d 0;\n+\n static SkDiscardableMemory* pool_factory(size_t bytes) {\n     SkASSERT(gPool);\n+    gFactoryCalls++;\n     return gPool-\u003ecreate(bytes);\n }\n\n@@ -134,6 +137,7 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {\n         SkResourceCache cache(factory);\n         testBitmapCache_discarded_bitmap(reporter, \u0026cache, factory);\n     }\n+    REPORTER_ASSERT(reporter, gFactoryCalls \u003e 0);\n }\n\n static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix\u0026 transform,",
+      "revId": "3206f297750f2f19a768cc55c1033cc3325accce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
