@@ -16,6 +16,23 @@
       "revId": "e864bfad136ca779aac2da8cadeb419fc1c2c854",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dadc7147_faad0c66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-08-07T22:24:07Z",
+      "side": 1,
+      "message": "I guess you have tried alternatives, before polling if a file exists:) That looks okayish if there was no better way to do it quick.",
+      "revId": "e864bfad136ca779aac2da8cadeb419fc1c2c854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
