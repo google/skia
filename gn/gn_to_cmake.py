@@ -605,8 +605,7 @@ def WriteTarget(out, target, project):
     out.write(')\n')
 
   # Non-OBJECT library dependencies.
-  combined_library_lists = [target.properties.get(key, []) for key in ['libs', 'frameworks']]
-  external_libraries = list(itertools.chain(*combined_library_lists))
+  external_libraries = target.properties.get('libs', [])
   if target.cmake_type.is_linkable and (external_libraries or libraries):
     library_dirs = target.properties.get('lib_dirs', [])
     if library_dirs:
