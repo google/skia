@@ -53,6 +53,29 @@
     },
     {
       "key": {
+        "uuid": "5cda4fc1_fde9bc2f",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T14:59:51Z",
+      "side": 1,
+      "message": "This is why we pick up \u0027frameworks\u0027 correctly.",
+      "range": {
+        "startLine": 252,
+        "startChar": 29,
+        "endLine": 252,
+        "endChar": 32
+      },
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8d5fec6f_a9aae88b",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -64,6 +87,24 @@
       "writtenOn": "2020-08-07T14:57:11Z",
       "side": 1,
       "message": "need to also forward any \u0027frameworks\u0027 here.",
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7282fcd_325548ab",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T14:59:51Z",
+      "side": 1,
+      "message": "This is the list of things _not to forward_ when the optional target is disabled.  But yeah, putting frameworks on this list is a good idea to prevent linking them when we don\u0027t need them.",
+      "parentUuid": "8d5fec6f_a9aae88b",
       "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
