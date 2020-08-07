@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "6f8de62e_d6320416",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T20:08:58Z",
+      "side": 1,
+      "message": "Except span doesn\u0027t own any storage (it\u0027s just a pointer of some type and a length). The storage of initializer_list is hard to reason about, but I\u0027m pretty sure it\u0027s more or less temporary? Like, the user would have to keep the initial initializer_list alive somehow, which is a somewhat odd thing to do. In a range based for loop it\u0027s the `auto \u0026\u0026 __range \u003d range_expression ;` outside the for loop which is keeping the initializer list alive (it\u0027s doing lifetime extension).",
+      "parentUuid": "fab3789f_807225fc",
+      "revId": "e6532a20c2a1c6033cdc110088883d0d538ce26e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9b89545_61580387",
         "filename": "include/core/SkPath.h",
         "patchSetId": 25
