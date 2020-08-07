@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "e3c0cc75_ac4a708b",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 900,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-07T14:23:23Z",
+      "side": 1,
+      "message": "Cleaned this up (along with the runtime shader code I copied).",
+      "parentUuid": "d138751d_0e8a8a8d",
+      "range": {
+        "startLine": 897,
+        "startChar": 0,
+        "endLine": 900,
+        "endChar": 5
+      },
+      "revId": "ec296b9e06f4cae577fac7de4b6efc65d200d19a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e6e4194_ad6a364a",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 4
@@ -62,6 +86,30 @@
       "revId": "ec296b9e06f4cae577fac7de4b6efc65d200d19a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54292b64_b59d3482",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-07T14:23:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e6e4194_ad6a364a",
+      "range": {
+        "startLine": 902,
+        "startChar": 38,
+        "endLine": 903,
+        "endChar": 32
+      },
+      "revId": "ec296b9e06f4cae577fac7de4b6efc65d200d19a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
