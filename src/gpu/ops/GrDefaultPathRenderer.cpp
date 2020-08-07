@@ -734,7 +734,7 @@ GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     // For now just hairlines because the other types of draws require two ops.
     // TODO we should figure out a way to combine the stencil and cover steps into one op.
     GrStyle style(SkStrokeRec::kHairline_InitStyle);
-    SkPath path = GrTest::TestPath(random);
+    const SkPath& path = GrTest::TestPath(random);
 
     // Compute srcSpaceTol
     SkRect bounds = path.getBounds();
