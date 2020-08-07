@@ -182,6 +182,8 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
 
     fGpu->currentCommandList()->setGraphicsRootSignature(fCurrentPipelineState->rootSignature());
     fGpu->currentCommandList()->setPipelineState(fCurrentPipelineState);
+    fGpu->currentCommandList()->setCenteredSamplePositions(!info.pipeline().isHWAntialiasState(),
+                                                           fRenderTarget->numSamples());
 
     fCurrentPipelineState->setAndBindConstants(fGpu, fRenderTarget, info);
 

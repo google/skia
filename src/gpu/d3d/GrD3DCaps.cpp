@@ -174,8 +174,8 @@ void GrD3DCaps::initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc,
     // We assume a minimum of Shader Model 5.1, which allows at most 32 vertex inputs.
     fMaxVertexAttributes = 32;
 
-    // TODO: we can set locations but not sure if we can query them
-    fSampleLocationsSupport = false;
+    // Can use standard sample locations
+    fSampleLocationsSupport = true;
 
     if (D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER_NOT_SUPPORTED !=
             options2Desc.ProgrammableSamplePositionsTier) {
@@ -729,6 +729,7 @@ static bool multisample_count_supported(ID3D12Device* device, DXGI_FORMAT format
     D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msqLevels;
     msqLevels.Format = format;
     msqLevels.SampleCount = sampleCount;
+    msqLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
     GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
                                                      &msqLevels, sizeof(msqLevels)));
 

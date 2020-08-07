@@ -22,8 +22,6 @@ private:
     class Resource;
 
 public:
-    static const unsigned int kDefaultQualityLevel = 0;
-
     GrD3DTextureResource(const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state)
             : fInfo(info)
             , fState(std::move(state))

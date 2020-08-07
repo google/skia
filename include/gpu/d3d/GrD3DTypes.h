@@ -159,7 +159,7 @@ struct GrD3DTextureResourceInfo {
     D3D12_RESOURCE_STATES    fResourceState;
     DXGI_FORMAT              fFormat;
     uint32_t                 fLevelCount;
-    unsigned int             fSampleQualityLevel;
+    unsigned int             fSampleQualityLevel; //*** should be sample quality pattern
     GrProtected              fProtected;
 
     GrD3DTextureResourceInfo()
@@ -167,7 +167,7 @@ struct GrD3DTextureResourceInfo {
             , fResourceState(D3D12_RESOURCE_STATE_COMMON)
             , fFormat(DXGI_FORMAT_UNKNOWN)
             , fLevelCount(0)
-            , fSampleQualityLevel(0)
+            , fSampleQualityLevel(DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN)
             , fProtected(GrProtected::kNo) {}
 
     GrD3DTextureResourceInfo(ID3D12Resource* resource,
