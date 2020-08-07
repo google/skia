@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9692d7db_f9c5db70",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-07T20:52:39Z",
+      "side": 1,
+      "message": "In practice this is the same as the willReadDst bools, but since we are just down in making a render pass this is more of the \"render pass lingo\"",
+      "range": {
+        "startLine": 89,
+        "startChar": 40,
+        "endLine": 89,
+        "endChar": 68
+      },
+      "revId": "3d144a8282a1cfe315806b845e03051a05d0595a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
