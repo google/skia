@@ -12,19 +12,24 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 #if GR_TEST_UTILS
 
 class GrGeometryProcessor;
 
 GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
-                                         int numViews, const ViewInfo views[])
-        : GrProcessorTestData(random, context, numViews, views, /*inputFP=*/nullptr) {}
+                                         int maxTreeDepth, int numViews, const ViewInfo views[])
+        : GrProcessorTestData(random, context, maxTreeDepth, numViews, views,
+                              /*inputFP=*/nullptr) {}
 
 GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
-                                         int numViews, const ViewInfo views[],
+                                         int maxTreeDepth, int numViews, const ViewInfo views[],
                                          std::unique_ptr<GrFragmentProcessor> inputFP)
-        : fRandom(random), fContext(context), fInputFP(std::move(inputFP)) {
+        : fRandom(random)
+        , fMaxTreeDepth(maxTreeDepth)
+        , fContext(context)
+        , fInputFP(std::move(inputFP)) {
     fViews.reset(views, numViews);
     fArena = std::make_unique<SkArenaAlloc>(1000);
 }
@@ -35,7 +40,15 @@ GrProxyProvider* GrProcessorTestData::proxyProvider() { return fContext->priv().
 
 const GrCaps* GrProcessorTestData::caps() { return fContext->priv().caps(); }
 
-std::unique_ptr<GrFragmentProcessor> GrProcessorTestData::inputFP() { return std::move(fInputFP); }
+std::unique_ptr<GrFragmentProcessor> GrProcessorTestData::inputFP() {
+    if (fCurrentTreeDepth == 0) {
+        // At the top level of the tree, provide the input FP from the test data.
+        return fInputFP ? fInputFP->clone() : nullptr;
+    } else {
+        // At deeper levels of recursion, synthesize a random input.
+        return GrProcessorUnitTest::MakeChildFP(this);
+    }
+}
 
 GrProcessorTestData::ViewInfo GrProcessorTestData::randomView() {
     SkASSERT(!fViews.empty());
@@ -164,11 +177,32 @@ void GrXPFactoryTestFactory::VerifyFactoryCount() {
 
 std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcessorTestData* data) {
     std::unique_ptr<GrFragmentProcessor> fp;
-    do {
-        fp = GrFragmentProcessorTestFactory::Make(data);
-        SkASSERT(fp);
-    } while (fp->numNonNullChildProcessors() != 0);
+
+    ++data->fCurrentTreeDepth;
+    if (data->fCurrentTreeDepth > data->fMaxTreeDepth) {
+        // We've gone too deep, but we can't necessarily return null without risking an assertion.
+        // Instead, return a known-simple zero-child FP. This limits the recursion, and the
+        // generated FP will be rejected by the numNonNullChildProcessors check below.
+        fp = GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT);
+    } else {
+        for (;;) {
+            fp = GrFragmentProcessorTestFactory::Make(data);
+            SkASSERT(fp);
+            // If our tree has already reached its max depth, we must reject FPs that have children.
+            if (data->fCurrentTreeDepth < data->fMaxTreeDepth ||
+                fp->numNonNullChildProcessors() == 0) {
+                break;
+            }
+        }
+    }
+
+    --data->fCurrentTreeDepth;
     return fp;
+}
+
+std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeOptionalChildFP(
+        GrProcessorTestData* data) {
+    return data->fRandom->nextBool() ? MakeChildFP(data) : nullptr;
 }
 
 template class GrProcessorTestFactory<GrGeometryProcessor*>;
