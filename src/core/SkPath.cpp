@@ -230,6 +230,12 @@ void SkPath::swap(SkPath& that) {
     }
 }
 
+SkPathView SkPath::view() const {
+    return fPathRef->view(this->getFillType(), this->getConvexityType());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool SkPath::isInterpolatable(const SkPath& compare) const {
     // need the same structure (verbs, conicweights) and same point-count
     return fPathRef->fPoints.count() == compare.fPathRef->fPoints.count() &&
@@ -467,7 +473,7 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, SkPathDirection* direction) co
     SkDEBUGCODE(this->validate();)
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
-    return SkPathPriv::IsRectContour(*this, false, &currVerb, &pts, isClosed, direction, rect);
+    return SkPathPriv::IsRectContour(this->view(), false, &currVerb, &pts, isClosed, direction, rect);
 }
 
 bool SkPath::isOval(SkRect* bounds) const {
@@ -3425,7 +3431,7 @@ SkPath SkPath::Polygon(const SkPoint pts[], int count, bool isClosed,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currVerb,
+bool SkPathPriv::IsRectContour(const SkPathView& path, bool allowPartial, int* currVerb,
                                const SkPoint** ptsPtr, bool* isClosed, SkPathDirection* direction,
                                SkRect* rect) {
     int corners = 0;
@@ -3442,9 +3448,9 @@ bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currV
     bool closedOrMoved = false;
     bool autoClose = false;
     bool insertClose = false;
-    int verbCnt = path.fPathRef->countVerbs();
+    int verbCnt = path.fVerbs.count();
     while (*currVerb < verbCnt && (!allowPartial || !autoClose)) {
-        uint8_t verb = insertClose ? (uint8_t) SkPath::kClose_Verb : path.fPathRef->atVerb(*currVerb);
+        uint8_t verb = insertClose ? (uint8_t) SkPath::kClose_Verb : path.fVerbs[*currVerb];
         switch (verb) {
             case SkPath::kClose_Verb:
                 savePts = pts;
@@ -3566,10 +3572,9 @@ bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currV
 }
 
 
-bool SkPathPriv::IsNestedFillRects(const SkPath& path, SkRect rects[2], SkPathDirection dirs[2]) {
-    SkDEBUGCODE(path.validate();)
+bool SkPathPriv::IsNestedFillRects(const SkPathView& path, SkRect rects[2], SkPathDirection dirs[2]) {
     int currVerb = 0;
-    const SkPoint* pts = path.fPathRef->points();
+    const SkPoint* pts = path.fPoints.begin();
     SkPathDirection testDirs[2];
     SkRect testRects[2];
     if (!IsRectContour(path, true, &currVerb, &pts, nullptr, &testDirs[0], &testRects[0])) {
@@ -3706,7 +3711,7 @@ static void clip(const SkPath& path, const SkHalfPlane& plane, SkPath* clippedPa
         SkPoint fPrev;
     } rec = { clippedPath, {0, 0} };
 
-    SkEdgeClipper::ClipPath(rotated, clip, false,
+    SkEdgeClipper::ClipPath(rotated.view(), clip, false,
                             [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
         Rec* rec = (Rec*)ctx;
 

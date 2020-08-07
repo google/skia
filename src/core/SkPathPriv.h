@@ -10,6 +10,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/private/SkIDChangeListener.h"
+#include "src/core/SkPathView.h"
 
 static_assert(0 == static_cast<int>(SkPathFillType::kWinding), "fill_type_mismatch");
 static_assert(1 == static_cast<int>(SkPathFillType::kEvenOdd), "fill_type_mismatch");
@@ -167,6 +168,13 @@ public:
                                              : path.fPathRef->verbsEnd(),
                           path.fPathRef->points(), path.fPathRef->conicWeights()) {
         }
+        Iterate(const SkPathView& path)
+                : Iterate(path.fVerbs.begin(),
+                          // Don't allow iteration through non-finite points.
+                          (!path.isFinite()) ? path.fVerbs.begin()
+                                             : path.fVerbs.end(),
+                          path.fPoints.begin(), path.fWeights.begin()) {
+        }
         Iterate(const uint8_t* verbsBegin, const uint8_t* verbsEnd, const SkPoint* points,
                 const SkScalar* weights)
                 : fVerbsBegin(verbsBegin), fVerbsEnd(verbsEnd), fPoints(points), fWeights(weights) {
@@ -323,7 +331,7 @@ public:
         return true;
     }
 
-    static bool IsRectContour(const SkPath&, bool allowPartial, int* currVerb,
+    static bool IsRectContour(const SkPathView&, bool allowPartial, int* currVerb,
                               const SkPoint** ptsPtr, bool* isClosed, SkPathDirection* direction,
                               SkRect* rect);
 
@@ -338,8 +346,13 @@ public:
      @param dirs  storage for SkPathDirection pair; may be nullptr
      @return      true if SkPath contains nested SkRect pair
      */
-    static bool IsNestedFillRects(const SkPath&, SkRect rect[2],
+    static bool IsNestedFillRects(const SkPathView&, SkRect rect[2],
                                   SkPathDirection dirs[2] = nullptr);
+
+    static bool IsNestedFillRects(const SkPath& path, SkRect rect[2],
+                                  SkPathDirection dirs[2] = nullptr) {
+        return IsNestedFillRects(path.view(), rect, dirs);
+    }
 
     static bool IsInverseFillType(SkPathFillType fill) {
         return (static_cast<int>(fill) & 2) != 0;
@@ -402,7 +415,8 @@ class SkPathEdgeIter {
     };
 
 public:
-    SkPathEdgeIter(const SkPath& path);
+    SkPathEdgeIter(const SkPath&);
+    SkPathEdgeIter(const SkPathView&);
 
     SkScalar conicWeight() const {
         SkASSERT(fIsConic);

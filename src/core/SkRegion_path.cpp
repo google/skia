@@ -365,7 +365,7 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
         return this->setEmpty();
     }
 
-    SkScan::FillPath(path, clip, &builder);
+    SkScan::FillPath(path.view(), clip, &builder);
     builder.done();
 
     int count = builder.computeRunCount();

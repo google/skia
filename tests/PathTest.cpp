@@ -22,6 +22,7 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkPathView.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
@@ -5554,12 +5555,13 @@ void survive(SkPath* path, const Xforms& x, bool isAxisAligned, skiatest::Report
     // getConvexityTypeOrUnknown() instead of getConvexityType().
     path->transform(x.fRM, &path2);
     path->transform(x.fRM);
+    REPORTER_ASSERT(reporter, path2.getConvexityTypeOrUnknown() != SkPathConvexityType::kConvex);
+    REPORTER_ASSERT(reporter, path->getConvexityTypeOrUnknown() != SkPathConvexityType::kConvex);
+
     if (isAxisAligned) {
         REPORTER_ASSERT(reporter, !isa_proc(path2));
         REPORTER_ASSERT(reporter, !isa_proc(*path));
     }
-    REPORTER_ASSERT(reporter, path2.getConvexityTypeOrUnknown() != SkPathConvexityType::kConvex);
-    REPORTER_ASSERT(reporter, path->getConvexityTypeOrUnknown() != SkPathConvexityType::kConvex);
 }
 
 DEF_TEST(Path_survive_transform, r) {
@@ -5626,13 +5628,18 @@ static void test_edger(skiatest::Reporter* r,
     }
 
     SkPathEdgeIter iter(path);
+    SkPathEdgeIter iter2(path.view());
     for (auto v : expected) {
         auto e = iter.next();
         REPORTER_ASSERT(r, e);
         REPORTER_ASSERT(r, SkPathEdgeIter::EdgeToVerb(e.fEdge) == v);
+
+        e = iter2.next();
+        REPORTER_ASSERT(r, e);
+        REPORTER_ASSERT(r, SkPathEdgeIter::EdgeToVerb(e.fEdge) == v);
     }
-    auto e = iter.next();
-    REPORTER_ASSERT(r, !e);
+    REPORTER_ASSERT(r, !iter.next());
+    REPORTER_ASSERT(r, !iter2.next());
 }
 
 DEF_TEST(pathedger, r) {
