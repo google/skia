@@ -43,7 +43,14 @@
 #include "spirv-tools/libspirv.hpp"
 #endif
 
-#if !SKSL_STANDALONE
+// If true, we use a compact binary IR representation of the core include files; otherwise we parse
+// the actual source code for the include files at runtime. The main reason you would need to change
+// this is to make format changes easier: set it to 0, change the encoder and decoder as needed,
+// build Skia to regenerate the encoded files, then set this back to 1 to actually use the
+// newly-generated files.
+#define REHYDRATE 1
+
+#if REHYDRATE
 
 #include "src/sksl/generated/sksl_fp.dehydrated.sksl"
 #include "src/sksl/generated/sksl_frag.dehydrated.sksl"
@@ -54,6 +61,8 @@
 #include "src/sksl/generated/sksl_vert.dehydrated.sksl"
 
 #else
+
+#warning SkSL rehydrator is disabled
 
 static const char SKSL_GPU_INCLUDE[]      = "../../src/sksl/sksl_gpu.sksl";
 static const char SKSL_INTERP_INCLUDE[]   = "../../src/sksl/sksl_interp.sksl";
@@ -236,7 +245,7 @@ Compiler::Compiler(Flags flags)
     fIRGenerator->fIntrinsics = &fGPUIntrinsics;
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
     std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
-#if SKSL_STANDALONE
+#if !REHYDRATE
     this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, symbols, &gpuIntrinsics,
                              &fGpuSymbolTable);
     this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, fGpuSymbolTable,
@@ -275,7 +284,7 @@ void Compiler::loadGeometryIntrinsics() {
     if (fGeometrySymbolTable) {
         return;
     }
-    #if !SKSL_STANDALONE
+    #if REHYDRATE
         {
             Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_geom,
                               SKSL_INCLUDE_sksl_geom_LENGTH);
@@ -292,7 +301,7 @@ void Compiler::loadPipelineIntrinsics() {
     if (fPipelineSymbolTable) {
         return;
     }
-    #if !SKSL_STANDALONE
+    #if REHYDRATE
         {
             Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this,
                                   SKSL_INCLUDE_sksl_pipeline,
@@ -311,7 +320,7 @@ void Compiler::loadInterpreterIntrinsics() {
         return;
     }
     this->loadPipelineIntrinsics();
-    #if !SKSL_STANDALONE
+    #if REHYDRATE
         {
             Rehydrator rehydrator(fContext.get(), fPipelineSymbolTable, this,
                                   SKSL_INCLUDE_sksl_interp,
@@ -1549,7 +1558,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kFragmentProcessor_Kind: {
-#if !SKSL_STANDALONE
+#if REHYDRATE
             {
                 Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this,
                                       SKSL_INCLUDE_sksl_fp,
