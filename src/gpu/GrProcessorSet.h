@@ -141,7 +141,7 @@ public:
     /** These are valid only for non-LCD coverage. */
     static const GrProcessorSet& EmptySet();
     static GrProcessorSet MakeEmptySet();
-    static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
+    static constexpr Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
 
 #ifdef SK_DEBUG
     SkString dumpProcessors() const;

@@ -44,7 +44,7 @@ private:
 
 inline GrTextureProxyPriv GrTextureProxy::texPriv() { return GrTextureProxyPriv(this); }
 
-inline const GrTextureProxyPriv GrTextureProxy::texPriv() const {
+inline const GrTextureProxyPriv GrTextureProxy::texPriv() const {  // NOLINT(readability-const-return-type)
     return GrTextureProxyPriv(const_cast<GrTextureProxy*>(this));
 }
 
