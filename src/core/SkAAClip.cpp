@@ -1336,11 +1336,12 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
 
     Builder        builder(ibounds);
     BuilderBlitter blitter(&builder);
+    const SkPathView view = path.view();
 
     if (doAA) {
-        SkScan::AntiFillPath(path, snugClip, &blitter, true);
+        SkScan::AntiFillPath(view, snugClip, &blitter, true);
     } else {
-        SkScan::FillPath(path, snugClip, &blitter);
+        SkScan::FillPath(view, snugClip, &blitter);
     }
 
     blitter.finish();
