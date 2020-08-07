@@ -342,6 +342,14 @@ std::unique_ptr<GrOp> GrOpsTask::OpChain::appendOp(
     return nullptr;
 }
 
+void GrOpsTask::OpChain::print() const {
+    for (const auto& op : GrOp::ChainRange<>(fList.head())) {
+        SkString str = op.dumpInfo();
+        SkDebugf("%s\n", str.c_str());
+    }
+}
+
+
 inline void GrOpsTask::OpChain::validate() const {
 #ifdef SK_DEBUG
     fList.validate();

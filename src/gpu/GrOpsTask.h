@@ -195,6 +195,7 @@ private:
     // Returns true if the clear can be converted into a load op (barring device caps).
     bool resetForFullscreenClear(CanDiscardPreviousOps);
 
+ public:
     class OpChain {
     public:
         OpChain(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*,
@@ -236,6 +237,8 @@ private:
         bool shouldExecute() const {
             return SkToBool(this->head()) && !fSkipExecute;
         }
+
+        void print() const;
 
     private:
         class List {
