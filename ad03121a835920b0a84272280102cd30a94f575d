@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab27d473_952fd041",
+        "filename": "modules/skottie/utils/SkottieUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T16:18:33Z",
+      "side": 1,
+      "message": "Might be clearest to call this one as CustomPropertyManager::AcceptKey(), since we\u0027re in a nested class here?",
+      "range": {
+        "startLine": 18,
+        "startChar": 31,
+        "endLine": 18,
+        "endChar": 40
+      },
+      "revId": "ad03121a835920b0a84272280102cd30a94f575d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
