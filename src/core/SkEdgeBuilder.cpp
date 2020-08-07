@@ -14,6 +14,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkLineClipper.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkPathView.h"
 #include "src/core/SkSafeMath.h"
 
 SkEdgeBuilder::Combine SkBasicEdgeBuilder::combineVertical(const SkEdge* edge, SkEdge* last) {
@@ -218,8 +219,8 @@ char* SkAnalyticEdgeBuilder::allocEdges(size_t n, size_t* size) {
 }
 
 // TODO: maybe get rid of buildPoly() entirely?
-int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
-    size_t maxEdgeCount = path.countPoints();
+int SkEdgeBuilder::buildPoly(const SkPathView& path, const SkIRect* iclip, bool canCullToTheRight) {
+    size_t maxEdgeCount = path.fPoints.size();
     if (iclip) {
         // clipping can turn 1 line into (up to) kMaxClippedLineSegments, since
         // we turn portions that are clipped out on the left/right into vertical
@@ -286,7 +287,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
     return SkToInt(edgePtr - (char**)fEdgeList);
 }
 
-int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
+int SkEdgeBuilder::build(const SkPathView& path, const SkIRect* iclip, bool canCullToTheRight) {
     SkAutoConicToQuads quadder;
     const SkScalar conicTol = SK_Scalar1 / 4;
     bool is_finite = true;
@@ -360,14 +361,14 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
     return is_finite ? fList.count() : 0;
 }
 
-int SkEdgeBuilder::buildEdges(const SkPath& path,
+int SkEdgeBuilder::buildEdges(const SkPathView& path,
                               const SkIRect* shiftedClip) {
     // If we're convex, then we need both edges, even if the right edge is past the clip.
     const bool canCullToTheRight = !path.isConvex();
 
     // We can use our buildPoly() optimization if all the segments are lines.
-    // (Edges are homogenous and stored contiguously in memory, no need for indirection.)
-    const int count = SkPath::kLine_SegmentMask == path.getSegmentMasks()
+    // (Edges are homogeneous and stored contiguously in memory, no need for indirection.)
+    const int count = SkPath::kLine_SegmentMask == path.fSegmentMask
         ? this->buildPoly(path, shiftedClip, canCullToTheRight)
         : this->build    (path, shiftedClip, canCullToTheRight);
 
