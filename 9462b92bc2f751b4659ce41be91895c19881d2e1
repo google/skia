@@ -63,6 +63,30 @@
       "revId": "9462b92bc2f751b4659ce41be91895c19881d2e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be5aa50e_96b9a19a",
+        "filename": "src/ports/SkTypeface_mac_ct.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T14:24:11Z",
+      "side": 1,
+      "message": "I think they\u0027re stripped fwiw, but I may be thinking of Android.  In any case, our stderr-based logging definitely gets hard to read without some sort of separation between unrelated messages.",
+      "parentUuid": "57b5f0b6_4cf6281c",
+      "range": {
+        "startLine": 798,
+        "startChar": 50,
+        "endLine": 798,
+        "endChar": 52
+      },
+      "revId": "9462b92bc2f751b4659ce41be91895c19881d2e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
