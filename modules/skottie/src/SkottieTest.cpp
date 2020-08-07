@@ -383,6 +383,9 @@ DEF_TEST(Skottie_Annotations, reporter) {
             .make(&stream);
 
     REPORTER_ASSERT(reporter, animation);
+    REPORTER_ASSERT(reporter, animation->duration() == 10);
+    REPORTER_ASSERT(reporter, animation->inPoint()  == 0.0);
+    REPORTER_ASSERT(reporter, animation->outPoint() == 100.0);
 
     REPORTER_ASSERT(reporter, observer->fMarkers.size() == 2ul);
     REPORTER_ASSERT(reporter, std::get<0>(observer->fMarkers[0]) == "marker_1");
