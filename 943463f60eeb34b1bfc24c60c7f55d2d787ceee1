@@ -204,6 +204,24 @@
       "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6d0460e_1c826f66",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-07T15:44:08Z",
+      "side": 1,
+      "message": "Yes, might as well do it now.",
+      "parentUuid": "9ae4be1f_1b689335",
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
