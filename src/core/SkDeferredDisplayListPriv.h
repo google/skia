@@ -53,7 +53,7 @@ inline SkDeferredDisplayListPriv SkDeferredDisplayList::priv() {
     return SkDeferredDisplayListPriv(this);
 }
 
-inline const SkDeferredDisplayListPriv SkDeferredDisplayList::priv () const {
+inline const SkDeferredDisplayListPriv SkDeferredDisplayList::priv () const {  // NOLINT(readability-const-return-type)
     return SkDeferredDisplayListPriv(const_cast<SkDeferredDisplayList*>(this));
 }
 

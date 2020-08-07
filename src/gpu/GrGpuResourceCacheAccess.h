@@ -96,7 +96,7 @@ private:
 
 inline GrGpuResource::CacheAccess GrGpuResource::cacheAccess() { return CacheAccess(this); }
 
-inline const GrGpuResource::CacheAccess GrGpuResource::cacheAccess() const {
+inline const GrGpuResource::CacheAccess GrGpuResource::cacheAccess() const {  // NOLINT(readability-const-return-type)
     return CacheAccess(const_cast<GrGpuResource*>(this));
 }
 

@@ -45,7 +45,7 @@ inline GrRenderTargetProxyPriv GrRenderTargetProxy::rtPriv() {
     return GrRenderTargetProxyPriv(this);
 }
 
-inline const GrRenderTargetProxyPriv GrRenderTargetProxy::rtPriv() const {
+inline const GrRenderTargetProxyPriv GrRenderTargetProxy::rtPriv() const {  // NOLINT(readability-const-return-type)
     return GrRenderTargetProxyPriv(const_cast<GrRenderTargetProxy*>(this));
 }
 

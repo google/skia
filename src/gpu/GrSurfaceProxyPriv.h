@@ -56,7 +56,7 @@ private:
 
 inline GrSurfaceProxyPriv GrSurfaceProxy::priv() { return GrSurfaceProxyPriv(this); }
 
-inline const GrSurfaceProxyPriv GrSurfaceProxy::priv () const {
+inline const GrSurfaceProxyPriv GrSurfaceProxy::priv () const {  // NOLINT(readability-const-return-type)
     return GrSurfaceProxyPriv(const_cast<GrSurfaceProxy*>(this));
 }
 
