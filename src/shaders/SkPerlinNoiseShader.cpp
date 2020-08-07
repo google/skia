@@ -1132,9 +1132,10 @@ private:
     }
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
-        const GrImprovedPerlinNoiseEffect& s = sBase.cast<GrImprovedPerlinNoiseEffect>();
-        return fZ == fZ &&
-               fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency;
+        const GrImprovedPerlinNoiseEffect& that = sBase.cast<GrImprovedPerlinNoiseEffect>();
+        return this->z() == that.z() &&
+               this->octaves() == that.octaves() &&
+               this->baseFrequency() == that.baseFrequency();
     }
 
     GrImprovedPerlinNoiseEffect(int octaves,
@@ -1155,7 +1156,8 @@ private:
             : INHERITED(kGrImprovedPerlinNoiseEffect_ClassID, kNone_OptimizationFlags)
             , fOctaves(that.fOctaves)
             , fZ(that.fZ)
-            , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
+            , fPaintingData(std::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(
+                      *that.fPaintingData)) {
         this->cloneAndRegisterAllChildProcessors(that);
         this->setUsesSampleCoordsDirectly();
     }
@@ -1184,9 +1186,9 @@ std::unique_ptr<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(
     SkScalar z = SkIntToScalar(d->fRandom->nextU());
 
     sk_sp<SkShader> shader(SkPerlinNoiseShader::MakeImprovedNoise(baseFrequencyX,
-                                                                   baseFrequencyY,
-                                                                   numOctaves,
-                                                                   z));
+                                                                  baseFrequencyY,
+                                                                  numOctaves,
+                                                                  z));
 
     GrTest::TestAsFPArgs asFPArgs(d);
     return as_SB(shader)->asFragmentProcessor(asFPArgs.args());
