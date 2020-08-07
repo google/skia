@@ -70,6 +70,23 @@
       "revId": "6ccee9e4eaa4db61726c0ce9aefed149f0bf259f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fff79b0d_f917ab82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-07T18:19:30Z",
+      "side": 1,
+      "message": "I would gladly accept an help you will give include change code. I remember adding reset for only two uses cases. It seems to be spreading.",
+      "revId": "6ccee9e4eaa4db61726c0ce9aefed149f0bf259f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
