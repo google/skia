@@ -33,6 +33,24 @@
       "revId": "9b37a961bded3c8c20170843d3e9d7d0deff4383",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19611d4b_5380ded3",
+        "filename": "tests/GrStyledShapeTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1538,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T21:31:37Z",
+      "side": 1,
+      "message": "There will probably be more--I\u0027m using the dry-run bot to find cases to avoid tying up my computer for 2+ hours. (Local clang-tidy is REALLY slow, which is why I tend to run these at night/weekends when I\u0027m not actively working)\n\n`name(val)` should be equivalent to `name \u003d val` (outside of vexing-parse issues). Happy to fix those up.",
+      "parentUuid": "3298c0e9_07e31b1a",
+      "revId": "9b37a961bded3c8c20170843d3e9d7d0deff4383",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
