@@ -33,6 +33,7 @@ class GrPath;
 class GrRenderTargetContext;
 class GrResourceCache;
 class GrResourceProvider;
+class GrSmallPathAtlasMgr;
 class GrStrikeCache;
 class GrSurfaceProxy;
 class GrSwizzle;
@@ -755,6 +756,7 @@ protected:
     bool init() override;
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
+    virtual GrSmallPathAtlasMgr* onGetSmallPathAtlasMgr() = 0;
 
 private:
     friend class GrDirectContext; // for access to fGpu
