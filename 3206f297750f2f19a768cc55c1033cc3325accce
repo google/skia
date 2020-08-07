@@ -86,6 +86,24 @@
       "revId": "3206f297750f2f19a768cc55c1033cc3325accce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6aa7a77e_e6e36807",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T16:16:25Z",
+      "side": 1,
+      "message": "`out/Debug/dm -m BitmapCache` passes with these changes",
+      "parentUuid": "46655d50_b8fd3af2",
+      "revId": "3206f297750f2f19a768cc55c1033cc3325accce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
