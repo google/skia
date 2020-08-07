@@ -16,6 +16,23 @@
       "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3c055f3_a17ff73c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T02:24:12Z",
+      "side": 1,
+      "message": "Hard to say, but from hear-say this might be mucking up the Skia -\u003e Flutter roll probably because Flutter has an old gn (before https://gn.googlesource.com/gn/+/a09ec16183b550073c04fa8eeee230047835d118 ). Still trying to figure out if that\u0027s really it, but it seems likely.",
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
