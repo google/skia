@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "990b4679_debaa70f",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-07T18:55:47Z",
+      "side": 1,
+      "message": "These, that would be clearer.",
+      "parentUuid": "85de9d28_3fc5c855",
+      "range": {
+        "startLine": 66,
+        "startChar": 32,
+        "endLine": 66,
+        "endChar": 43
+      },
+      "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b8df2ee_d2b0b422",
         "filename": "src/core/SkPathView.h",
         "patchSetId": 24
@@ -77,6 +101,30 @@
       "side": 1,
       "message": "Yeah, in earlier patch sets these classes had some storage in them, now they\u0027re just SkPathView?",
       "parentUuid": "7b8df2ee_d2b0b422",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 2
+      },
+      "revId": "be00335b4d119fb8c2db18054a63a44a63fa249c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a6af26d_a08e50c6",
+        "filename": "src/core/SkPathView.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-07T18:55:47Z",
+      "side": 1,
+      "message": "Does it matter? They started as subclasses, as they had some local storage. Then I switched to a global for the verbs (it was slightly tricky to see how to init local verbs and still pass the constructor validate in the base class) and so they didn\u0027t need local storage.\n\nHappy to switch them to functions if that is clearer.",
+      "parentUuid": "375a3f6f_c64d2d3a",
       "range": {
         "startLine": 63,
         "startChar": 0,
