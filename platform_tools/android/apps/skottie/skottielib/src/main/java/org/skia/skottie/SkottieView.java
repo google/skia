@@ -8,6 +8,8 @@
 package org.skia.skottie;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.SurfaceView;
@@ -18,46 +20,86 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import org.skia.skottielib.R;
 
 public class SkottieView extends FrameLayout {
 
     private SkottieAnimation mAnimation;
-    private View backingView;
+    private View mbackingView;
 
-    //TODO add and access custom attributes for SkottieView
+    private static final int BACKING_VIEW_TEXTURE = 0;
+    private static final int BACKING_VIEW_SURFACE = 1;
+
+
+    // SkottieView constructor when initialized in XML layout
     public SkottieView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        TypedArray a = context.getTheme()
+            .obtainStyledAttributes(attrs, R.styleable.SkottieView, 0, 0);
+        try {
+            switch (a.getInteger(R.styleable.SkottieView_backing_view, -1)) {
+                case BACKING_VIEW_TEXTURE:
+                    mbackingView = new TextureView(context);
+                    ((TextureView) mbackingView).setOpaque(false);
+                    break;
+                case BACKING_VIEW_SURFACE:
+                    mbackingView = new SurfaceView(context);
+                    int bg = a.getColor(R.styleable.SkottieView_background_color, -1);
+                    if (bg == -1) {
+                        throw new RuntimeException("background_color attribute "
+                            + "needed for SurfaceView");
+                    }
+                    if (Color.alpha(bg) != 255) {
+                        throw new RuntimeException("background_color cannot be transparent");
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("backing_view attribute needed to "
+                        + "specify between texture_view or surface_view");
+            }
+        } finally {
+            a.recycle();
+        }
+        initBackingView();
     }
-
+    
+    // SkottieView builder constructor
     private SkottieView(Context context, SkottieViewBuilder builder) {
-        super(context);
+        super(context, builder.attrs, builder.defStyleAttr);
         // create the backing view
         if (builder.advancedFeatures) {
             // backing view must be SurfaceView
-            backingView = new SurfaceView(context, builder.attrs, builder.defStyleAttr);
+            mbackingView = new SurfaceView(context);
         } else {
-            backingView = new TextureView(context, builder.attrs, builder.defStyleAttr);
-            ((TextureView)backingView).setOpaque(false);
+            mbackingView = new TextureView(context);
+            ((TextureView) mbackingView).setOpaque(false);
         }
-        backingView.setLayoutParams(new ViewGroup.LayoutParams(
+        initBackingView();
+    }
+
+    private void initBackingView() {
+        mbackingView.setLayoutParams(new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT));
-        addView(backingView);
+        addView(mbackingView);
     }
 
     //TODO handle SurfaceView
     public void setSource(InputStream inputStream) {
-        mAnimation = SkottieRunner.getInstance().createAnimation(((TextureView)backingView), inputStream);
+        mAnimation = SkottieRunner.getInstance()
+            .createAnimation(((TextureView) mbackingView), inputStream);
     }
 
     public void setSource(int resId) {
-        InputStream inputStream = backingView.getResources().openRawResource(resId);
-        mAnimation = SkottieRunner.getInstance().createAnimation(((TextureView)backingView), inputStream);
+        InputStream inputStream = mbackingView.getResources().openRawResource(resId);
+        mAnimation = SkottieRunner.getInstance()
+            .createAnimation(((TextureView) mbackingView), inputStream);
     }
 
     public void setSource(Context context, Uri uri) throws FileNotFoundException {
         InputStream inputStream = context.getContentResolver().openInputStream(uri);
-        mAnimation = SkottieRunner.getInstance().createAnimation(((TextureView)backingView), inputStream);
+        mAnimation = SkottieRunner.getInstance()
+            .createAnimation(((TextureView) mbackingView), inputStream);
     }
 
     public SkottieAnimation getSkottieAnimation() {
