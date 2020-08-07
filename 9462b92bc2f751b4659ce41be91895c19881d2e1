@@ -87,6 +87,30 @@
       "revId": "9462b92bc2f751b4659ce41be91895c19881d2e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9beed843_a3adbbb6",
+        "filename": "src/ports/SkTypeface_mac_ct.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T18:36:09Z",
+      "side": 1,
+      "message": "Tried it out locally to make sure it catches the issue... and it does, so that\u0027s good. I added the newlines and Chromium logging doesn\u0027t strip them so you do get the newline in the log... but looking at the log I\u0027m not sure anyone will care, so I\u0027ve put them in.\n\nAlso made the \u0027name\u0027 parameter explicitly optional (passing in nullptr for \u0027name\u0027 won\u0027t cause UB in printf now) so that if the user passes a name then it\u0027s the cast is supposed to succeed and will log why it didn\u0027t and if the name is nullptr then it will just return false is the cast isn\u0027t correct. Beside protecting from the UB if the name is nullptr, I\u0027m going to want this when I write the work-around.",
+      "parentUuid": "be5aa50e_96b9a19a",
+      "range": {
+        "startLine": 798,
+        "startChar": 50,
+        "endLine": 798,
+        "endChar": 52
+      },
+      "revId": "9462b92bc2f751b4659ce41be91895c19881d2e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
