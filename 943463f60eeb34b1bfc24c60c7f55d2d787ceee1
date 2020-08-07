@@ -168,6 +168,24 @@
       "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e978ce8_5fd9d634",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-07T15:23:10Z",
+      "side": 1,
+      "message": "So beyond this do I need to make any other changes? The rest will be on Flutter\u0027s end, correct?",
+      "parentUuid": "a37c3980_830748e5",
+      "revId": "943463f60eeb34b1bfc24c60c7f55d2d787ceee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
