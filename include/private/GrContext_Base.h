@@ -49,8 +49,7 @@ public:
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 
     // Provides access to functions that aren't part of the public API.
-    GrBaseContextPriv priv();
-    const GrBaseContextPriv priv() const;
+    GrBaseContextPriv priv() const;
 
 protected:
     friend class GrBaseContextPriv; // for hidden functions

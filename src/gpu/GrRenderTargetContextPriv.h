@@ -128,11 +128,7 @@ private:
     friend class GrRenderTargetContext; // to construct/copy this type.
 };
 
-inline GrRenderTargetContextPriv GrRenderTargetContext::priv() {
-    return GrRenderTargetContextPriv(this);
-}
-
-inline const GrRenderTargetContextPriv GrRenderTargetContext::priv() const {
+inline GrRenderTargetContextPriv GrRenderTargetContext::priv() const {
     return GrRenderTargetContextPriv(const_cast<GrRenderTargetContext*>(this));
 }
 

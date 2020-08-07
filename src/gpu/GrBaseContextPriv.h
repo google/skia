@@ -45,9 +45,7 @@ private:
     friend class GrContext_Base; // to construct/copy this type.
 };
 
-inline GrBaseContextPriv GrContext_Base::priv() { return GrBaseContextPriv(this); }
-
-inline const GrBaseContextPriv GrContext_Base::priv () const {
+inline GrBaseContextPriv GrContext_Base::priv() const {
     return GrBaseContextPriv(const_cast<GrContext_Base*>(this));
 }
 

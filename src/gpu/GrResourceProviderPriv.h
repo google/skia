@@ -30,9 +30,7 @@ private:
     friend class GrResourceProvider; // to construct/copy this type
 };
 
-inline GrResourceProviderPriv GrResourceProvider::priv() { return GrResourceProviderPriv(this); }
-
-inline const GrResourceProviderPriv GrResourceProvider::priv() const {
+inline GrResourceProviderPriv GrResourceProvider::priv() const {
     return GrResourceProviderPriv(const_cast<GrResourceProvider*>(this));
 }
 

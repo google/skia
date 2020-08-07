@@ -388,8 +388,7 @@ public:
     void checkAsyncWorkCompletion();
 
     // Provides access to functions that aren't part of the public API.
-    GrContextPriv priv();
-    const GrContextPriv priv() const;
+    GrContextPriv priv() const;
 
     /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
     // Chrome is using this!

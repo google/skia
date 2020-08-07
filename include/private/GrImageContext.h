@@ -19,8 +19,7 @@ public:
     ~GrImageContext() override;
 
     // Provides access to functions that aren't part of the public API.
-    GrImageContextPriv priv();
-    const GrImageContextPriv priv() const;
+    GrImageContextPriv priv() const;
 
 protected:
     friend class GrImageContextPriv; // for hidden functions

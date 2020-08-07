@@ -171,8 +171,7 @@ public:
     size_t approximateSize() const;
 
     // Provides access to functions that aren't part of the public API.
-    SkVerticesPriv priv();
-    const SkVerticesPriv priv() const;
+    SkVerticesPriv priv() const;
 
 private:
     SkVertices() {}

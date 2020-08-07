@@ -54,9 +54,7 @@ private:
     friend class GrSurfaceProxy; // to construct/copy this type.
 };
 
-inline GrSurfaceProxyPriv GrSurfaceProxy::priv() { return GrSurfaceProxyPriv(this); }
-
-inline const GrSurfaceProxyPriv GrSurfaceProxy::priv () const {
+inline GrSurfaceProxyPriv GrSurfaceProxy::priv() const {
     return GrSurfaceProxyPriv(const_cast<GrSurfaceProxy*>(this));
 }
 

@@ -59,8 +59,7 @@ public:
 #endif
 
     // Provides access to functions that aren't part of the public API.
-    SkDeferredDisplayListPriv priv();
-    const SkDeferredDisplayListPriv priv() const;
+    SkDeferredDisplayListPriv priv() const;
 
 private:
     friend class GrDrawingManager; // for access to 'fRenderTasks', 'fLazyProxyData', 'fArenas'

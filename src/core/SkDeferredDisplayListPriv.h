@@ -49,11 +49,7 @@ private:
     friend class SkDeferredDisplayList; // to construct/copy this type.
 };
 
-inline SkDeferredDisplayListPriv SkDeferredDisplayList::priv() {
-    return SkDeferredDisplayListPriv(this);
-}
-
-inline const SkDeferredDisplayListPriv SkDeferredDisplayList::priv () const {
+inline SkDeferredDisplayListPriv SkDeferredDisplayList::priv() const {
     return SkDeferredDisplayListPriv(const_cast<SkDeferredDisplayList*>(this));
 }
 
