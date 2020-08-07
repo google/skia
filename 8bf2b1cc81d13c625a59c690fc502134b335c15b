@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af615933_f541166b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T20:30:26Z",
+      "side": 1,
+      "message": "Yep, this is a fine trick we play all the time for code generation.",
+      "revId": "8bf2b1cc81d13c625a59c690fc502134b335c15b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
