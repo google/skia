@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "9dacc690_b3f9f892",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T15:58:01Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "f7b5f414_7eb96c11",
+      "range": {
+        "startLine": 617,
+        "startChar": 70,
+        "endLine": 617,
+        "endChar": 71
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe99b14e_30a1be59",
         "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
         "patchSetId": 3
@@ -58,6 +82,145 @@
         "startChar": 4,
         "endLine": 145,
         "endChar": 93
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cca36b75_8adc6536",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T15:58:01Z",
+      "side": 1,
+      "message": "+1, or can we invert the structure a bit here so that we can make it thread-safe via:\n\nstatic std::map\u003cstd::pair\u003cconst UniformCTypeMapper*, int\u003e, UniformCTypeMapper\u003e registered \u003d BuildRegistrationMap();\n\nIt looks like get_mappers() basically has what we need, if it were structured inside-out.\nAlso, we don\u0027t care about order--how about unordered_map?",
+      "parentUuid": "fe99b14e_30a1be59",
+      "range": {
+        "startLine": 145,
+        "startChar": 4,
+        "endLine": 145,
+        "endChar": 93
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a5f938c_a33dfc23",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T15:58:01Z",
+      "side": 1,
+      "message": "I\u0027m not sure why macros would be better here? Little helper functions like these seem fine AFAICS.\n\nSince we\u0027re not actually using macros, shouldn\u0027t we lowercase the helper function names?",
+      "range": {
+        "startLine": 158,
+        "startChar": 9,
+        "endLine": 158,
+        "endChar": 30
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b020e54_39490eeb",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T15:58:01Z",
+      "side": 1,
+      "message": "Is the null case expected or have we gone off the rails here?",
+      "range": {
+        "startLine": 254,
+        "startChar": 58,
+        "endLine": 254,
+        "endChar": 65
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f89f2d9a_95323bde",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T15:58:01Z",
+      "side": 1,
+      "message": "totally optional nit: I\u0027m not sure why this constructor takes const char* and the other one takes const String\u0026s, and I\u0027m also not sure why we have two constructors instead of one constructor with \"\" defaults. There might be really good reasons :) But if not, feels like we could be more consistent. Also, we could label these:\n\n/*defaultValue\u003d*/\"\", /*dirtyExpressionFormat\u003d*/\"\", /*saveStateFormat\u003d*/\"\"",
+      "range": {
+        "startLine": 39,
+        "startChar": 29,
+        "endLine": 39,
+        "endChar": 40
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28a744b9_d303e97f",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T15:58:01Z",
+      "side": 1,
+      "message": "It looks like our arrays have a hard-coded size, right? Would std::array\u003c\u003e work? It\u0027s more efficient but the interface is almost exactly the same.",
+      "range": {
+        "startLine": 35,
+        "startChar": 31,
+        "endLine": 35,
+        "endChar": 46
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bc08e18_d8fafd48",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-07T15:58:01Z",
+      "side": 1,
+      "message": "Why the change?",
+      "range": {
+        "startLine": 323,
+        "startChar": 12,
+        "endLine": 323,
+        "endChar": 32
       },
       "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
