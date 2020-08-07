@@ -258,7 +258,7 @@ void serialize_image(const SkImage* img,
         return;
     }
     SkBitmap bm = to_pixels(img);
-    SkPixmap pm = bm.pixmap();
+    const SkPixmap& pm = bm.pixmap();
     bool isOpaque = pm.isOpaque() || pm.computeIsOpaque();
     if (encodingQuality <= 100 && isOpaque) {
         sk_sp<SkData> data = img->encodeToData(SkEncodedImageFormat::kJPEG, encodingQuality);

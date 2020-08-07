@@ -149,12 +149,12 @@ void test_unnecessary_alloc(skiatest::Reporter* reporter) {
     }
     {
         SkTArray<int> a;
-        SkTArray<int> b(a);
+        SkTArray<int> b(a);  // NOLINT(performance-unnecessary-copy-initialization)
         REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
     }
     {
         SkSTArray<10, int> a;
-        SkTArray<int> b(a);
+        SkTArray<int> b(a);  // NOLINT(performance-unnecessary-copy-initialization)
         REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
     }
     {
