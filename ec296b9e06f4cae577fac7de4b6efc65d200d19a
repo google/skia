@@ -16,6 +16,52 @@
       "revId": "ec296b9e06f4cae577fac7de4b6efc65d200d19a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d138751d_0e8a8a8d",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 900,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T14:13:55Z",
+      "side": 1,
+      "message": "This all seems fine to me, but another typical pattern is\n\n  if (!buffer.validate(childCount \u003d\u003d effect-\u003echildren().count())) {\n      return nullptr;\n  }",
+      "range": {
+        "startLine": 897,
+        "startChar": 0,
+        "endLine": 900,
+        "endChar": 5
+      },
+      "revId": "ec296b9e06f4cae577fac7de4b6efc65d200d19a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e6e4194_ad6a364a",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T14:13:55Z",
+      "side": 1,
+      "message": "this can be \n\n    std::vector\u003csk_sp\u003cSkColorFilter\u003e\u003e children(childCount);\n\nright?",
+      "range": {
+        "startLine": 902,
+        "startChar": 38,
+        "endLine": 903,
+        "endChar": 32
+      },
+      "revId": "ec296b9e06f4cae577fac7de4b6efc65d200d19a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -63,6 +63,30 @@
       "revId": "6f6fdd0fd9174630fe957f36e99ed0daa88f382a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bbb3f9b_83ba3fa2",
+        "filename": "gm/mixercolorfilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-07T14:13:55Z",
+      "side": 1,
+      "message": "Gotcha.",
+      "parentUuid": "86e8ca53_a7e98d43",
+      "range": {
+        "startLine": 117,
+        "startChar": 28,
+        "endLine": 117,
+        "endChar": 33
+      },
+      "revId": "6f6fdd0fd9174630fe957f36e99ed0daa88f382a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
