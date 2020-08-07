@@ -82,9 +82,11 @@ private:
 
 class GrSmallPathShapeData  {
 public:
-    GrSmallPathShapeDataKey     fKey;
-    SkRect                      fBounds;
-    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
+    GrSmallPathShapeData(const GrSmallPathShapeDataKey &key) : fKey(key) {}
+
+    const GrSmallPathShapeDataKey fKey;
+    SkRect                        fBounds;
+    GrDrawOpAtlas::AtlasLocator   fAtlasLocator;
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSmallPathShapeData);
 
