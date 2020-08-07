@@ -22,6 +22,30 @@
       "revId": "9dd293ca5f99804d4b7919526792e2e2079d4260",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aed004ce_52452a8a",
+        "filename": "src/ports/SkTypeface_mac_ct.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 791,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T01:33:49Z",
+      "side": 0,
+      "message": "It\u0027s surprisingly difficult to get a nice abstraction for this, but now I\u0027ve got something so abstract I should probably split it out and make it a bit more complete (though I\u0027ll do that later if we need it, much like SkUniqueCFRef originated in a predecessor to this file). It is nice having a good abstraction though as it does make the code easier to follow and enforces doing all the checks all the time.",
+      "parentUuid": "c13403f6_f41127b9",
+      "range": {
+        "startLine": 791,
+        "startChar": 12,
+        "endLine": 791,
+        "endChar": 59
+      },
+      "revId": "9dd293ca5f99804d4b7919526792e2e2079d4260",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

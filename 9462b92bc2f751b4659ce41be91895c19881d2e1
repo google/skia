@@ -39,6 +39,30 @@
       "revId": "9462b92bc2f751b4659ce41be91895c19881d2e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57b5f0b6_4cf6281c",
+        "filename": "src/ports/SkTypeface_mac_ct.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-07T01:33:49Z",
+      "side": 1,
+      "message": "I\u0027ll have to check how Chromium handles these (which is where most of them are seen /reported from at the moment). In general we hope to never see any of these, but I\u0027m adding it all for the same reason for all the HRM in DirectWrite code, with Chromium eventually all the impossible things happen (and because something is going on now).\n\nI think the idea is that if we add \\n it will make the Chromium log look strange... but I can\u0027t remember if the logging strips trailing newlines or not.",
+      "parentUuid": "cd020896_1dd43478",
+      "range": {
+        "startLine": 798,
+        "startChar": 50,
+        "endLine": 798,
+        "endChar": 52
+      },
+      "revId": "9462b92bc2f751b4659ce41be91895c19881d2e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
