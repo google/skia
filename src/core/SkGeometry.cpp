@@ -11,6 +11,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 
+#include <tuple>
 #include <utility>
 
 static SkVector to_vector(const Sk2s& x) {
@@ -169,6 +170,78 @@ void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
 
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
     SkChopQuadAt(src, dst, 0.5f);
+}
+
+static std::tuple<Sk2f, Sk2f> transpose(const Sk2f& a, const Sk2f& b) {
+    float transposed[4];
+    a.store(transposed);
+    b.store(transposed+2);
+    Sk2f xx, yy;
+    Sk2f::Load2(transposed, &xx, &yy);
+    return {xx, yy};
+}
+
+static float measure_angle_between_vectors(const Sk2f& tan0, const Sk2f& tan1) {
+    auto [xx, yy] = transpose(tan0, tan1);
+    Sk2f lengthsSqd = xx*xx + yy*yy;
+    if ((lengthsSqd == 0).anyTrue()) {
+        return 0;  // This curve is a line.
+    }
+    Sk2f invLengths = lengthsSqd.rsqrt();
+    Sk2f dot = tan0 * tan1;
+    return std::acos(SkTPin((dot[0] + dot[1]) * invLengths[0] * invLengths[1], -1.f, 1.f));
+}
+
+float SkMeasureQuadRotation(const SkPoint pts[3]) {
+    Sk2f p0 = from_point(pts[0]);
+    Sk2f p1 = from_point(pts[1]);
+    Sk2f p2 = from_point(pts[2]);
+
+    // Quads never rotate more than 180 degrees, so the simple acos() is sufficient.
+    return measure_angle_between_vectors(p1 - p0, p2 - p1);
+}
+
+static Sk2f find_bisector(const Sk2f& tan0, const Sk2f tan1) {
+    // Return normalize(tan0) + normalize(tan1).
+    auto [xx, yy] = transpose(tan0, tan1);
+    Sk2f invLength = (xx*xx + yy*yy).rsqrt();
+    return tan0*invLength[0] + tan1*invLength[1];
+}
+
+void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]) {
+    Sk2f p0 = from_point(src[0]);
+    Sk2f p1 = from_point(src[1]);
+    Sk2f p2 = from_point(src[2]);
+
+    Sk2f tan0 = p1 - p0;
+    Sk2f tan1 = p2 - p1;
+
+    // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
+    // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
+    //
+    //     n dot midtangent = 0
+    //
+    Sk2f n = find_bisector(tan0, -tan1);
+
+    // The midtangent can be found where (F' dot n) = 0:
+    //
+    //   0 = (F'(T) dot n) = |2*T 1| * |p0 - 2*p1 + p2| * |nx|
+    //                                 |-2*p0 + 2*p1  |   |ny|
+    //
+    //                     = |2*T 1| * |tan1 - tan0| * |nx|
+    //                                 |2*tan0     |   |ny|
+    //
+    //                     = 2*T * ((tan1 - tan0) dot n) + (2*tan0 dot n)
+    //
+    //   T = (tan0 dot n) / ((tan0 - tan1) dot n)
+    Sk2f numer = tan0 * n;
+    Sk2f denom = (tan0 - tan1) * n;
+    float T = (numer[0] + numer[1]) / (denom[0] + denom[1]);
+    if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=nan will take this branch.
+        T = .5;  // The quadratic was a line or near-line. Just chop at .5.
+    }
+
+    SkChopQuadAt(src, dst, T);
 }
 
 /** Quad'(t) = At + B, where
@@ -468,6 +541,89 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
 
 void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7]) {
     SkChopCubicAt(src, dst, 0.5f);
+}
+
+static float cross(const Sk2f& a, const Sk2f& b) {
+    Sk2f ab = a * SkNx_shuffle<1,0>(b);
+    return ab[0] - ab[1];
+}
+
+float SkMeasureNonInflectCubicRotation(const SkPoint pts[4]) {
+    Sk2f p0 = from_point(pts[0]);
+    Sk2f p1 = from_point(pts[1]);
+    Sk2f p2 = from_point(pts[2]);
+    Sk2f p3 = from_point(pts[3]);
+
+    Sk2f tan0 = (p1 == p0).allTrue() ? p2 - p0 : p1 - p0;
+    Sk2f tan1 = (p3 == p2).allTrue() ? p3 - p1 : p3 - p2;
+    float angle = measure_angle_between_vectors(tan0, tan1);
+
+    // "angle" is in the range [0, pi], meaning it always measures in the direction of the smaller
+    // angle. We need to determine which direction the cubic turns, and reverse angle if it is in
+    // the direction of the larger angle.
+    //
+    // Below, sign(turn) == sign(cross(f'(.5), f''(.5))). The cubic will have the same sign all
+    // throughout the curve because this method does not allow for cubics to have inflections.
+    float turn = cross(p3 + p2 - p1 - p0, p3 - p2 - p1 + p0);
+    if (turn * cross(tan0, tan1) < 0) {  // i.e., "sign(turn) != sign(cross(tan0, tan1))".
+        angle = 2*SK_ScalarPI - angle;  // The cubic rotates >180 degrees.
+    }
+
+    return angle;
+}
+
+void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
+    Sk2f p0 = from_point(src[0]);
+    Sk2f p1 = from_point(src[1]);
+    Sk2f p2 = from_point(src[2]);
+    Sk2f p3 = from_point(src[3]);
+
+    Sk2f tan0 = (p0 == p1).allTrue() ? p2 - p0 : p1 - p0;
+    Sk2f tan1 = (p2 == p3).allTrue() ? p3 - p1 : p3 - p2;
+
+    // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
+    // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
+    //
+    //     n dot midtangent = 0
+    //
+    Sk2f n = find_bisector(tan0, -tan1);
+
+    // Find the T value at the midtangent. This is a simple quadratic equation:
+    //
+    //     midtangent dot n = 0, or:
+    //
+    //                   |C'x  C'y|
+    //     |T^2  T  1| * |.    .  | * |nx| = 0
+    //                   |.    .  |   |ny|
+    //
+    // The coeffs for the quadratic equation wil will solve are therefore C' * n.
+    Sk2f C_2 = p3 + (p1 - p2)*3 - p0;
+    Sk2f C_1 = (p0 - p1*2 + p2)*2;
+    Sk2f C_0 = p1 - p0;
+
+    Sk2f aa=C_2*n;
+    Sk2f bb=C_1*n;
+    Sk2f cc=C_0*n;
+
+    float a = aa[0] + aa[1];
+    float b = bb[0] + bb[1];
+    float c = cc[0] + cc[1];
+
+    // Now solve the quadratic for T.
+    float T = 0;
+    float discr = b*b - 4*a*c;
+    if (discr >= 0) {  // This will only be false if the curve is a line.
+        // Quadratic formula from Numerical Recipes in C:
+        float q = -.5f * (b + copysignf(std::sqrt(discr), b));
+        // The roots are q/a and c/q. Pick the one closer to T=.5.
+        float r = .5f*q*a;
+        T = std::abs(q*q - r) < std::abs(a*c - r) ? q/a : c/q;
+    }
+    if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=nan will take this branch.
+        T = .5;  // The cubic was a line or near-line. Just chop at .5.
+    }
+
+    SkChopCubicAt(src, dst, T);
 }
 
 static void flatten_double_cubic_extrema(SkScalar coords[14]) {
