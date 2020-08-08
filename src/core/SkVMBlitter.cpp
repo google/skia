@@ -241,90 +241,68 @@ namespace {
             src_in_gamut = true;
         }
 
-        // There are several orderings here of when we load dst and coverage
-        // and how coverage is applied, and to complicate things, LCD coverage
-        // needs to know dst.a.  We're careful to assert it's loaded in time.
-        skvm::Color dst;
-        SkDEBUGCODE(bool dst_loaded = false;)
-
-        // load_coverage() returns false when there's no need to apply coverage.
-        auto load_coverage = [&](skvm::Color* cov) {
-            bool partial_coverage = true;
-            switch (params.coverage) {
-                case Coverage::Full: cov->r = cov->g = cov->b = cov->a = p->splat(1.0f);
-                                     partial_coverage = false;
-                                     break;
-
-                case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
-                                          from_unorm(8, p->uniform8(p->uniform(), 0));
-                                          break;
-
-                case Coverage::Mask3D:
-                case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
-                                       from_unorm(8, p->load8(p->varying<uint8_t>()));
-                                       break;
-
-                case Coverage::MaskLCD16: {
-                    SkASSERT(dst_loaded);
-                    skvm::PixelFormat fmt;
-                    SkAssertResult(SkColorType_to_PixelFormat(kRGB_565_SkColorType, &fmt));
-                    *cov = p->load(fmt, p->varying<uint16_t>());
-                    cov->a = select(src.a < dst.a, min(cov->r, min(cov->g, cov->b))
-                                                 , max(cov->r, max(cov->g, cov->b)));
-                } break;
-            }
-
-            if (params.clip) {
-                skvm::Color clip = as_SB(params.clip)->program(p, device,local, paint,
-                                                               params.matrices, /*localM=*/nullptr,
-                                                               params.quality, params.dst,
-                                                               uniforms, alloc);
-                SkAssertResult(clip);
-                cov->r *= clip.a;  // We use the alpha channel of clip for all four.
-                cov->g *= clip.a;
-                cov->b *= clip.a;
-                cov->a *= clip.a;
-                return true;
-            }
-
-            return partial_coverage;
-        };
-
-        // The math for some blend modes lets us fold coverage into src before the blend,
-        // obviating the need for the lerp afterwards. This early-coverage strategy tends
-        // to be both faster and require fewer registers.
-        bool lerp_coverage_post_blend = true;
-        if (SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
-                                               params.coverage == Coverage::MaskLCD16)) {
-            skvm::Color cov;
-            if (load_coverage(&cov)) {
-                src.r *= cov.r;
-                src.g *= cov.g;
-                src.b *= cov.b;
-                src.a *= cov.a;
-            }
-            lerp_coverage_post_blend = false;
-        }
-
-        // Load up the destination color.
-        SkDEBUGCODE(dst_loaded = true;)
-        skvm::PixelFormat pixelFormat;
-        SkAssertResult(SkColorType_to_PixelFormat(params.dst.colorType(), &pixelFormat));
-
-        dst = p->load(pixelFormat, dst_ptr);
-
-        // When a destination is known opaque, we may assume it both starts and stays fully
-        // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
+        // Load the destination color.
+        skvm::PixelFormat dstFormat;
+        SkAssertResult(SkColorType_to_PixelFormat(params.dst.colorType(), &dstFormat));
+        skvm::Color dst = p->load(dstFormat, dst_ptr);
         if (params.dst.isOpaque()) {
+            // When a destination is known opaque, we may assume it both starts and stays fully
+            // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
             dst.a = p->splat(1.0f);
         } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
+            // All our blending works in terms of premul.
             dst = premul(dst);
         }
 
-        src = blend(params.blendMode, src, dst);
+        // Load coverage.
+        skvm::Color cov;
+        switch (params.coverage) {
+            case Coverage::Full:
+                cov.r = cov.g = cov.b = cov.a = p->splat(1.0f);
+                break;
 
-        // Lerp with coverage post-blend if needed.
-        if (skvm::Color cov; lerp_coverage_post_blend && load_coverage(&cov)) {
+            case Coverage::UniformA8:
+                cov.r = cov.g = cov.b = cov.a = from_unorm(8, p->uniform8(p->uniform(), 0));
+                break;
+
+            case Coverage::Mask3D:
+            case Coverage::MaskA8:
+                cov.r = cov.g = cov.b = cov.a = from_unorm(8, p->load8(p->varying<uint8_t>()));
+                break;
+
+            case Coverage::MaskLCD16: {
+                skvm::PixelFormat fmt;
+                SkAssertResult(SkColorType_to_PixelFormat(kRGB_565_SkColorType, &fmt));
+                cov = p->load(fmt, p->varying<uint16_t>());
+                cov.a = select(src.a < dst.a, min(cov.r, min(cov.g, cov.b))
+                                            , max(cov.r, max(cov.g, cov.b)));
+            } break;
+        }
+        if (params.clip) {
+            skvm::Color clip = as_SB(params.clip)->program(p, device,local, paint,
+                                                           params.matrices, /*localM=*/nullptr,
+                                                           params.quality, params.dst,
+                                                           uniforms, alloc);
+            SkAssertResult(clip);
+            cov.r *= clip.a;  // We use the alpha channel of clip for all four.
+            cov.g *= clip.a;
+            cov.b *= clip.a;
+            cov.a *= clip.a;
+        }
+
+        // The math for some blend modes lets us fold coverage into src before the blend,
+        // which is simpler than the canonical post-blend lerp().
+        if (SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
+                                               params.coverage == Coverage::MaskLCD16)) {
+            src.r *= cov.r;
+            src.g *= cov.g;
+            src.b *= cov.b;
+            src.a *= cov.a;
+
+            src = blend(params.blendMode, src, dst);
+        } else {
+            src = blend(params.blendMode, src, dst);
+
             src.r = lerp(dst.r, src.r, cov.r);
             src.g = lerp(dst.g, src.g, cov.g);
             src.b = lerp(dst.b, src.b, cov.b);
@@ -332,6 +310,7 @@ namespace {
         }
 
         if (params.dst.isOpaque()) {
+            // (See the note above when loading the destination color.)
             src.a = p->splat(1.0f);
         } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
             src = unpremul(src);
@@ -355,7 +334,8 @@ namespace {
             src.a = clamp01(src.a);
         }
 
-        SkAssertResult(store(pixelFormat, dst_ptr, src));
+        // Write it out!
+        SkAssertResult(store(dstFormat, dst_ptr, src));
     }
 
 
