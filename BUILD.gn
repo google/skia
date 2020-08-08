@@ -572,21 +572,6 @@ if (skia_compile_processors) {
     ]
   }
 
-  action("create_sksl_fp") {
-    script = "gn/create_sksl_fp.py"
-    sources = [
-      "include/private/GrSharedEnums.h",
-      "src/sksl/sksl_fp_raw.sksl",
-    ]
-    outputs = [ "$target_out_dir/" +
-                rebase_path("src/sksl/generated/sksl_fp.sksl", target_out_dir) ]
-    args = [
-      rebase_path(sources[0]),
-      rebase_path(sources[1]),
-      rebase_path(outputs[0]),
-    ]
-  }
-
   skslc_path = "$root_out_dir/"
   if (host_toolchain != default_toolchain_name) {
     skslc_path += "$host_toolchain/"
@@ -596,27 +581,67 @@ if (skia_compile_processors) {
     skslc_path += ".exe"
   }
 
+  action("create_sksl_fp") {
+    script = "gn/create_sksl_fp.py"
+    sources = [
+      "include/private/GrSharedEnums.h",
+      "src/sksl/sksl_fp_raw.sksl",
+    ]
+    outputs = [ "$root_out_dir/sksl_fp.sksl" ]
+    args = [
+      rebase_path(sources[0]),
+      rebase_path(sources[1]),
+      rebase_path(outputs[0]),
+    ]
+  }
+
+  copy("sksl_pre_includes") {
+    sources = [
+      "src/sksl/sksl_frag.sksl",
+      "src/sksl/sksl_geom.sksl",
+      "src/sksl/sksl_gpu.sksl",
+      "src/sksl/sksl_interp.sksl",
+      "src/sksl/sksl_pipeline.sksl",
+      "src/sksl/sksl_vert.sksl",
+    ]
+    outputs = [ "$root_out_dir/{{source_file_part}}" ]
+  }
+
+  dehydrate_sksl_sources = get_target_outputs(":sksl_pre_includes")
+  dehydrate_sksl_sources += get_target_outputs(":create_sksl_fp")
+
+  dehydrate_sksl_outputs = []
+  foreach(src, dehydrate_sksl_sources) {
+    name = get_path_info(src, "name")
+
+    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
+    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
+    dehydrate_sksl_outputs += [ "$target_out_dir/" + rebase_path(
+                                    "src/sksl/generated/$name.dehydrated.sksl",
+                                    target_out_dir) ]
+  }
+
   action("dehydrate_sksl") {
     script = "gn/dehydrate_sksl.py"
-    deps = [ ":skslc(//gn/toolchain:$host_toolchain)" ]
-    sources = skia_dehydrate_sksl_sources
-
-    # we can't list the true outputs because it would cause a circular dependency, so we create a
-    # fake file just to satisfy gn
-    output = "$target_out_dir/" +
-             rebase_path("src/sksl/generated/fake.output", target_out_dir)
-    outputs = [ output ]
+    deps = [
+      ":create_sksl_fp",
+      ":sksl_pre_includes",
+      ":skslc(//gn/toolchain:$host_toolchain)",
+    ]
+    sources = dehydrate_sksl_sources
+    outputs = dehydrate_sksl_outputs
     args = [
       rebase_path(skslc_path),
-      rebase_path(output),
+      rebase_path("src/sksl/generated"),
     ]
-    args += rebase_path(skia_dehydrate_sksl_sources)
+    args += rebase_path(dehydrate_sksl_sources)
   }
 
   action("compile_processors") {
     script = "gn/compile_processors.py"
     deps = [
       ":create_sksl_fp",
+      ":sksl_pre_includes",
       ":skslc(//gn/toolchain:$host_toolchain)",
     ]
     sources = skia_gpu_processor_sources
