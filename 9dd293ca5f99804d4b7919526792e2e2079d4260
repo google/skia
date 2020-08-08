@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81786cc8_e8d8040d",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 0,
+      "message": "I\u0027m curious why this had to go? Looking at the code it seems pretty thorough about checking that points are inside the rounded corners.",
+      "revId": "9dd293ca5f99804d4b7919526792e2e2079d4260",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

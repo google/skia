@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa285df0_a432118a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 1,
+      "message": "Just a few initial comments while you wrap up on your end.",
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "574adf6d_1e679edb",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 1,
+      "message": "How is this kAOnly? Isn\u0027t everything outside b.innerBounds affected by b if it\u0027s a difference op?",
+      "range": {
+        "startLine": 66,
+        "startChar": 37,
+        "endLine": 66,
+        "endChar": 43
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d41e2cb3_81cf69cf",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 1,
+      "message": "How can a.contains(b) be true? Is there an implicit render target clip on b? Otherwise it is infinitely large, correct?",
+      "range": {
+        "startLine": 94,
+        "startChar": 17,
+        "endLine": 94,
+        "endChar": 29
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9f4b6b7_02f728a0",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 1,
+      "message": "Maybe a comment here? I assume we do this in order to ensure the corner checking below is valid?",
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "384e92e3_437f0def",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 1,
+      "message": "Clever 😁",
+      "range": {
+        "startLine": 241,
+        "startChar": 15,
+        "endLine": 241,
+        "endChar": 33
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ddb3b1e2_3400a376",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 1,
+      "message": "When localToDevice is non-invertible then nothing will be drawn anyway. Can we handle it more simply? Maybe skip the draw entirely, or just do absolutely nothing?",
+      "range": {
+        "startLine": 432,
+        "startChar": 9,
+        "endLine": 432,
+        "endChar": 22
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fba7063e_e63ae04a",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 1,
+      "message": "Could we promote the non-aa rect to aa and round the bounds? Or does that not matter since it will turn into scissor anyway?",
+      "range": {
+        "startLine": 637,
+        "startChar": 23,
+        "endLine": 637,
+        "endChar": 28
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "110d9d2f_5aef9eb7",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1203,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-08T00:58:54Z",
+      "side": 1,
+      "message": "Should we assert that outerBounds is inside fDeviceBounds?",
+      "range": {
+        "startLine": 1203,
+        "startChar": 27,
+        "endLine": 1203,
+        "endChar": 38
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
