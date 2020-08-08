@@ -25,16 +25,25 @@ public:
     void unload() override;
 
 private:
-    bool rebuild();
+    template <typename T>
+    struct Node {
+        void rebuild();
 
-    SkString fSkSL;
-    bool fCodeIsDirty;
-    sk_sp<SkRuntimeEffect> fEffect;
-    SkAutoTMalloc<char> fInputs;
-    SkTArray<sk_sp<SkShader>> fChildren;
+//        bool update(SkTArray<std::pair<const char*, sk_sp<T>>>& children);
+
+        SkString fSkSL;
+        bool fCodeIsDirty;
+        sk_sp<SkRuntimeEffect> fEffect;
+        SkAutoTMalloc<char> fInputs;
+        SkTArray<sk_sp<T>> fChildren;
+    };
+
+    Node<SkShader> fShader;
+    Node<SkColorFilter> fColorFilter;
 
     // Named shaders that can be selected as inputs
     SkTArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
+    SkTArray<std::pair<const char*, sk_sp<SkColorFilter>>> fColorFilters;
 };
 
 #endif
