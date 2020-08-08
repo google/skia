@@ -1399,6 +1399,12 @@ namespace skvm {
         };
     }
 
+    F32 Builder::lerp(F32 lo, F32 hi, F32 t) {
+        if (this->isImm(t.id, 0.0f)) { return lo; }
+        if (this->isImm(t.id, 1.0f)) { return hi; }
+        return mad(sub(hi, lo), t, lo);
+    }
+
     Color Builder::lerp(Color lo, Color hi, F32 t) {
         return {
             lerp(lo.r, hi.r, t),
