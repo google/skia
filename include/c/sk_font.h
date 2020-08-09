@@ -47,6 +47,9 @@ SK_C_API int sk_font_text_to_glyphs(const sk_font_t* font, const void* text, siz
 SK_C_API uint16_t sk_font_unichar_to_glyph(const sk_font_t* font, int32_t uni);
 SK_C_API void sk_font_unichars_to_glyphs(const sk_font_t* font, const int32_t uni[], int count, uint16_t glyphs[]);
 SK_C_API float sk_font_measure_text(const sk_font_t* font, const void* text, size_t byteLength, sk_text_encoding_t encoding, sk_rect_t* bounds, const sk_paint_t* paint);
+// NOTE: it appears that .NET Framework 4.7 has an issue with returning float?
+//       https://github.com/mono/SkiaSharp/issues/1409
+SK_C_API void sk_font_measure_text_no_return(const sk_font_t* font, const void* text, size_t byteLength, sk_text_encoding_t encoding, sk_rect_t* bounds, const sk_paint_t* paint, float* measuredWidth);
 SK_C_API size_t sk_font_break_text(const sk_font_t* font, const void* text, size_t byteLength, sk_text_encoding_t encoding, float maxWidth, float* measuredWidth, const sk_paint_t* paint);
 SK_C_API void sk_font_get_widths_bounds(const sk_font_t* font, const uint16_t glyphs[], int count, float widths[], sk_rect_t bounds[], const sk_paint_t* paint);
 SK_C_API void sk_font_get_pos(const sk_font_t* font, const uint16_t glyphs[], int count, sk_point_t pos[], sk_point_t* origin);
