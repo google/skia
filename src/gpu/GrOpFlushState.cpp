@@ -20,12 +20,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider,
+GrOpFlushState::GrOpFlushState(sk_sp<GrGpu> gpu,
+                               GrResourceProvider* resourceProvider,
                                GrTokenTracker* tokenTracker,
                                sk_sp<GrBufferAllocPool::CpuBufferCache> cpuBufferCache)
-        : fVertexPool(gpu, cpuBufferCache)
-        , fIndexPool(gpu, cpuBufferCache)
-        , fDrawIndirectPool(gpu, std::move(cpuBufferCache))
+        : fVertexPool(gpu.get(), cpuBufferCache)
+        , fIndexPool(gpu.get(), cpuBufferCache)
+        , fDrawIndirectPool(gpu.get(), std::move(cpuBufferCache))
         , fGpu(gpu)
         , fResourceProvider(resourceProvider)
         , fTokenTracker(tokenTracker) {}
@@ -36,6 +37,7 @@ const GrCaps& GrOpFlushState::caps() const {
 
 void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
         const GrOp* op, const SkRect& chainBounds, const GrPipeline* pipeline) {
+    fprintf(stderr, "EEE %s @ %d\n", __func__, __LINE__);
     SkASSERT(this->opsRenderPass());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {

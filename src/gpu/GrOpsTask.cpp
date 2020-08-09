@@ -589,7 +589,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
                                       &fTargets[0],
                                       chain.appliedClip(),
                                       chain.dstProxyView());
-
+        fprintf(stderr, "EEE %s @ %d\n", __func__, __LINE__);
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());
         flushState->setOpArgs(nullptr);

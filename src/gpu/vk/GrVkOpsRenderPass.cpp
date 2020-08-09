@@ -212,7 +212,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
     SkASSERT(!fRenderTarget);
-    SkASSERT(fGpu == rt->getContext()->priv().getGpu());
+    SkASSERT(fGpu->gpu() == rt->getContext()->priv().getGpu());
 
 #ifdef SK_DEBUG
     fIsActive = true;

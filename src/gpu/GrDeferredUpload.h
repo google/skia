@@ -102,10 +102,16 @@ private:
     friend class TestingUploadTarget;
 
     /** Issues the next token for a draw. */
-    GrDeferredUploadToken issueDrawToken() { return ++fLastIssuedToken; }
+    GrDeferredUploadToken issueDrawToken() {
+        fprintf(stderr, "EEE %s \n", __func__);
+        return ++fLastIssuedToken;
+    }
 
     /** Advances the last flushed token by one. */
-    GrDeferredUploadToken flushToken() { return ++fLastFlushedToken; }
+    GrDeferredUploadToken flushToken() {
+        fprintf(stderr, "EEE %s \n", __func__);
+        return ++fLastFlushedToken;
+    }
 
     GrDeferredUploadToken fLastIssuedToken = GrDeferredUploadToken::AlreadyFlushedToken();
     GrDeferredUploadToken fLastFlushedToken = GrDeferredUploadToken::AlreadyFlushedToken();

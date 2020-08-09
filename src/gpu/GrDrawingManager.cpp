@@ -252,11 +252,13 @@ bool GrDrawingManager::flush(
         fCpuBufferCache = GrBufferAllocPool::CpuBufferCache::Make(maxCachedBuffers);
     }
 
-    GrOpFlushState flushState(gpu, resourceProvider, &fTokenTracker, fCpuBufferCache);
+    GrOpFlushState flushState(gpu->getGpuForFlush(), resourceProvider, &fTokenTracker,
+                              fCpuBufferCache);
 
     GrOnFlushResourceProvider onFlushProvider(this);
 
     // Prepare any onFlush op lists (e.g. atlases).
+    fprintf(stderr, "EEE %s @ %d\n", __func__, __LINE__);
     if (!fOnFlushCBObjects.empty()) {
         fDAG.gatherIDs(&fFlushingRenderTaskIDs);
 
@@ -432,6 +434,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 
     // Execute the onFlush renderTasks first, if any.
     for (sk_sp<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
+        fprintf(stderr, "EEE %s @ %d\n", __func__, __LINE__);
         if (!onFlushRenderTask->execute(flushState)) {
             SkDebugf("WARNING: onFlushRenderTask failed to execute.\n");
         }
@@ -453,6 +456,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
             continue;
         }
 
+        fprintf(stderr, "EEE %s @ %d\n", __func__, __LINE__);
         if (renderTask->execute(flushState)) {
             anyRenderTasksExecuted = true;
         }

@@ -70,6 +70,8 @@ public:
         kCleanup,
     };
 
+    virtual sk_sp<GrGpu> getGpuForFlush() { return sk_ref_sp(this); }
+
     // Called by context when the underlying backend context is already or will be destroyed
     // before GrDirectContext.
     virtual void disconnect(DisconnectType);

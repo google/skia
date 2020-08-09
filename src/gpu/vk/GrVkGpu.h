@@ -44,18 +44,28 @@ public:
 
     ~GrVkGpu() override;
 
+    sk_sp<GrGpu> getGpuForFlush() override { return fFlushGpu; }
+
     void disconnect(DisconnectType) override;
 
-    const GrVkInterface* vkInterface() const { return fInterface.get(); }
-    const GrVkCaps& vkCaps() const { return *fVkCaps; }
+    GrVkGpu* gpu() const { return fGpu; }
 
-    GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
+    const GrVkInterface* vkInterface() const {
+        return fGpu ? fGpu->vkInterface() : fInterface.get();
+    }
+    const GrVkCaps& vkCaps() const { return fGpu ? fGpu->vkCaps() : *fVkCaps; }
+
+    GrStagingBufferManager* stagingBufferManager() override {
+        return fGpu ? fGpu->stagingBufferManager() : &fStagingBufferManager;
+    }
     void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) override;
 
-    bool isDeviceLost() const override { return fDeviceIsLost; }
+    bool isDeviceLost() const override { return fGpu ? fGpu->isDeviceLost() : fDeviceIsLost; }
     void setDeviceLost() { fDeviceIsLost = true; }
 
-    GrVkMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
+    GrVkMemoryAllocator* memoryAllocator() const {
+        return fGpu ? fGpu->memoryAllocator() : fMemoryAllocator.get();
+    }
 
     VkPhysicalDevice physicalDevice() const { return fPhysicalDevice; }
     VkDevice device() const { return fDevice; }
@@ -70,7 +80,9 @@ public:
     }
     bool protectedContext() const { return fProtectedContext == GrProtected::kYes; }
 
-    GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
+    GrVkResourceProvider& resourceProvider() {
+        return fGpu ? fGpu->resourceProvider() : *fResourceProvider;
+    }
 
     GrVkPrimaryCommandBuffer* currentCommandBuffer() const { return fMainCmdBuffer; }
 
@@ -99,7 +111,11 @@ public:
     void testingOnly_flushGpuAndSync() override;
 
     void resetShaderCacheForTesting() const override {
-        fResourceProvider.resetShaderCacheForTesting();
+        if (fGpu) {
+            fGpu->resetShaderCacheForTesting();
+            return;
+        }
+        fResourceProvider->resetShaderCacheForTesting();
     }
 #endif
 
@@ -154,7 +170,7 @@ public:
     // command buffer to the gpu.
     void addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable);
 
-    void checkFinishProcs() override { fResourceProvider.checkCommandBuffers(); }
+    void checkFinishProcs() override { fResourceProvider->checkCommandBuffers(); }
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
@@ -183,9 +199,18 @@ private:
         kSkip_SyncQueue
     };
 
-    GrVkGpu(GrDirectContext*, const GrContextOptions&, const GrVkBackendContext&,
-            sk_sp<const GrVkInterface>, uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-            sk_sp<GrVkMemoryAllocator>);
+    static sk_sp<GrGpu> MakeForFlush(const GrVkBackendContext&,
+                                     const GrContextOptions&,
+                                     GrDirectContext*);
+
+    GrVkGpu(GrDirectContext*,
+            const GrContextOptions&,
+            const GrVkBackendContext&,
+            sk_sp<const GrVkInterface>,
+            uint32_t instanceVersion,
+            uint32_t physicalDeviceVersion,
+            sk_sp<GrVkMemoryAllocator>,
+            GrVkGpu*);
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -331,12 +356,18 @@ private:
     uint32_t                                              fQueueIndex;
 
     // Created by GrVkGpu
-    GrVkResourceProvider                                  fResourceProvider;
+    std::unique_ptr<GrVkResourceProvider> fResourceProvider;
     GrStagingBufferManager                                fStagingBufferManager;
 
-    GrVkCommandPool*                                      fMainCmdPool;
+    // For non flush gpu, fGpu is nullptr.
+    GrVkGpu* fGpu;
+
+    // For flush gpu, fFlushGpu is nullptr.
+    sk_sp<GrVkGpu> fFlushGpu;
+
+    GrVkCommandPool* fMainCmdPool = nullptr;
     // just a raw pointer; object's lifespan is managed by fCmdPool
-    GrVkPrimaryCommandBuffer*                             fMainCmdBuffer;
+    GrVkPrimaryCommandBuffer* fMainCmdBuffer = nullptr;
 
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToWaitOn;
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToSignal;
