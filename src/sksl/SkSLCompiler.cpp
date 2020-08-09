@@ -33,6 +33,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #include <fstream>
+#include <utility>
 
 #if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
 #include "include/gpu/GrContextOptions.h"
@@ -1793,7 +1794,7 @@ bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
         return false;
     }
     fSource = program.fSource.get();
-    CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
+    CPPCodeGenerator cg(fContext.get(), &program, this, std::move(name), &out);
     bool result = cg.generateCode();
     fSource = nullptr;
     return result;
@@ -1804,7 +1805,7 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
         return false;
     }
     fSource = program.fSource.get();
-    HCodeGenerator cg(fContext.get(), &program, this, name, &out);
+    HCodeGenerator cg(fContext.get(), &program, this, std::move(name), &out);
     bool result = cg.generateCode();
     fSource = nullptr;
     return result;

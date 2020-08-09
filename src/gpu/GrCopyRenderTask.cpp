@@ -7,6 +7,8 @@
 
 #include "src/gpu/GrCopyRenderTask.h"
 
+#include <utility>
+
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
@@ -55,7 +57,7 @@ GrCopyRenderTask::GrCopyRenderTask(GrDrawingManager* drawingMgr,
         , fSrcView(std::move(srcView))
         , fSrcRect(srcRect)
         , fDstPoint(dstPoint) {
-    this->addTarget(drawingMgr, dstView);
+    this->addTarget(drawingMgr, std::move(dstView));
 }
 
 void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {

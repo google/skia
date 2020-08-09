@@ -29,6 +29,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 class SkCanvas;
@@ -80,7 +81,7 @@ struct StyleBlock {
 struct ResolvedFontDescriptor {
 
     ResolvedFontDescriptor(TextIndex index, SkFont font)
-        : fFont(font), fTextStart(index) { }
+        : fFont(std::move(font)), fTextStart(index) { }
     SkFont fFont;
     TextIndex fTextStart;
 };

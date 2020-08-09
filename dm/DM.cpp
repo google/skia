@@ -41,6 +41,7 @@
 #include "tools/trace/SkDebugfTracer.h"
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include <stdlib.h>
@@ -478,7 +479,7 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
         TaggedSrc& s = gSrcs->push_back();
         s.reset(src.release());
         s.tag = tag;
-        s.options = options;
+        s.options = std::move(options);
     }
 }
 
@@ -542,7 +543,7 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         folder.appendf("_%.3f", scale);
     }
 
-    CodecSrc* src = new CodecSrc(path, mode, dstColorType, dstAlphaType, scale);
+    CodecSrc* src = new CodecSrc(std::move(path), mode, dstColorType, dstAlphaType, scale);
     push_src("image", folder, src);
 }
 
@@ -577,7 +578,7 @@ static void push_android_codec_src(Path path, CodecSrc::DstColorType dstColorTyp
         folder.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 
-    AndroidCodecSrc* src = new AndroidCodecSrc(path, dstColorType, dstAlphaType, sampleSize);
+    AndroidCodecSrc* src = new AndroidCodecSrc(std::move(path), dstColorType, dstAlphaType, sampleSize);
     push_src("image", folder, src);
 }
 
@@ -611,7 +612,7 @@ static void push_image_gen_src(Path path, ImageGenSrc::Mode mode, SkAlphaType al
         }
     }
 
-    ImageGenSrc* src = new ImageGenSrc(path, mode, alphaType, isGpu);
+    ImageGenSrc* src = new ImageGenSrc(std::move(path), mode, alphaType, isGpu);
     push_src("image", folder, src);
 }
 

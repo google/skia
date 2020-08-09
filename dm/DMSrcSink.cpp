@@ -82,6 +82,7 @@
 
 #include <cmath>
 #include <functional>
+#include <utility>
 
 static DEFINE_bool(multiPage, false,
                    "For document-type backends, render the source into multiple pages");
@@ -148,7 +149,7 @@ static SkString get_scaled_name(const Path& path, float scale) {
 
 #ifdef SK_ENABLE_ANDROID_UTILS
 BRDSrc::BRDSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType, uint32_t sampleSize)
-    : fPath(path)
+    : fPath(std::move(path))
     , fMode(mode)
     , fDstColorType(dstColorType)
     , fSampleSize(sampleSize)
@@ -985,7 +986,7 @@ Name ImageGenSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ColorCodecSrc::ColorCodecSrc(Path path, bool decode_to_dst) : fPath(path)
+ColorCodecSrc::ColorCodecSrc(Path path, bool decode_to_dst) : fPath(std::move(path))
                                                             , fDecodeToDst(decode_to_dst) {}
 
 bool ColorCodecSrc::veto(SinkFlags flags) const {
@@ -1056,7 +1057,7 @@ Name ColorCodecSrc::name() const {
 static DEFINE_int(skpViewportSize, 1000,
                   "Width & height of the viewport used to crop skp rendering.");
 
-SKPSrc::SKPSrc(Path path) : fPath(path) { }
+SKPSrc::SKPSrc(Path path) : fPath(std::move(path)) { }
 
 Result SKPSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
@@ -1098,7 +1099,7 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-BisectSrc::BisectSrc(Path path, const char* trail) : INHERITED(path), fTrail(trail) {}
+BisectSrc::BisectSrc(Path path, const char* trail) : INHERITED(std::move(path)), fTrail(trail) {}
 
 Result BisectSrc::draw(GrDirectContext* context, SkCanvas* canvas) const {
     struct FoundPath {
@@ -1353,7 +1354,7 @@ bool SVGSrc::veto(SinkFlags flags) const {
 #endif // defined(SK_XML)
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-MSKPSrc::MSKPSrc(Path path) : fPath(path) {
+MSKPSrc::MSKPSrc(Path path) : fPath(std::move(path)) {
     std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
     int count = SkMultiPictureDocumentReadPageCount(stream.get());
     if (count > 0) {

@@ -14,6 +14,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "include/core/SkCanvas.h"
@@ -32,7 +33,7 @@ struct BaseOption {
     virtual std::string valueToString() = 0;
 
     BaseOption(std::string _selector, std::string _description)
-        : selector(_selector), description(_description) {}
+        : selector(std::move(_selector)), description(std::move(_description)) {}
 
     virtual ~BaseOption() {}
 
@@ -86,7 +87,7 @@ struct DoubleOption : Option<double> {
     DoubleOption(std::string _selector,
                  std::string _description,
                  double defaultValue)
-        : Option<double>(_selector, _description, defaultValue) {}
+        : Option<double>(std::move(_selector), std::move(_description), defaultValue) {}
 };
 
 struct StringOption : Option<std::string> {
@@ -95,7 +96,7 @@ struct StringOption : Option<std::string> {
     StringOption(std::string _selector,
                  std::string _description,
                  std::string defaultValue)
-        : Option<std::string>(_selector, _description, defaultValue) {}
+        : Option<std::string>(std::move(_selector), std::move(_description), std::move(defaultValue)) {}
 };
 
 // Config //////////////////////////////////////////////////////////////////////

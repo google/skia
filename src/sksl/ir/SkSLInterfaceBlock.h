@@ -8,6 +8,8 @@
 #ifndef SKSL_INTERFACEBLOCK
 #define SKSL_INTERFACEBLOCK
 
+#include <utility>
+
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -33,7 +35,7 @@ struct InterfaceBlock : public ProgramElement {
     , fTypeName(std::move(typeName))
     , fInstanceName(std::move(instanceName))
     , fSizes(std::move(sizes))
-    , fTypeOwner(typeOwner) {}
+    , fTypeOwner(std::move(typeOwner)) {}
 
     std::unique_ptr<ProgramElement> clone() const override {
         std::vector<std::unique_ptr<Expression>> sizesClone;

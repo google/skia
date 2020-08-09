@@ -30,6 +30,7 @@
 
 #include <cstddef>
 #include <new>
+#include <utility>
 
 // -- GrTextBlob::Key ------------------------------------------------------------------------------
 GrTextBlob::Key::Key() { sk_bzero(this, sizeof(Key)); }
@@ -234,7 +235,7 @@ GrDirectMaskSubRun::GrDirectMaskSubRun(GrMaskFormat format,
         , fBlob{blob}
         , fVertexBounds{bounds}
         , fVertexData{vertexData}
-        , fGlyphs{glyphs} { }
+        , fGlyphs{std::move(glyphs)} { }
 
 GrSubRun* GrDirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    const SkStrikeSpec& strikeSpec,
@@ -486,7 +487,7 @@ GrTransformedMaskSubRun::GrTransformedMaskSubRun(GrMaskFormat format,
         , fBlob{blob}
         , fVertexBounds{bounds}
         , fVertexData{vertexData}
-        , fGlyphs{glyphs} { }
+        , fGlyphs{std::move(glyphs)} { }
 
 GrSubRun* GrTransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                         const SkStrikeSpec& strikeSpec,
@@ -721,7 +722,7 @@ GrSDFTSubRun::GrSDFTSubRun(GrMaskFormat format,
         , fBlob{textBlob}
         , fVertexBounds{vertexBounds}
         , fVertexData{vertexData}
-        , fGlyphs{glyphs}
+        , fGlyphs{std::move(glyphs)}
         , fUseLCDText{useLCDText}
         , fAntiAliased{antiAliased} { }
 

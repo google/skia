@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <utility>
+
 #include "gm/gm.h"
 
 #include "include/effects/SkGradientShader.h"
@@ -24,7 +26,7 @@ static GrSurfaceProxyView blur(GrRecordingContext* ctx,
                                float sigmaY,
                                SkTileMode mode) {
     auto resultRTC =
-            SkGpuBlurUtils::GaussianBlur(ctx, src, GrColorType::kRGBA_8888, kPremul_SkAlphaType,
+            SkGpuBlurUtils::GaussianBlur(ctx, std::move(src), GrColorType::kRGBA_8888, kPremul_SkAlphaType,
                                          nullptr, dstB, srcB, sigmaX, sigmaY, mode);
     if (!resultRTC) {
         return {};
