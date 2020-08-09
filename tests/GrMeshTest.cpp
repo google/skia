@@ -9,6 +9,7 @@
 
 #include <array>
 #include <memory>
+#include <utility>
 #include <vector>
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrDirectContext.h"
@@ -419,8 +420,8 @@ private:
     GrMeshTestOp(std::function<void(DrawMeshHelper*)> prepareFn,
                  std::function<void(DrawMeshHelper*)> executeFn)
         : INHERITED(ClassID())
-        , fPrepareFn(prepareFn)
-        , fExecuteFn(executeFn){
+        , fPrepareFn(std::move(prepareFn))
+        , fExecuteFn(std::move(executeFn)){
         this->setBounds(SkRect::MakeIWH(kImageWidth, kImageHeight),
                         HasAABloat::kNo, IsHairline::kNo);
     }
@@ -600,7 +601,8 @@ static void run_test(GrRecordingContext* rContext, const char* testName,
 
     SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
     rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
-    rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(rContext, prepareFn, executeFn));
+    rtc->priv().testingOnly_addDrawOp(
+            GrMeshTestOp::Make(rContext, std::move(prepareFn), std::move(executeFn)));
 
     rtc->readPixels(gold.info(), resultPx, rowBytes, {0, 0});
 

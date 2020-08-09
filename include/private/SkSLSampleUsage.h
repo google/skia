@@ -9,6 +9,7 @@
 #define SkSLSampleUsage_DEFINED
 
 #include <string>
+#include <utility>
 
 namespace SkSL {
 
@@ -79,7 +80,7 @@ struct SampleUsage {
                 bool explicitCoords,
                 bool passThrough)
             : fKind(kind)
-            , fExpression(expression)
+            , fExpression(std::move(expression))
             , fHasPerspective(hasPerspective)
             , fExplicitCoords(explicitCoords)
             , fPassThrough(passThrough) {}

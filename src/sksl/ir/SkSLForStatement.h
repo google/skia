@@ -8,6 +8,8 @@
 #ifndef SKSL_FORSTATEMENT
 #define SKSL_FORSTATEMENT
 
+#include <utility>
+
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -22,7 +24,7 @@ struct ForStatement : public Statement {
                  std::unique_ptr<Expression> test, std::unique_ptr<Expression> next,
                  std::unique_ptr<Statement> statement, std::shared_ptr<SymbolTable> symbols)
     : INHERITED(offset, kFor_Kind)
-    , fSymbols(symbols)
+    , fSymbols(std::move(symbols))
     , fInitializer(std::move(initializer))
     , fTest(std::move(test))
     , fNext(std::move(next))

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <utility>
+
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
@@ -32,7 +34,7 @@ public:
     SkRasterPipelineBlitter(SkPixmap dst,
                             SkBlendMode blend,
                             SkArenaAlloc* alloc)
-        : fDst(dst)
+        : fDst(std::move(dst))
         , fBlend(blend)
         , fAlloc(alloc)
         , fColorPipeline(alloc)

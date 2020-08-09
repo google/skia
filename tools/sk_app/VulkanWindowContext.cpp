@@ -8,6 +8,8 @@
 
 #include "tools/sk_app/VulkanWindowContext.h"
 
+#include <utility>
+
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -35,8 +37,8 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
                                          PFN_vkGetInstanceProcAddr instProc,
                                          PFN_vkGetDeviceProcAddr devProc)
     : WindowContext(params)
-    , fCreateVkSurfaceFn(createVkSurface)
-    , fCanPresentFn(canPresent)
+    , fCreateVkSurfaceFn(std::move(createVkSurface))
+    , fCanPresentFn(std::move(canPresent))
     , fSurface(VK_NULL_HANDLE)
     , fSwapchain(VK_NULL_HANDLE)
     , fImages(nullptr)

@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLProgramElement.h"
 
 #include <set>
+#include <utility>
 
 namespace SkSL {
 
@@ -29,7 +30,7 @@ struct FunctionDefinition : public ProgramElement {
     : INHERITED(offset, kFunction_Kind)
     , fDeclaration(declaration)
     , fBody(std::move(body))
-    , fReferencedIntrinsics(referencedIntrinsics) {}
+    , fReferencedIntrinsics(std::move(referencedIntrinsics)) {}
 
     bool canBeInlined() const {
         static const int INLINE_THRESHOLD = 50; // chosen arbitrarily, feel free to adjust

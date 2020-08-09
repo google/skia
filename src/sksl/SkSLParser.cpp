@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLParser.h"
 
 #include <memory>
+#include <utility>
 #include "stdio.h"
 
 #include "src/sksl/SkSLASTNode.h"
@@ -246,11 +247,11 @@ StringFragment Parser::text(Token token) {
 }
 
 void Parser::error(Token token, String msg) {
-    this->error(token.fOffset, msg);
+    this->error(token.fOffset, std::move(msg));
 }
 
 void Parser::error(int offset, String msg) {
-    fErrors.error(offset, msg);
+    fErrors.error(offset, std::move(msg));
 }
 
 bool Parser::isType(StringFragment name) {
