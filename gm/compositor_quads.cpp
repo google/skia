@@ -420,7 +420,7 @@ public:
             : fName(name) {
         fRenderers.push_back(std::move(renderer));
     }
-    CompositorGM(const char* name, const SkTArray<sk_sp<ClipTileRenderer>> renderers)
+    CompositorGM(const char* name, const SkTArray<sk_sp<ClipTileRenderer>>& renderers)
             : fRenderers(renderers)
             , fName(name) {}
 

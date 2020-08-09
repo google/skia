@@ -26,7 +26,7 @@ constexpr static GrGeometryProcessor::Attribute kInstanceAttribs[] = {
 
 class DrawAtlasPathShader : public GrGeometryProcessor {
 public:
-    DrawAtlasPathShader(const GrTextureProxy* atlasProxy, GrSwizzle swizzle, bool usesLocalCoords)
+    DrawAtlasPathShader(const GrTextureProxy* atlasProxy, const GrSwizzle& swizzle, bool usesLocalCoords)
             : GrGeometryProcessor(kDrawAtlasPathShader_ClassID)
             , fAtlasAccess(GrSamplerState::Filter::kNearest, atlasProxy->backendFormat(), swizzle)
             , fAtlasDimensions(atlasProxy->backingStoreDimensions())

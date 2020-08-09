@@ -43,7 +43,7 @@ struct BaseOption {
 template <class T>
 struct Option : BaseOption {
     T value;
-    Option(std::string _selector, std::string _description, T defaultValue)
+    Option(const std::string& _selector, const std::string& _description, T defaultValue)
         : BaseOption(_selector, _description), value(defaultValue) {}
 };
 

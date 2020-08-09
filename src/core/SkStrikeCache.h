@@ -205,7 +205,7 @@ private:
     // A simple accounting of what each glyph cache reports and the strike cache total.
     void validate() const SK_REQUIRES(fLock);
 
-    void forEachStrike(std::function<void(const Strike&)> visitor) const SK_EXCLUDES(fLock);
+    void forEachStrike(const std::function<void(const Strike&)>& visitor) const SK_EXCLUDES(fLock);
 
     mutable SkSpinlock fLock;
     Strike* fHead SK_GUARDED_BY(fLock) {nullptr};

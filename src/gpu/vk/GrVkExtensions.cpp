@@ -63,7 +63,7 @@ void GrVkExtensions::init(GrVkGetProc getProc,
 #define GET_PROC(F, inst)                                                        \
         PFN_vk##F grVk##F = (PFN_vk ## F) getProc("vk" #F, inst, VK_NULL_HANDLE)
 
-void GrVkExtensions::getSpecVersions(GrVkGetProc getProc, VkInstance instance,
+void GrVkExtensions::getSpecVersions(const GrVkGetProc& getProc, VkInstance instance,
                                      VkPhysicalDevice physDevice) {
     // We grab all the extensions for the VkInstance and VkDevice so we can look up what spec
     // version each of the supported extensions are. We do not grab the extensions for layers

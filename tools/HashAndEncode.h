@@ -15,8 +15,8 @@ public:
 
     bool writePngTo(const char* path,
                     const char* md5,
-                    CommandLineFlags::StringArray key,
-                    CommandLineFlags::StringArray properties) const;
+                    const CommandLineFlags::StringArray& key,
+                    const CommandLineFlags::StringArray& properties) const;
 
 private:
     const SkISize               fSize;

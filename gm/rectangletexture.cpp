@@ -95,7 +95,7 @@ private:
     }
 
     sk_sp<SkImage> createRectangleTextureImg(GrDirectContext* dContext, GrSurfaceOrigin origin,
-                                             const SkBitmap content) {
+                                             const SkBitmap& content) {
         SkASSERT(content.colorType() == kRGBA_8888_SkColorType);
         auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         auto bet = dContext->createBackendTexture(content.width(), content.height(), format,

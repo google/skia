@@ -141,7 +141,7 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractPositions(const char utf8[], int utf8Units, UBreakType type, std::function<void(int, int)> add) {
+    static bool extractPositions(const char utf8[], int utf8Units, UBreakType type, const std::function<void(int, int)>& add) {
 
         UErrorCode status = U_ZERO_ERROR;
         UText sUtf8UText = UTEXT_INITIALIZER;

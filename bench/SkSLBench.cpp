@@ -11,7 +11,7 @@
 
 class SkSLBench : public Benchmark {
 public:
-    SkSLBench(SkSL::String name, const char* src)
+    SkSLBench(const SkSL::String& name, const char* src)
         : fName("sksl_" + name)
         , fSrc(src) {}
 

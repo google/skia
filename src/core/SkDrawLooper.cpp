@@ -83,7 +83,7 @@ bool SkDrawLooper::asABlurShadow(BlurShadowRec*) const {
 }
 
 void SkDrawLooper::apply(SkCanvas* canvas, const SkPaint& paint,
-                         std::function<void(SkCanvas*, const SkPaint&)> proc) {
+                         const std::function<void(SkCanvas*, const SkPaint&)>& proc) {
     SkSTArenaAlloc<256> alloc;
     Context* ctx = this->makeContext(&alloc);
     if (ctx) {

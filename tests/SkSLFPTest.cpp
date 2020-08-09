@@ -11,7 +11,7 @@
 #include "tests/Test.h"
 
 static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src,
-                 std::vector<const char*> expectedH, std::vector<const char*> expectedCPP) {
+                 const std::vector<const char*>& expectedH, const std::vector<const char*>& expectedCPP) {
     SkSL::Program::Settings settings;
     settings.fCaps = &caps;
     settings.fRemoveDeadFunctions = false;

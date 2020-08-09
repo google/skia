@@ -88,7 +88,7 @@ bool ImGuiLayer::onMouseWheel(float delta, skui::ModifierKey modifiers) {
     return true;
 }
 
-void ImGuiLayer::skiaWidget(const ImVec2& size, SkiaWidgetFunc func) {
+void ImGuiLayer::skiaWidget(const ImVec2& size, const SkiaWidgetFunc& func) {
     intptr_t funcIndex = fSkiaWidgetFuncs.count();
     fSkiaWidgetFuncs.push_back(func);
     ImGui::Image((ImTextureID)funcIndex, size);

@@ -65,7 +65,7 @@ protected:
     // matrix). It will declare the transformed local coord variable and will set
     // GrGPArgs::fLocalCoordVar.
     void writeLocalCoord(GrGLSLVertexBuilder*, GrGLSLUniformHandler*, GrGPArgs*,
-                         GrShaderVar localVar, const SkMatrix& localMatrix,
+                         const GrShaderVar& localVar, const SkMatrix& localMatrix,
                          UniformHandle* localMatrixUniform);
 
     // GPs that use writeOutputPosition and/or writeLocalCoord must incorporate the matrix type

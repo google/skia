@@ -332,7 +332,7 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(const GrCaps& caps,
 
 sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         GrRecordingContext* context, int width, int height,
-        GrBackendFormat backendFormat, GrMipmapped mipMapped,
+        const GrBackendFormat& backendFormat, GrMipmapped mipMapped,
         PromiseImageTextureFulfillProc fulfillProc, PromiseImageTextureReleaseProc releaseProc,
         PromiseImageTextureDoneProc doneProc, PromiseImageTextureContext textureContext,
         PromiseImageApiVersion version) {

@@ -5,7 +5,7 @@
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommonFlags.h"
 
-bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* output) {
+bool CollectImages(const CommandLineFlags::StringArray& images, SkTArray<SkString>* output) {
     SkASSERT(output);
 
     static const char* const exts[] = {

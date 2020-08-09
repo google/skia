@@ -118,7 +118,7 @@ public:
     ~ImGuiLayer() override;
 
     typedef std::function<void(SkCanvas*)> SkiaWidgetFunc;
-    void skiaWidget(const ImVec2& size, SkiaWidgetFunc func);
+    void skiaWidget(const ImVec2& size, const SkiaWidgetFunc& func);
 
     void onAttach(sk_app::Window* window) override;
     void onPrePaint() override;

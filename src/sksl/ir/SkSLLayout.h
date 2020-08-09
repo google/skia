@@ -117,7 +117,7 @@ struct Layout {
         ABORT("Unexpected format");
     }
 
-    static bool ReadFormat(String str, Format* format) {
+    static bool ReadFormat(const String& str, Format* format) {
         if (str == "rgba32f") {
             *format = Format::kRGBA32F;
             return true;

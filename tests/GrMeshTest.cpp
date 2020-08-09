@@ -407,8 +407,8 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext,
-                                          std::function<void(DrawMeshHelper*)> prepareFn,
-                                          std::function<void(DrawMeshHelper*)> executeFn) {
+                                          const std::function<void(DrawMeshHelper*)>& prepareFn,
+                                          const std::function<void(DrawMeshHelper*)>& executeFn) {
         GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
 
         return pool->allocate<GrMeshTestOp>(prepareFn, executeFn);

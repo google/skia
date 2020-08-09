@@ -161,7 +161,7 @@ public:
         kGrayscale_Always_DstColorType,
         kNonNative8888_Always_DstColorType,
     };
-    CodecSrc(Path, Mode, DstColorType, SkAlphaType, float);
+    CodecSrc(const Path&, Mode, DstColorType, SkAlphaType, float);
 
     Result draw(GrDirectContext*, SkCanvas*) const override;
     SkISize size() const override;
@@ -179,7 +179,7 @@ private:
 
 class AndroidCodecSrc : public Src {
 public:
-    AndroidCodecSrc(Path, CodecSrc::DstColorType, SkAlphaType, int sampleSize);
+    AndroidCodecSrc(const Path&, CodecSrc::DstColorType, SkAlphaType, int sampleSize);
 
     Result draw(GrDirectContext*, SkCanvas*) const override;
     SkISize size() const override;
@@ -228,7 +228,7 @@ public:
         kCodec_Mode,    // Use CodecImageGenerator
         kPlatform_Mode, // Uses CG or WIC
     };
-    ImageGenSrc(Path, Mode, SkAlphaType, bool);
+    ImageGenSrc(const Path&, Mode, SkAlphaType, bool);
 
     Result draw(GrDirectContext*, SkCanvas*) const override;
     SkISize size() const override;
@@ -335,7 +335,7 @@ namespace DM {
 
 class SVGSrc : public Src {
 public:
-    explicit SVGSrc(Path path);
+    explicit SVGSrc(const Path& path);
 
     Result draw(GrDirectContext*, SkCanvas*) const override;
     SkISize size() const override;
@@ -386,7 +386,7 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     Result onDraw(const Src&, SkBitmap*, SkWStream*, SkString*,
                   const GrContextOptions& baseOptions,
-                  std::function<void(GrContext*)> initContext = nullptr) const;
+                  const std::function<void(GrContext*)>& initContext = nullptr) const;
 
     sk_gpu_test::GrContextFactory::ContextType contextType() const { return fContextType; }
     const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() const {

@@ -28,7 +28,7 @@ protected:
         return SkISize::Make(640, 320);
     }
 
-    static void draw_path(SkScalar size, SkCanvas* canvas, SkPaint paint) {
+    static void draw_path(SkScalar size, SkCanvas* canvas, const SkPaint& paint) {
         SkScalar c = 0.551915024494f * size;
         SkPath path;
         path.moveTo(0.0f, size);

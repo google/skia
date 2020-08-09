@@ -774,7 +774,7 @@ private:
 #ifdef SK_DEBUG
     static int validate_op(GrTextureType textureType,
                            GrAAType aaType,
-                           GrSwizzle swizzle,
+                           const GrSwizzle& swizzle,
                            const TextureOp* op) {
         SkASSERT(op->fMetadata.fSwizzle == swizzle);
 

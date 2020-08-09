@@ -13,10 +13,11 @@ struct SkImageInfo;
 struct SkIRect;
 
 /** Generic/synchronous implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixels. */
-void SkRescaleAndReadPixels(SkBitmap src,
+void SkRescaleAndReadPixels(const SkBitmap& src,
                             const SkImageInfo& resultInfo,
                             const SkIRect& srcRect,
                             SkImage::RescaleGamma,
                             SkFilterQuality,
                             SkImage::ReadPixelsCallback,
                             SkImage::ReadPixelsContext);
+

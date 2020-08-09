@@ -135,7 +135,7 @@ bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,
                                         SkImage::BackendTextureReleaseProc* releaseProc) {
     *backendTexture = this->getBackendTexture();
     // Set the release proc to a no-op function. GL doesn't require any special cleanup.
-    *releaseProc = [](GrBackendTexture){};
+    *releaseProc = [](const GrBackendTexture&){};
 
     // It's important that we only abandon this texture's objects, not subclass objects such as
     // those held by GrGLTextureRenderTarget. Those objects are not being stolen and need to be

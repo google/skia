@@ -86,7 +86,7 @@ SkPath oval_path() {
     return SkPathBuilder().arcTo(oval, 0, 359, true).close().detach();
 }
 
-SkPath ribs_path(SkPath path, SkScalar radius) {
+SkPath ribs_path(const SkPath& path, SkScalar radius) {
     SkPath ribs;
 
     const SkScalar spacing = 5.0f;
@@ -110,7 +110,7 @@ SkPath ribs_path(SkPath path, SkScalar radius) {
     return ribs;
 }
 
-void draw_ribs(SkCanvas *canvas, SkPath path) {
+void draw_ribs(SkCanvas *canvas, const SkPath& path) {
     SkPath ribs = ribs_path(path, OVERSTROKE_WIDTH/2.0f);
     SkPaint p = make_normal_paint();
     p.setStrokeWidth(1);

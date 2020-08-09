@@ -24,7 +24,7 @@ public:
     void add(std::function<void(void)> fn);
 
     // Add a batch of N tasks, all calling fn with different arguments.
-    void batch(int N, std::function<void(int)> fn);
+    void batch(int N, const std::function<void(int)>& fn);
 
     // Returns true if all Tasks previously add()ed to this SkTaskGroup have run.
     // It is safe to reuse this SkTaskGroup once done().

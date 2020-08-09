@@ -107,7 +107,7 @@ private:
 // This serves as a base class for benchmarking individual methods on GrPathTessellateOp.
 class GrPathTessellateOp::TestingOnly_Benchmark : public Benchmark {
 public:
-    TestingOnly_Benchmark(const char* subName, SkPath path, const SkMatrix& m)
+    TestingOnly_Benchmark(const char* subName, const SkPath& path, const SkMatrix& m)
             : fOp(m, path, GrPaint(), GrAAType::kMSAA, GrTessellationPathRenderer::OpFlags::kNone) {
         fName.printf("tessellate_%s", subName);
     }

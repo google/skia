@@ -131,7 +131,7 @@ public:
     using PreTestFn = std::function<void(SkCanvas*, SkPaint*)>;
 
     void test(GrColor TL, GrColor TR, GrColor BL, GrColor BR,
-              PreTestFn preTestCallback = nullptr) {
+              const PreTestFn& preTestCallback = nullptr) {
         auto shader = fBuilder->makeShader(nullptr, false);
         if (!shader) {
             REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));

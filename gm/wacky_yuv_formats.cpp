@@ -650,7 +650,7 @@ static SkBitmap make_quarter_2_channel(const SkBitmap& fullY,
 
 // Create some flavor of a 16bits/channel bitmap from a RGBA_F32 source
 static SkBitmap make_16(const SkBitmap& src, SkColorType dstCT,
-                        std::function<void(uint16_t* dstPixel, const float* srcPixel)> convert) {
+                        const std::function<void(uint16_t* dstPixel, const float* srcPixel)>& convert) {
     SkASSERT(src.colorType() == kRGBA_F32_SkColorType);
 
     SkBitmap result;

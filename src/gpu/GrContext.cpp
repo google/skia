@@ -923,7 +923,7 @@ bool GrContext::setBackendRenderTargetState(const GrBackendRenderTarget& backend
     return fGpu->setBackendRenderTargetState(backendRenderTarget, state, std::move(callback));
 }
 
-void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
+void GrContext::deleteBackendTexture(const GrBackendTexture& backendTex) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     // For the Vulkan backend we still must destroy the backend texture when the context is
     // abandoned.

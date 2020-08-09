@@ -45,14 +45,14 @@ public:
      *  Write all collected results to the file dir/dm.json.
      */
     static void DumpJson(const char* dir,
-                         CommandLineFlags::StringArray key,
-                         CommandLineFlags::StringArray properties);
+                         const CommandLineFlags::StringArray& key,
+                         const CommandLineFlags::StringArray& properties);
 
     /**
      * Read JSON file at path written by DumpJson, calling callback for each
      * BitmapResult recorded in the file.  Return success.
      */
-    static bool ReadJson(const char* path, void(*callback)(BitmapResult));
+    static bool ReadJson(const char* path, void(*callback)(const BitmapResult&));
 };
 
 

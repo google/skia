@@ -10,7 +10,7 @@
 const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::createPipelineWithStencil(
                                             const GrCaps* caps,
                                             SkArenaAlloc* arena,
-                                            GrSwizzle writeViewSwizzle,
+                                            const GrSwizzle& writeViewSwizzle,
                                             GrAppliedClip&& appliedClip,
                                             const GrXferProcessor::DstProxyView& dstProxyView) {
     return GrSimpleMeshDrawOpHelper::CreatePipeline(caps,

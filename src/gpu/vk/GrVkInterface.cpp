@@ -17,7 +17,7 @@
     fFunctions.f##name =                                    \
             reinterpret_cast<PFN_vk##name##suffix>(getProc("vk" #name #suffix, instance, device))
 
-GrVkInterface::GrVkInterface(GrVkGetProc getProc,
+GrVkInterface::GrVkInterface(const GrVkGetProc& getProc,
                              VkInstance instance,
                              VkDevice device,
                              uint32_t instanceVersion,

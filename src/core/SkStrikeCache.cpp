@@ -236,7 +236,7 @@ int SkStrikeCache::setCachePointSizeLimit(int newLimit) {
     return prevLimit;
 }
 
-void SkStrikeCache::forEachStrike(std::function<void(const Strike&)> visitor) const {
+void SkStrikeCache::forEachStrike(const std::function<void(const Strike&)>& visitor) const {
     SkAutoSpinlock ac(fLock);
 
     this->validate();

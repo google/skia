@@ -138,9 +138,9 @@ static void check_readback(GrDirectContext* dContext, sk_sp<SkImage> img,
 // Test initialization of compressed GrBackendTextures to a specific color
 static void test_compressed_color_init(GrDirectContext* dContext,
                                        skiatest::Reporter* reporter,
-                                       std::function<GrBackendTexture (GrDirectContext*,
+                                       const std::function<GrBackendTexture (GrDirectContext*,
                                                                        const SkColor4f&,
-                                                                       GrMipmapped)> create,
+                                                                       GrMipmapped)>& create,
                                        const SkColor4f& color,
                                        SkImage::CompressionType compression,
                                        GrMipmapped mipMapped) {
@@ -212,10 +212,10 @@ static std::unique_ptr<const char[]> make_compressed_data(SkImage::CompressionTy
 // the mipmap levels).
 static void test_compressed_data_init(GrDirectContext* dContext,
                                       skiatest::Reporter* reporter,
-                                      std::function<GrBackendTexture (GrDirectContext*,
+                                      const std::function<GrBackendTexture (GrDirectContext*,
                                                                       const char* data,
                                                                       size_t dataSize,
-                                                                      GrMipmapped)> create,
+                                                                      GrMipmapped)>& create,
                                       SkImage::CompressionType compression,
                                       GrMipmapped mipMapped) {
 

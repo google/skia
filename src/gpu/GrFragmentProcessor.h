@@ -363,7 +363,7 @@ protected:
      * The SampleUsage parameter describes all of the ways that the child is sampled by the parent.
      */
     void registerChild(std::unique_ptr<GrFragmentProcessor> child,
-                       SkSL::SampleUsage sampleUsage = SkSL::SampleUsage::PassThrough());
+                       const SkSL::SampleUsage& sampleUsage = SkSL::SampleUsage::PassThrough());
 
     /**
      * This method takes an existing fragment processor, clones all of its children, and registers

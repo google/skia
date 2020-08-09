@@ -63,7 +63,7 @@ DEF_TEST(WangsFormula_nextlog2, r) {
     }
 }
 
-void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f) {
+void for_random_matrices(SkRandom* rand, const std::function<void(const SkMatrix&)>& f) {
     SkMatrix m;
     m.setIdentity();
     f(m);
@@ -85,7 +85,7 @@ void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f)
     }
 }
 
-void for_random_beziers(int numPoints, SkRandom* rand, std::function<void(const SkPoint[])> f) {
+void for_random_beziers(int numPoints, SkRandom* rand, const std::function<void(const SkPoint[])>& f) {
     SkASSERT(numPoints <= 4);
     SkPoint pts[4];
     for (int i = -10; i <= 30; ++i) {

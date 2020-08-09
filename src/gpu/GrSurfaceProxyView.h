@@ -19,7 +19,8 @@ class GrSurfaceProxyView {
 public:
     GrSurfaceProxyView() = default;
 
-    GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy, GrSurfaceOrigin origin, GrSwizzle swizzle)
+    GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy, GrSurfaceOrigin origin,
+                       const GrSwizzle& swizzle)
             : fProxy(std::move(proxy)), fOrigin(origin), fSwizzle(swizzle) {}
 
     // This entry point is used when we don't care about the origin or the swizzle.
@@ -79,7 +80,7 @@ public:
     // Helper that copies a rect of a src view'' proxy and then creates a view for the copy with
     // the same origin and swizzle as the src view.
     static GrSurfaceProxyView Copy(GrRecordingContext* context,
-                                   GrSurfaceProxyView src,
+                                   const GrSurfaceProxyView& src,
                                    GrMipmapped mipMapped,
                                    SkIRect srcRect,
                                    SkBackingFit fit,

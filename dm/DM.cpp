@@ -405,7 +405,7 @@ struct Gold : public SkString {
 };
 static SkTHashSet<Gold, Gold::Hash>* gGold = new SkTHashSet<Gold, Gold::Hash>;
 
-static void add_gold(JsonWriter::BitmapResult r) {
+static void add_gold(const JsonWriter::BitmapResult& r) {
     gGold->add(Gold(r.config, r.sourceType, r.sourceOptions, r.name, r.md5));
 }
 
@@ -647,11 +647,11 @@ static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc:
         folder.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 
-    BRDSrc* src = new BRDSrc(path, mode, dstColorType, sampleSize);
+    BRDSrc* src = new BRDSrc(std::move(path), mode, dstColorType, sampleSize);
     push_src("image", folder, src);
 }
 
-static void push_brd_srcs(Path path, bool gray) {
+static void push_brd_srcs(const Path& path, bool gray) {
     if (gray) {
         // Only run grayscale to one sampleSize and Mode. Though interesting
         // to test grayscale, it should not reveal anything across various
@@ -678,7 +678,7 @@ static void push_brd_srcs(Path path, bool gray) {
 }
 #endif // SK_ENABLE_ANDROID_UTILS
 
-static void push_codec_srcs(Path path) {
+static void push_codec_srcs(const Path& path) {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
     if (!encoded) {
         info("Couldn't read %s.", path.c_str());

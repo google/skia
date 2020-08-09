@@ -16,7 +16,7 @@
 // Benchmarks the interpreter with a function that has a color-filter style signature
 class SkSLInterpreterCFBench : public Benchmark {
 public:
-    SkSLInterpreterCFBench(SkSL::String name, int pixels, const char* src)
+    SkSLInterpreterCFBench(const SkSL::String& name, int pixels, const char* src)
         : fName(SkStringPrintf("sksl_interp_cf_%d_%s", pixels, name.c_str()))
         , fSrc(src)
         , fCount(pixels) {}

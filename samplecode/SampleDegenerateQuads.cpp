@@ -16,7 +16,7 @@
 #include "include/pathops/SkPathOps.h"
 
 // Draw a line through the two points, outset by a fixed length in screen space
-static void draw_extended_line(SkCanvas* canvas, const SkPaint paint,
+static void draw_extended_line(SkCanvas* canvas, const SkPaint& paint,
                               const SkPoint& p0, const SkPoint& p1) {
     SkVector v = p1 - p0;
     v.setLength(v.length() + 3.f);

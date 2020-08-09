@@ -38,7 +38,7 @@ private:
     typedef SkRefCnt INHERITED;
 
 public:
-    GrVkInterface(GrVkGetProc getProc,
+    GrVkInterface(const GrVkGetProc& getProc,
                   VkInstance instance,
                   VkDevice device,
                   uint32_t instanceVersion,

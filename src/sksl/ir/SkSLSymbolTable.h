@@ -27,7 +27,7 @@ public:
     SymbolTable(ErrorReporter* errorReporter)
     : fErrorReporter(*errorReporter) {}
 
-    SymbolTable(std::shared_ptr<SymbolTable> parent)
+    SymbolTable(const std::shared_ptr<SymbolTable>& parent)
     : fParent(parent)
     , fErrorReporter(parent->fErrorReporter) {}
 

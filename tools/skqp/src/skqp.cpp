@@ -133,7 +133,7 @@ static void get_render_tests(SkQPAssetManager* mgr,
         }
     }
     std::sort(gmsWithNames.begin(), gmsWithNames.end(),
-              [](GmAndName u, GmAndName v) { return u.second < v.second; });
+              [](const GmAndName& u, const GmAndName& v) { return u.second < v.second; });
     gmlist->reserve(gmsWithNames.size());
     for (const GmAndName& gmn : gmsWithNames) {
         gmlist->push_back(gmn.first);

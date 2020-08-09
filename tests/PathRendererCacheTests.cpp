@@ -72,12 +72,12 @@ static bool cache_non_scratch_resources_equals(GrResourceCache* cache, int expec
 }
 
 static void test_path(skiatest::Reporter* reporter,
-                      std::function<SkPath(void)> createPath,
-                      std::function<GrPathRenderer*(GrRecordingContext*)> createPathRenderer,
+                      const std::function<SkPath(void)>& createPath,
+                      const std::function<GrPathRenderer*(GrRecordingContext*)>& createPathRenderer,
                       int expected,
                       bool checkListeners,
                       GrAAType aaType = GrAAType::kNone,
-                      GrStyle style = GrStyle(SkStrokeRec::kFill_InitStyle)) {
+                      const GrStyle& style = GrStyle(SkStrokeRec::kFill_InitStyle)) {
     sk_sp<GrDirectContext> dContext = GrDirectContext::MakeMock(nullptr);
     // The cache needs to be big enough that nothing gets flushed, or our expectations can be wrong
     dContext->setResourceCacheLimit(8000000);

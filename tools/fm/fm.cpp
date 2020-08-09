@@ -129,7 +129,7 @@ struct Source {
     std::function<void(GrContextOptions*)> tweak = [](GrContextOptions*){};
 };
 
-static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
+static void init(Source* source, const std::shared_ptr<skiagm::GM>& gm) {
     source->size  = gm->getISize();
     source->tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); };
     source->draw  = [gm](SkCanvas* canvas) {
@@ -159,7 +159,7 @@ static void init(Source* source, sk_sp<SkPicture> pic) {
     };
 }
 
-static void init(Source* source, std::shared_ptr<SkCodec> codec) {
+static void init(Source* source, const std::shared_ptr<SkCodec>& codec) {
     source->size = codec->dimensions();
     source->draw = [codec](SkCanvas* canvas) {
         SkImageInfo info = codec->getInfo();
@@ -245,8 +245,8 @@ static void init(Source* source, const skiatest::Test& test) {
     };
 }
 
-static sk_sp<SkImage> draw_with_cpu(std::function<bool(SkCanvas*)> draw,
-                                    SkImageInfo info) {
+static sk_sp<SkImage> draw_with_cpu(const std::function<bool(SkCanvas*)>& draw,
+                                    const SkImageInfo& info) {
     if (sk_sp<SkSurface> surface = SkSurface::MakeRaster(info)) {
         if (draw(surface->getCanvas())) {
             return surface->makeImageSnapshot();
@@ -255,8 +255,8 @@ static sk_sp<SkImage> draw_with_cpu(std::function<bool(SkCanvas*)> draw,
     return nullptr;
 }
 
-static sk_sp<SkData> draw_as_skp(std::function<bool(SkCanvas*)> draw,
-                                 SkImageInfo info) {
+static sk_sp<SkData> draw_as_skp(const std::function<bool(SkCanvas*)>& draw,
+                                 const SkImageInfo& info) {
     SkPictureRecorder recorder;
     if (draw(recorder.beginRecording(info.width(), info.height()))) {
         return recorder.finishRecordingAsPicture()->serialize();
@@ -264,8 +264,8 @@ static sk_sp<SkData> draw_as_skp(std::function<bool(SkCanvas*)> draw,
     return nullptr;
 }
 
-static sk_sp<SkData> draw_as_pdf(std::function<bool(SkCanvas*)> draw,
-                                 SkImageInfo info,
+static sk_sp<SkData> draw_as_pdf(const std::function<bool(SkCanvas*)>& draw,
+                                 const SkImageInfo& info,
                                  SkString name) {
     SkPDF::Metadata metadata;
     metadata.fTitle     = name;
@@ -284,8 +284,8 @@ static sk_sp<SkData> draw_as_pdf(std::function<bool(SkCanvas*)> draw,
     return nullptr;
 }
 
-static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
-                                    SkImageInfo info,
+static sk_sp<SkImage> draw_with_gpu(const std::function<bool(SkCanvas*)>& draw,
+                                    const SkImageInfo& info,
                                     GrContextFactory::ContextType api,
                                     GrContextFactory* factory) {
     enum class SurfaceType { kDefault, kBackendTexture, kBackendRenderTarget };

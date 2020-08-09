@@ -204,7 +204,7 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
  * origin and swizzle as the src view.
  */
 GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext*,
-                                          GrSurfaceProxyView,
+                                          const GrSurfaceProxyView&,
                                           SkBudgeted = SkBudgeted::kYes);
 
 /*

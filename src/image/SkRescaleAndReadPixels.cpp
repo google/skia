@@ -13,7 +13,7 @@
 
 #include <cmath>
 
-void SkRescaleAndReadPixels(SkBitmap bmp,
+void SkRescaleAndReadPixels(const SkBitmap& bmp,
                             const SkImageInfo& resultInfo,
                             const SkIRect& srcRect,
                             SkImage::RescaleGamma rescaleGamma,

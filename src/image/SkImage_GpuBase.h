@@ -82,7 +82,7 @@ protected:
     // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
     // be null.
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
-            GrRecordingContext*, int width, int height, GrBackendFormat, GrMipmapped,
+            GrRecordingContext*, int width, int height, const GrBackendFormat&, GrMipmapped,
             PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext, PromiseImageApiVersion);
 

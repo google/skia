@@ -119,7 +119,7 @@ public:
     }
 
     void apply(SkCanvas* canvas, const SkPaint& paint,
-               std::function<void(SkCanvas*, const SkPaint&)>);
+               const std::function<void(SkCanvas*, const SkPaint&)>&);
 
 protected:
     SkDrawLooper() {}

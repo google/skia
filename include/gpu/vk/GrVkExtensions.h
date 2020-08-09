@@ -55,7 +55,7 @@ public:
 #endif
 
 private:
-    void getSpecVersions(GrVkGetProc getProc, VkInstance, VkPhysicalDevice);
+    void getSpecVersions(const GrVkGetProc& getProc, VkInstance, VkPhysicalDevice);
 
     SkTArray<Info>  fExtensions;
 };

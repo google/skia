@@ -573,7 +573,7 @@ DEF_TEST(Picture, reporter) {
     test_cull_rect_reset(reporter);
 }
 
-static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
+static void draw_bitmaps(const SkBitmap& bitmap, SkCanvas* canvas) {
     const SkPaint paint;
     const SkRect rect = { 5.0f, 5.0f, 8.0f, 8.0f };
 

@@ -23,7 +23,7 @@
 
 namespace skiagm {
 
-static inline void read_into_pixmap(SkPixmap* dst, SkImageInfo dstInfo, void* dstPixels,
+static inline void read_into_pixmap(SkPixmap* dst, const SkImageInfo& dstInfo, void* dstPixels,
         sk_sp<SkImage> src) {
     dst->reset(dstInfo, dstPixels, dstInfo.minRowBytes());
     src->readPixels(*dst, 0, 0, SkImage::CachingHint::kDisallow_CachingHint);

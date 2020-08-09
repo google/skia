@@ -161,7 +161,7 @@ bool BRDSrc::veto(SinkFlags flags) const {
         || flags.approach != SinkFlags::kDirect;
 }
 
-static std::unique_ptr<android::skia::BitmapRegionDecoder> create_brd(Path path) {
+static std::unique_ptr<android::skia::BitmapRegionDecoder> create_brd(const Path& path) {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
     return android::skia::BitmapRegionDecoder::Make(encoded);
 }
@@ -338,7 +338,7 @@ static bool serial_from_path_name(const SkString& path) {
     return false;
 }
 
-CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, SkAlphaType dstAlphaType,
+CodecSrc::CodecSrc(const Path& path, Mode mode, DstColorType dstColorType, SkAlphaType dstAlphaType,
                    float scale)
     : fPath(path)
     , fMode(mode)
@@ -787,7 +787,7 @@ Name CodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-AndroidCodecSrc::AndroidCodecSrc(Path path, CodecSrc::DstColorType dstColorType,
+AndroidCodecSrc::AndroidCodecSrc(const Path& path, CodecSrc::DstColorType dstColorType,
         SkAlphaType dstAlphaType, int sampleSize)
     : fPath(path)
     , fDstColorType(dstColorType)
@@ -876,7 +876,7 @@ Name AndroidCodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ImageGenSrc::ImageGenSrc(Path path, Mode mode, SkAlphaType alphaType, bool isGpu)
+ImageGenSrc::ImageGenSrc(const Path& path, Mode mode, SkAlphaType alphaType, bool isGpu)
     : fPath(path)
     , fMode(mode)
     , fDstAlphaType(alphaType)
@@ -1294,7 +1294,7 @@ static const SkSize kDefaultSVGSize = {1000, 1000};
 // Used to force-scale tiny fixed-size images.
 static const SkSize kMinimumSVGSize = {128, 128};
 
-SVGSrc::SVGSrc(Path path)
+SVGSrc::SVGSrc(const Path& path)
     : fName(SkOSPath::Basename(path.c_str()))
     , fScale(1) {
 
@@ -1516,7 +1516,7 @@ bool GPUSink::readBack(SkSurface* surface, SkBitmap* dst) const {
 
 Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                        const GrContextOptions& baseOptions,
-                       std::function<void(GrContext*)> initContext) const {
+                       const std::function<void(GrContext*)>& initContext) const {
     GrContextOptions grOptions = baseOptions;
 
     // We don't expect the src to mess with the persistent cache or the executor.

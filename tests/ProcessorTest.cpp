@@ -787,7 +787,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 }
 
 static void describe_fp_children(const GrFragmentProcessor& fp,
-                                 std::string indent,
+                                 const std::string& indent,
                                  SkString* text) {
     for (int index = 0; index < fp.numChildProcessors(); ++index) {
         const GrFragmentProcessor* childFP = fp.childProcessor(index);

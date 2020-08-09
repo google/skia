@@ -48,7 +48,7 @@ public:
 
         FPCoordTransformHandler& operator++();
 
-        void specifyCoordsForCurrCoordTransform(GrShaderVar varyingVar) {
+        void specifyCoordsForCurrCoordTransform(const GrShaderVar& varyingVar) {
             SkASSERT(!fAddedCoord);
             fTransformedCoordVars->push_back(varyingVar);
             SkDEBUGCODE(fAddedCoord = true;)

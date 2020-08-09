@@ -102,7 +102,7 @@ public:
     IRGenerator* fIR;
 };
 
-IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> symbolTable,
+IRGenerator::IRGenerator(const Context* context, const std::shared_ptr<SymbolTable>& symbolTable,
                          ErrorReporter& errorReporter)
 : fContext(*context)
 , fCurrentFunction(nullptr)
@@ -2920,7 +2920,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     return std::unique_ptr<Expression>(new Swizzle(fContext, std::move(base), swizzleComponents));
 }
 
-std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
+std::unique_ptr<Expression> IRGenerator::getCap(int offset, const String& name) {
     auto found = fCapsMap.find(name);
     if (found == fCapsMap.end()) {
         fErrors.error(offset, "unknown capability flag '" + name + "'");
@@ -2931,7 +2931,7 @@ std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
                                                    found->second.literal(fContext, offset)));
 }
 
-std::unique_ptr<Expression> IRGenerator::getArg(int offset, String name) const {
+std::unique_ptr<Expression> IRGenerator::getArg(int offset, const String& name) const {
     auto found = fSettings->fArgs.find(name);
     if (found == fSettings->fArgs.end()) {
         return nullptr;

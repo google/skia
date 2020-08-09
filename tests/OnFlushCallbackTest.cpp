@@ -465,7 +465,7 @@ private:
 static GrSurfaceProxyView make_upstream_image(GrRecordingContext* rContext,
                                               AtlasObject* object,
                                               int start,
-                                              GrSurfaceProxyView atlasView,
+                                              const GrSurfaceProxyView& atlasView,
                                               SkAlphaType atlasAlphaType) {
     auto rtc = GrRenderTargetContext::Make(
             rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,

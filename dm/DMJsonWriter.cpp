@@ -32,8 +32,8 @@ void JsonWriter::AddBitmapResult(const BitmapResult& result) {
 }
 
 void JsonWriter::DumpJson(const char* dir,
-                          CommandLineFlags::StringArray key,
-                          CommandLineFlags::StringArray properties) {
+                          const CommandLineFlags::StringArray& key,
+                          const CommandLineFlags::StringArray& properties) {
     if (0 == strcmp(dir, "")) {
         return;
     }
@@ -101,7 +101,7 @@ void JsonWriter::DumpJson(const char* dir,
 
 using namespace skjson;
 
-bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
+bool JsonWriter::ReadJson(const char* path, void(*callback)(const BitmapResult&)) {
     sk_sp<SkData> json(SkData::MakeFromFileName(path));
     if (!json) {
         return false;

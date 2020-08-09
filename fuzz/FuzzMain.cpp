@@ -394,7 +394,7 @@ static void fuzz_api(sk_sp<SkData> bytes, SkString name) {
     print_api_names();
 }
 
-static void dump_png(SkBitmap bitmap) {
+static void dump_png(const SkBitmap& bitmap) {
     if (!FLAGS_dump.isEmpty()) {
         ToolUtils::EncodeImageToFile(FLAGS_dump[0], bitmap, SkEncodedImageFormat::kPNG, 100);
         SkDebugf("Dumped to %s\n", FLAGS_dump[0]);

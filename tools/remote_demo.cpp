@@ -146,7 +146,7 @@ static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer,
     return write_SkData(writeFd, *data);
 }
 
-static void final_draw(std::string outFilename, SkData* picData, SkStrikeClient* client,
+static void final_draw(const std::string& outFilename, SkData* picData, SkStrikeClient* client,
                        ClientDiscardableManager* discardableManager, int readFd, int writeFd) {
     SkDeserialProcs procs;
     auto decode = [](const void* data, size_t length, void* ctx) -> sk_sp<SkTypeface> {

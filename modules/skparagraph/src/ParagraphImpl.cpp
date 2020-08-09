@@ -701,7 +701,7 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
     return { SkToU32(start), SkToU32(end) };
 }
 
-void ParagraphImpl::forEachCodeUnitPropertyRange(CodeUnitFlags property, CodeUnitRangeVisitor visitor) {
+void ParagraphImpl::forEachCodeUnitPropertyRange(CodeUnitFlags property, const CodeUnitRangeVisitor& visitor) {
 
     size_t first = 0;
     for (size_t i = 1; i < fText.size(); ++i) {

@@ -84,7 +84,7 @@ bool GrVkPipelineStateBuilder::installVkShaderModule(VkShaderStageFlagBits stage
                                                      const GrGLSLShaderBuilder& builder,
                                                      VkShaderModule* shaderModule,
                                                      VkPipelineShaderStageCreateInfo* stageInfo,
-                                                     SkSL::String spirv,
+                                                     const SkSL::String& spirv,
                                                      SkSL::Program::Inputs inputs) {
     if (!GrInstallVkShaderModule(fGpu, spirv, stage, shaderModule, stageInfo)) {
         return false;

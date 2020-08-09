@@ -89,8 +89,8 @@ void HashAndEncode::write(SkWStream* st) const {
 
 bool HashAndEncode::writePngTo(const char* path,
                                const char* md5,
-                               CommandLineFlags::StringArray key,
-                               CommandLineFlags::StringArray properties) const {
+                               const CommandLineFlags::StringArray& key,
+                               const CommandLineFlags::StringArray& properties) const {
     if (!fPixels) {
         return false;
     }

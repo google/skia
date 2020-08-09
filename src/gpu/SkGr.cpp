@@ -111,7 +111,7 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
 }
 
 GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext* context,
-                                          GrSurfaceProxyView src,
+                                          const GrSurfaceProxyView& src,
                                           SkBudgeted budgeted) {
     auto origin = src.origin();
     auto swizzle = src.swizzle();

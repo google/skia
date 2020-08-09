@@ -343,7 +343,7 @@ void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuild
 void GrGLSLGeometryProcessor::writeLocalCoord(GrGLSLVertexBuilder* vertBuilder,
                                               GrGLSLUniformHandler* uniformHandler,
                                               GrGPArgs* gpArgs,
-                                              GrShaderVar localVar,
+                                              const GrShaderVar& localVar,
                                               const SkMatrix& localMatrix,
                                               UniformHandle* localMatrixUniform) {
     write_vertex_position(vertBuilder, uniformHandler, localVar, localMatrix, "localMatrix",

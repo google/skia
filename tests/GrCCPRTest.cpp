@@ -109,7 +109,7 @@ public:
                 nullptr, &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
     }
 
-    void clipFullscreenRect(SkPath clipPath, SkPMColor4f color = { 0, 1, 0, 1 }) {
+    void clipFullscreenRect(const SkPath& clipPath, SkPMColor4f color = { 0, 1, 0, 1 }) {
         SkASSERT(this->valid());
 
         GrPaint paint;

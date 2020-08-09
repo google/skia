@@ -9,7 +9,7 @@
 
 SkSTArray<16, const SkReflected::Type*, true> SkReflected::gTypes;
 
-void SkReflected::VisitTypes(std::function<void(const Type*)> visitor) {
+void SkReflected::VisitTypes(const std::function<void(const Type*)>& visitor) {
     for (const Type* type : gTypes) {
         visitor(type);
     }

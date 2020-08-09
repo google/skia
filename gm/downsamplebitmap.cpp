@@ -29,11 +29,11 @@
 static const char* kFilterQualityNames[] = { "none", "low", "medium", "high" };
 
 struct DownsampleBitmapGM : public skiagm::GM {
-    SkBitmap      (*fMakeBitmap)(SkImageInfo);
+    SkBitmap      (*fMakeBitmap)(const SkImageInfo&);
     SkString        fName;
     SkFilterQuality fFilterQuality;
 
-    DownsampleBitmapGM(SkBitmap (*fn)(SkImageInfo), const char* kind, SkFilterQuality fq)
+    DownsampleBitmapGM(SkBitmap (*fn)(const SkImageInfo&), const char* kind, SkFilterQuality fq)
         : fMakeBitmap(fn)
         , fName(SkStringPrintf("downsamplebitmap_%s_%s", kind, kFilterQualityNames[fq]))
         , fFilterQuality(fq)
@@ -80,7 +80,7 @@ struct DownsampleBitmapGM : public skiagm::GM {
     }
 };
 
-static SkBitmap convert_bitmap_format(SkBitmap src, SkImageInfo info) {
+static SkBitmap convert_bitmap_format(const SkBitmap& src, const SkImageInfo& info) {
     SkBitmap dst;
     dst.allocPixels(info.makeDimensions(src.dimensions()));
 
@@ -92,7 +92,7 @@ static SkBitmap convert_bitmap_format(SkBitmap src, SkImageInfo info) {
 }
 
 
-static SkBitmap make_text(SkImageInfo info) {
+static SkBitmap make_text(const SkImageInfo& info) {
     const SkScalar textSize = 72;
 
     SkBitmap bm;
@@ -122,7 +122,7 @@ DEF_GM( return new DownsampleBitmapGM(make_text, "text",    kLow_SkFilterQuality
 DEF_GM( return new DownsampleBitmapGM(make_text, "text",   kNone_SkFilterQuality); )
 
 
-static SkBitmap make_checkerboard(SkImageInfo info) {
+static SkBitmap make_checkerboard(const SkImageInfo& info) {
     const auto size      = 512;
     const auto numChecks = 256;
 

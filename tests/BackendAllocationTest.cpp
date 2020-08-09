@@ -53,15 +53,14 @@ static void mark_signaled(void* context) {
 }
 
 // Test wrapping of GrBackendObjects in SkSurfaces and SkImages (non-static since used in Mtl test)
-void test_wrapping(GrDirectContext* dContext,
-                   skiatest::Reporter* reporter,
-                   std::function<GrBackendTexture (GrDirectContext*,
-                                                   GrMipmapped,
-                                                   GrRenderable)> create,
-                   GrColorType grColorType,
-                   GrMipmapped mipMapped,
-                   GrRenderable renderable,
-                   bool* finishedBECreate) {
+void test_wrapping(
+        GrDirectContext* dContext,
+        skiatest::Reporter* reporter,
+        const std::function<GrBackendTexture(GrDirectContext*, GrMipmapped, GrRenderable)>& create,
+        GrColorType grColorType,
+        GrMipmapped mipMapped,
+        GrRenderable renderable,
+        bool* finishedBECreate) {
     GrResourceCache* cache = dContext->priv().getResourceCache();
 
     const int initialCount = cache->getResourceCount();
@@ -310,17 +309,16 @@ static void check_base_readbacks(GrDirectContext* dContext, const GrBackendTextu
 }
 
 // Test initialization of GrBackendObjects to a specific color (non-static since used in Mtl test)
-void test_color_init(GrDirectContext* dContext,
-                     skiatest::Reporter* reporter,
-                     std::function<GrBackendTexture (GrDirectContext*,
-                                                     const SkColor4f&,
-                                                     GrMipmapped,
-                                                     GrRenderable)> create,
-                     GrColorType grColorType,
-                     const SkColor4f& color,
-                     GrMipmapped mipMapped,
-                     GrRenderable renderable,
-                     bool* finishedBECreate) {
+void test_color_init(
+        GrDirectContext* dContext,
+        skiatest::Reporter* reporter,
+        const std::function<GrBackendTexture(
+                GrDirectContext*, const SkColor4f&, GrMipmapped, GrRenderable)>& create,
+        GrColorType grColorType,
+        const SkColor4f& color,
+        GrMipmapped mipMapped,
+        GrRenderable renderable,
+        bool* finishedBECreate) {
     GrBackendTexture backendTex = create(dContext, color, mipMapped, renderable);
     if (!backendTex.isValid()) {
         // errors here should be reported by the test_wrapping test
@@ -464,10 +462,10 @@ static int make_pixmaps(SkColorType skColorType, GrMipmapped mipMapped,
 // Test initialization of GrBackendObjects using SkPixmaps
 static void test_pixmap_init(GrDirectContext* dContext,
                              skiatest::Reporter* reporter,
-                             std::function<GrBackendTexture (GrDirectContext*,
+                             const std::function<GrBackendTexture (GrDirectContext*,
                                                              const SkPixmap srcData[],
                                                              int numLevels,
-                                                             GrRenderable)> create,
+                                                             GrRenderable)>& create,
                              SkColorType skColorType,
                              GrMipmapped mipMapped,
                              GrRenderable renderable,

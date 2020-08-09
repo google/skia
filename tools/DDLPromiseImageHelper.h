@@ -34,7 +34,7 @@ struct SkYUVAIndex;
 // it drops all of its refs (via "reset").
 class PromiseImageCallbackContext : public SkRefCnt {
 public:
-    PromiseImageCallbackContext(GrDirectContext* direct, GrBackendFormat backendFormat)
+    PromiseImageCallbackContext(GrDirectContext* direct, const GrBackendFormat& backendFormat)
             : fContext(direct)
             , fBackendFormat(backendFormat) {}
 

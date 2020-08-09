@@ -1535,7 +1535,7 @@ class Zalgo {
     }
 
 public:
-    std::u16string zalgo(std::string victim) {
+    std::u16string zalgo(const std::string& victim) {
         std::u16string result;
         for (auto& c : victim) {
             result += c;
@@ -2473,7 +2473,7 @@ protected:
         auto res2 = paragraph->getRectsForRange(359, 360, RectHeightStyle::kTight, RectWidthStyle::kTight);
         auto res3 = paragraph->getRectsForRange(358, 359, RectHeightStyle::kTight, RectWidthStyle::kTight);
 
-        auto draw = [&](std::vector<TextBox> res, SkColor color) {
+        auto draw = [&](const std::vector<TextBox>& res, SkColor color) {
             SkPaint paint;
             paint.setColor(color);
             for (auto& r : res) {

@@ -13,27 +13,25 @@
 #include "src/gpu/mtl/GrMtlCaps.h"
 
 // In BackendAllocationTest.cpp
-void test_wrapping(GrDirectContext*,
-                   skiatest::Reporter*,
-                   std::function<GrBackendTexture (GrDirectContext*,
-                                                   GrMipmapped,
-                                                   GrRenderable)> create,
-                   GrColorType,
-                   GrMipmapped,
-                   GrRenderable,
-                   bool* finishedBackendCreation);
+void test_wrapping(
+        GrDirectContext*,
+        skiatest::Reporter*,
+        const std::function<GrBackendTexture(GrDirectContext*, GrMipmapped, GrRenderable)>& create,
+        GrColorType,
+        GrMipmapped,
+        GrRenderable,
+        bool* finishedBackendCreation);
 
-void test_color_init(GrDirectContext*,
-                     skiatest::Reporter*,
-                     std::function<GrBackendTexture (GrDirectContext*,
-                                                     const SkColor4f&,
-                                                     GrMipmapped,
-                                                     GrRenderable)> create,
-                     GrColorType,
-                     const SkColor4f&,
-                     GrMipmapped,
-                     GrRenderable,
-                     bool* finishedBackendCreation);
+void test_color_init(
+        GrDirectContext*,
+        skiatest::Reporter*,
+        const std::function<GrBackendTexture(
+                GrDirectContext*, const SkColor4f&, GrMipmapped, GrRenderable)>& create,
+        GrColorType,
+        const SkColor4f&,
+        GrMipmapped,
+        GrRenderable,
+        bool* finishedBackendCreation);
 
 static void mark_signaled(void* context) {
     *(bool*)context = true;

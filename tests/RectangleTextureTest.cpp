@@ -23,7 +23,7 @@
 
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrRecordingContext* context,
-                                   GrSurfaceProxyView rectView, GrColorType colorType,
+                                   const GrSurfaceProxyView& rectView, GrColorType colorType,
                                    SkAlphaType alphaType, uint32_t expectedPixelValues[]) {
     auto rtContext = GrRenderTargetContext::Make(
             context, colorType, nullptr, SkBackingFit::kExact, rectView.proxy()->dimensions());

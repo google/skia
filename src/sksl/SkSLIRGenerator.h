@@ -39,7 +39,7 @@ struct Swizzle;
  */
 class IRGenerator {
 public:
-    IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root,
+    IRGenerator(const Context* context, const std::shared_ptr<SymbolTable>& root,
                 ErrorReporter& errorReporter);
 
     void convertProgram(Program::Kind kind,
@@ -56,7 +56,7 @@ public:
                                              Token::Kind op,
                                              const Expression& right) const;
 
-    std::unique_ptr<Expression> getArg(int offset, String name) const;
+    std::unique_ptr<Expression> getArg(int offset, const String& name) const;
 
     Program::Inputs fInputs;
     const Program::Settings* fSettings;
@@ -138,7 +138,7 @@ private:
     std::unique_ptr<Expression> convertPrefixExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertReturn(const ASTNode& r);
     std::unique_ptr<Section> convertSection(const ASTNode& e);
-    std::unique_ptr<Expression> getCap(int offset, String name);
+    std::unique_ptr<Expression> getCap(int offset, const String& name);
     std::unique_ptr<Expression> convertCallExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertFieldExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);

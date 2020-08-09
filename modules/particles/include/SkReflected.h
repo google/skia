@@ -86,7 +86,7 @@ public:
 
     virtual void visitFields(SkFieldVisitor*) = 0;
 
-    static void VisitTypes(std::function<void(const Type*)> visitor);
+    static void VisitTypes(const std::function<void(const Type*)>& visitor);
 
 protected:
     static void RegisterOnce(Type* type) {

@@ -136,7 +136,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
 
 #define GET_PROC_LOCAL(F, inst, device) PFN_vk ## F F = (PFN_vk ## F) getProc("vk" #F, inst, device)
 
-static bool init_instance_extensions_and_layers(GrVkGetProc getProc,
+static bool init_instance_extensions_and_layers(const GrVkGetProc& getProc,
                                                 uint32_t specVersion,
                                                 SkTArray<VkExtensionProperties>* instanceExtensions,
                                                 SkTArray<VkLayerProperties>* instanceLayers) {
@@ -221,7 +221,7 @@ static bool init_instance_extensions_and_layers(GrVkGetProc getProc,
     return true;
 }
 
-static bool init_device_extensions_and_layers(GrVkGetProc getProc, uint32_t specVersion,
+static bool init_device_extensions_and_layers(const GrVkGetProc& getProc, uint32_t specVersion,
                                               VkInstance inst, VkPhysicalDevice physDev,
                                               SkTArray<VkExtensionProperties>* deviceExtensions,
                                               SkTArray<VkLayerProperties>* deviceLayers) {
@@ -334,7 +334,7 @@ static bool init_device_extensions_and_layers(GrVkGetProc getProc, uint32_t spec
         }                                                                          \
     } while (0)
 
-static bool destroy_instance(GrVkGetProc getProc, VkInstance inst,
+static bool destroy_instance(const GrVkGetProc& getProc, VkInstance inst,
                              VkDebugReportCallbackEXT* debugCallback,
                              bool hasDebugExtension) {
     if (hasDebugExtension && *debugCallback != VK_NULL_HANDLE) {
@@ -347,7 +347,7 @@ static bool destroy_instance(GrVkGetProc getProc, VkInstance inst,
     return true;
 }
 
-static bool setup_features(GrVkGetProc getProc, VkInstance inst, VkPhysicalDevice physDev,
+static bool setup_features(const GrVkGetProc& getProc, VkInstance inst, VkPhysicalDevice physDev,
                            uint32_t physDeviceVersion, GrVkExtensions* extensions,
                            VkPhysicalDeviceFeatures2* features, bool isProtected) {
     SkASSERT(physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
@@ -411,13 +411,13 @@ static bool setup_features(GrVkGetProc getProc, VkInstance inst, VkPhysicalDevic
     // If we want to disable any extension features do so here.
 }
 
-bool CreateVkBackendContext(GrVkGetProc getProc,
+bool CreateVkBackendContext(const GrVkGetProc& getProc,
                             GrVkBackendContext* ctx,
                             GrVkExtensions* extensions,
                             VkPhysicalDeviceFeatures2* features,
                             VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
-                            CanPresentFn canPresent,
+                            const CanPresentFn& canPresent,
                             bool isProtected) {
     VkResult err;
 
