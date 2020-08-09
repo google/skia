@@ -25,6 +25,7 @@
 #include "tests/TestUtils.h"
 #include <atomic>
 #include <random>
+#include <utility>
 
 namespace {
 class TestOp : public GrMeshDrawOp {
@@ -344,7 +345,7 @@ class TestFPGenerator {
 
         std::unique_ptr<GrFragmentProcessor> make(int type, GrSurfaceProxyView view,
                                                   SkAlphaType alpha = kPremul_SkAlphaType) {
-            return make(type, GrTextureEffect::Make(view, alpha));
+            return make(type, GrTextureEffect::Make(std::move(view), alpha));
         }
 
     private:

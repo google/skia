@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <map>
+#include <utility>
 
 static DEFINE_string2(skps, s, "skps", "A path to a directory of skps or a single skp.");
 static DEFINE_string2(out, o, "img-out", "A path to an output directory.");
@@ -46,7 +47,7 @@ struct Sniffer {
     std::string skpName;
 
     Sniffer(std::string name) {
-        skpName = name;
+        skpName = std::move(name);
     }
 
     void sniff(const void* ptr, size_t len) {

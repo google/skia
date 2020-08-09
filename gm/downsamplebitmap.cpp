@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <utility>
+
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -138,7 +140,7 @@ static SkBitmap make_checkerboard(SkImageInfo info) {
             }
         }
     }
-    return convert_bitmap_format(bm, info);
+    return convert_bitmap_format(bm, std::move(info));
 }
 DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard",   kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard", kMedium_SkFilterQuality); )
@@ -152,7 +154,7 @@ static SkBitmap make_image(SkImageInfo info) {
         bm.allocN32Pixels(1, 1);
         bm.eraseARGB(255, 255, 0 , 0); // red == bad
     }
-    return convert_bitmap_format(bm, info);
+    return convert_bitmap_format(bm, std::move(info));
 }
 DEF_GM( return new DownsampleBitmapGM(make_image, "image",   kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapGM(make_image, "image", kMedium_SkFilterQuality); )

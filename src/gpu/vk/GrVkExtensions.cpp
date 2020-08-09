@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <utility>
+
 #include "include/gpu/vk/GrVkExtensions.h"
 
 // Can remove this once we get rid of the extension flags.
@@ -55,7 +57,7 @@ void GrVkExtensions::init(GrVkGetProc getProc,
             SkTQSort(fExtensions.begin(), fExtensions.end(), extension_compare);
         }
     }
-    this->getSpecVersions(getProc, instance, physDev);
+    this->getSpecVersions(std::move(getProc), instance, physDev);
 }
 
 #define GET_PROC(F, inst)                                                        \

@@ -12,6 +12,7 @@
 #include "tools/sk_app/Window.h"
 
 #include <functional>
+#include <utility>
 #include <vector>
 
 class SkCanvas;
@@ -68,7 +69,7 @@ private:
             , fKeyName(' ' == c ? SkString("Space") : SkStringPrintf("%c", c))
             , fGroup(group)
             , fDescription(description)
-            , fFunction(function) {}
+            , fFunction(std::move(function)) {}
 
         Command(skui::Key k, const char* keyName, const char* group, const char* description,
                 std::function<void(void)> function)
@@ -77,7 +78,7 @@ private:
             , fKeyName(keyName)
             , fGroup(group)
             , fDescription(description)
-            , fFunction(function) {}
+            , fFunction(std::move(function)) {}
 
         CommandType fType;
 

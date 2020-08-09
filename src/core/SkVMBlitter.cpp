@@ -21,6 +21,7 @@
 #include "src/shaders/SkColorFilterShader.h"
 
 #include <cinttypes>
+#include <utility>
 
 namespace {
 
@@ -373,7 +374,7 @@ namespace {
     };
 
     struct SpriteShader : public SkShaderBase {
-        explicit SpriteShader(SkPixmap sprite) : fSprite(sprite) {}
+        explicit SpriteShader(SkPixmap sprite) : fSprite(std::move(sprite)) {}
 
         SkPixmap fSprite;
 

@@ -7,6 +7,8 @@
 
 #include "tools/sk_app/CommandSet.h"
 
+#include <utility>
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 
@@ -70,12 +72,12 @@ bool CommandSet::onSoftkey(const SkString& softkey) {
 
 void CommandSet::addCommand(SkUnichar c, const char* group, const char* description,
                             std::function<void(void)> function) {
-    fCommands.push_back(Command(c, group, description, function));
+    fCommands.push_back(Command(c, group, description, std::move(function)));
 }
 
 void CommandSet::addCommand(skui::Key k, const char* keyName, const char* group,
                             const char* description, std::function<void(void)> function) {
-    fCommands.push_back(Command(k, keyName, group, description, function));
+    fCommands.push_back(Command(k, keyName, group, description, std::move(function)));
 }
 
 #if defined(SK_BUILD_FOR_WIN)

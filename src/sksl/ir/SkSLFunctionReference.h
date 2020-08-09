@@ -8,6 +8,8 @@
 #ifndef SKSL_FUNCTIONREFERENCE
 #define SKSL_FUNCTIONREFERENCE
 
+#include <utility>
+
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -22,7 +24,7 @@ struct FunctionReference : public Expression {
     FunctionReference(const Context& context, int offset,
                       std::vector<const FunctionDeclaration*> function)
     : INHERITED(offset, kFunctionReference_Kind, *context.fInvalid_Type)
-    , fFunctions(function) {}
+    , fFunctions(std::move(function)) {}
 
     bool hasProperty(Property property) const override {
         return false;
@@ -44,7 +46,7 @@ private:
     FunctionReference(int offset, std::vector<const FunctionDeclaration*> function,
                       const Type* type)
     : INHERITED(offset, kFunctionReference_Kind, *type)
-    , fFunctions(function) {}};
+    , fFunctions(std::move(function)) {}};
 
 }  // namespace SkSL
 

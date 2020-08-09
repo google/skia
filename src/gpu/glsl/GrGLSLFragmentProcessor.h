@@ -8,6 +8,8 @@
 #ifndef GrGLSLFragmentProcessor_DEFINED
 #define GrGLSLFragmentProcessor_DEFINED
 
+#include <utility>
+
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
@@ -138,12 +140,12 @@ public:
     // Invoke the child with the default input color (solid white)
     inline SkString invokeChild(int childIndex, EmitArgs& parentArgs,
                                 SkSL::String skslCoords = "") {
-        return this->invokeChild(childIndex, nullptr, parentArgs, skslCoords);
+        return this->invokeChild(childIndex, nullptr, parentArgs, std::move(skslCoords));
     }
 
     inline SkString invokeChildWithMatrix(int childIndex, EmitArgs& parentArgs,
                                           SkSL::String skslMatrix = "") {
-        return this->invokeChildWithMatrix(childIndex, nullptr, parentArgs, skslMatrix);
+        return this->invokeChildWithMatrix(childIndex, nullptr, parentArgs, std::move(skslMatrix));
     }
 
     /** Invokes a child proc in its own scope. Pass in the parent's EmitArgs and invokeChild will

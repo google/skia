@@ -77,7 +77,7 @@ SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec, SkISize 
         SkImageInfo decodeInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess)
     : fCodec(std::move(codec))
     , fScaledSize(scaledSize)
-    , fDecodeInfo(decodeInfo)
+    , fDecodeInfo(std::move(decodeInfo))
     , fCropRect(cropRect)
     , fPostProcess(std::move(postProcess))
     , fFrameCount(fCodec->codec()->getFrameCount())

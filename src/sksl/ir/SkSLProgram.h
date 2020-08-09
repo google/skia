@@ -8,6 +8,7 @@
 #ifndef SKSL_PROGRAM
 #define SKSL_PROGRAM
 
+#include <utility>
 #include <vector>
 #include <memory>
 
@@ -248,9 +249,9 @@ struct Program {
             Inputs inputs)
     : fKind(kind)
     , fSource(std::move(source))
-    , fSettings(settings)
-    , fContext(context)
-    , fSymbols(symbols)
+    , fSettings(std::move(settings))
+    , fContext(std::move(context))
+    , fSymbols(std::move(symbols))
     , fInputs(inputs)
     , fInheritedElements(inheritedElements)
     , fElements(std::move(elements)) {}

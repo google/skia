@@ -18,6 +18,7 @@
 #include "tests/Test.h"
 
 #include <algorithm>
+#include <utility>
 
 DEF_TEST(SkRuntimeEffectInvalid, r) {
     auto test = [r](const char* hdr, const char* body, const char* expected) {
@@ -169,7 +170,7 @@ public:
     }
 
     void test(GrColor expected, PreTestFn preTestCallback = nullptr) {
-        this->test(expected, expected, expected, expected, preTestCallback);
+        this->test(expected, expected, expected, expected, std::move(preTestCallback));
     }
 
 private:
