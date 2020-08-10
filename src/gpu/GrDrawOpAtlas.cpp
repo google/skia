@@ -231,10 +231,10 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::GrDrawOpAtlas(
-        GrProxyProvider* proxyProvider, const GrBackendFormat& format,
-        GrColorType colorType, int width, int height, int plotWidth, int plotHeight,
-        GenerationCounter* generationCounter, AllowMultitexturing allowMultitexturing)
+GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendFormat& format,
+                             GrColorType colorType, int width, int height,
+                             int plotWidth, int plotHeight, GenerationCounter* generationCounter,
+                             AllowMultitexturing allowMultitexturing)
         : fFormat(format)
         , fColorType(colorType)
         , fTextureWidth(width)
