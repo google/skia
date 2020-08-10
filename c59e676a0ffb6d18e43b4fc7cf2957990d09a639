@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b13905cd_69cbe2b2",
+        "filename": "src/gpu/ops/GrSmallPathShapeData.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-10T16:03:22Z",
+      "side": 1,
+      "message": "Forward decl instead?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 43
+      },
+      "revId": "c59e676a0ffb6d18e43b4fc7cf2957990d09a639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
