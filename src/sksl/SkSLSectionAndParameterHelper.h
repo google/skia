@@ -17,23 +17,23 @@
 
 namespace SkSL {
 
-#define CLASS_SECTION              "class"
-#define CLONE_SECTION              "clone"
-#define CONSTRUCTOR_SECTION        "constructor"
-#define CONSTRUCTOR_CODE_SECTION   "constructorCode"
-#define CONSTRUCTOR_PARAMS_SECTION "constructorParams"
-#define CPP_SECTION                "cpp"
-#define CPP_END_SECTION            "cppEnd"
-#define HEADER_SECTION             "header"
-#define HEADER_END_SECTION         "headerEnd"
-#define EMIT_CODE_SECTION          "emitCode"
-#define FIELDS_SECTION             "fields"
-#define INITIALIZERS_SECTION       "initializers"
-#define MAKE_SECTION               "make"
-#define OPTIMIZATION_FLAGS_SECTION "optimizationFlags"
-#define SAMPLER_PARAMS_SECTION     "samplerParams"
-#define SET_DATA_SECTION           "setData"
-#define TEST_CODE_SECTION          "test"
+inline constexpr char CLASS_SECTION[] =              "class";
+inline constexpr char CLONE_SECTION[] =              "clone";
+inline constexpr char CONSTRUCTOR_SECTION[] =        "constructor";
+inline constexpr char CONSTRUCTOR_CODE_SECTION[] =   "constructorCode";
+inline constexpr char CONSTRUCTOR_PARAMS_SECTION[] = "constructorParams";
+inline constexpr char CPP_SECTION[] =                "cpp";
+inline constexpr char CPP_END_SECTION[] =            "cppEnd";
+inline constexpr char HEADER_SECTION[] =             "header";
+inline constexpr char HEADER_END_SECTION[] =         "headerEnd";
+inline constexpr char EMIT_CODE_SECTION[] =          "emitCode";
+inline constexpr char FIELDS_SECTION[] =             "fields";
+inline constexpr char INITIALIZERS_SECTION[] =       "initializers";
+inline constexpr char MAKE_SECTION[] =               "make";
+inline constexpr char OPTIMIZATION_FLAGS_SECTION[] = "optimizationFlags";
+inline constexpr char SAMPLER_PARAMS_SECTION[] =     "samplerParams";
+inline constexpr char SET_DATA_SECTION[] =           "setData";
+inline constexpr char TEST_CODE_SECTION[] =          "test";
 
 class SectionAndParameterHelper {
 public:
