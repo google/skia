@@ -83,7 +83,18 @@ int herdCats(const Array& cats) {
 }
 ~~~~
 
-Enum values are prefixed with k. Unscoped enum values are post fixed with
+Variables declared `constexpr` or `const`, and whose value is fixed for the
+duration of the program, are named with a leading "k" and then camel-capped.
+
+<!--?prettify?-->
+~~~~
+int drawPicture() {
+    constexpr SkISize kPictureSize = {100, 100};
+    constexpr float kZoom = 1.0f;
+}
+~~~~
+
+Enum values are also prefixed with k. Unscoped enum values are postfixed with
 an underscore and singular name of the enum name. The enum itself should be
 singular for exclusive values or plural for a bitfield. If a count is needed it
 is  `k<singular enum name>Count` and not be a member of the enum (see example),
@@ -111,17 +122,13 @@ enum SkPancakeType {
 static const SkPancakeType kPancakeTypeCount = kLast_PancakeType + 1;
 ~~~~
 
-A bitfield:
-
 <!--?prettify?-->
 ~~~~
 enum SkSausageIngredientBits {
-    kFennel_SuasageIngredientBit = 0x1,
+    kFennel_SausageIngredientBit = 0x1,
     kBeef_SausageIngredientBit   = 0x2
 };
 ~~~~
-
-or:
 
 <!--?prettify?-->
 ~~~~
@@ -129,13 +136,6 @@ enum SkMatrixFlags {
     kTranslate_MatrixFlag = 0x1,
     kRotate_MatrixFlag    = 0x2
 };
-~~~~
-
-Exception: anonymous enums can be used to declare integral constants, e.g.:
-
-<!--?prettify?-->
-~~~~
-enum { kFavoriteNumber = 7 };
 ~~~~
 
 Macros are all caps with underscores between words. Macros that have greater
