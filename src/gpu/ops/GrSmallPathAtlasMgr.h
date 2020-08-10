@@ -15,13 +15,19 @@
 
 class GrSmallPathShapeData;
 class GrSmallPathShapeDataKey;
+class GrStyledShape;
 
 /**
- * This class manages the small path renderer's atlas.
+ * This class manages the small path renderer's atlas. It solely operates at flush time. Thus
+ * the small path renderer will generate ops at record time but the location of the ops' source
+ * data and even the number of proxies to be used will not be determined until the recorded
+ * DAGs/DDLs are (re)played.
+ *
+ * TODO: investigate fusing this class and the GrAtlasManager.
  */
 class GrSmallPathAtlasMgr : public GrOnFlushCallbackObject,
                             public GrDrawOpAtlas::EvictionCallback,
-                            public GrDrawOpAtlas::GenerationCounter{
+                            public GrDrawOpAtlas::GenerationCounter {
 public:
     GrSmallPathAtlasMgr();
     ~GrSmallPathAtlasMgr() override;
@@ -30,41 +36,48 @@ public:
 
     GrDrawOpAtlas* atlas() { return fAtlas.get(); }
 
-    const GrSurfaceProxyView* getViews(int* numActiveProxies) {
-        *numActiveProxies = fAtlas->numActivePages();
-        return fAtlas->getViews();
-    }
+    GrSmallPathShapeData* findOrCreate(const GrStyledShape&, int desiredDimension);
+    GrSmallPathShapeData* findOrCreate(const GrStyledShape&, const SkMatrix& ctm);
+
+    void updateCacheInfo(GrSmallPathShapeData*, GrDrawOpAtlas::AtlasLocator&, const SkRect& bounds);
 
     void setUseToken(GrSmallPathShapeData*, GrDeferredUploadToken);
 
     // GrOnFlushCallbackObject overrides
     //
     // Note: because this class is associated with a path renderer we want it to be removed from
-    // the list of active OnFlushBackkbackObjects in an freeGpuResources call (i.e., we accept the
+    // the list of active OnFlushCallbackObjects in an freeGpuResources call (i.e., we accept the
     // default retainOnFreeGpuResources implementation).
     void preFlush(GrOnFlushResourceProvider* onFlushRP,
-                  const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
+                  const uint32_t* /* opsTaskIDs */,
+                  int /* numOpsTaskIDs */) override {
         if (fAtlas) {
             fAtlas->instantiate(onFlushRP);
         }
     }
 
     void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                   const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
+                   const uint32_t* /* opsTaskIDs */,
+                   int /* numOpsTaskIDs */) override {
         if (fAtlas) {
             fAtlas->compact(startTokenForNextFlush);
         }
     }
 
-    GrSmallPathShapeData* findOrCreate(const GrSmallPathShapeDataKey& key);
+    const GrSurfaceProxyView* getViews(int* numActiveProxies) {
+        *numActiveProxies = fAtlas->numActivePages();
+        return fAtlas->getViews();
+    }
 
-    void deleteCacheEntry(GrSmallPathShapeData*);
+    void deleteCacheEntry(GrSmallPathShapeData* shapeData);
 
 private:
+    GrSmallPathShapeData* findOrCreate(const GrSmallPathShapeDataKey&);
+
     using ShapeCache = SkTDynamicHash<GrSmallPathShapeData, GrSmallPathShapeDataKey>;
     typedef SkTInternalLList<GrSmallPathShapeData> ShapeDataList;
 
-    void evict(GrDrawOpAtlas::PlotLocator plotLocator) override;
+    void evict(GrDrawOpAtlas::PlotLocator) override;
 
     std::unique_ptr<GrDrawOpAtlas> fAtlas;
     ShapeCache                     fShapeCache;
