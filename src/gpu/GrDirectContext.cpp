@@ -45,8 +45,7 @@ static const bool kDefaultReduceOpsTaskSplitting = false;
 #endif
 
 GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
-        : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options))
-        , fAtlasManager(nullptr) {
+        : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options)) {
 }
 
 GrDirectContext::~GrDirectContext() {
@@ -55,8 +54,6 @@ GrDirectContext::~GrDirectContext() {
     if (this->priv().getGpu()) {
         this->flushAndSubmit();
     }
-
-    delete fAtlasManager;
 }
 
 void GrDirectContext::abandonContext() {
@@ -108,10 +105,10 @@ bool GrDirectContext::init() {
 
     GrProxyProvider* proxyProvider = this->priv().proxyProvider();
 
-    fAtlasManager = new GrAtlasManager(proxyProvider,
-                                       this->options().fGlyphCacheTextureMaximumBytes,
-                                       allowMultitexturing);
-    this->priv().addOnFlushCallbackObject(fAtlasManager);
+    fAtlasManager = std::make_unique<GrAtlasManager>(proxyProvider,
+                                                     this->options().fGlyphCacheTextureMaximumBytes,
+                                                     allowMultitexturing);
+    this->priv().addOnFlushCallbackObject(fAtlasManager.get());
 
     return true;
 }

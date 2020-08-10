@@ -79,12 +79,12 @@ protected:
 
     bool init() override;
 
-    GrAtlasManager* onGetAtlasManager() override { return fAtlasManager; }
+    GrAtlasManager* onGetAtlasManager() override { return fAtlasManager.get(); }
 
     GrDirectContext* asDirectContext() override { return this; }
 
 private:
-    GrAtlasManager* fAtlasManager;
+    std::unique_ptr<GrAtlasManager> fAtlasManager;
 
     typedef GrContext INHERITED;
 };
