@@ -16,6 +16,24 @@
       "revId": "ad55b722712e6c0663ececa7e14fb80a4c36a1c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3a1e513_8b607e8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T17:05:48Z",
+      "side": 1,
+      "message": "Yes, http://review.skia.org/308556 discovered an inconsistent rendering issue on a single device (Galaxy S20/MaliG77) and I needed to prove that clone() was innocent somehow. It looks like DitherEffect -\u003e RectBlurEffect -\u003e ImprovedPerlinNoise renders differently every time on this device. (By visual inspection, the dither strength appears to vary a bit on each draw.)",
+      "parentUuid": "27219b1e_1675c776",
+      "revId": "ad55b722712e6c0663ececa7e14fb80a4c36a1c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
