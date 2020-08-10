@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "698ddf67_06e13bd7",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T14:40:31Z",
+      "side": 1,
+      "message": "not directly related to your change, but when this was upgraded to \"enum class\" rather than just \"enum\" we should have removed the _PancakeType suffixes on the values.",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 2
+      },
+      "revId": "f96937bb344af2c820b0c8a3806f33f024323360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
