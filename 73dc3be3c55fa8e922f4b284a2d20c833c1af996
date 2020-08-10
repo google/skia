@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ceab271_9341bde0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T18:18:21Z",
+      "side": 1,
+      "message": "I\u0027ve turned the ProcessorClone down to tree-depth 1 to get this to pass on Galaxy S20. I will increase it back to 3 in a followup CL (and disable the S20 in the infra).",
+      "revId": "73dc3be3c55fa8e922f4b284a2d20c833c1af996",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
