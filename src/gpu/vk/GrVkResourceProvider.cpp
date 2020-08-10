@@ -104,22 +104,24 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programI
 const GrVkRenderPass*
 GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
                                                CompatibleRPHandle* compatibleHandle,
-                                               bool withStencil) {
+                                               bool withStencil, bool willReadDst) {
     // Get attachment information from render target. This includes which attachments the render
     // target has (color, stencil) and the attachments format and sample count.
     GrVkRenderPass::AttachmentFlags attachmentFlags;
     GrVkRenderPass::AttachmentsDescriptor attachmentsDesc;
     target.getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags, withStencil);
 
-    return this->findCompatibleRenderPass(&attachmentsDesc, attachmentFlags, compatibleHandle);
+    return this->findCompatibleRenderPass(&attachmentsDesc, attachmentFlags, willReadDst,
+                                          compatibleHandle);
 }
 
 const GrVkRenderPass*
 GrVkResourceProvider::findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescriptor* desc,
                                                GrVkRenderPass::AttachmentFlags attachmentFlags,
+                                               bool willReadDst,
                                                CompatibleRPHandle* compatibleHandle) {
     for (int i = 0; i < fRenderPassArray.count(); ++i) {
-        if (fRenderPassArray[i].isCompatible(*desc, attachmentFlags)) {
+        if (fRenderPassArray[i].isCompatible(*desc, attachmentFlags, willReadDst)) {
             const GrVkRenderPass* renderPass = fRenderPassArray[i].getCompatibleRenderPass();
             renderPass->ref();
             if (compatibleHandle) {
@@ -129,7 +131,8 @@ GrVkResourceProvider::findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescri
         }
     }
 
-    GrVkRenderPass* renderPass = GrVkRenderPass::CreateSimple(fGpu, desc, attachmentFlags);
+    GrVkRenderPass* renderPass = GrVkRenderPass::CreateSimple(fGpu, desc, attachmentFlags,
+                                                              willReadDst);
     if (!renderPass) {
         return nullptr;
     }
@@ -167,11 +170,11 @@ const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
                                                      const GrVkRenderPass::LoadStoreOps& colorOps,
                                                      const GrVkRenderPass::LoadStoreOps& stencilOps,
                                                      CompatibleRPHandle* compatibleHandle,
-                                                     bool withStencil) {
+                                                     bool withStencil, bool willReadDst) {
     GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
     GrVkResourceProvider::CompatibleRPHandle* pRPHandle = compatibleHandle ? compatibleHandle
                                                                            : &tempRPHandle;
-    *pRPHandle = target->compatibleRenderPassHandle(withStencil);
+    *pRPHandle = target->compatibleRenderPassHandle(withStencil, willReadDst);
     if (!pRPHandle->isValid()) {
         return nullptr;
     }
@@ -507,11 +510,12 @@ GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(GrVkRende
 
 bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
         const GrVkRenderPass::AttachmentsDescriptor& attachmentsDescriptor,
-        GrVkRenderPass::AttachmentFlags attachmentFlags) const {
+        GrVkRenderPass::AttachmentFlags attachmentFlags,
+        bool willReadDst) const {
     // The first GrVkRenderpass should always exists since we create the basic load store
     // render pass on create
     SkASSERT(fRenderPasses[0]);
-    return fRenderPasses[0]->isCompatible(attachmentsDescriptor, attachmentFlags);
+    return fRenderPasses[0]->isCompatible(attachmentsDescriptor, attachmentFlags, willReadDst);
 }
 
 GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
