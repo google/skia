@@ -1,5 +1,14 @@
 const tests = [];
 // In all tests, the canvas is 600 by 600 px.
+// tests should NOT call ctx.surface.flush()
+// flush is done by benchmark.js
+
+function randomColorTwo(CanvasKit, i, j) {
+    c = [1, 1, 1, 1];
+    c[i] = Math.random();
+    c[j] = Math.random();
+    return CanvasKit.Color4f(...c);
+}
 
 function randomColor(CanvasKit) {
     return CanvasKit.Color4f(Math.random(), Math.random(), Math.random(), Math.random());
@@ -17,7 +26,7 @@ function starPath(CanvasKit, X=128, Y=128, R=116) {
 }
 
 tests.push({
-    description: 'Draw 10K colored regions',
+    description: 'Draw 10K colored rect clips',
     setup: function(CanvasKit, ctx) {
         ctx.canvas = ctx.surface.getCanvas();
     },
@@ -29,13 +38,59 @@ tests.push({
             ctx.canvas.save();
             ctx.canvas.clipRect(CanvasKit.LTRBRect(x, y, x+50, y+50),
                                 CanvasKit.ClipOp.Intersect, false);
-            ctx.canvas.drawColor(randomColor(CanvasKit), CanvasKit.BlendMode.SrcOver);
+            ctx.canvas.drawColor(randomColorTwo(CanvasKit, 0, 1), CanvasKit.BlendMode.SrcOver);
             ctx.canvas.restore();
         }
-        ctx.surface.flush();
     },
     teardown: function(CanvasKit, ctx) {},
     perfKey: 'canvas_drawColor',
+});
+
+tests.push({
+    description: 'Draw 10K colored ellipses',
+    setup: function(CanvasKit, ctx) {
+        ctx.canvas = ctx.surface.getCanvas();
+
+        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint.setAntiAlias(true);
+        ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i=0; i<10000; i++) {
+            const x = Math.random()*550;
+            const y = Math.random()*550;
+            ctx.paint.setColor(randomColorTwo(CanvasKit, 1, 2));
+            ctx.canvas.drawOval(CanvasKit.LTRBRect(x, y, x+50, y+50), ctx.paint);
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.paint.delete();
+    },
+    perfKey: 'canvas_drawOval',
+});
+
+tests.push({
+    description: 'Draw 10K colored roundRects',
+    setup: function(CanvasKit, ctx) {
+        ctx.canvas = ctx.surface.getCanvas();
+
+        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint.setAntiAlias(true);
+        ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i=0; i<10000; i++) {
+            const x = Math.random()*550;
+            const y = Math.random()*550;
+            ctx.paint.setColor(randomColorTwo(CanvasKit, 0, 2));
+            const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(x, y, x+50, y+50), 10, 10,);
+            ctx.canvas.drawRRect(rr, ctx.paint);
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.paint.delete();
+    },
+    perfKey: 'canvas_drawRRect',
 });
 
 tests.push({
@@ -118,7 +173,6 @@ tests.push({
         const out = CanvasKit.computeTonalColors(ctx.input);
         ctx.canvas.drawShadow(ctx.path, ctx.zPlaneParams, ctx.lightPos, ctx.lightRadius,
                               out.ambient, out.spot, ctx.flags);
-        ctx.surface.flush();
     },
     teardown: function(CanvasKit, ctx) {},
     perfKey: 'canvas_drawShadow',
@@ -137,7 +191,7 @@ tests.push({
         positions = Array(num);
         // Create an array of colors spaced evenly along the 0..1 range of positions.
         for (let i=0; i<num; i++) {
-            colors[i] = randomColor(CanvasKit);
+            colors[i] = randomColorTwo(CanvasKit, 2, 3);
             positions[i] = i/num;
         }
         // make a gradient from those colors
@@ -151,7 +205,6 @@ tests.push({
         paint.setStyle(CanvasKit.PaintStyle.Fill);
         paint.setShader(shader);
         ctx.canvas.drawPaint(paint);
-        ctx.surface.flush();
 
         shader.delete();
         paint.delete();
@@ -172,7 +225,6 @@ tests.push({
         ctx.canvas.clear(CanvasKit.WHITE);
         // Make the image to move so you can see visually that the test is running.
         ctx.canvas.drawImage(ctx.img, ctx.frame, ctx.frame, ctx.paint);
-        ctx.surface.flush();
         ctx.frame++;
     },
     teardown: function(CanvasKit, ctx) {
@@ -316,6 +368,24 @@ tests.push({
     perfKey: 'skmatrix_makeShader',
 });
 
+tests.push({
+    description: 'Concat 3x3 matrix on a canvas',
+    setup: function(CanvasKit, ctx) {
+        ctx.canvas = new CanvasKit.SkCanvas();
+        ctx.matr = CanvasKit.SkMatrix.multiply(
+            CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20),
+            CanvasKit.SkMatrix.scaled(1, 2, 3, 4),
+        );
+    },
+    test: function(CanvasKit, ctx) {
+        ctx.canvas.concat(ctx.matr);
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.canvas.delete();
+    },
+    perfKey: 'skmatrix_concat',
+});
+
 // 4x4 matrix operations
 tests.push({
     description: 'Multiply 4x4 matrices together',
@@ -440,4 +510,101 @@ tests.push({
     },
     teardown: function(CanvasKit, ctx) {},
     perfKey: 'dommatrix_makeShader',
+});
+
+// Tests the layout and drawing of a paragraph with hundreds of words.
+// In the second variant, the colors change every frame
+// In the third variant, the font size cycles between three sizes.
+// In the fourth variant, the layout width changes.
+// in the fifth variant, all of those properties change at the same time.
+for (const variant of ['static', 'color_changing', 'size_changing', 'layout_changing', 'everything']) {
+    tests.push({
+        description: `Layout and draw a ${variant} paragraph`,
+        setup: function(CanvasKit, ctx) {
+            ctx.canvas = ctx.surface.getCanvas();
+            ctx.fontMgr = CanvasKit.SkFontMgr.FromData([ctx.files['Roboto-Regular.ttf']]);
+            ctx.paraStyle = new CanvasKit.ParagraphStyle({
+                textStyle: {
+                        color: CanvasKit.WHITE,
+                        fontFamilies: ['Roboto'],
+                        fontSize: 11,
+                    },
+                textAlign: CanvasKit.TextAlign.Left,
+            });
+            ctx.frame = 0;
+            ctx.text = "annap sap sa ladipidapidi rapadip sam dim dap dim dap do raka dip da da badip badip badipidipidipadisuten din dab do ".repeat(40);
+        },
+        test: function(CanvasKit, ctx) {
+            ctx.canvas.clear(CanvasKit.BLACK);
+            const builder = CanvasKit.ParagraphBuilder.Make(ctx.paraStyle, ctx.fontMgr);
+            let pos = 0;
+            let color = CanvasKit.WHITE;
+            while (pos < ctx.text.length) {
+                let size = 11;
+                if (variant === 'size_changing' || variant === 'everything') {
+                    // the bigger this modulo, the more work it takes to fill the glyph cache
+                    size += ctx.frame % 4;
+                }
+                if (variant === 'color_changing' || variant === 'everything') {
+                    color = randomColorTwo(CanvasKit, 0, 1);
+                }
+                builder.pushStyle(CanvasKit.TextStyle({
+                    color: color,
+                    fontFamilies: ['Roboto'],
+                    fontSize: size,
+                    fontStyle: {
+                        weight: CanvasKit.FontWeight.Bold,
+                    },
+                }));
+                const len = Math.floor(Math.random()*5+2);
+                builder.addText(ctx.text.slice(pos, pos+len));
+                builder.pop();
+                pos += len;
+            }
+            const paragraph = builder.build();
+            let w = 0;
+            const base_width = 520;
+            const varying_width_modulo = 70;
+            if (variant === 'layout_changing' || variant === 'everything') {
+                w = ctx.frame % varying_width_modulo;
+            }
+            paragraph.layout(base_width + w); // width in pixels to use when wrapping text
+            ctx.canvas.drawParagraph(paragraph, 10, 10);
+
+            ctx.frame++;
+            builder.delete();
+            paragraph.delete();
+        },
+        teardown: function(CanvasKit, ctx) {
+            ctx.fontMgr.delete();
+        },
+        perfKey: 'canvas_drawParagraph_'+variant,
+    });
+}
+
+tests.push({
+    description: 'Draw a path with a blur mask',
+    setup: function(CanvasKit, ctx) {
+        ctx.canvas = ctx.surface.getCanvas();
+        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint.setAntiAlias(true);
+        ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
+        ctx.paint.setColor(CanvasKit.Color4f(0.1, 0.7, 0.0, 1.0));
+        ctx.path = starPath(CanvasKit);
+        ctx.frame = 0;
+    },
+    test: function(CanvasKit, ctx) {
+        const sigma = 0.1 + (ctx.frame/10);
+        const blurMask = CanvasKit.SkMaskFilter.MakeBlur(
+            CanvasKit.BlurStyle.Normal, sigma, true);
+        ctx.paint.setMaskFilter(blurMask);
+        ctx.canvas.drawPath(ctx.path, ctx.paint);
+        blurMask.delete();
+        ctx.frame++;
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.paint.delete();
+        ctx.path.delete();
+    },
+    perfKey: 'canvas_blur_mask_filter',
 });
