@@ -320,11 +320,12 @@ private:
                     }
                     mipSize = newMipSize;
                 }
+
                 SkScalar desiredDimension = std::min(mipSize, kMaxMIP);
+                int ceilDesiredDimension = SkScalarCeilToInt(desiredDimension);
 
                 // check to see if df path is cached
-                GrSmallPathShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
-                shapeData = fAtlasMgr->findOrCreate(key);
+                shapeData = fAtlasMgr->findOrCreate(args.fShape, ceilDesiredDimension);
                 if (!shapeData->fAtlasLocator.plotLocator().isValid()) {
                     SkScalar scale = desiredDimension / maxDim;
 
@@ -333,7 +334,7 @@ private:
                                                 fAtlasMgr->atlas(),
                                                 shapeData,
                                                 args.fShape,
-                                                SkScalarCeilToInt(desiredDimension),
+                                                ceilDesiredDimension,
                                                 scale)) {
                         fAtlasMgr->deleteCacheEntry(shapeData);
                         continue;
@@ -341,8 +342,7 @@ private:
                 }
             } else {
                 // check to see if bitmap path is cached
-                GrSmallPathShapeDataKey key(args.fShape, args.fViewMatrix);
-                shapeData = fAtlasMgr->findOrCreate(key);
+                shapeData = fAtlasMgr->findOrCreate(args.fShape, args.fViewMatrix);
                 if (!shapeData->fAtlasLocator.plotLocator().isValid()) {
                     if (!this->addBMPathToAtlas(target,
                                                 &flushInfo,
