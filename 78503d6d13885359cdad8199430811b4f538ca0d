@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1b8b29f_6527b84a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-10T15:18:44Z",
+      "side": 1,
+      "message": "Victory! PS6 (vs. PS2) fixes the last issue I hit - the working directory for actions is always $root_out_dir, even if using a different toolchain that generates executables in a parallel dir. So I just had to fix the location of the textual pre-includes. Bot (which uses a host vs. target toolchain distinction) is now working, AFAICT.",
+      "revId": "78503d6d13885359cdad8199430811b4f538ca0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
