@@ -9,7 +9,6 @@
 #include "src/gpu/ops/GrSmallPathRenderer.h"
 
 #include "include/core/SkPaint.h"
-#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkDraw.h"
@@ -17,7 +16,6 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRasterClip.h"
-#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDistanceFieldGenFromVector.h"
@@ -30,12 +28,8 @@
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
+#include "src/gpu/ops/GrSmallPathAtlasMgr.h"
 #include "src/gpu/ops/GrSmallPathShapeData.h"
-
-#ifdef DF_PATH_TRACKING
-static int g_NumCachedShapes = 0;
-static int g_NumFreedShapes = 0;
-#endif
 
 // mip levels
 static constexpr SkScalar kIdealMinMIP = 12;
@@ -44,131 +38,6 @@ static constexpr SkScalar kMaxMIP = 162;
 static constexpr SkScalar kMaxDim = 73;
 static constexpr SkScalar kMinSize = SK_ScalarHalf;
 static constexpr SkScalar kMaxSize = 2*kMaxMIP;
-
-#include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/GrOnFlushResourceProvider.h"
-
-class GrSmallPathAtlasMgr : public GrOnFlushCallbackObject,
-                            public GrDrawOpAtlas::EvictionCallback,
-                            public GrDrawOpAtlas::GenerationCounter{
-public:
-    ~GrSmallPathAtlasMgr() override {
-        ShapeDataList::Iter iter;
-        iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-        GrSmallPathShapeData* shapeData;
-        while ((shapeData = iter.get())) {
-            iter.next();
-            delete shapeData;
-        }
-
-#ifdef DF_PATH_TRACKING
-        SkDebugf("Cached shapes: %d, freed shapes: %d\n", g_NumCachedShapes, g_NumFreedShapes);
-#endif
-    }
-
-    bool initAtlas(GrProxyProvider* proxyProvider, const GrCaps* caps) {
-        if (fAtlas) {
-            return true;
-        }
-
-        static constexpr size_t kMaxAtlasTextureBytes = 2048 * 2048;
-        static constexpr size_t kPlotWidth = 512;
-        static constexpr size_t kPlotHeight = 256;
-
-        const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
-                                                                     GrRenderable::kNo);
-
-        GrDrawOpAtlasConfig atlasConfig(caps->maxTextureSize(), kMaxAtlasTextureBytes);
-        SkISize size = atlasConfig.atlasDimensions(kA8_GrMaskFormat);
-        fAtlas = GrDrawOpAtlas::Make(proxyProvider, format,
-                                     GrColorType::kAlpha_8, size.width(), size.height(),
-                                     kPlotWidth, kPlotHeight, this,
-                                     GrDrawOpAtlas::AllowMultitexturing::kYes, this);
-
-        return SkToBool(fAtlas);
-    }
-
-    GrDrawOpAtlas* atlas() { return fAtlas.get(); }
-
-    const GrSurfaceProxyView* getViews(int* numActiveProxies) {
-        *numActiveProxies = fAtlas->numActivePages();
-        return fAtlas->getViews();
-    }
-
-    void setUseToken(GrSmallPathShapeData* shapeData, GrDeferredUploadToken token) {
-         fAtlas->setLastUseToken(shapeData->fAtlasLocator, token);
-    }
-
-
-    // GrOnFlushCallbackObject overrides
-    //
-    // Note: because this class is associated with a path renderer we want it to be removed from
-    // the list of active OnFlushBackkbackObjects in an freeGpuResources call (i.e., we accept the
-    // default retainOnFreeGpuResources implementation).
-
-    void preFlush(GrOnFlushResourceProvider* onFlushRP,
-                  const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
-        if (fAtlas) {
-            fAtlas->instantiate(onFlushRP);
-        }
-    }
-
-    void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                   const uint32_t* /*opsTaskIDs*/, int /*numOpsTaskIDs*/) override {
-        if (fAtlas) {
-            fAtlas->compact(startTokenForNextFlush);
-        }
-    }
-
-    // Callback to clear out internal path cache when eviction occurs
-    void evict(GrDrawOpAtlas::PlotLocator plotLocator) override {
-        // remove any paths that use this plot
-        ShapeDataList::Iter iter;
-        iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-        GrSmallPathShapeData* shapeData;
-        while ((shapeData = iter.get())) {
-            iter.next();
-            if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
-                fShapeCache.remove(shapeData->fKey);
-                fShapeList.remove(shapeData);
-                delete shapeData;
-#ifdef DF_PATH_TRACKING
-                ++g_NumFreedPaths;
-#endif
-            }
-        }
-    }
-
-    GrSmallPathShapeData* findOrCreate(const GrSmallPathShapeDataKey& key) {
-        auto shapeData = fShapeCache.find(key);
-        if (!shapeData) {
-            shapeData = new GrSmallPathShapeData(key);
-            fShapeCache.add(shapeData);
-            fShapeList.addToTail(shapeData);
-    #ifdef DF_PATH_TRACKING
-            ++g_NumCachedPaths;
-    #endif
-        } else if (!fAtlas->hasID(shapeData->fAtlasLocator.plotLocator())) {
-            shapeData->fAtlasLocator.invalidatePlotLocator();
-        }
-
-        return shapeData;
-    }
-
-    void deleteCacheEntry(GrSmallPathShapeData* shapeData) {
-        fShapeCache.remove(shapeData->fKey);
-        fShapeList.remove(shapeData);
-        delete shapeData;
-    }
-
-private:
-    using ShapeCache = SkTDynamicHash<GrSmallPathShapeData, GrSmallPathShapeDataKey>;
-    typedef SkTInternalLList<GrSmallPathShapeData> ShapeDataList;
-
-    std::unique_ptr<GrDrawOpAtlas> fAtlas;
-    ShapeCache                     fShapeCache;
-    ShapeDataList                  fShapeList;
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 GrSmallPathRenderer::GrSmallPathRenderer() : fAtlasMgr(new GrSmallPathAtlasMgr) {}
