@@ -16,6 +16,24 @@
       "revId": "9d1e8a01782645b9c41e30309f56908a63a10c2a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f44a35e7_1def81eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T01:45:37Z",
+      "side": 1,
+      "message": "I can\u0027t think of any clean way to force \"opposite\" fix-its to be done for one type. If there are types we think maybe should be excluded, it\u0027d probably be easiest to put them on AllowedTypes now instead of trying to back it out later.",
+      "parentUuid": "7ec23f12_6cab02b1",
+      "revId": "9d1e8a01782645b9c41e30309f56908a63a10c2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
