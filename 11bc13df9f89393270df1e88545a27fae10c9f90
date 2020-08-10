@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "e2a65e90_cf12c63e",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-10T21:07:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9306997_bc11886e",
+      "range": {
+        "startLine": 120,
+        "startChar": 36,
+        "endLine": 120,
+        "endChar": 39
+      },
+      "revId": "11bc13df9f89393270df1e88545a27fae10c9f90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb263ec7_84205f24",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 4
@@ -70,6 +94,30 @@
       "writtenOn": "2020-08-10T21:02:25Z",
       "side": 1,
       "message": "It\u0027s not necessary to change for this CL (or maybe ever), but if we don\u0027t need to interleave ins and uniforms any more, is there any reason to do this in two passes? We build up `uniformVars` just to walk back over it and build `uniforms`.",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 183,
+        "endChar": 41
+      },
+      "revId": "11bc13df9f89393270df1e88545a27fae10c9f90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f8ab355_797669c2",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-10T21:07:02Z",
+      "side": 1,
+      "message": "Yeah, no reason to keep doing this in two passes. I thought about changing it, but didn\u0027t want to add to the churn. I can certainly go back and do it later, though.",
+      "parentUuid": "fb263ec7_84205f24",
       "range": {
         "startLine": 181,
         "startChar": 0,
