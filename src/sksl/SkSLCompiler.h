@@ -128,9 +128,6 @@ public:
 
     bool optimize(Program& program);
 
-    std::unique_ptr<Program> specialize(Program& program,
-                    const std::unordered_map<SkSL::String, SkSL::Program::Settings::Value>& inputs);
-
     bool toSPIRV(Program& program, OutputStream& out);
 
     bool toSPIRV(Program& program, String* out);
