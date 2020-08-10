@@ -31,7 +31,7 @@
 #include <utility>
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
-    auto direct = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     static const int kW = 10;
     static const int kH = 10;
@@ -79,10 +79,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                         for (const SkIPoint& dstPoint : kDstPoints) {
                             for (const SkImageInfo& ii: kImageInfos) {
                                 auto src = sk_gpu_test::MakeTextureProxyFromData(
-                                        direct, sRenderable, sOrigin, ii, srcPixels.get(),
+                                        dContext, sRenderable, sOrigin, ii, srcPixels.get(),
                                         kRowBytes);
                                 auto dst = sk_gpu_test::MakeTextureProxyFromData(
-                                        direct, dRenderable, dOrigin, ii, dstPixels.get(),
+                                        dContext, dRenderable, dOrigin, ii, dstPixels.get(),
                                         kRowBytes);
 
                                 // Should always work if the color type is RGBA, but may not work
@@ -94,7 +94,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                         continue;
                                     }
                                 } else {
-                                    if (!direct->defaultBackendFormat(
+                                    if (!dContext->defaultBackendFormat(
                                             kBGRA_8888_SkColorType, GrRenderable::kNo).isValid()) {
                                         continue;
                                     }
@@ -106,10 +106,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
-                                GrSwizzle dstSwizzle = direct->priv().caps()->getReadSwizzle(
+                                GrSwizzle dstSwizzle = dContext->priv().caps()->getReadSwizzle(
                                         dst->backendFormat(), grColorType);
                                 GrSurfaceProxyView dstView(std::move(dst), dOrigin, dstSwizzle);
-                                auto dstContext = GrSurfaceContext::Make(direct,
+                                auto dstContext = GrSurfaceContext::Make(dContext,
                                                                          std::move(dstView),
                                                                          grColorType,
                                                                          ii.alphaType(), nullptr);
@@ -119,7 +119,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                     result = dstContext->testCopy(src.get(), srcRect, dstPoint);
                                 } else if (dRenderable == GrRenderable::kYes) {
                                     SkASSERT(dstContext->asRenderTargetContext());
-                                    GrSwizzle srcSwizzle = direct->priv().caps()->getReadSwizzle(
+                                    GrSwizzle srcSwizzle = dContext->priv().caps()->getReadSwizzle(
                                         src->backendFormat(), grColorType);
                                     GrSurfaceProxyView view(std::move(src), sOrigin, srcSwizzle);
                                     result = dstContext->asRenderTargetContext()->blitTexture(
@@ -168,7 +168,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 sk_memset32(read.get(), 0, kW * kH);
-                                if (!dstContext->readPixels(ii, read.get(), kRowBytes, {0, 0})) {
+                                if (!dstContext->readPixels(
+                                        dContext, ii, read.get(), kRowBytes, {0, 0})) {
                                     ERRORF(reporter, "Error calling readPixels");
                                     continue;
                                 }

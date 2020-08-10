@@ -82,7 +82,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     ///////////////////////////////// CONTEXT 1 ///////////////////////////////////
 
-    // Use GL Context 1 to create a texture unknown to the GrDirectContext.
+    // Use GL Context 1 to create a texture unknown to context 0.
     context1->flushAndSubmit();
     static const int kSize = 100;
 
@@ -196,10 +196,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         }
     }
 
-    TestReadPixels(reporter, surfaceContext.get(), pixels.get(), "EGLImageTest-read");
+    TestReadPixels(reporter, context0, surfaceContext.get(), pixels.get(), "EGLImageTest-read");
 
-    // We should not be able to write to a EXTERNAL texture
-    TestWritePixels(reporter, surfaceContext.get(), false, "EGLImageTest-write");
+    // We should not be able to write to an EXTERNAL texture
+    TestWritePixels(reporter, context0, surfaceContext.get(), false, "EGLImageTest-write");
 
     // Only test RT-config
     // TODO: why do we always need to draw to copy from an external texture?

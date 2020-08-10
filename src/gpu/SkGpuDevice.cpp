@@ -183,21 +183,26 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
 bool SkGpuDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
     ASSERT_SINGLE_OWNER
 
-    if (!SkImageInfoValidConversion(pm.info(), this->imageInfo())) {
+    // Context TODO: Elevate direct context requirement to public API
+    auto dContext = fContext->asDirectContext();
+    if (!dContext || !SkImageInfoValidConversion(pm.info(), this->imageInfo())) {
         return false;
     }
 
-    return fRenderTargetContext->readPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), {x, y});
+    return fRenderTargetContext->readPixels(dContext, pm.info(), pm.writable_addr(), pm.rowBytes(),
+                                            {x, y});
 }
 
 bool SkGpuDevice::onWritePixels(const SkPixmap& pm, int x, int y) {
     ASSERT_SINGLE_OWNER
 
-    if (!SkImageInfoValidConversion(this->imageInfo(), pm.info())) {
+    // Context TODO: Elevate direct context requirement to public API
+    auto dContext = fContext->asDirectContext();
+    if (!dContext || !SkImageInfoValidConversion(this->imageInfo(), pm.info())) {
         return false;
     }
 
-    return fRenderTargetContext->writePixels(pm.info(), pm.addr(), pm.rowBytes(), {x, y});
+    return fRenderTargetContext->writePixels(dContext, pm.info(), pm.addr(), pm.rowBytes(), {x, y});
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
