@@ -37,6 +37,7 @@ public:
     GrHighContrastFilterEffect(const GrHighContrastFilterEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "HighContrastFilterEffect"; }
+    SkString dumpInfo() const override;
     float contrastMod;
     bool hasContrast;
     bool grayscale;

@@ -27,6 +27,7 @@ public:
     GrAARectEffect(const GrAARectEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AARectEffect"; }
+    SkString dumpInfo() const override;
     GrClipEdgeType edgeType;
     SkRect rect;
 

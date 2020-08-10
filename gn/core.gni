@@ -49,6 +49,7 @@ skia_core_public = [
   "$_include/core/SkImageFilter.h",
   "$_include/core/SkImageGenerator.h",
   "$_include/core/SkImageInfo.h",
+  "$_include/core/SkM44.h",
   "$_include/core/SkMallocPixelRef.h",
   "$_include/core/SkMaskFilter.h",
   "$_include/core/SkMath.h",
