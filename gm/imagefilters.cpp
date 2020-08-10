@@ -29,6 +29,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkHalf.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -282,4 +283,84 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     canvas->clipRect(crop);
     canvas->drawImage(image, 0, 0, &testMaskPaint);
     canvas->restore();
+}
+
+
+
+DEF_SIMPLE_GM(imagefilters_shader_colorspace, canvas, 64, 256) {
+    // Should hopefully match Android's Bitmap's getPixel() and getColor() implementations.
+    auto getPixel = [](const SkImage* img, int x, int y) {
+        SkImageInfo ii = SkImageInfo::Make({1, 1}, {kBGRA_8888_SkColorType, kUnpremul_SkAlphaType,
+                                                    SkColorSpace::MakeSRGB()});
+        SkColor color;
+        img->readPixels(ii, &color, ii.minRowBytes(), x, y);
+        return SkColor4f::FromColor(color);
+    };
+    auto getColor = [](const SkImage* img, int x, int y) {
+        SkImageInfo ii = SkImageInfo::Make({1, 1}, {kRGBA_F16_SkColorType, kUnpremul_SkAlphaType,
+                                                    img->imageInfo().refColorSpace()});
+        uint64_t rgba;
+        img->readPixels(ii, &rgba, ii.minRowBytes(), x, y);
+        Sk4f color = SkHalfToFloat_finite_ftz(rgba);
+        return SkColor4f{color[0], color[1], color[2], color[3]};
+    };
+
+    sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                                                   SkNamedGamut::kDisplayP3);
+    SkColor4f colors[] = {{1.f, 0.f, 0.f, 1.f},
+                          {0.f, 1.f, 0.f, 1.f},
+                          {0.f, 0.f, 1.f, 1.f}};
+    SkPoint pts[] = {{0,0},{0,40}};
+
+    SkPaint pShader;
+    pShader.setShader(SkGradientShader::MakeLinear(pts, colors, p3, nullptr, 3,
+                                                   SkTileMode::kClamp));
+    SkPaint pFilter;
+    pFilter.setImageFilter(SkImageFilters::Xfermode(SkBlendMode::kDstIn,
+                                                    SkImageFilters::Paint(pShader)));
+
+    SkImageInfo fp16sRGB = SkImageInfo::Make({40, 40}, {kRGBA_F16_SkColorType,
+                                                        kPremul_SkAlphaType,
+                                                        SkColorSpace::MakeSRGB()});
+
+    sk_sp<SkSurface> shaderSurface = canvas->makeSurface(fp16sRGB);
+    shaderSurface->getCanvas()->drawPaint(pShader);
+    sk_sp<SkImage> shaderResult = shaderSurface->makeImageSnapshot();
+
+    sk_sp<SkSurface> filterSurface = canvas->makeSurface(fp16sRGB);
+    filterSurface->getCanvas()->drawPaint(pFilter);
+    sk_sp<SkImage> filterResult = filterSurface->makeImageSnapshot();
+
+    // Draw the two versions to the screen
+    canvas->drawImage(shaderResult, 5, 5, nullptr);
+    canvas->drawImage(filterResult, 50, 5, nullptr);
+
+    // Simulate the pixel comparisons in the linear gradient CTS test
+    auto colorsEqual = [](const SkColor4f& c1, const SkColor4f& c2) {
+        bool eq = SkScalarNearlyEqual(c1.fR, c2.fR, 0.09f) &&
+                  SkScalarNearlyEqual(c1.fG, c2.fG, 0.09f) &&
+                  SkScalarNearlyEqual(c1.fB, c2.fB, 0.09f) &&
+                  SkScalarNearlyEqual(c1.fA, c2.fA, 0.09f);
+        SkDebugf("Colors equal? %d\n"
+                    "   expected [%.3f %.3f %.3f %.3f], \n"
+                    "    and got [%.3f %.3f %.3f %.3f]\n",
+                    eq, c1.fR, c1.fG, c1.fB, c1.fA, c2.fR, c2.fG, c2.fB, c2.fA);
+        return eq;
+    };
+
+    SkPaint statusPaint;
+    statusPaint.setAntiAlias(false);
+    statusPaint.setStyle(SkPaint::kStroke_Style);
+
+    SkDebugf("Checking with getPixel (8888):\n");
+    bool pixelEqual = colorsEqual(getPixel(shaderResult.get(), 0, 20),
+                                  getPixel(filterResult.get(), 0, 20));
+    statusPaint.setColor(pixelEqual ? SK_ColorGREEN : SK_ColorRED);
+    canvas->drawRect(SkRect::MakeLTRB(3, 3, 92, 47), statusPaint);
+
+    SkDebugf("Checking with getColor (F16):\n");
+    bool colorEqual = colorsEqual(getColor(shaderResult.get(), 0, 20),
+                                  getColor(filterResult.get(), 0, 20));
+    statusPaint.setColor(colorEqual ? SK_ColorGREEN : SK_ColorRED);
+    canvas->drawRect(SkRect::MakeLTRB(1, 1, 94, 49), statusPaint);
 }
