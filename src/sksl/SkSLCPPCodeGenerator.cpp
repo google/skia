@@ -901,7 +901,7 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     for (const auto u : uniforms) {
         this->addUniform(*u);
     }
-    this->writeSection(EMIT_CODE_SECTION);
+    this->writeSection(kEmitCodeSection);
 
     // Save original buffer as the CPP buffer for flushEmittedCode()
     fCPPBuffer = fOut;
@@ -921,7 +921,7 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
 
 void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     const char* fullName = fFullName.c_str();
-    const Section* section = fSectionAndParameterHelper.getSection(SET_DATA_SECTION);
+    const Section* section = fSectionAndParameterHelper.getSection(kSetDataSection);
     const char* pdman = section ? section->fArgument.c_str() : "pdman";
     this->writef("    void onSetData(const GrGLSLProgramDataManager& %s, "
                                     "const GrFragmentProcessor& _proc) override {\n",
@@ -1034,7 +1034,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 }
             }
         }
-        this->writeSection(SET_DATA_SECTION);
+        this->writeSection(kSetDataSection);
     }
     this->write("    }\n");
 }
@@ -1063,8 +1063,8 @@ void CPPCodeGenerator::writeOnTextureSampler() {
 }
 
 void CPPCodeGenerator::writeClone() {
-    if (!this->writeSection(CLONE_SECTION)) {
-        if (fSectionAndParameterHelper.getSection(FIELDS_SECTION)) {
+    if (!this->writeSection(kCloneSection)) {
+        if (fSectionAndParameterHelper.getSection(kFieldsSection)) {
             fErrors.error(0, "fragment processors with custom @fields must also have a custom"
                              "@clone");
         }
@@ -1103,7 +1103,7 @@ void CPPCodeGenerator::writeClone() {
 }
 
 void CPPCodeGenerator::writeTest() {
-    const Section* test = fSectionAndParameterHelper.getSection(TEST_CODE_SECTION);
+    const Section* test = fSectionAndParameterHelper.getSection(kTestCodeSection);
     if (test) {
         this->writef(
                 "GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
@@ -1112,7 +1112,7 @@ void CPPCodeGenerator::writeTest() {
                 fFullName.c_str(),
                 fFullName.c_str(),
                 test->fArgument.c_str());
-        this->writeSection(TEST_CODE_SECTION);
+        this->writeSection(kTestCodeSection);
         this->write("}\n"
                     "#endif\n");
     }
@@ -1243,7 +1243,7 @@ bool CPPCodeGenerator::generateCode() {
     this->writef("%s\n", HCodeGenerator::GetHeader(fProgram, fErrors).c_str());
     this->writef(kFragmentProcessorHeader, fullName);
     this->writef("#include \"%s.h\"\n\n", fullName);
-    this->writeSection(CPP_SECTION);
+    this->writeSection(kCppSection);
     this->writef("#include \"src/core/SkUtils.h\"\n"
                  "#include \"src/gpu/GrTexture.h\"\n"
                  "#include \"src/gpu/glsl/GrGLSLFragmentProcessor.h\"\n"
@@ -1296,7 +1296,7 @@ bool CPPCodeGenerator::generateCode() {
     this->writeClone();
     this->writeOnTextureSampler();
     this->writeTest();
-    this->writeSection(CPP_END_SECTION);
+    this->writeSection(kCppEndSection);
 
     result &= 0 == fErrors.errorCount();
     return result;
