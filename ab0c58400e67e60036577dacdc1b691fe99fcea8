@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9f341365_8d7932ed",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T16:54:46Z",
+      "side": 1,
+      "message": "Side question for my own understanding: Is it expected to always succeed or is this interface only sometimes available?",
+      "parentUuid": "51212d9e_9ed6ba92",
+      "range": {
+        "startLine": 285,
+        "startChar": 8,
+        "endLine": 285,
+        "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd5f224e_c15c58f5",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 7
@@ -65,6 +89,52 @@
         "startChar": 8,
         "endLine": 296,
         "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67f5341a_63fe9791",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T16:54:46Z",
+      "side": 1,
+      "message": "one more space",
+      "range": {
+        "startLine": 220,
+        "startChar": 34,
+        "endLine": 220,
+        "endChar": 35
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07c820ba_28f2650f",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T16:54:46Z",
+      "side": 1,
+      "message": "I think this is equivalent to\n sampleLocations-\u003epush_back_n(numSamples, kStandardSampleLocations_1[0]);\nbut the single call only does one growth check.",
+      "range": {
+        "startLine": 250,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 9
       },
       "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
