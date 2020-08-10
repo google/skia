@@ -70,6 +70,30 @@
       "revId": "31954bf23f2435684a9d797a2d99c7cad2122d35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bb3ecd3_f865caa3",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T13:42:24Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "a0771f36_78d5cf8a",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 11
+      },
+      "revId": "31954bf23f2435684a9d797a2d99c7cad2122d35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
