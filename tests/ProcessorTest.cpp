@@ -804,6 +804,96 @@ static SkString describe_fp(const GrFragmentProcessor& fp) {
     return text;
 }
 
+static void assert_processor_equality(skiatest::Reporter* reporter,
+                                      const GrFragmentProcessor& fp,
+                                      const GrFragmentProcessor& clone) {
+    REPORTER_ASSERT(reporter, !strcmp(fp.name(), clone.name()),
+                              "%s\n", describe_fp(fp).c_str());
+    REPORTER_ASSERT(reporter, fp.compatibleWithCoverageAsAlpha() ==
+                              clone.compatibleWithCoverageAsAlpha(),
+                              "%s\n", describe_fp(fp).c_str());
+    REPORTER_ASSERT(reporter, fp.isEqual(clone),
+                              "%s\n", describe_fp(fp).c_str());
+    REPORTER_ASSERT(reporter, fp.preservesOpaqueInput() == clone.preservesOpaqueInput(),
+                              "%s\n", describe_fp(fp).c_str());
+    REPORTER_ASSERT(reporter, fp.hasConstantOutputForConstantInput() ==
+                              clone.hasConstantOutputForConstantInput(),
+                              "%s\n", describe_fp(fp).c_str());
+    REPORTER_ASSERT(reporter, fp.numChildProcessors() == clone.numChildProcessors(),
+                              "%s\n", describe_fp(fp).c_str());
+    REPORTER_ASSERT(reporter, fp.usesVaryingCoords() == clone.usesVaryingCoords(),
+                              "%s\n", describe_fp(fp).c_str());
+    REPORTER_ASSERT(reporter, fp.referencesSampleCoords() == clone.referencesSampleCoords(),
+                              "%s\n", describe_fp(fp).c_str());
+}
+
+static bool verify_identical_render(skiatest::Reporter* reporter, int renderSize,
+                                    const char* processorType,
+                                    const GrColor readData1[], const GrColor readData2[]) {
+    // The ProcessorClone test has a history of being flaky on a number of devices. If an FP clone
+    // is logically wrong, it's reasonable to expect it produce a large number of pixel differences
+    // in the image. Sporadic pixel violations are more indicative device errors and represents a
+    // separate problem.
+#if defined(SK_BUILD_FOR_SKQP)
+    const int maxAcceptableFailedPixels = 0;  // Strict when running as SKQP
+#else
+    const int maxAcceptableFailedPixels = 2 * renderSize;  // ~0.002% of the pixels (size 1024*1024)
+#endif
+
+    int failedPixelCount = 0;
+    int firstWrongX = 0;
+    int firstWrongY = 0;
+    int idx = 0;
+    for (int y = 0; y < renderSize; ++y) {
+        for (int x = 0; x < renderSize; ++x, ++idx) {
+            if (readData1[idx] != readData2[idx]) {
+                if (!failedPixelCount) {
+                    firstWrongX = x;
+                    firstWrongY = y;
+                }
+                ++failedPixelCount;
+            }
+            if (failedPixelCount > maxAcceptableFailedPixels) {
+                idx = firstWrongY * renderSize + firstWrongX;
+                ERRORF(reporter,
+                       "%s produced different output at (%d, %d). "
+                       "Input color: 0x%08x, Original Output Color: 0x%08x, "
+                       "Clone Output Color: 0x%08x.",
+                       processorType, firstWrongX, firstWrongY, input_texel_color(x, y, 0.0f),
+                       readData1[idx], readData2[idx]);
+
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+static void log_clone_failure(skiatest::Reporter* reporter, int renderSize,
+                              GrDirectContext* context, const GrSurfaceProxyView& inputTexture,
+                              GrColor pixelsFP[], GrColor pixelsClone[], GrColor pixelsRegen[]) {
+    // Write the images out as data URLs for inspection.
+    SkString inputURL, origURL, cloneURL, regenURL;
+    if (log_texture_view(context, inputTexture, &inputURL) &&
+        log_pixels(pixelsFP, renderSize, &origURL) &&
+        log_pixels(pixelsClone, renderSize, &cloneURL) &&
+        log_pixels(pixelsRegen, renderSize, &regenURL)) {
+        ERRORF(reporter,
+               "\nInput image:\n%s\n\n"
+               "==========================================================="
+               "\n\n"
+               "Orig output image:\n%s\n"
+               "==========================================================="
+               "\n\n"
+               "Clone output image:\n%s\n"
+               "==========================================================="
+               "\n\n"
+               "Regen output image:\n%s\n",
+               inputURL.c_str(), origURL.c_str(), cloneURL.c_str(), regenURL.c_str());
+    }
+}
+
 // Tests that a fragment processor returned by GrFragmentProcessor::clone() is equivalent to its
 // progenitor.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
@@ -829,18 +919,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     bool loggedFirstFailure = false;
 
     // Storage for the original frame's readback and the readback of its clone.
-    std::vector<GrColor> readData1(kRenderSize * kRenderSize);
-    std::vector<GrColor> readData2(kRenderSize * kRenderSize);
-
-    // This test has a history of being flaky on a number of devices. If an FP clone is logically
-    // wrong, it's reasonable to expect it produce a large number of pixel differences in the image.
-    // Sporadic pixel violations are more indicative device errors and represents a separate
-    // problem.
-#if defined(SK_BUILD_FOR_SKQP)
-    static constexpr int kMaxAcceptableFailedPixels = 0;  // Strict when running as SKQP
-#else
-    static constexpr int kMaxAcceptableFailedPixels = 2 * kRenderSize;  // ~0.7% of the image
-#endif
+    std::vector<GrColor> readDataFP(kRenderSize * kRenderSize);
+    std::vector<GrColor> readDataClone(kRenderSize * kRenderSize);
+    std::vector<GrColor> readDataRegen(kRenderSize * kRenderSize);
 
     // Because processor factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < GrFragmentProcessorTestFactory::Count(); ++i) {
@@ -848,88 +929,49 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             fpGenerator.reroll();
             std::unique_ptr<GrFragmentProcessor> fp = fpGenerator.make(i, /*inputFP=*/nullptr);
+            std::unique_ptr<GrFragmentProcessor> regen = fpGenerator.make(i, /*inputFP=*/nullptr);
             std::unique_ptr<GrFragmentProcessor> clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
                 continue;
             }
-            const char* name = fp->name();
-            REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()),
-                                      "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->compatibleWithCoverageAsAlpha() ==
-                                      clone->compatibleWithCoverageAsAlpha(),
-                                      "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->isEqual(*clone),
-                                      "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->preservesOpaqueInput() == clone->preservesOpaqueInput(),
-                                      "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->hasConstantOutputForConstantInput() ==
-                                      clone->hasConstantOutputForConstantInput(),
-                                      "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors(),
-                                      "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->usesVaryingCoords() == clone->usesVaryingCoords(),
-                                      "%s\n", describe_fp(*fp).c_str());
-            REPORTER_ASSERT(reporter, fp->referencesSampleCoords() ==
-                                      clone->referencesSampleCoords(),
-                                      "%s\n", describe_fp(*fp).c_str());
+            assert_processor_equality(reporter, *fp, *clone);
+
             // Draw with original and read back the results.
-            render_fp(context, rtc.get(), std::move(fp), readData1.data());
+            render_fp(context, rtc.get(), std::move(fp), readDataFP.data());
 
             // Draw with clone and read back the results.
-            render_fp(context, rtc.get(), std::move(clone), readData2.data());
+            render_fp(context, rtc.get(), std::move(clone), readDataClone.data());
 
             // Check that the results are the same.
-            bool passing = true;
-            int failedPixelCount = 0;
-            int firstWrongX = 0;
-            int firstWrongY = 0;
-            for (int y = 0; y < kRenderSize && passing; ++y) {
-                for (int x = 0; x < kRenderSize && passing; ++x) {
-                    int idx = y * kRenderSize + x;
-                    if (readData1[idx] != readData2[idx]) {
-                        if (!failedPixelCount) {
-                            firstWrongX = x;
-                            firstWrongY = y;
-                        }
-                        ++failedPixelCount;
-                    }
-                    if (failedPixelCount > kMaxAcceptableFailedPixels) {
-                        passing = false;
-                        idx = firstWrongY * kRenderSize + firstWrongX;
-                        ERRORF(reporter,
-                               "Processor %s made clone produced different output at (%d, %d). "
-                               "Input color: 0x%08x, Original Output Color: 0x%08x, "
-                               "Clone Output Color: 0x%08x.",
-                               name, firstWrongX, firstWrongY, input_texel_color(x, y, 0.0f),
-                               readData1[idx], readData2[idx]);
-                        if (!loggedFirstFailure) {
-                            // Write the images out as data urls for inspection.
-                            // We mark the data as unpremul to avoid conversion when encoding as
-                            // PNG. Also, even though we made the data by rendering into
-                            // a "unpremul" GrRenderTargetContext, our input texture is unpremul and
-                            // outside of the random effect configuration, we didn't do anything to
-                            // ensure the output is actually premul.
-                            auto info = SkImageInfo::Make(kRenderSize, kRenderSize,
-                                                          kRGBA_8888_SkColorType,
-                                                          kUnpremul_SkAlphaType);
-                            SkString inputURL, origURL, cloneURL;
-                            if (log_texture_view(context, inputTexture, &inputURL) &&
-                                log_pixels(readData1.data(), kRenderSize, &origURL) &&
-                                log_pixels(readData2.data(), kRenderSize, &cloneURL)) {
-                                ERRORF(reporter,
-                                       "\nInput image:\n%s\n\n"
-                                       "==========================================================="
-                                       "\n\n"
-                                       "Orig output image:\n%s\n"
-                                       "==========================================================="
-                                       "\n\n"
-                                       "Clone output image:\n%s\n",
-                                       inputURL.c_str(), origURL.c_str(), cloneURL.c_str());
-                                loggedFirstFailure = true;
-                            }
-                        }
-                    }
+            if (!verify_identical_render(reporter, kRenderSize, "Processor clone",
+                                         readDataFP.data(), readDataClone.data())) {
+                // Dump a description from the regenerated processor (since the original FP has
+                // already been consumed).
+                ERRORF(reporter, "FP hierarchy:\n%s\n", describe_fp(*regen).c_str());
+
+                // Render and readback output from the regenerated FP. If this also mismatches, the
+                // FP itself doesn't generate consistent output. This could happen if:
+                // - the FP's TestCreate() does not always generate the same FP from a given seed
+                // - the FP's Make() does not always generate the same FP when given the same inputs
+                // - the FP itself generates inconsistent pixels (shader UB?)
+                // - the driver has a bug
+                render_fp(context, rtc.get(), std::move(regen), readDataRegen.data());
+
+                if (!verify_identical_render(reporter, kRenderSize, "Regenerated processor",
+                                             readDataFP.data(), readDataRegen.data())) {
+                    ERRORF(reporter, "Output from regen did not match original!\n");
+                } else {
+                    ERRORF(reporter, "Regenerated processor output matches original results.\n");
+                }
+
+                // If this is the first time we've encountered a cloning failure, log the generated
+                // images to the reporter as data URLs.
+                if (!loggedFirstFailure) {
+                    log_clone_failure(reporter, kRenderSize, context, inputTexture,
+                                      readDataFP.data(), readDataClone.data(),
+                                      readDataRegen.data());
+                    loggedFirstFailure = true;
                 }
             }
         }
