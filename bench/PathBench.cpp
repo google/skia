@@ -16,6 +16,8 @@
 #include "include/private/SkTArray.h"
 #include "include/utils/SkRandom.h"
 
+#include "src/core/SkDraw.h"
+
 enum Flags {
     kStroke_Flag = 1 << 0,
     kBig_Flag    = 1 << 1
@@ -965,6 +967,41 @@ public:
 };
 DEF_BENCH( return new ConicBench_EvalTan(false); )
 DEF_BENCH( return new ConicBench_EvalTan(true); )
+
+class ConicBench_TinyError : public Benchmark {
+protected:
+    SkString fName;
+
+public:
+    ConicBench_TinyError() : fName("conic-tinyerror") {}
+
+protected:
+    const char* onGetName() override { return fName.c_str(); }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkPaint paint;
+        paint.setColor(SK_ColorBLACK);
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2);
+
+        SkPath path;
+        path.moveTo(-100, 1);
+        path.cubicTo(-101, 1, -118, -47, -138, -44);
+
+        // The large y scale factor produces a tiny error threshold.
+        const SkMatrix mtx = SkMatrix::MakeAll(3.07294035f, 0.833333373f, 361.111115f, 0.0f,
+                                               6222222.5f, 28333.334f, 0.0f, 0.0f, 1.0f);
+        for (int i = 0; i < loops; ++i) {
+            SkPath dst;
+            paint.getFillPath(path, &dst, nullptr, SkDraw::ComputeResScaleForStroking(mtx));
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new ConicBench_TinyError; )
 
 ///////////////////////////////////////////////////////////////////////////////
 

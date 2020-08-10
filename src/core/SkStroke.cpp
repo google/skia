@@ -25,7 +25,11 @@ enum {
 // quads with extreme widths (e.g. (0,1) (1,6) (0,3) width=5e7) recurse to point of failure
 // largest seen for normal cubics : 5, 26
 // largest seen for normal quads : 11
-static const int kRecursiveLimits[] = { 5*3, 26*3, 11*3, 11*3 }; // 3x limits seen in practice
+// 3x limits seen in practice, except for cubics (3x limit would be ~75).
+// For cubics, we never get close to 75 when running through dm. The limit of 24
+// was chosen because it's close to the peak in a count of cubic recursion depths visited
+// (define DEBUG_CUBIC_RECURSION_DEPTHS) and no diffs were produced on gold when using it.
+static const int kRecursiveLimits[] = { 5*3, 24, 11*3, 11*3 };
 
 static_assert(0 == kTangent_RecursiveLimit, "cubic_stroke_relies_on_tangent_equalling_zero");
 static_assert(1 == kCubic_RecursiveLimit, "cubic_stroke_relies_on_cubic_equalling_one");
@@ -51,6 +55,35 @@ static_assert(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
     #define STROKER_RESULT(resultType, depth, quadPts, format, ...) \
             resultType
     #define STROKER_DEBUG_PARAMS(...)
+#endif
+
+#ifndef DEBUG_CUBIC_RECURSION_DEPTHS
+#define DEBUG_CUBIC_RECURSION_DEPTHS 0
+#endif
+#if DEBUG_CUBIC_RECURSION_DEPTHS
+    /* Prints a histogram of recursion depths at process termination. */
+    static struct DepthHistogram {
+        static constexpr int kMaxDepth = 75;
+        int fCubicDepths[kMaxDepth + 1];
+
+        DepthHistogram() { memset(fCubicDepths, 0, sizeof(fCubicDepths)); }
+
+        ~DepthHistogram() {
+            SkDebugf("# times recursion terminated per depth:\n");
+            for (int i = 0; i <= kMaxDepth; i++) {
+                SkDebugf("  depth %d: %d\n", i, fCubicDepths[i]);
+            }
+        }
+
+        inline void incDepth(int depth) {
+            SkASSERT(depth >= 0 && depth <= kMaxDepth);
+            fCubicDepths[depth]++;
+        }
+    } sCubicDepthHistogram;
+
+#define DEBUG_CUBIC_RECURSION_TRACK_DEPTH(depth) sCubicDepthHistogram.incDepth(depth)
+#else
+#define DEBUG_CUBIC_RECURSION_TRACK_DEPTH(depth) (void)(depth)
 #endif
 
 static inline bool degenerate_vector(const SkVector& v) {
@@ -1118,6 +1151,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
                     || points_within_dist(quadPts->fQuad[0], quadPts->fQuad[2],
                     fInvResScale)) && cubicMidOnLine(cubic, quadPts)) {
                 addDegenerateLine(quadPts);
+                DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
                 return true;
             }
         } else {
@@ -1130,16 +1164,19 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
             const SkPoint* stroke = quadPts->fQuad;
             path->quadTo(stroke[1].fX, stroke[1].fY, stroke[2].fX, stroke[2].fY);
+            DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
             return true;
         }
         if (kDegenerate_ResultType == resultType) {
             if (!quadPts->fOppositeTangents) {
               addDegenerateLine(quadPts);
+              DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
               return true;
             }
         }
     }
     if (!SkScalarIsFinite(quadPts->fQuad[2].fX) || !SkScalarIsFinite(quadPts->fQuad[2].fY)) {
+        DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
         return false;  // just abort if projected quad isn't representable
     }
 #if QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
@@ -1147,11 +1184,13 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             fRecursionDepth + 1));
 #endif
     if (++fRecursionDepth > kRecursiveLimits[fFoundTangents]) {
+        DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
         return false;  // just abort if projected quad isn't representable
     }
     SkQuadConstruct half;
     if (!half.initWithStart(quadPts)) {
         addDegenerateLine(quadPts);
+        DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
         --fRecursionDepth;
         return true;
     }
@@ -1160,6 +1199,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
     }
     if (!half.initWithEnd(quadPts)) {
         addDegenerateLine(quadPts);
+        DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
         --fRecursionDepth;
         return true;
     }
