@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2e74905_ae4b8a21",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T15:40:36Z",
+      "side": 1,
+      "message": "PS 9 adds some comments and asserts that Chris suggested. It also (should) includes a fix for the problematic diffs showing up in gold on the \"complexclip_X_invert\" GMs. Here\u0027s what was happening:\n\n- Early on, I always used a tight scissor for every draw call so it would be the clip\u0027s outer bounds intersected with the draw bounds.\n- This meant that the scissor bounds could be used as part of the key for stencil and SW mask generation, since every draw that was contained within those bounds would have produced the same or fewer elements into the mask.\n- Later on, I experimented with using the scissor bounds as just the clip\u0027s outer bounds, in the hopes that we\u0027d increase batching since we wouldn\u0027t need to change scissors between draws. This broke the mask keys because we could have many different draws within the clip bounds needing different parts of the mask and assuming all elements within the clip bounds were rendered.\n- There are multiple strategies I could do to address this (e.g. actually stencil the whole clip if we need any mask, which would also solve this issue). For now, I start with the loose scissor and if we go beyond just coverage FPs, I switch to the tight scissor.",
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
