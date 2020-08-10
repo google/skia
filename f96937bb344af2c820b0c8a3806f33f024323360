@@ -22,6 +22,30 @@
       "revId": "f96937bb344af2c820b0c8a3806f33f024323360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5e2da7f_e3376689",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T14:44:42Z",
+      "side": 1,
+      "message": "It looks like this is trying to show SkPancakeType expressed two different ways? One with `enum class` and no suffix, and one with `enum` and including the suffix. I think each of those examples is right in isolation, but it\u0027s unclear when they are side by side.\n\nMaybe it would be better if they weren\u0027t both `SkPancakeType`? Want me to change one of them to, like, waffle types or something?",
+      "parentUuid": "698ddf67_06e13bd7",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 2
+      },
+      "revId": "f96937bb344af2c820b0c8a3806f33f024323360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
