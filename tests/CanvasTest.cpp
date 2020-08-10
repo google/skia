@@ -114,26 +114,6 @@ static void test_restriction(skiatest::Reporter* reporter, SkCanvas* canvas) {
     const SkIRect clipR = { 4, 4, 6, 6 };
     canvas->clipRect(SkRect::Make(clipR), SkClipOp::kIntersect);
     REPORTER_ASSERT(reporter, canvas->getDeviceClipBounds() == clipR);
-
-#ifdef SK_SUPPORT_DEPRECATED_CLIPOPS
-    // now test that expanding clipops can't exceed the restriction
-    const SkClipOp expanders[] = {
-        SkClipOp::kUnion_deprecated,
-        SkClipOp::kXOR_deprecated,
-        SkClipOp::kReverseDifference_deprecated,
-        SkClipOp::kReplace_deprecated,
-    };
-
-    const SkRect expandR = { 0, 0, 5, 9 };
-    SkASSERT(!SkRect::Make(restrictionR).contains(expandR));
-
-    for (SkClipOp op : expanders) {
-        canvas->save();
-        canvas->clipRect(expandR, op);
-        REPORTER_ASSERT(reporter, gBaseRestrictedR.contains(canvas->getDeviceClipBounds()));
-        canvas->restore();
-    }
-#endif
 }
 
 /**
