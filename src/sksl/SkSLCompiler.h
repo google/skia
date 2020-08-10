@@ -128,9 +128,6 @@ public:
 
     bool optimize(Program& program);
 
-    std::unique_ptr<Program> specialize(Program& program,
-                    const std::unordered_map<SkSL::String, SkSL::Program::Settings::Value>& inputs);
-
     bool toSPIRV(Program& program, OutputStream& out);
 
     bool toSPIRV(Program& program, String* out);
@@ -152,7 +149,7 @@ public:
     std::unique_ptr<ByteCode> toByteCode(Program& program);
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    bool toPipelineStage(const Program& program, PipelineStageArgs* outArgs);
+    bool toPipelineStage(Program& program, PipelineStageArgs* outArgs);
 #endif
 
     /**
