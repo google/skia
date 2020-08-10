@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ca83022_6619ff08",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-10T15:28:02Z",
+      "side": 1,
+      "message": "if this check fails how does the caller know that the samples weren\u0027t centered? Is there anyway for this support check to be part of the sample caps so callers would know if this will even work or not ahead of time?",
+      "range": {
+        "startLine": 285,
+        "startChar": 8,
+        "endLine": 285,
+        "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd5f224e_c15c58f5",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-10T15:28:02Z",
+      "side": 1,
+      "message": "could we assert this one since fUsingCenteredSamples can only be true if it is supported.",
+      "range": {
+        "startLine": 296,
+        "startChar": 8,
+        "endLine": 296,
+        "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
