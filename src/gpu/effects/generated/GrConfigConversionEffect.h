@@ -37,6 +37,7 @@ public:
     GrConfigConversionEffect(const GrConfigConversionEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ConfigConversionEffect"; }
+    SkString dumpInfo() const override;
     PMConversion pmConversion;
 
 private:

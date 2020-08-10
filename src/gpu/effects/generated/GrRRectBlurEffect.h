@@ -117,6 +117,7 @@ public:
     GrRRectBlurEffect(const GrRRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RRectBlurEffect"; }
+    SkString dumpInfo() const override;
     float sigma;
     SkRect rect;
     float cornerRadius;

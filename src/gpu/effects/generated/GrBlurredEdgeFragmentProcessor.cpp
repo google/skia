@@ -70,3 +70,6 @@ GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
 std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
     return std::make_unique<GrBlurredEdgeFragmentProcessor>(*this);
 }
+SkString GrBlurredEdgeFragmentProcessor::dumpInfo() const {
+    return SkStringPrintf("BlurredEdgeFragmentProcessor(mode=%d)", (int)mode);
+}

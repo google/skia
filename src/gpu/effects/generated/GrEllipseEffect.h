@@ -43,6 +43,7 @@ public:
     GrEllipseEffect(const GrEllipseEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "EllipseEffect"; }
+    SkString dumpInfo() const override;
     GrClipEdgeType edgeType;
     SkPoint center;
     SkPoint radii;
