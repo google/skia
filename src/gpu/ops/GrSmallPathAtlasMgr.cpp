@@ -41,7 +41,7 @@ bool GrSmallPathAtlasMgr::initAtlas(GrProxyProvider* proxyProvider, const GrCaps
     static constexpr size_t kPlotHeight = 256;
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
-                                                                    GrRenderable::kNo);
+                                                                 GrRenderable::kNo);
 
     GrDrawOpAtlasConfig atlasConfig(caps->maxTextureSize(), kMaxAtlasTextureBytes);
     SkISize size = atlasConfig.atlasDimensions(kA8_GrMaskFormat);
@@ -73,6 +73,22 @@ GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrSmallPathShapeDa
     }
 
     return shapeData;
+}
+
+GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrStyledShape& shape,
+                                                        int desiredDimension) {
+    GrSmallPathShapeDataKey key(shape, desiredDimension);
+
+    // TODO: move the key into 'findOrCreate'
+    return this->findOrCreate(key);
+}
+
+GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrStyledShape& shape,
+                                                        const SkMatrix& ctm) {
+    GrSmallPathShapeDataKey key(shape, ctm);
+
+    // TODO: move the key into 'findOrCreate'
+    return this->findOrCreate(key);
 }
 
 void GrSmallPathAtlasMgr::setUseToken(GrSmallPathShapeData* shapeData,
