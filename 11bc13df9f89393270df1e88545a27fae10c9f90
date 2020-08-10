@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21f5e82f_53eca8cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-10T20:29:43Z",
+      "side": 1,
+      "message": "A large amount of the churn on this is renaming things (s/input/uniform/) in many places. The key bit is that we\u0027re calling optimize() in the factory, so making a runtime effect from SkSL that contained unreachable code or functions that could exit without returning will now fail at creation time (with a good error messages), instead of during the draw.",
+      "revId": "11bc13df9f89393270df1e88545a27fae10c9f90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
