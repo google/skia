@@ -86,8 +86,8 @@ bool SkImage_GpuBase::ValidateCompressedBackendTexture(const GrCaps* caps,
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
-    auto direct = fContext->asDirectContext();
-    if (!direct) {
+    auto dContext = fContext->asDirectContext();
+    if (!dContext) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
@@ -112,18 +112,19 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
         }
     }
 
-    const GrSurfaceProxyView* view = this->view(direct);
+    const GrSurfaceProxyView* view = this->view(dContext);
     SkASSERT(view);
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(
             fContext->priv().caps(), this->colorType(), view->proxy()->backendFormat());
 
-    auto sContext = GrSurfaceContext::Make(direct, *view, grColorType, this->alphaType(),
+    auto sContext = GrSurfaceContext::Make(dContext, *view, grColorType, this->alphaType(),
                                            this->refColorSpace());
     if (!sContext) {
         return false;
     }
 
-    if (!sContext->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), {0, 0})) {
+    if (!sContext->readPixels(dContext, pmap.info(), pmap.writable_addr(), pmap.rowBytes(),
+                              {0, 0})) {
         return false;
     }
 
@@ -157,8 +158,8 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
 
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                    int srcX, int srcY, CachingHint) const {
-    auto direct = fContext->asDirectContext();
-    if (!direct) {
+    auto dContext = fContext->asDirectContext();
+    if (!dContext) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
@@ -167,18 +168,18 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
         return false;
     }
 
-    const GrSurfaceProxyView* view = this->view(direct);
+    const GrSurfaceProxyView* view = this->view(dContext);
     SkASSERT(view);
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(
-            fContext->priv().caps(), this->colorType(), view->proxy()->backendFormat());
+            dContext->priv().caps(), this->colorType(), view->proxy()->backendFormat());
 
-    auto sContext = GrSurfaceContext::Make(direct, *view, grColorType, this->alphaType(),
+    auto sContext = GrSurfaceContext::Make(dContext, *view, grColorType, this->alphaType(),
                                            this->refColorSpace());
     if (!sContext) {
         return false;
     }
 
-    return sContext->readPixels(dstInfo, dstPixels, dstRB, {srcX, srcY});
+    return sContext->readPixels(dContext, dstInfo, dstPixels, dstRB, {srcX, srcY});
 }
 
 GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
