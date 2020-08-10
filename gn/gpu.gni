@@ -409,6 +409,8 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.cpp",
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h",
+  "$_src/gpu/ops/GrSmallPathAtlasMgr.cpp",
+  "$_src/gpu/ops/GrSmallPathAtlasMgr.h",
   "$_src/gpu/ops/GrSmallPathRenderer.cpp",
   "$_src/gpu/ops/GrSmallPathRenderer.h",
   "$_src/gpu/ops/GrSmallPathShapeData.h",
