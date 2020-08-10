@@ -46,6 +46,30 @@
       "revId": "f96937bb344af2c820b0c8a3806f33f024323360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63f3af4b_3ae40cb2",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T15:36:15Z",
+      "side": 1,
+      "message": "Yeah, I just totally missed that there were two types with the same name. It might help to change one. Also, maybe the comment explaining the suffixing should go between them? But all optional.",
+      "parentUuid": "d5e2da7f_e3376689",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 2
+      },
+      "revId": "f96937bb344af2c820b0c8a3806f33f024323360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
