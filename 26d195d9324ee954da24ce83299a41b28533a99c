@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b8d7e34c_e5a2c182",
+        "filename": ".clang-tidy",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T02:05:03Z",
+      "side": 1,
+      "message": "sk_sp and SkString will definitely each cause a mountain of fix-its. I definitely want to do them separately, and TBH I wasn\u0027t sure whether we\u0027d want to do them at all. SkString\u0027s doc comments in particular encourage users to treat it as a value type (\"Uses reference counting to make string assignments and copies very fast with no extra RAM cost\"). sk_sp is everywhere and is treated like a value type pretty much universally as well. I don\u0027t have a frame of reference for whether the sk_sp virtual calls and atomic incs/decs cost a meaningful amount of perf in the aggregate.",
+      "parentUuid": "a78e136f_9e57764f",
+      "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "315d12a8_87f30e61",
         "filename": "src/core/SkTaskGroup.h",
         "patchSetId": 1
@@ -35,6 +53,53 @@
         "startChar": 0,
         "endLine": 27,
         "endChar": 58
+      },
+      "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea40ef8f_14ef46f8",
+        "filename": "src/core/SkTaskGroup.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T02:05:03Z",
+      "side": 1,
+      "message": "Yeah, this CL is definitely not done. The changes need to be hand-reviewed, cleaned, and split up into logical groups before I\u0027d consider submitting them. There\u0027s a few other good examples where the auto-fixit does stuff that a human wouldn\u0027t ever do. (See comment in SkVM for example)\n\nTBH I\u0027m mostly using Gerrit here as a diff viewer... it\u0027s nicer than Meld.",
+      "parentUuid": "315d12a8_87f30e61",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 58
+      },
+      "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04f4b509_43c4f072",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T02:05:03Z",
+      "side": 1,
+      "message": "Example of \"helpful\" robot making a goofy change--the callers already do std::move so this optimization is barely useful, and breaks symmetry.",
+      "range": {
+        "startLine": 812,
+        "startChar": 57,
+        "endLine": 812,
+        "endChar": 90
       },
       "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
