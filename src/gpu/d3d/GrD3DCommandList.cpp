@@ -249,6 +249,7 @@ void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipeline
         fCommandList->SetPipelineState(pipelineState->pipelineState());
         this->addResource(std::move(pipelineState));
         fCurrentPipelineState = pipelineState.get();
+        this->setDefaultSamplePositions();
     }
 }
 
@@ -276,6 +277,25 @@ void GrD3DDirectCommandList::setViewports(unsigned int numViewports,
                                           const D3D12_VIEWPORT* viewports) {
     SkASSERT(fIsActive);
     fCommandList->RSSetViewports(numViewports, viewports);
+}
+
+void GrD3DDirectCommandList::setCenteredSamplePositions(unsigned int numSamples) {
+    if (!fUsingCenteredSamples && numSamples > 1) {
+        gr_cp<ID3D12GraphicsCommandList1> commandList1;
+        GR_D3D_CALL_ERRCHECK(fCommandList->QueryInterface(IID_PPV_ARGS(&commandList1)));
+        static D3D12_SAMPLE_POSITION kCenteredSampleLocations[16] = {};
+        commandList1->SetSamplePositions(numSamples, 1, kCenteredSampleLocations);
+        fUsingCenteredSamples = true;
+    }
+}
+
+void GrD3DDirectCommandList::setDefaultSamplePositions() {
+    if (fUsingCenteredSamples) {
+        gr_cp<ID3D12GraphicsCommandList1> commandList1;
+        GR_D3D_CALL_ERRCHECK(fCommandList->QueryInterface(IID_PPV_ARGS(&commandList1)));
+        commandList1->SetSamplePositions(0, 0, nullptr);
+        fUsingCenteredSamples = false;
+    }
 }
 
 void GrD3DDirectCommandList::setGraphicsRootSignature(const sk_sp<GrD3DRootSignature>& rootSig) {
