@@ -39,6 +39,7 @@
       'test_64x64.png',
       'test_512x512.png',
       'test_1500x959.jpg',
+      'Roboto-Regular.ttf',
     ];
 
     (function() {
@@ -69,7 +70,7 @@
         if (urlSearchParams.has('webgl1')) {
           glversion = 1;
         }
-        const surface = getSurface(CanvasKit, glversion);
+        let surface = getSurface(CanvasKit, glversion);
         if (!surface) {
           console.error('Could not make surface', window._error);
           return;
@@ -101,7 +102,14 @@
             t.teardown(CanvasKit, ctx);
             window._perfData[t.perfKey] = results;
 
-            // TODO(nifong): provide a function similar to startTimingFrames for timing non-visual tests.
+            // Delete and re-create surface between tests, to prevent the possibility of
+            // interference between them through the state of surface, the gl context, or things
+            // that are keyed by the surface's gen id.
+            surface.delete();
+            surface = getSurface(CanvasKit, glversion);
+
+            // TODO(nifong): provide a function similar to startTimingFrames for timing
+            // non-visual tests.
           }
           surface.delete();
           window._perfDone = true;

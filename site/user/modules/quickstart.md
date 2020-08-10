@@ -343,6 +343,12 @@ Alternatively, we could use multiple `TextStyle`s in one paragraph with
 ``` js
 const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
 builder.addText(text1);
+const boldTextStyle = CanvasKit.TextStyle({
+    color: CanvasKit.BLACK,
+    fontFamilies: ['Roboto'],
+    fontSize: 28,
+    fontStyle: {'weight': CanvasKit.FontWeight.Bold},
+})
 builder.pushStyle(boldTextStyle);
 builder.addText(text2);
 builder.pop();
