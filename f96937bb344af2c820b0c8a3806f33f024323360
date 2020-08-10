@@ -70,6 +70,30 @@
       "revId": "f96937bb344af2c820b0c8a3806f33f024323360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0064a0bd_73afca91",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T15:48:12Z",
+      "side": 1,
+      "message": "Done, we now have SkDonutType 🍩",
+      "parentUuid": "63f3af4b_3ae40cb2",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 2
+      },
+      "revId": "f96937bb344af2c820b0c8a3806f33f024323360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
