@@ -356,7 +356,8 @@ bool HCodeGenerator::generateCode() {
     this->writeMake();
     this->writef("    %s(const %s& src);\n"
                  "    std::unique_ptr<GrFragmentProcessor> clone() const override;\n"
-                 "    const char* name() const override { return \"%s\"; }\n",
+                 "    const char* name() const override { return \"%s\"; }\n"
+                 "    SkString dumpInfo() const override;\n",
                  fFullName.c_str(), fFullName.c_str(), fName.c_str());
     this->writeFields();
     this->writef("private:\n");

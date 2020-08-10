@@ -44,6 +44,7 @@ public:
     GrOverrideInputFragmentProcessor(const GrOverrideInputFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "OverrideInputFragmentProcessor"; }
+    SkString dumpInfo() const override;
     bool useUniform;
     SkPMColor4f uniformColor;
     SkPMColor4f literalColor;
