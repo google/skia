@@ -157,9 +157,10 @@ public:
 
     GrStrikeCache* strikeCache() const final;
 
-    // At this point we know we're flushing so full access to the GrAtlasManager is required (and
-    // permissible).
+    // At this point we know we're flushing so full access to the GrAtlasManager and
+    // GrSmallPathAtlasMgr is required (and permissible).
     GrAtlasManager* atlasManager() const final;
+    GrSmallPathAtlasMgr* smallPathAtlasManager() const final;
 
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* allocator() override { return &fArena; }
