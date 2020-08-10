@@ -180,5 +180,5 @@ void GrD3DRenderTarget::genKey(GrProcessorKeyBuilder* b) const {
         SkASSERT(stencil->numSamples() == this->numSamples());
     }
 #endif
-    b->add32(this->sampleQualityLevel());
+    b->add32(this->sampleQualityPattern());
 }
