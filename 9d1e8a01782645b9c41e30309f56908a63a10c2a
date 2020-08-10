@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ec23f12_6cab02b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T00:41:54Z",
+      "side": 1,
+      "message": "I\u0027m mildly concerned we\u0027re enforcing mechanical speed over readability here, particularly in code outside src/ and include/ that\u0027s not at all important to be fast.  If we end up regretting this, is there a mechanism to let us to convert back to passing by value for certain types we consider to be cheap to pass by value, e.g. SkPixmap?  I see AllowedTypes but that appears to just not convert them away from values, not actually convert to values, right?",
+      "revId": "9d1e8a01782645b9c41e30309f56908a63a10c2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
