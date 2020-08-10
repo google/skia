@@ -9,6 +9,7 @@
 #define GrSmallPathShapeData_DEFINED
 
 #include "src/core/SkOpts.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 
 class GrSmallPathShapeDataKey  {
 public:
