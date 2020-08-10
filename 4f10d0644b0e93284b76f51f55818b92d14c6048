@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "3a326bc5_4320dfcc",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-10T14:21:38Z",
+      "side": 1,
+      "message": "Tests should be as hermetic as is feasible. Sharing this surface between tests could have been a source of interference (though the only type I can imagine is if tests need surfaces of a specific color space)\n\nThe gl context might have also held some kind of state. I don\u0027t know where the glyph cache is, but I want to make sure that\u0027s cleared too.",
+      "parentUuid": "5d4dd218_e2d2c78f",
+      "range": {
+        "startLine": 106,
+        "startChar": 22,
+        "endLine": 106,
+        "endChar": 32
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ac90f41_9bdec9b3",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 2
@@ -62,6 +86,30 @@
       "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3b40caf_4f3074e9",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-10T14:21:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ac90f41_9bdec9b3",
+      "range": {
+        "startLine": 3,
+        "startChar": 25,
+        "endLine": 3,
+        "endChar": 44
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "1b6b451f_e568fea3",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-10T14:21:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43a35e8e_42eaac74",
+      "range": {
+        "startLine": 517,
+        "startChar": 10,
+        "endLine": 517,
+        "endChar": 16
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5cc63787_fa614d4e",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 2
@@ -108,6 +180,30 @@
       "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83857c3a_f2ca03fe",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-10T14:21:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cc63787_fa614d4e",
+      "range": {
+        "startLine": 542,
+        "startChar": 28,
+        "endLine": 542,
+        "endChar": 30
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +230,30 @@
     },
     {
       "key": {
+        "uuid": "d0011b26_0da4d8d1",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-10T14:21:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30449596_d691f95f",
+      "range": {
+        "startLine": 566,
+        "startChar": 32,
+        "endLine": 566,
+        "endChar": 34
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32c611eb_72ed4171",
         "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
         "patchSetId": 2
@@ -154,6 +274,30 @@
       "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baea3162_841d0d48",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-10T14:21:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32c611eb_72ed4171",
+      "range": {
+        "startLine": 568,
+        "startChar": 29,
+        "endLine": 568,
+        "endChar": 32
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
