@@ -34,6 +34,24 @@
       "revId": "fe376a824c42e2a51eb17dc693e26325b011b2d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63c197d8_89aaa960",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-10T13:33:47Z",
+      "side": 1,
+      "message": "Doh, I see now. The code to use the raw SkSL text files assumes the \"standard\" directory layout (out/foo within the skia checkout). The bots don\u0027t do that, so the compiler can\u0027t find the files. (The initial landing actually failed for the same reason - not the cached deps), so once I fix this, I may be able to do it in one swoop again. Going to try and fix this all correctly...",
+      "parentUuid": "931c4b4f_2f47ead3",
+      "revId": "fe376a824c42e2a51eb17dc693e26325b011b2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
