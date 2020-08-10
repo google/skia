@@ -37,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "ded1ad00_aacf89d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T02:13:59Z",
+      "side": 1,
+      "message": "I think I might be down on this one too, for needing so much readability and intention babysitting, but also kind of being a really roundabout way to do performance work.  I don\u0027t think I can take any process meant to improve performance that doesn\u0027t involve a profiler too seriously... not every copy matters you know?",
+      "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "315d12a8_87f30e61",
         "filename": "src/core/SkTaskGroup.h",
         "patchSetId": 1
@@ -101,6 +118,23 @@
         "endLine": 812,
         "endChar": 90
       },
+      "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61585d67_dafb3607",
+        "filename": "src/sksl/ir/SkSLSymbolTable.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T02:13:59Z",
+      "side": 1,
+      "message": "This one strikes me as leading us down a local but not global optimum... if we wanted to rewrite this, kind of makes sense to do it as\n\n  SymbolTable(std::shared_ptr\u003cSymbolTable\u003e parent)\n    : fParent(std::move(parent))\n    , fErrorReporter(fParent-\u003efErrorReporter) {}",
       "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
