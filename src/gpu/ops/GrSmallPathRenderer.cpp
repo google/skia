@@ -26,6 +26,7 @@
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/ops/GrSmallPathAtlasMgr.h"
