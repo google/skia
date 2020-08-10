@@ -22,6 +22,30 @@
       "revId": "31954bf23f2435684a9d797a2d99c7cad2122d35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71a6f560_39b3bce8",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-10T01:24:01Z",
+      "side": 0,
+      "message": "I can remove the edit, no problem, but do you think there\u0027s something we can add to make it a little more obvious to a reader that this is a continuation of that thought above? That\u0027s not how I interpreted it at first read, but I\u0027m not sure the best way to make that clearer.",
+      "parentUuid": "3e7e81bc_70d45a00",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 11
+      },
+      "revId": "31954bf23f2435684a9d797a2d99c7cad2122d35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
