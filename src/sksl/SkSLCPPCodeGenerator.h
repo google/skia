@@ -67,6 +67,8 @@ private:
 
     // writes a printf escape that will be filled in at runtime by the given C++ expression string
     void writeRuntimeValue(const Type& type, const Layout& layout, const String& cppCode);
+    String formatRuntimeValue(const Type& type, const Layout& layout, const String& cppCode,
+                              std::vector<String>* formatArgs);
 
     void writeVarInitializer(const Variable& var, const Expression& value) override;
 
@@ -87,6 +89,8 @@ private:
     void writeOnTextureSampler();
 
     void writeClone();
+
+    void writeDumpInfo();
 
     void writeTest();
 

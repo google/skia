@@ -28,6 +28,7 @@ public:
     GrAlphaThresholdFragmentProcessor(const GrAlphaThresholdFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AlphaThresholdFragmentProcessor"; }
+    SkString dumpInfo() const override;
     float innerThreshold;
     float outerThreshold;
 
