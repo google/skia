@@ -37,25 +37,27 @@ enum {
 };
 
 /** This allows parent FPs to implement a test create with known leaf children in order to avoid
-creating an unbounded FP tree which may overflow various shader limits. */
+ *  creating an unbounded FP tree which may overflow various shader limits.
+ *  MakeOptionalChildFP is the same as MakeChildFP, but can return null.
+ */
 std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
+std::unique_ptr<GrFragmentProcessor> MakeOptionalChildFP(GrProcessorTestData*);
 
 }  // namespace GrProcessorUnitTest
 
-/*
- * GrProcessorTestData is an argument struct to TestCreate functions
- * fTextures are valid textures that can optionally be used to construct
- * TextureSampler. The first texture has a RGBA8 format and the second has Alpha8 format for the
- * specific backend API. TestCreate functions are also free to create additional textures using
- * the GrContext.
+/** GrProcessorTestData is an argument struct to TestCreate functions
+ *  fTextures are valid textures that can optionally be used to construct
+ *  TextureSampler. The first texture has a RGBA8 format and the second has Alpha8 format for the
+ *  specific backend API. TestCreate functions are also free to create additional textures using
+ *  the GrContext.
  */
 class GrProcessorTestData {
 public:
     using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
 
-    GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+    GrProcessorTestData(SkRandom* random, GrRecordingContext* context, int maxTreeDepth,
                         int numViews, const ViewInfo views[]);
-    GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+    GrProcessorTestData(SkRandom* random, GrRecordingContext* context, int maxTreeDepth,
                         int numViews, const ViewInfo views[],
                         std::unique_ptr<GrFragmentProcessor> inputFP);
     GrProcessorTestData(const GrProcessorTestData&) = delete;
@@ -71,6 +73,8 @@ public:
     ViewInfo randomAlphaOnlyView();
 
     SkRandom* fRandom;
+    int fCurrentTreeDepth = 0;
+    int fMaxTreeDepth = 1;
 
 private:
     GrRecordingContext* fContext;
