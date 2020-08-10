@@ -83,6 +83,29 @@
     },
     {
       "key": {
+        "uuid": "598733c4_289e5cdf",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T21:13:37Z",
+      "side": 1,
+      "message": "while we\u0027re in here, could convert from \u003cT\u003e::value to _v\u003cT\u003e.",
+      "range": {
+        "startLine": 205,
+        "startChar": 25,
+        "endLine": 205,
+        "endChar": 61
+      },
+      "revId": "11bc13df9f89393270df1e88545a27fae10c9f90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb263ec7_84205f24",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 4
@@ -118,6 +141,30 @@
       "side": 1,
       "message": "Yeah, no reason to keep doing this in two passes. I thought about changing it, but didn\u0027t want to add to the churn. I can certainly go back and do it later, though.",
       "parentUuid": "fb263ec7_84205f24",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 183,
+        "endChar": 41
+      },
+      "revId": "11bc13df9f89393270df1e88545a27fae10c9f90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4271686e_4789878e",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T21:13:37Z",
+      "side": 1,
+      "message": "+1 for doing this (in another change).",
+      "parentUuid": "7f8ab355_797669c2",
       "range": {
         "startLine": 181,
         "startChar": 0,
