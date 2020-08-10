@@ -16,6 +16,7 @@
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/mock/GrMockGpu.h"
+#include "src/gpu/ops/GrSmallPathAtlasMgr.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #ifdef SK_METAL
@@ -111,6 +112,11 @@ bool GrDirectContext::init() {
     this->priv().addOnFlushCallbackObject(fAtlasManager.get());
 
     return true;
+}
+
+GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
+    // The small path renderer atlas will be created here
+    return nullptr;
 }
 
 #ifdef SK_GL
