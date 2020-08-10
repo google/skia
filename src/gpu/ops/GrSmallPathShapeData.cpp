@@ -9,7 +9,7 @@
 
 #include "src/gpu/geometry/GrStyledShape.h"
 
-void GrSmallPathShapeDataKey::set(const GrStyledShape& shape, uint32_t dim) {
+GrSmallPathShapeDataKey::GrSmallPathShapeDataKey(const GrStyledShape& shape, uint32_t dim) {
     // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
     // relevant styling information.
     SkASSERT(shape.style().isSimpleFill());
@@ -20,7 +20,7 @@ void GrSmallPathShapeDataKey::set(const GrStyledShape& shape, uint32_t dim) {
     shape.writeUnstyledKey(&fKey[1]);
 }
 
-void GrSmallPathShapeDataKey::set(const GrStyledShape& shape, const SkMatrix& ctm) {
+GrSmallPathShapeDataKey::GrSmallPathShapeDataKey(const GrStyledShape& shape, const SkMatrix& ctm) {
     // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
     // relevant styling information.
     SkASSERT(shape.style().isSimpleFill());
