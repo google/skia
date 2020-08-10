@@ -59,6 +59,9 @@ public:
     GrColorMatrixFragmentProcessor(const GrColorMatrixFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ColorMatrixFragmentProcessor"; }
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
     SkM44 m;
     SkV4 v;
     bool unpremulInput;

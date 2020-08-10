@@ -30,6 +30,9 @@ public:
     GrTiledGradientEffect(const GrTiledGradientEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "TiledGradientEffect"; }
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
     bool mirror;
     bool makePremul;
     bool colorsAreOpaque;
