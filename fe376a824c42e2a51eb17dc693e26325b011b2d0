@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "923e3334_984352a1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T12:40:18Z",
+      "side": 1,
+      "message": "Seems like a good plan to me, any idea what\u0027s up with the house-keeper bot?",
+      "revId": "fe376a824c42e2a51eb17dc693e26325b011b2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
