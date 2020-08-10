@@ -16,6 +16,144 @@
       "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d4dd218_e2d2c78f",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-10T11:45:28Z",
+      "side": 1,
+      "message": "It is not clear to me why this is needed. Please add documentation explaining what is going on here and why it is necessary.",
+      "range": {
+        "startLine": 106,
+        "startChar": 22,
+        "endLine": 106,
+        "endChar": 32
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ac90f41_9bdec9b3",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-10T11:45:28Z",
+      "side": 1,
+      "message": "Mention that benchmark.js takes care of this.",
+      "range": {
+        "startLine": 3,
+        "startChar": 25,
+        "endLine": 3,
+        "endChar": 44
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43a35e8e_42eaac74",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-10T11:45:28Z",
+      "side": 1,
+      "message": "In the fifth variant...",
+      "range": {
+        "startLine": 517,
+        "startChar": 10,
+        "endLine": 517,
+        "endChar": 16
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cc63787_fa614d4e",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-10T11:45:28Z",
+      "side": 1,
+      "message": "nit: \u003d\u003d\u003d here and below",
+      "range": {
+        "startLine": 542,
+        "startChar": 28,
+        "endLine": 542,
+        "endChar": 30
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30449596_d691f95f",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-10T11:45:28Z",
+      "side": 1,
+      "message": "should this be a named constant?",
+      "range": {
+        "startLine": 566,
+        "startChar": 32,
+        "endLine": 566,
+        "endChar": 34
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32c611eb_72ed4171",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-10T11:45:28Z",
+      "side": 1,
+      "message": "named constant?",
+      "range": {
+        "startLine": 568,
+        "startChar": 29,
+        "endLine": 568,
+        "endChar": 32
+      },
+      "revId": "4f10d0644b0e93284b76f51f55818b92d14c6048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
