@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f5ef4e8_c916638e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-10T14:42:53Z",
+      "side": 1,
+      "message": "OK, I\u0027ve made more improvements. At this point, I\u0027ve tried to diagram the actual dataflow of the sksl build process, because I kept tripping over new problems: https://docs.google.com/presentation/d/1fnoGW3IkhoNEo26aQCJWrnsl5rY8nZy9c7QRuOQY1-A/edit?usp\u003dsharing\n\nI think this version works regardless of where the output directory is, correctly communicates *all* dependencies to GN, and has no cyclic dependencies.\n\nThe basic flow is:\n\n1) The SkSL sources are used to compile skslc.exe in \"skslc_dir\" (some output directory)\n2) :create_sksl_fp just concatenates sksl_fp_raw.sksl and GrSharedEnums.h to create \"skslc_dir/sksl_fp.sksl\"\n3) :sksl_pre_includes copies all other sksl_*.sksl files to \"skslc_dir\"\n*) At this point, we have all the things we need to run skslc. It\u0027s built to always use the textual pre-includes, and to load them from the working directory (which we\u0027ve achieved by copying/generating those there in #2 and #3)\n4) .fp files can be converted to .cpp and .h now, by running skslc, this is basically unchanged from before, except that this invocation of skslc (like all others) uses the textual pre-includes\n5) The dehydrate step now runs skslc (which is inherently loading the \"skslc_dir\" copies of the pre-includes) to *also* convert those files to the dehydrated versions. This is reading files from an output directory, and generating them back into the source dir.\n6) Now, we build all the SkSL sources again, without SKSL_STANDALONE, so the copy that\u0027s linked into skia uses the embedded dehydrated binaries.",
+      "revId": "4fa23c21ec0547367b8483d68a383defc1944e0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
