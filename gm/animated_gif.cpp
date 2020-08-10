@@ -18,6 +18,7 @@
 #include "include/core/SkTypes.h"
 #include "include/utils/SkAnimCodecPlayer.h"
 #include "src/core/SkOSFile.h"
+#include "src/ports/SkCGCodec.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
@@ -28,6 +29,7 @@
 #include <vector>
 
 static DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
+static DEFINE_bool(cgcodec, false, "Use CG to decode animatedGif");
 
 class AnimatedGifGM : public skiagm::GM {
 private:
@@ -45,7 +47,8 @@ private:
         }
         SkBitmap& bm = fFrames[frameIndex];
         if (!bm.getPixels()) {
-            const SkImageInfo info = fCodec->getInfo().makeColorType(kN32_SkColorType);
+            const SkImageInfo info = fCodec->getInfo().makeColorType(kN32_SkColorType)
+                                                      .makeAlphaType(kPremul_SkAlphaType);
             bm.allocPixels(info);
 
             SkCodec::Options opts;
@@ -104,13 +107,19 @@ private:
             return false;
         }
 
-        std::unique_ptr<SkStream> stream(GetResourceAsStream(FLAGS_animatedGif[0]));
-        if (!stream) {
+        auto data = GetResourceAsData(FLAGS_animatedGif[0]);
+        if (!data) {
+            SkDebugf("Could not find %s\n", FLAGS_animatedGif[0]);
             return false;
         }
 
-        fCodec = SkCodec::MakeFromStream(std::move(stream));
+        if (FLAGS_cgcodec) {
+            fCodec = SkCGCodec::MakeFromEncoded(std::move(data));
+        } else {
+            fCodec = SkCodec::MakeFromData(std::move(data));
+        }
         if (!fCodec) {
+            SkDebugf("Could not create codec from %s\n", FLAGS_animatedGif[0]);
             return false;
         }
 

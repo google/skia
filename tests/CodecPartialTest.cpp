@@ -13,6 +13,9 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#include "src/ports/SkCGCodec.h"
+#endif
 #include "tests/CodecPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
@@ -350,6 +353,54 @@ DEF_TEST(Codec_partialAnim, r) {
         }
     }
 }
+
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+DEF_TEST(CGCodec_partial, r) {
+    auto path = "images/test640x479.gif";
+    sk_sp<SkData> file = GetResourceAsData(path);
+    if (!file) {
+        return;
+    }
+
+    // CGCodec only contains complete frames.
+    auto decodeAllFrames = [r](SkCodec* c) {
+        SkBitmap bm;
+        bm.allocPixels(c->getInfo().makeAlphaType(kPremul_SkAlphaType));
+
+        SkCodec::Options options;
+        for (int i = 0; i < c->getFrameCount(); i++) {
+            options.fFrameIndex = i;
+            REPORTER_ASSERT(r, c->getPixels(bm.pixmap(), &options) == SkCodec::kSuccess);
+        }
+    };
+
+    // frameByteCounts stores the number of bytes to decode a particular frame.
+    // - [0] is the number of bytes for the header
+    // - frames[i] requires frameByteCounts[i+1] bytes to decode
+    const std::vector<size_t> frameByteCounts = { 455, 69350, 1344, 1346, 1327 };
+
+    size_t totalBytes = frameByteCounts[0];
+    for (size_t i = 1; i < frameByteCounts.size(); i++) {
+        size_t bytes = totalBytes + frameByteCounts[i] - 1;
+        auto partialData = SkData::MakeWithoutCopy(file->data(), bytes);
+        auto codec = SkCGCodec::MakeFromEncoded(std::move(partialData));
+        if (i == 1) {
+            REPORTER_ASSERT(r, !codec);
+        } else {
+            REPORTER_ASSERT(r, codec);
+            REPORTER_ASSERT(r, codec->getFrameCount() == (int) i - 1);
+            decodeAllFrames(codec.get());
+        }
+
+        totalBytes += frameByteCounts[i];
+        partialData = SkData::MakeWithoutCopy(file->data(), totalBytes);
+        codec = SkCGCodec::MakeFromEncoded(std::move(partialData));
+        REPORTER_ASSERT(r, codec);
+        REPORTER_ASSERT(r, codec->getFrameCount() == (int) i);
+        decodeAllFrames(codec.get());
+    }
+}
+#endif
 
 // Test that calling getPixels when an incremental decode has been
 // started (but not finished) makes the next call to incrementalDecode

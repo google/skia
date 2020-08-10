@@ -18,6 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkAnimCodecPlayer.h"
+#include "src/ports/SkCGCodec.h"
 #include "tests/CodecPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -67,7 +68,9 @@ static bool restore_previous(const SkCodec::FrameInfo& info) {
     return info.fDisposalMethod == SkCodecAnimation::DisposalMethod::kRestorePrevious;
 }
 
-DEF_TEST(Codec_frames, r) {
+using CodecFactory = std::unique_ptr<SkCodec>(sk_sp<SkData>);
+
+static void test_frames(CodecFactory factory, skiatest::Reporter* r, bool with_core_graphics) {
     constexpr int kNoFrame = SkCodec::kNoFrame;
     constexpr SkAlphaType kOpaque = kOpaque_SkAlphaType;
     constexpr SkAlphaType kUnpremul = kUnpremul_SkAlphaType;
@@ -86,22 +89,40 @@ DEF_TEST(Codec_frames, r) {
         std::vector<int>                              fRequiredFrames;
         // Same, since the first frame should match getInfo
         std::vector<SkAlphaType>                      fAlphas;
+        // Sometimes CG treats alpha differently from SkCodec. For GIF, CG treats the existence of
+        // a transparent index as having alpha, even if the frame will not have alpha when blended
+        // with the prior frame. If there is no transparent index, CG treats the frame as opaque,
+        // even if it blends with a prior frame that had transparency. In that case, it will fill
+        // the transparent space with opaque black.
+        std::vector<SkAlphaType>                      fCGAlphas;
         // The size of this one should match fFrameCount for animated, empty
         // otherwise.
         std::vector<int>                              fDurations;
         int                                           fRepetitionCount;
         std::vector<SkCodecAnimation::DisposalMethod> fDisposalMethods;
+
+        SkAlphaType expectedAlpha(bool with_core_graphics, int i) const {
+            SkASSERT(i > 0);
+
+            // fCGAlphas is empty if CG treats alpha the same.
+            if (with_core_graphics && fCGAlphas.size() > 0) {
+                return fCGAlphas[i-1];
+            }
+            return fAlphas[i-1];
+        }
     } gRecs[] = {
         { "images/required.gif", 7,
             { 0, 1, 2, 3, 4, 5 },
             { kOpaque, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
+            { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
             { 100, 100, 100, 100, 100, 100, 100 },
-            0,
+            7,
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
         { "images/alphabetAnim.gif", 13,
             { kNoFrame, 0, 0, 0, 0, 5, 6, kNoFrame, kNoFrame, 9, 10, 11 },
             { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
               kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
+            {},
             { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
             0,
             { kKeep, kRestorePrev, kRestorePrev, kRestorePrev, kRestorePrev,
@@ -112,6 +133,7 @@ DEF_TEST(Codec_frames, r) {
             { 0, 0, 1 },
             // alphas
             { kOpaque, kOpaque, kOpaque },
+            { kUnpremul, kOpaque, kOpaque },
             // durations
             { 0, 1000, 170, 40 },
             // repetition count
@@ -122,6 +144,8 @@ DEF_TEST(Codec_frames, r) {
             { 0, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
             { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
               kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
+            { kUnpremul, kUnpremul, kOpaque, kUnpremul, kUnpremul, kOpaque,
+              kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kUnpremul },
             // durations
             { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
             // repetition count
@@ -129,43 +153,55 @@ DEF_TEST(Codec_frames, r) {
             { kKeep, kKeep, kKeep, kKeep, kRestoreBG, kRestoreBG, kRestoreBG,
               kRestoreBG, kRestorePrev, kRestoreBG, kRestorePrev, kRestorePrev,
               kRestorePrev,  } },
-        { "images/box.gif", 1, {}, {}, {}, 0, { kKeep } },
-        { "images/color_wheel.gif", 1, {}, {}, {}, 0, { kKeep } },
+        { "images/box.gif", 1, {}, {}, {}, {}, 0, { kKeep } },
+        { "images/color_wheel.gif", 1, {}, {}, {}, {}, 0, { kKeep } },
         { "images/test640x479.gif", 4, { 0, 1, 2 },
                 { kOpaque, kOpaque, kOpaque },
+                { kUnpremul, kUnpremul, kUnpremul },
                 { 200, 200, 200, 200 },
                 SkCodec::kRepetitionCountInfinite,
                 { kKeep, kKeep, kKeep, kKeep } },
-        { "images/colorTables.gif", 2, { 0 }, { kOpaque }, { 1000, 1000 }, 5,
+        { "images/colorTables.gif", 2, { 0 }, { kOpaque }, { kUnpremul }, { 1000, 1000 }, 5,
                 { kKeep, kKeep } },
 
-        { "images/arrow.png",  1, {}, {}, {}, 0, {} },
-        { "images/google_chrome.ico", 1, {}, {}, {}, 0, {} },
-        { "images/brickwork-texture.jpg", 1, {}, {}, {}, 0, {} },
+        { "images/arrow.png",  1, {}, {}, {}, {}, 0, {} },
+        { "images/google_chrome.ico", 1, {}, {}, {}, {}, 0, {} },
+        { "images/brickwork-texture.jpg", 1, {}, {}, {}, {}, 0, {} },
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-        { "images/dng_with_preview.dng", 1, {}, {}, {}, 0, {} },
+        { "images/dng_with_preview.dng", 1, {}, {}, {}, {}, 0, {} },
 #endif
-        { "images/mandrill.wbmp", 1, {}, {}, {}, 0, {} },
-        { "images/randPixels.bmp", 1, {}, {}, {}, 0, {} },
-        { "images/yellow_rose.webp", 1, {}, {}, {}, 0, {} },
-        { "images/webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque },
+        { "images/mandrill.wbmp", 1, {}, {}, {}, {}, 0, {} },
+        { "images/randPixels.bmp", 1, {}, {}, {}, {}, 0, {} },
+        { "images/yellow_rose.webp", 1, {}, {}, {}, {}, 0, {} },
+        { "images/webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque }, {},
             { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite,
             { kKeep, kKeep, kKeep } },
         { "images/blendBG.webp", 7,
             { 0, kNoFrame, kNoFrame, kNoFrame, 4, 4 },
-            { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
+            { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul }, {},
             { 525, 500, 525, 437, 609, 729, 444 },
             6,
             { kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep } },
         { "images/required.webp", 7,
             { 0, 1, 1, kNoFrame, 4, 4 },
-            { kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kOpaque },
+            { kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kOpaque }, {},
             { 100, 100, 100, 100, 100, 100, 100 },
             0,
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
     };
 
     for (const auto& rec : gRecs) {
+        if (with_core_graphics) {
+            bool skip = false;
+            for (const char* ext : { "webp", "wbmp", "dng" }) {
+                if (SkStrEndsWith(rec.fName, ext)) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip) continue;
+        }
+
         sk_sp<SkData> data(GetResourceAsData(rec.fName));
         if (!data) {
             // Useful error statement, but sometimes people run tests without
@@ -174,7 +210,7 @@ DEF_TEST(Codec_frames, r) {
             continue;
         }
 
-        std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
+        auto codec = factory(data);
         if (!codec) {
             ERRORF(r, "Failed to create an SkCodec from '%s'", rec.fName);
             continue;
@@ -226,7 +262,7 @@ DEF_TEST(Codec_frames, r) {
 
         for (auto mode : { TestMode::kVector, TestMode::kIndividual }) {
             // Re-create the codec to reset state and test parsing.
-            codec = SkCodec::MakeFromData(data);
+            codec = factory(data);
 
             int frameCount;
             std::vector<SkCodec::FrameInfo> frameInfos;
@@ -269,33 +305,28 @@ DEF_TEST(Codec_frames, r) {
                            rec.fName, i, rec.fDurations[i], frameInfo.fDuration);
                 }
 
-                auto to_string = [](SkAlphaType alpha) {
-                    switch (alpha) {
-                        case kUnpremul_SkAlphaType:
-                            return "unpremul";
-                        case kOpaque_SkAlphaType:
-                            return "opaque";
-                        default:
-                            SkASSERT(false);
-                            return "unknown";
-                    }
-                };
-
-                auto expectedAlpha = 0 == i ? codec->getInfo().alphaType() : rec.fAlphas[i-1];
+                auto expectedAlpha = 0 == i ? codec->getInfo().alphaType()
+                                            : rec.expectedAlpha(with_core_graphics, i);
                 auto alpha = frameInfo.fAlphaType;
                 if (expectedAlpha != alpha) {
                     ERRORF(r, "%s's frame %i has wrong alpha type! expected: %s\tactual: %s",
-                           rec.fName, i, to_string(expectedAlpha), to_string(alpha));
+                           rec.fName, i, ToolUtils::alphatype_name(expectedAlpha),
+                           ToolUtils::alphatype_name(alpha));
                 }
 
-                if (0 == i) {
-                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNoFrame);
-                } else if (rec.fRequiredFrames[i-1] != frameInfo.fRequiredFrame) {
-                    ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
-                           rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
-                }
+                if (with_core_graphics) {
+                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame  == kNoFrame);
+                    REPORTER_ASSERT(r, frameInfo.fDisposalMethod == kRestorePrev);
+                } else {
+                    if (0 == i) {
+                        REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNoFrame);
+                    } else if (rec.fRequiredFrames[i-1] != frameInfo.fRequiredFrame) {
+                        ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
+                               rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
+                    }
 
-                REPORTER_ASSERT(r, frameInfo.fDisposalMethod == rec.fDisposalMethods[i]);
+                    REPORTER_ASSERT(r, frameInfo.fDisposalMethod == rec.fDisposalMethods[i]);
+                }
             }
 
             if (TestMode::kIndividual == mode) {
@@ -314,10 +345,16 @@ DEF_TEST(Codec_frames, r) {
             const auto info = codec->getInfo().makeColorType(kN32_SkColorType);
 
             auto decode = [&](SkBitmap* bm, int index, int cachedIndex) {
-                auto decodeInfo = info;
-                if (index > 0) {
-                    decodeInfo = info.makeAlphaType(frameInfos[index].fAlphaType);
-                }
+                // FIXME: Old code said:
+#if 0
+-                auto decodeInfo = info;
+-                if (index > 0) {
+-                    decodeInfo = info.makeAlphaType(frameInfos[index].fAlphaType);
+-                }
+#endif
+                // It seems weird that CG recommends unpremul for now...
+                // For now, we'll just always do kPremul. Will need to figure this out, though.
+                auto decodeInfo = info.makeAlphaType(kPremul_SkAlphaType);
                 bm->allocPixels(decodeInfo);
                 if (cachedIndex != SkCodec::kNoFrame) {
                     // First copy the pixels from the cached frame
@@ -340,7 +377,8 @@ DEF_TEST(Codec_frames, r) {
                 }
                 if (result != SkCodec::kSuccess) {
                     ERRORF(r, "Failed to decode frame %i from %s when providing prior frame %i, "
-                              "error %i", index, rec.fName, cachedIndex, result);
+                              "error %s", index, rec.fName, cachedIndex,
+                               SkCodec::ResultToString(result));
                 }
                 return result == SkCodec::kSuccess;
             };
@@ -388,6 +426,18 @@ DEF_TEST(Codec_frames, r) {
         }
     }
 }
+
+DEF_TEST(Codec_frames, r) {
+    // MakeFromData has an optional parameter so use a lambda to match CodecFactory.
+    auto factory = [](sk_sp<SkData> data) { return SkCodec::MakeFromData(std::move(data)); };
+    test_frames(factory, r, false);
+}
+
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+DEF_TEST(Codec_frames_core_graphics, r) {
+    test_frames(SkCGCodec::MakeFromEncoded, r, true);
+}
+#endif
 
 // Verify that a webp image can be animated scaled down. This image has a
 // kRestoreBG frame, so it is an interesting image to test. After decoding that

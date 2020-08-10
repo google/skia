@@ -19,7 +19,10 @@ public:
      */
     static std::unique_ptr<SkImageGenerator> MakeFromEncodedCodec(sk_sp<SkData>);
 
-    static std::unique_ptr<SkImageGenerator> MakeFromCodec(std::unique_ptr<SkCodec>);
+    // The SkData is used in onRefEncodedData. It is expected to be the same used to
+    // create the SkCodec.
+    static std::unique_ptr<SkImageGenerator> MakeFromCodec(std::unique_ptr<SkCodec>,
+            sk_sp<SkData> = nullptr);
 
     /**
      * Return a size that approximately supports the desired scale factor. The codec may not be able
@@ -107,9 +110,6 @@ protected:
                           void* planes[]) override;
 
 private:
-    /*
-     * Takes ownership of codec
-     */
     SkCodecImageGenerator(std::unique_ptr<SkCodec>, sk_sp<SkData>);
 
     std::unique_ptr<SkCodec> fCodec;

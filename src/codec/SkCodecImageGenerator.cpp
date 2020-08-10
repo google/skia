@@ -11,18 +11,14 @@
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
     auto codec = SkCodec::MakeFromData(data);
-    if (nullptr == codec) {
-        return nullptr;
-    }
-
-    return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), data));
+    return MakeFromCodec(std::move(codec), std::move(data));
 }
 
 std::unique_ptr<SkImageGenerator>
-SkCodecImageGenerator::MakeFromCodec(std::unique_ptr<SkCodec> codec) {
-    return codec
-        ? std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), nullptr))
-        : nullptr;
+SkCodecImageGenerator::MakeFromCodec(std::unique_ptr<SkCodec> codec, sk_sp<SkData> data) {
+    return codec ? std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec),
+                                                                               std::move(data)))
+                 : nullptr;
 }
 
 static SkImageInfo adjust_info(SkCodec* codec) {
