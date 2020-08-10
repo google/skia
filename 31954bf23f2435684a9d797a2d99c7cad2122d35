@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e7e81bc_70d45a00",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T01:05:48Z",
+      "side": 0,
+      "message": "I think this was meant to be a continuation of the thought above where we mention an enum name is usually plural for a bitfield.  The replacement on the right reads oddly to me, as if it were the first time we mentioned bitfields.",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 11
+      },
+      "revId": "31954bf23f2435684a9d797a2d99c7cad2122d35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

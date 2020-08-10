@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "255e98c5_3abd6421",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T01:05:48Z",
+      "side": 1,
+      "message": "I\u0027m not sure I\u0027d mention static, given that we\u0027re not explaining why, and further that I think this example is confused-to-misleading.\n\nWe usually use static to indicate a function or value is scoped to the file, the opposite of extern, and I like to continue to use it for readability even in situations where it\u0027s implied by constexpr for continuity with the team\u0027s pre-constexpr style and existing code.\n\nBut static inside a function causes function-scoping, not file scoping, and it\u0027s usually a sign we\u0027re doing something that requires one-time thread-safe initialization.  To bring it up here combined with constexpr I think muddies the water more than it clarifies anything.\n\nOn the other hand, these constants would lgtm if they weren\u0027t in a function.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 10
+      },
+      "revId": "44fbede76c13f6854a3800bfe8b6962943773955",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a92e4448_9286c362",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T01:05:48Z",
+      "side": 1,
+      "message": "If we really believe that one approach is usually preferred, I\u0027d prefer we demonstrate the version that\u0027s usually preferred and not the version that\u0027s not usually preferred.  I don\u0027t really care, but if you think there\u0027s a better style, let\u0027s not show off the second best way to write things.",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 4
+      },
+      "revId": "44fbede76c13f6854a3800bfe8b6962943773955",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
