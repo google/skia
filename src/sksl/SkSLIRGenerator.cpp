@@ -313,6 +313,12 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             fErrors.error(decls.fOffset, "'key' is only permitted within fragment processors");
         }
     }
+    if (fKind == Program::kPipelineStage_Kind) {
+        if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
+            baseType->nonnullable() != *fContext.fFragmentProcessor_Type) {
+            fErrors.error(decls.fOffset, "'in' variables not permitted in runtime effects");
+        }
+    }
     if (modifiers.fLayout.fKey && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
         fErrors.error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
     }
