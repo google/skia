@@ -1,0 +1,255 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9df3dee1_bc248d64",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "Remove this assert bc we handle the !dContext case below ?",
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bb01fa0_ef09e7f5",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "re-wrap ?",
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dbf3770_fe227c76",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "re-wrap ?",
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d37899a_4dff71e6",
+        "filename": "src/gpu/GrSurfaceContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "dContext ?",
+      "range": {
+        "startLine": 78,
+        "startChar": 14,
+        "endLine": 78,
+        "endChar": 29
+      },
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c727fc8e_cb0f0657",
+        "filename": "src/gpu/GrSurfaceContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 115,
+        "startChar": 14,
+        "endLine": 115,
+        "endChar": 29
+      },
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ef4b780_21851fe0",
+        "filename": "src/gpu/GrSurfaceContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "\\n ?",
+      "range": {
+        "startLine": 209,
+        "startChar": 42,
+        "endLine": 209,
+        "endChar": 43
+      },
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cfcd09a_9d809182",
+        "filename": "src/gpu/GrSurfaceContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "It would be nice to know what kind of rect this is. I assume it is rectToBeRead.",
+      "range": {
+        "startLine": 209,
+        "startChar": 57,
+        "endLine": 209,
+        "endChar": 58
+      },
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecafab7e_b916316a",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "Can this mv up a line ?",
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22bac0ae_70d42472",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "Earlier you had a guard after this",
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a92f0467_13d4121a",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "Here too",
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba7287b7_ea718efa",
+        "filename": "tests/FloatingPointTextureTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "re-wrap ?",
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "426188b7_f37a6c4b",
+        "filename": "tests/GrPipelineDynamicStateTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "tab this line over ?",
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d40df04_36ad60d9",
+        "filename": "tests/SRGBReadWritePixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T19:13:59Z",
+      "side": 1,
+      "message": "\\n ?",
+      "range": {
+        "startLine": 123,
+        "startChar": 56,
+        "endLine": 123,
+        "endChar": 57
+      },
+      "revId": "e3c881dfb79a9bc9a8ac0048932f9675d78c3617",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
