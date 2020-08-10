@@ -22,6 +22,30 @@
       "revId": "36a84bb661306b01a5659bb14e34b96fa8ce1213",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dcbaa13_7d0cbeb9",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-10T21:17:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb3f563e_136d7423",
+      "range": {
+        "startLine": 52,
+        "startChar": 37,
+        "endLine": 52,
+        "endChar": 55
+      },
+      "revId": "36a84bb661306b01a5659bb14e34b96fa8ce1213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
