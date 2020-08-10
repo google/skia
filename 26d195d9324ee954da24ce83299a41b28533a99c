@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a78e136f_9e57764f",
+        "filename": ".clang-tidy",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T00:48:56Z",
+      "side": 1,
+      "message": "This is just to break things up into digestible CLs right?  These must be among the top types we\u0027d benefit from carefully avoiding copies.",
+      "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "315d12a8_87f30e61",
+        "filename": "src/core/SkTaskGroup.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T00:48:56Z",
+      "side": 1,
+      "message": "I do sort of worry that this sort of mechanical transformation is going to cause readability oddities like this, where the implementation detail that add() uses std::move() internally but batch() does not means these two functions end up munged into artificially distinct interfaces, where we\u0027d really prefer the `fn` parameter to look similar in each case, given that it behaves similar in each case.  The const\u0026 being on one but not the other stands creates a artificial distinction on the API.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 58
+      },
+      "revId": "26d195d9324ee954da24ce83299a41b28533a99c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
