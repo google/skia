@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "0f425f36_65641820",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-10T17:59:15Z",
+      "side": 1,
+      "message": "So like we have a caps that is multisample disable support which essential moving all the samples to center is meant to mimic. So it just seems odd to me for a backend to advertise that it can do that but in reality it can\u0027t and draws something different.\n\nI agree with how multisampling is handled today, whether we check in the cap or down here the end results of what gets drawn will be the same. But it just worries me that a backend doesn\u0027t do what it says it is doing in case down the road someone is actually relying on no-aa being applied, otherwise they would have picked a different algorithm.",
+      "parentUuid": "3509046e_41503eed",
+      "range": {
+        "startLine": 285,
+        "startChar": 8,
+        "endLine": 285,
+        "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd5f224e_c15c58f5",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 7
