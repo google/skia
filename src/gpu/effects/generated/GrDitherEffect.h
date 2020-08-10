@@ -28,6 +28,7 @@ public:
     GrDitherEffect(const GrDitherEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DitherEffect"; }
+    SkString dumpInfo() const override;
     float range;
 
 private:

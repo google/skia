@@ -27,6 +27,7 @@ public:
     GrComposeLerpEffect(const GrComposeLerpEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ComposeLerpEffect"; }
+    SkString dumpInfo() const override;
     float weight;
 
 private:
