@@ -12,7 +12,6 @@
 
 class GrDrawOp;
 class GrRecordingContext;
-class GrSmallPathAtlasMgr;
 class GrStyledShape;
 
 class GrSmallPathRenderer : public GrPathRenderer {
@@ -22,16 +21,12 @@ public:
 
     const char* name() const final { return "Small"; }
 
-    void addToOnFlushCallbacks(GrRecordingContext*);
-
     static std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrRecordingContext*,
                                                           GrPaint&&,
                                                           const GrStyledShape&,
                                                           const SkMatrix& viewMatrix,
-                                                          GrSmallPathAtlasMgr*,
                                                           bool gammaCorrect,
                                                           const GrUserStencilSettings*);
-    struct PathTestStruct;
 
 private:
     class SmallPathOp;
@@ -43,8 +38,6 @@ private:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
-
-    std::unique_ptr<GrSmallPathAtlasMgr> fAtlasMgr;
 
     typedef GrPathRenderer INHERITED;
 };
