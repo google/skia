@@ -1238,6 +1238,35 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\ndef run(*cmd):\n  print('====================================')\n  print(' '.join(cmd))\n  print('====================================')\n  subprocess.call(cmd)\nadb = '/usr/bin/adb.1.0.35'\nrun('uptime')\nrun(adb, 'shell', 'uptime')\nrun(adb, 'shell', 'ps')\nrun(adb, 'logcat', '-d')\n",
+      "/data/local/tmp/",
+      "dm.sh"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "debugging",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@def run(*cmd):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print('====================================')@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print('====================================')@@@",
+      "@@@STEP_LOG_LINE@python.inline@  subprocess.call(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@adb = '/usr/bin/adb.1.0.35'@@@",
+      "@@@STEP_LOG_LINE@python.inline@run('uptime')@@@",
+      "@@@STEP_LOG_LINE@python.inline@run(adb, 'shell', 'uptime')@@@",
+      "@@@STEP_LOG_LINE@python.inline@run(adb, 'shell', 'ps')@@@",
+      "@@@STEP_LOG_LINE@python.inline@run(adb, 'logcat', '-d')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "logcat",
       "-c"
