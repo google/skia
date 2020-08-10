@@ -22,6 +22,30 @@
       "revId": "5d5850a42464f7595687bdbe220720f204017a48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94ee8680_5154f157",
+        "filename": "tools/perf-canvaskit-puppeteer/canvas_perf.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-10T14:54:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb5e2985_261bd7cc",
+      "range": {
+        "startLine": 105,
+        "startChar": 100,
+        "endLine": 105,
+        "endChar": 101
+      },
+      "revId": "5d5850a42464f7595687bdbe220720f204017a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
