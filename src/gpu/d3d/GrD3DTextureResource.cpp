@@ -65,7 +65,7 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
     info->fResourceState = initialState;
     info->fFormat = desc.Format;
     info->fLevelCount = desc.MipLevels;
-    info->fSampleQualityLevel = desc.SampleDesc.Quality;
+    info->fSampleQualityPattern = desc.SampleDesc.Quality;
     info->fProtected = isProtected;
 
     return true;
@@ -87,8 +87,7 @@ std::pair<GrD3DTextureResourceInfo, sk_sp<GrD3DResourceState>> GrD3DTextureResou
     msTextureDesc.MipLevels = 1;
     msTextureDesc.Format = info.fFormat;
     msTextureDesc.SampleDesc.Count = sampleCnt;
-    // quality levels are only supported for tiled resources so ignore for now
-    msTextureDesc.SampleDesc.Quality = GrD3DTextureResource::kDefaultQualityLevel;
+    msTextureDesc.SampleDesc.Quality = DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN;
     msTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // Use default for dxgi format
     msTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 

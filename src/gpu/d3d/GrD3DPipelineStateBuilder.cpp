@@ -473,10 +473,10 @@ static D3D12_PRIMITIVE_TOPOLOGY_TYPE gr_primitive_type_to_d3d(GrPrimitiveType pr
 }
 
 gr_cp<ID3D12PipelineState> create_pipeline_state(
-    GrD3DGpu* gpu, const GrProgramInfo& programInfo, const sk_sp<GrD3DRootSignature>& rootSig,
-    gr_cp<ID3DBlob> vertexShader, gr_cp<ID3DBlob> geometryShader, gr_cp<ID3DBlob> pixelShader,
-    DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthStencilFormat,
-    unsigned int sampleQualityLevel) {
+        GrD3DGpu* gpu, const GrProgramInfo& programInfo, const sk_sp<GrD3DRootSignature>& rootSig,
+        gr_cp<ID3DBlob> vertexShader, gr_cp<ID3DBlob> geometryShader, gr_cp<ID3DBlob> pixelShader,
+        DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthStencilFormat,
+        unsigned int sampleQualityPattern) {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 
     psoDesc.pRootSignature = rootSig->rootSignature();
@@ -519,7 +519,7 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
     psoDesc.DSVFormat = depthStencilFormat;
 
     unsigned int numRasterSamples = programInfo.numRasterSamples();
-    psoDesc.SampleDesc = { numRasterSamples, sampleQualityLevel };
+    psoDesc.SampleDesc = { numRasterSamples, sampleQualityPattern };
 
     // Only used for multi-adapter systems.
     psoDesc.NodeMask = 0;
@@ -644,7 +644,7 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     gr_cp<ID3D12PipelineState> pipelineState = create_pipeline_state(
             fGpu, fProgramInfo, rootSig, std::move(shaders[kVertex_GrShaderType]),
             std::move(shaders[kGeometry_GrShaderType]), std::move(shaders[kFragment_GrShaderType]),
-            rt->dxgiFormat(), rt->stencilDxgiFormat(), rt->sampleQualityLevel());
+            rt->dxgiFormat(), rt->stencilDxgiFormat(), rt->sampleQualityPattern());
 
     return sk_sp<GrD3DPipelineState>(new GrD3DPipelineState(std::move(pipelineState),
                                                             std::move(rootSig),
