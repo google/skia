@@ -46,6 +46,30 @@
       "revId": "31954bf23f2435684a9d797a2d99c7cad2122d35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0771f36_78d5cf8a",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T01:32:03Z",
+      "side": 0,
+      "message": "Probably just delete the line?",
+      "parentUuid": "71a6f560_39b3bce8",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 11
+      },
+      "revId": "31954bf23f2435684a9d797a2d99c7cad2122d35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8c35caa8_4436dc6a",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T01:32:03Z",
+      "side": 1,
+      "message": "Yes, let\u0027s just drop everything mentioning static here.\n\nIt\u0027s harmless to use static constexpr in functions, but it\u0027s sometimes-but-not-always harmless to use static const, and static without either constexpr or const should usually signal klaxons and sound warning bells.  So any example of static and const and constexpr altogether that doesn\u0027t mention those various complexities of function scoping kind of risks introducing more confusion than it helps.\n\nUsing static and constexpr together is the least interesting part of all that, and the least important to have a stance on.",
+      "parentUuid": "08bb57e0_bc8670a3",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 10
+      },
+      "revId": "44fbede76c13f6854a3800bfe8b6962943773955",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a92e4448_9286c362",
         "filename": "site/dev/contrib/style.md",
         "patchSetId": 3
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Maybe this block should just be removed? I\u0027m not sure it\u0027s particularly useful/meaningful guidance anymore. The newly added paragraph about constexpr is really the right guidance; legacy code might use enums for this purpose but that\u0027s not today\u0027s ideal style.",
       "parentUuid": "a92e4448_9286c362",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 4
+      },
+      "revId": "44fbede76c13f6854a3800bfe8b6962943773955",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b43e571a_6fef4ac3",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-10T01:32:03Z",
+      "side": 1,
+      "message": "Yeah, let\u0027s just remove the block.",
+      "parentUuid": "034608f2_b900bbcb",
       "range": {
         "startLine": 146,
         "startChar": 0,
