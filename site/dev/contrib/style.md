@@ -273,15 +273,21 @@ switch (color) {
 }
 ~~~~
 
-Fallthrough from one case to the next is commented unless it is trivial:
+Fallthrough from one case to the next is annotated with `[[fallthrough]]`.
+However, when multiple case statements in a row are used, they do not need the
+`[[fallthrough]]` annotation.
 
 <!--?prettify?-->
 ~~~~
 switch (recipe) {
     ...
+    case kSmallCheesePizza_Recipe:
+    case kLargeCheesePizza_Recipe:
+        ingredients |= kCheese_Ingredient | kDough_Ingredient | kSauce_Ingredient;
+        break;
     case kCheeseOmelette_Recipe:
         ingredients |= kCheese_Ingredient;
-        // fallthrough
+        [[fallthrough]]
     case kPlainOmelette_Recipe:
         ingredients |= (kEgg_Ingredient | kMilk_Ingredient);
         break;
