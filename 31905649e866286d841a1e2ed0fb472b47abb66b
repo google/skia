@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab46f76a_d19d2231",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-08-10T15:10:52Z",
+      "side": 1,
+      "message": "All righty, moved the path construction out of the bench loop. This CL should be good to go",
+      "revId": "31905649e866286d841a1e2ed0fb472b47abb66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
