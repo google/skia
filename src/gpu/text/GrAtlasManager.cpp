@@ -219,7 +219,7 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
   * Write the contents of the surface proxy to a PNG. Returns true if successful.
   * @param filename      Full path to desired file
   */
-static bool save_pixels(GrDirectContext* context, GrSurfaceProxyView view, GrColorType colorType,
+static bool save_pixels(GrDirectContext* dContext, GrSurfaceProxyView view, GrColorType colorType,
                         const char* filename) {
     if (!view.proxy()) {
         return false;
@@ -233,13 +233,13 @@ static bool save_pixels(GrDirectContext* context, GrSurfaceProxyView view, GrCol
         return false;
     }
 
-    auto sContext = GrSurfaceContext::Make(context, std::move(view), colorType,
+    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), colorType,
                                            kUnknown_SkAlphaType, nullptr);
     if (!sContext || !sContext->asTextureProxy()) {
         return false;
     }
 
-    bool result = sContext->readPixels(ii, bm.getPixels(), bm.rowBytes(), {0, 0});
+    bool result = sContext->readPixels(dContext, ii, bm.getPixels(), bm.rowBytes(), {0, 0});
     if (!result) {
         SkDebugf("------ failed to read pixels for %s\n", filename);
         return false;

@@ -21,6 +21,7 @@
 #include "src/gpu/SkGr.h"
 
 void TestReadPixels(skiatest::Reporter* reporter,
+                    GrDirectContext* dContext,
                     GrSurfaceContext* srcContext,
                     uint32_t expectedPixelValues[],
                     const char* testName) {
@@ -30,7 +31,7 @@ void TestReadPixels(skiatest::Reporter* reporter,
 
     SkImageInfo ii = SkImageInfo::Make(srcContext->width(), srcContext->height(),
                                        kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bool read = srcContext->readPixels(ii, pixels.get(), 0, {0, 0});
+    bool read = srcContext->readPixels(dContext, ii, pixels.get(), 0, {0, 0});
     if (!read) {
         ERRORF(reporter, "%s: Error reading from texture.", testName);
     }
@@ -45,6 +46,7 @@ void TestReadPixels(skiatest::Reporter* reporter,
 }
 
 void TestWritePixels(skiatest::Reporter* reporter,
+                     GrDirectContext* dContext,
                      GrSurfaceContext* dstContext,
                      bool expectedToWork,
                      const char* testName) {
@@ -59,7 +61,7 @@ void TestWritePixels(skiatest::Reporter* reporter,
 
     SkImageInfo ii = SkImageInfo::Make(dstContext->width(), dstContext->height(),
                                        kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bool write = dstContext->writePixels(ii, pixels.get(), 0, {0, 0});
+    bool write = dstContext->writePixels(dContext, ii, pixels.get(), 0, {0, 0});
     if (!write) {
         if (expectedToWork) {
             ERRORF(reporter, "%s: Error writing to texture.", testName);
@@ -72,26 +74,26 @@ void TestWritePixels(skiatest::Reporter* reporter,
         return;
     }
 
-    TestReadPixels(reporter, dstContext, pixels.get(), testName);
+    TestReadPixels(reporter, dContext, dstContext, pixels.get(), testName);
 }
 
 void TestCopyFromSurface(skiatest::Reporter* reporter,
-                         GrRecordingContext* rContext,
+                         GrDirectContext* dContext,
                          GrSurfaceProxy* proxy,
                          GrSurfaceOrigin origin,
                          GrColorType colorType,
                          uint32_t expectedPixelValues[],
                          const char* testName) {
-    auto copy = GrSurfaceProxy::Copy(rContext, proxy, origin, GrMipmapped::kNo,
+    auto copy = GrSurfaceProxy::Copy(dContext, proxy, origin, GrMipmapped::kNo,
                                      SkBackingFit::kExact, SkBudgeted::kYes);
     SkASSERT(copy && copy->asTextureProxy());
-    auto swizzle = rContext->priv().caps()->getReadSwizzle(copy->backendFormat(), colorType);
+    auto swizzle = dContext->priv().caps()->getReadSwizzle(copy->backendFormat(), colorType);
     GrSurfaceProxyView view(std::move(copy), origin, swizzle);
-    auto dstContext = GrSurfaceContext::Make(rContext, std::move(view), colorType,
+    auto dstContext = GrSurfaceContext::Make(dContext, std::move(view), colorType,
                                              kPremul_SkAlphaType, nullptr);
     SkASSERT(dstContext);
 
-    TestReadPixels(reporter, dstContext.get(), expectedPixelValues, testName);
+    TestReadPixels(reporter, dContext, dstContext.get(), expectedPixelValues, testName);
 }
 
 void FillPixelData(int width, int height, GrColor* data) {

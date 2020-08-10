@@ -96,7 +96,7 @@ struct Box {
  * produce exact matches.
  */
 
-static void run_test(GrRecordingContext*, const char* testName, skiatest::Reporter*,
+static void run_test(GrDirectContext*, const char* testName, skiatest::Reporter*,
                      const std::unique_ptr<GrRenderTargetContext>&, const SkBitmap& gold,
                      std::function<void(DrawMeshHelper*)> prepareFn,
                      std::function<void(DrawMeshHelper*)> executeFn);
@@ -582,7 +582,7 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
     return fState->opsRenderPass();
 }
 
-static void run_test(GrRecordingContext* rContext, const char* testName,
+static void run_test(GrDirectContext* dContext, const char* testName,
                      skiatest::Reporter* reporter,
                      const std::unique_ptr<GrRenderTargetContext>& rtc, const SkBitmap& gold,
                      std::function<void(DrawMeshHelper*)> prepareFn,
@@ -600,9 +600,9 @@ static void run_test(GrRecordingContext* rContext, const char* testName,
 
     SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
     rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
-    rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(rContext, prepareFn, executeFn));
+    rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(dContext, prepareFn, executeFn));
 
-    rtc->readPixels(gold.info(), resultPx, rowBytes, {0, 0});
+    rtc->readPixels(dContext, gold.info(), resultPx, rowBytes, {0, 0});
 
 #ifdef WRITE_PNG_CONTEXT_TYPE
 #define STRINGIFY(X) #X

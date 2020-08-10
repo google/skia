@@ -126,14 +126,21 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                               SkFilterQuality rescaleQuality,
                                               ReadPixelsCallback callback,
                                               ReadPixelsContext context) {
+    auto dContext = fContext->asDirectContext();
+    if (!dContext) {
+        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
+        callback(context, nullptr);
+        return;
+    }
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
+    auto ctx = GrSurfaceContext::Make(dContext, fView, ct, this->alphaType(),
                                       this->refColorSpace());
     if (!ctx) {
         callback(context, nullptr);
         return;
     }
-    ctx->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+    ctx->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleQuality,
+                                   callback, context);
 }
 
 void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -144,14 +151,21 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
                                                     SkFilterQuality rescaleQuality,
                                                     ReadPixelsCallback callback,
                                                     ReadPixelsContext context) {
+    auto dContext = fContext->asDirectContext();
+    if (!dContext) {
+        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
+        callback(context, nullptr);
+        return;
+    }
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
+    auto ctx = GrSurfaceContext::Make(dContext, fView, ct, this->alphaType(),
                                       this->refColorSpace());
     if (!ctx) {
         callback(context, nullptr);
         return;
     }
-    ctx->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+    ctx->asyncRescaleAndReadPixelsYUV420(dContext,
+                                         yuvColorSpace,
                                          std::move(dstColorSpace),
                                          srcRect,
                                          dstSize,
