@@ -22,6 +22,30 @@
       "revId": "c59e676a0ffb6d18e43b4fc7cf2957990d09a639",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0943852_243d1210",
+        "filename": "src/gpu/ops/GrSmallPathShapeData.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-10T16:08:52Z",
+      "side": 1,
+      "message": "I\u0027ll do that in a follow up CL.",
+      "parentUuid": "b13905cd_69cbe2b2",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 43
+      },
+      "revId": "c59e676a0ffb6d18e43b4fc7cf2957990d09a639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
