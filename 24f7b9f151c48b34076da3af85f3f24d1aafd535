@@ -67,6 +67,144 @@
       "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fb519db_2a0cdac3",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "Comment that Draw has no inner bounds and thus can\u0027t contain anything?",
+      "range": {
+        "startLine": 408,
+        "startChar": 0,
+        "endLine": 410,
+        "endChar": 0
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a1aeb4a_532e3a7a",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "Can this not be \u003d default?",
+      "range": {
+        "startLine": 446,
+        "startChar": 0,
+        "endLine": 457,
+        "endChar": 1
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b61ad7_70a0e810",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "maybe simple to omit this?",
+      "range": {
+        "startLine": 567,
+        "startChar": 15,
+        "endLine": 567,
+        "endChar": 35
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff780b02_c852e55d",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1080,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 1080,
+        "startChar": 9,
+        "endLine": 1080,
+        "endChar": 10
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df709737_fa74f90c",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 1106,
+        "startChar": 9,
+        "endLine": 1106,
+        "endChar": 10
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bec23ec8_535a834f",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "is there any potential efficiency gain in RawElement::Stack for a pop_back_n() method?",
+      "range": {
+        "startLine": 1107,
+        "startChar": 8,
+        "endLine": 1107,
+        "endChar": 29
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

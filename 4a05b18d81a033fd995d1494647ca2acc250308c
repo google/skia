@@ -309,6 +309,155 @@
       "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0aa35f59_31ff1cf2",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "\\n",
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39e486bc_681dafa6",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "SkNoncopyable is an antiquated pattern. Better to just use \u003ddelete for the things you don\u0027t want.",
+      "range": {
+        "startLine": 25,
+        "startChar": 20,
+        "endLine": 25,
+        "endChar": 40
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "804cbe51_60342043",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "Mark the class final instead of each override?",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 18
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2cb9a1b_798e10cc",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "Why private inheritance and then this? Would has-a make more sense?",
+      "range": {
+        "startLine": 105,
+        "startChar": 7,
+        "endLine": 105,
+        "endChar": 59
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f61c6ed4_618c80a1",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 312,
+        "startChar": 10,
+        "endLine": 312,
+        "endChar": 11
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18ed2af6_d90165bf",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "True of a lot of methods in here but just noticing this now. It\u0027s better to put the SkUNREACHABLE after the switch rather than in a default. That way if someone adds to the enum they get a compiler warning for every switch that now needs a new case rather than a runtime problem.",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 26
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "137a29d2_8ef1e1f8",
+        "filename": "src/gpu/geometry/GrShape.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T20:05:10Z",
+      "side": 1,
+      "message": "Probably true for the existing \"contains\" as well, but it seems like we should be a little more clear about what these mean, esp since this class has no \"style\". Maybe \"conservativeContains\" and document that it assumes the shape is filled (particularly relevant for unclosed shapes as we assume they get closed).",
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
