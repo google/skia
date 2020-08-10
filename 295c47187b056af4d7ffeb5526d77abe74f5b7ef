@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55972346_197fd080",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-10T15:06:26Z",
+      "side": 1,
+      "message": "PTAL. Added bsalomon@ for public API review.",
+      "revId": "295c47187b056af4d7ffeb5526d77abe74f5b7ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
