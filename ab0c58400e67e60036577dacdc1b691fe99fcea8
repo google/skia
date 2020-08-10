@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "3509046e_41503eed",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-10T16:58:53Z",
+      "side": 1,
+      "message": "This interface is only available with the Windows 10 Creators Update and beyond, which was released in April 2017. Grabbing an alternate interface is basically how Direct3D handles extensions.",
+      "parentUuid": "9f341365_8d7932ed",
+      "range": {
+        "startLine": 285,
+        "startChar": 8,
+        "endLine": 285,
+        "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd5f224e_c15c58f5",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 7
