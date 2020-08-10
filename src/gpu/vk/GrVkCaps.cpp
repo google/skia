@@ -1713,12 +1713,14 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
     // GrVkPipelineStateBuilder.cpp).
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
+    bool willReadDst = false;  // TODO: get this from GrProgramInfo
+
     if (rt) {
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
 
         bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
         // TODO: support failure in getSimpleRenderPass
-        const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsStencil);
+        const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsStencil, willReadDst);
         SkASSERT(rp);
         rp->genKey(&b);
 
@@ -1731,7 +1733,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
             GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,
                                                                &attachmentsDescriptor,
                                                                &attachmentFlags);
-            SkASSERT(rp->isCompatible(attachmentsDescriptor, attachmentFlags));
+            SkASSERT(rp->isCompatible(attachmentsDescriptor, attachmentFlags, willReadDst));
         }
 #endif
     } else {
@@ -1744,7 +1746,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
         // kExternal_AttachmentFlag is only set for wrapped secondary command buffers - which
         // will always go through the above 'rt' path (i.e., we can always pass 0 as the final
         // parameter to GenKey).
-        GrVkRenderPass::GenKey(&b, attachmentFlags, attachmentsDescriptor, 0);
+        GrVkRenderPass::GenKey(&b, attachmentFlags, attachmentsDescriptor, willReadDst, 0);
     }
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
