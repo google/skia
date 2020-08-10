@@ -937,9 +937,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             fpGenerator.reroll();
             std::unique_ptr<GrFragmentProcessor> fp =
-                    fpGenerator.make(i, /*randomTreeDepth=*/1, /*inputFP=*/nullptr);
+                    fpGenerator.make(i, /*randomTreeDepth=*/3, /*inputFP=*/nullptr);
             std::unique_ptr<GrFragmentProcessor> regen =
-                    fpGenerator.make(i, /*randomTreeDepth=*/1, /*inputFP=*/nullptr);
+                    fpGenerator.make(i, /*randomTreeDepth=*/3, /*inputFP=*/nullptr);
             std::unique_ptr<GrFragmentProcessor> clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
