@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "51212d9e_9ed6ba92",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-10T15:46:46Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me why that\u0027s necessary. If we\u0027re running in MSAA and the SkPaint has antialias \u003d\u003d false and we can\u0027t access the CommandList1 interface, there\u0027s not much else we can do. So the fallback is to do nothing, which is what it does. I could change the name of the method to Request or Hint or something like that.",
+      "parentUuid": "2ca83022_6619ff08",
+      "range": {
+        "startLine": 285,
+        "startChar": 8,
+        "endLine": 285,
+        "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd5f224e_c15c58f5",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 7
