@@ -19,6 +19,46 @@
     },
     {
       "key": {
+        "uuid": "89cd087d_2e00b800",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T14:35:44Z",
+      "side": 1,
+      "message": "lgtm. But should the test also cover the reverse case (where we rely on this-\u003epropagate... line)? I think this means just rerunning the test with a reversal of the AA states on opA..opD.",
+      "revId": "fc48ec8b0b54996b73b7c1ae1ac4e591cf595599",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26bcb3de_e351572b",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-10T14:35:44Z",
+      "side": 1,
+      "message": "It seems like this comment should maybe apply to both propagates? (just suggesting moving up about 1073).",
+      "range": {
+        "startLine": 1074,
+        "startChar": 0,
+        "endLine": 1081,
+        "endChar": 66
+      },
+      "revId": "fc48ec8b0b54996b73b7c1ae1ac4e591cf595599",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6aa6093_4120fd78",
         "filename": "tests/TextureOpTest.cpp",
         "patchSetId": 7
