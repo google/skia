@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc2d099f_ff6a6941",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-10T15:00:20Z",
+      "side": 1,
+      "message": "I added ADATASPACE_SRGB to gColorSpaceTable when I moved it to SkNDKConversions. It\u0027s not necessary, though, based on the current code. SkImageGeneratorNDK is the only code that calls SkNDKConversions::toColorSpace, and AImageDecoder never reports ADATASPACE_SCRGB. (Even if it did, the generator falls back to SRGB anyway.)\n\ntoDataSpace will always return ADATASPACE_SRGB first, since they\u0027re identical, as far as Skia is concerned.\n\nThat said, including it is more complete, and just results in an extra iteration through the loop. So I lean towards having it there but don\u0027t have a strong preference.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 72
+      },
+      "revId": "2b9e416be8cceb6c38098b75de31b72e343478c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

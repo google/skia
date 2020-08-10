@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fd9fc78_6ddc8377",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-10T15:00:20Z",
+      "side": 1,
+      "message": "Initially I had a separate optional target for encoding vs decoding, to give more control. But I couldn\u0027t think of a strong use case of using one but not the other.",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 53
+      },
+      "revId": "b17c7afe9dc55c2b081b07e3c5b3df5ace06c828",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
