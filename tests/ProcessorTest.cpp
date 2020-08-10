@@ -332,19 +332,21 @@ class TestFPGenerator {
             fRandomSeed = random.nextU();
         }
 
-        std::unique_ptr<GrFragmentProcessor> make(int type,
+        std::unique_ptr<GrFragmentProcessor> make(int type, int randomTreeDepth,
                                                   std::unique_ptr<GrFragmentProcessor> inputFP) {
             // This will generate the exact same randomized FP (of each requested type) each time
             // it's called. Call `reroll` to get a different FP.
             SkRandom random{fRandomSeed};
-            GrProcessorTestData testData{&random, fContext, SK_ARRAY_COUNT(fTestViews), fTestViews,
+            GrProcessorTestData testData{&random, fContext, randomTreeDepth,
+                                         SK_ARRAY_COUNT(fTestViews), fTestViews,
                                          std::move(inputFP)};
             return GrFragmentProcessorTestFactory::MakeIdx(type, &testData);
         }
 
-        std::unique_ptr<GrFragmentProcessor> make(int type, GrSurfaceProxyView view,
+        std::unique_ptr<GrFragmentProcessor> make(int type, int randomTreeDepth,
+                                                  GrSurfaceProxyView view,
                                                   SkAlphaType alpha = kPremul_SkAlphaType) {
-            return make(type, GrTextureEffect::Make(view, alpha));
+            return make(type, randomTreeDepth, GrTextureEffect::Make(view, alpha));
         }
 
     private:
@@ -590,7 +592,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         for (int trial = 0;; ++trial) {
             // Create a randomly-configured FP.
             fpGenerator.reroll();
-            std::unique_ptr<GrFragmentProcessor> fp = fpGenerator.make(i, inputTexture1);
+            std::unique_ptr<GrFragmentProcessor> fp =
+                    fpGenerator.make(i, /*randomTreeDepth=*/3, inputTexture1);
 
             // If we have iterated enough times and seen a sufficient number of successes on each
             // optimization bit that can be returned, stop running trials.
@@ -622,8 +625,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 // Create and render two identical versions of this FP, but using different input
                 // textures, to check coverage optimization. We don't need to do this step for
                 // constant-output or preserving-opacity tests.
-                render_fp(context, rtc.get(), fpGenerator.make(i, inputTexture2), readData2.data());
-                render_fp(context, rtc.get(), fpGenerator.make(i, inputTexture3), readData3.data());
+                render_fp(context, rtc.get(),
+                          fpGenerator.make(i, /*randomTreeDepth=*/3, inputTexture2),
+                          readData2.data());
+                render_fp(context, rtc.get(),
+                          fpGenerator.make(i, /*randomTreeDepth=*/3, inputTexture3),
+                          readData3.data());
                 ++optimizedForCoverageAsAlpha;
             }
 
@@ -637,7 +644,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
             // Draw base frame last so that rtc holds the original FP behavior if we need to dump
             // the image to the log.
-            render_fp(context, rtc.get(), fpGenerator.make(i, inputTexture1), readData1.data());
+            render_fp(context, rtc.get(), fpGenerator.make(i, /*randomTreeDepth=*/3, inputTexture1),
+                      readData1.data());
 
             // This test has a history of being flaky on a number of devices. If an FP is logically
             // violating the optimizations, it's reasonable to expect it to violate requirements on
@@ -928,8 +936,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         static constexpr int kTimesToInvokeFactory = 10;
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             fpGenerator.reroll();
-            std::unique_ptr<GrFragmentProcessor> fp = fpGenerator.make(i, /*inputFP=*/nullptr);
-            std::unique_ptr<GrFragmentProcessor> regen = fpGenerator.make(i, /*inputFP=*/nullptr);
+            std::unique_ptr<GrFragmentProcessor> fp =
+                    fpGenerator.make(i, /*randomTreeDepth=*/1, /*inputFP=*/nullptr);
+            std::unique_ptr<GrFragmentProcessor> regen =
+                    fpGenerator.make(i, /*randomTreeDepth=*/1, /*inputFP=*/nullptr);
             std::unique_ptr<GrFragmentProcessor> clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
