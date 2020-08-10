@@ -336,10 +336,10 @@ DEF_SIMPLE_GM(sksl_sample_chaining, canvas, 380, 306) {
             builder.child("child") = shader;
             switch (effectType) {
                 case kUniform:
-                    builder.input("matrix") = SkMatrix::Scale(1.0f, 0.5f);
+                    builder.uniform("matrix") = SkMatrix::Scale(1.0f, 0.5f);
                     break;
                 case kVariable:
-                    builder.input("matrix") = SkMatrix::Translate(8, 0);
+                    builder.uniform("matrix") = SkMatrix::Translate(8, 0);
                     break;
                 default:
                     break;

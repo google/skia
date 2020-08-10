@@ -67,7 +67,6 @@ int main(int argc, const char** argv) {
         exit(2);
     }
     SkSL::Program::Settings settings;
-    settings.fArgs.insert(std::make_pair("gpImplementsDistanceVector", 1));
     SkSL::String name(argv[2]);
     if (name.endsWith(".spirv")) {
         SkSL::FileOutputStream out(argv[2]);

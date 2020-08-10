@@ -70,7 +70,7 @@ public:
 
         SkMatrix localM;
         localM.setRotate(90, 128, 128);
-        builder.input("gColor") = SkColor4f{1, 0, 0, 1};
+        builder.uniform("gColor") = SkColor4f{1, 0, 0, 1};
 
         SkPaint p;
         p.setShader(builder.makeShader(&localM, true));
@@ -155,8 +155,8 @@ public:
     void onDraw(SkCanvas* canvas) override {
         SkRuntimeShaderBuilder builder(fEffect);
 
-        builder.input("cutoff") = sin(fSecs) * 0.55f + 0.5f;
-        builder.input("slope")  = 10.0f;
+        builder.uniform("cutoff") = sin(fSecs) * 0.55f + 0.5f;
+        builder.uniform("slope")  = 10.0f;
 
         builder.child("before_map")    = fBefore;
         builder.child("after_map")     = fAfter;
@@ -204,10 +204,10 @@ public:
     void onDraw(SkCanvas* canvas) override {
         SkRuntimeShaderBuilder builder(fEffect);
 
-        builder.input("rad_scale")  = std::sin(fSecs * 0.5f + 2.0f) / 5;
-        builder.input("in_center")  = SkV2{256, 256};
-        builder.input("in_colors0") = SkV4{1, 0, 0, 1};
-        builder.input("in_colors1") = SkV4{0, 1, 0, 1};
+        builder.uniform("rad_scale")  = std::sin(fSecs * 0.5f + 2.0f) / 5;
+        builder.uniform("in_center")  = SkV2{256, 256};
+        builder.uniform("in_colors0") = SkV4{1, 0, 0, 1};
+        builder.uniform("in_colors1") = SkV4{0, 1, 0, 1};
 
         SkPaint paint;
         paint.setShader(builder.makeShader(nullptr, true));
@@ -267,10 +267,10 @@ public:
         // LUT dimensions should be (kSize^2, kSize)
         constexpr float kSize = 16.0f;
 
-        builder.input("rg_scale")     = (kSize - 1) / kSize;
-        builder.input("rg_bias")      = 0.5f / kSize;
-        builder.input("b_scale")      = kSize - 1;
-        builder.input("inv_size")     = 1.0f / kSize;
+        builder.uniform("rg_scale")     = (kSize - 1) / kSize;
+        builder.uniform("rg_bias")      = 0.5f / kSize;
+        builder.uniform("b_scale")      = kSize - 1;
+        builder.uniform("inv_size")     = 1.0f / kSize;
 
         builder.child("input")        = fMandrill->makeShader();
 
