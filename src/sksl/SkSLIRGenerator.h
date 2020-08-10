@@ -56,8 +56,6 @@ public:
                                              Token::Kind op,
                                              const Expression& right) const;
 
-    std::unique_ptr<Expression> getArg(int offset, String name) const;
-
     Program::Inputs fInputs;
     const Program::Settings* fSettings;
     const Context& fContext;

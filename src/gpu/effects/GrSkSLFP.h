@@ -30,45 +30,14 @@ class SkRuntimeEffect;
 class GrSkSLFP : public GrFragmentProcessor {
 public:
     /**
-     * Creates a new fragment processor from an SkRuntimeEffect and a struct of inputs to the
-     * program. The input struct's type is derived from the 'in' and 'uniform' variables in the SkSL
-     * source, so e.g. the shader:
-     *
-     *    in bool dither;
-     *    uniform float x;
-     *    uniform float y;
-     *    ....
-     *
-     * would expect a pointer to a struct set up like:
-     *
-     * struct {
-     *     bool dither;
-     *     float x;
-     *     float y;
-     * };
-     *
-     * While both 'in' and 'uniform' variables go into this struct, the difference between them is
-     * that 'in' variables are statically "baked in" to the generated code, becoming literals,
-     * whereas uniform variables may be changed from invocation to invocation without having to
-     * recompile the shader.
-     *
-     * As the decision of whether to create a new shader or just upload new uniforms all happens
-     * behind the scenes, the difference between the two from an end-user perspective is primarily
-     * in performance: on the one hand, changing the value of an 'in' variable is very expensive
-     * (requiring the compiler to regenerate the code, upload a new shader to the GPU, and so
-     * forth), but on the other hand the compiler can optimize around its value because it is known
-     * at compile time. 'in' variables are therefore suitable for things like flags, where there are
-     * only a few possible values and a known-in-advance value can cause entire chunks of code to
-     * become dead (think static @ifs), while 'uniform's are used for continuous values like colors
-     * and coordinates, where it would be silly to create a separate shader for each possible set of
-     * values. Other than the (significant) performance implications, the only difference between
-     * the two is that 'in' variables can be used in static @if / @switch tests. When in doubt, use
-     * 'uniform'.
+     * Creates a new fragment processor from an SkRuntimeEffect and a data blob containing values
+     * for all of the 'uniform' variables in the SkSL source. The layout of the uniforms blob is
+     * dictated by the SkRuntimeEffect.
      */
     static std::unique_ptr<GrSkSLFP> Make(GrContext_Base* context,
                                           sk_sp<SkRuntimeEffect> effect,
                                           const char* name,
-                                          sk_sp<SkData> inputs);
+                                          sk_sp<SkData> uniforms);
 
     const char* name() const override;
 
@@ -80,7 +49,7 @@ private:
     using ShaderErrorHandler = GrContextOptions::ShaderErrorHandler;
 
     GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* shaderErrorHandler,
-             sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> inputs);
+             sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> uniforms);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -95,7 +64,7 @@ private:
 
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
-    sk_sp<SkData>          fInputs;
+    sk_sp<SkData>          fUniforms;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

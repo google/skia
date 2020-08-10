@@ -313,6 +313,12 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             fErrors.error(decls.fOffset, "'key' is only permitted within fragment processors");
         }
     }
+    if (fKind == Program::kPipelineStage_Kind) {
+        if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
+            baseType->nonnullable() != *fContext.fFragmentProcessor_Type) {
+            fErrors.error(decls.fOffset, "'in' variables not permitted in runtime effects");
+        }
+    }
     if (modifiers.fLayout.fKey && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
         fErrors.error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
     }
@@ -2929,14 +2935,6 @@ std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
     String fullName = "sk_Caps." + name;
     return std::unique_ptr<Expression>(new Setting(offset, fullName,
                                                    found->second.literal(fContext, offset)));
-}
-
-std::unique_ptr<Expression> IRGenerator::getArg(int offset, String name) const {
-    auto found = fSettings->fArgs.find(name);
-    if (found == fSettings->fArgs.end()) {
-        return nullptr;
-    }
-    return found->second.literal(fContext, offset);
 }
 
 std::unique_ptr<Expression> IRGenerator::findEnumRef(

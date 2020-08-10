@@ -86,10 +86,10 @@ bool SkSLSlide::rebuild() {
         return false;
     }
 
-    size_t oldSize = fEffect ? fEffect->inputSize() : 0;
-    fInputs.realloc(effect->inputSize());
-    if (effect->inputSize() > oldSize) {
-        memset(fInputs.get() + oldSize, 0, effect->inputSize() - oldSize);
+    size_t oldSize = fEffect ? fEffect->uniformSize() : 0;
+    fInputs.realloc(effect->uniformSize());
+    if (effect->uniformSize() > oldSize) {
+        memset(fInputs.get() + oldSize, 0, effect->uniformSize() - oldSize);
     }
     fChildren.resize_back(effect->children().count());
 
@@ -120,19 +120,13 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         return;
     }
 
-    for (const auto& v : fEffect->inputs()) {
+    for (const auto& v : fEffect->uniforms()) {
         switch (v.fType) {
-            case SkRuntimeEffect::Variable::Type::kBool:
-                ImGui::Checkbox(v.fName.c_str(), (bool*)(fInputs.get() + v.fOffset));
-                break;
-            case SkRuntimeEffect::Variable::Type::kInt:
-                ImGui::DragInt(v.fName.c_str(), (int*)(fInputs.get() + v.fOffset));
-                break;
-            case SkRuntimeEffect::Variable::Type::kFloat:
-            case SkRuntimeEffect::Variable::Type::kFloat2:
-            case SkRuntimeEffect::Variable::Type::kFloat3:
-            case SkRuntimeEffect::Variable::Type::kFloat4: {
-                int rows = ((int)v.fType - (int)SkRuntimeEffect::Variable::Type::kFloat) + 1;
+            case SkRuntimeEffect::Uniform::Type::kFloat:
+            case SkRuntimeEffect::Uniform::Type::kFloat2:
+            case SkRuntimeEffect::Uniform::Type::kFloat3:
+            case SkRuntimeEffect::Uniform::Type::kFloat4: {
+                int rows = ((int)v.fType - (int)SkRuntimeEffect::Uniform::Type::kFloat) + 1;
                 float* f = (float*)(fInputs.get() + v.fOffset);
                 for (int c = 0; c < v.fCount; ++c, f += rows) {
                     SkString name = v.isArray() ? SkStringPrintf("%s[%d]", v.fName.c_str(), c)
@@ -143,10 +137,10 @@ void SkSLSlide::draw(SkCanvas* canvas) {
                 }
                 break;
             }
-            case SkRuntimeEffect::Variable::Type::kFloat2x2:
-            case SkRuntimeEffect::Variable::Type::kFloat3x3:
-            case SkRuntimeEffect::Variable::Type::kFloat4x4: {
-                int rows = ((int)v.fType - (int)SkRuntimeEffect::Variable::Type::kFloat2x2) + 2;
+            case SkRuntimeEffect::Uniform::Type::kFloat2x2:
+            case SkRuntimeEffect::Uniform::Type::kFloat3x3:
+            case SkRuntimeEffect::Uniform::Type::kFloat4x4: {
+                int rows = ((int)v.fType - (int)SkRuntimeEffect::Uniform::Type::kFloat2x2) + 2;
                 int cols = rows;
                 float* f = (float*)(fInputs.get() + v.fOffset);
                 for (int e = 0; e < v.fCount; ++e) {
@@ -182,7 +176,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
 
     ImGui::End();
 
-    auto inputs = SkData::MakeWithoutCopy(fInputs.get(), fEffect->inputSize());
+    auto inputs = SkData::MakeWithoutCopy(fInputs.get(), fEffect->uniformSize());
     auto shader = fEffect->makeShader(std::move(inputs), fChildren.data(), fChildren.count(),
                                       nullptr, false);
 

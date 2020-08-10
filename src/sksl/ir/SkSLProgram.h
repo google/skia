@@ -117,8 +117,6 @@ struct Program {
         // If true, remove any uncalled functions other than main(). Note that a function which
         // starts out being used may end up being uncalled after optimization.
         bool fRemoveDeadFunctions = true;
-
-        std::unordered_map<String, Value> fArgs;
     };
 
     struct Inputs {

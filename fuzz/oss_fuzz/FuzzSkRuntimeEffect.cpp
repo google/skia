@@ -34,11 +34,11 @@ bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes) {
     );
     SkRuntimeEffect* effect = std::get<0>(tuple).get();
 
-    if (!effect || effect->inputSize() > kReservedBytes) { // if there is not enough uniform bytes
+    if (!effect || effect->uniformSize() > kReservedBytes) { // if there is not enough uniform bytes
         return false;
     }
-    sk_sp<SkData> uniformBytes = SkData::MakeSubset(bytes.get(), bytes->size() - kReservedBytes,
-                                                                effect->inputSize());
+    sk_sp<SkData> uniformBytes =
+            SkData::MakeSubset(bytes.get(), bytes->size() - kReservedBytes, effect->uniformSize());
     auto shader = effect->makeShader(uniformBytes, nullptr, 0, nullptr, false);
     if (!shader) {
         return false;

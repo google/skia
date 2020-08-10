@@ -38,25 +38,18 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("in bool Flag; layout(when=Flag) uniform float Input;", "", "when");
     test("layout(tracked) uniform float Input;", "", "tracked");
 
-    // Runtime SkSL supports a limited set of uniform types. No samplers, for example:
-    test("uniform sampler2D s;", "", "sampler2D");
+    // Runtime SkSL supports a limited set of uniform types. No samplers, bool, or int, for example:
+    test("uniform sampler2D s;", "", "uniform");
+    test("uniform bool b;", "", "uniform");
+    test("uniform int i;", "", "uniform");
 
-    // 'in' variables can't be arrays
-    test("in int Input[2];", "", "array");
+    // 'in' variables aren't allowed at all:
+    test("in bool b;", "", "'in'");
+    test("in float f;", "", "'in'");
+    test("in float2 v;", "", "'in'");
+    test("in half3x3 m;", "", "'in'");
 
-    // Type specific restrictions:
-
-    // 'bool', 'int' can't be 'uniform'
-    test("uniform bool Input;", "", "'uniform'");
-    test("uniform int Input;", "", "'uniform'");
-
-    // vector and matrix types can't be 'in'
-    test("in float2 Input;", "", "'in'");
-    test("in half3x3 Input;", "", "'in'");
-
-    // 'marker' is only permitted on 'uniform' variables
-    test("layout(marker=local_to_world) in float4x4 localToWorld;", "", "'uniform'");
-    // 'marker' is only permitted on float4x4 variables
+    // 'marker' is only permitted on float4x4 uniforms
     test("layout(marker=local_to_world) uniform float3x3 localToWorld;", "", "float4x4");
 
     test("half missing();", "color.r = missing();", "undefined function");
@@ -87,10 +80,10 @@ DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
         auto [effect, errorText] = SkRuntimeEffect::Make(SkString(sksl));
         REPORTER_ASSERT(r, effect);
 
-        sk_sp<SkData> inputs = SkData::MakeUninitialized(effect->inputSize());
+        sk_sp<SkData> uniforms = SkData::MakeUninitialized(effect->uniformSize());
 
-        REPORTER_ASSERT(r, effect->makeShader(inputs, nullptr, 0, nullptr, false));
-        REPORTER_ASSERT(r, !effect->makeColorFilter(inputs));
+        REPORTER_ASSERT(r, effect->makeShader(uniforms, nullptr, 0, nullptr, false));
+        REPORTER_ASSERT(r, !effect->makeColorFilter(uniforms));
     };
 
     // Runtime effects that use sample coords or sk_FragCoord are valid shaders,
@@ -120,8 +113,8 @@ public:
         fBuilder.init(std::move(effect));
     }
 
-    SkRuntimeShaderBuilder::BuilderInput input(const char* name) {
-        return fBuilder->input(name);
+    SkRuntimeShaderBuilder::BuilderUniform uniform(const char* name) {
+        return fBuilder->uniform(name);
     }
     SkRuntimeShaderBuilder::BuilderChild child(const char* name) {
         return fBuilder->child(name);
@@ -209,26 +202,10 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Use of a simple uniform. (Draw twice with two values to ensure it's updated).
     effect.build("uniform float4 gColor;",
                  "color = half4(gColor);");
-    effect.input("gColor") = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
+    effect.uniform("gColor") = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
     effect.test(0xFFBF4000);
-    effect.input("gColor") = float4{ 0.75f, 0.25f, 0.0f, 1.0f };
-    effect.test(0xFF0040BF);
-
-    // Indexing a uniform array with an 'in' integer
-    effect.build("in int flag; uniform half4 gColors[2];",
-                 "color = gColors[flag];");
-    effect.input("gColors") = std::array<float4, 2>{float4{1.0f, 0.0f, 0.0f, 0.498f},
-                                                    float4{0.0f, 1.0f, 0.0f, 1.0f  }};
-    effect.input("flag") = 0;
+    effect.uniform("gColor") = float4{ 1.0f, 0.0f, 0.0f, 0.498f };
     effect.test(0x7F00007F);  // Tests that we clamp to valid premul
-    effect.input("flag") = 1;
-    effect.test(0xFF00FF00);
-
-    // 'in' half (functionally a uniform, but handled very differently internally)
-    effect.build("in half c;",
-                 "color = half4(c, c, c, 1);");
-    effect.input("c") = 0.498f;
-    effect.test(0xFF7F7F7F);
 
     // Test sk_FragCoord (device coords). Rotate the canvas to be sure we're seeing device coords.
     // Since the surface is 2x2, we should see (0,0), (1,0), (0,1), (1,1). Multiply by 0.498 to

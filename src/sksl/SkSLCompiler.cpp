@@ -1663,30 +1663,6 @@ bool Compiler::optimize(Program& program) {
     return fErrorCount == 0;
 }
 
-std::unique_ptr<Program> Compiler::specialize(
-                   Program& program,
-                   const std::unordered_map<SkSL::String, SkSL::Program::Settings::Value>& inputs) {
-    std::vector<std::unique_ptr<ProgramElement>> elements;
-    for (const auto& e : program) {
-        elements.push_back(e.clone());
-    }
-    Program::Settings settings;
-    settings.fCaps = program.fSettings.fCaps;
-    for (auto iter = inputs.begin(); iter != inputs.end(); ++iter) {
-        settings.fArgs.insert(*iter);
-    }
-    std::unique_ptr<String> sourceCopy(new String(*program.fSource));
-    std::unique_ptr<Program> result(new Program(program.fKind,
-                                                std::move(sourceCopy),
-                                                settings,
-                                                program.fContext,
-                                                program.fInheritedElements,
-                                                std::move(elements),
-                                                program.fSymbols,
-                                                program.fInputs));
-    return result;
-}
-
 #if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
@@ -1805,8 +1781,10 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
 #endif
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-bool Compiler::toPipelineStage(const Program& program, PipelineStageArgs* outArgs) {
-    SkASSERT(program.fIsOptimized);
+bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
+    if (!this->optimize(program)) {
+        return false;
+    }
     fSource = program.fSource.get();
     StringStream buffer;
     PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outArgs);
