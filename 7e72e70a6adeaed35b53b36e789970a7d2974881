@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4567d8a8_dbde7b8f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-10T20:48:13Z",
+      "side": 1,
+      "message": "This is giving me a failure in code I did not touch:\n\n/mnt/pd0/s/w/ir/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang++ -MD -MF obj/src/gpu/gpu.GrAHardwareBufferUtils.o.d -DSK_GAMMA_APPLY_TO_A8 -DSK_GAMMA_EXPONENT\u003d1.4 -DSK_GAMMA_CONTRAST\u003d0.0 -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS\u003d1 -DGR_TEST_UTILS\u003d1 -DSK_USE_VMA -DSKIA_IMPLEMENTATION\u003d1 -DSK_GL -DSK_VULKAN -DSK_ENABLE_VK_LAYERS -DSK_ENABLE_DUMP_GPU -I../../../../../../skia -I../../../../../../skia/third_party/vulkanmemoryallocator -Werror -Wno-attributes -fstrict-aliasing -fPIC -fvisibility\u003dhidden --sysroot\u003d/mnt/pd0/s/w/ir/android_ndk_linux/sysroot -gline-tables-only -funwind-tables -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -fcolor-diagnostics -Weverything -Wno-unknown-warning-option -Wno-nonportable-include-path -Wno-nonportable-system-include-path -Wno-cast-align -Wno-cast-qual -Wno-conversion -Wno-disabled-macro-expansion -Wno-documentation -Wno-documentation-unknown-command -Wno-double-promotion -Wno-exit-time-destructors -Wno-float-equal -Wno-format-nonliteral -Wno-global-constructors -Wno-missing-prototypes -Wno-missing-variable-declarations -Wno-pedantic -Wno-reserved-id-macro -Wno-shadow -Wno-shift-sign-overflow -Wno-signed-enum-bitfield -Wno-switch-enum -Wno-undef -Wno-unreachable-code -Wno-unreachable-code-break -Wno-unreachable-code-return -Wno-unused-macros -Wno-unused-member-function -Wno-unused-template -Wno-zero-as-null-pointer-constant -Wno-thread-safety-negative -Wno-non-c-typedef-for-linkage -Wsign-conversion -Wno-covered-switch-default -Wno-deprecated -Wno-missing-noreturn -Wno-old-style-cast -Wno-padded -Wno-newline-eof -Wno-psabi -Wdeprecated-anon-enum-enum-conversion -Wdeprecated-array-compare -Wdeprecated-attributes -Wdeprecated-comma-subscript -Wdeprecated-copy -Wdeprecated-dynamic-exception-spec -Wdeprecated-enum-compare -Wdeprecated-enum-compare-conditional -Wdeprecated-enum-enum-conversion -Wdeprecated-enum-float-conversion -Wdeprecated-increment-bool -Wdeprecated-register -Wdeprecated-this-capture -Wdeprecated-volatile -Wdeprecated-writable-str -Wno-sign-conversion -Wno-unused-parameter -O1 -DDUMMY_ndk_version\u003d16 -std\u003dc++17 -fvisibility-inlines-hidden -isystem/mnt/pd0/s/w/ir/android_ndk_linux/sources/cxx-stl/llvm-libc++/include -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type -Wno-redundant-move -Wno-abstract-vbase-init -Wno-weak-vtables -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-undefined-func-template -c ../../../../../../skia/src/gpu/GrAHardwareBufferUtils.cpp -o obj/src/gpu/gpu.GrAHardwareBufferUtils.o\n../../../../../../skia/src/gpu/GrAHardwareBufferUtils.cpp:376:48: error: comparison of integers of different signs: \u0027uint64_t\u0027 (aka \u0027unsigned long\u0027) and \u0027const int64_t\u0027 (aka \u0027const long\u0027) [-Werror,-Wsign-compare]\n        SkASSERT(hwbFormatProps.externalFormat \u003d\u003d ycbcrConversion-\u003efExternalFormat);\n                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n../../../../../../skia/include/core/SkTypes.h:449:45: note: expanded from macro \u0027SkASSERT\u0027\n    #define SkASSERT(cond) SkASSERT_RELEASE(cond)\n                                            ^~~~\n../../../../../../skia/include/core/SkTypes.h:446:29: note: expanded from macro \u0027SkASSERT_RELEASE\u0027\n        static_cast\u003cvoid\u003e( (cond) ? (void)0 : []{ SK_ABORT(\"assert(%s)\", #cond); }() )\n                            ^~~~\n1 error generated.\n\nWould it make sense to do a cast here, or should fExternal format use uint64_t? It looks like it used to before https://skia-review.googlesource.com/c/skia/+/293436, which was intended to correct problems like this, so something else must\u0027ve changed since then?",
+      "revId": "7e72e70a6adeaed35b53b36e789970a7d2974881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
