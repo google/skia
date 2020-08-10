@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 Google Inc.
  *
@@ -10,23 +9,18 @@
 
 #include "src/core/SkOpts.h"
 
-class GrSmallPathShapeDataKey  {
+class GrSmallPathShapeDataKey {
 public:
-    GrSmallPathShapeDataKey () {}
-    GrSmallPathShapeDataKey (const GrSmallPathShapeDataKey & that) { *this = that; }
-    GrSmallPathShapeDataKey (const GrStyledShape& shape, uint32_t dim) { this->set(shape, dim); }
-    GrSmallPathShapeDataKey (const GrStyledShape& shape, const SkMatrix& ctm) {
-        this->set(shape, ctm);
-    }
-
-    GrSmallPathShapeDataKey & operator=(const GrSmallPathShapeDataKey & that) {
+    // TODO: add a move variant
+    GrSmallPathShapeDataKey(const GrSmallPathShapeDataKey& that) {
         fKey.reset(that.fKey.count());
         memcpy(fKey.get(), that.fKey.get(), fKey.count() * sizeof(uint32_t));
-        return *this;
     }
 
+    GrSmallPathShapeDataKey& operator=(const GrSmallPathShapeDataKey&) = delete;
+
     // for SDF paths
-    void set(const GrStyledShape& shape, uint32_t dim) {
+    GrSmallPathShapeDataKey(const GrStyledShape& shape, uint32_t dim) {
         // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
         // relevant styling information.
         SkASSERT(shape.style().isSimpleFill());
@@ -38,7 +32,7 @@ public:
     }
 
     // for bitmap paths
-    void set(const GrStyledShape& shape, const SkMatrix& ctm) {
+    GrSmallPathShapeDataKey(const GrStyledShape& shape, const SkMatrix& ctm) {
         // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
         // relevant styling information.
         SkASSERT(shape.style().isSimpleFill());
@@ -80,9 +74,9 @@ private:
     SkAutoSTArray<24, uint32_t> fKey;
 };
 
-class GrSmallPathShapeData  {
+class GrSmallPathShapeData {
 public:
-    GrSmallPathShapeData(const GrSmallPathShapeDataKey &key) : fKey(key) {}
+    GrSmallPathShapeData(const GrSmallPathShapeDataKey& key) : fKey(key) {}
 
     const GrSmallPathShapeDataKey fKey;
     SkRect                        fBounds;
